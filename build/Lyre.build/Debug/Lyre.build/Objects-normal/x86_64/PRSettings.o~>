@@ -1,0 +1,3 @@
+/Users/Overcyn/Workspace/Lyre/PRSettings.m: In function '-[PRSettings settingsArray:_error:]':
+/Users/Overcyn/Workspace/Lyre/PRSettings.m:25: warning: conflicting types for '-(BOOL)settingsArray:(NSArray **)array _error:(NSError **)error'
+/Users/Overcyn/Workspace/Lyre/PRSettings.h:13: warning: previous declaration of '-(BOOL)settingsArray:(NSArray *)array _error:(NSError **)error'

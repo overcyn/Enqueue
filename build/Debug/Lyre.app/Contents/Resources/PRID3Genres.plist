@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>0</key>
+	<string>Blues</string>
+	<key>1</key>
+	<string>Classic Rock</string>
+	<key>2</key>
+	<string>Country</string>
+	<key>3</key>
+	<string>Dance</string>
+	<key>4</key>
+	<string>Disco</string>
+	<key>5</key>
+	<string>Funk</string>
+	<key>6</key>
+	<string>Grunge</string>
+	<key>7</key>
+	<string>Hip-Hop</string>
+	<key>8</key>
+	<string>Jazz</string>
+	<key>9</key>
+	<string>Metal</string>
+	<key>10</key>
+	<string>New Age</string>
+	<key>11</key>
+	<string>Oldies</string>
+	<key>12</key>
+	<string>Other</string>
+	<key>13</key>
+	<string>Pop</string>
+	<key>14</key>
+	<string>R&amp;B</string>
+	<key>15</key>
+	<string>Rap</string>
+	<key>16</key>
+	<string>Reggae</string>
+	<key>17</key>
+	<string>Rock</string>
+	<key>18</key>
+	<string>Techno</string>
+	<key>19</key>
+	<string>Industrial</string>
+	<key>20</key>
+	<string>Alternative</string>
+	<key>21</key>
+	<string>Ska</string>
+	<key>22</key>
+	<string>Death Metal</string>
+	<key>23</key>
+	<string>Pranks</string>
+	<key>24</key>
+	<string>Soundtrack</string>
+	<key>25</key>
+	<string>Euro-Techno</string>
+	<key>26</key>
+	<string>Ambient</string>
+	<key>27</key>
+	<string>Trip-Hop</string>
+	<key>28</key>
+	<string>Vocal</string>
+	<key>29</key>
+	<string>Jazz+Funk</string>
+	<key>30</key>
+	<string>Fusion</string>
+	<key>31</key>
+	<string>Trance</string>
+	<key>32</key>
+	<string>Classical</string>
+	<key>33</key>
+	<string>Instrumental</string>
+	<key>34</key>
+	<string>Acid</string>
+	<key>35</key>
+	<string>House</string>
+	<key>36</key>
+	<string>Game</string>
+	<key>37</key>
+	<string>Sound Clip</string>
+	<key>38</key>
+	<string>Gospel</string>
+	<key>39</key>
+	<string>Noise</string>
+	<key>40</key>
+	<string>AlternRock</string>
+	<key>41</key>
+	<string>Bass</string>
+	<key>42</key>
+	<string>Soul</string>
+	<key>43</key>
+	<string>Punk</string>
+	<key>44</key>
+	<string>Space</string>
+	<key>45</key>
+	<string>Meditative</string>
+	<key>46</key>
+	<string>Instrumental Pop</string>
+	<key>47</key>
+	<string>Instrumental Rock</string>
+	<key>48</key>
+	<string>Ethnic</string>
+	<key>49</key>
+	<string>Gothic</string>
+	<key>50</key>
+	<string>Darkwave</string>
+	<key>51</key>
+	<string>Techno-Industrial</string>
+	<key>52</key>
+	<string>Electronic</string>
+	<key>53</key>
+	<string>Pop-Folk</string>
+	<key>54</key>
+	<string>Eurodance</string>
+	<key>55</key>
+	<string>Dream</string>
+	<key>56</key>
+	<string>Southern Rock</string>
+	<key>57</key>
+	<string>Comedy</string>
+	<key>58</key>
+	<string>Cult</string>
+	<key>59</key>
+	<string>Gangsta</string>
+	<key>60</key>
+	<string>Top 40</string>
+	<key>61</key>
+	<string>Christian Rap</string>
+	<key>62</key>
+	<string>Pop/Funk</string>
+	<key>63</key>
+	<string>Jungle</string>
+	<key>64</key>
+	<string>Native American</string>
+	<key>65</key>
+	<string>Cabaret</string>
+	<key>66</key>
+	<string>New Wave</string>
+	<key>67</key>
+	<string>Psychadelic</string>
+	<key>68</key>
+	<string>Rave</string>
+	<key>69</key>
+	<string>Showtunes</string>
+	<key>70</key>
+	<string>Trailer</string>
+	<key>71</key>
+	<string>Lo-Fi</string>
+	<key>72</key>
+	<string>Tribal</string>
+	<key>73</key>
+	<string>Acid Punk</string>
+	<key>74</key>
+	<string>Acid Jazz</string>
+	<key>75</key>
+	<string>Polka</string>
+	<key>76</key>
+	<string>Retro</string>
+	<key>77</key>
+	<string>Musical</string>
+	<key>78</key>
+	<string>Rock &amp; Roll</string>
+	<key>79</key>
+	<string>Hard Rock</string>
+	<key>80</key>
+	<string>Folk</string>
+	<key>81</key>
+	<string>Folk-Rock</string>
+	<key>82</key>
+	<string>National Folk</string>
+	<key>83</key>
+	<string>Swing</string>
+	<key>84</key>
+	<string>Fast Fusion</string>
+	<key>85</key>
+	<string>Bebop</string>
+	<key>86</key>
+	<string>Latin</string>
+	<key>87</key>
+	<string>Revival</string>
+	<key>88</key>
+	<string>Celtic</string>
+	<key>89</key>
+	<string>Bluegrass</string>
+	<key>90</key>
+	<string>Avantgarde</string>
+	<key>91</key>
+	<string>Gothic Rock</string>
+	<key>92</key>
+	<string>Progressive Rock</string>
+	<key>93</key>
+	<string>Psychedelic Rock</string>
+	<key>94</key>
+	<string>Symphonic Rock</string>
+	<key>95</key>
+	<string>Slow Rock</string>
+	<key>96</key>
+	<string>Big Band</string>
+	<key>97</key>
+	<string>Chorus</string>
+	<key>98</key>
+	<string>Easy Listening</string>
+	<key>99</key>
+	<string>Acoustic</string>
+	<key>100</key>
+	<string>Humour</string>
+	<key>101</key>
+	<string>Speech</string>
+	<key>102</key>
+	<string>Chanson</string>
+	<key>103</key>
+	<string>Opera</string>
+	<key>104</key>
+	<string>Chamber Music</string>
+	<key>105</key>
+	<string>Sonata</string>
+	<key>106</key>
+	<string>Symphony</string>
+	<key>107</key>
+	<string>Booty Bass</string>
+	<key>108</key>
+	<string>Primus</string>
+	<key>109</key>
+	<string>Porn Groove</string>
+	<key>110</key>
+	<string>Satire</string>
+	<key>111</key>
+	<string>Slow Jam</string>
+	<key>112</key>
+	<string>Club</string>
+	<key>113</key>
+	<string>Tango</string>
+	<key>114</key>
+	<string>Samba</string>
+	<key>115</key>
+	<string>Folklore</string>
+	<key>116</key>
+	<string>Ballad</string>
+	<key>117</key>
+	<string>Power Ballad</string>
+	<key>118</key>
+	<string>Rhythmic Soul</string>
+	<key>119</key>
+	<string>Freestyle</string>
+	<key>120</key>
+	<string>Duet</string>
+	<key>121</key>
+	<string>Punk Rock</string>
+	<key>122</key>
+	<string>Drum Solo</string>
+	<key>123</key>
+	<string>A Capella</string>
+	<key>124</key>
+	<string>Euro-House</string>
+	<key>125</key>
+	<string>Dance Hall</string>
+</dict>
+</plist>
