@@ -265,7 +265,7 @@
 - (NSArray *)playlists
 {
     NSString *statementString = @"SELECT playlist_id FROM playlists ORDER BY type, title COLLATE NOCASE, playlist_id";
-    NSArray *columnTypes = [NSArray arrayWithObjects:[NSNumber numberWithInt:SQLITE_INTEGER], nil];
+    NSArray *columnTypes = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
     NSArray *results = [PRStatement executeString:statementString withDb:db bindings:nil columnTypes:columnTypes];
     NSMutableArray *playlists = [NSMutableArray array];
     for (NSArray *i in results) {
@@ -276,7 +276,7 @@
 
 - (NSArray *)playlistsWithAttributes
 {
-    
+    return nil;
 }
 
 - (BOOL)playlistCount:(int *)count _error:(NSError **)error

@@ -1,7 +1,6 @@
 #import <Cocoa/Cocoa.h>
-#include "sqlite3.h"
 
-@class PRHistory, PRLibrary, PRPlaylists, PRLibraryViewSource, PRNowPlayingViewSource, 
+@class sqlite3, sqlite3_stmt, PRHistory, PRLibrary, PRPlaylists, PRLibraryViewSource, PRNowPlayingViewSource, 
 PRAlbumArtController, PRPlaybackOrder, PRQueue, PRResult, PRStatement;
 
 
@@ -15,6 +14,8 @@ extern NSString * const PRPlaylistDidChangeNotification;
 extern NSString * const PRPlaylistsDidChangeNotification;
 extern NSString * const PRFilePboardType;
 extern NSString * const PRIndexesPboardType;
+
+typedef enum {PRColumnInteger, PRColumnFloat, PRColumnString, PRColumnData} PRColumn;
 
 // ========================================
 // PRDb

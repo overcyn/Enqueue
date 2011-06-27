@@ -65,8 +65,8 @@
 {
     NSString *statementString = @"SELECT file_id, playCount, title, artist FROM library "
     "WHERE playCount > 0 ORDER BY playCount DESC LIMIT 50";
-    NSArray *columnTypes = [NSArray arrayWithObjects:[NSNumber numberWithInt:SQLITE_INTEGER], [NSNumber numberWithInt:SQLITE_INTEGER], 
-                            [NSNumber numberWithInt:SQLITE_TEXT], [NSNumber numberWithInt:SQLITE_TEXT], nil];
+    NSArray *columnTypes = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], [NSNumber numberWithInt:PRColumnInteger], 
+                            [NSNumber numberWithInt:PRColumnString], [NSNumber numberWithInt:PRColumnString], nil];
     NSArray *result = [PRStatement executeString:statementString withDb:db bindings:nil columnTypes:columnTypes];
     NSMutableArray *topSongs = [NSMutableArray array];
     
@@ -94,7 +94,7 @@
     NSString *statementString = @"SELECT file_id, sum(playCount), artist FROM library "
     "GROUP BY artist COLLATE NOCASE2 HAVING sum(playCount) > 0 "
     "ORDER BY 2 DESC, 3 DESC LIMIT 50";
-    NSArray *columnTypes = [NSArray arrayWithObjects:[NSNumber numberWithInt:SQLITE_INTEGER], [NSNumber numberWithInt:SQLITE_INTEGER], [NSNumber numberWithInt:SQLITE_TEXT], nil];
+    NSArray *columnTypes = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], [NSNumber numberWithInt:PRColumnInteger], [NSNumber numberWithInt:PRColumnString], nil];
     NSArray *result = [PRStatement executeString:statementString withDb:db bindings:nil columnTypes:columnTypes];
     NSMutableArray *topArtists = [NSMutableArray array];
     
@@ -119,8 +119,8 @@
 - (NSArray *)recentlyAdded
 {
     NSString *statementString = @"SELECT file_id, dateAdded, title, artist FROM library ORDER BY 2 DESC LIMIT 50";
-    NSArray *columnTypes = [NSArray arrayWithObjects:[NSNumber numberWithInt:SQLITE_INTEGER], [NSNumber numberWithInt:SQLITE_TEXT], 
-                            [NSNumber numberWithInt:SQLITE_TEXT], [NSNumber numberWithInt:SQLITE_TEXT], nil];
+    NSArray *columnTypes = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], [NSNumber numberWithInt:PRColumnString], 
+                            [NSNumber numberWithInt:PRColumnString], [NSNumber numberWithInt:PRColumnString], nil];
     NSArray *result = [PRStatement executeString:statementString withDb:db bindings:nil columnTypes:columnTypes];
     
     NSMutableArray *recentlyAdded = [NSMutableArray array];
@@ -149,8 +149,8 @@
 {
     NSString *statementString = @"SELECT library.file_id, date, title, artist FROM history "
     "JOIN library ON history.file_id = library.file_id ORDER BY date DESC LIMIT 50";
-    NSArray *columnTypes = [NSArray arrayWithObjects:[NSNumber numberWithInt:SQLITE_INTEGER], [NSNumber numberWithInt:SQLITE_TEXT], 
-                            [NSNumber numberWithInt:SQLITE_TEXT], [NSNumber numberWithInt:SQLITE_TEXT],nil];
+    NSArray *columnTypes = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], [NSNumber numberWithInt:PRColumnString], 
+                            [NSNumber numberWithInt:PRColumnString], [NSNumber numberWithInt:PRColumnString],nil];
     NSArray *result = [PRStatement executeString:statementString withDb:db bindings:nil columnTypes:columnTypes];
     NSMutableArray *recentlyPlayed = [NSMutableArray array];
     for (NSArray *i in result) {

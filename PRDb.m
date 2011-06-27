@@ -11,7 +11,7 @@
 #import "NSError+Extensions.h"
 #include <string.h>
 #include <ctype.h>
-//#include "sqlite3.h"
+#include "sqlite3.h"
 #include "PRUserDefaults.h"
 #include <sys/file.h>
 
@@ -649,7 +649,7 @@ create:;
     NSString *statement = [NSString stringWithFormat:@"SELECT %@ FROM %@ WHERE %@ = ?1", column, table, key];
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil];
-    NSArray *columnTypes = [NSArray arrayWithObjects:[NSNumber numberWithInt:SQLITE_INTEGER], nil];
+    NSArray *columnTypes = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
     NSArray *result = [PRStatement executeString:statement withDb:self bindings:bindings columnTypes:columnTypes];
     
     if ([result count] != 1) {
@@ -960,16 +960,16 @@ CFRange PRFormatString(UniChar *string, int length)
                 for (int i = 0; i < [_columnTypes count]; i++) {
                     id value;
                     switch ([[_columnTypes objectAtIndex:i] intValue]) {
-                        case SQLITE_INTEGER:
+                        case PRColumnInteger:
                             value = [NSNumber numberWithLongLong:sqlite3_column_int64(_stmt, i)];
                             break;
-                        case SQLITE_FLOAT:
+                        case PRColumnFloat:
                             value = [NSNumber numberWithDouble:sqlite3_column_double(_stmt, i)];
                             break;
-                        case SQLITE_TEXT:
+                        case PRColumnString:
                             value = [NSString stringWithUTF8String:(const char *)sqlite3_column_text(_stmt, i)];
                             break;
-                        case SQLITE_BLOB:
+                        case PRColumnData:
                             value = [NSData dataWithBytes:sqlite3_column_blob(_stmt, i) length:sqlite3_column_bytes(_stmt, i)];
                             break;
                         default:
