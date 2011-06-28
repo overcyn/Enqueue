@@ -473,18 +473,7 @@
 
 - (NSDictionary *)info
 {
-	int count;
-	long long time;
-	long long size;
-	[libSrc count:&count _error:nil];
-	[libSrc totalTime:&time _error:nil];
-	[libSrc totalSize:&size _error:nil];
-	
-	return [NSDictionary dictionaryWithObjectsAndKeys:
-            [NSNumber numberWithInt:count], @"count",
-            [NSNumber numberWithLongLong:time], @"time",
-            [NSNumber numberWithLongLong:size], @"size",
-            nil];
+	return [libSrc info];
 }
 
 - (NSArray *)selection

@@ -272,7 +272,6 @@
 											 selector:@selector(libraryViewDidChange:) 
 												 name:PRLibraryViewDidChangeNotification 
 											   object:nil];
-    [self libraryViewDidChange:nil];
 }
 
 // ========================================
@@ -300,7 +299,6 @@
 - (void)setCurrentMode:(PRMode)mode_
 {
     currentMode = mode_;
-    
     id newViewController;
 	switch (currentMode) {
 		case PRLibraryMode:
@@ -325,9 +323,7 @@
     [[newViewController view] setFrame:[centerSuperview bounds]];
 	[centerSuperview replaceSubview:[currentViewController view] with:[newViewController view]];
 	currentViewController = newViewController;
-    
     [self updateUI];
-    
     [self willChangeValueForKey:@"libraryViewMode"];
 	[self didChangeValueForKey:@"libraryViewMode"];
 	[self willChangeValueForKey:@"search"];
@@ -481,6 +477,7 @@
     [listModeButton setEnabled:TRUE];
     [albumListModeButton setState:NSOnState];
     [albumListModeButton setEnabled:TRUE];
+    
     switch ([self libraryViewMode]) {
         case PRListMode:
             [listModeButton setState:NSOffState];
@@ -493,6 +490,7 @@
         default:
             break;
     }
+    
     [listModeButton setHidden:(currentMode != PRLibraryMode)];
     [albumListModeButton setHidden:(currentMode != PRLibraryMode)];
     [infoButton setHidden:(currentMode != PRLibraryMode)];
@@ -509,8 +507,10 @@
     
     // Playlist title
     [playlistTitle setHidden:!(currentMode == PRLibraryMode)];
+    if (currentMode != PRLibraryMode) {
+        return;
+    }
     NSString *title;
-    
     NSNumber *type = nil;
     [[db playlists] value:&type forPlaylist:currentPlaylist attribute:PRTypePlaylistAttribute _error:nil];
     if ([type intValue] == PRLibraryPlaylistType) {
@@ -544,9 +544,9 @@
 	NSNumber *count = [userInfo valueForKey:@"count"];
 	NSNumber *time = [userInfo valueForKey:@"time"];
 	NSNumber *size = [userInfo valueForKey:@"size"];
-	NSString *formattedString = 
-    [NSString stringWithFormat:@"%@ songs, %@, %@", 
-     count, [timeFormatter2 stringForObjectValue:time], [sizeFormatter stringForObjectValue:size]];
+	NSString *formattedString = [NSString stringWithFormat:@"%@ songs, %@, %@", 
+                                 count, [timeFormatter2 stringForObjectValue:time], 
+                                 [sizeFormatter stringForObjectValue:size]];
 	
 	NSMutableDictionary *attributes2 = 
     [[[NSMutableDictionary alloc] initWithObjectsAndKeys:

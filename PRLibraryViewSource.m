@@ -955,38 +955,20 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
 	return TRUE;
 }
 
-- (BOOL)totalTime:(long long *)time _error:(NSError **)error
+- (NSDictionary *)info
 {
-    NSArray *result;
-    if (![db executeStatement:@"SELECT SUM(time) FROM libraryViewSource JOIN library ON libraryViewSource.file_id = library.file_id"
-                 withBindings:nil 
-                       result:&result 
-                       _error:nil]) {
-        return FALSE;
-    }
-	if ([result count] != 1 || ![[result objectAtIndex:0] isKindOfClass:[NSNumber class]]) {
-        *time = 0;
-        return FALSE;
-    }
-    *time = [[result objectAtIndex:0] longLongValue];
-	return TRUE;
-}
-
-- (BOOL)totalSize:(long long *)size_ _error:(NSError **)error
-{
-    NSArray *result;
-    if (![db executeStatement:@"SELECT SUM(size) FROM libraryViewSource JOIN library ON libraryViewSource.file_id = library.file_id" 
-                 withBindings:nil 
-                       result:&result 
-                       _error:nil]) {
-        return FALSE;
-    }
-	if ([result count] != 1 || ![[result objectAtIndex:0] isKindOfClass:[NSNumber class]]) {
-        *size_ = 0;
-        return FALSE;
-    } 
-    *size_ = [[result objectAtIndex:0] longLongValue];
-	return TRUE;
+    NSString *statementString = @"SELECT SUM(time), SUM(size), count(libraryViewSource.file_id) "
+    "FROM libraryViewSource JOIN library ON libraryViewSource.file_id = library.file_id";
+    NSArray *columnTypes = [NSArray arrayWithObjects:
+                            [NSNumber numberWithInt:PRColumnInteger], 
+                            [NSNumber numberWithInt:PRColumnInteger], 
+                            [NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *results = [PRStatement executeString:statementString withDb:db bindings:nil columnTypes:columnTypes];
+    NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
+                          [[results objectAtIndex:0] objectAtIndex:0], @"time",
+                          [[results objectAtIndex:0] objectAtIndex:1], @"size",
+                          [[results objectAtIndex:0] objectAtIndex:2], @"count", nil];
+    return info;
 }
 
 - (BOOL)arrayOfAlbumCounts:(NSArray **)albumCounts _error:(NSError **)error

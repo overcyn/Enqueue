@@ -43,9 +43,7 @@ NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDid
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self 
-                                                    name:PRLibraryViewModeDidChangeNotification 
-                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:PRLibraryViewModeDidChangeNotification object:nil];
     
     [smartPlaylistEditorViewController release];
     [staticPlaylistEditorViewController release];

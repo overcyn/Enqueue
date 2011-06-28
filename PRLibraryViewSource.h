@@ -98,8 +98,7 @@ typedef enum {
 			 withPlaylist:(int)playlist 
 				   _error:(NSError **)error;
 
-- (BOOL)totalTime:(long long *)time _error:(NSError **)error;
-- (BOOL)totalSize:(long long *)size_ _error:(NSError **)error;
+- (NSDictionary *)info;
 
 - (BOOL)arrayOfAlbumCounts:(NSArray **)array _error:(NSError **)error;
 

@@ -94,7 +94,7 @@
 // ========================================
 
 - (void)update
-{   
+{
     [dataSource release];
     switch (historyMode) {
         case PRTopArtistsHistoryMode:
