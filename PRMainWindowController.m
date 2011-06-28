@@ -80,7 +80,7 @@
     [[self window] setBottomCornerRounded:NO];
     
     // Toolbar View
-    float x = 0.03;
+    float x = 0.02;
     NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
                              [NSColor colorWithCalibratedWhite:0.98-x alpha:1.0], 0.0,
                              [NSColor colorWithCalibratedWhite:0.97-x alpha:1.0], 0.2,
@@ -88,7 +88,7 @@
                              [NSColor colorWithCalibratedWhite:0.90-x alpha:1.0], 1.0,
                              nil] autorelease];
     [toolbarView setVerticalGradient:gradient];
-    x = 0.02;
+    x = 0.01;
     gradient = [[[NSGradient alloc] initWithColorsAndLocations:
                  [NSColor colorWithCalibratedWhite:0.98-x alpha:1.0], 0.0,
                  [NSColor colorWithCalibratedWhite:0.97-x alpha:1.0], 0.2,
