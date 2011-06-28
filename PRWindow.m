@@ -1,23 +1,13 @@
 #import "PRWindow.h"
 #import <objc/runtime.h>
 
-@interface PRWindow(ShutUpXcode)
+@interface PRWindow(hush)
 - (float)roundedCornerRadius;
 - (void)drawRectOriginal:(NSRect)rect;
 - (NSWindow*)window;
 @end
 
 @implementation PRWindow
-
-- (id)init
-{
-    self = [super init];
-    if (self) {
-        // Initialization code here.
-    }
-    
-    return self;
-}
 
 - (void)awakeFromNib
 {
@@ -50,17 +40,18 @@
     float cornerRadius = [self roundedCornerRadius];
     windowRect.origin = NSMakePoint(0, 0);
     [[NSBezierPath bezierPathWithRoundedRect:windowRect xRadius:cornerRadius yRadius:cornerRadius] addClip];
-	[[NSBezierPath bezierPathWithRect:rect] addClip];
+    
+//	[[NSBezierPath bezierPathWithRect:rect] addClip];
     
     
 //    NSRect tempRect = NSMakeRect(0, windowRect.size.height - 60, windowRect.size.width, 60);
-//    NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+//    NSGradient *gradient2 = [[[NSGradient alloc] initWithColorsAndLocations:
 //                             [NSColor colorWithCalibratedWhite:0.99 alpha:1.0], 0.0,
 //                             [NSColor colorWithCalibratedWhite:0.97 alpha:1.0], 0.2,
 //                             [NSColor colorWithCalibratedWhite:0.92 alpha:1.0], 0.5,
 //                             [NSColor colorWithCalibratedWhite:0.82 alpha:1.0], 1.0,
 //                             nil] autorelease];
-//    [gradient drawInRect:tempRect angle:-90.0];
+//    [gradient2 drawInRect:tempRect angle:-90.0];
     
     
     NSRect controlRect = NSMakeRect(0, windowRect.size.height - 26, 185, 26);

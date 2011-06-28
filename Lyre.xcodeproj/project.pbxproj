@@ -45,6 +45,7 @@
 		671A086D13526CBF0069AB2C /* PRRolloverTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 671A086C13526CBF0069AB2C /* PRRolloverTableView.m */; };
 		671C91EB13A376B90007D069 /* NSString+LFExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 671C91EA13A376B90007D069 /* NSString+LFExtensions.m */; };
 		671C91EE13A43F800007D069 /* NSObject+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 671C91ED13A43F800007D069 /* NSObject+Extensions.m */; };
+		671D55E713B9834A00DAD414 /* PRRoundedGradientView.m in Sources */ = {isa = PBXBuildFile; fileRef = 671D55E613B9834900DAD414 /* PRRoundedGradientView.m */; };
 		671EB18313523CAE00E6D078 /* PRDownIcon2.png in Resources */ = {isa = PBXBuildFile; fileRef = 671EB18213523CAE00E6D078 /* PRDownIcon2.png */; };
 		672157F5126663060050A982 /* PRInfoView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 672157F4126663060050A982 /* PRInfoView.xib */; };
 		672157FB1266636E0050A982 /* PRInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 672157FA1266636E0050A982 /* PRInfoViewController.m */; };
@@ -313,6 +314,8 @@
 		671C91EA13A376B90007D069 /* NSString+LFExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+LFExtensions.m"; sourceTree = "<group>"; };
 		671C91EC13A43F800007D069 /* NSObject+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+Extensions.h"; sourceTree = "<group>"; };
 		671C91ED13A43F800007D069 /* NSObject+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+Extensions.m"; sourceTree = "<group>"; };
+		671D55E513B9834900DAD414 /* PRRoundedGradientView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRoundedGradientView.h; sourceTree = "<group>"; };
+		671D55E613B9834900DAD414 /* PRRoundedGradientView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRoundedGradientView.m; sourceTree = "<group>"; };
 		671EB18213523CAE00E6D078 /* PRDownIcon2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRDownIcon2.png; path = Icons/PRDownIcon2.png; sourceTree = "<group>"; };
 		672157F4126663060050A982 /* PRInfoView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PRInfoView.xib; sourceTree = "<group>"; };
 		672157F91266636E0050A982 /* PRInfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRInfoViewController.h; sourceTree = "<group>"; };
@@ -995,6 +998,8 @@
 				6757F3E112C37E1F005DD40A /* PRCornerView.m */,
 				67EB42431339B843009167BA /* PRBackgroundView.h */,
 				67EB42441339B843009167BA /* PRBackgroundView.m */,
+				671D55E513B9834900DAD414 /* PRRoundedGradientView.h */,
+				671D55E613B9834900DAD414 /* PRRoundedGradientView.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -1685,6 +1690,7 @@
 				671C91EB13A376B90007D069 /* NSString+LFExtensions.m in Sources */,
 				671C91EE13A43F800007D069 /* NSObject+Extensions.m in Sources */,
 				67091AD013AB3D6400C4D298 /* PRQueue.m in Sources */,
+				671D55E713B9834A00DAD414 /* PRRoundedGradientView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

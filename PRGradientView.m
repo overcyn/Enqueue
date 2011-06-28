@@ -36,7 +36,7 @@
 }
 
 - (void)drawRect:(NSRect)rect
-{
+{   
     NSColor *tempColor = color;
     NSGradient *tempVerticalGradient = verticalGradient;
     NSGradient *tempHorizontalGradient = horizontalGradient;

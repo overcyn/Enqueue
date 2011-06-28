@@ -35,7 +35,6 @@ typedef enum {
     IBOutlet NSButton *albumListModeButton;
     
     IBOutlet PRGradientView *toolbarView;
-    IBOutlet PRGradientView *toolbarRightBorder;
     IBOutlet PRGradientView *mainDivider;
     IBOutlet PRGradientView *divider;
     IBOutlet PRGradientView *divider2;

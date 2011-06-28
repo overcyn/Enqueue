@@ -80,19 +80,22 @@
     [[self window] setBottomCornerRounded:NO];
     
     // Toolbar View
-//    NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-//                             [NSColor colorWithCalibratedWhite:0.99 alpha:1.0], 0.0,
-//                             [NSColor colorWithCalibratedWhite:0.97 alpha:1.0], 0.2,
-//                             [NSColor colorWithCalibratedWhite:0.92 alpha:1.0], 0.5,
-//                             [NSColor colorWithCalibratedWhite:0.82 alpha:1.0], 1.0,
-//                             nil] autorelease];
+    float x = 0.03;
     NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                             [NSColor colorWithCalibratedWhite:0.97 alpha:1.0], 0.0,
-                             [NSColor colorWithCalibratedWhite:0.95 alpha:1.0], 0.2,
-                             [NSColor colorWithCalibratedWhite:0.91 alpha:1.0], 0.5,
-                             [NSColor colorWithCalibratedWhite:0.81 alpha:1.0], 1.0,
+                             [NSColor colorWithCalibratedWhite:0.98-x alpha:1.0], 0.0,
+                             [NSColor colorWithCalibratedWhite:0.97-x alpha:1.0], 0.2,
+                             [NSColor colorWithCalibratedWhite:0.94-x alpha:1.0], 0.5,
+                             [NSColor colorWithCalibratedWhite:0.90-x alpha:1.0], 1.0,
                              nil] autorelease];
     [toolbarView setVerticalGradient:gradient];
+    x = 0.02;
+    gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+                 [NSColor colorWithCalibratedWhite:0.98-x alpha:1.0], 0.0,
+                 [NSColor colorWithCalibratedWhite:0.97-x alpha:1.0], 0.2,
+                 [NSColor colorWithCalibratedWhite:0.95-x alpha:1.0], 0.5,
+                 [NSColor colorWithCalibratedWhite:0.94-x alpha:1.0], 1.0,
+                 nil] autorelease];
+    [toolbarView setAlternateVerticalGradient:gradient];
     [toolbarView setTopBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.42]];
     [toolbarView setBotBorder:[NSColor colorWithCalibratedWhite:0.15 alpha:1.0]];
     [toolbarView setFrame:NSMakeRect(185, [[self window] frame].size.height - [toolbarView frame].size.height, 
@@ -100,9 +103,7 @@
     [[[[self window] contentView] superview] addSubview:toolbarView];
     
     [mainDivider setColor:[NSColor colorWithCalibratedWhite:0.55 alpha:1.0]];
-    [toolbarRightBorder setLeftBorder:[NSColor colorWithCalibratedWhite:0.4 alpha:1.0]];
-//    [toolbarRightBorder setLeftGradient:[NSColor colorWithCalibratedWhite:0.0 alpha:0.01]];
-//    [toolbarRightBorder setRightGradient:[NSColor colorWithCalibratedWhite:0.0 alpha:0.0]];
+    [toolbarView setLeftBorder:[NSColor colorWithCalibratedWhite:0.4 alpha:1.0]];
     
     [divider5 setTopBorder:[NSColor colorWithCalibratedWhite:0.4 alpha:1.0]];
     [divider5 setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:1.0]];
