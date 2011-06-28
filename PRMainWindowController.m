@@ -154,7 +154,8 @@
     [self setProgressTitle:@"Scanning for Updates..."];
     
 	// Search Field
-	[searchField bind:@"value" toObject:self withKeyPath:@"search" options:nil];
+    NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:@"", NSNullPlaceholderBindingOption, nil];
+	[searchField bind:@"value" toObject:self withKeyPath:@"search" options:options];
     [searchField setFormatter:stringFormatter];
     
     // Info button
@@ -451,9 +452,11 @@
     [playlistsButton setState:NSOffState];
 	[historyButton setState:NSOffState];
 	[preferencesButton setState:NSOffState];
-
+    [[searchField cell] setPlaceholderString:@""];
+    
     switch (currentMode) {
 		case PRLibraryMode:
+            [[searchField cell] setPlaceholderString:@"Search"];
             if ([self currentPlaylist] == [[db playlists] libraryPlaylist]) {
                 [libraryButton setState:NSOnState];
             } else {
