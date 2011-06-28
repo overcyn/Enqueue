@@ -20,7 +20,6 @@ typedef enum {
     IBOutlet NSView *centerSuperview;
     IBOutlet NSView *controlsSuperview;
     IBOutlet NSView *nowPlayingSuperview;
-    IBOutlet NSButton *songButton;
     IBOutlet NSButton *libraryButton;
     IBOutlet NSButton *playlistsButton; 
     IBOutlet NSButton *historyButton;

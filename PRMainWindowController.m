@@ -189,7 +189,7 @@
     NSDictionary *alternateAttributes = 
         [NSDictionary dictionaryWithObjectsAndKeys:
          [NSFont fontWithName:@"HelveticaNeue-Medium" size:19], NSFontAttributeName,
-         [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
+         [NSColor colorWithDeviceWhite:0.35 alpha:1.0], NSForegroundColorAttributeName,
          paragraphStyle, NSParagraphStyleAttributeName,
          shadow, NSShadowAttributeName,
          nil];
@@ -208,6 +208,7 @@
     [libraryButton setShowsBorderOnlyWhileMouseInside:TRUE];
     [[libraryButton cell] setShowsStateBy:NSContentsCellMask];
     [[libraryButton cell] setHighlightsBy:NSContentsCellMask];
+    [[libraryButton cell] setBackgroundStyle:NSBackgroundStyleRaised];
     
     attributedTitle = 
         [[[NSAttributedString alloc] initWithString:@"Playlists" attributes:attributes] autorelease];
@@ -221,6 +222,7 @@
     [playlistsButton setShowsBorderOnlyWhileMouseInside:TRUE];
     [[playlistsButton cell] setShowsStateBy:NSContentsCellMask];
     [[playlistsButton cell] setHighlightsBy:NSContentsCellMask];
+    [[playlistsButton cell] setBackgroundStyle:NSBackgroundStyleRaised];
 	
     attributedTitle = 
         [[[NSAttributedString alloc] initWithString:@"History" attributes:attributes] autorelease];
@@ -234,6 +236,7 @@
     [historyButton setShowsBorderOnlyWhileMouseInside:TRUE];
     [[historyButton cell] setShowsStateBy:NSContentsCellMask];
     [[historyButton cell] setHighlightsBy:NSContentsCellMask];
+    [[historyButton cell] setBackgroundStyle:NSBackgroundStyleRaised];
 	
     attributedTitle = 
         [[[NSAttributedString alloc] initWithString:@"Preferences" attributes:attributes] autorelease];
@@ -247,15 +250,7 @@
     [preferencesButton setShowsBorderOnlyWhileMouseInside:TRUE];
     [[preferencesButton cell] setShowsStateBy:NSContentsCellMask];
     [[preferencesButton cell] setHighlightsBy:NSContentsCellMask];
-	
-    [songButton setAction:@selector(headerButtonAction:)];
-    [songButton	setTarget:self];
-    [songButton setTag:PRSongMode];	
-    [songButton setImage:[NSImage imageNamed:@"PRDarkIcon"]];
-    [songButton setAlternateImage:[NSImage imageNamed:@"PRIcon"]];
-    [[songButton cell] setShowsStateBy:NSContentsCellMask];
-    [[songButton cell] setHighlightsBy:NSContentsCellMask];
-    [[libraryButton cell] setBackgroundStyle:NSBackgroundStyleRaised];
+    [[preferencesButton cell] setBackgroundStyle:NSBackgroundStyleRaised];
     
     [libraryViewController addObserver:self forKeyPath:@"infoViewVisible" options:0 context:nil];
     
