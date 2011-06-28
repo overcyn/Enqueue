@@ -76,7 +76,7 @@ typedef enum {PRColumnInteger, PRColumnFloat, PRColumnString, PRColumnData} PRCo
                   _error:(NSError **)error;
 
 - (BOOL)count:(int *)count forTable:(NSString *)table _error:(NSError **)error;
-- (BOOL)value:(id *)value 
+- (BOOL)value:(id *)value  
     forColumn:(NSString *)column 
           row:(int)row 
 		  key:(NSString *)key 

@@ -13,10 +13,9 @@
 	IBOutlet NSButton *newSmartPlaylistButton;
     
     PRStringFormatter *stringFormatter;
-    NSArray *datasource;
+    NSArray *_datasource;
     
     PRDb *db;
-//	PRPlaylists *play;
 	PRMainWindowController *win;
 }
 

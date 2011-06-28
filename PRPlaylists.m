@@ -276,7 +276,18 @@
 
 - (NSArray *)playlistsWithAttributes
 {
-    return nil;
+    NSString *statementString = @"SELECT playlist_id, type, title FROM playlists ORDER BY type, title COLLATE NOCASE, playlist_id";
+    NSArray *columnTypes = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], [NSNumber numberWithInt:PRColumnInteger], [NSNumber numberWithInt:PRColumnString], nil];
+    NSArray *results = [PRStatement executeString:statementString withDb:db bindings:nil columnTypes:columnTypes];
+    NSMutableArray *playlists = [NSMutableArray array];
+    for (NSArray *i in results) {
+        [playlists addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+                              [i objectAtIndex:0], @"playlist", 
+                              [i objectAtIndex:1], @"type", 
+                              [i objectAtIndex:2], @"title", 
+                              nil]];
+    }
+    return playlists;
 }
 
 - (BOOL)playlistCount:(int *)count _error:(NSError **)error

@@ -7,6 +7,7 @@
 #import "PRRolloverTableView.h"
 #import "NSScrollView+Extensions.h"
 #import "PRStringFormatter.h"
+#import "PRLog.h"
 
 
 @implementation PRPlaylistsViewController
@@ -160,6 +161,8 @@
 
 - (void)update
 {
+    [_datasource release];
+    _datasource = [[[db playlists] playlistsWithAttributes] retain];
     [tableView reloadData];
     int rows = [self numberOfRowsInTableView:tableView];
     float height = 235 + 42 * (rows-2);
@@ -181,11 +184,7 @@
     if (tableView_ != tableView) {
         return 0;
     }
-    
-    int count;
-    [[db playlists] playlistCount:&count _error:nil];
-    
-    return count - 1;
+    return [_datasource count];
 }
 
 - (id)            tableView:(NSTableView *)tableView_
@@ -196,36 +195,30 @@
         return nil;
     }
     
-    int playlist = [self playlistForRow:row];
-    
-    NSString *title;
-    [[db playlists] value:&title forPlaylist:playlist attribute:PRTitlePlaylistAttribute _error:nil];
-    
-    if ([tableView editedRow] == row) {
-        return title; 
-    }
-    
+    int playlist = [[[_datasource objectAtIndex:row] objectForKey:@"playlist"] intValue];
     int count;
     [[db playlists] count:&count forPlaylist:playlist _error:nil];
     NSString *subtitle = [NSString stringWithFormat:@"%d songs", count];
-    
-	int playlistType;
-	[[db playlists] intValue:&playlistType forPlaylist:playlist attribute:PRTypePlaylistAttribute _error:nil];
     NSImage *icon;
-    if (playlistType == PRNowPlayingPlaylistType) {
-        icon = [NSImage imageNamed:@"PRNoteIcon"];
-    } else if (playlistType == PRSmartPlaylistType) {
-		icon = [NSImage imageNamed:@"NSSmartBadgeTemplate"];
-	} else if (playlistType == PRStaticPlaylistType) {
-		icon = [NSImage imageNamed:@"NSListViewTemplate"];
-	} else {
-        icon = [NSImage imageNamed:@"PRNoteIcon"];
+    switch ([[[_datasource objectAtIndex:row] objectForKey:@"type"] intValue]) {
+        case PRNowPlayingPlaylistType:
+            icon = [NSImage imageNamed:@"PRNoteIcon"];
+            break;
+        case PRSmartPlaylistType:
+            icon = [NSImage imageNamed:@"NSSmartBadgeTemplate"];
+            break;
+        case PRStaticPlaylistType:
+            icon = [NSImage imageNamed:@"NSListViewTemplate"];
+            break;
+        default:
+            icon = [NSImage imageNamed:@"NSListViewTemplate"];
+//            [[PRLog sharedLog] presentFatalError:nil];
+            break;
     }
-    
-    bool delete = (playlistType != PRNowPlayingPlaylistType);
+    bool delete = !([[[_datasource objectAtIndex:row] objectForKey:@"type"] intValue] == PRNowPlayingPlaylistType);
 
     NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:
-                                title, @"title", 
+                                [[_datasource objectAtIndex:row] objectForKey:@"title"], @"title", 
                                 subtitle, @"subtitle", 
                                 icon, @"icon",
                                 [NSNumber numberWithInt:playlist], @"playlist",
