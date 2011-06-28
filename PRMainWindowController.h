@@ -15,7 +15,7 @@ typedef enum {
     PRSongMode,
 } PRMode;
 
-@interface PRMainWindowController : NSWindowController //<NSMenuDelegate, NSWindowDelegate>
+@interface PRMainWindowController : NSWindowController <NSWindowDelegate>
 {
     IBOutlet NSView *centerSuperview;
     IBOutlet NSView *controlsSuperview;

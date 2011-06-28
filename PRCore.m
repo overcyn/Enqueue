@@ -26,8 +26,6 @@
 {
     self = [super init];
     if (self) {
-        NSLog(@"date:%@",[NSDate dateWithString:@"tboenuth"]);
-        
         connection = [[NSConnection connectionWithReceivePort:[NSPort port] sendPort:[NSPort port]] retain];
         if (![connection registerName:@"enqueue"]) {
             [[PRLog sharedLog] presentFatalError:[self multipleInstancesError]];

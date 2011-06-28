@@ -3,7 +3,7 @@
 @class PRDb, PRNowPlayingController, PRMainWindowController, PRFolderMonitor, PRTaskManager,
 PRWelcomeSheetController, PRGrowl, PRLastfm;
 
-@interface PRCore : NSObject //<NSMenuDelegate, NSApplicationDelegate>
+@interface PRCore : NSObject <NSApplicationDelegate>
 {
     IBOutlet NSMenu *mainMenu;
     IBOutlet NSMenuItem *preferencesMenuItem;
