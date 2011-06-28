@@ -1,0 +1,15 @@
+# http://boredzo.org/blog/archives/2008-03-20/hgignore-for-mac-os-x-applications
+
+syntax: glob
+build
+*.swp
+*.mode1
+*.mode1v3
+*.mode2
+*.mode2v3
+*.pbxuser
+*.perspective
+*.perspectivev3
+xcuserdata
+*~.nib
+.DS_Store
