@@ -3,7 +3,7 @@
 @class PRCore;
 
 
-@interface PRMainMenuController : NSObject //<NSMenuDelegate>
+@interface PRMainMenuController : NSObject <NSMenuDelegate>
 {
     PRCore *core;
     

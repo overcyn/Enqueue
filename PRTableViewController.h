@@ -10,7 +10,7 @@ PRStringFormatter;
 
 // PRTableViewController
 //
-@interface PRTableViewController : NSViewController //<NSSplitViewDelegate, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate>
+@interface PRTableViewController : NSViewController <NSSplitViewDelegate, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate>
 {
 	IBOutlet NSTableView *libraryTableView;
     IBOutlet NSView *libraryScrollView;

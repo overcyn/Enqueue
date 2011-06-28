@@ -4,7 +4,7 @@
 @class PRDb, PRLibrary, PRPlaylists, PRNowPlayingController, PRNowPlayingViewSource, PRTableView, 
 PRGradientView, PRMainWindowController;
 
-@interface PRNowPlayingViewController : NSViewController //<NSTableViewDelegate, NSTableViewDataSource, NSMenuDelegate, NSTextFieldDelegate>
+@interface PRNowPlayingViewController : NSViewController <NSTableViewDelegate, NSTableViewDataSource, NSMenuDelegate, NSTextFieldDelegate>
 {
 	IBOutlet PRTableView *nowPlayingTableView;
     IBOutlet NSButton *shuffle;

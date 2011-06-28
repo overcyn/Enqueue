@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface PRTableView : NSTableView 
+@interface PRTableView : NSTableView
 {
 	NSColor *highlightColor;
 	NSColor *secondaryHighlightColor;

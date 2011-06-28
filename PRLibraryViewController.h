@@ -16,7 +16,7 @@ typedef enum {
     PRGridMode
 } PRLibraryViewMode;
 
-@interface PRLibraryViewController : NSViewController //<NSSplitViewDelegate>
+@interface PRLibraryViewController : NSViewController <NSSplitViewDelegate>
 {
 	IBOutlet NSSplitView *editorSplitView;
 	IBOutlet NSView *centerSuperview;

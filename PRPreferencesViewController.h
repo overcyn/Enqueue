@@ -4,7 +4,7 @@
 
 @class PRDb, PRNowPlayingController, PRFolderMonitor, PRGradientView, PRCore;
 
-@interface PRPreferencesViewController : NSViewController //<NSTableViewDataSource>
+@interface PRPreferencesViewController : NSViewController <NSTableViewDataSource>
 {
     IBOutlet NSView *background;
     IBOutlet PRGradientView *divider;

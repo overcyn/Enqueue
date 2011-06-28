@@ -8,7 +8,7 @@ extern NSString * const PRRuleDidChangeNotification;
 
 @class PRLibrary;
 
-@interface PRRuleViewController : NSCollectionViewItem //<NSCopying, NSTableViewDataSource>
+@interface PRRuleViewController : NSCollectionViewItem <NSTableViewDataSource>
 {
 	IBOutlet NSView *listView;
 	IBOutlet NSView *rangeView;

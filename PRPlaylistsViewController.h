@@ -3,7 +3,7 @@
 
 @class PRDb, PRPlaylists, PRMainWindowController, PRGradientView, PRRolloverTableView, PRStringFormatter;
 
-@interface PRPlaylistsViewController : NSViewController //<NSTableViewDelegate, NSTableViewDataSource, NSMenuDelegate>
+@interface PRPlaylistsViewController : NSViewController <NSTableViewDelegate, NSTableViewDataSource, NSMenuDelegate>
 {
     IBOutlet NSView *background;
     IBOutlet PRRolloverTableView *tableView;

@@ -2,7 +2,7 @@
 #import "PRTableView.h"
 
 
-@interface PRAlbumTableView : PRTableView
+@interface PRAlbumTableView : PRTableView <NSTableViewDelegate, NSTableViewDataSource>
 {
 
 }

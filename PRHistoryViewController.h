@@ -12,7 +12,7 @@ typedef enum {
 
 // PRHistoryViewController. Controls the history view
 //
-@interface PRHistoryViewController : NSViewController //<NSTableViewDelegate, NSTableViewDataSource>
+@interface PRHistoryViewController : NSViewController <NSTableViewDelegate, NSTableViewDataSource>
 {
     IBOutlet NSView *background;
     IBOutlet PRGradientView *divider;
