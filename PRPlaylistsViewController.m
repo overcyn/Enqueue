@@ -162,7 +162,9 @@
 - (void)update
 {
     [_datasource release];
-    _datasource = [[[db playlists] playlistsWithAttributes] retain];
+    NSMutableArray *playlists =[NSMutableArray arrayWithArray:[[db playlists] playlistsWithAttributes]];
+    [playlists removeObjectAtIndex:0];    
+    _datasource = [playlists retain];
     [tableView reloadData];
     int rows = [self numberOfRowsInTableView:tableView];
     float height = 235 + 42 * (rows-2);
@@ -211,8 +213,7 @@
             icon = [NSImage imageNamed:@"NSListViewTemplate"];
             break;
         default:
-            icon = [NSImage imageNamed:@"NSListViewTemplate"];
-//            [[PRLog sharedLog] presentFatalError:nil];
+            [[PRLog sharedLog] presentFatalError:nil];
             break;
     }
     bool delete = !([[[_datasource objectAtIndex:row] objectForKey:@"type"] intValue] == PRNowPlayingPlaylistType);
