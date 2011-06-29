@@ -191,7 +191,12 @@
 							<reference key="NSControlView" ref="970739863"/>
 							<bool key="NSDrawsBackground">YES</bool>
 							<reference key="NSBackgroundColor" ref="434300242"/>
-							<reference key="NSTextColor" ref="822541142"/>
+							<object class="NSColor" key="NSTextColor">
+								<int key="NSColorSpace">6</int>
+								<string key="NSCatalogName">System</string>
+								<string key="NSColorName">controlDarkShadowColor</string>
+								<reference key="NSColor" ref="822541142"/>
+							</object>
 						</object>
 					</object>
 					<object class="NSCustomView" id="48485987">
@@ -355,23 +360,31 @@
 					<object class="NSButton" id="27275388">
 						<reference key="NSNextResponder" ref="864440652"/>
 						<int key="NSvFlags">268</int>
-						<string key="NSFrame">{{116, 25}, {77, 32}}</string>
+						<string key="NSFrame">{{116, 26}, {86, 30}}</string>
 						<reference key="NSSuperview" ref="864440652"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="751322147"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSButtonCell" key="NSCell" id="525250413">
 							<int key="NSCellFlags">-2080244224</int>
-							<int key="NSCellFlags2">134217728</int>
-							<string key="NSContents">Playlists</string>
+							<int key="NSCellFlags2">0</int>
+							<string key="NSContents"/>
 							<object class="NSFont" key="NSSupport" id="553150587">
 								<string key="NSName">HelveticaNeue-Medium</string>
 								<double key="NSSize">19</double>
 								<int key="NSfFlags">16</int>
 							</object>
 							<reference key="NSControlView" ref="27275388"/>
-							<int key="NSButtonFlags">-2038677249</int>
-							<int key="NSButtonFlags2">162</int>
+							<int key="NSButtonFlags">-2042871553</int>
+							<int key="NSButtonFlags2">34</int>
+							<object class="NSCustomResource" key="NSNormalImage">
+								<string key="NSClassName">NSImage</string>
+								<string key="NSResourceName">Playlists</string>
+							</object>
+							<object class="NSCustomResource" key="NSAlternateImage">
+								<string key="NSClassName">NSImage</string>
+								<string key="NSResourceName">PlaylistsAlt</string>
+							</object>
 							<string key="NSAlternateContents"/>
 							<string key="NSKeyEquivalent"/>
 							<int key="NSPeriodicDelay">400</int>
@@ -381,19 +394,27 @@
 					<object class="NSButton" id="751322147">
 						<reference key="NSNextResponder" ref="864440652"/>
 						<int key="NSvFlags">268</int>
-						<string key="NSFrame">{{219, 25}, {67, 32}}</string>
+						<string key="NSFrame">{{219, 26}, {76, 30}}</string>
 						<reference key="NSSuperview" ref="864440652"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="138400590"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSButtonCell" key="NSCell" id="630073238">
 							<int key="NSCellFlags">-2080244224</int>
-							<int key="NSCellFlags2">134217728</int>
-							<string key="NSContents">History</string>
+							<int key="NSCellFlags2">0</int>
+							<string key="NSContents"/>
 							<reference key="NSSupport" ref="553150587"/>
 							<reference key="NSControlView" ref="751322147"/>
-							<int key="NSButtonFlags">-2038677249</int>
-							<int key="NSButtonFlags2">162</int>
+							<int key="NSButtonFlags">-2042871553</int>
+							<int key="NSButtonFlags2">34</int>
+							<object class="NSCustomResource" key="NSNormalImage">
+								<string key="NSClassName">NSImage</string>
+								<string key="NSResourceName">History</string>
+							</object>
+							<object class="NSCustomResource" key="NSAlternateImage">
+								<string key="NSClassName">NSImage</string>
+								<string key="NSResourceName">HistoryAlt</string>
+							</object>
 							<string key="NSAlternateContents"/>
 							<string key="NSKeyEquivalent"/>
 							<int key="NSPeriodicDelay">400</int>
@@ -403,20 +424,27 @@
 					<object class="NSButton" id="138400590">
 						<reference key="NSNextResponder" ref="864440652"/>
 						<int key="NSvFlags">268</int>
-						<string key="NSFrame">{{312, 25}, {109, 32}}</string>
+						<string key="NSFrame">{{312, 26}, {122, 30}}</string>
 						<reference key="NSSuperview" ref="864440652"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView" ref="941094517"/>
+						<reference key="NSNextKeyView"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSButtonCell" key="NSCell" id="1060141846">
 							<int key="NSCellFlags">-2080244224</int>
-							<int key="NSCellFlags2">134217728</int>
-							<string key="NSContents">Preferences</string>
+							<int key="NSCellFlags2">0</int>
+							<string key="NSContents"/>
 							<reference key="NSSupport" ref="553150587"/>
 							<reference key="NSControlView" ref="138400590"/>
-							<int key="NSButtonFlags">-2038546177</int>
-							<int key="NSButtonFlags2">162</int>
-							<reference key="NSAlternateImage" ref="553150587"/>
+							<int key="NSButtonFlags">-2042871553</int>
+							<int key="NSButtonFlags2">34</int>
+							<object class="NSCustomResource" key="NSNormalImage">
+								<string key="NSClassName">NSImage</string>
+								<string key="NSResourceName">Preferences</string>
+							</object>
+							<object class="NSCustomResource" key="NSAlternateImage">
+								<string key="NSClassName">NSImage</string>
+								<string key="NSResourceName">PreferencesAlt</string>
+							</object>
 							<string key="NSAlternateContents"/>
 							<string key="NSKeyEquivalent"/>
 							<int key="NSPeriodicDelay">400</int>
@@ -426,7 +454,7 @@
 					<object class="NSButton" id="6327620">
 						<reference key="NSNextResponder" ref="864440652"/>
 						<int key="NSvFlags">268</int>
-						<string key="NSFrame">{{25, 25}, {65, 32}}</string>
+						<string key="NSFrame">{{25, 26}, {76, 30}}</string>
 						<reference key="NSSuperview" ref="864440652"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="27275388"/>
@@ -434,11 +462,19 @@
 						<object class="NSButtonCell" key="NSCell" id="801303334">
 							<int key="NSCellFlags">-2080244224</int>
 							<int key="NSCellFlags2">134217728</int>
-							<string key="NSContents">Library</string>
+							<string key="NSContents"/>
 							<reference key="NSSupport" ref="553150587"/>
 							<reference key="NSControlView" ref="6327620"/>
-							<int key="NSButtonFlags">-2041822977</int>
-							<int key="NSButtonFlags2">162</int>
+							<int key="NSButtonFlags">-2042871553</int>
+							<int key="NSButtonFlags2">34</int>
+							<object class="NSCustomResource" key="NSNormalImage">
+								<string key="NSClassName">NSImage</string>
+								<string key="NSResourceName">Library</string>
+							</object>
+							<object class="NSCustomResource" key="NSAlternateImage">
+								<string key="NSClassName">NSImage</string>
+								<string key="NSResourceName">LibraryAlt</string>
+							</object>
 							<string key="NSAlternateContents"/>
 							<string key="NSKeyEquivalent"/>
 							<int key="NSPeriodicDelay">400</int>
@@ -475,7 +511,7 @@
 				<string key="NSFrameSize">{1018, 60}</string>
 				<reference key="NSSuperview"/>
 				<reference key="NSWindow"/>
-				<reference key="NSNextKeyView"/>
+				<reference key="NSNextKeyView" ref="6327620"/>
 				<string key="NSClassName">PRRoundedGradientView</string>
 			</object>
 		</object>
@@ -1044,7 +1080,7 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">307</int>
+			<int key="maxID">313</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1090,7 +1126,6 @@
 							<string>progressIndicator</string>
 							<string>progressTextField</string>
 							<string>searchField</string>
-							<string>songButton</string>
 							<string>toolbarView</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
@@ -1113,7 +1148,6 @@
 							<string>YRKSpinningProgressIndicator</string>
 							<string>NSTextField</string>
 							<string>NSSearchField</string>
-							<string>NSButton</string>
 							<string>PRGradientView</string>
 						</object>
 					</object>
@@ -1139,7 +1173,6 @@
 							<string>progressIndicator</string>
 							<string>progressTextField</string>
 							<string>searchField</string>
-							<string>songButton</string>
 							<string>toolbarView</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
@@ -1217,10 +1250,6 @@
 								<string key="candidateClassName">NSSearchField</string>
 							</object>
 							<object class="IBToOneOutletInfo">
-								<string key="name">songButton</string>
-								<string key="candidateClassName">NSButton</string>
-							</object>
-							<object class="IBToOneOutletInfo">
 								<string key="name">toolbarView</string>
 								<string key="candidateClassName">PRGradientView</string>
 							</object>
@@ -1273,19 +1302,35 @@
 			<bool key="EncodedWithXMLCoder">YES</bool>
 			<object class="NSArray" key="dict.sortedKeys">
 				<bool key="EncodedWithXMLCoder">YES</bool>
+				<string>History</string>
+				<string>HistoryAlt</string>
+				<string>Library</string>
+				<string>LibraryAlt</string>
 				<string>PRAlbumListViewAlternateIcon</string>
 				<string>PRAlbumListViewIcon</string>
 				<string>PRInfoIconTemplate</string>
 				<string>PRListViewAlternateIcon</string>
 				<string>PRListViewIcon</string>
+				<string>Playlists</string>
+				<string>PlaylistsAlt</string>
+				<string>Preferences</string>
+				<string>PreferencesAlt</string>
 			</object>
 			<object class="NSMutableArray" key="dict.values">
 				<bool key="EncodedWithXMLCoder">YES</bool>
+				<string>{72, 30}</string>
+				<string>{72, 30}</string>
+				<string>{72, 30}</string>
+				<string>{72, 30}</string>
 				<string>{10, 10}</string>
 				<string>{10, 10}</string>
 				<string>{20, 20}</string>
 				<string>{10, 10}</string>
 				<string>{10, 10}</string>
+				<string>{82, 30}</string>
+				<string>{82, 30}</string>
+				<string>{118, 30}</string>
+				<string>{118, 30}</string>
 			</object>
 		</object>
 	</data>

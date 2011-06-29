@@ -80,9 +80,9 @@
     [[self window] setBottomCornerRounded:NO];
     
     // Toolbar View
-    float x = 0.02;
+    float x = 0.06; //0.02
     NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                             [NSColor colorWithCalibratedWhite:0.98-x alpha:1.0], 0.0,
+                             [NSColor colorWithCalibratedWhite:1.0-x alpha:1.0], 0.0,
                              [NSColor colorWithCalibratedWhite:0.97-x alpha:1.0], 0.2,
                              [NSColor colorWithCalibratedWhite:0.94-x alpha:1.0], 0.5,
                              [NSColor colorWithCalibratedWhite:0.90-x alpha:1.0], 1.0,
@@ -90,7 +90,7 @@
     [toolbarView setVerticalGradient:gradient];
     x = 0.01;
     gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                 [NSColor colorWithCalibratedWhite:0.98-x alpha:1.0], 0.0,
+                 [NSColor colorWithCalibratedWhite:0.99-x alpha:1.0], 0.0,
                  [NSColor colorWithCalibratedWhite:0.97-x alpha:1.0], 0.2,
                  [NSColor colorWithCalibratedWhite:0.95-x alpha:1.0], 0.5,
                  [NSColor colorWithCalibratedWhite:0.94-x alpha:1.0], 1.0,
@@ -175,84 +175,24 @@
     [[albumListModeButton cell] setShowsStateBy:NSContentsCellMask];
 	
 	// Buttons
-	NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
-	[shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.50]];
-	[shadow setShadowOffset:NSMakeSize(1.0, -1.05)];	
-	NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
-	[paragraphStyle setAlignment:NSCenterTextAlignment];
-	NSDictionary *attributes = 
-        [NSDictionary dictionaryWithObjectsAndKeys:
-         [NSFont fontWithName:@"HelveticaNeue-Medium" size:19], NSFontAttributeName,
-         [NSColor colorWithCalibratedWhite:0.55 alpha:1.0], NSForegroundColorAttributeName,
-         paragraphStyle, NSParagraphStyleAttributeName,
-         shadow, NSShadowAttributeName,
-         nil];
-    NSDictionary *alternateAttributes = 
-        [NSDictionary dictionaryWithObjectsAndKeys:
-         [NSFont fontWithName:@"HelveticaNeue-Medium" size:19], NSFontAttributeName,
-         [NSColor colorWithDeviceWhite:0.35 alpha:1.0], NSForegroundColorAttributeName,
-         paragraphStyle, NSParagraphStyleAttributeName,
-         shadow, NSShadowAttributeName,
-         nil];
-	
-    NSAttributedString *attributedTitle;
-    NSAttributedString *attributedAlternateTitle;
-    attributedTitle = 
-        [[[NSAttributedString alloc] initWithString:@"Library" attributes:attributes] autorelease];
-    attributedAlternateTitle = 
-        [[[NSAttributedString alloc] initWithString:@"Library" attributes:alternateAttributes] autorelease];
-    [libraryButton setAction:@selector(headerButtonAction:)];
-    [libraryButton setTarget:self];
-    [libraryButton setTag:PRLibraryMode];
-    [libraryButton setAttributedTitle:attributedTitle];
-    [libraryButton setAttributedAlternateTitle:attributedAlternateTitle];
-    [libraryButton setShowsBorderOnlyWhileMouseInside:TRUE];
-    [[libraryButton cell] setShowsStateBy:NSContentsCellMask];
-    [[libraryButton cell] setHighlightsBy:NSContentsCellMask];
-    [[libraryButton cell] setBackgroundStyle:NSBackgroundStyleRaised];
+    NSArray *buttons = [NSArray arrayWithObjects:
+                        [NSDictionary dictionaryWithObjectsAndKeys:libraryButton, @"button", [NSNumber numberWithInt:PRLibraryMode], @"tag", nil], 
+                        [NSDictionary dictionaryWithObjectsAndKeys:playlistsButton, @"button", [NSNumber numberWithInt:PRPlaylistsMode], @"tag", nil], 
+                        [NSDictionary dictionaryWithObjectsAndKeys:historyButton, @"button", [NSNumber numberWithInt:PRHistoryMode], @"tag", nil], 
+                        [NSDictionary dictionaryWithObjectsAndKeys:preferencesButton, @"button", [NSNumber numberWithInt:PRPreferencesMode], @"tag", nil], 
+                        nil];
     
-    attributedTitle = 
-        [[[NSAttributedString alloc] initWithString:@"Playlists" attributes:attributes] autorelease];
-    attributedAlternateTitle = 
-        [[[NSAttributedString alloc] initWithString:@"Playlists" attributes:alternateAttributes] autorelease];
-    [playlistsButton setAction:@selector(headerButtonAction:)];
-    [playlistsButton setTarget:self];
-    [playlistsButton setTag:PRPlaylistsMode];
-    [playlistsButton setAttributedTitle:attributedTitle];
-    [playlistsButton setAttributedAlternateTitle:attributedAlternateTitle];
-    [playlistsButton setShowsBorderOnlyWhileMouseInside:TRUE];
-    [[playlistsButton cell] setShowsStateBy:NSContentsCellMask];
-    [[playlistsButton cell] setHighlightsBy:NSContentsCellMask];
-    [[playlistsButton cell] setBackgroundStyle:NSBackgroundStyleRaised];
-	
-    attributedTitle = 
-        [[[NSAttributedString alloc] initWithString:@"History" attributes:attributes] autorelease];
-    attributedAlternateTitle = 
-        [[[NSAttributedString alloc] initWithString:@"History" attributes:alternateAttributes] autorelease];
-    [historyButton setAction:@selector(headerButtonAction:)];
-    [historyButton setTarget:self];
-    [historyButton setTag:PRHistoryMode];
-    [historyButton setAttributedTitle:attributedTitle];
-    [historyButton setAttributedAlternateTitle:attributedAlternateTitle];
-    [historyButton setShowsBorderOnlyWhileMouseInside:TRUE];
-    [[historyButton cell] setShowsStateBy:NSContentsCellMask];
-    [[historyButton cell] setHighlightsBy:NSContentsCellMask];
-    [[historyButton cell] setBackgroundStyle:NSBackgroundStyleRaised];
-	
-    attributedTitle = 
-        [[[NSAttributedString alloc] initWithString:@"Preferences" attributes:attributes] autorelease];
-    attributedAlternateTitle = 
-        [[[NSAttributedString alloc] initWithString:@"Preferences" attributes:alternateAttributes] autorelease];
-    [preferencesButton setAction:@selector(headerButtonAction:)];
-    [preferencesButton setTarget:self];
-    [preferencesButton setTag:PRPreferencesMode];
-    [preferencesButton setAttributedTitle:attributedTitle];
-    [preferencesButton setAttributedAlternateTitle:attributedAlternateTitle];
-    [preferencesButton setShowsBorderOnlyWhileMouseInside:TRUE];
-    [[preferencesButton cell] setShowsStateBy:NSContentsCellMask];
-    [[preferencesButton cell] setHighlightsBy:NSContentsCellMask];
-    [[preferencesButton cell] setBackgroundStyle:NSBackgroundStyleRaised];
-    
+    for (NSDictionary *i in buttons) {
+        NSButton *button = [i objectForKey:@"button"];
+        int tag = [[i objectForKey:@"tag"] intValue];
+        
+        [button setAction:@selector(headerButtonAction:)];
+        [button setTarget:self];
+        [button setTag:tag];
+        [[button cell] setShowsStateBy:NSNoCellMask];
+        [[button cell] setHighlightsBy:NSContentsCellMask];
+    }
+        
     [libraryViewController addObserver:self forKeyPath:@"infoViewVisible" options:0 context:nil];
     
 	// Update
@@ -444,29 +384,26 @@
 - (void)updateUI
 {
     // Header buttons
-    [libraryButton setState:NSOffState];
-    [playlistsButton setState:NSOffState];
-	[historyButton setState:NSOffState];
-	[preferencesButton setState:NSOffState];
-    [[searchField cell] setPlaceholderString:@""];
-    
+    [libraryButton setImage:[NSImage imageNamed:@"Library"]];
+    [playlistsButton setImage:[NSImage imageNamed:@"Playlists"]];
+    [historyButton setImage:[NSImage imageNamed:@"History"]];
+    [preferencesButton setImage:[NSImage imageNamed:@"Preferences"]];
     switch (currentMode) {
 		case PRLibraryMode:
-            [[searchField cell] setPlaceholderString:@"Search"];
             if ([self currentPlaylist] == [[db playlists] libraryPlaylist]) {
-                [libraryButton setState:NSOnState];
+                [libraryButton setImage:[NSImage imageNamed:@"LibraryAlt"]];
             } else {
-                [playlistsButton setState:NSOnState];
+                [playlistsButton setImage:[NSImage imageNamed:@"PlaylistsAlt"]];
             }
 			break;
 		case PRPlaylistsMode:
-			[playlistsButton setState:NSOnState];
+            [playlistsButton setImage:[NSImage imageNamed:@"PlaylistsAlt"]];
 			break;
 		case PRHistoryMode:
-			[historyButton setState:NSOnState];			
+            [historyButton setImage:[NSImage imageNamed:@"HistoryAlt"]];
 			break;
 		case PRPreferencesMode:
-			[preferencesButton setState:NSOnState];
+            [preferencesButton setImage:[NSImage imageNamed:@"PreferencesAlt"]];
 			break;
 		default:
 			break;
@@ -491,14 +428,18 @@
             break;
     }
     
+    if (currentMode == PRLibraryMode) {
+        [[searchField cell] setPlaceholderString:@"Search"];
+    } else {
+        [[searchField cell] setPlaceholderString:@""];
+    }
+    [searchField setEnabled:(currentMode == PRLibraryMode)];
+    
     [listModeButton setHidden:(currentMode != PRLibraryMode)];
     [albumListModeButton setHidden:(currentMode != PRLibraryMode)];
     [infoButton setHidden:(currentMode != PRLibraryMode)];
     [divider setHidden:(currentMode != PRLibraryMode)];
     [divider2 setHidden:(currentMode != PRLibraryMode)];
-    
-    // Search field
-    [searchField setEnabled:(currentMode == PRLibraryMode)];
     if ([libraryViewController infoViewVisible]) {
         [infoButton setImage:[NSImage imageNamed:@"PRInfoOffIcon.png"]];
     } else {

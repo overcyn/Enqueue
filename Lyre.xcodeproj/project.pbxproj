@@ -167,6 +167,14 @@
 		6795F0D512F64D68005A486E /* PRPaneSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6795F0D412F64D68005A486E /* PRPaneSplitView.m */; };
 		6796AF63128933D900FEDE14 /* PRSynchronizedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6796AF62128933D900FEDE14 /* PRSynchronizedScrollView.m */; };
 		6796AFAE1289A3F600FEDE14 /* PRAlbumListViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6796AFAD1289A3F600FEDE14 /* PRAlbumListViewCell.m */; };
+		6796DA5013BAFF4F00B6FD48 /* Library.png in Resources */ = {isa = PBXBuildFile; fileRef = 6796DA4E13BAFF4F00B6FD48 /* Library.png */; };
+		6796DA5113BAFF4F00B6FD48 /* LibraryAlt.png in Resources */ = {isa = PBXBuildFile; fileRef = 6796DA4F13BAFF4F00B6FD48 /* LibraryAlt.png */; };
+		6796DA5813BB015100B6FD48 /* History.png in Resources */ = {isa = PBXBuildFile; fileRef = 6796DA5213BB015100B6FD48 /* History.png */; };
+		6796DA5913BB015100B6FD48 /* HistoryAlt.png in Resources */ = {isa = PBXBuildFile; fileRef = 6796DA5313BB015100B6FD48 /* HistoryAlt.png */; };
+		6796DA5A13BB015100B6FD48 /* Playlists.png in Resources */ = {isa = PBXBuildFile; fileRef = 6796DA5413BB015100B6FD48 /* Playlists.png */; };
+		6796DA5B13BB015100B6FD48 /* PlaylistsAlt.png in Resources */ = {isa = PBXBuildFile; fileRef = 6796DA5513BB015100B6FD48 /* PlaylistsAlt.png */; };
+		6796DA5C13BB015100B6FD48 /* Preferences.png in Resources */ = {isa = PBXBuildFile; fileRef = 6796DA5613BB015100B6FD48 /* Preferences.png */; };
+		6796DA5D13BB015100B6FD48 /* PreferencesAlt.png in Resources */ = {isa = PBXBuildFile; fileRef = 6796DA5713BB015100B6FD48 /* PreferencesAlt.png */; };
 		679AE5B21301F4940022F5BF /* NSData+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 679AE5B11301F4940022F5BF /* NSData+Base64.m */; };
 		679E3A0F12D28984006190C7 /* PRMoviePlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 679E3A0E12D28984006190C7 /* PRMoviePlayer.mm */; };
 		67A19D2412C19A02002DE05E /* PROverlayScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A19D2312C19A02002DE05E /* PROverlayScrollView.m */; };
@@ -483,6 +491,14 @@
 		6796AF62128933D900FEDE14 /* PRSynchronizedScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRSynchronizedScrollView.m; sourceTree = "<group>"; };
 		6796AFAC1289A3F600FEDE14 /* PRAlbumListViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRAlbumListViewCell.h; sourceTree = "<group>"; };
 		6796AFAD1289A3F600FEDE14 /* PRAlbumListViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRAlbumListViewCell.m; sourceTree = "<group>"; };
+		6796DA4E13BAFF4F00B6FD48 /* Library.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Library.png; path = Icons/Library.png; sourceTree = "<group>"; };
+		6796DA4F13BAFF4F00B6FD48 /* LibraryAlt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = LibraryAlt.png; path = Icons/LibraryAlt.png; sourceTree = "<group>"; };
+		6796DA5213BB015100B6FD48 /* History.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = History.png; path = Icons/History.png; sourceTree = "<group>"; };
+		6796DA5313BB015100B6FD48 /* HistoryAlt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = HistoryAlt.png; path = Icons/HistoryAlt.png; sourceTree = "<group>"; };
+		6796DA5413BB015100B6FD48 /* Playlists.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Playlists.png; path = Icons/Playlists.png; sourceTree = "<group>"; };
+		6796DA5513BB015100B6FD48 /* PlaylistsAlt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PlaylistsAlt.png; path = Icons/PlaylistsAlt.png; sourceTree = "<group>"; };
+		6796DA5613BB015100B6FD48 /* Preferences.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Preferences.png; path = Icons/Preferences.png; sourceTree = "<group>"; };
+		6796DA5713BB015100B6FD48 /* PreferencesAlt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PreferencesAlt.png; path = Icons/PreferencesAlt.png; sourceTree = "<group>"; };
 		679AE5B01301F4940022F5BF /* NSData+Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Base64.h"; sourceTree = "<group>"; };
 		679AE5B11301F4940022F5BF /* NSData+Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Base64.m"; sourceTree = "<group>"; };
 		679E3A0D12D28984006190C7 /* PRMoviePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRMoviePlayer.h; sourceTree = "<group>"; };
@@ -1279,6 +1295,14 @@
 		67C268841357FCB0008F55C0 /* Icons */ = {
 			isa = PBXGroup;
 			children = (
+				6796DA5213BB015100B6FD48 /* History.png */,
+				6796DA5313BB015100B6FD48 /* HistoryAlt.png */,
+				6796DA5413BB015100B6FD48 /* Playlists.png */,
+				6796DA5513BB015100B6FD48 /* PlaylistsAlt.png */,
+				6796DA5613BB015100B6FD48 /* Preferences.png */,
+				6796DA5713BB015100B6FD48 /* PreferencesAlt.png */,
+				6796DA4E13BAFF4F00B6FD48 /* Library.png */,
+				6796DA4F13BAFF4F00B6FD48 /* LibraryAlt.png */,
 				6758FD8F138B571800E6EBA5 /* GenericDocumentIcon.icns */,
 				6758FD8D138B39A900E6EBA5 /* PRAppIcon.icns */,
 				67C23B16137FDC020099A5CA /* body-bg.png */,
@@ -1571,6 +1595,14 @@
 				6794DA7813B5622700EAD936 /* TexturedSliderTrackRight.tiff in Resources */,
 				6794DA7913B5622700EAD936 /* TexturedSliderTrackRight2.tiff in Resources */,
 				6794DA7A13B5622700EAD936 /* TexturedSliderTrackUnFill.tif in Resources */,
+				6796DA5013BAFF4F00B6FD48 /* Library.png in Resources */,
+				6796DA5113BAFF4F00B6FD48 /* LibraryAlt.png in Resources */,
+				6796DA5813BB015100B6FD48 /* History.png in Resources */,
+				6796DA5913BB015100B6FD48 /* HistoryAlt.png in Resources */,
+				6796DA5A13BB015100B6FD48 /* Playlists.png in Resources */,
+				6796DA5B13BB015100B6FD48 /* PlaylistsAlt.png in Resources */,
+				6796DA5C13BB015100B6FD48 /* Preferences.png in Resources */,
+				6796DA5D13BB015100B6FD48 /* PreferencesAlt.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
