@@ -435,7 +435,7 @@
     [infoButton setHidden:(currentMode != PRLibraryMode)];
     [divider setHidden:(currentMode != PRLibraryMode)];
     [divider2 setHidden:(currentMode != PRLibraryMode)];
-    [infoButton setState:NSOffState];
+//    [infoButton setState:NSOffState];
     if ([libraryViewController infoViewVisible]) {
         [infoButton setImage:[NSImage imageNamed:@"PRInfoOffIcon.png"]];
     } else {

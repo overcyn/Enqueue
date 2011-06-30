@@ -315,7 +315,7 @@
 //                     [NSColor colorWithCalibratedWhite:0.80 alpha:1.0], 0.3,
                      [NSColor colorWithCalibratedWhite:0.685 alpha:1.0], 0.65,
                      [NSColor colorWithCalibratedWhite:0.59 alpha:1.0], 0.80,
-                     [NSColor colorWithCalibratedWhite:0.52 alpha:1.0], 1.0,
+                     [NSColor colorWithCalibratedWhite:0.57 alpha:1.0], 1.0,
                      nil] autorelease];
     } else {
         gradient = [[[NSGradient alloc] initWithColorsAndLocations:

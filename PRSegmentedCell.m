@@ -19,7 +19,7 @@
     [shadow setShadowBlurRadius:0];
     [shadow set];
     NSBezierPath *frame = [NSBezierPath bezierPathWithRoundedRect:cellFrame xRadius:4 yRadius:4];
-    [[NSColor colorWithCalibratedWhite:0.6 alpha:1.0] set];
+    [[NSColor colorWithCalibratedWhite:0.5 alpha:1.0] set];
     [frame stroke];
     [NSGraphicsContext restoreGraphicsState];
         
@@ -31,13 +31,22 @@
     cellFrame.size.width -= 1;
     frame = [NSBezierPath bezierPathWithRoundedRect:cellFrame xRadius:4 yRadius:4];
     [frame addClip];
-
     NSGradient *gradientAlt = [[[NSGradient alloc] initWithColorsAndLocations:
                                 [NSColor colorWithCalibratedWhite:0.0 alpha:0.3], 0.0,
                                 [NSColor colorWithCalibratedWhite:0.0 alpha:0.2], 0.1,
                                 [NSColor colorWithCalibratedWhite:0.0 alpha:0.1], 0.4,
+                                [NSColor colorWithCalibratedWhite:0.0 alpha:0.1], 0.9,
+                                [NSColor colorWithCalibratedWhite:0.0 alpha:0.2], 1.0,
                                 nil] autorelease];
     [gradientAlt drawInRect:cellFrame angle:90];
+    gradientAlt = [[[NSGradient alloc] initWithColorsAndLocations:
+                    [NSColor colorWithCalibratedWhite:0.0 alpha:0.1], 0.0,
+                    [NSColor colorWithCalibratedWhite:0.0 alpha:0.0], 0.05,
+                    [NSColor colorWithCalibratedWhite:0.0 alpha:0.0], 0.95,
+                    [NSColor colorWithCalibratedWhite:0.0 alpha:0.1], 1.0,
+                    nil] autorelease];
+    [gradientAlt drawInRect:cellFrame angle:0];
+
     [NSGraphicsContext restoreGraphicsState];
     
     // Draw selected
@@ -51,10 +60,10 @@
         if ([self isSelectedForSegment:i]) {
             NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
                                      [NSColor colorWithCalibratedWhite:1.0 alpha:1.0], 0.0, 
-                                     [NSColor colorWithCalibratedWhite:0.88 alpha:1.0], 1.0,
+                                     [NSColor colorWithCalibratedWhite:0.85 alpha:1.0], 1.0,
                                      nil] autorelease];
             NSBezierPath *segmentBezierPath = [NSBezierPath bezierPathWithRoundedRect:segmentRect xRadius:3 yRadius:3];
-            [[NSColor colorWithCalibratedWhite:0.6 alpha:1.0] set];
+            [[NSColor colorWithCalibratedWhite:0.5 alpha:1.0] set];
             [segmentBezierPath stroke];
             [segmentBezierPath addClip];
             [gradient drawInRect:segmentRect angle:90];
