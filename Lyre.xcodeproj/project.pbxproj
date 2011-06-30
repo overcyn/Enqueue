@@ -31,9 +31,9 @@
 		671334CC13206A7D00764174 /* PRApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 671334CB13206A7D00764174 /* PRApplication.m */; };
 		671334F01320704C00764174 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 671334EF1320704C00764174 /* Carbon.framework */; };
 		67133A641325EF9D00764174 /* PRGradientView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67133A631325EF9D00764174 /* PRGradientView.m */; };
-		67133CC9132645E900764174 /* PRInfoIconTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = 67133CC8132645E900764174 /* PRInfoIconTemplate.png */; };
-		67133DB01326EBE900764174 /* PRIconViewIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 67133DAE1326EBE900764174 /* PRIconViewIcon.png */; };
-		67133DB11326EBE900764174 /* PRListViewIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 67133DAF1326EBE900764174 /* PRListViewIcon.png */; };
+		67133CC9132645E900764174 /* Info.png in Resources */ = {isa = PBXBuildFile; fileRef = 67133CC8132645E900764174 /* Info.png */; };
+		67133DB01326EBE900764174 /* IconViewTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = 67133DAE1326EBE900764174 /* IconViewTemplate.png */; };
+		67133DB11326EBE900764174 /* ListViewTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = 67133DAF1326EBE900764174 /* ListViewTemplate.png */; };
 		67133DBA1326ECEF00764174 /* PRListViewAlternateIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 67133DB91326ECEF00764174 /* PRListViewAlternateIcon.png */; };
 		67133DCD1326EF4C00764174 /* PRIconViewAlternateIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 67133DCC1326EF4C00764174 /* PRIconViewAlternateIcon.png */; };
 		67133DE41326F24700764174 /* PRAlbumListViewIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 67133DE31326F24700764174 /* PRAlbumListViewIcon.png */; };
@@ -121,6 +121,8 @@
 		675AC4C612D13B23006B8B95 /* PRVerticalScrollerTopLight.png in Resources */ = {isa = PBXBuildFile; fileRef = 675AC49D12D13B23006B8B95 /* PRVerticalScrollerTopLight.png */; };
 		675C678B126E5965008336B9 /* PRTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 675C678A126E5965008336B9 /* PRTableView.m */; };
 		675C77EA124D8B2A00D20D83 /* PRPlaylists.m in Sources */ = {isa = PBXBuildFile; fileRef = 675C77E9124D8B2A00D20D83 /* PRPlaylists.m */; };
+		6768E61513BBBF7C00FA7474 /* InfoTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = 6768E61413BBBF7C00FA7474 /* InfoTemplate.png */; };
+		6768E61813BBCEA600FA7474 /* PRSegmentedCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6768E61713BBCEA600FA7474 /* PRSegmentedCell.m */; };
 		67691F7A1338B80300D27C01 /* BWTexturedSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 67691F771338B80300D27C01 /* BWTexturedSlider.m */; };
 		67691F7B1338B80300D27C01 /* BWTexturedSliderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67691F791338B80300D27C01 /* BWTexturedSliderCell.m */; };
 		67691F901338C8F300D27C01 /* PRSliderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67691F8F1338C8F000D27C01 /* PRSliderCell.m */; };
@@ -301,9 +303,9 @@
 		671334EF1320704C00764174 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		67133A621325EF9D00764174 /* PRGradientView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRGradientView.h; sourceTree = "<group>"; };
 		67133A631325EF9D00764174 /* PRGradientView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRGradientView.m; sourceTree = "<group>"; };
-		67133CC8132645E900764174 /* PRInfoIconTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRInfoIconTemplate.png; path = Icons/PRInfoIconTemplate.png; sourceTree = "<group>"; };
-		67133DAE1326EBE900764174 /* PRIconViewIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRIconViewIcon.png; path = Icons/PRIconViewIcon.png; sourceTree = "<group>"; };
-		67133DAF1326EBE900764174 /* PRListViewIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRListViewIcon.png; path = Icons/PRListViewIcon.png; sourceTree = "<group>"; };
+		67133CC8132645E900764174 /* Info.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Info.png; path = Icons/Info.png; sourceTree = "<group>"; };
+		67133DAE1326EBE900764174 /* IconViewTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = IconViewTemplate.png; path = Icons/IconViewTemplate.png; sourceTree = "<group>"; };
+		67133DAF1326EBE900764174 /* ListViewTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ListViewTemplate.png; path = Icons/ListViewTemplate.png; sourceTree = "<group>"; };
 		67133DB91326ECEF00764174 /* PRListViewAlternateIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRListViewAlternateIcon.png; path = Icons/PRListViewAlternateIcon.png; sourceTree = "<group>"; };
 		67133DCC1326EF4C00764174 /* PRIconViewAlternateIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRIconViewAlternateIcon.png; path = Icons/PRIconViewAlternateIcon.png; sourceTree = "<group>"; };
 		67133DE31326F24700764174 /* PRAlbumListViewIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRAlbumListViewIcon.png; path = Icons/PRAlbumListViewIcon.png; sourceTree = "<group>"; };
@@ -421,6 +423,9 @@
 		675C678A126E5965008336B9 /* PRTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRTableView.m; sourceTree = "<group>"; };
 		675C77E8124D8B2A00D20D83 /* PRPlaylists.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRPlaylists.h; sourceTree = "<group>"; };
 		675C77E9124D8B2A00D20D83 /* PRPlaylists.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRPlaylists.m; sourceTree = "<group>"; };
+		6768E61413BBBF7C00FA7474 /* InfoTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = InfoTemplate.png; path = Icons/InfoTemplate.png; sourceTree = "<group>"; };
+		6768E61613BBCEA600FA7474 /* PRSegmentedCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRSegmentedCell.h; sourceTree = "<group>"; };
+		6768E61713BBCEA600FA7474 /* PRSegmentedCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRSegmentedCell.m; sourceTree = "<group>"; };
 		67691F761338B80300D27C01 /* BWTexturedSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BWTexturedSlider.h; sourceTree = "<group>"; };
 		67691F771338B80300D27C01 /* BWTexturedSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BWTexturedSlider.m; sourceTree = "<group>"; };
 		67691F781338B80300D27C01 /* BWTexturedSliderCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BWTexturedSliderCell.h; sourceTree = "<group>"; };
@@ -1025,6 +1030,8 @@
 			children = (
 				67F1BFC8127102460075C401 /* PRButtonCell.h */,
 				67F1BFC9127102460075C401 /* PRButtonCell.m */,
+				6768E61613BBCEA600FA7474 /* PRSegmentedCell.h */,
+				6768E61713BBCEA600FA7474 /* PRSegmentedCell.m */,
 				67A5F63212A5E261003837CA /* PRRatingCell.h */,
 				67A5F63312A5E261003837CA /* PRRatingCell.m */,
 			);
@@ -1295,6 +1302,7 @@
 		67C268841357FCB0008F55C0 /* Icons */ = {
 			isa = PBXGroup;
 			children = (
+				6768E61413BBBF7C00FA7474 /* InfoTemplate.png */,
 				6796DA5213BB015100B6FD48 /* History.png */,
 				6796DA5313BB015100B6FD48 /* HistoryAlt.png */,
 				6796DA5413BB015100B6FD48 /* Playlists.png */,
@@ -1317,11 +1325,11 @@
 				67133DE81326F2CE00764174 /* PRAlbumListViewAlternateIcon.png */,
 				67133DE31326F24700764174 /* PRAlbumListViewIcon.png */,
 				67133DCC1326EF4C00764174 /* PRIconViewAlternateIcon.png */,
-				67133DAE1326EBE900764174 /* PRIconViewIcon.png */,
+				67133DAE1326EBE900764174 /* IconViewTemplate.png */,
 				67133DB91326ECEF00764174 /* PRListViewAlternateIcon.png */,
-				67133DAF1326EBE900764174 /* PRListViewIcon.png */,
+				67133DAF1326EBE900764174 /* ListViewTemplate.png */,
 				676A4E35134A94DF00AA9DAB /* PRInfoOffIcon.png */,
-				67133CC8132645E900764174 /* PRInfoIconTemplate.png */,
+				67133CC8132645E900764174 /* Info.png */,
 				67B1D5EF12FD633E00FEF494 /* PRBackgroundPattern.png */,
 				675AC47512D13B23006B8B95 /* PRAlbumArt.png */,
 				673C2B6E12EE88110022B2A3 /* PRLightAlbumArt.png */,
@@ -1555,9 +1563,9 @@
 				67913A8912F46929003E7DF0 /* PRListViewTableColumnsInfo.plist in Resources */,
 				67B1D5F012FD633E00FEF494 /* PRBackgroundPattern.png in Resources */,
 				6792BCBB13050F810097A9F0 /* PRID3Genres.plist in Resources */,
-				67133CC9132645E900764174 /* PRInfoIconTemplate.png in Resources */,
-				67133DB01326EBE900764174 /* PRIconViewIcon.png in Resources */,
-				67133DB11326EBE900764174 /* PRListViewIcon.png in Resources */,
+				67133CC9132645E900764174 /* Info.png in Resources */,
+				67133DB01326EBE900764174 /* IconViewTemplate.png in Resources */,
+				67133DB11326EBE900764174 /* ListViewTemplate.png in Resources */,
 				67133DBA1326ECEF00764174 /* PRListViewAlternateIcon.png in Resources */,
 				67133DCD1326EF4C00764174 /* PRIconViewAlternateIcon.png in Resources */,
 				67133DE41326F24700764174 /* PRAlbumListViewIcon.png in Resources */,
@@ -1603,6 +1611,7 @@
 				6796DA5B13BB015100B6FD48 /* PlaylistsAlt.png in Resources */,
 				6796DA5C13BB015100B6FD48 /* Preferences.png in Resources */,
 				6796DA5D13BB015100B6FD48 /* PreferencesAlt.png in Resources */,
+				6768E61513BBBF7C00FA7474 /* InfoTemplate.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1723,6 +1732,7 @@
 				671C91EE13A43F800007D069 /* NSObject+Extensions.m in Sources */,
 				67091AD013AB3D6400C4D298 /* PRQueue.m in Sources */,
 				671D55E713B9834A00DAD414 /* PRRoundedGradientView.m in Sources */,
+				6768E61813BBCEA600FA7474 /* PRSegmentedCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -80,15 +80,15 @@
     [[self window] setBottomCornerRounded:NO];
     
     // Toolbar View
-    float x = 0.06; //0.02
+    float x = 0.08; //0.02
     NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                             [NSColor colorWithCalibratedWhite:1.0-x alpha:1.0], 0.0,
-                             [NSColor colorWithCalibratedWhite:0.97-x alpha:1.0], 0.2,
-                             [NSColor colorWithCalibratedWhite:0.94-x alpha:1.0], 0.5,
-                             [NSColor colorWithCalibratedWhite:0.90-x alpha:1.0], 1.0,
+                             [NSColor colorWithCalibratedWhite:1.02-x alpha:1.0], 0.0,
+                             [NSColor colorWithCalibratedWhite:0.96-x alpha:1.0], 0.4,
+                             [NSColor colorWithCalibratedWhite:0.92-x alpha:1.0], 0.7,
+                             [NSColor colorWithCalibratedWhite:0.88-x alpha:1.0], 1.0,
                              nil] autorelease];
     [toolbarView setVerticalGradient:gradient];
-    x = 0.01;
+    x = 0.04;
     gradient = [[[NSGradient alloc] initWithColorsAndLocations:
                  [NSColor colorWithCalibratedWhite:0.99-x alpha:1.0], 0.0,
                  [NSColor colorWithCalibratedWhite:0.97-x alpha:1.0], 0.2,
@@ -161,18 +161,10 @@
     // Info button
     [infoButton setTarget:libraryViewController];
     [infoButton setAction:@selector(infoViewToggle)];
-    [[infoButton cell] setShowsStateBy:NSContentsCellMask];
-    [[infoButton cell] setHighlightsBy:NSContentsCellMask];
     
     // Library view mode buttons
-    [listModeButton setTarget:libraryViewController];
-    [listModeButton setAction:@selector(setListMode)];
-    [[listModeButton cell] setHighlightsBy:NSContentsCellMask];
-    [[listModeButton cell] setShowsStateBy:NSContentsCellMask];
-    [albumListModeButton setTarget:libraryViewController];
-    [albumListModeButton setAction:@selector(setAlbumListMode)];
-    [[albumListModeButton cell] setHighlightsBy:NSContentsCellMask];
-    [[albumListModeButton cell] setShowsStateBy:NSContentsCellMask];
+    [libraryModeButton setTarget:self];
+    [libraryModeButton setAction:@selector(libraryModeButtonAction)];
 	
 	// Buttons
     NSArray *buttons = [NSArray arrayWithObjects:
@@ -417,10 +409,12 @@
     
     switch ([self libraryViewMode]) {
         case PRListMode:
+            [libraryModeButton setSelectedSegment:0];
             [listModeButton setState:NSOffState];
             [listModeButton setEnabled:FALSE];
             break;
         case PRAlbumListMode:
+            [libraryModeButton setSelectedSegment:1];
             [albumListModeButton setState:NSOffState];
             [albumListModeButton setEnabled:FALSE];
             break;
@@ -435,15 +429,17 @@
     }
     [searchField setEnabled:(currentMode == PRLibraryMode)];
     
+    [libraryModeButton setHidden:(currentMode != PRLibraryMode)];
     [listModeButton setHidden:(currentMode != PRLibraryMode)];
     [albumListModeButton setHidden:(currentMode != PRLibraryMode)];
     [infoButton setHidden:(currentMode != PRLibraryMode)];
     [divider setHidden:(currentMode != PRLibraryMode)];
     [divider2 setHidden:(currentMode != PRLibraryMode)];
+    [infoButton setState:NSOffState];
     if ([libraryViewController infoViewVisible]) {
         [infoButton setImage:[NSImage imageNamed:@"PRInfoOffIcon.png"]];
     } else {
-        [infoButton setImage:[NSImage imageNamed:@"PRInfoIconTemplate"]];
+        [infoButton setImage:[NSImage imageNamed:@"InfoTemplate"]];
     }
     
     // Playlist title
@@ -581,6 +577,11 @@
 	[[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistDidChangeNotification 
 														object:self
 													  userInfo:userInfo];
+}
+
+- (void)libraryModeButtonAction
+{
+    [self setLibraryViewMode:[libraryModeButton selectedSegment]];
 }
 
 - (int)libraryViewMode

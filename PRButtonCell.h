@@ -3,7 +3,7 @@
 
 @interface PRButtonCell : NSButtonCell 
 {
-
+    BOOL highlight;
 }
 
 @end
