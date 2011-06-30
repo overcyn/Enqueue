@@ -12,9 +12,7 @@
                                              selector:@selector(viewFrameDidChange:) 
                                                  name:NSViewFrameDidChangeNotification
                                                object:self];
-    [self setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"body-bg.png"]]];
-//    [self setBackgroundColor:[NSColor colorWithDeviceWhite:0.95 alpha:1.0]];
-
+    [self setBackgroundColor:[NSColor colorWithPatternImage:[NSImage imageNamed:@"background"]]];
 }
 
 
@@ -38,14 +36,5 @@
         [[self documentView] setFrame:newBounds];
     }
 }
-
-
-// this doesnt work
-//- (void)drawRect:(NSRect)dirtyRect
-//{
-//    float yOffset = NSMaxY([self convertRect:[self frame] toView:nil]);
-//    [[NSGraphicsContext currentContext] setPatternPhase:NSMakePoint(0,yOffset)];
-//    [super drawRect:dirtyRect];
-//}
 
 @end

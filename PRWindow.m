@@ -64,10 +64,10 @@
                               nil] autorelease];
     [gradient_ drawInRect:controlRect angle:-90.0];
     NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                             [NSColor colorWithCalibratedWhite:1.0 alpha:0.1], 0.0, 
+                             [NSColor colorWithCalibratedWhite:1.0 alpha:0.03], 0.0, 
                              [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.2,
                              [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.8,
-                             [NSColor colorWithCalibratedWhite:1.0 alpha:0.1], 1.0,
+                             [NSColor colorWithCalibratedWhite:1.0 alpha:0.03], 1.0,
                              nil] autorelease];
     [gradient drawInRect:controlRect angle:0.0];
     

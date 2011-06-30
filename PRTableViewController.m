@@ -1067,11 +1067,10 @@
 	forPlaylist:currentPlaylist 
 	  attribute:PRBrowserInfoPlaylistAttribute 
 		 _error:nil];
-	NSDictionary *browserInfo = 
-    [NSPropertyListSerialization propertyListFromData:browserInfoData 
-                                     mutabilityOption:0 
-                                               format:nil 
-                                     errorDescription:nil];
+	NSDictionary *browserInfo = [NSPropertyListSerialization propertyListFromData:browserInfoData 
+                                                                 mutabilityOption:0 
+                                                                           format:nil 
+                                                                 errorDescription:nil];
     browserInfo = [NSMutableDictionary dictionaryWithDictionary:browserInfo];
     
 	int browserGrouping = [[sender representedObject] intValue];
@@ -1320,6 +1319,11 @@
         [libraryTableView scrollRowToVisible:[tableRows firstIndex]];
 //        [[libraryTableView window] makeFirstResponder:libraryTableView];
     }
+}
+
+- (void)highlightArtist:(NSString *)artist
+{
+    
 }
 
 // ========================================

@@ -435,11 +435,10 @@
     [infoButton setHidden:(currentMode != PRLibraryMode)];
     [divider setHidden:(currentMode != PRLibraryMode)];
     [divider2 setHidden:(currentMode != PRLibraryMode)];
-//    [infoButton setState:NSOffState];
     if ([libraryViewController infoViewVisible]) {
-        [infoButton setImage:[NSImage imageNamed:@"PRInfoOffIcon.png"]];
+        [infoButton setImage:[NSImage imageNamed:@"InfoAlt"]];
     } else {
-        [infoButton setImage:[NSImage imageNamed:@"InfoTemplate"]];
+        [infoButton setImage:[NSImage imageNamed:@"Info"]];
     }
     
     // Playlist title

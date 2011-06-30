@@ -170,14 +170,14 @@
 	[ratingControl setHidden:([now currentIndex] == 0)];
 	
     if (![now shuffle]) {
-        [shuffle setImage:[NSImage imageNamed:@"PRShuffleIcon.png"]];
+        [shuffle setImage:[NSImage imageNamed:@"Shuffle"]];
     } else {
-        [shuffle setImage:[NSImage imageNamed:@"PRShuffleOffIcon.png"]];
+        [shuffle setImage:[NSImage imageNamed:@"ShuffleAlt"]];
     }
     if (![now repeat]) {
-        [repeat setImage:[NSImage imageNamed:@"PRRepeatIcon.png"]];
+        [repeat setImage:[NSImage imageNamed:@"Repeat"]];
     } else {
-        [repeat setImage:[NSImage imageNamed:@"PRRepeatOffIcon.png"]];
+        [repeat setImage:[NSImage imageNamed:@"RepeatAlt"]];
     }
     
     // title
@@ -263,9 +263,9 @@
 - (void)updatePlayButton
 {
     if ([[now mov] isPlaying]) {
-		[playPause setImage:[NSImage imageNamed:@"PRPauseIcon.png"]];
+		[playPause setImage:[NSImage imageNamed:@"PauseButton"]];
 	} else {
-        [playPause setImage:[NSImage imageNamed:@"PRPlayIcon.png"]];
+        [playPause setImage:[NSImage imageNamed:@"PlayButton"]];
 	}
     
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
@@ -321,17 +321,17 @@
         gradient = [[[NSGradient alloc] initWithColorsAndLocations:
                      [NSColor colorWithCalibratedWhite:0.73 alpha:1.0], 0.0, 
                      [NSColor colorWithCalibratedWhite:0.85 alpha:1.0], 0.4,
-                     [NSColor colorWithCalibratedWhite:0.695 alpha:1.0], 0.7,
+                     [NSColor colorWithCalibratedWhite:0.68 alpha:1.0], 0.7,
                      [NSColor colorWithCalibratedWhite:0.56 alpha:1.0], 1.0,
                      nil] autorelease];
     }
     [gradientView setVerticalGradient:gradient];
     
     gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                 [NSColor colorWithCalibratedWhite:1.0 alpha:0.1], 0.0, 
+                 [NSColor colorWithCalibratedWhite:1.0 alpha:0.03], 0.0, 
                  [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.2,
                  [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.8,
-                 [NSColor colorWithCalibratedWhite:1.0 alpha:0.1], 1.0,
+                 [NSColor colorWithCalibratedWhite:1.0 alpha:0.03], 1.0,
                  nil] autorelease];
     [gradientView setHorizontalGradient:gradient];
 }

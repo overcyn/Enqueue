@@ -102,7 +102,7 @@
 									<int key="NSButtonFlags2">6</int>
 									<object class="NSCustomResource" key="NSNormalImage">
 										<string key="NSClassName">NSImage</string>
-										<string key="NSResourceName">PRRepeatOffIcon</string>
+										<string key="NSResourceName">Repeat</string>
 									</object>
 									<string key="NSAlternateContents"/>
 									<string key="NSKeyEquivalent"/>
@@ -115,7 +115,7 @@
 								<int key="NSvFlags">269</int>
 								<string key="NSFrame">{{11, 24}, {17, 17}}</string>
 								<reference key="NSSuperview" ref="871707096"/>
-								<reference key="NSNextKeyView" ref="744767325"/>
+								<reference key="NSNextKeyView" ref="874352877"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSButtonCell" key="NSCell" id="833404830">
 									<int key="NSCellFlags">67239424</int>
@@ -127,7 +127,7 @@
 									<int key="NSButtonFlags2">134</int>
 									<object class="NSCustomResource" key="NSNormalImage">
 										<string key="NSClassName">NSImage</string>
-										<string key="NSResourceName">PRShuffleIcon</string>
+										<string key="NSResourceName">Shuffle</string>
 									</object>
 									<string key="NSAlternateContents"/>
 									<string key="NSKeyEquivalent"/>
@@ -152,7 +152,7 @@
 									<int key="NSButtonFlags2">134</int>
 									<object class="NSCustomResource" key="NSNormalImage">
 										<string key="NSClassName">NSImage</string>
-										<string key="NSResourceName">PRPlayIcon</string>
+										<string key="NSResourceName">PlayButton</string>
 									</object>
 									<string key="NSAlternateContents"/>
 									<string key="NSKeyEquivalent"/>
@@ -181,7 +181,7 @@
 									<int key="NSButtonFlags2">70</int>
 									<object class="NSCustomResource" key="NSNormalImage">
 										<string key="NSClassName">NSImage</string>
-										<string key="NSResourceName">PRNextIcon</string>
+										<string key="NSResourceName">NextButton</string>
 									</object>
 									<string key="NSAlternateContents"/>
 									<string key="NSKeyEquivalent"/>
@@ -194,7 +194,7 @@
 								<int key="NSvFlags">269</int>
 								<string key="NSFrame">{{35, 15}, {35, 35}}</string>
 								<reference key="NSSuperview" ref="871707096"/>
-								<reference key="NSNextKeyView" ref="463493782"/>
+								<reference key="NSNextKeyView" ref="744767325"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSButtonCell" key="NSCell" id="497004148">
 									<int key="NSCellFlags">67239424</int>
@@ -206,7 +206,7 @@
 									<int key="NSButtonFlags2">198</int>
 									<object class="NSCustomResource" key="NSNormalImage">
 										<string key="NSClassName">NSImage</string>
-										<string key="NSResourceName">PRPreviousIcon</string>
+										<string key="NSResourceName">PreviousButton</string>
 									</object>
 									<string key="NSAlternateContents"/>
 									<string key="NSKeyEquivalent"/>
@@ -264,6 +264,7 @@
 								<int key="NSvFlags">266</int>
 								<string key="NSFrame">{{141, 2}, {41, 12}}</string>
 								<reference key="NSSuperview" ref="871707096"/>
+								<reference key="NSNextKeyView"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSTextFieldCell" key="NSCell" id="393765417">
 									<int key="NSCellFlags">-2080244160</int>
@@ -287,7 +288,7 @@
 								<int key="NSvFlags">266</int>
 								<string key="NSFrame">{{4, 2}, {41, 12}}</string>
 								<reference key="NSSuperview" ref="871707096"/>
-								<reference key="NSNextKeyView" ref="874352877"/>
+								<reference key="NSNextKeyView" ref="463493782"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSTextFieldCell" key="NSCell" id="347017466">
 									<int key="NSCellFlags">-2080244160</int>
@@ -858,11 +859,11 @@
 			<bool key="EncodedWithXMLCoder">YES</bool>
 			<object class="NSArray" key="dict.sortedKeys">
 				<bool key="EncodedWithXMLCoder">YES</bool>
-				<string>PRNextIcon</string>
-				<string>PRPlayIcon</string>
-				<string>PRPreviousIcon</string>
-				<string>PRRepeatOffIcon</string>
-				<string>PRShuffleIcon</string>
+				<string>NextButton</string>
+				<string>PlayButton</string>
+				<string>PreviousButton</string>
+				<string>Repeat</string>
+				<string>Shuffle</string>
 			</object>
 			<object class="NSMutableArray" key="dict.values">
 				<bool key="EncodedWithXMLCoder">YES</bool>
