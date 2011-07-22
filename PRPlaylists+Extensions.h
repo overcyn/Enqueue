@@ -59,5 +59,7 @@
 - (PRLibraryViewMode)libraryViewModeForPlaylist:(PRPlaylist)playlist;
 - (void)setLibraryViewMode:(PRLibraryViewMode)libraryViewMode forPlaylist:(PRPlaylist)playlist;
 
+- (NSData *)ruleForPlaylist:(PRPlaylist)playlist;
+- (void)setRule:(NSData *)rule forPlaylist:(PRPlaylist)playlist;
 
 @end

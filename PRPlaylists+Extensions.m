@@ -376,4 +376,14 @@
     [self setValue:[NSNumber numberWithInt:libraryViewMode] forPlaylist:playlist attribute:PRLibraryViewModePlaylistAttribute];
 }
 
+- (NSData *)ruleForPlaylist:(PRPlaylist)playlist
+{
+    return [self valueForPlaylist:playlist attribute:PRRulesPlaylistAttribute];
+}
+
+- (void)setRule:(NSData *)rule forPlaylist:(PRPlaylist)playlist
+{
+    [self setValue:rule forPlaylist:playlist attribute:PRRulesPlaylistAttribute];
+}
+
 @end

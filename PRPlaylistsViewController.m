@@ -102,13 +102,24 @@
 
 - (void)duplicatePlaylist:(PRPlaylist)playlist
 {
-    int newPlaylist = [[db playlists] addStaticPlaylist];
-    [[db playlists] copyFilesFromPlaylist:playlist toPlaylist:newPlaylist];
-    NSString *title = [[db playlists] titleForPlaylist:playlist];
-    NSString *title2 = [title stringByAppendingString:@" Copy"];
-    [[db playlists] setValue:title2 forPlaylist:newPlaylist attribute:PRTitlePlaylistAttribute];
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification object:self userInfo:nil];
-    [self renamePlaylist:newPlaylist];
+    PRPlaylistType type = [[db playlists] typeForPlaylist:playlist];
+    if (type == PRStaticPlaylistType) {
+        int newPlaylist = [[db playlists] addStaticPlaylist];
+        [[db playlists] copyFilesFromPlaylist:playlist toPlaylist:newPlaylist];
+        NSString *title = [[db playlists] titleForPlaylist:playlist];
+        NSString *title2 = [title stringByAppendingString:@" Copy"];
+        [[db playlists] setValue:title2 forPlaylist:newPlaylist attribute:PRTitlePlaylistAttribute];
+        [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification object:self userInfo:nil];
+        [self renamePlaylist:newPlaylist];
+    } else if (type == PRSmartPlaylistType) {
+        int newPlaylist = [[db playlists] addSmartPlaylist];
+        [[db playlists] setRule:[[db playlists] ruleForPlaylist:playlist] forPlaylist:newPlaylist];
+        NSString *title = [[db playlists] titleForPlaylist:playlist];
+        NSString *title2 = [title stringByAppendingString:@" Copy"];
+        [[db playlists] setValue:title2 forPlaylist:newPlaylist attribute:PRTitlePlaylistAttribute];
+        [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification object:self userInfo:nil];
+        [self renamePlaylist:newPlaylist];
+    }
 }
 
 - (void)deletePlaylist:(PRPlaylist)playlist
