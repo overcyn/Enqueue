@@ -161,7 +161,7 @@
 	// int animationDelay = 38000 + (2000 * ([self bounds].size.height / 32));
     
     // Set the rev per minute here
-    int omega = 100; // RPM
+    int omega = 60; // RPM
     int animationDelay = 60*1000000/omega/_numFins;
 	int poolFlushCounter = 0;
     

@@ -8,7 +8,9 @@
     NSURL *iTunesURL;
     
     PRCore *core;
-	PRDb *db;
+	PRDb *_db;
+    
+    int _tempFileCount;
 }
 
 - (id)initWithURL:(NSURL *)URL_ core:(PRCore *)core;

@@ -90,7 +90,7 @@
                               artist, [NSNumber numberWithInt:1], nil];
     NSArray *result;
     
-    if ([[PRUserDefaults sharedUserDefaults] useAlbumArtist]) {
+    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
         if (![db executeStatement:@"SELECT file_id FROM library WHERE artistAlbumArtist COLLATE NOCASE2 = ?1 AND albumArt = 1"
                      withBindings:bindings 
                            result:&result 
@@ -177,7 +177,7 @@
 
 - (NSString *)cachedAlbumArtPathForFile:(PRFile)file
 {
-	NSString *path = [[PRUserDefaults sharedUserDefaults] cachedAlbumArtPath];
+	NSString *path = [[PRUserDefaults userDefaults] cachedAlbumArtPath];
 	path = [path stringByAppendingPathComponent:
 			[NSString stringWithFormat:@"%03d", ((file / 1000000) % 1000)]];
 	path = [path stringByAppendingPathComponent:
@@ -190,7 +190,7 @@
 
 - (NSString *)downloadedAlbumArtPathForFile:(PRFile)file
 {
-	NSString *path = [[PRUserDefaults sharedUserDefaults] downloadedAlbumArtPath];
+	NSString *path = [[PRUserDefaults userDefaults] downloadedAlbumArtPath];
 	path = [path stringByAppendingPathComponent:
 			[NSString stringWithFormat:@"%03d", ((file / 1000000) % 1000)]];
 	path = [path stringByAppendingPathComponent:

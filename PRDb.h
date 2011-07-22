@@ -22,7 +22,6 @@ typedef enum {PRColumnInteger, PRColumnFloat, PRColumnString, PRColumnData} PRCo
 // ========================================
 @interface PRDb : NSObject {
 	sqlite3 *sqlDb;
-    sqlite3 *sqlDb2;
 	PRHistory *history;
 	PRLibrary *library;
 	PRPlaylists *playlists;
@@ -31,16 +30,18 @@ typedef enum {PRColumnInteger, PRColumnFloat, PRColumnString, PRColumnData} PRCo
 	PRNowPlayingViewSource *nowPlayingViewSource;
     PRPlaybackOrder *playbackOrder;
 	PRAlbumArtController *albumArtController;
+    
+    int transaction;
 }
 
 // ========================================
 // Initialization
 
-- (BOOL)open_error:(NSError **)error;
-- (BOOL)create_error:(NSError **)error;
-- (BOOL)update_error:(NSError **)error;
-- (BOOL)initialize_error:(NSError **)error;
-- (BOOL)validate_error:(NSError **)error;
+- (BOOL)open;
+- (void)create;
+- (BOOL)update;
+- (void)initialize;
+- (BOOL)validate;
 
 // ========================================
 // Error
@@ -65,6 +66,14 @@ typedef enum {PRColumnInteger, PRColumnFloat, PRColumnString, PRColumnData} PRCo
 
 // ========================================
 // Action
+
+- (void)begin;
+- (void)rollback;
+- (void)commit;
+- (NSArray *)executeString:(NSString *)string;
+- (NSArray *)executeString:(NSString *)string withBindings:(NSDictionary *)bindings columns:(NSArray *)columns;
+- (NSArray *)executeCachedString:(NSString *)string;
+- (NSArray *)executeCachedString:(NSString *)string withBindings:(NSDictionary *)bindings columns:(NSArray *)columns;
 
 - (BOOL)executeStatement:(NSString *)stmt _error:(NSError **)error;
 - (BOOL)executeStatement:(NSString *)stmtString 
@@ -125,3 +134,6 @@ typedef enum {PRColumnInteger, PRColumnFloat, PRColumnString, PRColumnData} PRCo
 + (NSArray *)executeString:(NSString *)string withDb:(PRDb *)db;
 
 @end
+
+int no_case(void *udp, int lenA, const void *strA, int lenB, const void *strB);
+CFRange PRFormatString(UniChar *string, int length);

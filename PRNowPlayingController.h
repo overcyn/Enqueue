@@ -20,9 +20,6 @@ extern NSString * const PRRepeatDidChangeNotification;
 	PRPlaylist currentPlaylist;
 	PRPlaylistItem currentPlaylistItem; // 0 if none
 	
-	int repeat;
-	BOOL shuffle;
-	
 	NSMutableArray *queue;
     
     // current position in playback history. usually the end
@@ -52,12 +49,10 @@ extern NSString * const PRRepeatDidChangeNotification;
 
 @property (readonly) NSMutableIndexSet *invalidSongs;
 @property (readonly) NSMutableArray *queue;
+@property (readwrite) BOOL shuffle;
+@property (readwrite) int repeat;
 
 - (PRMoviePlayer *)mov;
-- (int)repeat;
-- (void)setRepeat:(int)repeat_;
-- (BOOL)shuffle;
-- (void)setShuffle:(BOOL)shuffle_;
 - (PRPlaylist)currentPlaylist;
 - (void)setCurrentPlaylist:(PRPlaylist)playlist;
 - (int)currentIndex;

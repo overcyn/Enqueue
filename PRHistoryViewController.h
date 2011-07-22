@@ -25,12 +25,6 @@ typedef enum {
     IBOutlet NSButton *recentlyAddedButton;
     IBOutlet NSButton *recentlyPlayedButton;
     
-    IBOutlet NSButton *weekButton;
-    IBOutlet NSButton *monthButton;
-    IBOutlet NSButton *sixMonthButton;
-    IBOutlet NSButton *yearButton;
-    IBOutlet NSButton *allTimeButton;
-    
     NSArray *dataSource;
     
     PRHistoryMode2 historyMode;

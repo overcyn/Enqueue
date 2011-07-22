@@ -69,9 +69,8 @@
     [(BWTexturedSlider *)volumeSlider setIndicatorIndex:3];
     
 	// bind buttons
-	NSDictionary *options = 
-      [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:FALSE] 
-                                  forKey:NSConditionallySetsEnabledBindingOption];
+	NSDictionary *options = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:FALSE] 
+                                                        forKey:NSConditionallySetsEnabledBindingOption];
 	[playPause bind:@"target" toObject:now withKeyPath:@"playPause" options:options];
 	[next bind:@"target" toObject:now withKeyPath:@"playNext" options:options];
 	[previous bind:@"target" toObject:now withKeyPath:@"playPrevious" options:options];
@@ -204,27 +203,25 @@
     }
     
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
-	[shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.7]];
+	[shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:1.0]];
 	[shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
     NSMutableParagraphStyle *centerAlign = [[[NSMutableParagraphStyle alloc] init] autorelease];
     [centerAlign setAlignment:NSCenterTextAlignment];
     
-    NSMutableDictionary *titleAttributes = 
-      [NSMutableDictionary dictionaryWithObjectsAndKeys:
-       [NSFont fontWithName:@"LucidaGrande-Bold" size:11], NSFontAttributeName,
-       [NSColor colorWithDeviceWhite:0.1 alpha:1.0], NSForegroundColorAttributeName,
-       centerAlign, NSParagraphStyleAttributeName,
-       shadow, NSShadowAttributeName,
-       nil];
+    NSMutableDictionary *titleAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                            [NSFont fontWithName:@"LucidaGrande-Bold" size:11], NSFontAttributeName,
+                                            [NSColor colorWithDeviceWhite:0.1 alpha:1.0], NSForegroundColorAttributeName,
+                                            centerAlign, NSParagraphStyleAttributeName,
+                                            shadow, NSShadowAttributeName,
+                                            nil];
     
     [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.4]];
-    NSMutableDictionary *albumAttributes = 
-      [NSMutableDictionary dictionaryWithObjectsAndKeys:
-       [NSFont fontWithName:@"LucidaGrande" size:11], NSFontAttributeName,
-       [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-       centerAlign, NSParagraphStyleAttributeName,
-       shadow, NSShadowAttributeName,
-       nil];
+    NSMutableDictionary *albumAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                            [NSFont fontWithName:@"LucidaGrande" size:11], NSFontAttributeName,
+                                            [NSColor colorWithDeviceWhite:0.2 alpha:1.0], NSForegroundColorAttributeName,
+                                            centerAlign, NSParagraphStyleAttributeName,
+                                            shadow, NSShadowAttributeName,
+                                            nil];
     
     if (mouseInTitle) {
         [titleAttributes setObject:[NSNumber numberWithInt:NSUnderlineStyleSingle] 
@@ -276,13 +273,12 @@
     NSMutableParagraphStyle *rightAlign = [[[NSMutableParagraphStyle alloc] init] autorelease];
     [rightAlign setAlignment:NSRightTextAlignment];
     
-    NSMutableDictionary *attributes = 
-        [NSMutableDictionary dictionaryWithObjectsAndKeys:
-         [NSFont fontWithName:@"LucidaGrande" size:9.5], NSFontAttributeName,
-         [NSColor colorWithDeviceWhite:0.25 alpha:1.0], NSForegroundColorAttributeName,
-         leftAlign, NSParagraphStyleAttributeName,
-         shadow, NSShadowAttributeName,
-         nil];
+    NSMutableDictionary *attributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                       [NSFont fontWithName:@"LucidaGrande" size:9.5], NSFontAttributeName,
+                                       [NSColor colorWithDeviceWhite:0.25 alpha:1.0], NSForegroundColorAttributeName,
+                                       leftAlign, NSParagraphStyleAttributeName,
+                                       shadow, NSShadowAttributeName,
+                                       nil];
     
     NSString *currentTime_ = [timeFormatter stringForObjectValue:[NSNumber numberWithLong:[[now mov] currentTime]]];
     NSAttributedString *currentTimeAttributedString = [[[NSAttributedString alloc] initWithString:currentTime_ attributes:attributes] autorelease];
@@ -312,10 +308,9 @@
     if (showsArtwork) {
         gradient = [[[NSGradient alloc] initWithColorsAndLocations:
                      [NSColor colorWithCalibratedWhite:0.73 alpha:1.0], 0.0, 
-//                     [NSColor colorWithCalibratedWhite:0.80 alpha:1.0], 0.3,
                      [NSColor colorWithCalibratedWhite:0.685 alpha:1.0], 0.65,
-                     [NSColor colorWithCalibratedWhite:0.59 alpha:1.0], 0.80,
-                     [NSColor colorWithCalibratedWhite:0.57 alpha:1.0], 1.0,
+                     [NSColor colorWithCalibratedWhite:0.59 alpha:1.0], 0.90,
+                     [NSColor colorWithCalibratedWhite:0.54 alpha:1.0], 1.0,
                      nil] autorelease];
     } else {
         gradient = [[[NSGradient alloc] initWithColorsAndLocations:

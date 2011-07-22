@@ -6,7 +6,6 @@
 
 NSString * const PRPreGainDidChangeNotification = @"PRPreGainDidChangeNotification";
 NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidChangeNotification";
-static PRUserDefaults *sharedUserDefaults = nil;
 
 @implementation PRUserDefaults
 
@@ -14,88 +13,29 @@ static PRUserDefaults *sharedUserDefaults = nil;
 // Initialization
 // ========================================
 
-+ (PRUserDefaults *)sharedUserDefaults
-{
-    if (sharedUserDefaults == nil) {
-        sharedUserDefaults = [[super allocWithZone:NULL] init];
-    }
-    return sharedUserDefaults;
-}
-
 - (id)init
 {
-    self = [super init];
-	if (self) {
-		defaults = [NSUserDefaults standardUserDefaults];
-        [defaults setBool:TRUE forKey:@"NSDisabledCharacterPaletteMenuItem"];
-	}
-	return self;
-}
-
-+ (id)allocWithZone:(NSZone *)zone
-{
-    return [[self sharedUserDefaults] retain];   
-}
-
-- (id)copyWithZone:(NSZone *)zone
-{
-    return self;   
-}
-
-- (id)retain
-{
+    if (!(self = [super init])) {
+        return nil;
+    }
+    defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setBool:TRUE forKey:@"NSDisabledCharacterPaletteMenuItem"];
     return self;
 }
 
-- (NSUInteger)retainCount
++ (id)userDefaults
 {
-    return NSUIntegerMax;  //denotes an object that cannot be released
-}
-
-- (void)release
-{
-    //do nothing
-}
-
-- (id)autorelease
-{
-    return self;
-}
-
-- (void)dealloc
-{
-    [super dealloc];
+    return [[[PRUserDefaults alloc] init] autorelease];
 }
 
 // ========================================
 // Accessors
 // ========================================
 
-@dynamic showWelcomeSheet;
-@dynamic showsArtwork;
-@dynamic preGain;
 @dynamic volume;
-@dynamic postGrowlNotification;
-@dynamic mediaKeys;
-@dynamic lastFMUsername;
-@dynamic useAlbumArtist;
-@dynamic lastEventStreamEventId;
-@dynamic monitoredFolders;
-
-- (BOOL)showWelcomeSheet
-{
-    NSNumber *object = [defaults objectForKey:@"showsWelcomeSheet"];
-    if (object && [object isKindOfClass:[NSNumber class]]) {
-        return [object boolValue];
-    } else {
-        return TRUE;
-    }
-}
-
-- (void)setShowWelcomeSheet:(BOOL)showsWelcomeSheet
-{
-    [defaults setObject:[NSNumber numberWithBool:showsWelcomeSheet] forKey:@"showsWelcomeSheet"];
-}
+@dynamic repeat;
+@dynamic shuffle;
+@dynamic preGain;
 
 - (float)volume
 {
@@ -110,6 +50,36 @@ static PRUserDefaults *sharedUserDefaults = nil;
 - (void)setVolume:(float)volume
 {
     [defaults setObject:[NSNumber numberWithFloat:volume] forKey:@"volume"];
+}
+
+- (BOOL)repeat
+{
+    NSNumber *object = [defaults objectForKey:@"repeat"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object boolValue];
+    } else {
+        return TRUE;
+    }
+}
+
+- (void)setRepeat:(BOOL)repeat
+{
+    [defaults setObject:[NSNumber numberWithBool:repeat] forKey:@"repeat"];
+}
+
+- (BOOL)shuffle
+{
+    NSNumber *object = [defaults objectForKey:@"shuffle"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object boolValue];
+    } else {
+        return TRUE;
+    }
+}
+
+- (void)setShuffle:(BOOL)shuffle
+{
+    [defaults setObject:[NSNumber numberWithBool:shuffle] forKey:@"shuffle"];
 }
 
 - (float)preGain
@@ -128,6 +98,26 @@ static PRUserDefaults *sharedUserDefaults = nil;
     [[NSNotificationCenter defaultCenter] postNotificationName:PRPreGainDidChangeNotification object:self];
 }
 
+@dynamic showWelcomeSheet;
+@dynamic showsArtwork;
+@dynamic useAlbumArtist;
+
+
+- (BOOL)showWelcomeSheet
+{
+    NSNumber *object = [defaults objectForKey:@"showsWelcomeSheet"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object boolValue];
+    } else {
+        return TRUE;
+    }
+}
+
+- (void)setShowWelcomeSheet:(BOOL)showsWelcomeSheet
+{
+    [defaults setObject:[NSNumber numberWithBool:showsWelcomeSheet] forKey:@"showsWelcomeSheet"];
+}
+
 - (BOOL)showsArtwork
 {
     NSNumber *object = [defaults objectForKey:@"showsArtwork"];
@@ -143,6 +133,25 @@ static PRUserDefaults *sharedUserDefaults = nil;
     [defaults setObject:[NSNumber numberWithBool:showsArtwork] forKey:@"showsArtwork"];
 }
 
+- (BOOL)useAlbumArtist
+{
+    NSNumber *object = [defaults objectForKey:@"usesAlbumArt"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object boolValue];
+    } else {
+        return TRUE;
+    }
+}
+
+- (void)setUseAlbumArtist:(BOOL)usesAlbumArt
+{
+    [defaults setObject:[NSNumber numberWithBool:usesAlbumArt] forKey:@"usesAlbumArt"];
+}
+
+@dynamic mediaKeys;
+@dynamic postGrowlNotification;
+@dynamic lastFMUsername;
+
 - (BOOL)mediaKeys
 {
     NSNumber *object = [defaults objectForKey:@"mediaKeys"];
@@ -157,7 +166,6 @@ static PRUserDefaults *sharedUserDefaults = nil;
 {
     [defaults setObject:[NSNumber numberWithBool:mediaKeys] forKey:@"mediaKeys"];
 }
-
 
 - (BOOL)postGrowlNotification
 {
@@ -189,36 +197,8 @@ static PRUserDefaults *sharedUserDefaults = nil;
     [defaults setObject:lastFMUsername forKey:@"lastFMUsername"];
 }
 
-- (BOOL)useAlbumArtist
-{
-    NSNumber *object = [defaults objectForKey:@"usesAlbumArt"];
-    if (object && [object isKindOfClass:[NSNumber class]]) {
-        return [object boolValue];
-    } else {
-        return TRUE;
-    }
-}
-
-- (void)setUseAlbumArtist:(BOOL)usesAlbumArt
-{
-    [defaults setObject:[NSNumber numberWithBool:usesAlbumArt] forKey:@"usesAlbumArt"];
-}
-
-- (FSEventStreamEventId)lastEventStreamEventId
-{
-    NSNumber *object = [defaults objectForKey:@"lastEventStreamEventIdea"];
-    if (object && [object isKindOfClass:[NSNumber class]]) {
-        return [object unsignedLongLongValue];
-    } else {
-        return 0;
-    }
-}
-
-- (void)setLastEventStreamEventId:(FSEventStreamEventId)lastEventStreamEventId
-{
-    [defaults setObject:[NSNumber numberWithUnsignedLongLong:lastEventStreamEventId] 
-                 forKey:@"lastEventStreamEventIdea"];
-}
+@dynamic monitoredFolders;
+@dynamic lastEventStreamEventId;
 
 - (NSArray *)monitoredFolders
 {
@@ -244,6 +224,22 @@ static PRUserDefaults *sharedUserDefaults = nil;
 {
     NSData *object = [NSKeyedArchiver archivedDataWithRootObject:monitoredFolders];
     [defaults setObject:object forKey:@"monitoredFolders"];
+}
+
+- (FSEventStreamEventId)lastEventStreamEventId
+{
+    NSNumber *object = [defaults objectForKey:@"lastEventStreamEventIdea"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object unsignedLongLongValue];
+    } else {
+        return 0;
+    }
+}
+
+- (void)setLastEventStreamEventId:(FSEventStreamEventId)lastEventStreamEventId
+{
+    [defaults setObject:[NSNumber numberWithUnsignedLongLong:lastEventStreamEventId] 
+                 forKey:@"lastEventStreamEventIdea"];
 }
 
 @dynamic applicationSupportPath;

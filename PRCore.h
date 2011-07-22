@@ -23,6 +23,7 @@ PRWelcomeSheetController, PRGrowl, PRLastfm;
     NSConnection *connection;
     
 	PRDb *db;
+    PRDb *db2;
 	PRNowPlayingController *now;
 	PRMainWindowController *win;
 	NSOperationQueue *opQueue;
@@ -36,6 +37,7 @@ PRWelcomeSheetController, PRGrowl, PRLastfm;
 // Properties
 
 @property (readonly) PRDb *db;
+@property (readonly) PRDb *db2;
 @property (readonly) PRMainWindowController *win;
 @property (readonly) PRNowPlayingController *now;
 @property (readonly) NSOperationQueue *opQueue;

@@ -1,8 +1,8 @@
 #import <Cocoa/Cocoa.h>
-#import "PRGradientView.h"
+#import "PRTitleBarGradientView.h"
 
 
-@interface PRRoundedGradientView : PRGradientView 
+@interface PRRoundedGradientView : PRTitleBarGradientView 
 {
     
 }

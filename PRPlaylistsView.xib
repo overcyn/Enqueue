@@ -2,13 +2,13 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.10">
 	<data>
 		<int key="IBDocument.SystemTarget">1050</int>
-		<string key="IBDocument.SystemVersion">10J869</string>
-		<string key="IBDocument.InterfaceBuilderVersion">1305</string>
-		<string key="IBDocument.AppKitVersion">1038.35</string>
-		<string key="IBDocument.HIToolboxVersion">461.00</string>
+		<string key="IBDocument.SystemVersion">11A511</string>
+		<string key="IBDocument.InterfaceBuilderVersion">1565</string>
+		<string key="IBDocument.AppKitVersion">1138</string>
+		<string key="IBDocument.HIToolboxVersion">566.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
-			<string key="NS.object.0">1305</string>
+			<string key="NS.object.0">1565</string>
 		</object>
 		<object class="NSArray" key="IBDocument.IntegratedClassDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -62,7 +62,7 @@
 								<string key="NSFrameSize">{319, 332}</string>
 								<reference key="NSSuperview" ref="571405277"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView" ref="258137209"/>
+								<reference key="NSNextKeyView" ref="194895930"/>
 							</object>
 						</object>
 						<string key="NSFrameSize">{319, 332}</string>
@@ -82,6 +82,7 @@
 						<string key="NSFrame">{{319, 0}, {15, 332}}</string>
 						<reference key="NSSuperview" ref="961204144"/>
 						<reference key="NSWindow"/>
+						<reference key="NSNextKeyView"/>
 						<reference key="NSTarget" ref="961204144"/>
 						<string key="NSAction">_doScroller:</string>
 						<double key="NSCurValue">1</double>
@@ -103,11 +104,12 @@
 				<string key="NSFrameSize">{334, 332}</string>
 				<reference key="NSSuperview"/>
 				<reference key="NSWindow"/>
-				<reference key="NSNextKeyView" ref="571405277"/>
-				<int key="NSsFlags">16</int>
+				<reference key="NSNextKeyView" ref="258137209"/>
+				<int key="NSsFlags">133136</int>
 				<reference key="NSVScroller" ref="194895930"/>
 				<reference key="NSHScroller" ref="258137209"/>
 				<reference key="NSContentView" ref="571405277"/>
+				<bytes key="NSScrollAmts">QaAAAEGgAABBoAAAQaAAAA</bytes>
 			</object>
 			<object class="NSCustomView" id="1068362994">
 				<reference key="NSNextResponder"/>
@@ -135,7 +137,7 @@
 												<string key="NSFrameSize">{531, 646}</string>
 												<reference key="NSSuperview" ref="691852804"/>
 												<reference key="NSWindow"/>
-												<reference key="NSNextKeyView" ref="943345424"/>
+												<reference key="NSNextKeyView" ref="930821360"/>
 												<bool key="NSEnabled">YES</bool>
 												<object class="_NSCornerView" key="NSCornerView">
 													<nil key="NSNextResponder"/>
@@ -215,7 +217,7 @@
 													<bytes key="NSWhite">MC45MwA</bytes>
 												</object>
 												<double key="NSRowHeight">17</double>
-												<int key="NSTvFlags">-767557632</int>
+												<int key="NSTvFlags">-230686720</int>
 												<reference key="NSDelegate"/>
 												<reference key="NSDataSource"/>
 												<int key="NSGridStyleMask">2</int>
@@ -224,6 +226,7 @@
 												<int key="NSDraggingSourceMaskForNonLocal">0</int>
 												<bool key="NSAllowsTypeSelect">NO</bool>
 												<int key="NSTableViewDraggingDestinationStyle">0</int>
+												<int key="NSTableViewGroupRowStyle">1</int>
 											</object>
 										</object>
 										<string key="NSFrameSize">{531, 646}</string>
@@ -239,6 +242,7 @@
 										<string key="NSFrame">{{516, 0}, {15, 721}}</string>
 										<reference key="NSSuperview" ref="542311260"/>
 										<reference key="NSWindow"/>
+										<reference key="NSNextKeyView"/>
 										<reference key="NSTarget" ref="542311260"/>
 										<string key="NSAction">_doScroller:</string>
 										<double key="NSPercent">0.99861495844875348</double>
@@ -259,8 +263,8 @@
 								<string key="NSFrame">{{60, 65}, {531, 646}}</string>
 								<reference key="NSSuperview" ref="323308799"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView" ref="691852804"/>
-								<int key="NSsFlags">528</int>
+								<reference key="NSNextKeyView" ref="943345424"/>
+								<int key="NSsFlags">133648</int>
 								<reference key="NSVScroller" ref="930821360"/>
 								<reference key="NSHScroller" ref="943345424"/>
 								<reference key="NSContentView" ref="691852804"/>
@@ -272,7 +276,7 @@
 								<string key="NSFrame">{{57, 723}, {122, 23}}</string>
 								<reference key="NSSuperview" ref="323308799"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView" ref="726884225"/>
+								<reference key="NSNextKeyView" ref="136326032"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSTextFieldCell" key="NSCell" id="358654387">
 									<int key="NSCellFlags">68288064</int>
@@ -292,14 +296,40 @@
 									</object>
 									<object class="NSColor" key="NSTextColor">
 										<int key="NSColorSpace">3</int>
-										<bytes key="NSWhite">MC40AA</bytes>
+										<bytes key="NSWhite">MC4yNQA</bytes>
 									</object>
+								</object>
+							</object>
+							<object class="NSButton" id="136326032">
+								<reference key="NSNextResponder" ref="323308799"/>
+								<int key="NSvFlags">265</int>
+								<string key="NSFrame">{{490, 723}, {100, 17}}</string>
+								<reference key="NSSuperview" ref="323308799"/>
+								<reference key="NSWindow"/>
+								<reference key="NSNextKeyView" ref="726884225"/>
+								<bool key="NSEnabled">YES</bool>
+								<object class="NSButtonCell" key="NSCell" id="332323254">
+									<int key="NSCellFlags">67239424</int>
+									<int key="NSCellFlags2">134348800</int>
+									<string key="NSContents">Smart Playlist</string>
+									<reference key="NSSupport" ref="26"/>
+									<reference key="NSControlView" ref="136326032"/>
+									<int key="NSButtonFlags">-2034482945</int>
+									<int key="NSButtonFlags2">36</int>
+									<object class="NSCustomResource" key="NSNormalImage" id="504610096">
+										<string key="NSClassName">NSImage</string>
+										<string key="NSResourceName">NSAddTemplate</string>
+									</object>
+									<string key="NSAlternateContents"/>
+									<string key="NSKeyEquivalent"/>
+									<int key="NSPeriodicDelay">400</int>
+									<int key="NSPeriodicInterval">75</int>
 								</object>
 							</object>
 							<object class="NSButton" id="726884225">
 								<reference key="NSNextResponder" ref="323308799"/>
 								<int key="NSvFlags">265</int>
-								<string key="NSFrame">{{497, 723}, {90, 17}}</string>
+								<string key="NSFrame">{{416, 723}, {66, 17}}</string>
 								<reference key="NSSuperview" ref="323308799"/>
 								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="145185271"/>
@@ -307,15 +337,12 @@
 								<object class="NSButtonCell" key="NSCell" id="854291005">
 									<int key="NSCellFlags">67239424</int>
 									<int key="NSCellFlags2">134348800</int>
-									<string key="NSContents">Add Playlist</string>
+									<string key="NSContents">Playlist</string>
 									<reference key="NSSupport" ref="26"/>
 									<reference key="NSControlView" ref="726884225"/>
 									<int key="NSButtonFlags">-2034482945</int>
 									<int key="NSButtonFlags2">36</int>
-									<object class="NSCustomResource" key="NSNormalImage">
-										<string key="NSClassName">NSImage</string>
-										<string key="NSResourceName">NSAddTemplate</string>
-									</object>
+									<reference key="NSNormalImage" ref="504610096"/>
 									<string key="NSAlternateContents"/>
 									<string key="NSKeyEquivalent"/>
 									<int key="NSPeriodicDelay">400</int>
@@ -375,19 +402,27 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">divider2</string>
-						<reference key="source" ref="1001"/>
-						<reference key="destination" ref="145185271"/>
-					</object>
-					<int key="connectionID">168</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
 						<string key="label">tableView</string>
 						<reference key="source" ref="1001"/>
 						<reference key="destination" ref="981109872"/>
 					</object>
 					<int key="connectionID">183</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">newSmartPlaylistButton</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="136326032"/>
+					</object>
+					<int key="connectionID">186</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">divider</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="145185271"/>
+					</object>
+					<int key="connectionID">187</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -459,8 +494,9 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="145185271"/>
 							<reference ref="439774964"/>
-							<reference ref="726884225"/>
 							<reference ref="542311260"/>
+							<reference ref="136326032"/>
+							<reference ref="726884225"/>
 						</object>
 						<reference key="parent" ref="1068362994"/>
 					</object>
@@ -541,6 +577,20 @@
 						<reference key="object" ref="932084257"/>
 						<reference key="parent" ref="449120616"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">184</int>
+						<reference key="object" ref="136326032"/>
+						<object class="NSMutableArray" key="children">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<reference ref="332323254"/>
+						</object>
+						<reference key="parent" ref="323308799"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">185</int>
+						<reference key="object" ref="332323254"/>
+						<reference key="parent" ref="136326032"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -568,6 +618,8 @@
 					<string>177.CustomClassName</string>
 					<string>177.IBPluginDependency</string>
 					<string>181.CustomClassName</string>
+					<string>184.IBPluginDependency</string>
+					<string>185.IBPluginDependency</string>
 				</object>
 				<object class="NSMutableArray" key="dict.values">
 					<bool key="EncodedWithXMLCoder">YES</bool>
@@ -609,6 +661,8 @@
 					<string>PRRolloverTableView</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>PRPlaylistsCell</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="unlocalizedProperties">
@@ -623,7 +677,7 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">183</int>
+			<int key="maxID">187</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -677,7 +731,6 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>background</string>
 							<string>divider</string>
-							<string>divider2</string>
 							<string>newPlaylistButton</string>
 							<string>newSmartPlaylistButton</string>
 							<string>tableView</string>
@@ -685,7 +738,6 @@
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>NSView</string>
-							<string>PRGradientView</string>
 							<string>PRGradientView</string>
 							<string>NSButton</string>
 							<string>NSButton</string>
@@ -698,7 +750,6 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>background</string>
 							<string>divider</string>
-							<string>divider2</string>
 							<string>newPlaylistButton</string>
 							<string>newSmartPlaylistButton</string>
 							<string>tableView</string>
@@ -711,10 +762,6 @@
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">divider</string>
-								<string key="candidateClassName">PRGradientView</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">divider2</string>
 								<string key="candidateClassName">PRGradientView</string>
 							</object>
 							<object class="IBToOneOutletInfo">

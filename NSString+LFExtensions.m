@@ -27,13 +27,11 @@
 #import "NSString+LFExtensions.h"
 #import <CommonCrypto/CommonDigest.h>
 
-
+NSString *LFHexStringFromBytes(void *bytes, NSUInteger len);
 NSString *LFHexStringFromBytes(void *bytes, NSUInteger len)
 {
 	NSMutableString *output = [NSMutableString string];
-	
 	unsigned char *input = (unsigned char *)bytes;
-	
 	NSUInteger i;
 	for (i = 0; i < len; i++)
 		[output appendFormat:@"%02x", input[i]];

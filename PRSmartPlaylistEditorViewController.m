@@ -13,7 +13,7 @@
 
 - (id)initWithDb:(PRDb *)db
 {
-	if (self = [super initWithNibName:@"PRSmartPlaylistEditorView" bundle:nil]) {
+	if ((self = [super initWithNibName:@"PRSmartPlaylistEditorView" bundle:nil])) {
 		lib = [db library];
 		play = [db playlists];
 		
@@ -27,7 +27,7 @@
 }
 
 - (void)awakeFromNib
-{	
+{
 	[matchCheckBox setTarget:self];
 	[matchCheckBox setAction:@selector(toggle)];
 	[matchCheckBox bind:@"value" 
@@ -50,7 +50,6 @@
 											 selector:@selector(addRuleNotification:) 
 												 name:PRAddRuleNotification 
 											   object:nil];
-	
 	[[NSNotificationCenter defaultCenter] addObserver:self 
 											 selector:@selector(deleteRuleNotification:) 
 												 name:PRDeleteRuleNotification 
@@ -85,16 +84,10 @@
 
 - (void)updateCurrentRule
 {
-	NSData *data;
+	NSData *data = [play valueForPlaylist:currentPlaylist attribute:PRRulesPlaylistAttribute];
 	PRRule *rule;
-	
-	[play value:&data 
-	forPlaylist:currentPlaylist 
-	  attribute:PRRulesPlaylistAttribute 
-		 _error:nil];
-
 	if (!data) {
-		rule = [[PRRule alloc] init];
+		rule = [[[PRRule alloc] init] autorelease];
 	} else {
 		rule = [NSKeyedUnarchiver unarchiveObjectWithData:data];
 	}
@@ -103,13 +96,8 @@
 
 - (void)saveCurrentRule
 {
-	NSData *data;
-	
-	data = [NSKeyedArchiver archivedDataWithRootObject:currentRule];
-	[play setValue:data 
-	   forPlaylist:currentPlaylist 
-		 attribute:PRRulesPlaylistAttribute 
-			_error:nil];
+	NSData *data = [NSKeyedArchiver archivedDataWithRootObject:currentRule];
+    [play setValue:data forPlaylist:currentPlaylist attribute:PRRulesPlaylistAttribute];
 }
 
 - (void)ruleDidChangeNotification:(NSNotification *)notification

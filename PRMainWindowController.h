@@ -4,7 +4,7 @@
 
 @class PRCore, PRDb, PRPlaylists, PRNowPlayingController, PRFolderMonitor, PRTaskManagerViewController,
 PRNowPlayingViewController, PRControlsViewController, PRLibraryViewController, PRPreferencesViewController, 
-PRPlaylistsViewController, PRHistoryViewController, PRSongViewController, PRGradientView, 
+PRPlaylistsViewController, PRHistoryViewController, PRGradientView, 
 MAAttachedWindow, PRMainMenuController, YRKSpinningProgressIndicator, PRStringFormatter;
 
 typedef enum {
@@ -28,6 +28,7 @@ typedef enum {
     
     IBOutlet NSTextField *progressTextField;
     IBOutlet YRKSpinningProgressIndicator *progressIndicator;
+    IBOutlet NSButton *cancelButton;
     
     IBOutlet NSButton *infoButton;
     IBOutlet NSButton *listModeButton;
@@ -37,7 +38,6 @@ typedef enum {
     IBOutlet PRGradientView *toolbarView;
     IBOutlet PRGradientView *mainDivider;
     IBOutlet PRGradientView *divider;
-    IBOutlet PRGradientView *divider2;
     IBOutlet PRGradientView *divider5;
     
     IBOutlet NSTextField *playlistTitle;
@@ -50,7 +50,6 @@ typedef enum {
     // View controllers
     PRMainMenuController *mainMenuController;
     PRTaskManagerViewController *taskManagerViewController;
-    PRSongViewController *songViewController;
     PRLibraryViewController *libraryViewController;	
     PRHistoryViewController *historyViewController;
     PRPlaylistsViewController *playlistsViewController;
@@ -72,7 +71,6 @@ typedef enum {
 // ========================================
 // Accessors
 
-@property (readonly) PRSongViewController *songViewController;
 @property (readonly) PRLibraryViewController *libraryViewController;
 @property (readonly) PRHistoryViewController *historyViewController;
 @property (readonly) PRPlaylistsViewController *playlistsViewController;

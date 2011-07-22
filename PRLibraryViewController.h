@@ -43,7 +43,7 @@ typedef enum {
 	id currentViewController;
 	
 	// Current Playlist
-	PRPlaylist currentPlaylist;
+	PRPlaylist playlist;
 	
 	// Database, nowPlayingController, playlists. (weak)
     PRCore *core;
@@ -62,7 +62,7 @@ typedef enum {
 @property (readonly) id currentViewController;
 
 // Sets the current playlist
-- (void)setCurrentPlaylist:(PRPlaylist)playlist_;
+- (void)setPlaylist:(PRPlaylist)playlist_;
 
 // Gets and sets the current mode from PRPlaylists. Returns -1 if invalid playlist
 - (PRLibraryViewMode)libraryViewMode;

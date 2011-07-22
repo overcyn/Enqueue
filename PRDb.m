@@ -16,9 +16,6 @@
 #include <sys/file.h>
 
 
-int no_case(void *udp, int lenA, const void *strA, int lenB, const void *strB);
-CFRange PRFormatString(UniChar *string, int length);
-
 // ========================================
 // Constants
 // ========================================
@@ -49,11 +46,7 @@ NSString * const PRIndexesPboardType = @"PRIndexesPboardType";
 
 - (sqlite3 *)sqlDb
 {
-    if ([NSThread isMainThread]) {
-        return sqlDb;
-    } else {
-        return sqlDb2;
-    }
+    return sqlDb;
 }
 
 // ========================================
@@ -70,33 +63,30 @@ NSString * const PRIndexesPboardType = @"PRIndexesPboardType";
         libraryViewSource = [[PRLibraryViewSource alloc] initWithDb:self];
         nowPlayingViewSource = [[PRNowPlayingViewSource alloc] initWithDb:self];
         playbackOrder = [[PRPlaybackOrder alloc] initWithDb:self];
-        
         albumArtController = [[PRAlbumArtController alloc] initWithDb:self];
-        
-        NSString *libraryPath = [[PRUserDefaults sharedUserDefaults] libraryPath];
+        transaction = 0;
+        NSString *libraryPath = [[PRUserDefaults userDefaults] libraryPath];
         BOOL libraryExists = [[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:libraryPath isDirectory:nil];
-        
         if (!libraryExists) {
             goto create;
         }
-        if (![self open_error:nil]) {
+        if (![self open]) {
             goto create;
         }
-        if (![self update_error:nil]) {
+        if (![self update]) {
             goto create;
         }
-        if (![self initialize_error:nil]) {
+        if (![self validate]) {
             goto create;
         }
-        if (![self validate_error:nil]) {
-            goto create;
-        }
+        [self initialize];
     }
 	return self;
     
 create:;
+    NSLog(@"create;");
     // move library
-    NSString *libraryPath = [[PRUserDefaults sharedUserDefaults] libraryPath];
+    NSString *libraryPath = [[PRUserDefaults userDefaults] libraryPath];
     BOOL libraryExists = [[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:libraryPath isDirectory:nil];
     if (libraryExists) {
         NSString *newLibraryPath;
@@ -121,27 +111,43 @@ create:;
         }
         [[PRLog sharedLog] presentError:[self databaseWasMovedError:newLibraryPath]];
     }
-    if (![self open_error:nil]) {
-        [[PRLog sharedLog] presentFatalError:[self databaseCouldNotBeInitializedError]];
-        [self release];
-        return nil;
+    NSString *albumArtPath = [[PRUserDefaults userDefaults] cachedAlbumArtPath];
+    BOOL albumArtExists = [[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:albumArtPath isDirectory:nil];
+    if (albumArtExists) {
+        NSString *newAlbumArtPath;
+        int i = 2;
+        while (TRUE) {
+            newAlbumArtPath = [albumArtPath stringByAppendingString:[NSString stringWithFormat:@" %d",i]];
+            if (![[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:newAlbumArtPath  isDirectory:nil]) {
+                break;
+            }
+            if (i > 50) {
+                [[PRLog sharedLog] presentFatalError:[self databaseCouldNotBeInitializedError]];
+                return FALSE;
+            }
+            i++;
+        }
+        BOOL success = [[[[NSFileManager alloc] init] autorelease] moveItemAtPath:albumArtPath toPath:newAlbumArtPath error:nil];
+        if (!success) {
+            [[PRLog sharedLog] presentFatalError:[self databaseCouldNotBeInitializedError]];
+            return FALSE;
+        }
     }
-    if (![self create_error:nil]) {
-        [[PRLog sharedLog] presentFatalError:[self databaseCouldNotBeInitializedError]];
-        [self release];
-        return nil;
+    
+    if (![self open]) {
+        goto fail;
     }
-    if (![self initialize_error:nil]) {
-        [[PRLog sharedLog] presentFatalError:[self databaseCouldNotBeInitializedError]];
-        [self release];
-        return nil;
-    }
-    if (![self validate_error:nil]) {
-        [[PRLog sharedLog] presentFatalError:[self databaseCouldNotBeInitializedError]];
-        [self release];
-        return nil;
+    [self create];
+    [self initialize];
+    if (![self validate]) {
+        goto fail;
     }
     return self;
+    
+fail:;
+    [[PRLog sharedLog] presentFatalError:nil];
+    [self release];
+    return nil;
 }
 
 - (void)dealloc
@@ -156,196 +162,135 @@ create:;
     [super dealloc];
 }
 
-- (BOOL)open_error:(NSError **)error
+- (BOOL)open
 {
-	// initialize SQLite
-	int e = sqlite3_initialize();
-	if (e != SQLITE_OK) {
-		NSLog(@"PRDb SQLiteInit_error: initialize failed: %d", e);
+	int err = sqlite3_initialize();
+	if (err != SQLITE_OK) {
 		return FALSE;
 	}
 	
     sqlite3_close(sqlDb);
-    sqlite3_close(sqlDb2);
     
-	// create or open Sqlite db
-    NSString *libraryPath = [[PRUserDefaults sharedUserDefaults] libraryPath];
+    NSString *libraryPath = [[PRUserDefaults userDefaults] libraryPath];
 	const char *filename = [libraryPath fileSystemRepresentation];
-	e = sqlite3_open_v2(filename, &sqlDb, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, NULL);
-	if (e != SQLITE_OK) {
-		sqlite3_close(sqlDb);
-		NSLog(@"PRDb SQLiteInit_error: open failed: %d", e);
+	err = sqlite3_open_v2(filename, &sqlDb, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, NULL);
+	if (err != SQLITE_OK) {
 		return FALSE;
 	}
 	
-	// enable extended error codes
-	e = sqlite3_extended_result_codes(sqlDb, TRUE);
-	if (e != SQLITE_OK) {
+	err = sqlite3_extended_result_codes(sqlDb, TRUE);
+	if (err != SQLITE_OK) {
 		return FALSE;
 	}
 	
-	// enable foreign keys
-	e = sqlite3_exec(sqlDb, "PRAGMA foreign_keys = ON", NULL, NULL, NULL);
-	if (e != SQLITE_OK) {
+	err = sqlite3_exec(sqlDb, "PRAGMA foreign_keys = ON", NULL, NULL, NULL);
+	if (err != SQLITE_OK) {
 		return FALSE;
 	}
     
-//    e = sqlite3_exec(sqlDb, "PRAGMA temp_store = 1", NULL, NULL, NULL);
-//	if (e != SQLITE_OK) {
-//		return FALSE;
-//	}
-    	
-	// register custom collation
-	e = sqlite3_create_collation(sqlDb, "NOCASE2", SQLITE_UTF16, NULL, no_case);
-	if (e != SQLITE_OK) {
-		return FALSE;
-	}
-    
-    // create or open Sqlite db
-	e = sqlite3_open_v2(filename, &sqlDb2, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, NULL);
-	if (e != SQLITE_OK) {
-		sqlite3_close(sqlDb2);
-		return FALSE;
-	}
-	
-	// enable extended error codes
-	e = sqlite3_extended_result_codes(sqlDb2, TRUE);
-	if (e != SQLITE_OK) {
-		return FALSE;
-	}
-	
-	// enable foreign keys
-	e = sqlite3_exec(sqlDb2, "PRAGMA foreign_keys = ON", NULL, NULL, NULL);
-	if (e != SQLITE_OK) {
-		return FALSE;
-	}
-	
-//    e = sqlite3_exec(sqlDb2, "PRAGMA temp_store = 1", NULL, NULL, NULL);
-//	if (e != SQLITE_OK) {
-//		return FALSE;
-//	}
-        
-	// register custom collation
-	e = sqlite3_create_collation(sqlDb2, "NOCASE2", SQLITE_UTF16, NULL, no_case);
-	if (e != SQLITE_OK) {
+	err = sqlite3_create_collation(sqlDb, "NOCASE2", SQLITE_UTF16, NULL, no_case);
+	if (err != SQLITE_OK) {
 		return FALSE;
 	}
     return TRUE;
 }
 
-- (BOOL)initialize_error:(NSError **)error
+- (void)initialize
 {
-    if (![history initialize_error:nil]) {
-        return FALSE;
-    }
-    if (![library initialize_error:nil]) {
-        return FALSE;
-    }
-    if (![playlists initialize_error:nil]) {
-        return FALSE;
-    }
-    if (![queue initialize_error:nil]) {
-        return FALSE;
-    }
-    if (![libraryViewSource initialize_error:nil]) {
-        return FALSE;
-    }
-    if (![nowPlayingViewSource initialize_error:nil]) {
-        return FALSE;
-    }
-    if (![playbackOrder initialize_error:nil]) {
-        return FALSE;
-    }
-    if (![self executeStatement:@"ANALYZE" _error:nil]) {
-        return FALSE;
-    }
-    if (![self executeStatement:@"VACUUM" _error:nil]) {
-        return FALSE;
-    }
-	return TRUE;
+    [history initialize];
+    [library initialize];
+    [playlists initialize];
+    [queue initialize];
+    [libraryViewSource initialize];
+    [nowPlayingViewSource initialize];
+    [playbackOrder initialize];
+//    [self executeString:@"ANALYZE"];
+//    [self executeString:@"VACUUM"];
 }
 
-- (BOOL)update_error:(NSError **)error
+- (BOOL)update
 {
-    NSString *statement = @"SELECT version FROM schema_version";
-    NSArray *result;
-    if (![self executeStatement:statement withBindings:nil result:&result _error:nil]) {
+    NSString *string = @"SELECT version FROM schema_version";
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *result = [self executeString:string withBindings:nil columns:columns];
+    if (!result) {
         return FALSE;
     }
-    int version = [[result objectAtIndex:0] intValue];
+    int version = [[[result objectAtIndex:0] objectAtIndex:0] intValue];
+
     if (version == 1) {
-        statement = @"BEGIN TRANSACTION";
-        if (![self executeStatement:statement _error:nil]) {
+        string = @"BEGIN";
+        if (![self executeString:string]) {
             return FALSE;
         }
-        statement = @"DROP TABLE IF EXISTS now_playing_view_source";
-        if (![self executeStatement:statement _error:nil]) {
+        string = @"DROP TABLE IF EXISTS now_playing_view_source";
+        if (![self executeString:string]) {
             return FALSE;
         }
-        statement = @"DROP TABLE IF EXISTS playback_order";
-        if (![self executeStatement:statement _error:nil]) {
+        string = @"DROP TABLE IF EXISTS playback_order";
+        if (![self executeString:string]) {
             return FALSE;
         }
-        statement = @"ALTER TABLE library ADD COLUMN lastModified TEXT NOT NULL DEFAULT '' ";
-        if (![self executeStatement:statement _error:nil]) {
+        string = @"ALTER TABLE library ADD COLUMN lastModified TEXT NOT NULL DEFAULT '' ";
+        if (![self executeStatement:string _error:nil]) {
             return FALSE;
         }
-        statement = @"CREATE INDEX IF NOT EXISTS index_path ON library (path COLLATE NOCASE)";
-        if (![self executeStatement:statement _error:nil]) {
+        string = @"CREATE INDEX IF NOT EXISTS index_path ON library (path COLLATE NOCASE)";
+        if (![self executeStatement:string _error:nil]) {
             return FALSE;
         }
-        statement = @"DELETE FROM library WHERE file_id NOT IN ("
+        string = @"DELETE FROM library WHERE file_id NOT IN ("
         "SELECT min(file_id) FROM library GROUP BY path COLLATE NOCASE)";
-        if (![self executeStatement:statement _error:nil]) {
+        if (![self executeStatement:string _error:nil]) {
             return FALSE;
         }
-        statement = @"DROP TABLE IF EXISTS history";
-        if (![self executeStatement:statement _error:nil]) {
+        string = @"DROP TABLE IF EXISTS history";
+        if (![self executeStatement:string _error:nil]) {
             return FALSE;
         }
-        statement = @"CREATE TABLE IF NOT EXISTS history ("
+        string = @"CREATE TABLE IF NOT EXISTS history ("
         "file_id INTEGER NOT NULL, "
         "date TEXT NOT NULL, "
         "FOREIGN KEY(file_id) REFERENCES library(file_id) ON UPDATE CASCADE ON DELETE CASCADE)";
-        if (![self executeStatement:statement _error:nil]) {
+        if (![self executeStatement:string _error:nil]) {
             return FALSE;
         }
-        statement = @"CREATE TABLE IF NOT EXISTS queue ("
+        string = @"CREATE TABLE IF NOT EXISTS queue ("
         "queue_index INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
         "playlist_item_id INTEGER NOT NULL UNIQUE, "
         "FOREIGN KEY(playlist_item_id) REFERENCES playlist_items(playlist_item_id) ON UPDATE CASCADE ON DELETE CASCADE)";
-        if (![self executeStatement:statement _error:nil]) {
+        if (![self executeStatement:string _error:nil]) {
             return FALSE;
         }
-        statement = @"UPDATE schema_version SET version = 2";
-        if (![self executeStatement:statement _error:nil]) {
+        string = @"UPDATE schema_version SET version = 2";
+        if (![self executeStatement:string _error:nil]) {
             return FALSE;
         }
-        statement = @"END TRANSACTION";
-        if (![self executeStatement:statement _error:nil]) {
+        string = @"END";
+        if (![self executeStatement:string _error:nil]) {
             return FALSE;
         }
         version = 2;
     }
     if (version == 2) {
-        statement = @"BEGIN TRANSACTION";
-        if (![self executeStatement:statement _error:nil]) {
+        string = @"BEGIN";
+        if (![self executeStatement:string _error:nil]) {
             return FALSE;
         }
-        statement = @"CREATE TABLE playback_order ("
+        string = @"CREATE TABLE playback_order ("
         "index_ INTEGER PRIMARY KEY, "
         "playlist_item_id INTEGER NOT NULL, "
         "CHECK (index_ > 0), "
         "FOREIGN KEY(playlist_item_id) REFERENCES playlist_items(playlist_item_id) ON UPDATE RESTRICT ON DELETE CASCADE)";
-        if (![self executeStatement:statement _error:nil]) {
+        if (![self executeStatement:string _error:nil]) {
             return FALSE;
         }
-        statement = @"UPDATE schema_version SET version = 3";
-        if (![self executeStatement:statement _error:nil]) {
+        string = @"UPDATE schema_version SET version = 3";
+        if (![self executeStatement:string _error:nil]) {
             return FALSE;
         }
-        statement = @"END TRANSACTION";
-        if (![self executeStatement:statement _error:nil]) {
+        string = @"END";
+        if (![self executeStatement:string _error:nil]) {
             return FALSE;
         }
         version = 3;
@@ -353,69 +298,96 @@ create:;
     return TRUE;
 }
 
-- (BOOL)validate_error:(NSError **)error
+- (BOOL)validate
 {
-    if (![history validate_error:nil]) {
+    if (![history validate]) {
         return FALSE;
     }
-    if (![library validate_error:nil]) {
+    if (![library validate]) {
         return FALSE;
     }
-    if (![playlists validate_error:nil]) {
+    if (![playlists validate]) {
         return FALSE;
     }
-    if (![queue validate_error:nil]) {
+    if (![queue validate]) {
         return FALSE;
     }
-    if (![libraryViewSource validate_error:nil]) {
+    if (![libraryViewSource validate]) {
         return FALSE;
     }
-    if (![nowPlayingViewSource validate_error:nil]) {
+    if (![nowPlayingViewSource validate]) {
         return FALSE;
     }
-    if (![playbackOrder validate_error:nil]) {
+    if (![playbackOrder validate]) {
         return FALSE;
     }
     return TRUE;
 }
 
-- (BOOL)create_error:(NSError **)error
+- (void)create
 {
-    NSString *statement = @"CREATE TABLE schema_version (version INTEGER NOT NULL)";
-    if (![self executeStatement:statement _error:nil]) {
-		return FALSE;
-	}
-    statement = @"INSERT INTO schema_version (version) VALUES (3)";
-    if (![self executeStatement:statement _error:nil]) {
-        return FALSE;
-    }
-    if (![history create_error:nil]) {
-        return FALSE;
-    }
-    if (![library create_error:nil]) {
-        return FALSE;
-    }
-    if (![playlists create_error:nil]) {
-        return FALSE;
-    }
-    if (![queue create_error:nil]) {
-        return FALSE;
-    }
-    if (![libraryViewSource create_error:nil]) {
-        return FALSE;
-    }
-    if (![nowPlayingViewSource create_error:nil]) {
-        return FALSE;
-    }
-    if (![playbackOrder create_error:nil]) {
-        return FALSE;
-    }
-    return TRUE;
+    NSString *string = @"CREATE TABLE schema_version (version INTEGER NOT NULL)";
+    [self executeString:string];
+    string = @"INSERT INTO schema_version (version) VALUES (3)";
+    [self executeString:string];
+    
+    [history create];
+    [library create];
+    [playlists create];
+    [queue create];
+    [libraryViewSource create];
+    [nowPlayingViewSource create];
+    [playbackOrder create];
 }
 
 // ========================================
 // Action
 // ========================================
+
+- (void)begin
+{
+    if (transaction == 0) {
+        [self executeString:@"BEGIN EXCLUSIVE"];
+    }
+    transaction += 1;
+}
+
+- (void)rollback
+{
+    [self executeString:@"ROLLBACK"];
+}
+
+- (void)commit
+{
+    if (transaction < 1) {
+        [[PRLog sharedLog] presentFatalError:nil];
+    } else if (transaction == 1) {
+        [self executeString:@"COMMIT"];
+        transaction = 0;
+    } else {
+        transaction -= 1;
+    }
+}
+
+- (NSArray *)executeString:(NSString *)string
+{
+    return [PRStatement executeString:string withDb:self];
+}
+
+- (NSArray *)executeString:(NSString *)string withBindings:(NSDictionary *)bindings columns:(NSArray *)columns
+{
+    return [PRStatement executeString:string withDb:self bindings:bindings columnTypes:columns];
+}
+
+- (NSArray *)executeCachedString:(NSString *)string
+{
+    return [PRStatement executeString:string withDb:self];
+}
+
+- (NSArray *)executeCachedString:(NSString *)string withBindings:(NSDictionary *)bindings columns:(NSArray *)columns
+{
+    return [PRStatement executeString:string withDb:self bindings:bindings columnTypes:columns];
+}
 
 - (BOOL)executeStatement:(NSString *)statement _error:(NSError **)error
 {
@@ -446,12 +418,7 @@ create:;
                   result:(NSArray **)result
                   _error:(NSError **)error
 {
-    sqlite3 *sqlDb_;
-    if ([NSThread isMainThread]) {
-        sqlDb_ = sqlDb;
-    } else {
-        sqlDb_ = sqlDb2;
-    }
+    sqlite3 *sqlDb_ = sqlDb;
     
     // prep statement
     sqlite3_stmt *stmt = NULL;
@@ -791,7 +758,6 @@ create:;
 
 @end
 
-// collate no_case 
 int no_case(void *udp, int lenA, const void *strA, int lenB, const void *strB) 
 {
     UniChar *uniCharA = (UniChar *)strA;
@@ -886,7 +852,10 @@ CFRange PRFormatString(UniChar *string, int length)
         } else if (e == SQLITE_BUSY) {
             usleep(50);
         } else {
-            [[PRLog sharedLog] presentFatalError:nil];
+            NSString *details = [NSString stringWithFormat:@"Step Failed - sqlite_code:%d \nsqlite_errmsg:%s \nstatement:%@", 
+                                 e, sqlite3_errmsg(_sqlite3), _statement];
+            NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:details, NSLocalizedFailureReasonErrorKey, nil];
+            [[PRLog sharedLog] presentFatalError:[NSError errorWithDomain:@"" code:0 userInfo:userInfo]];
             [self release];
             return nil;
         }
@@ -1015,6 +984,8 @@ CFRange PRFormatString(UniChar *string, int length)
 - (void)dealloc
 {
     sqlite3_finalize(_stmt);
+    [_statement release];
+    [_columnTypes release];
     [super dealloc];
 }
 

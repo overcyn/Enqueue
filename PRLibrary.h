@@ -60,14 +60,9 @@ typedef enum {
 
 - (id)initWithDb:(PRDb *)db_;
 
-- (BOOL)create_error:(NSError **)error;
-- (BOOL)initialize_error:(NSError **)error;
-- (BOOL)validate_error:(NSError **)error;
-
-// ========================================
-// Action
-
-- (BOOL)validateAndClean_error:(NSError **)error;
+- (void)create;
+- (void)initialize;
+- (BOOL)validate;
 
 // ========================================
 // Accessors
@@ -91,6 +86,14 @@ typedef enum {
 - (BOOL)files:(NSIndexSet **)files withValue:(id)value forAttribute:(PRFileAttribute)attribute _error:(NSError **)error;
 - (BOOL)arrayOfUniqueValues:(NSArray **)array forAttribute:(PRFileAttribute)attr _error:(NSError **)error;
 - (BOOL)arrayOfFileIDsSortedByAlbumAndArtist:(NSArray **)array _error:(NSError **)error;
+
+// ========================================
+// Temp Library
+
+- (PRFile)addTempFileWithPath:(NSString *)path;
+- (void)setAttributes:(NSDictionary *)attributes forTempFile:(PRFile)file;
+- (void)mergeTempFilesToLibrary;
+- (void)clearTempFiles;
 
 // ========================================
 // Update

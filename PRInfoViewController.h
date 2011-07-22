@@ -6,19 +6,20 @@
 
 @interface PRInfoViewController : NSViewController
 {	
-	IBOutlet NSTextField *path;
-	IBOutlet NSTextField *kind;
-	IBOutlet NSTextField *size;
-	IBOutlet NSTextField *bitRate;
-	IBOutlet NSTextField *sampleRate;
-	IBOutlet NSTextField *time;
-	IBOutlet NSTextField *format;
-	IBOutlet NSTextField *channels;
-	IBOutlet NSTextField *ID3Tag;
-	IBOutlet NSTextField *dateAdded;
-	IBOutlet NSTextField *lastPlayed;
-	IBOutlet NSTextField *playCount;
-	
+    IBOutlet NSTextField *titleLabel;
+	IBOutlet NSTextField *artistLabel;	
+	IBOutlet NSTextField *albumArtistLabel;	
+	IBOutlet NSTextField *albumLabel;
+	IBOutlet NSTextField *yearLabel;
+	IBOutlet NSTextField *bpmLabel;	
+	IBOutlet NSTextField *trackLabel;	
+	IBOutlet NSTextField *trackCountLabel;		
+	IBOutlet NSTextField *discLabel;
+	IBOutlet NSTextField *discCountLabel;
+	IBOutlet NSTextField *composerLabel;	
+	IBOutlet NSTextField *commentsLabel;
+	IBOutlet NSTextField *genreLabel;
+
 	IBOutlet NSTextField *titleField;
 	IBOutlet NSTextField *artistField;	
 	IBOutlet NSTextField *albumArtistField;	
@@ -38,7 +39,10 @@
     
     IBOutlet PRGradientView *gradientView;
     
+    IBOutlet NSTextField *NoSelection;
     
+    NSArray *controls;
+    NSArray *labels;
     PRNumberFormatter *numberFormatter;
     PRStringFormatter *stringFormatter;
 	NSArray *selection;

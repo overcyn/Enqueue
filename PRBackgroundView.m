@@ -1,33 +1,11 @@
-//
-//  PRBackgroundView.m
-//  Lyre
-//
-//  Created by Kevin Dang on 3/22/11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
-//
-
 #import "PRBackgroundView.h"
 
 
 @implementation PRBackgroundView
 
-- (id)initWithFrame:(NSRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self) {
-        // Initialization code here.
-    }
-    
-    return self;
-}
-
-- (void)dealloc
-{
-    [super dealloc];
-}
-
 - (void)drawRect:(NSRect)dirtyRect
 {       
+    [[NSBezierPath bezierPathWithRect:dirtyRect] addClip];
     NSRect bounds = [self bounds];
     bounds.size.width -= 20;
     bounds.origin.x += 10;

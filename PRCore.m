@@ -31,15 +31,15 @@
             [[PRLog sharedLog] presentFatalError:[self multipleInstancesError]];
         }
         
-        NSString *path = [[PRUserDefaults sharedUserDefaults] applicationSupportPath];
+        NSString *path = [[PRUserDefaults userDefaults] applicationSupportPath];
         if (![[[[NSFileManager alloc] init] autorelease] findOrCreateDirectoryAtPath:path error:nil]) {
             [[PRLog sharedLog] presentFatalError:[self couldNotCreateDirectoryError:path]];
         }
-        
         opQueue = [[NSOperationQueue alloc] init];
         [opQueue setMaxConcurrentOperationCount:1];
         taskManager = [[PRTaskManager alloc] init];
         db = [[PRDb alloc] init];
+        db2 = [[PRDb alloc] init];
         now = [[PRNowPlayingController alloc] initWithDb:db]; // requires: db
         folderMonitor = [[PRFolderMonitor alloc] initWithCore:self]; // requires: opQueue, db & taskManager
         win = [[PRMainWindowController alloc] initWithCore:self]; // requires: db, now, taskManager, folderMonitor
@@ -61,12 +61,10 @@
 }
 
 - (void)awakeFromNib 
-{   
-    // Show main window
-    [win showWindow:self];
-    
-    if ([[PRUserDefaults sharedUserDefaults] showWelcomeSheet]) {
-        [[PRUserDefaults sharedUserDefaults] setShowWelcomeSheet:FALSE];
+{
+    [win showWindow:nil];
+    if ([[PRUserDefaults userDefaults] showWelcomeSheet]) {
+        [[PRUserDefaults userDefaults] setShowWelcomeSheet:FALSE];
         welcomeSheet = [[PRWelcomeSheetController alloc] initWithCore:self];
         [NSApp beginSheet:[welcomeSheet window] 
            modalForWindow:[win window]
@@ -81,6 +79,7 @@
 // ========================================
 
 @synthesize db;
+@synthesize db2;
 @synthesize now;
 @synthesize win;
 @synthesize opQueue;
@@ -180,6 +179,13 @@
 // ========================================
 // NSApplication Delegate
 // ========================================
+
+- (void)applicationDidFinishLaunching:(NSNotification *)notification
+{
+//    NSLog(@":%@",[win window]);
+//    [win showWindow:nil];
+//    [[win window] makeKeyAndOrderFront:nil];
+}
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication
                     hasVisibleWindows:(BOOL)flag

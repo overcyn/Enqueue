@@ -3,161 +3,134 @@
 
 @implementation PRNowPlayingCell
 
-- (void)drawWithFrame:(NSRect)theCellFrame inView:(NSView *)theControlView
+- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)theControlView
 {
+    cellFrame.origin.x -= 1;
+    cellFrame.size.width += 3;
+    if ([[[self objectValue] objectForKey:@"showSubtitle"] boolValue]) {
+        cellFrame.origin.y -= 1;
+        [self drawHeaderWithFrame:cellFrame inView:theControlView];
+        return;
+    }
 	NSDictionary *dict = [self objectValue];
 	NSString *title = [dict objectForKey:@"title"];
-	NSString *subtitle = [dict objectForKey:@"subtitle"];
-	BOOL showSubtitle = [[dict objectForKey:@"showSubtitle"] boolValue];
-
     NSNumber *badge = [dict objectForKey:@"badge"];
 	NSImage *icon = [dict objectForKey:@"icon"];
-	NSImage *invertedIcon = [dict objectForKey:@"invertedIcon"];
-	NSSize iconSize = [icon size];
-
-	[icon setFlipped:YES];
+    NSImage *invertedIcon = [dict objectForKey:@"invertedIcon"];
 	
-	// Make attributes for our strings	
-	NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
-	[paragraphStyle setLineBreakMode:NSLineBreakByTruncatingTail];
-    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
-	[shadow setShadowColor:[NSColor colorWithDeviceWhite:0.95 alpha:1.0]];
-	[shadow setShadowOffset:NSMakeSize(1.1, -1.3)];
-    NSMutableDictionary *titleAttributes;
-	NSMutableDictionary *subtitleAttributes;
-	if (!showSubtitle) {
-		titleAttributes = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                            [NSFont systemFontOfSize:11.0], NSFontAttributeName,
-                            paragraphStyle, NSParagraphStyleAttributeName,
-                            [NSColor colorWithCalibratedWhite:0.10 alpha:1], NSForegroundColorAttributeName,
-                            nil] autorelease];
-		subtitleAttributes = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                               [NSFont systemFontOfSize:11.0], NSFontAttributeName,
-                               paragraphStyle, NSParagraphStyleAttributeName,
-                               nil] autorelease];
-		
-		if ([self isHighlighted] &&
-			[self controlView] == [[[self controlView] window] firstResponder] &&
-			[[[self controlView] window] isMainWindow]) {
-			[titleAttributes setValue:[NSColor whiteColor] forKey:NSForegroundColorAttributeName];
-			icon = invertedIcon;
-		}
-		
-	} else {
-		titleAttributes = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                            [NSFont boldSystemFontOfSize:11.5], NSFontAttributeName,
-                            paragraphStyle, NSParagraphStyleAttributeName,
-                            [NSColor colorWithDeviceRed:90.0/255.0 green:102.0/255.0 blue:118.0/255.0 alpha:1.0], NSForegroundColorAttributeName,
-                            shadow, NSShadowAttributeName,
-                            nil] autorelease];
-		subtitleAttributes = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                               [NSFont systemFontOfSize:11.5], NSFontAttributeName,
-                               paragraphStyle, NSParagraphStyleAttributeName,
-                               [NSColor colorWithDeviceRed:90.0/255.0 green:102.0/255.0 blue:118.0/255.0 alpha:1.0], NSForegroundColorAttributeName,
-                               shadow, NSShadowAttributeName,
-                               nil] autorelease];
-	}
-	
-	// Icon box: center the icon vertically inside of the inset rect
-	// Inset the cell frame to give everything a little horizontal padding
-	NSRect insetRect = NSInsetRect(theCellFrame, 5, 0);
-	NSRect iconBox = NSMakeRect(insetRect.origin.x,
-                                insetRect.origin.y + insetRect.size.height*.5 - iconSize.height*.5 + 1,
-                                iconSize.width, iconSize.height);
+    // Icon
+	float insetPadding = 6;
+    float horizontalPadding = 6;
+    NSSize iconSize = NSMakeSize(13, 13);
+    NSRect iconRect = NSMakeRect(cellFrame.origin.x + insetPadding, 
+                                 cellFrame.origin.y + cellFrame.size.height/2 - iconSize.height/2 - 2, 
+                                 iconSize.width, iconSize.height);
+    if ([self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder] && [[[self controlView] window] isMainWindow]) {
+        icon = invertedIcon;
+        [icon setFlipped:TRUE];
+    }
+    [icon drawInRect:iconRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
     
-    
-    // Draw Badge
-    NSRect badgeRect = NSMakeRect(insetRect.origin.x - 2, insetRect.origin.y + 1, 18, 14);
-    NSBezierPath *badgePath = [NSBezierPath bezierPathWithRoundedRect:badgeRect xRadius:7 yRadius:7];
-//    BOOL isWindowFront = [[NSApp mainWindow] isVisible];
-//    BOOL isViewInFocus = [[[[self controlView] window] firstResponder] isEqual:[self controlView]];
-//    BOOL isCellHighlighted = [self isHighlighted];
+    // Badge
     if ([badge intValue] != 0) {
+        NSRect badgeRect = NSMakeRect(cellFrame.origin.x + 4, cellFrame.origin.y + 1, 18, 14);
+        NSBezierPath *badgePath = [NSBezierPath bezierPathWithRoundedRect:badgeRect xRadius:7 yRadius:7];
         [[NSColor colorWithCalibratedRed:.53 green:.60 blue:.74 alpha:1.0] set];
         [badgePath fill];
         
-        NSMutableParagraphStyle *paragraphStyle2 = [[[NSMutableParagraphStyle alloc] init] autorelease];
-        [paragraphStyle2 setLineBreakMode:NSLineBreakByTruncatingTail];
-        [paragraphStyle2 setAlignment:NSCenterTextAlignment];
+        NSMutableParagraphStyle *badgeStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
+        [badgeStyle setLineBreakMode:NSLineBreakByTruncatingTail];
+        [badgeStyle setAlignment:NSCenterTextAlignment];
         NSFont *badgeFont = [NSFont fontWithName:@"Helvetica-Bold" size:11];
         NSDictionary *dict = [[[NSMutableDictionary alloc] init] autorelease];
         [dict setValue:[NSColor whiteColor] forKey:NSForegroundColorAttributeName];
         [dict setValue:badgeFont forKey:NSFontAttributeName];
-        [dict setValue:paragraphStyle2 forKey:NSParagraphStyleAttributeName];
+        [dict setValue:badgeStyle forKey:NSParagraphStyleAttributeName];
         NSAttributedString *badgeAttributedString = [[[NSAttributedString alloc] initWithString:[badge stringValue] attributes:dict] autorelease];
         [badgeAttributedString drawInRect:NSInsetRect(badgeRect, 2, 0)];
     }
-    
-    
 	
-	// Vertical padding between the lines of text 	
-	// Horizontal padding between icon and text
-	float verticalPadding = 4.0;
-	float horizontalPadding = 3;
+	// Text
+    NSMutableParagraphStyle *style = [[[NSMutableParagraphStyle alloc] init] autorelease];
+	[style setLineBreakMode:NSLineBreakByTruncatingTail];
+    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
+	[shadow setShadowColor:[NSColor colorWithDeviceWhite:0.95 alpha:1.0]];
+	[shadow setShadowOffset:NSMakeSize(1.1, -1.3)];
+    NSMutableDictionary *attributes = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                        [NSFont systemFontOfSize:11.0], NSFontAttributeName,
+                                        style, NSParagraphStyleAttributeName,
+                                        [NSColor colorWithCalibratedWhite:0.10 alpha:1], NSForegroundColorAttributeName, 
+                                        nil] autorelease];
+    if ([self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder] && [[[self controlView] window] isMainWindow]) {
+        [attributes setValue:[NSColor whiteColor] forKey:NSForegroundColorAttributeName];
+    }
+    float height = [title sizeWithAttributes:attributes].height;
+	NSRect textRect = NSMakeRect(iconRect.origin.x + iconRect.size.width + horizontalPadding,
+                                 cellFrame.origin.y + cellFrame.size.height/2 - height/2,
+                                 cellFrame.size.width - iconRect.size.width - horizontalPadding - insetPadding*2,
+                                 height);
+	[title drawInRect:textRect withAttributes:attributes];
+}
+
+- (void)drawHeaderWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
+{
+    NSDictionary *dict = [self objectValue];
+	NSString *title = [dict objectForKey:@"title"];
+	NSString *subtitle = [dict objectForKey:@"subtitle"];
 	
-	// Text boxes
-	float aCombinedHeight;
-	NSRect aTextBox;
-	NSRect aTitleBox;
-	NSRect aSubtitleBox;
+	// Text Attributes	
+	NSMutableParagraphStyle *style = [[[NSMutableParagraphStyle alloc] init] autorelease];
+	[style setLineBreakMode:NSLineBreakByTruncatingTail];
+    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
+	[shadow setShadowColor:[NSColor colorWithDeviceWhite:0.95 alpha:1.0]];
+	[shadow setShadowOffset:NSMakeSize(1.1, -1.3)];
+    NSColor *color = [NSColor colorWithDeviceRed:90.0/255.0 green:102.0/255.0 blue:118.0/255.0 alpha:1.0];
+    NSMutableDictionary *titleAttributes = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                             [NSFont boldSystemFontOfSize:11.5], NSFontAttributeName,
+                                             style, NSParagraphStyleAttributeName,
+                                             color, NSForegroundColorAttributeName,
+                                             shadow, NSShadowAttributeName,
+                                             nil] autorelease];
+    NSMutableDictionary *subtitleAttributes = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                                [NSFont systemFontOfSize:11.0], NSFontAttributeName,
+                                                color, NSForegroundColorAttributeName,
+                                                shadow, NSShadowAttributeName,
+                                                style, NSParagraphStyleAttributeName, 
+                                                nil] autorelease];
 	
+	// Text
 	NSSize titleSize = [title sizeWithAttributes:titleAttributes];
 	NSSize subtitleSize = [subtitle sizeWithAttributes:subtitleAttributes];
-
-	if (showSubtitle) {
-		aCombinedHeight = titleSize.height + subtitleSize.height + verticalPadding;
-	} else {
-		aCombinedHeight = titleSize.height;
-	}
+    float height = titleSize.height + subtitleSize.height + 3;
+	NSRect textBox = NSMakeRect(cellFrame.origin.x + 7,
+                                cellFrame.origin.y + cellFrame.size.height * .5 - height * 0.5,
+                                cellFrame.size.width - 7,
+                                height);
+    NSRect titleBox = NSMakeRect(textBox.origin.x, 
+                                 textBox.origin.y + textBox.size.height*.5 - titleSize.height,
+                                 textBox.size.width,
+                                 titleSize.height);
+    NSRect subtitleBox = NSMakeRect(textBox.origin.x,
+                                    textBox.origin.y + textBox.size.height*.5,
+                                    textBox.size.width,
+                                    subtitleSize.height);
+	[title drawInRect:titleBox withAttributes:titleAttributes];
+    [subtitle drawInRect:subtitleBox withAttributes:subtitleAttributes];
 	
-	aTextBox = NSMakeRect(iconBox.origin.x + iconBox.size.width + horizontalPadding,
-						  insetRect.origin.y + insetRect.size.height * .5 - aCombinedHeight * .5,
-						  insetRect.size.width - iconSize.width - horizontalPadding,
-						  aCombinedHeight);
-	
-	if (showSubtitle) {
-		aTitleBox = NSMakeRect(aTextBox.origin.x, 
-							   aTextBox.origin.y + aTextBox.size.height*.5 - titleSize.height,
-							   aTextBox.size.width,
-							   titleSize.height);
-		
-		aSubtitleBox = NSMakeRect(aTextBox.origin.x,
-								  aTextBox.origin.y + aTextBox.size.height*.5,
-								  aTextBox.size.width,
-								  subtitleSize.height);		
-	} else {
-		aTitleBox = aTextBox;
-        aTitleBox.origin.x += 3;
-        aTitleBox.size.width -= 3;
-	}
-	
-	// draw background
-	if (showSubtitle) {
-		theCellFrame.size.width = theCellFrame.size.width + 3;
-		theCellFrame.size.height = theCellFrame.size.height + 1;
-		theCellFrame.origin.x = theCellFrame.origin.x - 1;
-		theCellFrame.origin.y = theCellFrame.origin.y - 1.5;
-		
-		[[NSColor colorWithCalibratedWhite:0.4 alpha:0.5] set];
-		[NSBezierPath setDefaultLineWidth:0];
-		[NSBezierPath strokeLineFromPoint:NSMakePoint(theCellFrame.origin.x, theCellFrame.origin.y + 1) 
-								  toPoint:NSMakePoint(theCellFrame.origin.x + theCellFrame.size.width, theCellFrame.origin.y + 1)];
-		
-		[[NSColor colorWithCalibratedWhite:1 alpha:0.4] set];
-		[NSBezierPath setDefaultLineWidth:0];
-		[NSBezierPath strokeLineFromPoint:NSMakePoint(theCellFrame.origin.x, theCellFrame.origin.y + 1.5) 
-								  toPoint:NSMakePoint(theCellFrame.origin.x + theCellFrame.size.width, theCellFrame.origin.y + 1.5)];
-	}
-	
-	// Draw the icon
-	[icon drawInRect:iconBox fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
-	
-	// Draw the text
-	[title drawInRect:aTitleBox withAttributes:titleAttributes];
-	
-	if (showSubtitle) {
-		[subtitle drawInRect:aSubtitleBox withAttributes:subtitleAttributes];	
-	}
+	// Background
+    [NSBezierPath setDefaultLineWidth:0];
+    [[NSColor colorWithCalibratedWhite:0 alpha:0.15] set];
+    [NSBezierPath strokeLineFromPoint:NSMakePoint(cellFrame.origin.x, cellFrame.origin.y + 0.5) 
+                              toPoint:NSMakePoint(cellFrame.origin.x + cellFrame.size.width, cellFrame.origin.y + 0.5)];
+    [[NSColor colorWithCalibratedWhite:1 alpha:0.45] set];
+    [NSBezierPath strokeLineFromPoint:NSMakePoint(cellFrame.origin.x, cellFrame.origin.y + 1.5) 
+                              toPoint:NSMakePoint(cellFrame.origin.x + cellFrame.size.width, cellFrame.origin.y + 1.5)];
+    NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+                             [NSColor colorWithCalibratedWhite:1.0 alpha:0.15], 1.0,
+                             [NSColor colorWithCalibratedWhite:1.0 alpha:0.075], 0.7,
+                             [NSColor colorWithCalibratedWhite:1.0 alpha:0.0], 0.01, nil] autorelease];
+    NSRect gradientRect = NSMakeRect(cellFrame.origin.x, cellFrame.origin.y + 1.5, cellFrame.size.width, 10);
+    [gradient drawInRect:gradientRect angle:-90];
 }
 
 @end

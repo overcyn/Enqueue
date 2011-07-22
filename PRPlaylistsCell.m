@@ -29,13 +29,13 @@
 	NSSize iconSize = NSMakeSize(17, 17);
 	[icon setFlipped:YES];
     
-    if ([[dict objectForKey:@"mouseOver"] boolValue]) {
-        NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                                 [NSColor colorWithDeviceRed:212.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:0.4], 0.0, 
-                                 [NSColor colorWithDeviceRed:212.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:0.6], 1.0,
-                                 nil] autorelease];
-        [gradient drawInRect:theCellFrame angle:90.0];
-    }
+//    if ([[dict objectForKey:@"mouseOver"] boolValue]) {
+//        NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+//                                 [NSColor colorWithDeviceRed:212.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:0.6], 0.0, 
+//                                 [NSColor colorWithDeviceRed:212.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:0.8], 1.0,
+//                                 nil] autorelease];
+//        [gradient drawInRect:theCellFrame angle:90.0];
+//    }
     
     // Draw dropdown button
     NSRect rect = theCellFrame;
@@ -44,16 +44,19 @@
     rect.size.width = 21;
     rect.size.height = 21;
     
-    if ([[dict objectForKey:@"mouseOver"] boolValue]) {        
-        NSImage *image;
-        if (NSPointInRect([[dict objectForKey:@"point"] pointValue], rect)) {
-            image = [NSImage imageNamed:@"PRActionIcon3"];
-        } else {
-            image = [NSImage imageNamed:@"PRActionIcon2"];
-        }
-        [image drawInRect:rect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+    
+    NSRect rect2 = theCellFrame;
+    rect2.origin.x += rect.size.width - 40;
+    rect2.origin.y += rect.size.height/2 - 10;
+    rect2.size.width = 21;
+    rect2.size.height = 21;    
+    NSImage *image;
+    if (NSPointInRect([[dict objectForKey:@"point"] pointValue], rect)) {
+        image = [NSImage imageNamed:@"PRActionIcon3"];
     } else {
+        image = [NSImage imageNamed:@"PRActionIcon2"];
     }
+    [image drawInRect:rect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
     
     // Draw rest of button
     theCellFrame.size.height -= 6;

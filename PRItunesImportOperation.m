@@ -18,7 +18,8 @@
     self = [super init];
     if (self) {
         core = core_;
-        db = [core_ db];
+        _db = [core_ db2];
+        _tempFileCount = 0;
         iTunesURL = [URL_ retain];
     }
     
@@ -35,6 +36,8 @@
 {
     NSLog(@"Begin Import Operation");
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    [[_db library] clearTempFiles];
+    
     PRTask *task = [[[PRTask alloc] init] autorelease];
     [task setTitle:@"Opening iTunes Library..."];
     [[core taskManager] addTask:task];
@@ -65,7 +68,8 @@
     [tracks sortUsingSelector:@selector(trackSort:)];
     
     NSDictionary *fileTrackIDDictionary = [[[NSMutableDictionary alloc] init] autorelease];
-    for (NSDictionary *i in tracks) {
+    for (int i = 0; i < [tracks count]; i++) {
+        NSDictionary *track = [tracks objectAtIndex:i];
         NSAutoreleasePool *pool2 = [[NSAutoreleasePool alloc] init];
         if ([task shouldCancel]) {
             [pool2 drain];
@@ -73,7 +77,7 @@
         }
         
         // File Exists
-        NSURL *URL = [NSURL URLWithString:[i objectForKey:@"Location"]];
+        NSURL *URL = [NSURL URLWithString:[track objectForKey:@"Location"]];
         if (!URL) {
             [pool2 drain];
             continue;
@@ -87,14 +91,14 @@
         
         // Existing files?
         NSIndexSet *files;
-        [[[core db] library] files:&files withPath:[URL absoluteString] caseSensitive:[URL caseSensitive] _error:nil];
+        [[_db library] files:&files withPath:[URL absoluteString] caseSensitive:[URL caseSensitive] _error:nil];
         if ([files count] > 0) {
             [pool2 drain];
             continue;
         }
         
         // File is Valid?
-        PRTagEditor *tagEditor = [[[PRTagEditor alloc] initWithURL:URL db:[core db]] autorelease];
+        PRTagEditor *tagEditor = [[[PRTagEditor alloc] initWithURL:URL db:_db] autorelease];
         if (!tagEditor) {
             [pool2 drain];
             continue;
@@ -102,71 +106,82 @@
         
         [task performSelector:@selector(setTitle:) 
                      onThread:[NSThread mainThread]
-                   withObject:[NSString stringWithFormat:@"Importing File: %@", [[URL path] lastPathComponent]] 
+                   withObject:[NSString stringWithFormat:@"Importing files: %d%%", i * 100 / [tracks count]] 
                 waitUntilDone:FALSE];
 
         id object;
         NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
-        if ((object = [i objectForKey:@"Date Added"])) {
+        if ((object = [track objectForKey:@"Date Added"])) {
             [attributes setObject:[object description] forKey:[NSNumber numberWithInt:PRDateAddedFileAttribute]];
         }
-        if ((object = [i objectForKey:@"Play Date UTC"])) {
+        if ((object = [track objectForKey:@"Play Date UTC"])) {
             [attributes setObject:[object description] forKey:[NSNumber numberWithInt:PRLastPlayedFileAttribute]];
         }
-        if ((object = [i objectForKey:@"Play Count"])) {
+        if ((object = [track objectForKey:@"Play Count"])) {
             [attributes setObject:object forKey:[NSNumber numberWithInt:PRPlayCountFileAttribute]];
         }
-        if ((object = [i objectForKey:@"Rating"])) {
+        if ((object = [track objectForKey:@"Rating"])) {
             [attributes setObject:object forKey:[NSNumber numberWithInt:PRRatingFileAttribute]];
         }
-
-        PRFile file;
-        [tagEditor addFile:&file withAttributes:attributes];
         
-        NSString *trackID = [i objectForKey:@"Track ID"];
-        if (trackID) {
-            [fileTrackIDDictionary setValue:[NSNumber numberWithInt:file] forKey:trackID];
+        PRFile tempFile = [[_db library] addTempFileWithPath:[URL absoluteString]];
+        [tagEditor setTempFile:TRUE];
+        [tagEditor setFile:tempFile];
+        [tagEditor updateTags];
+        [[_db library] setAttributes:attributes forTempFile:tempFile];
+        
+        _tempFileCount += 1;
+        if (_tempFileCount > 500) {
+            [[_db library] mergeTempFilesToLibrary];
+            NSNotification *notification = [NSNotification notificationWithName:PRLibraryDidChangeNotification 
+                                                                         object:self 
+                                                                       userInfo:nil];
+            [[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) 
+                                                                   withObject:notification 
+                                                                waitUntilDone:TRUE];
+            _tempFileCount = 0;
         }
-
+        
+        NSString *trackID = [track objectForKey:@"Track ID"];
+        if (trackID) {
+            [fileTrackIDDictionary setValue:[NSNumber numberWithInt:tempFile] forKey:trackID];
+        }
         [pool2 drain];
     }
+    [[_db library] mergeTempFilesToLibrary];
     
-    [task performSelector:@selector(setTitle:) 
-                 onThread:[NSThread mainThread]
-               withObject:[NSString stringWithFormat:@"Importing Playlists"] 
-            waitUntilDone:FALSE];
-    
+    // Playlists
     for (NSDictionary *i in [plist objectForKey:@"Playlists"]) {
         if ([task shouldCancel]) {
             goto end;
         }
-        if ([[i objectForKey:@"Master"] boolValue] || 
-            [i objectForKey:@"Distinguished Kind"]) {
+        if ([[i objectForKey:@"Master"] boolValue] || [i objectForKey:@"Distinguished Kind"]) {
             continue;
         }
-        int playlist;
-        if (![[db playlists] addStaticPlaylist:&playlist _error:nil]) {
-            continue;
-        }
-
+        [task performSelector:@selector(setTitle:) 
+                     onThread:[NSThread mainThread]
+                   withObject:[NSString stringWithFormat:@"Importing Playlist:%@", [i objectForKey:@"Name"]]
+                waitUntilDone:FALSE];
+        
+        int playlist = [[_db playlists] addStaticPlaylist];
+        
         if ([i objectForKey:@"Name"]) {
-            [[db playlists] setValue:[i objectForKey:@"Name"] 
-                         forPlaylist:playlist 
-                           attribute:PRTitlePlaylistAttribute 
-                              _error:nil];
+            [[_db playlists] setValue:[i objectForKey:@"Name"] forPlaylist:playlist attribute:PRTitlePlaylistAttribute];
         }
         
+        NSMutableIndexSet *files = [NSMutableIndexSet indexSet];
         for (NSDictionary *j in [i objectForKey:@"Playlist Items"]) {
-            NSNumber *fileID = [j objectForKey:@"Track ID"];
-            if (fileID == nil) {
+            NSNumber *track = [j objectForKey:@"Track ID"];
+            if (track == nil) {
                 continue;
             }
-            NSNumber *playlistItem = [fileTrackIDDictionary objectForKey:fileID];
-            if (playlistItem == nil) {
+            NSNumber *file = [fileTrackIDDictionary objectForKey:track];
+            if (file == nil) {
                 continue;
             }
-            [[db playlists] appendFile:[playlistItem intValue] toPlaylist:playlist _error:nil];
+            [files addIndex:[file intValue]];
         }
+        [[_db playlists] appendFiles:files toPlaylist:playlist];
     }
     
 end:;
@@ -174,6 +189,12 @@ end:;
     NSNotification *notification = [NSNotification notificationWithName:PRLibraryDidChangeNotification 
                                                                  object:self 
                                                                userInfo:nil];
+	[[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) 
+														   withObject:notification 
+														waitUntilDone:TRUE];
+    notification = [NSNotification notificationWithName:PRPlaylistsDidChangeNotification 
+                                                 object:self 
+                                               userInfo:nil];
 	[[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) 
 														   withObject:notification 
 														waitUntilDone:TRUE];

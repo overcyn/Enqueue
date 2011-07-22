@@ -18,6 +18,13 @@ enum {
 	ePlayerFlagRenderingFinished = 1 << 1
 };
 
+static void decodingStarted(void *context, const AudioDecoder *decoder)
+{
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    [(PRMoviePlayer *)context decodingStarted];
+    [pool drain];
+}
+
 static void renderingStarted(void *context, const AudioDecoder *decoder)
 {
     OSAtomicTestAndClearBarrier(7, &sPlayerFlags);
@@ -78,39 +85,21 @@ static void renderingFinished(void *context, const AudioDecoder *decoder)
 
 - (BOOL)openFileAndPlay:(NSString *)file
 {
-	NSURL *url = [NSURL URLWithString:file];
-	AudioDecoder *decoder = AudioDecoder::CreateDecoderForURL(reinterpret_cast<CFURLRef>(url));
-	if(decoder == NULL) {
-		return FALSE;
-    }
-    
-    // Register for rendering started/finished notifications so the UI can be updated properly
-	decoder->SetRenderingStartedCallback(renderingStarted, self);
-	decoder->SetRenderingFinishedCallback(renderingFinished, self);
+    AudioDecoder *decoder = AudioDecoder::CreateDecoderForURL(reinterpret_cast<CFURLRef>([NSURL URLWithString:file]));
+    decoder->SetDecodingStartedCallback(decodingStarted, self);
     decoder->SetDecodingFinishedCallback(decodingFinished, self);
-    
-    
-    PLAYER->ClearQueuedDecoders();
-    [self setVolume:[self volume]];
-    
+    decoder->SetRenderingStartedCallback(renderingStarted, self);
+	decoder->SetRenderingFinishedCallback(renderingFinished, self);
+    decoder->Open();
     if(ePlayerFlagRenderingStarted & sPlayerFlags) {
 		OSAtomicTestAndClearBarrier(7 /* ePlayerFlagRenderingStarted */, &sPlayerFlags);
-        if(PLAYER->Enqueue(decoder) == FALSE) {
-            delete decoder;
-            return FALSE;
-        }
-        if (!PLAYER->IsPlaying()) {
-            PLAYER->Play();
-        }
-	} else {
+    } else {
         PLAYER->Stop();
-        if(PLAYER->Enqueue(decoder) == FALSE) {
-            delete decoder;
-            return FALSE;
-        }
-        PLAYER->Play();
     }
-	return TRUE;
+    PLAYER->ClearQueuedDecoders();
+    PLAYER->Enqueue(decoder);
+    [self setVolume:[self volume]];
+    return true;
 }
 
 - (void)pause
@@ -250,7 +239,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder)
 - (float)volume
 {
     double volume;
-    volume = [[PRUserDefaults sharedUserDefaults] volume];
+    volume = [[PRUserDefaults userDefaults] volume];
     volume = log10(volume * 9 + 1);
     return volume;
 }
@@ -258,7 +247,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder)
 - (void)setVolume:(float)volume
 {
     volume = (pow(10, volume) - 1) / 9;
-    [[PRUserDefaults sharedUserDefaults] setVolume:volume];
+    [[PRUserDefaults userDefaults] setVolume:volume];
     PLAYER->SetDigitalVolume(volume);
 }
 
@@ -303,6 +292,11 @@ static void renderingFinished(void *context, const AudioDecoder *decoder)
 // Update
 // ========================================
 
+- (void)decodingStarted
+{
+    PLAYER->Play();
+}
+
 - (void)update
 {
     [self willChangeValueForKey:@"currentTime"];
@@ -320,7 +314,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder)
 
 - (void)preGainDidChange:(NSNotification *)notification
 {
-    float preGain = [[PRUserDefaults sharedUserDefaults] preGain];
+    float preGain = [[PRUserDefaults userDefaults] preGain];
     PLAYER->SetDigitalPreGain(preGain);
 }
 

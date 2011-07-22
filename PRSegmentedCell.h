@@ -1,16 +1,9 @@
-//
-//  PRSegmentedCell.h
-//  Lyre
-//
-//  Created by Kevin Dang on 6/29/11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
-//
+#import <Cocoa/Cocoa.h>
 
-#import <Foundation/Foundation.h>
+#define COLOR_2 0.55
 
-
-@interface PRSegmentedCell : NSSegmentedCell {
-@private
+@interface PRSegmentedCell : NSSegmentedCell 
+{
     
 }
 

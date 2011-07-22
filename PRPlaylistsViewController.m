@@ -1,6 +1,7 @@
 #import "PRPlaylistsViewController.h"
 #import "PRDb.h"
 #import "PRPlaylists.h"
+#import "PRPlaylists+Extensions.h"
 #import "PRMainWindowController.h"
 #import "PRGradientView.h"
 #import "PRScrollView.h"
@@ -50,7 +51,6 @@
     [[[[tableView tableColumns] objectAtIndex:0] dataCell] setFormatter:stringFormatter];
     
     [divider setColor:[NSColor colorWithCalibratedWhite:0.8 alpha:1.0]];
-    [divider2 setColor:[NSColor colorWithCalibratedWhite:0.8 alpha:1.0]];
     
 	[self playlistsDidChangeNotification:nil];
 	
@@ -78,16 +78,14 @@
 - (void)tableViewAction
 {
     [win setCurrentMode:PRLibraryMode];
-    NSArray *playlists;
-    [[db playlists] playlistArray:&playlists _error:nil];
+    NSArray *playlists = [[db playlists] playlists];
     int playlist = [[playlists objectAtIndex:[tableView clickedRow] + 1] intValue];
     [win setCurrentPlaylist:playlist];
 }
 
 - (void)newStaticPlaylist
 {
-	PRPlaylist playlist;
-	[[db playlists] addStaticPlaylist:&playlist _error:nil];
+	PRPlaylist playlist = [[db playlists] addStaticPlaylist];
 	[[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification 
 														object:self
 													  userInfo:nil];
@@ -96,8 +94,7 @@
 
 - (void)newSmartPlaylist
 {
-	PRPlaylist playlist;
-	[[db playlists] addSmartPlaylist:&playlist _error:nil];
+	[[db playlists] addSmartPlaylist];
 	[[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification 
 														object:self
 													  userInfo:nil];
@@ -105,20 +102,18 @@
 
 - (void)duplicatePlaylist:(PRPlaylist)playlist
 {
-    int newPlaylist;
-	[[db playlists] addStaticPlaylist:&newPlaylist _error:nil];
-    [[db playlists] copyFilesFromPlaylist:playlist toPlaylist:newPlaylist _error:nil];
-    NSString *title;
-    [[db playlists] value:&title forPlaylist:playlist attribute:PRTitlePlaylistAttribute _error:nil];
+    int newPlaylist = [[db playlists] addStaticPlaylist];
+    [[db playlists] copyFilesFromPlaylist:playlist toPlaylist:newPlaylist];
+    NSString *title = [[db playlists] titleForPlaylist:playlist];
     NSString *title2 = [title stringByAppendingString:@" Copy"];
-    [[db playlists] setValue:title2 forPlaylist:newPlaylist attribute:PRTitlePlaylistAttribute _error:nil];
+    [[db playlists] setValue:title2 forPlaylist:newPlaylist attribute:PRTitlePlaylistAttribute];
 	[[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification object:self userInfo:nil];
     [self renamePlaylist:newPlaylist];
 }
 
 - (void)deletePlaylist:(PRPlaylist)playlist
 {
-    [[db playlists] removePlaylist:playlist _error:nil];
+    [[db playlists] removePlaylist:playlist];
     [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification object:self];
 }
 
@@ -196,10 +191,12 @@
     if (tableView_ != tableView) {
         return nil;
     }
-    
+    if ([tableView_ editedRow] == row) {
+        return [[_datasource objectAtIndex:row] objectForKey:@"title"];
+    }
+
     int playlist = [[[_datasource objectAtIndex:row] objectForKey:@"playlist"] intValue];
-    int count;
-    [[db playlists] count:&count forPlaylist:playlist _error:nil];
+    int count = [[db playlists] countForPlaylist:playlist];
     NSString *subtitle = [NSString stringWithFormat:@"%d songs", count];
     NSImage *icon;
     switch ([[[_datasource objectAtIndex:row] objectForKey:@"type"] intValue]) {
@@ -213,6 +210,7 @@
             icon = [NSImage imageNamed:@"NSListViewTemplate"];
             break;
         default:
+            icon = [NSImage imageNamed:@"NSListViewTemplate"];
             [[PRLog sharedLog] presentFatalError:nil];
             break;
     }
@@ -239,7 +237,8 @@
         if (playlist == -1) {
             return;
         }
-        [[db playlists] setValue:object forPlaylist:playlist attribute:PRTitlePlaylistAttribute _error:nil];
+        [[db playlists] setValue:object forPlaylist:playlist attribute:PRTitlePlaylistAttribute];
+        [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification object:self];
     }
 }
 
@@ -287,8 +286,7 @@
 
 - (int)playlistForRow:(int)row
 {
-    NSArray *playlists;
-    [[db playlists] playlistArray:&playlists _error:nil];
+    NSArray *playlists = [[db playlists] playlists];
     int playlist = -1;
     if ([playlists count] - 1 > row) {
         playlist = [[playlists objectAtIndex:row + 1] intValue];
@@ -298,8 +296,7 @@
 
 - (int)rowForPlaylist:(PRPlaylist)playlist
 {
-    NSArray *playlists;
-    [[db playlists] playlistArray:&playlists _error:nil];
+    NSArray *playlists = [[db playlists] playlists];
     int row = -1;
     for (int i = 1; i < [playlists count]; i++) {
         if ([[playlists objectAtIndex:i] intValue] == playlist) {

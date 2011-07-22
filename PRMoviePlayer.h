@@ -41,6 +41,7 @@ enum {
 // ========================================
 // Update
 
+- (void)decodingStarted;
 - (void)preGainDidChange:(NSNotification *)notification;
 
 // ========================================

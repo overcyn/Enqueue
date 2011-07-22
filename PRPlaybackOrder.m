@@ -2,6 +2,12 @@
 #import "PRDb.h"
 
 
+NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
+"index_ INTEGER PRIMARY KEY, "
+"playlist_item_id INTEGER NOT NULL, "
+"CHECK (index_ > 0), "
+"FOREIGN KEY(playlist_item_id) REFERENCES playlist_items(playlist_item_id) ON UPDATE RESTRICT ON DELETE CASCADE)";
+
 @implementation PRPlaybackOrder
 
 // ========================================
@@ -17,34 +23,26 @@
 	return self;
 }
 
-- (void)dealloc
+- (void)create
 {
-    [super dealloc];
+    NSString *string = PR_TBL_PLAYBACK_ORDER_SQL;
+    [db executeString:string];
 }
 
-- (BOOL)create_error:(NSError **)error
+- (void)initialize
 {
-    NSString *statement = @"CREATE TABLE playback_order ("
-    "index_ INTEGER PRIMARY KEY, "
-    "playlist_item_id INTEGER NOT NULL, "
-    "CHECK (index_ > 0), "
-    "FOREIGN KEY(playlist_item_id) REFERENCES playlist_items(playlist_item_id) ON UPDATE RESTRICT ON DELETE CASCADE)";
-    if (![db executeStatement:statement _error:nil]) {
+    NSString *string = @"DELETE FROM playback_order";
+    [db executeString:string];
+}
+
+- (BOOL)validate
+{
+    NSString *string = @"SELECT sql FROM sqlite_master WHERE name = 'playback_order'";
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnString], nil];
+    NSArray *result = [db executeString:string withBindings:nil columns:columns];
+    if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_PLAYBACK_ORDER_SQL]) {
         return FALSE;
     }
-    return TRUE;
-}
-
-- (BOOL)initialize_error:(NSError **)error
-{
-    if (![db executeStatement:@"DELETE FROM playback_order" _error:nil]) {
-        return FALSE;
-    }
-	return TRUE;
-}
-
-- (BOOL)validate_error:(NSError **)error
-{
     return TRUE;
 }
 

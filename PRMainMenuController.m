@@ -7,7 +7,6 @@
 #import "PRPlaylistsViewController.h"
 #import "PRControlsViewController.h"
 
-
 @implementation PRMainMenuController
 
 // ========================================
@@ -29,40 +28,38 @@
         windowMenu = [[mainMenu itemWithTitle:@"Window"] submenu];
         helpMenu = [[mainMenu itemWithTitle:@"Help"] submenu];
         
+        [libraryMenu setDelegate:self];
+        [enqueueMenu setDelegate:self];
         [viewMenu setDelegate:self];
         
         // Enqueue Menu
-        
         NSMenuItem *menuItem = [enqueueMenu itemWithTitle:@"Preferences..."];
         [menuItem setTarget:self];
         [menuItem setAction:@selector(showPreferences)];
         
         // Library Menu
-        
         menuItem = [libraryMenu itemWithTitle:@"New Playlist"];
         [menuItem setTarget:self];
         [menuItem setAction:@selector(newPlaylist)];
         
         menuItem = [libraryMenu itemWithTitle:@"Add to Library…"];
-        [menuItem setTarget:core];
-        [menuItem setAction:@selector(showOpenPanel:)];
+        [menuItem setTarget:self];
+        [menuItem setAction:@selector(openFiles)];
         
         menuItem = [libraryMenu itemWithTitle:@"Import iTunes Library"];
-        [menuItem setTarget:core];
-        [menuItem setAction:@selector(itunesImport:)];
+        [menuItem setTarget:self];
+        [menuItem setAction:@selector(itunesImport)];
         
         menuItem = [libraryMenu itemWithTitle:@"Get Album Art"];
         [menuItem setTarget:self];
         [menuItem setAction:@selector(addToLibrary)];
         
         // Edit Menu
-        
         menuItem = [editMenu itemWithTitle:@"Find"];
         [menuItem setTarget:[core win]];
         [menuItem setAction:@selector(find)];
         
         // View Menu
-        
         menuItem = [viewMenu itemWithTitle:@"as List"];
         [menuItem setTarget:self];
         [menuItem setAction:@selector(viewAsList)];
@@ -84,7 +81,6 @@
         [menuItem setAction:@selector(showCurrentSong)];
         
         // Controls Menu
-        
         menuItem = [controlsMenu itemWithTitle:@"Play/Pause"];
         [menuItem setTarget:[core now]];
         [menuItem setAction:@selector(playPause)];
@@ -140,6 +136,15 @@
     [[viewMenu itemWithTag:2] setTitle:title];
 }
 
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem
+{
+    if (menuItem == [libraryMenu itemWithTitle:@"Import iTunes Library"] ||
+        menuItem == [libraryMenu itemWithTitle:@"Add to Library…"]) {
+        return [[[core opQueue] operations] count] == 0;
+    }
+    return TRUE;
+}
+
 // ========================================
 // Action
 // ========================================
@@ -153,6 +158,16 @@
 {
     [[core win] setCurrentMode:PRPlaylistsMode];
     [[[core win] playlistsViewController] newStaticPlaylist];
+}
+
+- (void)itunesImport
+{
+    [core itunesImport:nil];
+}
+
+- (void)openFiles
+{
+    [core showOpenPanel:nil];
 }
 
 - (void)viewAsList

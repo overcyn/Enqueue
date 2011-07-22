@@ -43,7 +43,7 @@
 {
 	if ([[taskManager tasks] count] > 0) {
         PRTask *task = [[taskManager tasks] objectAtIndex:0];
-        if ([task background]) {
+        if (TRUE || [task background]) {
             [[core win] setProgressHidden:FALSE];
             if ([[self window] isVisible]) {
                 [self endSheet];

@@ -9,8 +9,8 @@
 #import "PRPreferencesViewController.h"
 #import "PRPlaylistsViewController.h"
 #import "PRHistoryViewController.h"
-#import "PRSongViewController.h"
 #import "PRCore.h"
+#import "PRPlaylists+Extensions.h"
 #import "PRTaskManager.h"
 #import "PRGradientView.h"
 #import "PRWelcomeSheetController.h"
@@ -21,7 +21,11 @@
 #import "YRKSpinningProgressIndicator.h"
 #import "PRTableViewController.h"
 #import "PRStringFormatter.h"
+#import <Quartz/Quartz.h>
 
+#ifndef NSAppKitVersionNumber10_6
+#define NSAppKitVersionNumber10_6 1038
+#endif
 
 @interface NSWindow (hush)
 - (void)setBottomCornerRounded:(BOOL)rounded;
@@ -55,13 +59,12 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self 
                                                     name:PRLibraryViewModeDidChangeNotification
                                                   object:nil];
-    
+     
     [mainMenuController release];
     [libraryViewController release];
     [preferencesViewController release];
     [playlistsViewController release];
     [historyViewController release];
-    [songViewController release];
     [nowPlayingViewController release];
     [controlsViewController release];
     [db release];
@@ -71,7 +74,17 @@
 }
 
 - (void)awakeFromNib
-{    
+{   
+    if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
+        [cancelButton setBezelStyle:15];
+        [cancelButton setBordered:TRUE];
+        NSRect frame = [cancelButton frame];
+        frame.origin.y -= 2;
+        frame.origin.x += 3;
+        frame.size.width -= 6;
+        [cancelButton setFrame:frame];
+    }
+    
     // Main Menu
     mainMenuController = [[PRMainMenuController alloc] initWithCore:core];
     
@@ -80,12 +93,12 @@
     [[self window] setBottomCornerRounded:NO];
     
     // Toolbar View
-    float x = 0.08; //0.02
+    float x = 0.14; //0.02
     NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                             [NSColor colorWithCalibratedWhite:1.02-x alpha:1.0], 0.0,
-                             [NSColor colorWithCalibratedWhite:0.96-x alpha:1.0], 0.4,
-                             [NSColor colorWithCalibratedWhite:0.92-x alpha:1.0], 0.7,
-                             [NSColor colorWithCalibratedWhite:0.88-x alpha:1.0], 1.0,
+                             [NSColor colorWithCalibratedWhite:1.06-x alpha:1.0], 0.0,
+                             [NSColor colorWithCalibratedWhite:0.96-x alpha:1.0], 0.5,
+                             [NSColor colorWithCalibratedWhite:0.91-x alpha:1.0], 0.8,
+                             [NSColor colorWithCalibratedWhite:0.87-x alpha:1.0], 1.0,
                              nil] autorelease];
     [toolbarView setVerticalGradient:gradient];
     x = 0.04;
@@ -97,7 +110,7 @@
                  nil] autorelease];
     [toolbarView setAlternateVerticalGradient:gradient];
     [toolbarView setTopBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.42]];
-    [toolbarView setBotBorder:[NSColor colorWithCalibratedWhite:0.15 alpha:1.0]];
+    [toolbarView setBotBorder:[NSColor colorWithCalibratedWhite:0.4 alpha:1.0]];
     [toolbarView setFrame:NSMakeRect(185, [[self window] frame].size.height - [toolbarView frame].size.height, 
                                      [[self window] frame].size.width - 185, [toolbarView frame].size.height)];
     [[[[self window] contentView] superview] addSubview:toolbarView];
@@ -105,13 +118,11 @@
     [mainDivider setColor:[NSColor colorWithCalibratedWhite:0.55 alpha:1.0]];
     [toolbarView setLeftBorder:[NSColor colorWithCalibratedWhite:0.4 alpha:1.0]];
     
-    [divider5 setTopBorder:[NSColor colorWithCalibratedWhite:0.4 alpha:1.0]];
-    [divider5 setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:1.0]];
-    
-    [divider setColor:[NSColor colorWithCalibratedWhite:0.98 alpha:1.0]];
-    [divider2 setColor:[NSColor colorWithCalibratedWhite:0.98 alpha:1.0]];
-    [divider setLeftBorder:[NSColor colorWithCalibratedWhite:0.5 alpha:1.0]];
-    [divider2 setLeftBorder:[NSColor colorWithCalibratedWhite:0.5 alpha:1.0]];
+    [divider setHidden:TRUE];
+    [divider setColor:[NSColor colorWithCalibratedWhite:0.0 alpha:0.3]];
+    [divider setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.8]];
+    [divider5 setTopBorder:[NSColor colorWithCalibratedWhite:0.0 alpha:0.3]];
+    [divider5 setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.4]];
     
     // task window
     NSPoint p = [progressIndicator frame].origin;
@@ -124,7 +135,6 @@
     preferencesViewController = [[PRPreferencesViewController alloc] initWithCore:core];
 	playlistsViewController = [[PRPlaylistsViewController alloc] initWithDb:db mainWindowController:self];
     historyViewController = [[PRHistoryViewController alloc] initWithDb:db mainWindowController:self];
-    songViewController = [[PRSongViewController alloc] init];
     taskManagerViewController = [[PRTaskManagerViewController alloc] initWithTaskManager:[core taskManager] core:(PRCore *)core];
     
     nowPlayingViewController = [[PRNowPlayingViewController alloc] initWithDb:db 
@@ -137,16 +147,18 @@
     [[controlsViewController view] setFrame:[controlsSuperview bounds]];
     [controlsSuperview addSubview:[controlsViewController view]];
     
-    [self setShowsArtwork:[[PRUserDefaults sharedUserDefaults] showsArtwork]];
+    [self setShowsArtwork:[[PRUserDefaults userDefaults] showsArtwork]];
 	
     // Initialize currentViewController
     [[libraryViewController view] setFrame:[centerSuperview bounds]];
     [centerSuperview addSubview:[libraryViewController view]];
 	currentViewController = libraryViewController;
-    [self setCurrentMode:PRLibraryMode];
     [self setCurrentPlaylist:[[db playlists] libraryPlaylist]];
+    [self setCurrentMode:PRLibraryMode];
 		
     // Progress Indicator
+    [cancelButton setTarget:taskManagerViewController];
+    [cancelButton setAction:@selector(cancelTask)];
     [progressIndicator setUsesThreadedAnimation:TRUE];
     [progressIndicator setMaxValue:1];
     [progressIndicator setDisplayedWhenStopped:FALSE];
@@ -211,7 +223,6 @@
 // ========================================
 
 @synthesize taskManagerViewController;
-@synthesize songViewController;
 @synthesize libraryViewController;
 @synthesize historyViewController;
 @synthesize playlistsViewController;
@@ -230,6 +241,9 @@
 
 - (void)setCurrentMode:(PRMode)mode_
 {
+    if (currentMode == mode_) {
+        return;
+    }
     currentMode = mode_;
     id newViewController;
 	switch (currentMode) {
@@ -245,9 +259,6 @@
 			break;
 		case PRPreferencesMode:
 			newViewController = preferencesViewController;
-			break;
-		case PRSongMode:
-			newViewController = songViewController;
 			break;
 		default:
 			break;
@@ -270,7 +281,7 @@
 - (void)setCurrentPlaylist:(PRPlaylist)playlist_
 {
     currentPlaylist = playlist_;
-    [libraryViewController setCurrentPlaylist:currentPlaylist];
+    [libraryViewController setPlaylist:currentPlaylist];
     
     [self updateUI];
     
@@ -291,7 +302,7 @@
 
 - (void)setShowsArtwork:(BOOL)showsArtwork
 {
-    [[PRUserDefaults sharedUserDefaults] setShowsArtwork:showsArtwork];
+    [[PRUserDefaults userDefaults] setShowsArtwork:showsArtwork];
 
     if (showsArtwork) {
         NSRect frame = [controlsSuperview frame];
@@ -321,17 +332,20 @@
 
 - (BOOL)progressHidden
 {
-    return TRUE;
+    return [divider isHidden];
 }
 
 - (void)setProgressHidden:(BOOL)progressHidden
 {
+    [divider setHidden:progressHidden];
+    [cancelButton setHidden:progressHidden];
     [progressTextField setHidden:progressHidden];
-    if (progressHidden) {
-        [progressIndicator stopAnimation:nil];
-    } else {
-        [progressIndicator startAnimation:nil];
-    }
+//    [progressIndicator setHidden:progressHidden];
+//    if (progressHidden) {
+//        [progressIndicator stopAnimation:nil];
+//    } else {
+//        [progressIndicator startAnimation:nil];
+//    }
 }
 
 - (NSString *)progressTitle
@@ -347,15 +361,13 @@
     NSMutableParagraphStyle *centerAlign = [[[NSMutableParagraphStyle alloc] init] autorelease];
 	[centerAlign setAlignment:NSLeftTextAlignment];
     [centerAlign setLineBreakMode:NSLineBreakByTruncatingTail];
-	NSDictionary *attributes2 = 
-    [NSDictionary dictionaryWithObjectsAndKeys:
-     [NSFont systemFontOfSize:11], NSFontAttributeName,
-     [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-     centerAlign, NSParagraphStyleAttributeName,				  
-     shadow2, NSShadowAttributeName,
-     nil];
-	NSMutableAttributedString *attributedString = 
-        [[[NSMutableAttributedString alloc] initWithString:progressTitle attributes:attributes2] autorelease];
+	NSDictionary *attributes2 = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [NSFont systemFontOfSize:11], NSFontAttributeName,
+                                 [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
+                                 centerAlign, NSParagraphStyleAttributeName,				  
+                                 shadow2, NSShadowAttributeName,
+                                 nil];
+	NSMutableAttributedString *attributedString = [[[NSMutableAttributedString alloc] initWithString:progressTitle attributes:attributes2] autorelease];
 	[progressTextField setAttributedStringValue:attributedString];
 }
 
@@ -422,19 +434,10 @@
             break;
     }
     
-    if (currentMode == PRLibraryMode) {
-        [[searchField cell] setPlaceholderString:@"Search"];
-    } else {
-        [[searchField cell] setPlaceholderString:@""];
-    }
-    [searchField setEnabled:(currentMode == PRLibraryMode)];
-    
+    [searchField  setHidden:(currentMode != PRLibraryMode)];
     [libraryModeButton setHidden:(currentMode != PRLibraryMode)];
-    [listModeButton setHidden:(currentMode != PRLibraryMode)];
-    [albumListModeButton setHidden:(currentMode != PRLibraryMode)];
     [infoButton setHidden:(currentMode != PRLibraryMode)];
-    [divider setHidden:(currentMode != PRLibraryMode)];
-    [divider2 setHidden:(currentMode != PRLibraryMode)];
+    
     if ([libraryViewController infoViewVisible]) {
         [infoButton setImage:[NSImage imageNamed:@"InfoAlt"]];
     } else {
@@ -447,13 +450,12 @@
         return;
     }
     NSString *title;
-    NSNumber *type = nil;
-    [[db playlists] value:&type forPlaylist:currentPlaylist attribute:PRTypePlaylistAttribute _error:nil];
-    if ([type intValue] == PRLibraryPlaylistType) {
+    PRPlaylistType type = [[db playlists] typeForPlaylist:currentPlaylist];
+    if (type == PRLibraryPlaylistType) {
         title = @" ";
     } else {
-        [[db playlists] value:&title forPlaylist:currentPlaylist attribute:PRTitlePlaylistAttribute _error:nil];
-        title = [NSString stringWithFormat:@"%@ : ", title]; //  ▾☰♪
+        title = [[db playlists] titleForPlaylist:currentPlaylist];
+        title = [NSString stringWithFormat:@"%@ : ", title];
     }
     
 	NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
@@ -462,35 +464,30 @@
     NSMutableParagraphStyle *centerAlign = [[[NSMutableParagraphStyle alloc] init] autorelease];
 	[centerAlign setAlignment:NSCenterTextAlignment];
     [centerAlign setLineBreakMode:NSLineBreakByTruncatingTail];
-	NSDictionary *attributes = 
-    [NSDictionary dictionaryWithObjectsAndKeys:
-     [NSFont boldSystemFontOfSize:12.5], NSFontAttributeName,
-     [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-     centerAlign, NSParagraphStyleAttributeName,				  
-     shadow, NSShadowAttributeName,
-     nil];
-	NSMutableAttributedString *attributedString = 
-    [[[NSMutableAttributedString alloc] initWithString:title attributes:attributes] autorelease];
+	NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                [NSFont boldSystemFontOfSize:12.5], NSFontAttributeName,
+                                [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
+                                centerAlign, NSParagraphStyleAttributeName,
+                                shadow, NSShadowAttributeName,
+                                nil];
+	NSMutableAttributedString *attributedString = [[[NSMutableAttributedString alloc] initWithString:title attributes:attributes] autorelease];
 	[playlistTitle setAttributedStringValue:attributedString];
     
     // other
     PRTimeFormatter2 *timeFormatter2 = [[[PRTimeFormatter2 alloc] init] autorelease];
 	PRSizeFormatter *sizeFormatter = [[[PRSizeFormatter alloc] init] autorelease];
 	NSDictionary *userInfo = [(PRTableViewController *)[libraryViewController currentViewController] info];
-	NSNumber *count = [userInfo valueForKey:@"count"];
-	NSNumber *time = [userInfo valueForKey:@"time"];
-	NSNumber *size = [userInfo valueForKey:@"size"];
 	NSString *formattedString = [NSString stringWithFormat:@"%@ songs, %@, %@", 
-                                 count, [timeFormatter2 stringForObjectValue:time], 
-                                 [sizeFormatter stringForObjectValue:size]];
+                                 [userInfo valueForKey:@"count"], 
+                                 [timeFormatter2 stringForObjectValue:[userInfo valueForKey:@"time"]], 
+                                 [sizeFormatter stringForObjectValue:[userInfo valueForKey:@"size"]]];
 	
-	NSMutableDictionary *attributes2 = 
-    [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
-      [NSFont systemFontOfSize:11], NSFontAttributeName,
-      [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-      shadow, NSShadowAttributeName,
-      centerAlign, NSParagraphStyleAttributeName,				  
-      nil] autorelease];
+	NSMutableDictionary *attributes2 = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                         [NSFont systemFontOfSize:11], NSFontAttributeName,
+                                         [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
+                                         shadow, NSShadowAttributeName,
+                                         centerAlign, NSParagraphStyleAttributeName,				  
+                                         nil] autorelease];
 	[attributedString appendAttributedString:[[[NSAttributedString alloc] initWithString:formattedString attributes:attributes2] autorelease]];
     [attributedString addAttributes:[NSDictionary dictionaryWithObject:centerAlign forKey:NSParagraphStyleAttributeName]
                               range:NSMakeRange(0, [attributedString length])];
@@ -548,13 +545,7 @@
 	if (currentMode != PRLibraryMode) {
 		return nil;
 	}
-	
-	NSString *search;
-	[[db playlists] value:&search 
-			  forPlaylist:currentPlaylist 
-				attribute:PRSearchPlaylistAttribute 
-				   _error:nil];
-	return search;
+	return [[db playlists] searchForPlaylist:currentPlaylist];
 }
 
 - (void)setSearch:(NSString *)search
@@ -565,14 +556,9 @@
 	if (!search) {
 		search = @"";
 	}
-	
-	[[db playlists] setValue:search 
-				 forPlaylist:currentPlaylist 
-				   attribute:PRSearchPlaylistAttribute 
-					  _error:nil];
-	NSDictionary *userInfo = 
-      [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:currentPlaylist] 
-                                  forKey:@"playlist"];
+	[[db playlists] setValue:search forPlaylist:currentPlaylist attribute:PRSearchPlaylistAttribute];
+	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:currentPlaylist] 
+                                                         forKey:@"playlist"];
 	[[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistDidChangeNotification 
 														object:self
 													  userInfo:userInfo];
@@ -625,7 +611,7 @@
 
 - (NSRect)window:(NSWindow *)window willPositionSheet:(NSWindow *)sheet usingRect:(NSRect)rect
 {
-    rect.origin.y -= 38;
+    rect.origin.y -= 43;
     rect.origin.x += 185/2;
     return rect;
 }

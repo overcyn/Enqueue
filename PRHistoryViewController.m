@@ -119,13 +119,16 @@
 
 - (void)updateUI
 {
-    NSColor *color = [NSColor colorWithDeviceWhite:0.75 alpha:1.0];
-    NSColor *alternateColor = [NSColor colorWithCalibratedWhite:0.4 alpha:1.0];
-	[weekButton setTextColor:color];
-	[monthButton setTextColor:color];
-	[sixMonthButton setTextColor:color];
-	[yearButton setTextColor:color];
-    [allTimeButton setTextColor:color];
+    int rows = [self numberOfRowsInTableView:tableView];
+    float height = 235 + 42 * (rows-2);
+    if (height < 400) {
+        height = 400;
+    }
+    [(PRScrollView *)[self view] setMinimumSize:NSMakeSize(650, height)];
+    [background setFrame:NSMakeRect([background frame].origin.x, [[background superview] frame].size.height - height, 650, height)];
+    
+    NSColor *color = [NSColor colorWithDeviceWhite:0.7 alpha:1.0];
+    NSColor *alternateColor = [NSColor colorWithCalibratedWhite:0.2 alpha:1.0];
     
     NSButton *button;
     switch (historyMode) {
@@ -173,16 +176,11 @@
     }
     
     bool hidden = !(historyMode == PRTopArtistsHistoryMode || historyMode == PRTopSongsHistoryMode);
-    [weekButton setHidden:hidden];
-    [monthButton setHidden:hidden];
-    [sixMonthButton setHidden:hidden];
-    [yearButton setHidden:hidden];
-    [allTimeButton setHidden:hidden];
     if (hidden) {
-        [tableView setBordered:0];
+//        [tableView setBordered:0];
         [tableView setGridStyleMask:NSTableViewSolidHorizontalGridLineMask];
     } else {
-        [tableView setBordered:0];
+//        [tableView setBordered:0];
         [tableView setGridStyleMask:NSTableViewGridNone];
     }
 }
@@ -292,11 +290,11 @@
 - (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithDictionary:[aCell objectValue]];
-	if ([(PRRolloverTableView *)aTableView mouseOverRow] == rowIndex) {
-        [dictionary setObject:[NSNumber numberWithBool:TRUE] forKey:@"mouseOver"];
-    } else {
-        [dictionary setObject:[NSNumber numberWithBool:FALSE] forKey:@"mouseOver"];
-    }
+//	if ([(PRRolloverTableView *)aTableView mouseOverRow] == rowIndex) {
+//        [dictionary setObject:[NSNumber numberWithBool:TRUE] forKey:@"mouseOver"];
+//    } else {
+//        [dictionary setObject:[NSNumber numberWithBool:FALSE] forKey:@"mouseOver"];
+//    }
     
     [aCell setObjectValue:dictionary];
 }

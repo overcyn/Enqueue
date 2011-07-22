@@ -15,33 +15,47 @@
 
 - (void)drawBarInside:(NSRect)cellFrame flipped:(BOOL)flipped
 {	
-    NSImage *trackFillImage = [NSImage imageNamed:@"TexturedSliderTrackFill.tiff"];
-    NSImage *trackRightImage = [NSImage imageNamed:@"TexturedSliderTrackRight2.tiff"];
-    NSImage *trackLeftImage = [NSImage imageNamed:@"TexturedSliderTrackLeft2.tiff"];
-    NSImage *trackUnFillImage = [NSImage imageNamed:@"TexturedSliderTrackUnFill.tiff"];
-	NSRect slideRect = cellFrame;
-	
-    slideRect.size.height = trackFillImage.size.height;
-	slideRect.origin.y += roundf((cellFrame.size.height - slideRect.size.height) / 2);
-    
-    NSDrawThreePartImage(slideRect, trackLeftImage, trackFillImage, trackRightImage, NO, NSCompositeSourceOver, 1, flipped);
-        
-    slideRect.origin.x += 1;
-    slideRect.size.width -= 2;
+    NSGradient *fillGradient = [[[NSGradient alloc] initWithColorsAndLocations:
+                                 [NSColor colorWithCalibratedWhite:0.9 alpha:1.0], 0.0,
+                                 [NSColor colorWithCalibratedWhite:0.85 alpha:1.0], 0.7, 
+                                 [NSColor colorWithCalibratedWhite:0.75 alpha:1.0], 1.0, 
+                                 nil] autorelease];
+    NSGradient *backGradient = [[[NSGradient alloc] initWithColorsAndLocations:
+                                 [NSColor colorWithCalibratedWhite:0.1 alpha:1.0], 0.0,
+                                 [NSColor colorWithCalibratedWhite:0.3 alpha:1.0], 0.5, 
+                                 [NSColor colorWithCalibratedWhite:0.4 alpha:1.0], 1.0, 
+                                 nil] autorelease];
+
+    //draw background
+	cellFrame = [[self controlView] frame];
+	[backGradient drawInRect:cellFrame angle:90.0];
     
     if (indicator) {
-        [[NSColor colorWithPatternImage:[NSImage imageNamed:@"TexturedSliderTrackUnFill.tif"]] set];
-        NSDrawThreePartImage(NSMakeRect(slideRect.origin.x, slideRect.origin.y, 4, slideRect.size.height), trackUnFillImage, trackUnFillImage, trackUnFillImage, NO, NSCompositeSourceOver, 1, flipped);
-        slideRect.origin.x += 4;
-        slideRect.size.width -= 4;
+        NSRect indicatorRect = NSMakeRect(cellFrame.origin.x, cellFrame.origin.y, 8, cellFrame.size.height);
+        [fillGradient drawInRect:indicatorRect angle:90.0];
+        cellFrame.origin.x += 8;
+        cellFrame.size.width -= 8;
     }
     
     NSRect fillRect;
     NSRect remainingRect;
-    float slice = [self floatValue]/([self maxValue] - [self minValue]) * slideRect.size.width;
-
-    NSDivideRect(slideRect, &fillRect, &remainingRect, slice, NSMinXEdge);    
-    NSDrawThreePartImage(fillRect, trackUnFillImage, trackUnFillImage, trackUnFillImage, NO, NSCompositeSourceOver, 1, flipped);
+    float slice = [self floatValue]/([self maxValue] - [self minValue]) * cellFrame.size.width;
+    NSDivideRect(cellFrame, &fillRect, &remainingRect, slice, NSMinXEdge);    
+    [fillGradient drawInRect:fillRect angle:90.0];
+    
+    // top border
+    cellFrame = [[self controlView] frame];
+    NSPoint topLeft = NSMakePoint(cellFrame.origin.x, cellFrame.origin.y+0.5);
+    NSPoint topRight = NSMakePoint(cellFrame.origin.x + cellFrame.size.width, cellFrame.origin.y+0.5);
+    [[NSColor colorWithCalibratedWhite:0.1 alpha:1.0] set];
+    [NSBezierPath strokeLineFromPoint:topLeft toPoint:topRight];
+    
+    // bot border
+    cellFrame = [[self controlView] frame];
+    NSPoint botLeft = NSMakePoint(cellFrame.origin.x, cellFrame.origin.y+cellFrame.size.height-0.5);
+    NSPoint botRight = NSMakePoint(cellFrame.origin.x + cellFrame.size.width, cellFrame.origin.y+cellFrame.size.height-0.5);
+    [[NSColor colorWithCalibratedWhite:0.3 alpha:1.0] set];
+    [NSBezierPath strokeLineFromPoint:botLeft toPoint:botRight];
 }
 
 - (void)drawKnob:(NSRect)rect

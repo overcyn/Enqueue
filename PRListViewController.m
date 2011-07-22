@@ -12,19 +12,11 @@
 {
     self = [super initWithNibName:@"PRListView" bundle:nil];
 	if (self) {
-		now = [now_ retain];
+		now = now_;
 		libraryViewController = libraryViewController_;
-		db = [db_ retain];
-		lib = [[db_ library] retain];
-		play = [[db_ playlists] retain];
-		libSrc = [[db_ libraryViewSource] retain];
-		
-		refreshing = TRUE;
+		db = db_;
+		refreshing = FALSE;
 		currentPlaylist = -1;
-		
-		columnInfoPlaylistAttribute = PRListViewColumnInfoPlaylistAttribute;
-		sortColumnPlaylistAttribute = PRListViewSortColumnPlaylistAttribute;
-		ascendingPlaylistAttribute = PRListViewAscendingPlaylistAttribute;		
 	}
 	return self;
 }

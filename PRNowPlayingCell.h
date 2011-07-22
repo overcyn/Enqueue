@@ -6,4 +6,6 @@
 
 }
 
+- (void)drawHeaderWithFrame:(NSRect)cellFrame inView:(NSView *)controlView;
+
 @end

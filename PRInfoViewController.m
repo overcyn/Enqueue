@@ -90,6 +90,47 @@
     [albumArtView bind:@"enabled" toObject:self withKeyPath:@"enabled" options:nil];
     [ratingControl bind:@"enabled" toObject:self withKeyPath:@"enabled" options:nil];
     
+    controls = [[NSArray arrayWithObjects:
+                 titleField,
+                 artistField,
+                 albumArtistField,
+                 albumField,
+                 yearField,
+                 bpmField,
+                 trackField,
+                 trackCountField,
+                 discField,
+                 discCountField,
+                 composerField,
+                 commentsField,
+                 genreField,
+                 albumArtView,
+                 ratingControl, nil] retain];
+    labels = [[NSArray arrayWithObjects:
+               titleLabel,
+               artistLabel,
+               albumArtistLabel,
+               albumLabel,
+               yearLabel,
+               bpmLabel,
+               trackLabel,
+               trackCountLabel,
+               discLabel,
+               discCountLabel,
+               composerLabel,
+               commentsLabel,
+               genreLabel, nil] retain];
+    
+    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
+    [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:1.0]];
+    [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
+    NSMutableDictionary *attributes = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                      [NSFont systemFontOfSize:30.0],NSFontAttributeName,
+                                      shadow, NSShadowAttributeName,
+                                      nil] autorelease];
+    NSAttributedString *s = [[[NSAttributedString alloc] initWithString:@"No Selection" attributes:attributes] autorelease];
+    [NoSelection setAttributedStringValue:s];
+    
     [titleField setFormatter:stringFormatter];
     [artistField setFormatter:stringFormatter];
     [albumArtistField setFormatter:stringFormatter];
@@ -104,7 +145,7 @@
     [commentsField setFormatter:stringFormatter];
     [genreField setFormatter:stringFormatter];
     
-    [gradientView setTopBorder:[NSColor colorWithCalibratedWhite:0.5 alpha:1.0]];
+    [gradientView setTopBorder:[NSColor colorWithCalibratedWhite:0.7 alpha:1.0]];
     [gradientView setTopGradient:[NSColor colorWithCalibratedWhite:1.0 alpha:0.6]];
     [gradientView setBotGradient:[NSColor colorWithCalibratedWhite:1.0 alpha:0.0]];
     
@@ -135,6 +176,14 @@
 
 - (void)update
 {
+    [NoSelection setHidden:([selection count] != 0)];
+    for (id i in controls) {
+        [i setHidden:![selection count]];
+    }
+    for (id i in labels) {
+        [i setHidden:![selection count]];
+    }
+    
     [self willChangeValueForKey:@"enabled"];
     [self didChangeValueForKey:@"enabled"];
     

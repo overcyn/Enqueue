@@ -13,9 +13,9 @@
 
 - (id)initWithDb:(PRDb *)sqlDb_;
 
-- (BOOL)create_error:(NSError **)error;
-- (BOOL)initialize_error:(NSError **)error;
-- (BOOL)validate_error:(NSError **)error;
+- (void)create;
+- (void)initialize;
+- (BOOL)validate;
 
 // ========================================
 // Accessors

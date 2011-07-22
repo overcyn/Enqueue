@@ -44,10 +44,6 @@ PRStringFormatter;
 	// variable thats true when refreshing so that tableViewSelectionDid change doesnt get triggered for 
 	BOOL refreshing;
 	
-	int columnInfoPlaylistAttribute;
-	int sortColumnPlaylistAttribute;
-	int ascendingPlaylistAttribute;
-	
 	NSMenu *libraryMenu;
 	NSMenu *headerMenu;
 	NSMenu *browserHeaderMenu;
@@ -55,10 +51,7 @@ PRStringFormatter;
 	NSIndexSet *selectedRows;
 	
 	PRDb *db;
-	PRLibrary *lib;
-	PRPlaylists *play;
 	PRNowPlayingController *now;
-	PRLibraryViewSource *libSrc;
 	PRLibraryViewController *libraryViewController; // weak
 }
 
@@ -72,10 +65,12 @@ PRStringFormatter;
 // ========================================
 // Accessors
 
-// Total size, count and length of visible songs
-- (NSDictionary *)info;
+- (int)sortColumn;
+- (void)setSortColumn:(int)sortColumn;
+- (BOOL)ascending;
+- (void)setAscending:(BOOL)ascending;
 
-// Current selection
+- (NSDictionary *)info;
 - (NSArray *)selection;
 
 - (void)setCurrentPlaylist:(int)newPlaylist;
@@ -106,10 +101,14 @@ PRStringFormatter;
 // ========================================
 // UI Update
 
-- (void)updateTableView;
-- (void)loadTableColumns;
+- (void)reloadData;
+- (void)forceReloadData;
 
-// Private method called by |loadTableColumns|
+- (void)loadBrowser;
+- (void)saveBrowser;
+- (void)loadTableColumns;
+- (void)saveTableColumns;
+
 - (void)highlightTableColumn:(NSTableColumn *)tableColumn ascending:(BOOL)ascending;
 
 - (void)updateHeaderMenu;
@@ -119,25 +118,26 @@ PRStringFormatter;
 // ========================================
 // UI Action
 
-- (void)saveTableColumns;
-- (void)saveBrowser;
 - (void)toggleColumn:(id)sender;
 - (void)toggleBrowser:(id)sender;
 
-// Selects file. If file not visible clear browser & searches, and select file.
 - (void)highlightFile:(PRFile)file;
 - (void)highlightFiles:(NSIndexSet *)indexSet;
+- (void)highlightArtist:(NSString *)artist;
 
 // ========================================
 // UI Misc
 
+- (int)browserForTableView:(NSTableView *)tableView;
+
+- (NSArray *)columnInfo;
+- (void)setColumnInfo:(NSArray *)columnInfo;
+
 - (NSTableColumn *)tableColumnForAttribute:(int)attribute;
-- (NSData *)defaultColumnsInfoData;
 
 - (int)dbRowForTableRow:(int)tableRow;
 - (NSIndexSet *)dbRowIndexesForTableRowIndexes:(NSIndexSet *)tableRowIndexes;
 - (int)tableRowForDbRow:(int)dbRow;
 - (NSIndexSet *)tableRowIndexesForDbRowIndexes:(NSIndexSet *)indexSet;
-
 
 @end

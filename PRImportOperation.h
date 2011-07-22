@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@class PRCore, PRTask;
+@class PRCore, PRTask, PRDb;
 
 @interface PRImportOperation : NSOperation 
 {
@@ -10,6 +10,8 @@
     BOOL playWhenDone;
     PRTask *task;
     NSMutableArray *URLsToPlay;
+    int _tempFileCount;
+    PRDb *_db;
     
     NSInvocation *completionInvocation;
     NSInvocation *completionInvocation2;

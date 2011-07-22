@@ -31,9 +31,5 @@ enum {
 
 - (void)presentError:(NSError *)error;
 - (void)presentFatalError:(NSError *)error;
-- (NSString *)backtrace;
-
-- (void)showDetails;
-- (void)close;
 
 @end

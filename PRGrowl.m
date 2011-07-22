@@ -28,7 +28,7 @@
 
 - (void)currentFileDidChange:(NSNotification *)notification
 {
-    if (![[PRUserDefaults sharedUserDefaults] postGrowlNotification]) {
+    if (![[PRUserDefaults userDefaults] postGrowlNotification]) {
         return;
     }
     

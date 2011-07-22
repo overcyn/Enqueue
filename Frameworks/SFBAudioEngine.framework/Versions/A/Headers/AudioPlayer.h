@@ -32,14 +32,18 @@
 
 #include <CoreAudio/CoreAudio.h>
 #include <AudioToolbox/AudioToolbox.h>
+
 #include <vector>
 #include <map>
 #include <utility>
 
+#include "AudioDecoder.h"
+#include "Guard.h"
+#include "Semaphore.h"
+
 // ========================================
 // Forward declarations
 // ========================================
-class AudioDecoder;
 class CARingBuffer;
 class DecoderStateData;
 class PCMConverter;
@@ -57,23 +61,30 @@ enum {
 	eAudioPlayerFlagMuteOutput				= 1u << 1,
 	eAudioPlayerFlagStopRequested			= 1u << 2,
 	eAudioPlayerFlagDigitalVolumeEnabled	= 1u << 3,
-	eAudioPlayerFlagDigitalPreGainEnabled	= 1u << 4
+	eAudioPlayerFlagDigitalPreGainEnabled	= 1u << 4,
+	eAudioPlayerFlagResetNeeded				= 1u << 5
 };
 
 // ========================================
 // An audio player class
+//
 // The player primarily uses two threads:
 //  1) A decoding thread, which reads audio via an AudioDecoder instance and stores it in the ring buffer.
 //     The audio is stored as deinterleaved, normalized [-1, 1) native floating point data in 64 bits (AKA doubles)
 //  2) A rendering thread, which reads audio from the ring buffer and performs conversion to the required output format.
 //     Sample rate conversion is done using Apple's AudioConverter API.
 //     Final conversion to the stream's format is done using PCMConverter.
+//
+// Since decoding and rendering are distinct operations performed in separate threads, there is an additional thread
+// used for garbage collection.  This is necessary because state data created in the decoding thread needs to live until
+// rendering is complete, which cannot occur until after decoding is complete.  An alternative garbage collection
+// method would be hazard pointers.
 // ========================================
 class AudioPlayer
 {
 	
 public:
-	
+
 	// ========================================
 	// Creation/Destruction
 	AudioPlayer();
@@ -81,12 +92,28 @@ public:
 	
 	// ========================================
 	// Playback Control
-	void Play();
-	void Pause();
-	inline void PlayPause()							{ IsPlaying() ? Pause() : Play(); }
-	void Stop();
-	
+	bool Play();
+	bool Pause();
+	inline bool PlayPause()							{ return IsPlaying() ? Pause() : Play(); }
+	bool Stop();
+
+	// ========================================
+	// Player State
+	enum PlayerState {
+		ePlaying,	// Audio is being sent to the output device
+		ePaused,	// An AudioDecoder has started rendering, but audio is not being sent to the output device
+		ePending,	// An AudioDecoder has started decoding, but not yet started rendering
+		eStopped	// An AudioDecoder has not started decoding, or the decoder queue is empty
+	};
+
+	PlayerState GetPlayerState() const;
+
+	// Convenience methods
 	inline bool IsPlaying() const					{ return (eAudioPlayerFlagIsPlaying & mFlags); }
+	inline bool IsPaused() const					{ return (ePaused == GetPlayerState()); }
+	inline bool IsPending() const					{ return (ePending == GetPlayerState()); }
+	inline bool IsStopped() const					{ return (eStopped == GetPlayerState()); }
+
 	CFURLRef GetPlayingURL() const;
 
 	// ========================================
@@ -136,6 +163,8 @@ public:
 	bool GetDigitalPreGain(double& preGain) const;
 	bool SetDigitalPreGain(double preGain);
 
+	inline bool IsPerformingSampleRateConversion() const { return (NULL != mSampleRateConverter); }
+
 	// Will return false if SRC is not being performed
 	bool SetSampleRateConverterQuality(UInt32 srcQuality);
 	bool SetSampleRateConverterComplexity(OSType srcComplexity);
@@ -176,6 +205,16 @@ public:
 
 	bool ClearQueuedDecoders();
 
+	// ========================================
+	// Ring Buffer Parameters
+	// The ring buffer's capacity, in sample frames
+	inline uint32_t GetRingBufferCapacity() const	{ return mRingBufferCapacity; }
+	bool SetRingBufferCapacity(uint32_t bufferCapacity);
+
+	// The minimum size of writes to the ring buffer, which implies the minimum read size from an AudioDecoder
+	inline uint32_t GetRingBufferWriteChunkSize() const	{ return mRingBufferWriteChunkSize; }
+	bool SetRingBufferWriteChunkSize(uint32_t chunkSize);
+
 private:
 
 	// ========================================
@@ -201,6 +240,8 @@ private:
 	bool AddVirtualFormatPropertyListeners();
 	bool RemoveVirtualFormatPropertyListeners();
 
+	bool ReallocateSampleRateConversionBuffer();
+
 	// ========================================
 	// Data Members
 	AudioDeviceID						mOutputDeviceID;
@@ -211,6 +252,8 @@ private:
 	CARingBuffer						*mRingBuffer;
 	AudioStreamBasicDescription			mRingBufferFormat;
 	AudioChannelLayout					*mRingBufferChannelLayout;
+	uint32_t							mRingBufferCapacity;
+	uint32_t							mRingBufferWriteChunkSize;
 
 	PCMConverter						**mOutputConverters;
 	AudioConverterRef					mSampleRateConverter;
@@ -225,14 +268,14 @@ private:
 	CFMutableArrayRef					mDecoderQueue;
 	DecoderStateData					*mActiveDecoders [kActiveDecoderArraySize];
 
-	pthread_mutex_t						mMutex;
+	Guard								mGuard;
 	
 	pthread_t							mDecoderThread;
-	semaphore_t							mDecoderSemaphore;
+	Semaphore							mDecoderSemaphore;
 	bool								mKeepDecoding;
 	
 	pthread_t							mCollectorThread;
-	semaphore_t							mCollectorSemaphore;
+	Semaphore							mCollectorSemaphore;
 	bool								mKeepCollecting;
 
 	int64_t								mFramesDecoded;

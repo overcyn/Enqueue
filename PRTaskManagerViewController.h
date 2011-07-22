@@ -30,6 +30,7 @@
 - (void)beginSheet;
 - (void)endSheet;
 - (void)setTitle:(NSString *)title;
+- (void)cancelTask;
 
 
 @end

@@ -7,28 +7,24 @@
 #import "PRAlbumArtController.h"
 #import "PRAlbumTableView2.h"
 #import "NSIndexSet+Extensions.h"
+#import "PRPlaylists+Extensions.h"
 
 @implementation PRAlbumListViewController
 
+// ========================================
 // Initialization
+// ========================================
 
 - (id)       initWithDb:(PRDb *)db_ 
    nowPlayingController:(PRNowPlayingController *)now_
   libraryViewController:(PRLibraryViewController *)libraryViewController_
 {
 	if ((self = [super initWithNibName:@"PRAlbumListView" bundle:nil])) {
-        db = [db_ retain];
-		now = [now_ retain];
+        db = db_;
+		now = now_;
 		libraryViewController = libraryViewController_;
-		lib = [[db library] retain];
-		play = [[db playlists] retain];
-		libSrc = [[db libraryViewSource] retain];
-		
-		refreshing = TRUE;
-		
-		columnInfoPlaylistAttribute = PRAlbumListViewColumnInfoPlaylistAttribute;
-		sortColumnPlaylistAttribute = PRAlbumListViewSortColumnPlaylistAttribute;
-		ascendingPlaylistAttribute = PRAlbumListViewAscendingPlaylistAttribute;
+        refreshing = FALSE;
+		currentPlaylist = -1;
         
         lock = [[NSLock alloc] init];
         cachedArt = [[NSMutableDictionary alloc] init];
@@ -62,20 +58,46 @@
 	[albumScrollView setSynchronizedScrollView:libraryScrollView2];
 }
 
-// Update
+// ========================================
+// Accessors
+// ========================================
 
-- (void)updateTableView
+- (int)sortColumn
+{
+    return [[db playlists] albumListViewSortColumnForPlaylist:currentPlaylist];
+}
+
+- (void)setSortColumn:(int)sortColumn
+{
+    [[db playlists] setAlbumListViewSortColumn:sortColumn forPlaylist:currentPlaylist];
+}
+
+- (BOOL)ascending
+{
+    return [[db playlists] albumListViewAscendingForPlaylist:currentPlaylist];
+}
+
+- (void)setAscending:(BOOL)ascending
+{
+    [[db playlists] setAlbumListViewAscending:ascending forPlaylist:currentPlaylist];
+}
+
+// ========================================
+// Update
+// ========================================
+
+- (void)reloadData
 {	
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
 	// update libSrc
     int tables;
-	[libSrc refreshWithPlaylist:currentPlaylist tablesToUpdate:&tables _error:nil];
+	[[db libraryViewSource] refreshWithPlaylist:currentPlaylist tablesToUpdate:&tables _error:nil];
 	
     // update albumCountArray, tableIndexes & libraryCount
 	libraryCount = 0;
     [albumCountArray release];
-	[libSrc arrayOfAlbumCounts:&albumCountArray _error:nil];
+	[[db libraryViewSource] arrayOfAlbumCounts:&albumCountArray _error:nil];
     [albumCountArray retain];
     [tableIndexes release];
 	tableIndexes = [[NSMutableIndexSet indexSet] retain];
@@ -106,21 +128,21 @@
     }
     if ((tables & PRBrowser1View) == PRBrowser1View) {
         [browser1TableView reloadData];
-        [libSrc selectionIndexSet:&indexSet forBrowser:1 withPlaylist:currentPlaylist _error:nil];
+        [[db libraryViewSource] selectionIndexSet:&indexSet forBrowser:1 withPlaylist:currentPlaylist _error:nil];
         if (![indexSet isEqualToIndexSet:[browser1TableView selectedRowIndexes]]) {
             [browser1TableView selectRowIndexes:indexSet byExtendingSelection:FALSE];
         }
     }
     if ((tables & PRBrowser2View) == PRBrowser2View) {
         [browser2TableView reloadData];
-        [libSrc selectionIndexSet:&indexSet forBrowser:2 withPlaylist:currentPlaylist _error:nil];
+        [[db libraryViewSource] selectionIndexSet:&indexSet forBrowser:2 withPlaylist:currentPlaylist _error:nil];
         if (![indexSet isEqualToIndexSet:[browser2TableView selectedRowIndexes]]) {
             [browser2TableView selectRowIndexes:indexSet byExtendingSelection:FALSE];
         }
     }
     if ((tables & PRBrowser3View) == PRBrowser3View) {
         [browser3TableView reloadData];
-        [libSrc selectionIndexSet:&indexSet forBrowser:3 withPlaylist:currentPlaylist _error:nil];
+        [[db libraryViewSource] selectionIndexSet:&indexSet forBrowser:3 withPlaylist:currentPlaylist _error:nil];
         if (![indexSet isEqualToIndexSet:[browser3TableView selectedRowIndexes]]) {
             [browser3TableView selectRowIndexes:indexSet byExtendingSelection:FALSE];
         }
@@ -137,7 +159,9 @@
     [pool drain];
 }
 
+// ========================================
 // Action
+// ========================================
 
 - (void)selectAlbum
 {	
@@ -158,8 +182,7 @@
 	if ([albumTableView clickedRow] == -1) {
 		return;
 	}
-	
-	[play clearPlaylist:[now currentPlaylist] _error:NULL];
+	[[db playlists] clearPlaylist:[now currentPlaylist]];
 	
 	int currentIndex;
 	int row = [albumTableView clickedRow];
@@ -172,15 +195,27 @@
     
 	for (; currentIndex < maxIndex; currentIndex++) {
         PRFile file_;
-		[libSrc file:&file_ forRow:currentIndex + 1 _error:NULL];
-		[play appendFile:file_ toPlaylist:[now currentPlaylist] _error:NULL];
+		[[db libraryViewSource] file:&file_ forRow:currentIndex + 1 _error:NULL];
+        [[db playlists] appendFile:file_ toPlaylist:[now currentPlaylist]];
 	}
 	
 	[now playPlaylist:[now currentPlaylist] fileAtIndex:1];
 	[now postNotificationForCurrentPlaylist];
 }
 
-// TableView
+// ========================================
+// UI Misc
+// ========================================
+
+- (NSArray *)columnInfo
+{
+    return [[db playlists] albumListViewColumnInfoForPlaylist:currentPlaylist];
+}
+
+- (void)setColumnInfo:(NSArray *)columnInfo
+{
+    [[db playlists] setAlbumListViewColumnInfo:columnInfo forPlaylist:currentPlaylist];
+}
 
 - (NSTableColumn *)tableColumnForAttribute:(int)attribute
 {
@@ -193,15 +228,13 @@
 
 - (void)highlightTableColumn:(NSTableColumn *)tableColumn ascending:(BOOL)ascending
 {
-	// clear indicator image
+	// clear indicator and higlighted column image
 	for (NSTableColumn *i in [libraryTableView tableColumns]) {
 		[libraryTableView setIndicatorImage:nil inTableColumn:i];
 	}
 	for (NSTableColumn *i in [albumTableView tableColumns]) {
 		[albumTableView setIndicatorImage:nil inTableColumn:i];
 	}
-	
-	// clear highlighted column
 	[libraryTableView setHighlightedTableColumn:nil];
 	[albumTableView setHighlightedTableColumn:nil];
 	
@@ -217,12 +250,6 @@
 		indicatorImage = [NSImage imageNamed:@"NSDescendingSortIndicator"];
 	}
 	[tableView setIndicatorImage:indicatorImage inTableColumn:tableColumn];	
-}
-
-- (NSData *)defaultColumnsInfoData
-{
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"PRAlbumListViewTableColumnsInfo" ofType:@"plist"];
-    return [NSData dataWithContentsOfFile:path];
 }
 
 // ========================================
@@ -248,7 +275,7 @@
 		PRFile file;
 		
 		int dbRow = [[albumSumCountArray objectAtIndex:tableRow] intValue];
-		[libSrc file:&file forRow:dbRow _error:nil];
+		[[db libraryViewSource] file:&file forRow:dbRow _error:nil];
         
 		NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 		[dict setObject:db forKey:@"db"];
@@ -279,14 +306,13 @@
             NSMutableIndexSet *mfiles = [[[NSMutableIndexSet alloc] init] autorelease];
             for (int i = dbRow - [[albumCountArray objectAtIndex:tableRow] intValue] + 1; i < dbRow + 1; i++) {
                 int guessedFile;
-                [libSrc file:&guessedFile forRow:i _error:nil];
+                [[db libraryViewSource] file:&guessedFile forRow:i _error:nil];
                 [mfiles addIndex:guessedFile];
             }
             NSIndexSet *files = [[[NSIndexSet alloc] initWithIndexSet:mfiles] autorelease];
             NSRect dirtyRect = [albumTableView rectOfRow:tableRow];
             
-            NSMethodSignature *methodSignature = 
-              [[self class] instanceMethodSignatureForSelector:@selector(cacheAlbumArtForFile:files:dirtyRect:)];
+            NSMethodSignature *methodSignature = [[self class] instanceMethodSignatureForSelector:@selector(cacheAlbumArtForFile:files:dirtyRect:)];
             NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
             [invocation setTarget:self];
             [invocation setSelector:@selector(cacheAlbumArtForFile:files:dirtyRect:)];
@@ -308,7 +334,6 @@
     
     NSImage *icon = nil;
     NSInteger guessedFile = [files firstIndex];
-    
     while (guessedFile != NSNotFound) {
         if ([[db albumArtController] fileHasAlbumArt:guessedFile]) {
             [[db albumArtController] albumArt:&icon forFile:guessedFile _error:nil];
@@ -328,8 +353,7 @@
     [cachedArt setObject:icon forKey:[NSNumber numberWithInt:file]];
     [lock unlock];
     
-    NSMethodSignature *methodSignature = 
-      [[NSTableView class] instanceMethodSignatureForSelector:@selector(setNeedsDisplayInRect:)];
+    NSMethodSignature *methodSignature = [[NSTableView class] instanceMethodSignatureForSelector:@selector(setNeedsDisplayInRect:)];
     NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
     [invocation setTarget:albumTableView];
     [invocation setSelector:@selector(setNeedsDisplayInRect:)];
@@ -363,7 +387,7 @@
 		int maxIndex = currentIndex + [[albumCountArray objectAtIndex:row] intValue];
 		
 		for (; currentIndex < maxIndex; currentIndex++) {
-			[libSrc file:&file forRow:currentIndex + 1 _error:nil];
+			[[db libraryViewSource] file:&file forRow:currentIndex + 1 _error:nil];
 			fileNumber = [NSNumber numberWithInt:file];
 			[files addObject:fileNumber];
 		}
@@ -394,47 +418,38 @@
 // TableView Delegate
 // ========================================
 
-- (NSCell *)   tableView:(NSTableView *)tableView 
-  dataCellForTableColumn:(NSTableColumn *)tableColumn 
-					 row:(NSInteger)row
-{
-	if (tableView == libraryTableView && 
-		[self dbRowForTableRow:row] == -1) {
-		return [[[NSCell alloc] init] autorelease];
-	} else {
-		return [tableColumn dataCell];
-	}
-}
+//- (NSCell *)   tableView:(NSTableView *)tableView 
+//  dataCellForTableColumn:(NSTableColumn *)tableColumn 
+//					 row:(NSInteger)row
+//{
+//	if (tableView == libraryTableView && 
+//		[self dbRowForTableRow:row] == -1) {
+//		return [[[NSCell alloc] init] autorelease];
+//	} else {
+//		return [tableColumn dataCell];
+//	}
+//}
 
 - (void)tableView:(NSTableView *)tableView didClickTableColumn:(NSTableColumn *)tableColumn
 {
 	if (tableView == albumTableView) {
-		int sortColumn;
-		int ascending;
-		
-		// get old sort order
-		[play intValue:&sortColumn
-		   forPlaylist:currentPlaylist 
-			 attribute:sortColumnPlaylistAttribute 
-				_error:NULL];
-		[play intValue:&ascending	
-		   forPlaylist:currentPlaylist 
-			 attribute:ascendingPlaylistAttribute
-				_error:NULL];
-		
-		// save sort order
-        [play setIntValue:PRArtistAlbumSort
-              forPlaylist:currentPlaylist 
-                attribute:sortColumnPlaylistAttribute 
-                   _error:NULL];
-        [play setIntValue:!ascending
-              forPlaylist:currentPlaylist 
-                attribute:ascendingPlaylistAttribute 
-                   _error:NULL];
-		
+		int sortColumn = [[db playlists] albumListViewSortColumnForPlaylist:currentPlaylist];
+		int ascending = [[db playlists] albumListViewAscendingForPlaylist:currentPlaylist];
+
+        if (sortColumn == PRArtistAlbumSort) {
+            ascending = !ascending;
+        } else {
+            ascending = TRUE;
+        }
+        
+        [[db playlists] setValue:[NSNumber numberWithInt:PRArtistAlbumSort] 
+                     forPlaylist:currentPlaylist 
+                       attribute:PRAlbumListViewSortColumnPlaylistAttribute];
+        [[db playlists] setValue:[NSNumber numberWithInt:ascending] 
+                     forPlaylist:currentPlaylist 
+                       attribute:PRAlbumListViewAscendingPlaylistAttribute];
 		[self setCurrentPlaylist:currentPlaylist];
 	}
-	
 	[super tableView:tableView didClickTableColumn:tableColumn];
 }
 
@@ -483,21 +498,17 @@
 {
 	if (![tableIndexes containsIndex:tableRow]) {
 		return -1;
-	} else {
-		return [tableIndexes countOfIndexesInRange:NSMakeRange(0, tableRow + 1)];
 	}
+    return [tableIndexes countOfIndexesInRange:NSMakeRange(0, tableRow + 1)];
 }
 
 - (int)tableRowForDbRow:(int)dbRow
 {
-	NSInteger tableRow;
-	
-	tableRow = [tableIndexes nthIndex:dbRow];
+	NSInteger tableRow = [tableIndexes nthIndex:dbRow];
 	if (tableRow == NSNotFound) {
 		return -1;
-	} else {
-		return tableRow;
 	}
+    return tableRow;
 }
 
 - (BOOL)shouldDrawGridForRow:(int)row tableView:(NSTableView *)tableView

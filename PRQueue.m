@@ -1,6 +1,10 @@
 #import "PRQueue.h"
 #import "PRDb.h"
 
+NSString * const PR_TBL_QUEUE_SQL = @"CREATE TABLE queue ("
+"queue_index INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
+"playlist_item_id INTEGER NOT NULL UNIQUE, "
+"FOREIGN KEY(playlist_item_id) REFERENCES playlist_items(playlist_item_id) ON UPDATE CASCADE ON DELETE CASCADE)";
 
 @implementation PRQueue
 
@@ -17,30 +21,25 @@
     return self;
 }
 
-- (void)dealloc
+- (void)create
 {
-    [super dealloc];
+    NSString *string = PR_TBL_QUEUE_SQL;
+    [db executeString:string];
 }
 
-- (BOOL)create_error:(NSError **)error
+- (void)initialize
 {
-    NSString *statement = @"CREATE TABLE IF NOT EXISTS queue ("
-    "queue_index INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
-    "playlist_item_id INTEGER NOT NULL UNIQUE, "
-    "FOREIGN KEY(playlist_item_id) REFERENCES playlist_items(playlist_item_id) ON UPDATE CASCADE ON DELETE CASCADE)";
-    if (![db executeStatement:statement _error:nil]) {
+    
+}
+
+- (BOOL)validate
+{
+    NSString *string = @"SELECT sql FROM sqlite_master WHERE name = 'queue'";
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnString], nil];
+    NSArray *result = [db executeString:string withBindings:nil columns:columns];
+    if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_QUEUE_SQL]) {
         return FALSE;
     }
-    return TRUE;
-}
-
-- (BOOL)initialize_error:(NSError **)error
-{
-    return TRUE;
-}
-
-- (BOOL)validate_error:(NSError **)error
-{
     return TRUE;
 }
 

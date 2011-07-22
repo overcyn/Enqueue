@@ -28,23 +28,23 @@
 
 - (void)mediaKeyEvent:(int)key state:(BOOL)state repeat:(BOOL)repeat
 {   
-    if (![[PRUserDefaults sharedUserDefaults] mediaKeys]) {
+    if (![[PRUserDefaults userDefaults] mediaKeys]) {
         return;
     }
 	switch(key) {
 		case NX_KEYTYPE_PLAY:
 			if (state == 0) {
-                [[[self delegate] now] playPause];
+                [[(PRCore *)[self delegate] now] playPause];
             }
             break;
 		case NX_KEYTYPE_FAST:
 			if (state == 0) {
-				[[[self delegate] now] playNext];
+				[[(PRCore *)[self delegate] now] playNext];
             }
             break;
 		case NX_KEYTYPE_REWIND:
 			if (state == 0) {
-				[[[self delegate] now] playPrevious];
+				[[(PRCore *)[self delegate] now] playPrevious];
             }
             break;
 	}

@@ -7,6 +7,7 @@
 #import "PRTagEditor.h"
 #import "PRMoviePlayer.h"
 #import "PRQueue.h"
+#import "PRUserDefaults.h"
 
 
 NSString * const PRCurrentFileDidChangeNotification = @"PRCurrentFileDidChangeNotification";
@@ -52,8 +53,6 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
           [NSNumber numberWithBool:FALSE], @"shuffle",
           [NSNumber numberWithFloat:1.0], @"volume",
           nil]];
-		repeat = [[NSUserDefaults standardUserDefaults] integerForKey:@"repeat"];
-		shuffle = [[NSUserDefaults standardUserDefaults] boolForKey:@"shuffle"];
 	}
 	
 	return self;
@@ -72,6 +71,8 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
 
 @synthesize invalidSongs;
 @synthesize queue;
+@dynamic shuffle;
+@dynamic repeat;
 
 - (PRMoviePlayer *)mov
 {
@@ -80,25 +81,23 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
 
 - (int)repeat
 {
-	return repeat;
+	return [[PRUserDefaults userDefaults] repeat];
 }
 
-- (void)setRepeat:(int)repeat_
+- (void)setRepeat:(int)repeat
 {
-	repeat = repeat_;
-	[[NSUserDefaults standardUserDefaults] setInteger:repeat forKey:@"repeat"];
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRRepeatDidChangeNotification object:self];
+    [[PRUserDefaults userDefaults] setRepeat:repeat];
+    [[NSNotificationCenter defaultCenter] postNotificationName:PRRepeatDidChangeNotification object:self];
 }
 
 - (BOOL)shuffle
 {
-	return shuffle;
+	return [[PRUserDefaults userDefaults] shuffle];
 }
 
-- (void)setShuffle:(BOOL)shuffle_
+- (void)setShuffle:(BOOL)shuffle
 {
-	shuffle = shuffle_;
-	[[NSUserDefaults standardUserDefaults] setBool:shuffle forKey:@"shuffle"];
+	[[PRUserDefaults userDefaults] setShuffle:shuffle];
 	[[NSNotificationCenter defaultCenter] postNotificationName:PRShuffleDidChangeNotification object:self];
 }
 
@@ -116,24 +115,17 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
 - (int)currentIndex
 {	
 	if (currentPlaylistItem == 0) {
-		return 0;
+        return 0;
 	}
-	
-    int index;
-	PRPlaylist playlist;
-	[play index:&index andPlaylist:&playlist forPlaylistItem:currentPlaylistItem _error:nil];
-	
-	return index;
+	return [[db playlists] indexForPlaylistItem:currentPlaylistItem];
 }
 
 - (void)setCurrentIndex:(int)index
 {
-	PRPlaylistItem playlistFilesID;
 	if (index == 0) {
 		currentPlaylistItem = 0;
 	} else {
-		[play playlistItem:&playlistFilesID atIndex:index forPlaylist:currentPlaylist _error:nil];
-		currentPlaylistItem = playlistFilesID;
+		currentPlaylistItem = [[db playlists] playlistItemAtIndex:index inPlaylist:currentPlaylist];
 	}
     [self didChangeValueForKey:@"currentFile"];
     [self willChangeValueForKey:@"currentFile"];
@@ -141,15 +133,10 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
 
 - (PRFile)currentFile
 {
-	PRFile file_;
-	
 	if ([self currentIndex] == 0) {
-		file_ = 0;
-	} else {		
-		[play file:&file_ atIndex:[self currentIndex] forPlaylist:currentPlaylist _error:NULL];
-	}
-	
-	return file_;
+		return 0;
+	} 
+    return [[db playlists] fileAtIndex:[self currentIndex] forPlaylist:currentPlaylist];
 }
 
 - (void)appendToQueue:(PRPlaylistItem)playlistItem
@@ -176,19 +163,18 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
     NSArray *array;
     [[db queue] queueArray:&array _error:nil];
     if ([array count] > 0) {
-        PRPlaylistItem playlistItem;
-        [[db playlists] playlistItem:&playlistItem atIndex:index forPlaylist:currentPlaylist _error:nil];    
+        PRPlaylistItem playlistItem = [[db playlists] playlistItemAtIndex:index inPlaylist:currentPlaylist]; 
         [[db queue] removePlaylistItem:playlistItem _error:nil];
     }
     
-	PRFile file;
+	PRFile file = [play fileAtIndex:index forPlaylist:currentPlaylist];
 	NSString *URLString;
-	[play file:&file atIndex:index forPlaylist:currentPlaylist _error:nil];
 	[lib value:&URLString forFile:file attribute:PRPathFileAttribute _error:nil];
     
     // update tags
     PRTagEditor *tagEditor = [[[PRTagEditor alloc] initWithFile:file db:db] autorelease];
-    [tagEditor updateTagsAndPostNotification:TRUE];
+    [tagEditor setPostNotification:TRUE];
+    [tagEditor updateTags];
     [self setCurrentIndex:index];
     if (![mov openFileAndPlay:URLString]) {
         [invalidSongs addIndex:file];
@@ -212,9 +198,7 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
 - (IBAction)playPause
 {
 	if ([self currentIndex] == 0) {
-        int count;
-		[play count:&count forPlaylist:currentPlaylist _error:nil];
-		
+        int count = [[db playlists] countForPlaylist:currentPlaylist];
 		if (count == 0) {
 			return;
 		}
@@ -250,13 +234,13 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
 
 - (void)playNext
 {
+    BOOL shuffle = [self shuffle];
+    BOOL repeat = [self repeat];
     // check if there are valid files
-	int currentPlaylistCount;
-    [play count:&currentPlaylistCount forPlaylist:currentPlaylist _error:nil];
+	int currentPlaylistCount = [[db playlists] countForPlaylist:currentPlaylist];
     bool areValidFiles = FALSE;
     for (int i = 1; i < currentPlaylistCount + 1; i++) {
-        PRFile file;
-        [play file:&file atIndex:i forPlaylist:currentPlaylist _error:nil];
+        PRFile file = [[db playlists] fileAtIndex:i forPlaylist:currentPlaylist];
         if (![invalidSongs containsIndex:file]) {
             areValidFiles = TRUE;
         }
@@ -269,9 +253,7 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
     NSArray *array;
     [[db queue] queueArray:&array _error:nil];
     if ([array count] > 0) {
-        int index;
-        PRPlaylist playlist;
-        [[db playlists] index:&index andPlaylist:&playlist forPlaylistItem:[[array objectAtIndex:0] intValue] _error:nil];
+        int index = [[db playlists] indexForPlaylistItem:[[array objectAtIndex:0] intValue]];
         [[db queue] removePlaylistItem:[[array objectAtIndex:0] intValue] _error:nil];
         [self playFileAtIndex:index];
         if (shuffle) {
@@ -306,20 +288,16 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
 	} else if (shuffle && orderPosition < ordCount) {
 		// if shuffle and inside history: play next song in history
 		PRPlaylistItem playlistItem;
-		int index;
-		int playlist;
-		
 		orderPosition += 1;
 		[ord playlistItem:&playlistItem atIndex:orderPosition _error:nil];
-		[play index:&index andPlaylist:&playlist forPlaylistItem:playlistItem _error:nil];
+        int index = [[db playlists] indexForPlaylistItem:playlistItem];
 		[self playFileAtIndex:index];
 		
 	} else if (shuffle && [availableSongs count] > 0) {
 		// if shuffle, not in history and available songs: play random available song
-		int index, playlist;
 		int rand = random() % [availableSongs count];
 		int playlistItem = [[availableSongs objectAtIndex:rand] intValue];
-		[play index:&index andPlaylist:&playlist forPlaylistItem:playlistItem _error:nil];
+		int index = [[db playlists] indexForPlaylistItem:playlistItem];
 		if ([self playFileAtIndex:index]) {
             [ord appendPlaylistItem:currentPlaylistItem _error:NULL];
             orderPosition += 1;
@@ -368,6 +346,8 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
 
 - (void)playPrevious
 {
+    BOOL shuffle = [self shuffle];
+    BOOL repeat = [self repeat];
 	if ([mov currentTime] > 3000.0) {
 		[self playFileAtIndex:[self currentIndex]];
 	} else if (repeat == -1) {
@@ -390,9 +370,7 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
 		
 	} else if (!shuffle && repeat == 1) {
 		// if shuffle is off, repeat is on and no previous songs: play last song
-		int count;
-		
-		[play count:&count forPlaylist:currentPlaylist _error:nil];
+		int count = [[db playlists] countForPlaylist:currentPlaylist];
 		[self clearHistory];
 		[self playFileAtIndex:count];
 		orderPosition += 1;
@@ -400,12 +378,9 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
 	} else if (shuffle && orderPosition > 1) {
 		// if shuffle is on and songs left in playbackOrder: play song
 		PRPlaylistItem playlistItem;
-		int index;
-		int playlist;
-		
 		orderPosition -= 1;
 		[ord playlistItem:&playlistItem atIndex:orderPosition _error:nil];
-		[play index:&index andPlaylist:&playlist forPlaylistItem:playlistItem _error:nil];
+        int index = [[db playlists] indexForPlaylistItem:playlistItem];
 		[self playFileAtIndex:index];
 		
 	} else if (shuffle && repeat == 0) {
@@ -420,12 +395,12 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
 
 - (void)toggleRepeat
 {
-	[self setRepeat:!repeat];
+	[self setRepeat:![self repeat]];
 }
 
 - (void)toggleShuffle
 {
-	[self setShuffle:!shuffle];
+	[self setShuffle:![self shuffle]];
 }
 
 - (void)clearHistory
@@ -437,11 +412,8 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
 
 - (void)postNotificationForCurrentPlaylist
 {
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:currentPlaylist] 
-                                                         forKey:@"playlist"];
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistDidChangeNotification 
-														object:self 
-													  userInfo:userInfo];
+	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:currentPlaylist] forKey:@"playlist"];
+	[[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistDidChangeNotification object:self userInfo:userInfo];
 }
 
 // ========================================

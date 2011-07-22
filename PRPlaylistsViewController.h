@@ -8,7 +8,6 @@
     IBOutlet NSView *background;
     IBOutlet PRRolloverTableView *tableView;
     IBOutlet PRGradientView *divider;
-    IBOutlet PRGradientView *divider2;
 	IBOutlet NSButton *newPlaylistButton;
 	IBOutlet NSButton *newSmartPlaylistButton;
     

@@ -17,23 +17,20 @@
 	return self;
 }
 
-- (BOOL)create_error:(NSError **)error
+- (void)create
 {
-    return TRUE;
+
 }
 
-- (BOOL)initialize_error:(NSError **)error
+- (void)initialize
 {	
-    NSString *statement = @"CREATE TEMP TABLE now_playing_view_source ("
+    NSString *string = @"CREATE TEMP TABLE now_playing_view_source ("
     "row INTEGER NOT NULL PRIMARY KEY, "
     "file_id INTEGER NOT NULL)";
-    if (![db executeStatement:statement _error:nil]) {
-        return FALSE;
-    }
-    return TRUE;
+    [db executeString:string];
 }
 
-- (BOOL)validate_error:(NSError **)error
+- (BOOL)validate
 {
     return TRUE;
 }
@@ -47,18 +44,14 @@
 				  ascending:(BOOL)asc 
 					 _error:(NSError **)error
 {
-    if (![db executeStatement:@"DELETE FROM now_playing_view_source" _error:nil]) {
-        return FALSE;
-    }
+    NSString *string = @"DELETE FROM now_playing_view_source";
+    [db executeString:string];
     
-    NSString *statement = @"INSERT INTO now_playing_view_source (file_id) "
+    string = @"INSERT INTO now_playing_view_source (file_id) "
     "SELECT file_id FROM playlist_items WHERE playlist_id = ?1 ORDER BY playlist_index";
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1], nil];
-    if (![db executeStatement:statement withBindings:bindings _error:nil]) {
-        return FALSE;
-    }
-    
+    [db executeString:string withBindings:bindings columns:nil];
     return TRUE;
 }
 
@@ -87,7 +80,7 @@
 - (BOOL)arrayOfAlbumCounts:(NSArray **)albumCounts _error:(NSError **)error
 {
     NSArray *results;
-    if ([[PRUserDefaults sharedUserDefaults] useAlbumArtist]) {
+    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
         if (![db executeStatement:@"SELECT library.album, library.artistAlbumArtist "
               "FROM now_playing_view_source "
               "JOIN library ON now_playing_view_source.file_id = library.file_id"

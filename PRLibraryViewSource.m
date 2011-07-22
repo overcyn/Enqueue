@@ -4,6 +4,8 @@
 #import "PRPlaylists.h"
 #import "PRRule.h"
 #import "PRUserDefaults.h"
+#import "PRLog.h"
+#import "PRPlaylists+Extensions.h"
 
 // ========================================
 // Constants
@@ -43,73 +45,50 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
 	return self;
 }
 
-- (void)dealloc
+- (void)create
 {
-    [super dealloc];
+
 }
 
-- (BOOL)create_error:(NSError **)error
-{
-    return TRUE;
-}
-
-- (BOOL)initialize_error:(NSError **)error
+- (void)initialize
 {	
-	if (![db executeStatement:[NSString stringWithFormat:
-                               @"CREATE TEMP TABLE %@ "
-                               "(row INTEGER NOT NULL PRIMARY KEY, "
-                               "file_id INTEGER NOT NULL)",
-                               libraryViewSource]
-                       _error:error]) {
-		return FALSE;
-	}
-	if (![db executeStatement: [NSString stringWithFormat:
-                                @"CREATE TEMP TABLE %@ "
-                                "(row INTEGER NOT NULL PRIMARY KEY, "
-                                "value TEXT NOT NULL)",
-                                browser1ViewSource]
-                       _error:error]) {
-		return FALSE;
-	}
-	if (![db executeStatement:[NSString stringWithFormat:
-                               @"CREATE TEMP TABLE %@ "
-                               "(row INTEGER NOT NULL PRIMARY KEY, "
-                               "value TEXT NOT NULL)",
-                               browser2ViewSource]
-                       _error:error]) {
-		return FALSE;
-	}
-	if (![db executeStatement:[NSString stringWithFormat:
-                               @"CREATE TEMP TABLE %@ "
-                               "(row INTEGER NOT NULL PRIMARY KEY, "
-                               "value TEXT NOT NULL)",
-                               browser3ViewSource]
-                       _error:error]) {
-		return FALSE;
-	}
+    NSString *string = @"CREATE TEMP TABLE libraryViewSource "
+    "(row INTEGER NOT NULL PRIMARY KEY, "
+    "file_id INTEGER NOT NULL)";
+    [db executeString:string];
     
-    if (![db executeStatement:@"CREATE TEMP TABLE browser1Cache "
-          "(row INTEGER NOT NULL PRIMARY KEY, "
-          "value TEXT NOT NULL)"
-                       _error:nil]) {
-        return FALSE;
-    }
-    if (![db executeStatement:@"CREATE TEMP TABLE browser2Cache "
-          "(row INTEGER NOT NULL PRIMARY KEY, "
-          "value TEXT NOT NULL)"
-                       _error:nil]) {
-        return FALSE;
-    }
-    if (![db executeStatement:@"CREATE TEMP TABLE browser3Cache "
-          "(row INTEGER NOT NULL PRIMARY KEY, "
-          "value TEXT NOT NULL)"
-                       _error:nil]) {
-        return FALSE;
-    }
-	return TRUE;
+    string = @"CREATE TEMP TABLE browser1ViewSource "
+    "(row INTEGER NOT NULL PRIMARY KEY, "
+    "value TEXT NOT NULL)";
+    [db executeString:string];	
+    
+    string = @"CREATE TEMP TABLE browser2ViewSource "
+    "(row INTEGER NOT NULL PRIMARY KEY, "
+    "value TEXT NOT NULL)";
+    [db executeString:string];	
+    
+    string = @"CREATE TEMP TABLE browser3ViewSource "
+    "(row INTEGER NOT NULL PRIMARY KEY, "
+    "value TEXT NOT NULL)";
+    [db executeString:string];    
+    
+    string = @"CREATE TEMP TABLE browser1Cache "
+    "(row INTEGER NOT NULL PRIMARY KEY, "
+    "value TEXT NOT NULL)";
+    [db executeString:string];    
+    
+    string = @"CREATE TEMP TABLE browser2Cache "
+    "(row INTEGER NOT NULL PRIMARY KEY, "
+    "value TEXT NOT NULL)";
+    [db executeString:string];
+    
+    string = @"CREATE TEMP TABLE browser3Cache "
+    "(row INTEGER NOT NULL PRIMARY KEY, "
+    "value TEXT NOT NULL)";
+    [db executeString:string];
 }
 
-- (BOOL)validate_error:(NSError **)error
+- (BOOL)validate
 {
     return TRUE;
 }
@@ -160,29 +139,23 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
     }
     
     // Library view mode
-	int libraryViewMode;
-	[play intValue:&libraryViewMode 
-	   forPlaylist:playlist 
-		 attribute:PRLibraryViewModePlaylistAttribute 
-			_error:nil];
-	int sortColumnPlaylistAttribute;
+	int libraryViewMode = [[db playlists] libraryViewModeForPlaylist:playlist];
+    int sortColumn;
 	if (libraryViewMode == PRListMode) {
-		sortColumnPlaylistAttribute = PRListViewSortColumnPlaylistAttribute;
+		sortColumn = [[db playlists] listViewSortColumnForPlaylist:playlist];
 	} else {
-		sortColumnPlaylistAttribute = PRAlbumListViewSortColumnPlaylistAttribute;
+        sortColumn = [[db playlists] albumListViewSortColumnForPlaylist:playlist];
 	}
 	
     // Sort column
-    int sortColumn;
-	[play intValue:&sortColumn forPlaylist:playlist attribute:sortColumnPlaylistAttribute _error:NULL];
     NSString *sortColumnName;
     if (sortColumn == PRPlaylistIndexSort) {
-        sortColumnName = @"playlist_items.playlist_index";
-    } else if ([[PRUserDefaults sharedUserDefaults] useAlbumArtist] && sortColumn == PRArtistFileAttribute) {
+        [[PRLog sharedLog] presentFatalError:nil];
+    } else if ([[PRUserDefaults userDefaults] useAlbumArtist] && sortColumn == PRArtistFileAttribute) {
         sortColumnName = @"artistAlbumArtist";
     } else {
         if (sortColumn == PRArtistAlbumSort) {
-            if ([[PRUserDefaults sharedUserDefaults] useAlbumArtist]) {
+            if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
                 sortColumn = PRArtistAlbumArtistFileAttribute;
             } else {
                 sortColumn = PRArtistFileAttribute;
@@ -386,7 +359,7 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
 	
     for (int i = 1; i <= 3; i++) {
         NSString *grouping = [self groupingStringForPlaylist:playlist browser:i];
-        NSArray *selection = [self selectionForPlaylist:playlist browser:i];
+        NSArray *selection = [[db playlists] selectionForBrowser:i playlist:playlist];
         
         if ([selection count] != 0 && [grouping length] != 0) {
             whereTerm = TRUE;
@@ -403,8 +376,7 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
     }
     
 	// filter for search
-	NSString *search;
-	[play value:&search forPlaylist:playlist attribute:PRSearchPlaylistAttribute _error:nil];
+	NSString *search = [[db playlists] searchForPlaylist:playlist];
 	if (search && [search length] != 0) {
         whereTerm = TRUE;
 		[statement appendString:@"(1 = 1 "];
@@ -430,32 +402,26 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
     }
     
     // Library view mode
-	int libraryViewMode;
-	[play intValue:&libraryViewMode 
-	   forPlaylist:playlist 
-		 attribute:PRLibraryViewModePlaylistAttribute 
-			_error:error];
-	int sortColumnPlaylistAttribute;
-	int ascendingPlaylistAttribute;
+	int libraryViewMode = [[db playlists] libraryViewModeForPlaylist:playlist];
+    int sortColumn;
+    int asc;
 	if (libraryViewMode == PRListMode) {
-		sortColumnPlaylistAttribute = PRListViewSortColumnPlaylistAttribute;
-		ascendingPlaylistAttribute = PRListViewAscendingPlaylistAttribute;
+        sortColumn = [[db playlists] listViewSortColumnForPlaylist:playlist];
+        asc = [[db playlists] listViewAscendingForPlaylist:playlist];
 	} else {
-		sortColumnPlaylistAttribute = PRAlbumListViewSortColumnPlaylistAttribute;
-		ascendingPlaylistAttribute = PRAlbumListViewAscendingPlaylistAttribute;
+        sortColumn = [[db playlists] albumListViewSortColumnForPlaylist:playlist];
+        asc = [[db playlists] albumListViewAscendingForPlaylist:playlist];
 	}
 	
     // Sort column
-    int sortColumn;
-	[play intValue:&sortColumn forPlaylist:playlist attribute:sortColumnPlaylistAttribute _error:NULL];
     NSString *sortColumnName;
     if (sortColumn == PRPlaylistIndexSort) {
         sortColumnName = @"playlist_items.playlist_index";
-    } else if ([[PRUserDefaults sharedUserDefaults] useAlbumArtist] && sortColumn == PRArtistFileAttribute) {
+    } else if ([[PRUserDefaults userDefaults] useAlbumArtist] && sortColumn == PRArtistFileAttribute) {
         sortColumnName = @"artistAlbumArtist";
     } else {
         if (sortColumn == PRArtistAlbumSort) {
-            if ([[PRUserDefaults sharedUserDefaults] useAlbumArtist]) {
+            if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
                 sortColumn = PRArtistAlbumArtistFileAttribute;
             } else {
                 sortColumn = PRArtistFileAttribute;
@@ -465,8 +431,6 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
     }
     
     // Ascending
-    int asc;
-	[play intValue:&asc forPlaylist:playlist attribute:ascendingPlaylistAttribute _error:NULL];
     NSString *ascending;
 	if (asc) {
 		ascending = @"ASC";
@@ -597,7 +561,7 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
     // Filter for other browsers
     for (int i = 1; i < browser; i++) {
         NSString *grouping = [self groupingStringForPlaylist:playlist browser:i];
-        NSArray *selection = [self selectionForPlaylist:playlist browser:i];
+        NSArray *selection = [[db playlists] selectionForBrowser:i playlist:playlist];
         
         if ([selection count] != 0 && [grouping length] != 0) {
             // copy rows from library_view_source into temp table that match selection
@@ -614,8 +578,7 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
     }
     
 	// Filter for search
-	NSString *search;
-	[play value:&search forPlaylist:playlist attribute:PRSearchPlaylistAttribute _error:nil];
+	NSString *search = [[db playlists] searchForPlaylist:playlist];
 	if (search && [search length] != 0) {
 		[statement appendString:@"(1 = 1 "];
 		NSArray *searchTerms = [search componentsSeparatedByString:@" "];
@@ -667,7 +630,7 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
         return FALSE;
     }
     
-    NSMutableArray *selection = [NSMutableArray arrayWithArray:[self selectionForPlaylist:playlist browser:browser]];
+    NSMutableArray *selection = [NSMutableArray arrayWithArray:[[db playlists] selectionForBrowser:browser playlist:playlist]];
     NSMutableIndexSet *indexesToRemove = [[[NSMutableIndexSet alloc] init] autorelease];
     for (int i = 0; i < [selection count]; i++) {
         NSArray *result;
@@ -683,10 +646,7 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
     }
     if ([indexesToRemove count] > 0) {
         [selection removeObjectsAtIndexes:indexesToRemove];
-        [play setValue:[NSKeyedArchiver archivedDataWithRootObject:[NSArray arrayWithArray:selection]] 
-           forPlaylist:playlist 
-             attribute:[PRLibraryViewSource selectionPlaylistAttributeForBrowser:browser]
-                _error:nil];
+        [[db playlists] setSelection:[NSArray arrayWithArray:selection] forBrowser:browser playlist:playlist];
     }
     
 	return TRUE;
@@ -712,81 +672,16 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
 	}
 }
 
-+ (PRPlaylistAttribute)groupingPlaylistAttributeForBrowser:(int)browser
-{
-	if (browser == 1) {
-		return PRBrowser1AttributePlaylistAttribute;
-	} else if (browser == 2) {
-		return PRBrowser2AttributePlaylistAttribute;
-	} else if (browser == 3) {
-		return PRBrowser3AttributePlaylistAttribute;
-	} else {
-		NSLog(@"PRLibraryViewSource refreshBrowser:withPlaylist:_error: Unknown Browser");
-		return -1;
-	}
-}
-
-+ (PRPlaylistAttribute)selectionPlaylistAttributeForBrowser:(int)browser
-{
-	if (browser == 1) {
-		return PRBrowser1SelectionPlaylistAttribute;
-	} else if (browser == 2) {
-		return PRBrowser2SelectionPlaylistAttribute;
-	} else if (browser == 3) {
-		return PRBrowser3SelectionPlaylistAttribute;
-	} else {
-		NSLog(@"PRLibraryViewSource refreshBrowser:withPlaylist:_error: Unknown Browser");
-		return -1;
-	}
-}
-
 - (NSString *)groupingStringForPlaylist:(PRPlaylist)playlist browser:(int)browser
 {
-    PRPlaylistAttribute groupingPlaylistAttribute;
-    if (browser == 1) {
-		groupingPlaylistAttribute = PRBrowser1AttributePlaylistAttribute;
-	} else if (browser == 2) {
-		groupingPlaylistAttribute = PRBrowser2AttributePlaylistAttribute;
-	} else if (browser == 3) {
-		groupingPlaylistAttribute = PRBrowser3AttributePlaylistAttribute;
-	} else {
-        return @"";
-    }
-    int grouping;
-	[play intValue:&grouping forPlaylist:playlist attribute:groupingPlaylistAttribute _error:nil];
+    int grouping = [[db playlists] attributeForBrowser:browser playlist:playlist];
     if (grouping == 0) {
         return @"";
     }
-    if ([[PRUserDefaults sharedUserDefaults] useAlbumArtist] && grouping == PRArtistFileAttribute) {
+    if ([[PRUserDefaults userDefaults] useAlbumArtist] && grouping == PRArtistFileAttribute) {
 		return @"artistAlbumArtist";
 	}
     return [[PRLibrary columnDict] objectForKey:[NSNumber numberWithInt:grouping]];
-}
-
-- (NSArray *)selectionForPlaylist:(PRPlaylist)playlist browser:(int)browser
-{
-    PRPlaylistAttribute selectionPlaylistAttribute;
-    if (browser == 1) {
-		selectionPlaylistAttribute = PRBrowser1SelectionPlaylistAttribute;
-	} else if (browser == 2) {
-		selectionPlaylistAttribute = PRBrowser2SelectionPlaylistAttribute;
-	} else if (browser == 3) {
-		selectionPlaylistAttribute = PRBrowser3SelectionPlaylistAttribute;
-	} else {
-        return [NSArray array];
-    }
-	NSData *selectionData;
-	[play value:&selectionData 
-	forPlaylist:playlist 
-	  attribute:selectionPlaylistAttribute
-		 _error:nil];
-    NSArray *selection;
-	if (!selectionData) {
-		selection = [NSArray array];
-	} else {
-		selection = [NSKeyedUnarchiver unarchiveObjectWithData:selectionData];
-	}
-    return selection;
 }
 
 - (BOOL)count:(int *)count _error:(NSError **)error
@@ -904,15 +799,7 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
 			 withPlaylist:(int)playlist 
 				   _error:(NSError **)error_
 {
-	// get array of selected indexes
-    NSData *selectionData;
-    int selectionPlaylistAttribute = [PRLibraryViewSource selectionPlaylistAttributeForBrowser:browser];
-	[play value:&selectionData forPlaylist:playlist attribute:selectionPlaylistAttribute _error:nil];
-	if (!selectionData) {
-        *selection = [NSIndexSet indexSetWithIndex:0];
-		return TRUE;
-	}
-	NSArray *selectionArray = [NSKeyedUnarchiver unarchiveObjectWithData:selectionData];
+	NSArray *selectionArray = [[db playlists] selectionForBrowser:browser playlist:playlist];
     if ([selectionArray count] == 0) {
         *selection = [NSIndexSet indexSetWithIndex:0];
 		return TRUE;
@@ -957,13 +844,13 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
 
 - (NSDictionary *)info
 {
-    NSString *statementString = @"SELECT SUM(time), SUM(size), count(libraryViewSource.file_id) "
+    NSString *string = @"SELECT SUM(time), SUM(size), count(libraryViewSource.file_id) "
     "FROM libraryViewSource JOIN library ON libraryViewSource.file_id = library.file_id";
-    NSArray *columnTypes = [NSArray arrayWithObjects:
-                            [NSNumber numberWithInt:PRColumnInteger], 
-                            [NSNumber numberWithInt:PRColumnInteger], 
-                            [NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *results = [PRStatement executeString:statementString withDb:db bindings:nil columnTypes:columnTypes];
+    NSArray *columns = [NSArray arrayWithObjects:
+                        [NSNumber numberWithInt:PRColumnInteger], 
+                        [NSNumber numberWithInt:PRColumnInteger], 
+                        [NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *results = [db executeString:string withBindings:nil columns:columns];
     NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
                           [[results objectAtIndex:0] objectAtIndex:0], @"time",
                           [[results objectAtIndex:0] objectAtIndex:1], @"size",

@@ -18,22 +18,22 @@ extern NSString * const PRUseAlbumArtistDidChangeNotification;
 // ========================================
 // Initialization
 
-+ (PRUserDefaults *)sharedUserDefaults;
++ (PRUserDefaults *)userDefaults;
 
 // ========================================
 // Accessors
 
 @property (readwrite) float volume;
-//@property (readwrite) BOOL repeat;
-//@property (readwrite) BOOL shuffle;
+@property (readwrite) BOOL repeat;
+@property (readwrite) BOOL shuffle;
+@property (readwrite) float preGain;
 
 @property (readwrite) BOOL showWelcomeSheet;
 @property (readwrite) BOOL showsArtwork;
-@property (readwrite) float preGain;
 @property (readwrite) BOOL useAlbumArtist;
-@property (readwrite) BOOL postGrowlNotification;
-@property (readwrite) BOOL mediaKeys;
 
+@property (readwrite) BOOL mediaKeys;
+@property (readwrite) BOOL postGrowlNotification;
 @property (readwrite, retain) NSString *lastFMUsername;
 
 @property (readwrite, retain) NSArray *monitoredFolders;

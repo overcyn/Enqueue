@@ -23,41 +23,45 @@
 	[icon setFlipped:YES];
     
     if ([[dict objectForKey:@"mouseOver"] boolValue] && value == 0) {
-        NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                                 [NSColor colorWithDeviceRed:212.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:0.4], 0.0, 
-                                 [NSColor colorWithDeviceRed:212.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:0.6], 1.0,
-                                 nil] autorelease];
-        [gradient drawInRect:theCellFrame angle:90.0];
+//        NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+//                                 [NSColor colorWithDeviceRed:212.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:0.6], 0.0, 
+//                                 [NSColor colorWithDeviceRed:212.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:0.8], 1.0,
+//                                 nil] autorelease];
+//        [gradient drawInRect:theCellFrame angle:90.0];
     }
     
     theCellFrame.size.height -= 6;
     theCellFrame.origin.y += 3;
+    theCellFrame.origin.x += 3;
     
     if ([[dict objectForKey:@"mouseOver"] boolValue] && value != 0) {
-        NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                                 [NSColor colorWithDeviceRed:212.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:0.4], 0.0, 
-                                 [NSColor colorWithDeviceRed:212.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:0.4], 1.0,
-                                 nil] autorelease];
-        [gradient drawInRect:theCellFrame angle:90.0];
+//        NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+//                                 [NSColor colorWithDeviceRed:212.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:0.6], 1.0,
+//                                 nil] autorelease];
+//        [gradient drawInRect:theCellFrame angle:90.0];
     }
     
     theCellFrame.size.width -= 70;
     
     // Calculate width of filled part
-    if (max < 20) {
-        max = 20;
+    if (max < 10) {
+        max = 10;
     }
-	float drawWidth = floor(value / max * (theCellFrame.size.width + 0));
+	float drawWidth = (value / max * (theCellFrame.size.width - 70)) + 70;
 	NSRect fillFrame, eraseFrame;
-	if (drawWidth < 55) {
-		drawWidth = 55;   //  at least 1 pixel wide
-	}
 	NSDivideRect(theCellFrame, &fillFrame, &eraseFrame, drawWidth, NSMinXEdge);
-	[[NSColor colorWithDeviceRed:212.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:0.7] set];
+	[[NSColor colorWithDeviceRed:212.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:1.0] set];
     NSBezierPath *bezierPath = [NSBezierPath bezierPathWithRoundedRect:fillFrame xRadius:4.0 yRadius:4.0];
 
     if (value != 0) {
+        [NSGraphicsContext saveGraphicsState];
+        NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
+        [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.4]];
+        [shadow setShadowOffset:NSMakeSize(0, -1)];
+        [shadow setShadowBlurRadius:2.0];
+        [shadow set];
         [bezierPath fill];
+        [NSGraphicsContext restoreGraphicsState];
     }
 
     theCellFrame.size.width -= 50;

@@ -38,13 +38,13 @@
 
 - (NSArray *)monitoredFolders
 {
-    return [[PRUserDefaults sharedUserDefaults] monitoredFolders];
+    return [[PRUserDefaults userDefaults] monitoredFolders];
 }
 
 - (void)setMonitoredFolders:(NSArray *)folders
 {
-    [[PRUserDefaults sharedUserDefaults] setMonitoredFolders:folders];
-    [[PRUserDefaults sharedUserDefaults] setLastEventStreamEventId:0];
+    [[PRUserDefaults userDefaults] setMonitoredFolders:folders];
+    [[PRUserDefaults userDefaults] setLastEventStreamEventId:0];
     [self monitor];
 }
 
@@ -92,18 +92,20 @@
     }
     NSArray *paths = [NSArray arrayWithArray:mutablePaths];
     
-    FSEventStreamEventId lastEventStreamEventId = [[PRUserDefaults sharedUserDefaults] lastEventStreamEventId];
+    FSEventStreamEventId lastEventStreamEventId = [[PRUserDefaults userDefaults] lastEventStreamEventId];
     
     // if no previous monitor. scan entire directory
     if (lastEventStreamEventId == 0) {
         FSEventStreamEventId currentEventStreamEventId = FSEventsGetCurrentEventId();
         NSMethodSignature *methodSignature = [PRUserDefaults instanceMethodSignatureForSelector:@selector(setLastEventStreamEventId:)];
         NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
-        [invocation setTarget:[PRUserDefaults sharedUserDefaults]];
+        [invocation retainArguments];
+        [invocation setTarget:[PRUserDefaults userDefaults]];
         [invocation setSelector:@selector(setLastEventStreamEventId:)];
         [invocation setArgument:&currentEventStreamEventId atIndex:2];
         methodSignature = [[self class] instanceMethodSignatureForSelector:@selector(monitor)];
         NSInvocation *invocation2 = [NSInvocation invocationWithMethodSignature:methodSignature];
+        [invocation retainArguments];
         [invocation2 setTarget:self];
         [invocation2 setSelector:@selector(monitor)];
         
@@ -112,8 +114,7 @@
         [op setCompletionInvocation:invocation];
         [op setCompletionInvocation2:invocation2];
         [[core opQueue] addOperation:op];
-    
-    } else {        
+    } else {
         // create and schedule new monitor
         FSEventStreamContext context;
         context.info = self;
@@ -122,7 +123,7 @@
         context.release = NULL;
         context.copyDescription = NULL;
         stream = FSEventStreamCreate(NULL, &mycallback, &context, (CFArrayRef)paths, 
-                                     lastEventStreamEventId, 5.0, kFSEventStreamCreateFlagNone);
+                                     lastEventStreamEventId, 20.0, kFSEventStreamCreateFlagNone);
         FSEventStreamScheduleWithRunLoop(stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
         FSEventStreamStart(stream);
     }
@@ -160,7 +161,7 @@ void mycallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_
     FSEventStreamEventId lastEventId = eventIds[numEvents - 1];
     NSMethodSignature *methodSignature = [PRUserDefaults instanceMethodSignatureForSelector:@selector(setLastEventStreamEventId:)];
     NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
-    [invocation setTarget:[PRUserDefaults sharedUserDefaults]];
+    [invocation setTarget:[PRUserDefaults userDefaults]];
     [invocation setSelector:@selector(setLastEventStreamEventId:)];
     [invocation setArgument:&lastEventId atIndex:2];
     NSInvocationOperation *invocationOp = [[NSInvocationOperation alloc] initWithInvocation:invocation];

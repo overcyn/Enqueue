@@ -28,6 +28,8 @@
 
 - (void)showPreferences;
 - (void)newPlaylist;
+- (void)itunesImport;
+- (void)openFiles;
 - (void)viewAsList;
 - (void)viewAsAlbumList;
 - (void)browserOnTop;

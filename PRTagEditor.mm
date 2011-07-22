@@ -130,6 +130,8 @@ using namespace TagLib;
 	if (self) {
         file = file_;
 		db = db_;
+        _tempFile = FALSE;
+        _postNotification = FALSE;
         
         NSString *URLString;
         [[db library] value:&URLString forFile:file attribute:PRPathFileAttribute _error:NULL];
@@ -149,6 +151,8 @@ using namespace TagLib;
 	if (self) {
         URL = [URL_ retain];
 		db = db_;
+        _tempFile = FALSE;
+        _postNotification = FALSE;
         
         taglibFile = [[self class] fileAtURL:URL type:&fileType];
         if (fileType == PRFileTypeUnknown) {
@@ -171,6 +175,9 @@ using namespace TagLib;
 // ========================================
 // Accessors
 // ========================================
+
+@synthesize tempFile = _tempFile;
+@synthesize postNotification = _postNotification;
 
 - (void)setFile:(PRFile)file_
 {
@@ -248,14 +255,15 @@ using namespace TagLib;
     }
     
     reinterpret_cast<File *>(taglibFile)->save();
-    [self updateTagsAndPostNotification:post];
+    _postNotification = post;
+    [self updateTags];
 }
 
 // ========================================
 // Update
 // ========================================
 
-- (void)updateTagsAndPostNotification:(BOOL)post
+- (void)updateTags
 {
     NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary:[self tags]];
     
@@ -337,123 +345,27 @@ using namespace TagLib;
         [tags setObject:@"" forKey:[NSNumber numberWithInt:PRLastModifiedFileAttribute]];
     }
     
-    NSDictionary *prevTags;
-    [[db library] attributes:&prevTags forFile:file _error:nil];
-    NSMutableDictionary *tagsToUpdate = [NSMutableDictionary dictionary];
-    for (id i in [tags allKeys]) {
-        if (![[prevTags objectForKey:i] isEqual:[tags objectForKey:i]]) {
-            [tagsToUpdate setObject:[tags objectForKey:i] forKey:i];
-        }
-    }
-
-    if ([tagsToUpdate count] > 0) {
-        [[db library] setAttributes:tagsToUpdate forFile:file _error:nil];
-        if (post) {
-            NSDictionary *userInfo = [NSDictionary dictionaryWithObject:[NSArray arrayWithObject:[NSNumber numberWithInt:file]]
-                                                                 forKey:@"files"];
-            [[NSNotificationCenter defaultCenter] postNotificationName:PRTagsDidChangeNotification 
-                                                                object:nil 
-                                                              userInfo:userInfo];
-        }
-    }
-}
-
-- (void)addFile:(PRFile *)file_ withAttributes:(NSDictionary *)attributes
-{
-    NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary:[self tags]];
-    
-    // Tags
-    if (![tags objectForKey:[NSNumber numberWithInt:PRTitleFileAttribute]] || 
-        [[tags objectForKey:[NSNumber numberWithInt:PRTitleFileAttribute]] isEqualToString:@""]) {
-        [tags setObject:[[URL path] lastPathComponent] forKey:[NSNumber numberWithInt:PRTitleFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRArtistFileAttribute]]) {
-        [tags setObject:@"" forKey:[NSNumber numberWithInt:PRArtistFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRAlbumFileAttribute]]) {
-        [tags setObject:@"" forKey:[NSNumber numberWithInt:PRAlbumFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRBPMFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRBPMFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRYearFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRYearFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRTrackNumberFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRTrackNumberFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRComposerFileAttribute]]) {
-        [tags setObject:@"" forKey:[NSNumber numberWithInt:PRComposerFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRDiscNumberFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRDiscNumberFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRDiscCountFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRDiscCountFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRCommentsFileAttribute]]) {
-        [tags setObject:@"" forKey:[NSNumber numberWithInt:PRCommentsFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRAlbumArtistFileAttribute]]) {
-        [tags setObject:@"" forKey:[NSNumber numberWithInt:PRAlbumArtistFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRGenreFileAttribute]]) {
-        [tags setObject:@"" forKey:[NSNumber numberWithInt:PRGenreFileAttribute]];
-    }
-    
-    // Album Art
-    NSData *albumArtData = [tags objectForKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
-    if (albumArtData) {
-        [tags setObject:[NSNumber numberWithBool:TRUE] forKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
+    if (_tempFile) {
+        [[db library] setAttributes:tags forTempFile:file];
     } else {
-        [tags setObject:[NSNumber numberWithBool:FALSE] forKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
-    }
-    
-    // Properties
-    [tags addEntriesFromDictionary:[self properties]];
-    
-    if (![tags objectForKey:[NSNumber numberWithInt:PRSizeFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRSizeFileAttribute]];
-    } 
-    if (![tags objectForKey:[NSNumber numberWithInt:PRKindFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:PRFileTypeUnknown] forKey:[NSNumber numberWithInt:PRKindFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRTimeFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRTimeFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRBitrateFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRBitrateFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRChannelsFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRChannelsFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRSampleRateFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRSampleRateFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRCheckSumFileAttribute]]) {
-        [tags setObject:[NSData data] forKey:[NSNumber numberWithInt:PRCheckSumFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRLastModifiedFileAttribute]]) {
-        [tags setObject:@"" forKey:[NSNumber numberWithInt:PRLastModifiedFileAttribute]];
-    }
-    
-    // Other Attributes
-    [tags setObject:[URL absoluteString] forKey:[NSNumber numberWithInt:PRPathFileAttribute]];
-    if (attributes != nil) {
-        [tags addEntriesFromDictionary:attributes];
-    }
-    
-    PRFile newfile;
-    [[db library] addFile:&newfile withAttributes:tags _error:nil];
-    if (file_) {
-        *file_ = newfile;
-    }
-    
-    if (albumArtData) {
-        NSImage *albumArt = [[[NSImage alloc] initWithData:albumArtData] autorelease];
-        [[db albumArtController] setCachedAlbumArt:albumArt forFile:newfile _error:nil];
-    } else {
-        [[db albumArtController] clearAlbumArtForFile:newfile];
+        NSDictionary *prevTags;
+        [[db library] attributes:&prevTags forFile:file _error:nil];
+        NSMutableDictionary *tagsToUpdate = [NSMutableDictionary dictionary];
+        for (id i in [tags allKeys]) {
+            if (![[prevTags objectForKey:i] isEqual:[tags objectForKey:i]]) {
+                [tagsToUpdate setObject:[tags objectForKey:i] forKey:i];
+            }
+        }
+        if ([tagsToUpdate count] > 0) {
+            [[db library] setAttributes:tagsToUpdate forFile:file _error:nil];
+            if (_postNotification) {
+                NSDictionary *userInfo = [NSDictionary dictionaryWithObject:[NSArray arrayWithObject:[NSNumber numberWithInt:file]]
+                                                                     forKey:@"files"];
+                [[NSNotificationCenter defaultCenter] postNotificationName:PRTagsDidChangeNotification 
+                                                                    object:nil 
+                                                                  userInfo:userInfo];
+            }
+        }
     }
 }
 
@@ -632,6 +544,11 @@ using namespace TagLib;
 	if (xiphComment) {
         [tags addEntriesFromDictionary:[[self class] tagsForXiphComment:xiphComment]];
 	}
+    List<FLAC::Picture *> pictures = reinterpret_cast<FLAC::File *>(taglibFile)->pictureList();
+    if (pictures.size() >= 1) {
+        NSData *data = [NSData dataWithBytes:pictures.front()->data().data() length:pictures.front()->data().size()];
+        [tags setObject:data forKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
+    }
     return [NSDictionary dictionaryWithDictionary:tags];
 }
 
@@ -730,11 +647,11 @@ using namespace TagLib;
 - (NSDictionary *)TrueAudioTags
 {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    ID3v1::Tag *ID3v1Tag = reinterpret_cast<APE::File *>(taglibFile)->ID3v1Tag();
+    ID3v1::Tag *ID3v1Tag = reinterpret_cast<TrueAudio::File *>(taglibFile)->ID3v1Tag();
     if (ID3v1Tag) {
         [tags addEntriesFromDictionary:[[self class] tagsForID3v1Tag:ID3v1Tag]];
     }
-	ID3v2::Tag *ID3v2Tag = reinterpret_cast<FLAC::File *>(taglibFile)->ID3v2Tag(TRUE);
+	ID3v2::Tag *ID3v2Tag = reinterpret_cast<TrueAudio::File *>(taglibFile)->ID3v2Tag(TRUE);
 	if (ID3v2Tag) {
         [tags addEntriesFromDictionary:[[self class] tagsForID3v2Tag:ID3v2Tag]];
 	}
@@ -1145,10 +1062,10 @@ using namespace TagLib;
     NSString *stringValue;
     TagLib::Ogg::FieldListMap tagMap = tag->fieldListMap();
     
-//    TagLib::Ogg::FieldListMap::ConstIterator it = tagMap.begin();
-//    for(; it != tagMap.end(); it++) {
-//        cout << "key:"<<(*it).first <<" field:" << (*it).second.toString() <<  endl;
-//    }
+    TagLib::Ogg::FieldListMap::ConstIterator it = tagMap.begin();
+    for(; it != tagMap.end(); it++) {
+        NSLog(@"key:%s field:%s",(*it).first.toCString(TRUE),(*it).second.toString().toCString(TRUE));
+    }
     
     if (tagMap.contains("TITLE")) {
         stringValue = [NSString stringWithUTF8String:tagMap["TITLE"].front().toCString(TRUE)];

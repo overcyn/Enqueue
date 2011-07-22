@@ -27,6 +27,9 @@ typedef enum {
     void *taglibFile;
     PRFileType fileType;
     PRFile file;
+    
+    BOOL _tempFile;
+    BOOL _postNotification;
         
 	PRDb *db;
 }
@@ -40,14 +43,15 @@ typedef enum {
 // ========================================
 // Accessors
 
+@property (readwrite) BOOL tempFile;
+@property (readwrite) BOOL postNotification;
 - (void)setFile:(PRFile)file_;
 - (void)setValue:(id)value forAttribute:(PRFileAttribute)attribute postNotification:(BOOL)post;
 
 // ========================================
 // Update
 
-- (void)updateTagsAndPostNotification:(BOOL)post;
-- (void)addFile:(PRFile *)file withAttributes:(NSDictionary *)attributes;
+- (void)updateTags;
 
 // ========================================
 // Tag Reading 

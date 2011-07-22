@@ -55,12 +55,12 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 
 - (void)setUsername:(NSString *)username
 {
-    [[PRUserDefaults sharedUserDefaults] setLastFMUsername:username];
+    [[PRUserDefaults userDefaults] setLastFMUsername:username];
 }
 
 - (NSString *)username
 {
-    return [[PRUserDefaults sharedUserDefaults] lastFMUsername];
+    return [[PRUserDefaults userDefaults] lastFMUsername];
 }
 
 - (void)setSessionKey:(NSString *)sessionKey

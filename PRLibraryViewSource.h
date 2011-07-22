@@ -54,9 +54,9 @@ typedef enum {
 
 - (id)initWithDb:(PRDb *)sqlDb;
 
-- (BOOL)create_error:(NSError **)error;
-- (BOOL)initialize_error:(NSError **)error;
-- (BOOL)validate_error:(NSError **)error;
+- (void)create;
+- (void)initialize;
+- (BOOL)validate;
 
 // =======================================
 // Update
@@ -75,10 +75,7 @@ typedef enum {
 @property (readwrite, retain) NSDictionary *cachedValues;
 
 - (NSString *)tableNameForBrowser:(int)browser;
-+ (PRPlaylistAttribute)groupingPlaylistAttributeForBrowser:(int)browser;
 - (NSString *)groupingStringForPlaylist:(PRPlaylist)playlist browser:(int)browser;
-+ (PRPlaylistAttribute)selectionPlaylistAttributeForBrowser:(int)browser;
-- (NSArray *)selectionForPlaylist:(PRPlaylist)playlist browser:(int)browser;
 
 
 - (BOOL)count:(int *)count _error:(NSError **)error;

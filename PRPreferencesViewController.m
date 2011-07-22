@@ -70,7 +70,7 @@
     [masterVolumePopUpButton setTarget:self];
     [masterVolumePopUpButton setAction:@selector(setMasterVolume:)];
     int tag;
-    switch ((int)[[PRUserDefaults sharedUserDefaults] preGain]) {
+    switch ((int)[[PRUserDefaults userDefaults] preGain]) {
         case -10:
             tag = 1;
             break;
@@ -177,8 +177,8 @@
 - (void)updateUI 
 {
     // Misc preferences
-    [sortWithAlbumArtist setState:[[PRUserDefaults sharedUserDefaults] useAlbumArtist]];
-    [mediaKeys setState:[[PRUserDefaults sharedUserDefaults] mediaKeys]];
+    [sortWithAlbumArtist setState:[[PRUserDefaults userDefaults] useAlbumArtist]];
+    [mediaKeys setState:[[PRUserDefaults userDefaults] mediaKeys]];
     
     // Folders
     [foldersTableView reloadData];
@@ -186,7 +186,7 @@
     // last.fm
     switch ([[core lastfm] lastfmState]) {
         case PRLastfmConnectedState:
-            [textField setStringValue:[NSString stringWithFormat:@"Signed in to Last.fm as %@.", [[PRUserDefaults sharedUserDefaults] lastFMUsername]]];
+            [textField setStringValue:[NSString stringWithFormat:@"Signed in to Last.fm as %@.", [[PRUserDefaults userDefaults] lastFMUsername]]];
             [button1 setTitle:@"Logout"];
             break;
         case PRLastfmDisconnectedState:
@@ -224,14 +224,14 @@
 
 - (void)toggleUseAlbumArtist
 {
-    [[PRUserDefaults sharedUserDefaults] setUseAlbumArtist:![[PRUserDefaults sharedUserDefaults] useAlbumArtist]];
+    [[PRUserDefaults userDefaults] setUseAlbumArtist:![[PRUserDefaults userDefaults] useAlbumArtist]];
     [self updateUI];    
     [[NSNotificationCenter defaultCenter] postNotificationName:PRUseAlbumArtistDidChangeNotification object:nil];
 }
 
 - (void)toggleMediaKeys
 {
-    [[PRUserDefaults sharedUserDefaults] setMediaKeys:![[PRUserDefaults sharedUserDefaults] mediaKeys]];
+    [[PRUserDefaults userDefaults] setMediaKeys:![[PRUserDefaults userDefaults] mediaKeys]];
     [self updateUI];
 }
 
@@ -255,7 +255,7 @@
             preGain = 0;
             break;
     }
-    [[PRUserDefaults sharedUserDefaults] setPreGain:preGain];
+    [[PRUserDefaults userDefaults] setPreGain:preGain];
     [[NSNotificationCenter defaultCenter] postNotificationName:PRPreGainDidChangeNotification object:nil];
 }
 

@@ -59,7 +59,7 @@
 	// Make a Title string
 	NSString *title = album;
     NSString *subtitle = artist;
-    if ([[PRUserDefaults sharedUserDefaults] useAlbumArtist] && ![albumArtist isEqualToString:@""]) {
+    if ([[PRUserDefaults userDefaults] useAlbumArtist] && ![albumArtist isEqualToString:@""]) {
         subtitle = albumArtist;
     }
 	NSString *subSubtitle = [year stringValue];

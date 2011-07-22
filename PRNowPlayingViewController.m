@@ -2,6 +2,7 @@
 #import "PRDb.h"
 #import "PRLibrary.h"
 #import "PRPlaylists.h"
+#import "PRPlaylists+Extensions.h"
 #import "PRNowPlayingViewSource.h"
 #import "PRNowPlayingController.h"
 #import "PRNowPlayingCell.h"
@@ -171,8 +172,7 @@
 {
     [self removeSelectedFromQueue];
     NSIndexSet *dbRows = [self dbRowIndexesForTableRowIndexes:[nowPlayingTableView selectedRowIndexes]];
-    int count;
-    [[db playlists] count:&count forPlaylist:[now currentPlaylist] _error:nil];
+    int count = [[db playlists] countForPlaylist:[now currentPlaylist]];
     NSUInteger index = [dbRows firstIndex];
     while (index != NSNotFound) {
         if (index > count) {
@@ -182,8 +182,7 @@
             index = [dbRows indexGreaterThanIndex:index];
             continue;
         }
-        PRPlaylistItem playlistItem;
-        [[db playlists] playlistItem:&playlistItem atIndex:index forPlaylist:[now currentPlaylist] _error:nil];
+        PRPlaylistItem playlistItem = [[db playlists] playlistItemAtIndex:index inPlaylist:[now currentPlaylist]];
         [[db queue] appendPlaylistItem:playlistItem _error:nil];
         index = [dbRows indexGreaterThanIndex:index];
     }
@@ -192,15 +191,13 @@
 - (void)removeSelectedFromQueue
 {
     NSIndexSet *dbRows = [self dbRowIndexesForTableRowIndexes:[nowPlayingTableView selectedRowIndexes]];
-    int count;
-    [[db playlists] count:&count forPlaylist:[now currentPlaylist] _error:nil];
+    int count = [[db playlists] countForPlaylist:[now currentPlaylist]];
     NSUInteger index = [dbRows firstIndex];
     while (index != NSNotFound) {
         if (index > count) {
             return;
         }
-        PRPlaylistItem playlistItem;
-        [[db playlists] playlistItem:&playlistItem atIndex:index forPlaylist:[now currentPlaylist] _error:nil];
+        PRPlaylistItem playlistItem = [[db playlists] playlistItemAtIndex:index inPlaylist:[now currentPlaylist]];
         [[db queue] removePlaylistItem:playlistItem _error:nil];
         index = [dbRows indexGreaterThanIndex:index];
     }
@@ -216,9 +213,8 @@
     NSInteger currentIndex = 0;
     NSIndexSet *dbRowIndexes = [self dbRowIndexesForTableRowIndexes:[nowPlayingTableView selectedRowIndexes]];
 	while ((currentIndex = [dbRowIndexes indexGreaterThanOrEqualToIndex:currentIndex]) != NSNotFound) {
-        PRFile file_;
-        [[db playlists] file:&file_ atIndex:currentIndex forPlaylist:[now currentPlaylist] _error:nil];
-		[[db playlists] appendFile:file_ toPlaylist:[[sender representedObject] intValue] _error:nil];
+        PRFile file_ = [[db playlists] fileAtIndex:currentIndex forPlaylist:[now currentPlaylist]];
+        [[db playlists] appendFile:file_ toPlaylist:[[sender representedObject] intValue]];
 		currentIndex++;
 	}
     NSDictionary *userInfo = [NSDictionary dictionaryWithObject:[sender representedObject] forKey:@"playlist"];
@@ -240,10 +236,7 @@
 	if ([selectedRows containsIndex:[now currentIndex]]) {
 		[now stop];
 	}
-	
-	[[db playlists] removeFilesAtIndexes:selectedRows
-                             forPlaylist:[now currentPlaylist] 
-                                  _error:nil];
+	[[db playlists] removeFilesAtIndexes:selectedRows fromPlaylist:[now currentPlaylist]];
 	[now postNotificationForCurrentPlaylist];
 	[nowPlayingTableView selectRowIndexes:[[[NSIndexSet alloc] init] autorelease]
 					 byExtendingSelection:FALSE];
@@ -252,16 +245,14 @@
 
 - (void)clearPlaylist
 {
-	int count;
-	[[db playlists] count:&count forPlaylist:[now currentPlaylist] _error:nil];
-	
+	int count = [[db playlists] countForPlaylist:[now currentPlaylist]];
 	if (count == 1 || [now currentIndex] == 0) {
 		// if nothing playing or count == 1, clear playlist
 		[now stop];
-		[[db playlists] clearPlaylist:[now currentPlaylist] _error:nil];
+        [[db playlists] clearPlaylist:[now currentPlaylist]];
 	} else {
 		// otherwise delete all previous songs
-		[[db playlists] clearPlaylist:[now currentPlaylist] exceptForIndex:[now currentIndex] _error:nil];
+        [[db playlists] clearPlaylist:[now currentPlaylist] exceptForIndex:[now currentIndex]];
 	}
 	[now postNotificationForCurrentPlaylist];
 }
@@ -270,8 +261,7 @@
 {
     int row = [self dbRowForTableRow:[[nowPlayingTableView selectedRowIndexes] firstIndex]];
 	
-    PRFile file_;
-	[[db playlists] file:&file_ atIndex:row forPlaylist:[now currentPlaylist] _error:nil];
+    PRFile file_ = [[db playlists] fileAtIndex:row forPlaylist:[now currentPlaylist]];
     NSString *URLString;
 	[[db library] value:&URLString forFile:file_ attribute:PRPathFileAttribute _error:nil];
     
@@ -281,8 +271,7 @@
 - (void)showInLibrary
 {
     int row = [self dbRowForTableRow:[[nowPlayingTableView selectedRowIndexes] firstIndex]];
-    PRFile file_;
-	[[db playlists] file:&file_ atIndex:row forPlaylist:[now currentPlaylist] _error:nil];
+    PRFile file_ = [[db playlists] fileAtIndex:row forPlaylist:[now currentPlaylist]];
     [win setCurrentMode:PRLibraryMode];
     [win setCurrentPlaylist:[[db playlists] libraryPlaylist]];
     [[win libraryViewController] highlightFile:file_];
@@ -304,22 +293,24 @@
 - (void)saveAsPlaylist:(id)sender
 {
     int playlist = [[sender representedObject] intValue];
-    [[db playlists] clearPlaylist:playlist _error:nil];
-    [[db playlists] copyFilesFromPlaylist:[now currentPlaylist] toPlaylist:playlist _error:nil];
+    [[db playlists] clearPlaylist:playlist];
+    [[db playlists] copyFilesFromPlaylist:[now currentPlaylist] toPlaylist:playlist];
     
     NSDictionary *userInfo = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:playlist] 
                                                          forKey:@"playlist"];
     [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistDidChangeNotification 
                                                         object:self
                                                       userInfo:userInfo];
+    [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification 
+                                                        object:self
+                                                      userInfo:nil];
 }
 
 - (void)newPlaylist:(id)sender
 {
-    PRPlaylist playlist;
-    [[db playlists] addStaticPlaylist:&playlist _error:nil];
-    [[db playlists] clearPlaylist:playlist _error:nil];
-    [[db playlists] copyFilesFromPlaylist:[now currentPlaylist] toPlaylist:playlist _error:nil];
+    PRPlaylist playlist = [[db playlists] addStaticPlaylist];
+    [[db playlists] clearPlaylist:playlist];
+    [[db playlists] copyFilesFromPlaylist:[now currentPlaylist] toPlaylist:playlist];
 
     [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification 
                                                         object:self];
@@ -419,8 +410,7 @@
     [playlistTitleEditor abortEditing];
     [[db playlists] setValue:[playlistTitleEditor stringValue] 
                  forPlaylist:[now currentPlaylist] 
-                   attribute:PRTitlePlaylistAttribute 
-                      _error:nil];
+                   attribute:PRTitlePlaylistAttribute];
     [now postNotificationForCurrentPlaylist];
 }
 
@@ -546,7 +536,6 @@
 	if ([info draggingSource] == nowPlayingTableView) {
 		NSDictionary *dictionary = [NSKeyedUnarchiver unarchiveObjectWithData:filesData];
 		NSIndexSet *rowIndexes = [dictionary objectForKey:@"rows"];
-		
 		if (row == 0) {
 			row = 1;
 		} else if ([self dbRowForTableRow:row] == -1) {
@@ -554,8 +543,7 @@
 		} else {
 			row = [self dbRowForTableRow:row];
 		}
-        
-        [[db playlists] moveItemsAtIndexes:rowIndexes inPlaylist:[now currentPlaylist] toRow:row error:nil];
+        [[db playlists] moveItemsAtIndexes:rowIndexes toIndex:row inPlaylist:[now currentPlaylist]];
 	} else {
 		int index;
 		NSArray *filesArray = [NSKeyedUnarchiver unarchiveObjectWithData:filesData];
@@ -569,10 +557,10 @@
 				index = [self dbRowForTableRow:row] + i;
 			}
 			
-			[[db playlists] addFile:[[filesArray objectAtIndex:i] intValue]
+            [[db playlists] addFile:[[filesArray objectAtIndex:i] intValue] 
                             atIndex:index
-                         toPlaylist:[now currentPlaylist] 
-                             _error:nil];
+                         toPlaylist:[now currentPlaylist]];
+
 		}
 	}
 	[now postNotificationForCurrentPlaylist];
@@ -630,7 +618,7 @@
         PRFile file_;
 		[[db nowPlayingViewSource] file:&file_ forRow:[self dbRowForTableRow:rowIndex + 1] _error:nil];
 		[[db library] value:&subtitle forFile:file_ attribute:PRAlbumFileAttribute _error:nil];
-        if ([[PRUserDefaults sharedUserDefaults] useAlbumArtist]) {
+        if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
             [[db library] value:&title forFile:file_ attribute:PRArtistAlbumArtistFileAttribute _error:nil];
         } else {
             [[db library] value:&title forFile:file_ attribute:PRArtistFileAttribute _error:nil];
@@ -662,8 +650,7 @@
 			title = @"";
 		}
         
-        PRPlaylistItem playlistItem;
-        [[db playlists] playlistItem:&playlistItem atIndex:actualRow forPlaylist:[now currentPlaylist] _error:nil];
+        PRPlaylistItem playlistItem = [[db playlists] playlistItemAtIndex:actualRow inPlaylist:[now currentPlaylist]];
         NSArray *queue;
         [[db queue] queueArray:&queue _error:nil];
         NSUInteger queueIndex = [queue indexOfObject:[NSNumber numberWithInt:playlistItem]];
@@ -718,8 +705,7 @@
         BOOL remove = FALSE;
         NSUInteger index = [selectedRows firstIndex];
         while (index != NSNotFound) {
-            PRPlaylistItem playlistItem;
-            [[db playlists] playlistItem:&playlistItem atIndex:index forPlaylist:[now currentPlaylist] _error:nil];
+            PRPlaylistItem playlistItem = [[db playlists] playlistItemAtIndex:index inPlaylist:[now currentPlaylist]];
             if ([queue containsObject:[NSNumber numberWithInt:playlistItem]]) {
                 remove = TRUE;
             } else {
@@ -744,16 +730,13 @@
 		[playlistMenuItem setSubmenu:playlistMenu_];
         [menu addItem:playlistMenuItem];
         
-        NSArray *playlistArray;
-		[[db playlists] playlistArray:&playlistArray _error:nil];
+        NSArray *playlistArray = [[db playlists] playlists];
 		for (NSNumber *i in playlistArray) {
-            int playlistType; 
-            [[db playlists] intValue:&playlistType forPlaylist:[i intValue] attribute:PRTypePlaylistAttribute _error:nil];
+            int playlistType = [[db playlists] typeForPlaylist:[i intValue]];
             if (playlistType != PRStaticPlaylistType || [i intValue] == [now currentPlaylist]) {
                 continue;
             }
-            NSString *playlistTitle;
-			[[db playlists] value:&playlistTitle forPlaylist:[i intValue] attribute:PRTitlePlaylistAttribute _error:nil];
+            NSString *playlistTitle = [[db playlists] titleForPlaylist:[i intValue]];
 			NSMenuItem *tempMenuItem = [[[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(addToPlaylist:) keyEquivalent:@""] autorelease];
 			[tempMenuItem setRepresentedObject:i];
 			[tempMenuItem setTarget:self];
@@ -838,16 +821,13 @@
 //    [playlistMenu addItem:menuItem];
     [menuItem setSubmenu:loadMenu];
     
-    NSArray *playlistArray;
-    [[db playlists] playlistArray:&playlistArray _error:nil];
+    NSArray *playlistArray = [[db playlists] playlists];
     for (NSNumber *i in playlistArray) {
-        int playlistType; 
-        [[db playlists] intValue:&playlistType forPlaylist:[i intValue] attribute:PRTypePlaylistAttribute _error:nil];
+        int playlistType = [[db playlists] typeForPlaylist:[i intValue]];
         if (playlistType != PRStaticPlaylistType || [i intValue] == [now currentPlaylist]) {
             continue;
         }
-        NSString *playlistTitle;
-        [[db playlists] value:&playlistTitle forPlaylist:[i intValue] attribute:PRTitlePlaylistAttribute _error:nil];
+        NSString *playlistTitle = [[db playlists] titleForPlaylist:[i intValue]];
         menuItem = [[[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(loadPlaylist:) keyEquivalent:@""] autorelease];
         [menuItem setRepresentedObject:i];
         [menuItem setTarget:self];
@@ -864,15 +844,13 @@
     [saveMenu addItem:menuItem];
     [saveMenu addItem:[NSMenuItem separatorItem]];
     
-    [[db playlists] playlistArray:&playlistArray _error:nil];
+    playlistArray = [[db playlists] playlists];
     for (NSNumber *i in playlistArray) {
-        int playlistType; 
-        [[db playlists] intValue:&playlistType forPlaylist:[i intValue] attribute:PRTypePlaylistAttribute _error:nil];
+        int playlistType = [[db playlists] typeForPlaylist:[i intValue]];
         if (playlistType != PRStaticPlaylistType || [i intValue] == [now currentPlaylist]) {
             continue;
         }
-        NSString *playlistTitle;
-        [[db playlists] value:&playlistTitle forPlaylist:[i intValue] attribute:PRTitlePlaylistAttribute _error:nil];
+        NSString *playlistTitle = [[db playlists] titleForPlaylist:[i intValue]];
         menuItem = [[[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(saveAsPlaylist:) keyEquivalent:@""] autorelease];
         [menuItem setRepresentedObject:i];
         [menuItem setTarget:self];

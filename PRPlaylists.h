@@ -1,5 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import "PRLibrary.h"
+#import "PRDb.h"
 
 @class PRDb;
 
@@ -14,6 +15,8 @@ typedef enum {
     PRNowPlayingPlaylistType = 1,
 	PRStaticPlaylistType = 2,
 	PRSmartPlaylistType = 3,
+    PRDuplicatePlaylistType = 4,
+    PRMissingPlaylistType = 5,
 } PRPlaylistType;
 
 typedef enum {
@@ -55,16 +58,16 @@ typedef enum {
 
 - (id)initWithDb:(PRDb *)db_;
 
-- (BOOL)create_error:(NSError **)error;
-- (BOOL)initialize_error:(NSError **)error;
-- (BOOL)validate_error:(NSError **)error;
+- (void)create;
+- (void)initialize;
+- (BOOL)validate;
 
 // ========================================
 // Accessors
 
 + (NSDictionary *)columnDict;
 + (NSString *)columnNameForPlaylistAttribute:(PRPlaylistAttribute)attribute;
-
++ (PRColumn)columnForPlaylistAttribute:(PRPlaylistAttribute)attribute;
 //
 - (BOOL)cleanPlaylists;
 - (BOOL)cleanPlaylistItems_error:(NSError **)error;
@@ -75,19 +78,13 @@ typedef enum {
 - (NSArray *)playlists;
 - (NSArray *)playlistsWithAttributes;
 
-- (BOOL)addPlaylist:(PRPlaylist *)playlist atIndex:(int)index _error:(NSError **)error;
-- (BOOL)appendPlaylist:(PRPlaylist *)playlist _error:(NSError **)error;
-- (BOOL)removePlaylist:(PRPlaylist)playlist _error:(NSError **)error;
+- (PRPlaylist)addPlaylist;
+- (PRPlaylist)addStaticPlaylist;
+- (PRPlaylist)addSmartPlaylist;
+- (void)removePlaylist:(PRPlaylist)playlist;
 
-- (BOOL)addStaticPlaylist:(PRPlaylist *)playlist _error:(NSError *)error;
-- (BOOL)addSmartPlaylist:(PRPlaylist *)playlist _error:(NSError *)error;
-
-- (BOOL)playlistCount:(int *)count _error:(NSError **)error;
-- (BOOL)playlistArray:(NSArray **)playlistArray _error:(NSError **)error;
-- (BOOL)value:(id *)value forPlaylist:(PRPlaylist)playlist attribute:(PRPlaylistAttribute)attribute _error:(NSError **)error;
-- (BOOL)setValue:(id)value forPlaylist:(PRPlaylist)playlist attribute:(PRPlaylistAttribute)attribute _error:(NSError **)error;
-- (BOOL)intValue:(int *)value forPlaylist:(PRPlaylist)playlist attribute:(PRPlaylistAttribute)attribute _error:(NSError **)error;
-- (BOOL)setIntValue:(int)value forPlaylist:(PRPlaylist)playlist attribute:(PRPlaylistAttribute)attribute _error:(NSError **)error;
+- (void)setValue:(id)value forPlaylist:(PRPlaylist)playlist attribute:(PRPlaylistAttribute)attribute;
+- (id)valueForPlaylist:(PRPlaylist)playlist attribute:(PRPlaylistAttribute)attribute;
 
 - (PRPlaylist)libraryPlaylist;
 - (PRPlaylist)nowPlayingPlaylist;
@@ -100,21 +97,26 @@ typedef enum {
 // ========================================
 // PlaylistItems Accessors
 
-- (BOOL)addFile:(PRFile)file atIndex:(int)index toPlaylist:(PRPlaylist)playlist _error:(NSError **)error;
-- (BOOL)appendFile:(PRFile)file toPlaylist:(PRPlaylist)playlist _error:(NSError **)error;
-- (BOOL)removeFileAtIndex:(int)index forPlaylist:(PRPlaylist)playlist _error:(NSError **)error;
-- (BOOL)removeFilesAtIndexes:(NSIndexSet *)indexSet forPlaylist:(PRPlaylist)playlist _error:(NSError **)error;
-- (BOOL)clearPlaylist:(PRPlaylist)playlist _error:(NSError **)error;
-- (BOOL)clearPlaylist:(PRPlaylist)playlist exceptForIndex:(int)index _error:(NSError **)error;
-- (BOOL)moveItemsAtIndexes:(NSIndexSet *)indexSet inPlaylist:(PRPlaylist)playlist toRow:(int)row error:(NSError **)error;
-- (BOOL)appendFilesFromLibraryViewSourceToPlaylist:(PRPlaylist)playlist _error:(NSError **)error;
-- (BOOL)copyFilesFromPlaylist:(PRPlaylist)playlist toPlaylist:(PRPlaylist)playlist2 _error:(NSError **)error;
+// Setters
+- (void)addFile:(PRFile)file atIndex:(int)index toPlaylist:(PRPlaylist)playlist;
+- (void)appendFile:(PRFile)file toPlaylist:(PRPlaylist)playlist;
+- (void)appendFiles:(NSIndexSet *)files toPlaylist:(PRPlaylist)playlist;
+- (void)removeFileAtIndex:(int)index fromPlaylist:(PRPlaylist)playlist;
+- (void)removeFilesAtIndexes:(NSIndexSet *)indexes fromPlaylist:(PRPlaylist)playlist;
+- (void)clearPlaylist:(PRPlaylist)playlist;
+- (void)clearPlaylist:(PRPlaylist)playlist exceptForIndex:(int)index;
+- (void)moveItemsAtIndexes:(NSIndexSet *)indexes toIndex:(int)index inPlaylist:(PRPlaylist)playlist;
+- (void)appendFilesFromLibraryViewSourceToPlaylist:(PRPlaylist)playlist;
+- (void)copyFilesFromPlaylist:(PRPlaylist)playlist toPlaylist:(PRPlaylist)playlist2;
 
-- (BOOL)count:(int *)count forPlaylist:(PRPlaylist)playlist _error:(NSError **)error;
-- (BOOL)file:(PRFile *)file atIndex:(int)index forPlaylist:(PRPlaylist)playlist _error:(NSError **)error;
-- (BOOL)contains:(BOOL *)contains file:(PRFile)file inPlaylist:(PRPlaylist)playlist _error:(NSError **)error;
-- (BOOL)playlistItem:(PRPlaylistItem *)playlistItem atIndex:(int)index forPlaylist:(PRPlaylist)playlist _error:(NSError **)error;
-- (BOOL)index:(int *)index andPlaylist:(PRPlaylist *)playlist forPlaylistItem:(PRPlaylistItem)playlistItem _error:(NSError **)error;
+// Getters
+- (int)countForPlaylist:(PRPlaylist)playlist;
+- (PRPlaylistItem)playlistItemAtIndex:(int)index inPlaylist:(PRPlaylist)playlist;
+- (PRFile)fileAtIndex:(int)index forPlaylist:(PRPlaylist)playlist;
+- (PRFile)fileForPlaylistItem:(PRPlaylistItem)playlistItem;
+- (int)indexForPlaylistItem:(PRPlaylistItem)playlistItem;
+- (PRPlaylist)playlistForPlaylistItem:(PRPlaylistItem)playlistItem;
+- (BOOL)playlist:(PRPlaylist)playlist containsFile:(PRFile)file;
 
 - (BOOL)playlistIndexes:(NSIndexSet **)indexes forPlaylist:(PRPlaylist)playlist file:(PRFile)file _error:(NSError **)error;
 

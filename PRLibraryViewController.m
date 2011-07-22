@@ -5,9 +5,8 @@
 #import "PRDb.h"
 #import "PRLibrary.h"
 #import "PRPlaylists.h"
+#import "PRPlaylists+Extensions.h"
 #import "PRNowPlayingController.h"
-#import "PRSmartPlaylistEditorViewController.h"
-#import "PRStaticPlaylistEditorViewController.h"
 #import "PRLibraryViewSource.h"
 #import "PRTimeFormatter2.h"
 #import "PRSizeFormatter.h"
@@ -33,7 +32,7 @@ NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDid
 		now = [[core now] retain];
 		
 		dividerPosition = 330;
-		currentPlaylist = -1;
+		playlist = -1;
         
         [self infoViewToggle];
         [self infoViewToggle];
@@ -58,8 +57,6 @@ NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDid
 - (void)awakeFromNib
 {	
 	// Panes
-//	smartPlaylistEditorViewController = [[[PRSmartPlaylistEditorViewController alloc] initWithDb:db] retain];
-//	staticPlaylistEditorViewController = [[[PRStaticPlaylistEditorViewController alloc] init] retain];
 	infoViewController = [[PRInfoViewController alloc] initWithCore:core];
 	
 	[[smartPlaylistEditorViewController view] setFrame:[paneSuperview bounds]];
@@ -96,28 +93,22 @@ NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDid
 
 @synthesize currentViewController;
 
-- (void)setCurrentPlaylist:(PRPlaylist)playlist;
+- (void)setPlaylist:(PRPlaylist)newPlaylist;
 {
-	if (currentPlaylist == playlist) {
+	if (playlist == newPlaylist) {
 		return;
 	}
-	currentPlaylist = playlist;
+	playlist = newPlaylist;
 	[self setLibraryViewMode:[self libraryViewMode]];
 //	[smartPlaylistEditorViewController setCurrentPlaylist:currentPlaylist];
 }
 
 - (PRLibraryViewMode)libraryViewMode
 {
-    if (currentPlaylist == -1) {
+    if (playlist == -1) {
         return -1;
     }
-    
-	int libraryViewMode;
-	[[db playlists] intValue:&libraryViewMode 
-                 forPlaylist:currentPlaylist 
-                   attribute:PRLibraryViewModePlaylistAttribute 
-                      _error:nil];
-	return libraryViewMode;
+	return [[db playlists] libraryViewModeForPlaylist:playlist];
 }
 
 - (void)setLibraryViewMode:(PRLibraryViewMode)libraryViewMode
@@ -125,10 +116,9 @@ NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDid
 	[listViewController setCurrentPlaylist:-1];
 	[albumListViewController setCurrentPlaylist:-1];
     
-	[[db playlists] setIntValue:libraryViewMode 
-                    forPlaylist:currentPlaylist
-                      attribute:PRLibraryViewModePlaylistAttribute 
-                         _error:nil];
+    [[db playlists] setValue:[NSNumber numberWithInt:libraryViewMode] 
+                 forPlaylist:playlist 
+                   attribute:PRLibraryViewModePlaylistAttribute];
     
 	id oldViewController = currentViewController;
 	if (libraryViewMode == PRListMode) {
@@ -139,7 +129,7 @@ NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDid
 	
 	[[currentViewController view] setFrame:[centerSuperview bounds]];
 	[centerSuperview replaceSubview:[oldViewController view] with:[currentViewController view]];    
-	[currentViewController setCurrentPlaylist:currentPlaylist];    
+	[currentViewController setCurrentPlaylist:playlist];    
     
 	[[NSNotificationCenter defaultCenter] postNotificationName:PRLibraryViewModeDidChangeNotification 
 														object:self];
