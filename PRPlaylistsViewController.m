@@ -168,7 +168,7 @@
 - (void)update
 {
     [_datasource release];
-    NSMutableArray *playlists =[NSMutableArray arrayWithArray:[[db playlists] playlistsWithAttributes]];
+    NSMutableArray *playlists =[NSMutableArray arrayWithArray:[[db playlists] playlistsViewSource]];
     [playlists removeObjectAtIndex:0];    
     _datasource = [playlists retain];
     [tableView reloadData];

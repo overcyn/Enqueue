@@ -68,7 +68,7 @@ typedef enum {
 + (NSDictionary *)columnDict;
 + (NSString *)columnNameForPlaylistAttribute:(PRPlaylistAttribute)attribute;
 + (PRColumn)columnForPlaylistAttribute:(PRPlaylistAttribute)attribute;
-//
+
 - (BOOL)cleanPlaylists;
 - (BOOL)cleanPlaylistItems_error:(NSError **)error;
 
@@ -76,18 +76,20 @@ typedef enum {
 // Playlist Accessors
 
 - (NSArray *)playlists;
-- (NSArray *)playlistsWithAttributes;
+- (PRPlaylist)libraryPlaylist;
+- (PRPlaylist)nowPlayingPlaylist;
 
 - (PRPlaylist)addPlaylist;
 - (PRPlaylist)addStaticPlaylist;
 - (PRPlaylist)addSmartPlaylist;
+- (PRPlaylist)addDuplicatePlaylist;
+- (PRPlaylist)addMissingPlaylist;
 - (void)removePlaylist:(PRPlaylist)playlist;
 
 - (void)setValue:(id)value forPlaylist:(PRPlaylist)playlist attribute:(PRPlaylistAttribute)attribute;
 - (id)valueForPlaylist:(PRPlaylist)playlist attribute:(PRPlaylistAttribute)attribute;
 
-- (PRPlaylist)libraryPlaylist;
-- (PRPlaylist)nowPlayingPlaylist;
+- (NSArray *)playlistsViewSource;
 
 // ========================================
 // Playlist Update
