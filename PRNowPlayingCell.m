@@ -119,18 +119,18 @@
 	
 	// Background
     [NSBezierPath setDefaultLineWidth:0];
-    [[NSColor colorWithCalibratedWhite:0 alpha:0.15] set];
-    [NSBezierPath strokeLineFromPoint:NSMakePoint(cellFrame.origin.x, cellFrame.origin.y + 0.5) 
-                              toPoint:NSMakePoint(cellFrame.origin.x + cellFrame.size.width, cellFrame.origin.y + 0.5)];
-    [[NSColor colorWithCalibratedWhite:1 alpha:0.45] set];
-    [NSBezierPath strokeLineFromPoint:NSMakePoint(cellFrame.origin.x, cellFrame.origin.y + 1.5) 
-                              toPoint:NSMakePoint(cellFrame.origin.x + cellFrame.size.width, cellFrame.origin.y + 1.5)];
     NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                             [NSColor colorWithCalibratedWhite:1.0 alpha:0.15], 1.0,
-                             [NSColor colorWithCalibratedWhite:1.0 alpha:0.075], 0.7,
-                             [NSColor colorWithCalibratedWhite:1.0 alpha:0.0], 0.01, nil] autorelease];
-    NSRect gradientRect = NSMakeRect(cellFrame.origin.x, cellFrame.origin.y + 1.5, cellFrame.size.width, 10);
-    [gradient drawInRect:gradientRect angle:-90];
+                             [NSColor colorWithCalibratedWhite:0.0 alpha:0.0], 0.0,
+                             [NSColor colorWithCalibratedWhite:0.0 alpha:0.2], 0.5,
+                             [NSColor colorWithCalibratedWhite:0.0 alpha:0.0], 1.0, nil] autorelease];
+    NSRect rect = NSMakeRect(cellFrame.origin.x, cellFrame.origin.y, cellFrame.size.width, 1);
+    [gradient drawInRect:rect angle:0];
+    gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+                 [NSColor colorWithCalibratedWhite:1.0 alpha:0.0], 0.0,
+                 [NSColor colorWithCalibratedWhite:1.0 alpha:0.4], 0.5,
+                 [NSColor colorWithCalibratedWhite:1.0 alpha:0.0], 1.0, nil] autorelease];
+    rect = NSMakeRect(cellFrame.origin.x, cellFrame.origin.y + 1, cellFrame.size.width, 1);
+    [gradient drawInRect:rect angle:0];
 }
 
 @end
