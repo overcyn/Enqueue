@@ -83,6 +83,7 @@ static PRLog *sharedLog = nil;
 
 - (void)presentFatalError:(NSError *)error
 {
+    NSLog(@"blah:%@",error);
     [self performSelectorInBackground:@selector(presentFatalError_:) withObject:nil];
 }
 

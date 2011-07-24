@@ -406,8 +406,8 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 - (NSArray *)playlistsViewSource
 {
     NSString *string = @"SELECT playlist_id, type, title FROM playlists "
-    "ORDER BY type, title COLLATE NOCASE, playlist_id"
-    "WHERE type IN (1,2,3)";
+    "WHERE type IN (1,2,3) "
+    "ORDER BY type, title COLLATE NOCASE2, playlist_id ";
     NSArray *columns = [NSArray arrayWithObjects:
                         [NSNumber numberWithInt:PRColumnInteger], 
                         [NSNumber numberWithInt:PRColumnInteger], 
