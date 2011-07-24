@@ -185,13 +185,25 @@
     
     // last.fm
     switch ([[core lastfm] lastfmState]) {
-        case PRLastfmConnectedState:
-            [textField setStringValue:[NSString stringWithFormat:@"Signed in to Last.fm as %@.", [[PRUserDefaults userDefaults] lastFMUsername]]];
+        case PRLastfmConnectedState:;
+            NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                        [NSFont systemFontOfSize:13], NSFontAttributeName, nil];
+            NSDictionary *attributes2 = [NSDictionary dictionaryWithObjectsAndKeys:
+                                         [NSFont boldSystemFontOfSize:13], NSFontAttributeName, nil];
+            NSMutableAttributedString *lastfmString = [[[NSMutableAttributedString alloc] initWithString:@"Signed in to Last.fm as " 
+                                                                                              attributes:attributes] autorelease];
+            NSAttributedString *username = [[[NSAttributedString alloc] initWithString:[[PRUserDefaults userDefaults] lastFMUsername]
+                                                                            attributes:attributes2] autorelease];
+            NSAttributedString *closing = [[[NSAttributedString alloc] initWithString:@"."
+                                                                        attributes:attributes] autorelease];
+            [lastfmString appendAttributedString:username];
+            [lastfmString appendAttributedString:closing];
+            [textField setAttributedStringValue:lastfmString];
             [button1 setTitle:@"Logout"];
             break;
         case PRLastfmDisconnectedState:
             [textField setStringValue:@"Click below to connect with your Last.fm Account."];
-            [button1 setTitle:@"Sign in"];
+            [button1 setTitle:@"Sign In"];
             break;
         case PRLastfmPendingState:
             [textField setStringValue:@"You will now need to provide authorization in your web browser."];
@@ -294,7 +306,6 @@
 	if (returnCode == NSCancelButton) {
 		return;
 	}
-    
     for (NSURL *i in [openPanel URLs]) {
         [folderMonitor addFolder:i];
     }
@@ -461,14 +472,6 @@
 }
 
 // SRRecorderControl Delegate
-
-//- (BOOL)shortcutRecorder:(SRRecorderControl *)aRecorder 
-//               isKeyCode:(signed short)keyCode
-//           andFlagsTaken:(unsigned int)flags 
-//                  reason:(NSString **)aReason
-//{
-//    return TRUE;
-//}
 
 - (void)shortcutRecorder:(SRRecorderControl *)recorder keyComboDidChange:(KeyCombo)newKeyCombo
 {    
