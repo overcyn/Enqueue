@@ -418,9 +418,9 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
         [playlists addObject:[NSDictionary dictionaryWithObjectsAndKeys:
                               [i objectAtIndex:0], @"playlist", 
                               [i objectAtIndex:1], @"type", 
-                              [i objectAtIndex:2], @"title", 
-                              nil]];
+                              [i objectAtIndex:2], @"title", nil]];
     }
+    NSLog(@"playlists:%@",playlists);
     return playlists;
 }
 

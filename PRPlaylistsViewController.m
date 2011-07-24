@@ -78,8 +78,7 @@
 - (void)tableViewAction
 {
     [win setCurrentMode:PRLibraryMode];
-    NSArray *playlists = [[db playlists] playlists];
-    int playlist = [[playlists objectAtIndex:[tableView clickedRow] + 1] intValue];
+    int playlist = [[[_datasource objectAtIndex:[tableView clickedRow]] objectForKey:@"playlist"] intValue];
     [win setCurrentPlaylist:playlist];
 }
 
@@ -168,12 +167,10 @@
 - (void)update
 {
     [_datasource release];
-    NSMutableArray *playlists =[NSMutableArray arrayWithArray:[[db playlists] playlistsViewSource]];
-    [playlists removeObjectAtIndex:0];    
-    _datasource = [playlists retain];
+    _datasource = [[[db playlists] playlistsViewSource] retain];
     [tableView reloadData];
     int rows = [self numberOfRowsInTableView:tableView];
-    float height = 235 + 42 * (rows-2);
+    float height = 235 + 42 * (rows - 2);
     if (height < 400) {
         height = 400;
     }
@@ -226,7 +223,6 @@
             break;
     }
     bool delete = !([[[_datasource objectAtIndex:row] objectForKey:@"type"] intValue] == PRNowPlayingPlaylistType);
-
     NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:
                                 [[_datasource objectAtIndex:row] objectForKey:@"title"], @"title", 
                                 subtitle, @"subtitle", 
@@ -297,25 +293,17 @@
 
 - (int)playlistForRow:(int)row
 {
-    NSArray *playlists = [[db playlists] playlists];
-    int playlist = -1;
-    if ([playlists count] - 1 > row) {
-        playlist = [[playlists objectAtIndex:row + 1] intValue];
-    }
-    return playlist;
+    return [[[_datasource objectAtIndex:row] objectForKey:@"playlist"] intValue];
 }
 
 - (int)rowForPlaylist:(PRPlaylist)playlist
 {
-    NSArray *playlists = [[db playlists] playlists];
-    int row = -1;
-    for (int i = 1; i < [playlists count]; i++) {
-        if ([[playlists objectAtIndex:i] intValue] == playlist) {
-            row = i - 1;
-            break;
+    for (int i = 0; i < [_datasource count]; i++) {
+        if ([[[_datasource objectAtIndex:i] objectForKey:@"playlist"] intValue] == playlist) {
+            return i;
         }
     }
-    return row;
+    return 0;
 }
 
 @end
