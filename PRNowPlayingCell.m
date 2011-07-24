@@ -103,7 +103,7 @@
 	NSSize subtitleSize = [subtitle sizeWithAttributes:subtitleAttributes];
     float height = titleSize.height + subtitleSize.height + 3;
 	NSRect textBox = NSMakeRect(cellFrame.origin.x + 7,
-                                cellFrame.origin.y + cellFrame.size.height * .5 - height * 0.5,
+                                cellFrame.origin.y + cellFrame.size.height * .5 - height * 0.5 + 2,
                                 cellFrame.size.width - 7,
                                 height);
     NSRect titleBox = NSMakeRect(textBox.origin.x, 

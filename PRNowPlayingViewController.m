@@ -456,7 +456,7 @@
 		 heightOfRow:(NSInteger)row
 {
 	if ([self dbRowForTableRow:row] == -1) {
-		return 34;
+		return 30;
 	} else {
 		return 17; // default 17
 	}
