@@ -15,7 +15,11 @@
 #import "PRPlaylistsViewController.h"
 #import "PRUserDefaults.h"
 #import "PRQueue.h"
+#import "PRScroller.h"
 
+#ifndef NSAppKitVersionNumber10_6
+#define NSAppKitVersionNumber10_6 1038
+#endif
 
 @implementation PRNowPlayingViewController
 
@@ -91,6 +95,11 @@
     [nowPlayingTableView setHighlightColor:[NSColor alternateSelectedControlColor]];
     [nowPlayingTableView setSecondaryHighlightColor:[NSColor colorWithCalibratedRed:134./255 green:151./255 blue:185./255 alpha:0.7]];
 	
+    if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_6) {
+        [scrollview setVerticalScroller:[[[PRScroller alloc] init] autorelease]];
+    }
+
+    
 	// LibraryTableView Context menu
 	nowPlayingMenu = [[NSMenu alloc] init];
 	[nowPlayingMenu setDelegate:self];

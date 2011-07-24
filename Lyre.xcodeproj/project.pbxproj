@@ -176,6 +176,7 @@
 		679AE5B21301F4940022F5BF /* NSData+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 679AE5B11301F4940022F5BF /* NSData+Base64.m */; };
 		679E3A0F12D28984006190C7 /* PRMoviePlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 679E3A0E12D28984006190C7 /* PRMoviePlayer.mm */; };
 		67A19D2412C19A02002DE05E /* PROverlayScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A19D2312C19A02002DE05E /* PROverlayScrollView.m */; };
+		67A533E713DC300300973422 /* PRTestScroller.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A533E613DC300200973422 /* PRTestScroller.m */; };
 		67A5F63412A5E261003837CA /* PRRatingCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A5F63312A5E261003837CA /* PRRatingCell.m */; };
 		67A69C2412FD0CF40009BFD5 /* PRBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A69C2312FD0CF40009BFD5 /* PRBox.m */; };
 		67AB53E0138BAA69000A329B /* PRDateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 67AB53DF138BAA69000A329B /* PRDateFormatter.m */; };
@@ -500,6 +501,8 @@
 		679E3A0E12D28984006190C7 /* PRMoviePlayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PRMoviePlayer.mm; sourceTree = "<group>"; };
 		67A19D2212C19A02002DE05E /* PROverlayScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PROverlayScrollView.h; sourceTree = "<group>"; };
 		67A19D2312C19A02002DE05E /* PROverlayScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PROverlayScrollView.m; sourceTree = "<group>"; };
+		67A533E513DC300200973422 /* PRTestScroller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRTestScroller.h; sourceTree = "<group>"; };
+		67A533E613DC300200973422 /* PRTestScroller.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRTestScroller.m; sourceTree = "<group>"; };
 		67A5F63212A5E261003837CA /* PRRatingCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRatingCell.h; sourceTree = "<group>"; };
 		67A5F63312A5E261003837CA /* PRRatingCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRatingCell.m; sourceTree = "<group>"; };
 		67A69C2212FD0CF40009BFD5 /* PRBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBox.h; sourceTree = "<group>"; };
@@ -975,6 +978,8 @@
 				67A19D2312C19A02002DE05E /* PROverlayScrollView.m */,
 				677322FE12C18D0C0078C1CF /* PRScroller.h */,
 				677322FF12C18D0C0078C1CF /* PRScroller.m */,
+				67A533E513DC300200973422 /* PRTestScroller.h */,
+				67A533E613DC300200973422 /* PRTestScroller.m */,
 			);
 			name = "Scroll View";
 			sourceTree = "<group>";
@@ -1748,6 +1753,7 @@
 				677CB95D13BC85BF0090B4D0 /* PRPlaylists+Extensions.m in Sources */,
 				67C0BA1A13C7AE1E0088D2E7 /* NSString+Extensions.m in Sources */,
 				6749A8DE13D0B85D002EE61A /* PRTitleBarGradientView.m in Sources */,
+				67A533E713DC300300973422 /* PRTestScroller.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

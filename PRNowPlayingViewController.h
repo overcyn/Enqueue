@@ -18,6 +18,7 @@ PRGradientView, PRMainWindowController;
     IBOutlet PRGradientView *gradientView4;
     IBOutlet PRGradientView *shadowView;
     IBOutlet NSSlider *volumeSlider;
+    IBOutlet NSScrollView *scrollview;
     
     NSMenu *playlistMenu;
 	NSMenu *nowPlayingMenu;
