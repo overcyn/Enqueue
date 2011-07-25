@@ -93,7 +93,7 @@
 
 - (void)newSmartPlaylist
 {
-	[[db playlists] addSmartPlaylist];
+	PRPlaylist playlist = [[db playlists] addSmartPlaylist];
 	[[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification 
 														object:self
 													  userInfo:nil];
