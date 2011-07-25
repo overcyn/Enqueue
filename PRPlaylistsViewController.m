@@ -97,6 +97,7 @@
 	[[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification 
 														object:self
 													  userInfo:nil];
+    [self renamePlaylist:playlist];
 }
 
 - (void)duplicatePlaylist:(PRPlaylist)playlist
