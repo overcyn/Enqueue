@@ -9,13 +9,12 @@
     
     NSMenu *mainMenu;
     NSMenu *enqueueMenu;
-    NSMenu *libraryMenu;
+    NSMenu *fileMenu;
     NSMenu *editMenu;
     NSMenu *viewMenu;
     NSMenu *controlsMenu;
     NSMenu *windowMenu;
     NSMenu *helpMenu;
-
 }
 
 // ========================================
@@ -27,20 +26,21 @@
 // Action
 
 - (void)showPreferences;
+
 - (void)newPlaylist;
+- (void)newSmartPlaylist;
+- (void)open;
 - (void)itunesImport;
-- (void)openFiles;
+- (void)rescanLibrary;
+- (void)duplicateFiles;
+- (void)missingFiles;
+
+- (void)find;
+
 - (void)viewAsList;
 - (void)viewAsAlbumList;
-- (void)browserOnTop;
-- (void)browserOnLeft;
-- (void)browserHidden;
-- (void)browserToggleGenre;
-- (void)browserToggleComposer;
-- (void)browserToggleArtist;
-- (void)browserToggleAlbum;
-- (void)showCurrentSong;
-- (void)showInfo;
 - (void)toggleArtwork;
+- (void)showInfo;
+- (void)showCurrentSong;
 
 @end

@@ -6,6 +6,8 @@
 #import "PRTableViewController.h"
 #import "PRPlaylistsViewController.h"
 #import "PRControlsViewController.h"
+#import "PRNowPlayingController.h"
+#import "PRMoviePlayer.h"
 
 @implementation PRMainMenuController
 
@@ -21,16 +23,17 @@
         
         mainMenu = [core mainMenu];
         enqueueMenu = [[mainMenu itemWithTag:1] submenu];
-        libraryMenu = [[mainMenu itemWithTitle:@"File"] submenu];
+        fileMenu = [[mainMenu itemWithTitle:@"File"] submenu];
         editMenu = [[mainMenu itemWithTitle:@"Edit"] submenu];
         viewMenu = [[mainMenu itemWithTitle:@"View"] submenu];
         controlsMenu = [[mainMenu itemWithTitle:@"Controls"] submenu];
         windowMenu = [[mainMenu itemWithTitle:@"Window"] submenu];
         helpMenu = [[mainMenu itemWithTitle:@"Help"] submenu];
         
-        [libraryMenu setDelegate:self];
+        [fileMenu setDelegate:self];
         [enqueueMenu setDelegate:self];
         [viewMenu setDelegate:self];
+        [controlsMenu setDelegate:self];
         
         // Enqueue Menu
         NSMenuItem *menuItem = [enqueueMenu itemWithTitle:@"Preferences..."];
@@ -38,73 +41,85 @@
         [menuItem setAction:@selector(showPreferences)];
         
         // Library Menu
-        menuItem = [libraryMenu itemWithTitle:@"New Playlist"];
+        menuItem = [fileMenu itemWithTag:1];
         [menuItem setTarget:self];
         [menuItem setAction:@selector(newPlaylist)];
-        
-        menuItem = [libraryMenu itemWithTitle:@"Add to Library…"];
+
+        menuItem = [fileMenu itemWithTag:2];
         [menuItem setTarget:self];
-        [menuItem setAction:@selector(openFiles)];
+        [menuItem setAction:@selector(newSmartPlaylist)];
         
-        menuItem = [libraryMenu itemWithTitle:@"Import iTunes Library"];
+        menuItem = [fileMenu itemWithTag:3];
+        [menuItem setTarget:self];
+        [menuItem setAction:@selector(open)];
+        
+        menuItem = [fileMenu itemWithTag:4];
         [menuItem setTarget:self];
         [menuItem setAction:@selector(itunesImport)];
         
-        menuItem = [libraryMenu itemWithTitle:@"Get Album Art"];
+        menuItem = [fileMenu itemWithTag:5];
         [menuItem setTarget:self];
-        [menuItem setAction:@selector(addToLibrary)];
+        [menuItem setAction:@selector(rescanLibrary)];
+        
+        menuItem = [fileMenu itemWithTag:6];
+        [menuItem setTarget:self];
+        [menuItem setAction:@selector(duplicateFiles)];
+        
+        menuItem = [fileMenu itemWithTag:7];
+        [menuItem setTarget:self];
+        [menuItem setAction:@selector(missingFiles)];
         
         // Edit Menu
-        menuItem = [editMenu itemWithTitle:@"Find"];
-        [menuItem setTarget:[core win]];
+        menuItem = [editMenu itemWithTag:8];
+        [menuItem setTarget:self];
         [menuItem setAction:@selector(find)];
         
         // View Menu
-        menuItem = [viewMenu itemWithTitle:@"as List"];
+        menuItem = [viewMenu itemWithTag:1];
         [menuItem setTarget:self];
         [menuItem setAction:@selector(viewAsList)];
         
-        menuItem = [viewMenu itemWithTitle:@"as Album List"];
+        menuItem = [viewMenu itemWithTag:2];
         [menuItem setTarget:self];
         [menuItem setAction:@selector(viewAsAlbumList)];
         
-        menuItem = [viewMenu itemWithTag:1]; // Toggle artwork
+        menuItem = [viewMenu itemWithTag:3];
         [menuItem setTarget:self];
         [menuItem setAction:@selector(toggleArtwork)];
         
-        menuItem = [viewMenu itemWithTag:2]; // Toggle Info
+        menuItem = [viewMenu itemWithTag:4];
         [menuItem setTarget:self];
         [menuItem setAction:@selector(showInfo)];
         
-        menuItem = [viewMenu itemWithTitle:@"Show Current Song"];
+        menuItem = [viewMenu itemWithTag:5];
         [menuItem setTarget:self];
         [menuItem setAction:@selector(showCurrentSong)];
         
         // Controls Menu
-        menuItem = [controlsMenu itemWithTitle:@"Play/Pause"];
+        menuItem = [controlsMenu itemWithTag:1];
         [menuItem setTarget:[core now]];
         [menuItem setAction:@selector(playPause)];
         
-        menuItem = [controlsMenu itemWithTitle:@"Next"];
+        menuItem = [controlsMenu itemWithTag:2];
         [menuItem setTarget:[core now]];
         [menuItem setAction:@selector(playNext)];
         
-        menuItem = [controlsMenu itemWithTitle:@"Previous"];
+        menuItem = [controlsMenu itemWithTag:3];
         [menuItem setTarget:[core now]];
         [menuItem setAction:@selector(playPrevious)];
         
-        menuItem = [controlsMenu itemWithTitle:@"Increase Volume"];
+        menuItem = [controlsMenu itemWithTag:4];
         [menuItem setTarget:[[core now] mov]];
         [menuItem setAction:@selector(increaseVolume)];
         
-        menuItem = [controlsMenu itemWithTitle:@"Decrease Volume"];
+        menuItem = [controlsMenu itemWithTag:5];
         [menuItem setTarget:[[core now] mov]];
         [menuItem setAction:@selector(decreaseVolume)];
         
-        menuItem = [controlsMenu itemWithTitle:@"Shuffle"];
+        menuItem = [controlsMenu itemWithTag:6];
         [menuItem bind:@"value" toObject:[core now] withKeyPath:@"shuffle" options:nil];
         
-        menuItem = [controlsMenu itemWithTitle:@"Repeat"];
+        menuItem = [controlsMenu itemWithTag:7];
         [menuItem bind:@"value" toObject:[core now] withKeyPath:@"repeat" options:nil];
     }
     return self;
@@ -122,24 +137,30 @@
 - (void)menuNeedsUpdate:(NSMenu *)menu
 {
     NSString *title;
+    if (![[[core now] mov] isPlaying]) {
+        title = @"Play";
+    } else {
+        title = @"Pause";
+    }
+    [[controlsMenu itemWithTag:1] setTitle:title];
     if ([[core win] showsArtwork]) {
         title = @"Hide Artwork";
     } else {
         title = @"Show Artwork";
     }
-    [[viewMenu itemWithTag:1] setTitle:title];
+    [[viewMenu itemWithTag:3] setTitle:title];
     if ([[[core win] libraryViewController] infoViewVisible]) {
         title = @"Hide Info";
     } else {
         title = @"Show Info";
     }
-    [[viewMenu itemWithTag:2] setTitle:title];
+    [[viewMenu itemWithTag:4] setTitle:title];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
-    if (menuItem == [libraryMenu itemWithTitle:@"Import iTunes Library"] ||
-        menuItem == [libraryMenu itemWithTitle:@"Add to Library…"]) {
+    if (menuItem == [fileMenu itemWithTitle:@"Import iTunes Library"] ||
+        menuItem == [fileMenu itemWithTitle:@"Add to Library…"]) {
         return [[[core opQueue] operations] count] == 0;
     }
     return TRUE;
@@ -160,14 +181,40 @@
     [[[core win] playlistsViewController] newStaticPlaylist];
 }
 
+- (void)newSmartPlaylist
+{
+    [[core win] setCurrentMode:PRPlaylistsMode];
+    [[[core win] playlistsViewController] newSmartPlaylist];
+}
+
+- (void)open
+{
+    [core showOpenPanel:nil];
+}
+
 - (void)itunesImport
 {
     [core itunesImport:nil];
 }
 
-- (void)openFiles
+- (void)rescanLibrary
 {
-    [core showOpenPanel:nil];
+    
+}
+
+- (void)duplicateFiles
+{
+    
+}
+
+- (void)missingFiles
+{
+    
+}
+
+- (void)find
+{
+    [[core win] find];
 }
 
 - (void)viewAsList
@@ -180,57 +227,9 @@
     [[[core win] libraryViewController] setAlbumListMode];
 }
 
-- (void)browserOnTop
+- (void)toggleArtwork
 {
-    NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""] autorelease];
-    [menuItem setRepresentedObject:[NSNumber numberWithInt:-1]];
-    [(PRTableViewController *)[[[core win] libraryViewController] currentViewController] toggleBrowser:menuItem];
-}
-
-- (void)browserOnLeft
-{
-    NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""] autorelease];
-    [menuItem setRepresentedObject:[NSNumber numberWithInt:-2]];
-    [(PRTableViewController *)[[[core win] libraryViewController] currentViewController] toggleBrowser:menuItem];
-}
-
-- (void)browserHidden
-{
-    [[[core win] libraryViewController] currentViewController];
-}
-
-- (void)browserToggleGenre
-{
-    NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""] autorelease];
-    [menuItem setRepresentedObject:[NSNumber numberWithInt:13]];
-    [(PRTableViewController *)[[[core win] libraryViewController] currentViewController] toggleBrowser:menuItem];
-}
-
-- (void)browserToggleComposer
-{
-    NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""] autorelease];
-    [menuItem setRepresentedObject:[NSNumber numberWithInt:8]];
-    [(PRTableViewController *)[[[core win] libraryViewController] currentViewController] toggleBrowser:menuItem];
-
-}
-
-- (void)browserToggleArtist
-{
-    NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""] autorelease];
-    [menuItem setRepresentedObject:[NSNumber numberWithInt:2]];
-    [(PRTableViewController *)[[[core win] libraryViewController] currentViewController] toggleBrowser:menuItem];
-}
-
-- (void)browserToggleAlbum
-{
-    NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""] autorelease];
-    [menuItem setRepresentedObject:[NSNumber numberWithInt:3]];
-    [(PRTableViewController *)[[[core win] libraryViewController] currentViewController] toggleBrowser:menuItem];
-}
-
-- (void)showCurrentSong
-{
-    [[[core win] controlsViewController] showInLibrary];
+    [[core win] setShowsArtwork:![[core win] showsArtwork]];
 }
 
 - (void)showInfo
@@ -238,9 +237,9 @@
     [[[core win] libraryViewController] infoViewToggle];
 }
 
-- (void)toggleArtwork
+- (void)showCurrentSong
 {
-    [[core win] setShowsArtwork:![[core win] showsArtwork]];
+    [[[core win] controlsViewController] showInLibrary];
 }
 
 @end

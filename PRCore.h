@@ -6,18 +6,6 @@ PRWelcomeSheetController, PRGrowl, PRLastfm;
 @interface PRCore : NSObject <NSApplicationDelegate>
 {
     IBOutlet NSMenu *mainMenu;
-    IBOutlet NSMenuItem *preferencesMenuItem;
-    IBOutlet NSMenuItem *newPlaylist;
-	IBOutlet NSMenuItem *playPause;
-	IBOutlet NSMenuItem *playNext;
-	IBOutlet NSMenuItem *playPrevious;
-	IBOutlet NSMenuItem *increaseVolume;
-	IBOutlet NSMenuItem *decreaseVolume;
-    IBOutlet NSMenuItem *toggleShuffle;
-    IBOutlet NSMenuItem *toggleRepeat;
-	IBOutlet NSMenuItem *viewAsList;
-	IBOutlet NSMenuItem *viewAsAlbumList;
-	IBOutlet NSMenuItem *viewAsGrid;
     
     PRWelcomeSheetController *welcomeSheet;
     NSConnection *connection;
