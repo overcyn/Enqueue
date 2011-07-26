@@ -63,13 +63,13 @@
 - (void)awakeFromNib 
 {
     [win showWindow:nil];
-    if ([[PRUserDefaults userDefaults] showWelcomeSheet]) {
+    if (TRUE || [[PRUserDefaults userDefaults] showWelcomeSheet]) {
         [[PRUserDefaults userDefaults] setShowWelcomeSheet:FALSE];
         welcomeSheet = [[PRWelcomeSheetController alloc] initWithCore:self];
         [NSApp beginSheet:[welcomeSheet window] 
            modalForWindow:[win window]
             modalDelegate:welcomeSheet
-           didEndSelector:NULL
+           didEndSelector:nil
               contextInfo:nil];
     }
 }

@@ -385,6 +385,8 @@
 	}
 	tableCount = count - 1;
 	[nowPlayingTableView reloadData];
+    
+    
 	
 	// scroll to current row
     [nowPlayingTableView scrollPoint:point];
@@ -460,7 +462,6 @@
 	} else {
 		return 17; // default 17
 	}
-    
 }
 
 // ========================================
@@ -632,7 +633,6 @@
         } else {
             [[db library] value:&title forFile:file_ attribute:PRArtistFileAttribute _error:nil];
         }
-		
 		if (!title || [title isEqualToString:@""]) {
 			title = @"Unknown Artist";
 		}
@@ -667,7 +667,6 @@
             badge = [NSNumber numberWithInt:queueIndex + 1];
         }
 	}
-	
 	return [NSDictionary dictionaryWithObjectsAndKeys:
 			title, @"title",
 			subtitle, @"subtitle",

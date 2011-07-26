@@ -48,7 +48,6 @@
             if ([[self window] isVisible]) {
                 [self endSheet];
             }
-            
             [[core win] setProgressTitle:[task title]];
             [[core win] setProgressValue:[[task value] intValue]];
         } else {

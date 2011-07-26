@@ -2,48 +2,38 @@
 #import "PRPlaylists.h"
 
 
-@class PRDb;
-@class PRRule;
-@class PRRuleViewController;
-@class PRLibrary;
-@class PRPlaylists;
-@class PRRuleArrayController;
+@class PRDb, PRCore, PRRule, PRRuleViewController, PRRuleArrayController;
 
-@interface PRSmartPlaylistEditorViewController : NSViewController
+@interface PRSmartPlaylistEditorViewController : NSWindowController
 {
 	IBOutlet NSCollectionView *collectionView;
 	IBOutlet NSButton *matchCheckBox;
 	IBOutlet NSButton *limitCheckBox;
 	
-	PRRuleArrayController *subRuleArrayController;
-	PRRuleViewController *prototypeRuleViewController;
+	PRPlaylist _playlist;
 	
-	PRPlaylist currentPlaylist;
-	PRRule *currentRule;
-	
-	PRLibrary *lib;
-	PRPlaylists *play;
+    PRCore *_core;
 }
 
-// initialization
-- (id)initWithDb:(PRDb *)db_;
+// ========================================
+// Initialization
 
-// accessors
-- (void)setCurrentPlaylist:(PRPlaylist)newCurrentPlaylist;
+- (id)initWithCore:(PRCore *)core;
 
-- (PRRule *)currentRule;
-- (void)setCurrentRule:(PRRule *)newRule;
+// ========================================
+// Accessors
 
-// update
-- (void)updateCurrentRule;
-- (void)saveCurrentRule;
-- (void)ruleDidChangeNotification:(NSNotification *)notification;
-- (void)addRuleNotification:(NSNotification *)notification;
-- (void)deleteRuleNotification:(NSNotification *)notification;
+@property (readwrite) PRPlaylist playlist;
 
-// action
-- (void)addSubRule;
-- (void)removeSubRule:(PRRule *)subRule;
-- (void)toggle;
+// ========================================
+// Update
+
+- (void)updateContent;
+
+// ========================================
+// Action
+
+- (void)beginSheet;
+- (void)endSheet;
 
 @end

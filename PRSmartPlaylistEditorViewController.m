@@ -3,25 +3,23 @@
 #import "PRLibrary.h"
 #import "PRRule.h"
 #import "PRPlaylists.h"
+#import "PRPlaylists+Extensions.h"
 #import "PRDb.h"
 #import "PRRuleArrayController.h"
-
+#import "PRCore.h"
+#import "PRMainWindowController.h"
 
 @implementation PRSmartPlaylistEditorViewController
 
-// initialization
+// ========================================
+// Initialization
+// ========================================
 
-- (id)initWithDb:(PRDb *)db
+- (id)initWithCore:(id)core
 {
-	if ((self = [super initWithNibName:@"PRSmartPlaylistEditorView" bundle:nil])) {
-		lib = [db library];
-		play = [db playlists];
-		
-		subRuleArrayController = [[PRRuleArrayController alloc] init];
-		prototypeRuleViewController = [[PRRuleViewController alloc] initWithLib:lib];
-		
-		// subRuleArrayController
-		[subRuleArrayController bind:@"contentArray" toObject:self withKeyPath:@"currentRule.subRules" options:nil];
+    self = [super initWithWindowNibName:@"PRSmartPlaylistEditorView"];
+	if (self) {
+        _core = core;
 	}
 	return self;
 }
@@ -43,107 +41,54 @@
 				options:nil];
 	
 	[collectionView setMaxNumberOfRows:1];
-	[collectionView bind:@"content" toObject:subRuleArrayController withKeyPath:@"arrangedObjects" options:nil];
-	[collectionView setItemPrototype:prototypeRuleViewController];
-	
-	[[NSNotificationCenter defaultCenter] addObserver:self 
-											 selector:@selector(addRuleNotification:) 
-												 name:PRAddRuleNotification 
-											   object:nil];
-	[[NSNotificationCenter defaultCenter] addObserver:self 
-											 selector:@selector(deleteRuleNotification:) 
-												 name:PRDeleteRuleNotification 
-											   object:nil];
-	
-	[[NSNotificationCenter defaultCenter] addObserver:self 
-											 selector:@selector(ruleDidChangeNotification:) 
-												 name:PRRuleDidChangeNotification 
-											   object:nil];
+	[collectionView setItemPrototype:[[PRRuleViewController alloc] initWithLib:[[_core db] library]]];
+    [self updateContent];
 }
 
-// accessors
+// ========================================
+// Accessors
+// ========================================
 
-- (PRRule *)currentRule
+@dynamic playlist;
+
+- (PRPlaylist)playlist
 {
-	return currentRule;
+    return _playlist;
 }
 
-- (void)setCurrentRule:(PRRule *)newRule
+- (void)setPlaylist:(PRPlaylist)playlist
 {
-	currentRule = newRule;
-	[self didChangeValueForKey:@"currentRule"];
+    _playlist = playlist;
+    [self updateContent];
 }
 
-- (void)setCurrentPlaylist:(PRPlaylist)newCurrentPlaylist
+// ========================================
+// Update
+// ========================================
+
+- (void)updateContent
 {
-	currentPlaylist = newCurrentPlaylist;
-	[self updateCurrentRule];
+    NSArray *rules = [NSArray arrayWithObject:[NSNumber numberWithInt:0]];
+    [collectionView setContent:rules];
 }
 
-// update
+// ========================================
+// Action
+// ========================================
 
-- (void)updateCurrentRule
+- (void)beginSheet
 {
-	NSData *data = [play valueForPlaylist:currentPlaylist attribute:PRRulesPlaylistAttribute];
-	PRRule *rule;
-	if (!data) {
-		rule = [[[PRRule alloc] init] autorelease];
-	} else {
-		rule = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-	}
-	[self setCurrentRule:rule];
+    NSLog(@"window:%@ %@",[self window],[[_core win] window]);
+	[NSApp beginSheet:[self window]
+       modalForWindow:[[_core win] window]
+        modalDelegate:self 
+	   didEndSelector:nil 
+		  contextInfo:nil];
 }
 
-- (void)saveCurrentRule
+- (void)endSheet
 {
-	NSData *data = [NSKeyedArchiver archivedDataWithRootObject:currentRule];
-    [play setValue:data forPlaylist:currentPlaylist attribute:PRRulesPlaylistAttribute];
-}
-
-- (void)ruleDidChangeNotification:(NSNotification *)notification
-{
-	[self saveCurrentRule];
-}
-
-- (void)deleteRuleNotification:(NSNotification *)notification
-{
-	NSDictionary *userInfo;
-	
-	userInfo = [notification userInfo];
-	[self removeSubRule:[userInfo valueForKey:@"rule"]];
-}
-
-- (void)addRuleNotification:(NSNotification *)notification
-{
-	[self addSubRule];
-}
-
-// action
-
-- (void)addSubRule
-{
-	[subRuleArrayController addObject:[[[PRRule alloc] init] autorelease]];
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRRuleDidChangeNotification 
-														object:self 
-													  userInfo:nil];
-	[self saveCurrentRule];
-}
-
-- (void)removeSubRule:(PRRule *)subRule
-{
-	[subRuleArrayController removeObject:subRule];
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRRuleDidChangeNotification 
-														object:self 
-													  userInfo:nil];
-	[self saveCurrentRule];
-}
-
-- (void)toggle
-{
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRRuleDidChangeNotification 
-														object:self 
-													  userInfo:nil];
-	[self saveCurrentRule];
+    [NSApp endSheet:[self window]];
 }
 
 @end

@@ -133,7 +133,7 @@
     // ViewControllers
     libraryViewController = [[PRLibraryViewController alloc] initWithCore:core];
     preferencesViewController = [[PRPreferencesViewController alloc] initWithCore:core];
-	playlistsViewController = [[PRPlaylistsViewController alloc] initWithDb:db mainWindowController:self];
+	playlistsViewController = [[PRPlaylistsViewController alloc] initWithCore:core];
     historyViewController = [[PRHistoryViewController alloc] initWithDb:db mainWindowController:self];
     taskManagerViewController = [[PRTaskManagerViewController alloc] initWithTaskManager:[core taskManager] core:(PRCore *)core];
     

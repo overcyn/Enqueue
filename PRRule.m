@@ -7,14 +7,14 @@
 
 - (id)init
 {
-	if (self = [super init]) {
+    self = [super init];
+	if (self) {
 		limit = FALSE;
 		match = FALSE;
 		fileAttribute = 2;
 		selectedObjects = [[NSMutableArray alloc] init];
 		subRules = [[NSMutableArray alloc] init];
 	}
-	
 	return self;
 }
 
@@ -30,7 +30,8 @@
 
 - (id)initWithCoder:(NSCoder *)coder
 {
-	if (self = [super init]) {
+    self = [super init];
+	if (self) {
 		limit = [coder decodeBoolForKey:@"limit"];
 		match = [coder decodeBoolForKey:@"match"];
 		subRules = [coder decodeObjectForKey:@"subRules"];
@@ -38,7 +39,6 @@
 		fileAttribute = [coder decodeIntForKey:@"fileAttribute"];
 		selectedObjects = [coder decodeObjectForKey:@"selectedObjects"];
 	}
-	
 	return self;
 }
 

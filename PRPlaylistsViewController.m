@@ -9,6 +9,8 @@
 #import "NSScrollView+Extensions.h"
 #import "PRStringFormatter.h"
 #import "PRLog.h"
+#import "PRSmartPlaylistEditorViewController.h"
+#import "PRCore.h"
 
 
 @implementation PRPlaylistsViewController
@@ -17,12 +19,13 @@
 // Initialization
 // ========================================
 
-- (id)      initWithDb:(PRDb *)db_
-  mainWindowController:(PRMainWindowController *)win_;
+- (id)initWithCore:(PRCore *)core
 {
 	if ((self = [super initWithNibName:@"PRPlaylistsView" bundle:nil])) {
-		win = win_;
-        db = db_;
+        _core = core;
+		win = [core win];
+        db = [core db];
+        smartPlaylistEditorViewController = [[PRSmartPlaylistEditorViewController alloc] initWithCore:_core];
         stringFormatter = [[PRStringFormatter alloc] init];
         [stringFormatter setMaxLength:80];
 	}
@@ -136,6 +139,11 @@
     }
 }
 
+- (void)editPlaylist:(PRPlaylist)playlist
+{
+    [smartPlaylistEditorViewController beginSheet];
+}
+
 - (void)duplicatePlaylistMenuAction:(NSMenuItem *)menuItem
 {
     [self duplicatePlaylist:[menuItem tag]];
@@ -149,6 +157,11 @@
 - (void)deletePlaylistMenuAction:(NSMenuItem *)menuItem
 {
     [self deletePlaylist:[menuItem tag]];
+}
+
+- (void)editPlaylistMenuAction:(NSMenuItem *)menuItem
+{
+    [self editPlaylist:[menuItem tag]];
 }
 
 // ========================================
@@ -225,7 +238,8 @@
     }
     bool delete = !([[[_datasource objectAtIndex:row] objectForKey:@"type"] intValue] == PRNowPlayingPlaylistType);
     NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:
-                                [[_datasource objectAtIndex:row] objectForKey:@"title"], @"title", 
+                                [[_datasource objectAtIndex:row] objectForKey:@"title"], @"title",
+                                [[_datasource objectAtIndex:row] objectForKey:@"type"], @"type",
                                 subtitle, @"subtitle", 
                                 icon, @"icon",
                                 [NSNumber numberWithInt:playlist], @"playlist",
