@@ -1,3 +1,4 @@
+#import "PREnqueue.h"
 #import "PRCore.h"
 #import "PRDb.h"
 #import "PRNowPlayingController.h"
@@ -8,13 +9,13 @@
 #import "PRItunesImportOperation.h"
 #import "PRFolderMonitor.h"
 #import "PRTaskManager.h"
-#import "PRLog.h"
 #import "PRWelcomeSheetController.h"
 #import "PRUserDefaults.h"
 #import "NSFileManager+DirectoryLocations.h"
 #import "PRGrowl.h"
 #import "PRLastfm.h"
-
+#import "PRVacuumOperation.h"
+#import "Sparkle/Sparkle.h"
 
 @implementation PRCore
 
@@ -35,6 +36,7 @@
         if (![[[[NSFileManager alloc] init] autorelease] findOrCreateDirectoryAtPath:path error:nil]) {
             [[PRLog sharedLog] presentFatalError:[self couldNotCreateDirectoryError:path]];
         }
+        
         opQueue = [[NSOperationQueue alloc] init];
         [opQueue setMaxConcurrentOperationCount:1];
         taskManager = [[PRTaskManager alloc] init];
@@ -60,10 +62,10 @@
     [super dealloc];
 }
 
-- (void)awakeFromNib 
+- (void)awakeFromNib
 {
     [win showWindow:nil];
-    if (TRUE || [[PRUserDefaults userDefaults] showWelcomeSheet]) {
+    if ([[PRUserDefaults userDefaults] showWelcomeSheet]) {
         [[PRUserDefaults userDefaults] setShowWelcomeSheet:FALSE];
         welcomeSheet = [[PRWelcomeSheetController alloc] initWithCore:self];
         [NSApp beginSheet:[welcomeSheet window] 
@@ -72,6 +74,7 @@
            didEndSelector:nil
               contextInfo:nil];
     }
+    [opQueue addOperation:[[[PRVacuumOperation alloc] initWithCore:self] autorelease]];
 }
 
 // ========================================
@@ -131,16 +134,14 @@
         return;
     }
     PRItunesImportOperation *op = 
-        [[PRItunesImportOperation alloc] initWithURL:[[openPanel URLs] objectAtIndex:0] core:self];
+        [[[PRItunesImportOperation alloc] initWithURL:[[openPanel URLs] objectAtIndex:0] core:self] autorelease];
     [opQueue addOperation:op];
-    [op release];
 }
 
 - (IBAction)getAlbumArt:(id)sender
 {
-    PRAlbumArtOperation *op = [[PRAlbumArtOperation alloc] initWithDb:db];
+    PRAlbumArtOperation *op = [[[PRAlbumArtOperation alloc] initWithDb:db] autorelease];
     [op main];
-    [op release];
 }
 
 - (IBAction)showOpenPanel:(id)sender
@@ -171,7 +172,7 @@
     for (NSURL *i in [openPanel URLs]) {
         [paths addObject:[i path]];
     }
-    PRImportOperation *op = [[[PRImportOperation alloc] initWithURLs:[openPanel URLs] recursive:TRUE core:self] autorelease];
+    PRImportOperation *op = [[[PRImportOperation alloc] initWithURLs:[openPanel URLs] core:self] autorelease];
     [op setPlayWhenDone:TRUE];
     [opQueue addOperation:op];
 }
@@ -182,9 +183,6 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification
 {
-//    NSLog(@":%@",[win window]);
-//    [win showWindow:nil];
-//    [[win window] makeKeyAndOrderFront:nil];
 }
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication
@@ -200,7 +198,7 @@
 {
     
     NSArray *URLs = [NSArray arrayWithObject:[NSURL fileURLWithPath:filename]];
-    PRImportOperation *op = [[[PRImportOperation alloc] initWithURLs:URLs recursive:TRUE core:self] autorelease];
+    PRImportOperation *op = [[[PRImportOperation alloc] initWithURLs:URLs core:self] autorelease];
     [op setPlayWhenDone:TRUE];
     [opQueue addOperation:op];
     return TRUE;
@@ -212,7 +210,7 @@
     for (NSString *i in filenames) {
         [URLs addObject:[NSURL fileURLWithPath:i]];
     }
-    PRImportOperation *op = [[[PRImportOperation alloc] initWithURLs:URLs recursive:TRUE core:self] autorelease];
+    PRImportOperation *op = [[[PRImportOperation alloc] initWithURLs:URLs core:self] autorelease];
     [op setPlayWhenDone:TRUE];
     [opQueue addOperation:op]; 
 }

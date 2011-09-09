@@ -49,15 +49,15 @@
 - (void)awakeFromNib
 {	
 	NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:
+                             @"-", NSNoSelectionPlaceholderBindingOption,
+                             @"None", NSNullPlaceholderBindingOption,
+                             nil];
+    
+    NSDictionary *options2 = [NSDictionary dictionaryWithObjectsAndKeys:
                               @"-", NSNoSelectionPlaceholderBindingOption,
+                              @"Mul...", NSMultipleValuesPlaceholderBindingOption,
                               @"None", NSNullPlaceholderBindingOption,
                               nil];
-
-    NSDictionary *options2 = [NSDictionary dictionaryWithObjectsAndKeys:
-                               @"-", NSNoSelectionPlaceholderBindingOption,
-                               @"Mul...", NSMultipleValuesPlaceholderBindingOption,
-                               @"None", NSNullPlaceholderBindingOption,
-                               nil];
     
 	[titleField bind:@"value" toObject:self withKeyPath:@"title" options:nil];
 	[artistField bind:@"value" toObject:self withKeyPath:@"artist" options:options];
@@ -124,10 +124,10 @@
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
     [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:1.0]];
     [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
-    NSMutableDictionary *attributes = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                      [NSFont systemFontOfSize:30.0],NSFontAttributeName,
-                                      shadow, NSShadowAttributeName,
-                                      nil] autorelease];
+    NSMutableDictionary *attributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                       [NSFont systemFontOfSize:30.0], NSFontAttributeName,
+                                       shadow, NSShadowAttributeName,
+                                       [NSColor colorWithCalibratedWhite:0.5 alpha:1.0], NSForegroundColorAttributeName, nil];
     NSAttributedString *s = [[[NSAttributedString alloc] initWithString:@"No Selection" attributes:attributes] autorelease];
     [NoSelection setAttributedStringValue:s];
     
@@ -167,7 +167,7 @@
        }
        int rating = [ratingControl selectedSegment] * 20;
        for (NSNumber *i in selection) {
-           [[db library] setIntValue:rating forFile:[i intValue] attribute:PRRatingFileAttribute _error:nil];
+           [[db library] setValue:[NSNumber numberWithInt:rating] forFile:[i intValue] attribute:PRRatingFileAttribute];
        }
        NSDictionary *userInfo = [NSDictionary dictionaryWithObject:selection forKey:@"files"];
        [[NSNotificationCenter defaultCenter] postNotificationName:PRTagsDidChangeNotification object:self userInfo:userInfo];
@@ -234,7 +234,6 @@
 {	
     [selection release];
 	selection = [[NSArray arrayWithArray:[[notification object] selection]] retain];
-	
 	[self update];
 }
 
@@ -268,7 +267,12 @@
                                                         object:nil 
                                                       userInfo:userInfo];
     [[[[core win] libraryViewController] currentViewController] highlightFiles:selectionIndexes];
-    [self performSelector:@selector(update) withObject:nil afterDelay:0.05];
+    
+    for (NSControl *control in controls) {
+        if ([control isKindOfClass:[NSTextField class]]) {
+            [control cancelOperation:nil];
+        }
+    }
 }
 
 - (id)valueForAttribute:(PRFileAttribute)attribute
@@ -277,14 +281,9 @@
 		return NSNoSelectionMarker;
 	}
     
-    id firstResult;
-    [[db library] value:&firstResult 
-                forFile:[[selection objectAtIndex:0] intValue] 
-              attribute:attribute 
-                 _error:nil];
+    id firstResult = [[db library] valueForFile:[[selection objectAtIndex:0] intValue] attribute:attribute];
     for (NSNumber *i in selection) {
-        id result;
-        [[db library] value:&result forFile:[i intValue] attribute:attribute _error:nil];
+        id result = [[db library] valueForFile:[i intValue] attribute:attribute];
         if (![firstResult isEqual:result]) {
             return NSMultipleValuesMarker;
         }
@@ -476,9 +475,7 @@
 	}
     
     PRFile file = [[selection objectAtIndex:0] intValue];
-    NSImage *albumArt;
-    [[db albumArtController] albumArt:&albumArt forFile:file _error:nil];
-    
+    NSImage *albumArt = [[db albumArtController] albumArtForFile:file];
     return albumArt;
 }
 

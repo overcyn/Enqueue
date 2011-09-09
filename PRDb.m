@@ -1,4 +1,5 @@
 #import "PRDb.h"
+#import "PREnqueue.h"
 #import "PRHistory.h"
 #import "PRLibrary.h"
 #import "PRPlaylists.h"
@@ -7,13 +8,13 @@
 #import "PRNowPlayingViewSource.h"
 #import "PRAlbumArtController.h"
 #import "PRPlaybackOrder.h"
-#import "PRLog.h"
 #import "NSError+Extensions.h"
 #include <string.h>
 #include <ctype.h>
 #include "sqlite3.h"
 #include "PRUserDefaults.h"
 #include <sys/file.h>
+#import "PRStatement.h"
 
 
 // ========================================
@@ -55,99 +56,65 @@ NSString * const PRIndexesPboardType = @"PRIndexesPboardType";
 
 - (id)init
 {
-    if ((self = [super init])) {
-        history = [[PRHistory alloc] initWithDb:self];
-        library = [[PRLibrary alloc] initWithDb:self];
-        playlists = [[PRPlaylists alloc] initWithDb:self];
-        queue = [[PRQueue alloc] initWithDb:self];
-        libraryViewSource = [[PRLibraryViewSource alloc] initWithDb:self];
-        nowPlayingViewSource = [[PRNowPlayingViewSource alloc] initWithDb:self];
-        playbackOrder = [[PRPlaybackOrder alloc] initWithDb:self];
-        albumArtController = [[PRAlbumArtController alloc] initWithDb:self];
-        transaction = 0;
-        NSString *libraryPath = [[PRUserDefaults userDefaults] libraryPath];
-        BOOL libraryExists = [[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:libraryPath isDirectory:nil];
-        if (!libraryExists) {
-            goto create;
-        }
-        if (![self open]) {
-            goto create;
-        }
-        if (![self update]) {
-            goto create;
-        }
-        if (![self validate]) {
-            goto create;
-        }
-        [self initialize];
+    self = [super init];
+    if (self == nil) {
+        return nil;
     }
+    
+    history = [[PRHistory alloc] initWithDb:self];
+    library = [[PRLibrary alloc] initWithDb:self];
+    playlists = [[PRPlaylists alloc] initWithDb:self];
+    queue = [[PRQueue alloc] initWithDb:self];
+    libraryViewSource = [[PRLibraryViewSource alloc] initWithDb:self];
+    nowPlayingViewSource = [[PRNowPlayingViewSource alloc] initWithDb:self];
+    playbackOrder = [[PRPlaybackOrder alloc] initWithDb:self];
+    albumArtController = [[PRAlbumArtController alloc] initWithDb:self];
+    transaction = 0;
+    
+//    static BOOL temp = TRUE; // REMOVE
+//    if (temp) {
+//        temp = FALSE;
+//        goto create;
+//    }
+    
+    NSString *libraryPath = [[PRUserDefaults userDefaults] libraryPath];
+    int e = [[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:libraryPath isDirectory:nil];
+    if (!e) {goto create;}
+    
+    e = [self open];
+    if (!e) {goto create;}
+    
+    e = [self update];
+    if (!e) {goto create;}
+    
+    e = [self initialize];
+    if (!e) {goto create;}
+    
 	return self;
     
 create:;
-    NSLog(@"create;");
-    // move library
-    NSString *libraryPath = [[PRUserDefaults userDefaults] libraryPath];
-    BOOL libraryExists = [[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:libraryPath isDirectory:nil];
-    if (libraryExists) {
-        NSString *newLibraryPath;
-        int i = 2;
-        while (TRUE) {
-            newLibraryPath = [libraryPath stringByDeletingPathExtension];
-            newLibraryPath = [newLibraryPath stringByAppendingString:[NSString stringWithFormat:@" %d",i]];
-            newLibraryPath = [newLibraryPath stringByAppendingPathExtension:[libraryPath pathExtension]];
-            if (![[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:newLibraryPath isDirectory:nil]) {
-                break;
-            }
-            if (i > 50) {
-                [[PRLog sharedLog] presentFatalError:[self databaseCouldNotBeInitializedError]];
-                return FALSE;
-            }
-            i++;
-        }
-        BOOL success = [[[[NSFileManager alloc] init] autorelease] moveItemAtPath:libraryPath toPath:newLibraryPath error:nil];
-        if (!success) {
-            [[PRLog sharedLog] presentFatalError:[self databaseCouldNotBeInitializedError]];
-            return FALSE;
-        }
-        [[PRLog sharedLog] presentError:[self databaseWasMovedError:newLibraryPath]];
-    }
-    NSString *albumArtPath = [[PRUserDefaults userDefaults] cachedAlbumArtPath];
-    BOOL albumArtExists = [[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:albumArtPath isDirectory:nil];
-    if (albumArtExists) {
-        NSString *newAlbumArtPath;
-        int i = 2;
-        while (TRUE) {
-            newAlbumArtPath = [albumArtPath stringByAppendingString:[NSString stringWithFormat:@" %d",i]];
-            if (![[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:newAlbumArtPath  isDirectory:nil]) {
-                break;
-            }
-            if (i > 50) {
-                [[PRLog sharedLog] presentFatalError:[self databaseCouldNotBeInitializedError]];
-                return FALSE;
-            }
-            i++;
-        }
-        BOOL success = [[[[NSFileManager alloc] init] autorelease] moveItemAtPath:albumArtPath toPath:newAlbumArtPath error:nil];
-        if (!success) {
-            [[PRLog sharedLog] presentFatalError:[self databaseCouldNotBeInitializedError]];
-            return FALSE;
-        }
+    NSLog(@"create");
+    
+    NSError *err;
+    e = [self move:&err];
+    if (err && e) {
+        [[PRLog sharedLog] presentError:err];
+    } else if (err && !e) {
+        [[PRLog sharedLog] presentFatalError:err];
     }
     
-    if (![self open]) {
-        goto fail;
+    e = [self open];
+    if (!e) {
+        [[PRLog sharedLog] presentFatalError:[self databaseCouldNotBeInitializedError]];
     }
+    
     [self create];
-    [self initialize];
-    if (![self validate]) {
-        goto fail;
+    
+    e = [self initialize];
+    if (!e) {
+        [[PRLog sharedLog] presentFatalError:[self databaseCouldNotBeInitializedError]];
     }
     return self;
-    
-fail:;
-    [[PRLog sharedLog] presentFatalError:nil];
-    [self release];
-    return nil;
 }
 
 - (void)dealloc
@@ -164,162 +131,138 @@ fail:;
 
 - (BOOL)open
 {
-	int err = sqlite3_initialize();
-	if (err != SQLITE_OK) {
+	int e = sqlite3_initialize();
+	if (e != SQLITE_OK) {
 		return FALSE;
 	}
-	
     sqlite3_close(sqlDb);
     
     NSString *libraryPath = [[PRUserDefaults userDefaults] libraryPath];
-	const char *filename = [libraryPath fileSystemRepresentation];
-	err = sqlite3_open_v2(filename, &sqlDb, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, NULL);
-	if (err != SQLITE_OK) {
-		return FALSE;
-	}
-	
-	err = sqlite3_extended_result_codes(sqlDb, TRUE);
-	if (err != SQLITE_OK) {
-		return FALSE;
-	}
-	
-	err = sqlite3_exec(sqlDb, "PRAGMA foreign_keys = ON", NULL, NULL, NULL);
-	if (err != SQLITE_OK) {
-		return FALSE;
-	}
+	e = sqlite3_open_v2([libraryPath fileSystemRepresentation], &sqlDb, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, NULL);
+	if (e != SQLITE_OK) {return FALSE;}
     
-	err = sqlite3_create_collation(sqlDb, "NOCASE2", SQLITE_UTF16, NULL, no_case);
-	if (err != SQLITE_OK) {
-		return FALSE;
-	}
+	e = sqlite3_extended_result_codes(sqlDb, TRUE);
+	if (e != SQLITE_OK) {return FALSE;}
+    
+	e = sqlite3_exec(sqlDb, "PRAGMA foreign_keys = ON", NULL, NULL, NULL);
+	if (e != SQLITE_OK) {return FALSE;}
+    
+	e = sqlite3_create_collation(sqlDb, "NOCASE2", SQLITE_UTF16, NULL, no_case);
+	if (e != SQLITE_OK) {return FALSE;}
+    
     return TRUE;
 }
 
-- (void)initialize
+- (BOOL)initialize
 {
-    [history initialize];
-    [library initialize];
-    [playlists initialize];
-    [queue initialize];
-    [libraryViewSource initialize];
-    [nowPlayingViewSource initialize];
-    [playbackOrder initialize];
-//    [self executeString:@"ANALYZE"];
-//    [self executeString:@"VACUUM"];
+    int e = [history initialize];
+    if (!e) {return FALSE;}
+    
+    e = [library initialize];
+    if (!e) {return FALSE;}
+    
+    e = [playlists initialize];
+    if (!e) {return FALSE;}
+    
+    e = [queue initialize];
+    if (!e) {return FALSE;}
+    
+    e = [libraryViewSource initialize];
+    if (!e) {return FALSE;}
+    
+    e = [nowPlayingViewSource initialize];
+    if (!e) {return FALSE;}
+    
+    return TRUE;
 }
 
 - (BOOL)update
 {
     NSString *string = @"SELECT version FROM schema_version";
     NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *result = [self executeString:string withBindings:nil columns:columns];
-    if (!result) {
+    NSArray *result = [self attempt:string bindings:nil columns:columns];
+    if (!result || [result count] != 1) {
         return FALSE;
     }
+    NSArray *e;
     int version = [[[result objectAtIndex:0] objectAtIndex:0] intValue];
-
     if (version == 1) {
-        string = @"BEGIN";
-        if (![self executeString:string]) {
-            return FALSE;
-        }
+        [self begin];
         string = @"DROP TABLE IF EXISTS now_playing_view_source";
-        if (![self executeString:string]) {
-            return FALSE;
-        }
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
         string = @"DROP TABLE IF EXISTS playback_order";
-        if (![self executeString:string]) {
-            return FALSE;
-        }
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
         string = @"ALTER TABLE library ADD COLUMN lastModified TEXT NOT NULL DEFAULT '' ";
-        if (![self executeStatement:string _error:nil]) {
-            return FALSE;
-        }
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
         string = @"CREATE INDEX IF NOT EXISTS index_path ON library (path COLLATE NOCASE)";
-        if (![self executeStatement:string _error:nil]) {
-            return FALSE;
-        }
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
         string = @"DELETE FROM library WHERE file_id NOT IN ("
         "SELECT min(file_id) FROM library GROUP BY path COLLATE NOCASE)";
-        if (![self executeStatement:string _error:nil]) {
-            return FALSE;
-        }
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
         string = @"DROP TABLE IF EXISTS history";
-        if (![self executeStatement:string _error:nil]) {
-            return FALSE;
-        }
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
         string = @"CREATE TABLE IF NOT EXISTS history ("
         "file_id INTEGER NOT NULL, "
         "date TEXT NOT NULL, "
         "FOREIGN KEY(file_id) REFERENCES library(file_id) ON UPDATE CASCADE ON DELETE CASCADE)";
-        if (![self executeStatement:string _error:nil]) {
-            return FALSE;
-        }
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
         string = @"CREATE TABLE IF NOT EXISTS queue ("
         "queue_index INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
         "playlist_item_id INTEGER NOT NULL UNIQUE, "
         "FOREIGN KEY(playlist_item_id) REFERENCES playlist_items(playlist_item_id) ON UPDATE CASCADE ON DELETE CASCADE)";
-        if (![self executeStatement:string _error:nil]) {
-            return FALSE;
-        }
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
         string = @"UPDATE schema_version SET version = 2";
-        if (![self executeStatement:string _error:nil]) {
-            return FALSE;
-        }
-        string = @"END";
-        if (![self executeStatement:string _error:nil]) {
-            return FALSE;
-        }
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
+        [self commit];
         version = 2;
     }
     if (version == 2) {
-        string = @"BEGIN";
-        if (![self executeStatement:string _error:nil]) {
-            return FALSE;
-        }
+        [self begin];
         string = @"CREATE TABLE playback_order ("
         "index_ INTEGER PRIMARY KEY, "
         "playlist_item_id INTEGER NOT NULL, "
         "CHECK (index_ > 0), "
         "FOREIGN KEY(playlist_item_id) REFERENCES playlist_items(playlist_item_id) ON UPDATE RESTRICT ON DELETE CASCADE)";
-        if (![self executeStatement:string _error:nil]) {
-            return FALSE;
-        }
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
         string = @"UPDATE schema_version SET version = 3";
-        if (![self executeStatement:string _error:nil]) {
-            return FALSE;
-        }
-        string = @"END";
-        if (![self executeStatement:string _error:nil]) {
-            return FALSE;
-        }
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
+        [self commit];
         version = 3;
     }
-    return TRUE;
-}
-
-- (BOOL)validate
-{
-    if (![history validate]) {
-        return FALSE;
-    }
-    if (![library validate]) {
-        return FALSE;
-    }
-    if (![playlists validate]) {
-        return FALSE;
-    }
-    if (![queue validate]) {
-        return FALSE;
-    }
-    if (![libraryViewSource validate]) {
-        return FALSE;
-    }
-    if (![nowPlayingViewSource validate]) {
-        return FALSE;
-    }
-    if (![playbackOrder validate]) {
-        return FALSE;
+    if (version == 3) {
+        [self begin];
+        string = @"UPDATE playlists SET browserInfo = x'', listViewSortColumn = -2, albumListViewSortColumn = -2 WHERE type = 1 OR type = 2 OR type = 3";
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
+        string = @"UPDATE schema_version SET version = 4";
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
+        [self commit];
+        version = 4;
     }
     return TRUE;
 }
@@ -327,9 +270,9 @@ fail:;
 - (void)create
 {
     NSString *string = @"CREATE TABLE schema_version (version INTEGER NOT NULL)";
-    [self executeString:string];
-    string = @"INSERT INTO schema_version (version) VALUES (3)";
-    [self executeString:string];
+    [self execute:string];
+    string = @"INSERT INTO schema_version (version) VALUES (4)";
+    [self execute:string];
     
     [history create];
     [library create];
@@ -340,6 +283,67 @@ fail:;
     [playbackOrder create];
 }
 
+- (BOOL)move:(NSError **)err
+{
+    NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
+    BOOL libraryExists = [fileManager fileExistsAtPath:[[PRUserDefaults userDefaults] libraryPath]];
+    BOOL artExists = [fileManager fileExistsAtPath:[[PRUserDefaults userDefaults] cachedAlbumArtPath]];
+    if (!libraryExists && !artExists) {
+        *err = nil;
+        return TRUE;
+    }
+    
+    NSString *folder;
+    int i = 1;
+    while (TRUE) {
+        NSString *folderName;
+        NSString *date = [[NSDate date] descriptionWithCalendarFormat:@"%Y-%m-%d" timeZone:nil locale:nil];
+        if (i == 1) {
+            folderName = [NSString stringWithFormat:@"Backup %@", date];
+        } else {
+            folderName = [NSString stringWithFormat:@"Backup %@ %d", date, i];
+        }
+        folder = [[[PRUserDefaults userDefaults] backupPath] stringByAppendingPathComponent:folderName];
+        if (![fileManager fileExistsAtPath:folder isDirectory:nil]) {
+            break;
+        }
+        
+        i++;
+        if (i >= 50) {
+            *err = [self databaseCouldNotBeMovedError];
+            return FALSE;
+        }
+    }
+    
+    int e = [fileManager createDirectoryAtPath:folder 
+                     withIntermediateDirectories:TRUE 
+                                      attributes:nil 
+                                           error:nil];
+    if (!e) {
+        *err = [self databaseCouldNotBeMovedError];
+        return FALSE;
+    }
+    
+    NSString *library_ = [[PRUserDefaults userDefaults] libraryPath];
+    NSString *newLibrary = [folder stringByAppendingPathComponent:@"Enqueue.db"];
+    e = [fileManager moveItemAtPath:library_ toPath:newLibrary error:nil];
+    if (!e) {
+        *err = [self databaseCouldNotBeMovedError];
+        return FALSE;
+    }
+    
+    NSString *art = [[PRUserDefaults userDefaults] cachedAlbumArtPath];
+    NSString *newArt = [folder stringByAppendingPathComponent:@"Cached Album Art"];
+    e = [fileManager moveItemAtPath:art toPath:newArt error:nil];
+    if (!e) {
+        *err = [self databaseCouldNotBeMovedError];
+        return FALSE;
+    }
+    
+    *err = [self databaseWasMovedError:folder];
+    return TRUE;
+}
+
 // ========================================
 // Action
 // ========================================
@@ -347,333 +351,46 @@ fail:;
 - (void)begin
 {
     if (transaction == 0) {
-        [self executeString:@"BEGIN EXCLUSIVE"];
+        [self execute:@"BEGIN EXCLUSIVE"];
     }
     transaction += 1;
 }
 
 - (void)rollback
 {
-    [self executeString:@"ROLLBACK"];
+    [self execute:@"ROLLBACK"];
 }
 
 - (void)commit
 {
     if (transaction < 1) {
-        [[PRLog sharedLog] presentFatalError:nil];
+        [PRException raise:NSInternalInconsistencyException format:@"Commit index > 1"];
     } else if (transaction == 1) {
-        [self executeString:@"COMMIT"];
+        [self execute:@"COMMIT"];
         transaction = 0;
     } else {
         transaction -= 1;
     }
 }
 
-- (NSArray *)executeString:(NSString *)string
+- (NSArray *)execute:(NSString *)string
 {
-    return [PRStatement executeString:string withDb:self];
+    return [[PRStatement statement:string bindings:nil columns:nil db:self] execute];
 }
 
-- (NSArray *)executeString:(NSString *)string withBindings:(NSDictionary *)bindings columns:(NSArray *)columns
+- (NSArray *)execute:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns
 {
-    return [PRStatement executeString:string withDb:self bindings:bindings columnTypes:columns];
+    return [[PRStatement statement:string bindings:bindings columns:columns db:self] execute];
 }
 
-- (NSArray *)executeCachedString:(NSString *)string
+- (NSArray *)attempt:(NSString *)string
 {
-    return [PRStatement executeString:string withDb:self];
+    return [[PRStatement statement:string bindings:nil columns:nil db:self] attempt];
 }
 
-- (NSArray *)executeCachedString:(NSString *)string withBindings:(NSDictionary *)bindings columns:(NSArray *)columns
+- (NSArray *)attempt:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns
 {
-    return [PRStatement executeString:string withDb:self bindings:bindings columnTypes:columns];
-}
-
-- (BOOL)executeStatement:(NSString *)statement _error:(NSError **)error
-{
-    NSArray *result;
-    int e = [self executeStatement:statement 
-                      withBindings:nil 
-                            result:&result 
-                            _error:error];
-    
-    return (e && [result count] == 0);
-}
-
-- (BOOL)executeStatement:(NSString *)statement 
-            withBindings:(NSDictionary *)bindings
-                  _error:(NSError **)error
-{
-    NSArray *result;
-    int e = [self executeStatement:statement 
-                      withBindings:bindings 
-                            result:&result 
-                            _error:error];
-    
-    return (e || [result count] == 0);
-}
-
-- (BOOL)executeStatement:(NSString *)statement 
-            withBindings:(NSDictionary *)bindings
-                  result:(NSArray **)result
-                  _error:(NSError **)error
-{
-    sqlite3 *sqlDb_ = sqlDb;
-    
-    // prep statement
-    sqlite3_stmt *stmt = NULL;
-    bool continueTrying = TRUE;
-    while (continueTrying) {
-        int e = sqlite3_prepare_v2(sqlDb_, [statement UTF8String], -1, &stmt, NULL);
-        switch (e) {
-            case SQLITE_OK:
-                continueTrying = FALSE;
-                break;
-            case SQLITE_BUSY:
-                usleep(50);
-                break;
-            default: {
-                NSError *error = [self errorForSQLiteResult:e];
-                NSString *details = [NSString stringWithFormat:@"Prep Failed - sqlite_code:%d \nsqlite_errmsg:%s \nstatement:%@ \nbindings:%@", 
-                                     e, sqlite3_errmsg(sqlDb_), statement, bindings];
-                [[PRLog sharedLog] presentFatalError:[error errorWithValue:details forKey:NSLocalizedFailureReasonErrorKey]];
-                return FALSE;
-                break;
-            }
-        }
-    }
-    
-	// bind values
-    if (!bindings) {
-        bindings = [NSDictionary dictionary];
-    }
-    for (NSNumber *key in [bindings allKeys]) {
-        continueTrying = TRUE;
-        while (continueTrying) {
-            id object = [bindings objectForKey:key]; 
-            int e;
-            if ([object isKindOfClass:[NSNumber class]]) {
-                e = sqlite3_bind_int(stmt, [key intValue], [object longLongValue]);
-            } else if ([object isKindOfClass:[NSString class]]) {
-                e = sqlite3_bind_text(stmt, [key intValue], [object UTF8String], -1, SQLITE_TRANSIENT);
-            } else if ([object isKindOfClass:[NSData class]]) {
-                e = sqlite3_bind_blob(stmt, [key intValue], [object bytes], [object length], SQLITE_TRANSIENT);
-            } else {
-                NSLog(@"unknownType;%@",object);
-            }
-            
-            switch (e) {
-                case SQLITE_OK:
-                    continueTrying = FALSE;
-                    break;
-                case SQLITE_BUSY:
-                    usleep(50);
-                    break;
-                default: {
-                    NSError *error = [self errorForSQLiteResult:e];
-                    NSString *details = [NSString stringWithFormat:@"Bind Failed - sqlite_code:%d \nsqlite_errmsg:%s \nstatement:%@ \nbindings:%@", 
-                                         e, sqlite3_errmsg(sqlDb_), statement, bindings];
-                    [[PRLog sharedLog] presentFatalError:[error errorWithValue:details forKey:NSLocalizedFailureReasonErrorKey]];
-                    return FALSE;
-                }
-            }
-        }
-    }
-    
-	// step
-    NSMutableArray *valueArray = [NSMutableArray array];
-    continueTrying = TRUE;
-    while (continueTrying) {
-        int e = sqlite3_step(stmt);
-        switch (e) {
-            case SQLITE_ROW:
-                if (sqlite3_column_count(stmt) == 1) {
-                    id value;
-                    switch (sqlite3_column_type(stmt, 0)) {
-                        case SQLITE_INTEGER:
-                            value = [NSNumber numberWithLongLong:sqlite3_column_int64(stmt, 0)];
-                            break;
-                        case SQLITE_FLOAT:
-                            value = [NSNumber numberWithDouble:sqlite3_column_double(stmt, 0)];
-                            break;
-                        case SQLITE_TEXT:
-                            value = [NSString stringWithUTF8String:(const char *)sqlite3_column_text(stmt, 0)];
-                            break;
-                        case SQLITE_BLOB:
-                            value = [NSData dataWithBytes:sqlite3_column_blob(stmt, 0) length:sqlite3_column_bytes(stmt, 0)];
-                            break;
-                        case SQLITE_NULL:
-                            value = [NSNull null];
-                            break;
-                        default:
-                            break;
-                    }
-                    [valueArray addObject:value];
-                } else {
-                    NSMutableArray *array = [NSMutableArray array];
-                    for (int i = 0; i < sqlite3_column_count(stmt); i++) {
-                        id value;
-                        switch (sqlite3_column_type(stmt, i)) {
-                            case SQLITE_INTEGER:
-                                value = [NSNumber numberWithLongLong:sqlite3_column_int64(stmt, i)];
-                                break;
-                            case SQLITE_FLOAT:
-                                value = [NSNumber numberWithDouble:sqlite3_column_double(stmt, i)];
-                                break;
-                            case SQLITE_TEXT:
-                                value = [NSString stringWithUTF8String:(const char *)sqlite3_column_text(stmt, i)];
-                                break;
-                            case SQLITE_BLOB:
-                                value = [NSData dataWithBytes:sqlite3_column_blob(stmt, i) length:sqlite3_column_bytes(stmt, i)];
-                                break;
-                            case SQLITE_NULL:
-                                value = [NSNull null];
-                                break;
-                            default:
-                                break;
-                        }
-                        [array addObject:value];
-                    }
-                    [valueArray addObject:[NSArray arrayWithArray:array]];
-                }
-                break;
-            case SQLITE_BUSY:
-                usleep(50);
-                break;
-            case SQLITE_LOCKED:
-                usleep(50);
-                sqlite3_reset(stmt);
-                break;
-            case SQLITE_DONE:
-                continueTrying = FALSE;
-                break;
-            default: {
-                NSError *error = [self errorForSQLiteResult:e];
-                NSString *details = [NSString stringWithFormat:@"Step Failed - sqlite_code:%d \nsqlite_errmsg:%s \nstatement:%@ \nbindings:%@", 
-                                     e, sqlite3_errmsg(sqlDb_), statement, bindings];
-                [[PRLog sharedLog] presentFatalError:[error errorWithValue:details forKey:NSLocalizedFailureReasonErrorKey]];
-                return FALSE;
-                break;
-            }
-        }
-    }
-	sqlite3_finalize(stmt);
-    
-    if (result) {
-        *result = [NSArray arrayWithArray:valueArray];
-    }
-    return TRUE;
-}
-
-- (BOOL)count:(int *)count forTable:(NSString *)table _error:(NSError **)error
-{
-    NSArray *result;
-    if (![self executeStatement:[NSString stringWithFormat:@"SELECT COUNT(*) FROM %@", table]
-                   withBindings:nil 
-                         result:&result 
-                          _error:error]) {
-         return FALSE;
-    }
-    *count = [[result objectAtIndex:0] intValue];
-	return TRUE;
-}
-
-- (BOOL)value:(id *)value 
-	forColumn:(NSString *)column 
-		  row:(int)row 
-		  key:(NSString *)key 
-		table:(NSString *)table 
-	   _error:(NSError **)error 
-{
-    NSString *statement = [NSString stringWithFormat:@"SELECT %@ FROM %@ WHERE %@ = ?1", column, table, key];
-    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil];
-    NSArray *result;
-    if (![self executeStatement:statement
-                   withBindings:bindings
-                         result:&result 
-                         _error:error]) {
-        return FALSE;
-    }
-    if (!result || [result count] != 1) {
-        return FALSE;
-    }
-    
-    *value = [result objectAtIndex:0];
-    if (*value == [NSNull null]) {
-        *value = nil;
-    }
-    return TRUE;
-}
-
-- (BOOL)intValue:(int *)value 
-	   forColumn:(NSString *)column 
-			 row:(int)row 
-			 key:(NSString *)key 
-		   table:(NSString *)table 
-		  _error:(NSError **)error 
-{
-    NSString *statement = [NSString stringWithFormat:@"SELECT %@ FROM %@ WHERE %@ = ?1", column, table, key];
-    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil];
-    NSArray *columnTypes = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *result = [PRStatement executeString:statement withDb:self bindings:bindings columnTypes:columnTypes];
-    
-    if ([result count] != 1) {
-        [[PRLog sharedLog] presentFatalError:nil];
-    }
-    
-    *value = [[[result objectAtIndex:0] objectAtIndex:0] intValue];
-    return TRUE;
-    
-	int e;
-	NSNumber *temp;
-	
-	e = [self value:&temp forColumn:column row:row key:key table:table _error:error];
-	
-	if (temp == nil) {
-		*value = 0;
-	} else {
-        *value = [temp intValue];
-    }
-	
-	return e;
-}
-
-- (BOOL)setValue:(id)value 
-	   forColumn:(NSString *)column 
-			 row:(int)row 
-			 key:(NSString *)key 
-		   table:(NSString *)table 
-		  _error:(NSError **)error
-{
-    NSString *statement = [NSString stringWithFormat:@"UPDATE %@ SET %@ = ?1 WHERE %@ = ?2", table, column, key];
-    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-                              value, [NSNumber numberWithInt:1], 
-                              [NSNumber numberWithInt:row], [NSNumber numberWithInt:2], 
-                              nil];
-    if (![self executeStatement:statement
-                   withBindings:bindings
-                         result:nil
-                         _error:error]) {
-        return FALSE;
-    }
-    return TRUE;
-}
-
-- (BOOL)setIntValue:(int)value 
-		  forColumn:(NSString *)column 
-				row:(int)row 
-				key:(NSString *)key 
-			  table:(NSString *)table 
-			 _error:(NSError **)error
-{
-	return [self setValue:[NSNumber numberWithInt:value] 
-				forColumn:column 
-					  row:row 
-					  key:key 
-					table:table 
-				   _error:error];
+    return [[PRStatement statement:string bindings:bindings columns:columns db:self] attempt];
 }
 
 // ========================================
@@ -682,8 +399,20 @@ fail:;
 
 - (NSError *)databaseWasMovedError:(NSString *)newPath
 {
-    NSString *description = @"The Enqueue library file does not appear to be valid. ";
+    NSString *description = @"The Enqueue library file does not appear to be valid.";
     NSString *recovery = [NSString stringWithFormat:@"A new library has been created and the previous library has been moved to:%@", newPath];
+    NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                              description, NSLocalizedDescriptionKey,
+                              recovery, NSLocalizedRecoverySuggestionErrorKey,
+                              nil];
+    return [NSError errorWithDomain:PREnqueueErrorDomain code:0 userInfo:userInfo];
+}
+
+- (NSError *)databaseCouldNotBeMovedError
+{
+    NSString *description = @"The Enqueue database does not appear to be valid.";
+    NSString *recovery = @"Enqueue could not move the existing database and must close. "
+    "If this problem persists please contact support.";
     NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
                               description, NSLocalizedDescriptionKey,
                               recovery, NSLocalizedRecoverySuggestionErrorKey,
@@ -694,66 +423,12 @@ fail:;
 - (NSError *)databaseCouldNotBeInitializedError
 {
     NSString *description = @"Enqueue could not initialize the database and must close.";
-    NSString *recovery = @"If this problem persists please contact support";
+    NSString *recovery = @"If this problem persists please contact support.";
     NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
                               description, NSLocalizedDescriptionKey,
                               recovery, NSLocalizedRecoverySuggestionErrorKey,
                               nil];
     return [NSError errorWithDomain:PREnqueueErrorDomain code:0 userInfo:userInfo];
-}
-
-- (NSError *)errorForSQLiteResult:(int)result
-{
-    NSString *description = @"Enqueue has encountered a serious internal error and must close.";
-    NSString *recovery = @"If this problem persists please contact support";
-    NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                              description, NSLocalizedDescriptionKey,
-                              recovery, NSLocalizedRecoverySuggestionErrorKey,
-                              nil];
-    return [NSError errorWithDomain:PREnqueueErrorDomain code:0 userInfo:userInfo];
-}
-
-- (NSArray *)descriptionAndRecoveryForResultCode:(int)resultCode
-{
-    switch (resultCode) {
-        case SQLITE_PERM:
-            return [NSArray arrayWithObjects:
-                    @"Enqueue does not have sufficient permissions to access the library and must close.",
-                    @"Make sure that you have Read & Write priviledges to the library file.", nil];
-        case SQLITE_IOERR:
-        case SQLITE_FULL:
-            return [NSArray arrayWithObjects:
-                    @"Enqueue encountered a IO error and must close.",
-                    @"Make sure that there is available disk space.", nil];
-        case SQLITE_CORRUPT:
-            return [NSArray arrayWithObjects:
-                    @"The library appears to be corrupt and Enqueue must close.",
-                    @"", nil];
-        case SQLITE_ROW:
-        case SQLITE_DONE:
-
-        case SQLITE_BUSY:
-        case SQLITE_LOCKED:
-        case SQLITE_PROTOCOL:
-            
-        case SQLITE_NOLFS:
-        case SQLITE_READONLY:
-        case SQLITE_CANTOPEN:
-            
-        case SQLITE_ERROR:
-        case SQLITE_INTERNAL:
-        case SQLITE_SCHEMA:
-        case SQLITE_TOOBIG:
-        case SQLITE_CONSTRAINT:
-        case SQLITE_MISMATCH:
-        case SQLITE_MISUSE:
-        case SQLITE_AUTH:
-        case SQLITE_NOMEM:
-        default:
-            return [NSArray arrayWithObjects:
-                    @"Enqueue encountered an internal error and must close.",
-                    @"", nil];
-    }
 }
 
 @end
@@ -833,160 +508,3 @@ CFRange PRFormatString(UniChar *string, int length)
     }
     return CFRangeMake(index, newLength);
 }
-
-
-@implementation PRStatement
-
-- (id)initWithString:(NSString *)string db:(PRDb *)db
-{
-    if (!(self = [super init])) {
-        return self;
-    }
-    _columnTypes = [[NSArray array] retain];
-    _statement = [string retain];
-    _sqlite3 = [db sqlDb];
-    while (TRUE) {
-        int e = sqlite3_prepare_v2(_sqlite3, [_statement UTF8String], -1, &_stmt, NULL);
-        if (e == SQLITE_OK) {
-            break;
-        } else if (e == SQLITE_BUSY) {
-            usleep(50);
-        } else {
-            NSString *details = [NSString stringWithFormat:@"Step Failed - sqlite_code:%d \nsqlite_errmsg:%s \nstatement:%@", 
-                                 e, sqlite3_errmsg(_sqlite3), _statement];
-            NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:details, NSLocalizedFailureReasonErrorKey, nil];
-            [[PRLog sharedLog] presentFatalError:[NSError errorWithDomain:@"" code:0 userInfo:userInfo]];
-            [self release];
-            return nil;
-        }
-    }
-    return self;
-}
-
-+ (PRStatement *)statementWithString:(NSString *)string db:(PRDb *)db
-{
-    return [[[PRStatement alloc] initWithString:string db:db] autorelease];
-}
-
-- (void)setBindings:(NSDictionary *)bindings
-{
-    for (NSNumber *key in [bindings allKeys]) {
-        BOOL bind = TRUE;
-        while (bind) {
-            id object = [bindings objectForKey:key]; 
-            int e;
-            if ([object isKindOfClass:[NSNumber class]]) {
-                if ([object objCType][0] == 'f' || [object objCType][0] == 'd') { // if float or double
-                    e = sqlite3_bind_double(_stmt, [key intValue], [object doubleValue]);
-                } else {
-                    e = sqlite3_bind_int64(_stmt, [key intValue], [object longLongValue]);
-                }
-            } else if ([object isKindOfClass:[NSString class]]) {
-                e = sqlite3_bind_text(_stmt, [key intValue], [object UTF8String], -1, SQLITE_TRANSIENT);
-            } else if ([object isKindOfClass:[NSData class]]) {
-                e = sqlite3_bind_blob(_stmt, [key intValue], [object bytes], [object length], SQLITE_TRANSIENT);
-            } else {
-                [[PRLog sharedLog] presentFatalError:nil];
-            }
-            
-            switch (e) {
-                case SQLITE_OK:
-                    bind = FALSE;
-                    break;
-                case SQLITE_BUSY:
-                    usleep(50);
-                    break;
-                default:;
-                    NSError *error = [[[NSError alloc] initWithDomain:@"" code:0 userInfo:nil] autorelease];
-                    NSString *details = [NSString stringWithFormat:@"Bind Failed - sqlite_code:%d \nsqlite_errmsg:%s \nstatement:%@ \nbindings:%@", 
-                                         e, sqlite3_errmsg(_sqlite3), _statement, bindings];
-                    [[PRLog sharedLog] presentFatalError:[error errorWithValue:details forKey:NSLocalizedFailureReasonErrorKey]];
-                    break;
-            }
-        }
-    }
-}
-
-- (void)setColumnTypes:(NSArray *)columnTypes
-{
-    if (columnTypes == nil) {
-        columnTypes = [NSArray array];
-    }
-    _columnTypes = [columnTypes retain];
-}
-
-- (NSArray *)execute
-{
-    NSMutableArray *result = [NSMutableArray array];
-    BOOL step = TRUE;
-    while (step) {
-        switch (sqlite3_step(_stmt)) {
-            case SQLITE_ROW:
-                if (sqlite3_column_count(_stmt) != [_columnTypes count]) {
-                    [[PRLog sharedLog] presentFatalError:nil];
-                }
-                NSMutableArray *column = [NSMutableArray array];
-                for (int i = 0; i < [_columnTypes count]; i++) {
-                    id value;
-                    switch ([[_columnTypes objectAtIndex:i] intValue]) {
-                        case PRColumnInteger:
-                            value = [NSNumber numberWithLongLong:sqlite3_column_int64(_stmt, i)];
-                            break;
-                        case PRColumnFloat:
-                            value = [NSNumber numberWithDouble:sqlite3_column_double(_stmt, i)];
-                            break;
-                        case PRColumnString:
-                            value = [NSString stringWithUTF8String:(const char *)sqlite3_column_text(_stmt, i)];
-                            break;
-                        case PRColumnData:
-                            value = [NSData dataWithBytes:sqlite3_column_blob(_stmt, i) length:sqlite3_column_bytes(_stmt, i)];
-                            break;
-                        default:
-                            [[PRLog sharedLog] presentFatalError:nil];
-                            break;
-                    }
-                    [column addObject:value];
-                }
-                [result addObject:column];
-                break;
-            case SQLITE_BUSY:
-                usleep(50);
-                break;
-            case SQLITE_LOCKED:
-                usleep(50);
-                sqlite3_reset(_stmt);
-                break;
-            case SQLITE_DONE:
-                step = FALSE;
-                break;
-            default: {
-                [[PRLog sharedLog] presentFatalError:nil];
-                break;
-            }
-        }
-    }
-    return result;
-}
-
-+ (NSArray *)executeString:(NSString *)string withDb:(PRDb *)db bindings:(NSDictionary *)bindings columnTypes:(NSArray *)columnTypes
-{
-    PRStatement *statement = [PRStatement statementWithString:string db:db];
-    [statement setBindings:bindings];
-    [statement setColumnTypes:columnTypes];
-    return [statement execute];
-}
-
-+ (NSArray *)executeString:(NSString *)string withDb:(PRDb *)db
-{
-    return [PRStatement executeString:string withDb:db bindings:nil columnTypes:nil];
-}
-
-- (void)dealloc
-{
-    sqlite3_finalize(_stmt);
-    [_statement release];
-    [_columnTypes release];
-    [super dealloc];
-}
-
-@end

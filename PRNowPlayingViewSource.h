@@ -15,23 +15,18 @@
 - (id)initWithDb:(PRDb *)db_;
 
 - (void)create;
-- (void)initialize;
-- (BOOL)validate;
+- (BOOL)initialize;
 
 // ========================================
 // Update
 
-- (BOOL)refreshWithPlaylist:(PRPlaylist)playlist 
-					   sort:(PRFileAttribute)attribute 
-				  ascending:(BOOL)asc 
-					 _error:(NSError **)error;
+- (BOOL)refreshWithPlaylist:(PRPlaylist)playlist;
 
 // ========================================
 // Accessors
 
-- (BOOL)count:(int *)count _error:(NSError **)error;
-- (BOOL)file:(PRFile *)file forRow:(int)row _error:(NSError **)error;
-
-- (BOOL)arrayOfAlbumCounts:(NSArray **)array _error:(NSError **)error;
+- (int)count;
+- (PRFile)fileForRow:(int)row;
+- (NSArray *)albumCounts;
 
 @end

@@ -1,12 +1,5 @@
-//
-//  NSString+Extensions.m
-//  Lyre
-//
-//  Created by Kevin Dang on 7/8/11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
-//
-
 #import "NSString+Extensions.h"
+#import "PRDb.h"
 
 @implementation NSString (NSString_Extensions)
 
@@ -18,6 +11,12 @@
 + (NSString *)stringWithInt:(int)integer
 {
     return [NSString stringWithFormat:@"%d",integer];
+}
+
+- (NSComparisonResult)noCaseCompare:(NSString *)string
+{
+    return no_case(nil, [self lengthOfBytesUsingEncoding:NSUTF16StringEncoding], [self cStringUsingEncoding:NSUTF16StringEncoding], 
+                   [string lengthOfBytesUsingEncoding:NSUTF16StringEncoding], [string cStringUsingEncoding:NSUTF16StringEncoding]);
 }
 
 @end

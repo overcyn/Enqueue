@@ -33,10 +33,6 @@ extern NSString * const PRRepeatDidChangeNotification;
     
 	// weak
 	PRDb *db;
-	PRLibrary *lib;
-	PRPlaylists *play;
-	PRPlaybackOrder *ord;
-	PRHistory *history;
 }
 
 // ========================================

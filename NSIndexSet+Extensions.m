@@ -7,7 +7,6 @@
 {
 	NSUInteger count = 0;
 	NSUInteger index = 0;
-	
 	while ((index = [self indexGreaterThanOrEqualToIndex:index]) != NSNotFound) {
 		count++;		
 		if (count == n) {
@@ -26,6 +25,11 @@
         [indexes addIndex:[i intValue]];
     }
     return indexes;    
+}
+
+- (NSUInteger)positionOfIndex:(NSUInteger)index
+{
+    return [self countOfIndexesInRange:NSMakeRange(0, index+1)];
 }
 
 @end

@@ -16,7 +16,7 @@
 // Initialization
 // ========================================
 
-- (id)initWithURLs:(NSArray *)URLs_ recursive:(BOOL)recursive_ core:(PRCore *)core_
+- (id)initWithURLs:(NSArray *)URLs_ core:(PRCore *)core_
 {
     self = [super init];
 	if (self) {
@@ -24,6 +24,7 @@
         _db = [core db2];
 		URLs = [URLs_ retain];
         URLsToPlay = [[NSMutableArray alloc] init];
+        _removeMissing = FALSE;
         background = FALSE;
         _tempFileCount = 0;
 	}
@@ -44,6 +45,7 @@
 @synthesize playWhenDone;
 @synthesize completionInvocation;
 @synthesize completionInvocation2;
+@synthesize removeMissing = _removeMissing;
 
 // ========================================
 // Action
@@ -59,16 +61,35 @@
     } else {
         [task setTitle:@"Adding Files..."];
     }
-
     [task setBackground:background];
     [[core taskManager] addTask:task];
     [[_db library] clearTempFiles];
-        
+    
     BOOL playURLs = TRUE;
     if ([URLs count] == 1 && [[[[URLs objectAtIndex:0] path] pathExtension] caseInsensitiveCompare:@"m3u"] == NSOrderedSame) {
         [self addM3UFile:[URLs objectAtIndex:0] depth:0];
         goto end;
     }
+    
+//    // Monitored Folders. Assume case-insensitive. Check again before removing.
+//    if (_removeMissing) {
+//        [_db execute:@"PRAGMA case_sensitive_like = TRUE"];
+//        [_db execute:@"CREATE TEMP TABLE temp_tbl_files_to_remove (path STRING NOT NULL DEFAULT '', contains INT NOT NULL DEFAULT 0)"];
+//        NSMutableString *string = [NSMutableString stringWithString:@"INSERT into temp_tbl_files_to_remove (path) VALUES SELECT path FROM library WHERE "];
+//        NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
+//        int bindingIndex = 1;
+//        for (NSURL *i in URLs) {
+//            [string appendFormat:@"path LIKE ?1 ESCAPE '\\' "];
+//            NSMutableString *escapedPath = [NSMutableString stringWithString:[i path]];
+//            [escapedPath replaceOccurrencesOfString:@"%%" withString:@"\\%%" options:NSLiteralSearch range:NSMakeRange(0, [escapedPath length])];
+//            [escapedPath replaceOccurrencesOfString:@"_" withString:@"\\_" options:NSLiteralSearch range:NSMakeRange(0, [escapedPath length])];
+//            [escapedPath appendFormat:@"%%"];
+//            [bindings setObject:escapedPath forKey:[NSNumber numberWithInt:bindingIndex]];
+//            bindingIndex++;
+//        }
+//        [_db execute:string bindings:bindings columns:nil];
+//        [_db execute:@"PRAGMA case_sensitive_like = FALSE"];
+//    }
     
     // recurse through URLs adding files
     NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
@@ -101,14 +122,33 @@
     [completionInvocation performSelectorOnMainThread:@selector(invoke) withObject:nil waitUntilDone:TRUE];
     [completionInvocation2 performSelectorOnMainThread:@selector(invoke) withObject:nil waitUntilDone:TRUE];
     
+//    // Remove missing files
+//    NSString *string = @"SELECT path FROM temp_tbl_files_to_remove WHERE contains == 0";
+//    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnString], nil];
+//    NSArray *results = [_db execute:string bindings:nil columns:columns];
+//    NSMutableArray *pathsToRemove = [NSMutableArray array];
+//    for (NSArray *i in results) {
+//        NSString *path = [i objectAtIndex:0];
+//        BOOL exists = [fileManager fileExistsAtPath:path isDirectory:nil];
+//        if (!exists) {
+//            [pathsToRemove addObject:path];
+//        }
+//    }
+//    for (NSString *i in pathsToRemove) {
+//        string = @"DELETE FROM library WHERE path = ?1";
+//        NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
+//                                  i, [NSNumber numberWithInt:1], nil];
+//        [_db execute:string bindings:bindings columns:nil];
+//    }
+    
 end:;
+//    [_db execute:@"DROP TABLE IF EXISTS temp_tbl_files_to_remove"];
     [[_db library] mergeTempFilesToLibrary];
     
     if (playWhenDone && playURLs) {
         NSMutableArray *filesToPlay = [NSMutableArray array];
         for (NSURL *i in URLsToPlay) {
-            NSIndexSet *files;
-            [[_db library] files:&files withValue:[i absoluteString] forAttribute:PRPathFileAttribute _error:nil];
+            NSIndexSet *files = [[_db library] filesWithValue:[i absoluteString] forAttribute:PRPathFileAttribute];
             if ([files count] == 1) {
                 [filesToPlay addObject:[NSNumber numberWithInt:[files firstIndex]]];
             }
@@ -137,7 +177,7 @@ end:;
 - (void)addFile:(NSURL *)URL
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    // File exists?
+    // File exists? isDirectory?
     if (!URL) {
         goto cleanup;
     }
@@ -154,8 +194,8 @@ end:;
     }
     
     // Previous File?
-    NSIndexSet *files;
-    [[_db library] files:&files withPath:[URL absoluteString] caseSensitive:[URL caseSensitive] _error:nil];
+    BOOL caseSensitive = [URL caseSensitive];
+    NSIndexSet *files = [[_db library] filesWithPath:[URL absoluteString] caseSensitive:caseSensitive];
     PRFile existingFile;
     if ([files count] > 0) {
         existingFile = [files firstIndex];
@@ -165,9 +205,12 @@ end:;
     
     // existing file?
     if (existingFile != 0) {
+//        NSString *string = @"UPDATE temp_tbl_files_to_remove SET contains = 1 WHERE path = ?1";
+//        NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:[URL absoluteString], [NSNumber numberWithInt:1], nil];
+//        [_db execute:string bindings:bindings columns:nil];
+        
         NSString *lastModified = [[PRTagEditor lastModifiedForFileAtPath:[URL path]] description];
-        NSString *prevLastModified;
-        [[_db library] value:&prevLastModified forFile:existingFile attribute:PRLastModifiedFileAttribute _error:nil];
+        NSString *prevLastModified = [[_db library] valueForFile:existingFile attribute:PRLastModifiedFileAttribute];
         if ([lastModified isEqualToString:prevLastModified]) {
             goto cleanup;
         }
@@ -196,8 +239,7 @@ end:;
         if (!size) {
             goto cleanup;
         }
-        NSIndexSet *prevFiles;
-        [[_db library] files:&prevFiles withValue:size forAttribute:PRSizeFileAttribute _error:nil];
+        NSIndexSet *prevFiles = [[_db library] filesWithValue:size forAttribute:PRSizeFileAttribute];
         if ([prevFiles count] > 0) {
             NSData *checkSum = [PRTagEditor checkSumForFileAtPath:[URL path]];
             if (!checkSum) {
@@ -205,14 +247,12 @@ end:;
             }
             NSUInteger i = [prevFiles firstIndex];
             while (i != NSNotFound) {
-                NSString *prevURLString;
-                [[_db library] value:&prevURLString forFile:i attribute:PRPathFileAttribute _error:nil];
-                NSData *prevCheckSum;
-                [[_db library] value:&prevCheckSum forFile:i attribute:PRCheckSumFileAttribute _error:nil];
+                NSString *prevURLString = [[_db library] valueForFile:i attribute:PRPathFileAttribute];
+                NSData *prevCheckSum = [[_db library] valueForFile:i attribute:PRCheckSumFileAttribute];
                 NSString *prevPath = [[NSURL URLWithString:prevURLString] path];
                 BOOL prevFileExists = [[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:prevPath isDirectory:nil];
                 if (!prevFileExists && [prevCheckSum isEqualToData:checkSum]) {
-                    [[_db library] setValue:[URL absoluteString] forFile:i attribute:PRPathFileAttribute _error:nil];
+                    [[_db library] setValue:[URL absoluteString] forFile:i attribute:PRPathFileAttribute];
                     goto cleanup;
                 }
                 i = [prevFiles indexGreaterThanIndex:i];

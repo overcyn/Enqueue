@@ -23,10 +23,6 @@
 #import "PRStringFormatter.h"
 #import <Quartz/Quartz.h>
 
-#ifndef NSAppKitVersionNumber10_6
-#define NSAppKitVersionNumber10_6 1038
-#endif
-
 @interface NSWindow (hush)
 - (void)setBottomCornerRounded:(BOOL)rounded;
 @end
@@ -178,6 +174,10 @@
     [libraryModeButton setTarget:self];
     [libraryModeButton setAction:@selector(libraryModeButtonAction)];
 	
+    if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
+        [[self window] setCollectionBehavior:[[self window] collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
+    }
+    
 	// Buttons
     NSArray *buttons = [NSArray arrayWithObjects:
                         [NSDictionary dictionaryWithObjectsAndKeys:libraryButton, @"button", [NSNumber numberWithInt:PRLibraryMode], @"tag", nil], 
@@ -216,6 +216,16 @@
 											 selector:@selector(libraryViewDidChange:) 
 												 name:PRLibraryViewDidChangeNotification 
 											   object:nil];
+    if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
+        [[NSNotificationCenter defaultCenter] addObserver:self 
+                                                 selector:@selector(windowWillEnterFullScreen:) 
+                                                     name:NSWindowWillEnterFullScreenNotification 
+                                                   object:[self window]];
+        [[NSNotificationCenter defaultCenter] addObserver:self 
+                                                 selector:@selector(windowWillExitFullScreen:) 
+                                                     name:NSWindowWillExitFullScreenNotification 
+                                                   object:[self window]];
+    }
 }
 
 // ========================================
@@ -293,7 +303,7 @@
 
 - (BOOL)showsArtwork
 {
-    if ([controlsSuperview frame].size.height == 280) {
+    if ([controlsSuperview frame].size.height == 275 || [controlsSuperview frame].size.height == 286) {
         return TRUE;
     } else {
         return FALSE;
@@ -303,24 +313,23 @@
 - (void)setShowsArtwork:(BOOL)showsArtwork
 {
     [[PRUserDefaults userDefaults] setShowsArtwork:showsArtwork];
-
     if (showsArtwork) {
         NSRect frame = [controlsSuperview frame];
-        frame.origin.y = [[self window] frame].size.height - 280 - 22;
-        frame.size.height = 280;
+        frame.origin.y = [[self window] frame].size.height - 275 - 22;
+        frame.size.height = 275;
         [controlsSuperview setFrame:frame];
         
         frame = [nowPlayingSuperview frame];
-        frame.size.height = [[self window] frame].size.height - 280 - 22;
+        frame.size.height = [[self window] frame].size.height - 275 - 22;
         [nowPlayingSuperview setFrame:frame];
     } else {
         NSRect frame = [controlsSuperview frame];
-        frame.origin.y = [[self window] frame].size.height - 110 - 22;
-        frame.size.height = 115;
+        frame.origin.y = [[self window] frame].size.height - 106 - 22;
+        frame.size.height = 106;
         [controlsSuperview setFrame:frame];
         
         frame = [nowPlayingSuperview frame];
-        frame.size.height = [[self window] frame].size.height - 110 - 22;
+        frame.size.height = [[self window] frame].size.height - 106 - 22;
         [nowPlayingSuperview setFrame:frame];
     }
     [controlsViewController setShowsArtwork:showsArtwork];
@@ -457,7 +466,7 @@
         title = [[db playlists] titleForPlaylist:currentPlaylist];
         title = [NSString stringWithFormat:@"%@ : ", title];
     }
-    
+        
 	NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
 	[shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.5]];
 	[shadow setShadowOffset:NSMakeSize(1.1, -1.3)];
@@ -471,7 +480,6 @@
                                 shadow, NSShadowAttributeName,
                                 nil];
 	NSMutableAttributedString *attributedString = [[[NSMutableAttributedString alloc] initWithString:title attributes:attributes] autorelease];
-	[playlistTitle setAttributedStringValue:attributedString];
     
     // other
     PRTimeFormatter2 *timeFormatter2 = [[[PRTimeFormatter2 alloc] init] autorelease];
@@ -540,6 +548,32 @@
     [self updateUI];
 }
 
+- (void)windowWillEnterFullScreen:(NSNotification *)notification
+{
+    NSRect frame = [centerSuperview frame];
+    frame.size.height -= 11;
+    [centerSuperview setFrame:frame];
+    frame = [controlsSuperview frame];
+    frame.origin.y -= 11;
+    [controlsSuperview setFrame:frame];
+    frame = [nowPlayingSuperview frame];
+    frame.size.height -= 11;
+    [nowPlayingSuperview setFrame:frame];
+}
+
+- (void)windowWillExitFullScreen:(NSNotification *)notification
+{
+    NSRect frame = [centerSuperview frame];
+    frame.size.height += 11;
+    [centerSuperview setFrame:frame];
+    frame = [controlsSuperview frame];
+    frame.origin.y += 11;
+    [controlsSuperview setFrame:frame];
+    frame = [nowPlayingSuperview frame];
+    frame.size.height += 11;
+    [nowPlayingSuperview setFrame:frame];
+}
+
 - (NSString *)search
 {
 	if (currentMode != PRLibraryMode) {
@@ -557,8 +591,9 @@
 		search = @"";
 	}
 	[[db playlists] setValue:search forPlaylist:currentPlaylist attribute:PRSearchPlaylistAttribute];
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:currentPlaylist] 
-                                                         forKey:@"playlist"];
+	NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+                              [NSNumber numberWithInt:currentPlaylist], @"playlist", 
+                              [NSNumber numberWithBool:TRUE], @"search", nil];
 	[[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistDidChangeNotification 
 														object:self
 													  userInfo:userInfo];

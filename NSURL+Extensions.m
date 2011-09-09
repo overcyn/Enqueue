@@ -52,4 +52,36 @@
     return TRUE;
 }
 
+- (BOOL)compare:(NSURL *)URL
+{
+    FSRef ref, ref2;
+    CFURLGetFSRef((CFURLRef)self, &ref);
+    CFURLGetFSRef((CFURLRef)URL, &ref);
+    return FSCompareFSRefs(&ref, &ref2) == noErr;
+}
+
+- (BOOL)contains:(NSURL *)URL
+{
+    FSRef ref, ref2;
+    CFURLGetFSRef((CFURLRef)self, &ref);
+    CFURLGetFSRef((CFURLRef)URL, &ref);
+    while (TRUE) {        
+        // Get parent ref
+        FSRef parentRef;
+        OSErr e = FSGetCatalogInfo(&ref2, kFSCatInfoNone, NULL, NULL, NULL, &parentRef);
+        if (e == noErr) {return FALSE;}
+        ref2 = parentRef;
+        
+        // Check if parent ref is valid
+        return FSGetCatalogInfo(&ref2, kFSCatInfoNone, nil, nil, nil, nil ) == noErr;
+        if (e != noErr) {return FALSE;}
+        
+        // Compare refs
+        if (FSCompareFSRefs(&ref, &ref2) == noErr) {
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
 @end

@@ -34,7 +34,7 @@ static EMKeychainProxy *sharedProxy = nil;
 + (id)sharedProxy
 {
 	if (!sharedProxy)
-		[[EMKeychainProxy alloc] init];
+		sharedProxy = [[EMKeychainProxy alloc] init];
 	return sharedProxy;
 }
 
@@ -104,7 +104,7 @@ static EMKeychainProxy *sharedProxy = nil;
 		}
 		return nil;
 	}
-	NSString *passwordString = [NSString stringWithCString:password length:passwordLength];
+	NSString *passwordString = [NSString stringWithCString:password encoding:NSUTF8StringEncoding];
 	SecKeychainItemFreeContent(NULL, password);
 
 	return [EMGenericKeychainItem genericKeychainItem:item forServiceName:serviceNameString username:usernameString password:passwordString];
@@ -149,7 +149,7 @@ static EMKeychainProxy *sharedProxy = nil;
 		}
 		return nil;
 	}
-	NSString *passwordString = [NSString stringWithCString:password length:passwordLength];
+	NSString *passwordString = [NSString stringWithCString:password encoding:NSUTF8StringEncoding];
 	SecKeychainItemFreeContent(NULL, password);
 	
 	return [EMInternetKeychainItem internetKeychainItem:item forServer:serverString username:usernameString password:passwordString path:pathString port:port protocol:protocol];

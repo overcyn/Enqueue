@@ -1,31 +1,35 @@
 #import <Cocoa/Cocoa.h>
 
 
-@class PRDb, PRLibrary, PRPlaylists, PRNowPlayingController, PRNowPlayingViewSource, PRTableView, 
-PRGradientView, PRMainWindowController;
+@class PRDb, PRLibrary, PRPlaylists, PRNowPlayingController, PRNowPlayingViewSource,
+PRGradientView, PRMainWindowController, PRNowPlayingCell, PRNowPlayingHeaderCell;
 
-@interface PRNowPlayingViewController : NSViewController <NSTableViewDelegate, NSTableViewDataSource, NSMenuDelegate, NSTextFieldDelegate>
+@interface PRNowPlayingViewController : NSViewController <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, NSTextFieldDelegate>
 {
-	IBOutlet PRTableView *nowPlayingTableView;
-    IBOutlet NSButton *shuffle;
-	IBOutlet NSButton *repeat;
+	IBOutlet NSOutlineView *nowPlayingTableView;
 	IBOutlet NSButton *clearButton;
-	IBOutlet NSPopUpButton *playlistButton;
-    IBOutlet NSTextField *playlistTitleEditor;
-    IBOutlet PRGradientView *gradientView;
-	IBOutlet PRGradientView *gradientView2;
-    IBOutlet PRGradientView *gradientView3;
-    IBOutlet PRGradientView *gradientView4;
-    IBOutlet PRGradientView *shadowView;
+    IBOutlet PRGradientView *backgroundGradient;
+	IBOutlet PRGradientView *barGradient;
     IBOutlet NSSlider *volumeSlider;
     IBOutlet NSScrollView *scrollview;
+    IBOutlet NSTextField *_dragLabel;
     
+    NSMenu *_contextMenu;
     NSMenu *playlistMenu;
-	NSMenu *nowPlayingMenu;
-	NSIndexSet *selectedRows; // indexset of selected rows used for context menu
-	int tableCount;
-	NSMutableIndexSet *tableIndexes;
     
+    // tableview delegate
+    PRNowPlayingCell *_nowPlayingCell;
+    PRNowPlayingHeaderCell *_nowPlayingHeaderCell;
+    
+    // tableview datasource
+    NSArray *_albumCounts;
+    NSMutableArray *_dbRowForAlbum;
+    NSMutableIndexSet *_albumIndexes;
+    
+    NSMutableDictionary *_parentItems;
+    NSMutableDictionary *_childItems;
+    
+    int _prevRow;    
     NSPoint dropPoint;
 	
     PRMainWindowController *win;
@@ -45,7 +49,7 @@ PRGradientView, PRMainWindowController;
 // ========================================
 // Action
 
-- (void)play;
+- (void)playItem:(id)item;
 - (void)addSelectedToQueue;
 - (void)removeSelectedFromQueue;
 - (void)playSelected;
@@ -60,22 +64,27 @@ PRGradientView, PRMainWindowController;
 - (void)saveAsPlaylist:(id)sender;
 - (void)newPlaylist:(id)sender;
 
-// Converts between database row and table row. Returns -1 if row does not exist
-- (int)dbRowForTableRow:(int)tableRow;
-- (int)tableRowForDbRow:(int)dbRow;
+// ========================================
+// Update
 
-// Convenience method for |dbRowForTableRow|
-- (NSIndexSet *)dbRowIndexesForTableRowIndexes:(NSIndexSet *)tableRowIndexes;
-
-// Updates table view. Refreshes nowPlayingViewSource, tableIndexes. Scrolls to current row.
 - (void)updateTableView;
-
-// Receives PRPlaylistDidChangeNotifications and calls |updateTableView|
 - (void)playlistDidChange:(NSNotification *)notification;
-
-// Receives PRCurrentFileDidChange Notification, reloads nowPlayingTableView and scrolls to current row.
 - (void)currentFileDidChange:(NSNotification *)notification;
 
+// ========================================
+// Menu
+
+- (void)contextMenuNeedsUpdate;
 - (void)playlistMenuNeedsUpdate;
+
+// ========================================
+// Misc
+
+- (int)dbRowCount;
+- (NSRange)dbRangeForParentItem:(id)item;
+- (int)dbRowForItem:(id)item;
+- (id)itemForDbRow:(int)row;
+- (id)itemForItem:(id)item;
+- (NSIndexSet *)selectedDbRows;
 
 @end

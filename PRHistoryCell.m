@@ -110,7 +110,6 @@
 //        [subtitleAttributes setObject:[NSNumber numberWithInt:NSUnderlineStyleSingle] forKey:NSUnderlineStyleAttributeName];
 //        [subSubTitleAttributes setObject:[NSNumber numberWithInt:NSUnderlineStyleSingle] forKey:NSUnderlineStyleAttributeName];
 //    }
-	
     NSRect subSubTitleRect = theCellFrame;
     subSubTitleRect.origin.x += subSubTitleRect.size.width;
     subSubTitleRect.size.width = 110;

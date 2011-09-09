@@ -30,12 +30,12 @@ typedef enum {
 	PRDb *db;
 	PRPlaylists *play;
 	
-    int cachedRow;
-    NSDictionary *cachedValues;
+    PRPlaylist _playlist;
+    NSCache *_cachedValues;
     
-    BOOL force;
-    NSString *prevLibraryStatement;
-    NSDictionary *prevLibraryBindings;
+    BOOL _force;
+    NSString *_prevSourceString;
+    NSDictionary *_prevSourceBindings;
     NSString *prevBrowser1Statement;
     NSDictionary *prevBrowser1Bindings;
     NSString *prevBrowser2Statement;
@@ -43,10 +43,10 @@ typedef enum {
     NSString *prevBrowser3Statement;
     NSDictionary *prevBrowser3Bindings;
     
-    NSString *prevSortStatement;
-    NSString *prevBrowser1Grouping;
-    NSString *prevBrowser2Grouping;
-    NSString *prevBrowser3Grouping;
+    NSString *_prevSort;
+    NSString *_prevBrowser1Grouping;
+    NSString *_prevBrowser2Grouping;
+    NSString *_prevBrowser3Grouping;
 }
 
 // ========================================
@@ -55,48 +55,36 @@ typedef enum {
 - (id)initWithDb:(PRDb *)sqlDb;
 
 - (void)create;
-- (void)initialize;
-- (BOOL)validate;
+- (BOOL)initialize;
 
 // =======================================
 // Update
 
-- (BOOL)forceUpdateOnNextRefresh_error:(NSError **)error;
-- (BOOL)refreshWithPlaylist:(PRPlaylist)playlist tablesToUpdate:(int *)tables _error:(NSError **)error;
-
-- (BOOL)updateSortIndexWithPlaylist:(PRPlaylist)playlist _error:(NSError **)error;
-- (BOOL)populateSourceWithPlaylist:(PRPlaylist)playlist didUpdate:(BOOL *)didUpdate _error:(NSError **)error;
-- (BOOL)populateBrowser:(int)browser withPlaylist:(PRPlaylist)playlist didUpdate:(BOOL *)didUpdate _error:(NSError **)error;
-
+- (int)refreshWithPlaylist:(PRPlaylist)playlist force:(BOOL)force;
+- (BOOL)updateSortIndex;
+- (BOOL)populateSource;
+- (BOOL)populateBrowser:(int)browser;
 
 // ========================================
 // Accessors
 
-@property (readwrite, retain) NSDictionary *cachedValues;
+- (NSDictionary *)info;
+
+- (int)count;
+- (PRFile)fileForRow:(int)row;
+- (int)rowForFile:(PRFile)file;
+- (id)valueForRow:(int)row attribute:(PRFileAttribute)attribute andCacheAttributes:(NSArray *)attributes;
+
+- (int)countForBrowser:(int)browser;
+- (NSString *)valueForRow:(int)row browser:(int)browser;
+- (NSIndexSet *)selectionForBrowser:(int)browser;
+
+- (NSArray *)albumCounts;
+
+// ========================================
+// Misc
 
 - (NSString *)tableNameForBrowser:(int)browser;
 - (NSString *)groupingStringForPlaylist:(PRPlaylist)playlist browser:(int)browser;
-
-
-- (BOOL)count:(int *)count _error:(NSError **)error;
-- (BOOL)file:(PRFile *)file forRow:(int)row _error:(NSError **)error;
-- (BOOL)     value:(id *)value 
-            forRow:(int)row 
-         attribute:(PRFileAttribute)attribute 
-  cachedAttributes:(NSArray *)cachedAttributes 
-            _error:(NSError **)error;
-- (BOOL)row:(int *)row forFile:(PRFile)file _error:(NSError **)error;
-
-- (BOOL)count:(int *)count forBrowser:(int)browser _error:(NSError **)error;
-- (BOOL)value:(NSString **)value_ forRow:(int)row browser:(int)browser _error:(NSError **)error;
-
-- (BOOL)selectionIndexSet:(NSIndexSet **)indexSet 
-			   forBrowser:(int)browser 
-			 withPlaylist:(int)playlist 
-				   _error:(NSError **)error;
-
-- (NSDictionary *)info;
-
-- (BOOL)arrayOfAlbumCounts:(NSArray **)array _error:(NSError **)error;
 
 @end

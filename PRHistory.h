@@ -14,14 +14,13 @@
 - (id)initWithDb:(PRDb *)sqlDb_;
 
 - (void)create;
-- (void)initialize;
-- (BOOL)validate;
+- (BOOL)initialize;
 
 // ========================================
 // Accessors
 
 - (void)addFile:(PRFile)file withDate:(NSDate *)date;
-- (void)clearHistory;
+- (void)clear;
 
 - (NSArray *)topArtists;
 - (NSArray *)topSongs;

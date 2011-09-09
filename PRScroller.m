@@ -1,9 +1,5 @@
 #import "PRScroller.h"
 
-#ifndef NSAppKitVersionNumber10_6
-#define NSAppKitVersionNumber10_6 1038
-#endif
-
 
 @implementation PRScroller
 

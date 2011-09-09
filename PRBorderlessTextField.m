@@ -3,23 +3,6 @@
 
 @implementation PRBorderlessTextField
 
-- (void)awakeFromNib
-{
-	[super awakeFromNib];
-	[[NSNotificationCenter defaultCenter] addObserver:self 
-											 selector:@selector(textDidEndEditing:)
-												 name:NSTextDidEndEditingNotification
-											   object:self];
-}
-
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self 
-                                                    name:NSTextDidEndEditingNotification 
-                                                  object:self];
-    [super dealloc];
-}
-
 - (BOOL)becomeFirstResponder
 {
 	if ([self isEditable]) {

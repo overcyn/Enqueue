@@ -26,8 +26,8 @@
         refreshing = FALSE;
 		currentPlaylist = -1;
         
-        lock = [[NSLock alloc] init];
-        cachedArt = [[NSMutableDictionary alloc] init];
+        cachedArtwork = [[NSCache alloc] init];
+        [cachedArtwork setCountLimit:50];
 	}
 	return self;
 }
@@ -37,8 +37,7 @@
     [tableIndexes release];
     [albumCountArray release];
     [albumSumCountArray release];
-    [lock release];
-    [cachedArt release];
+    [cachedArtwork release];
     [super dealloc];
 }
 
@@ -86,19 +85,17 @@
 // Update
 // ========================================
 
-- (void)reloadData
+- (void)reloadData:(BOOL)force
 {	
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
 	// update libSrc
-    int tables;
-	[[db libraryViewSource] refreshWithPlaylist:currentPlaylist tablesToUpdate:&tables _error:nil];
+    int tables = [[db libraryViewSource] refreshWithPlaylist:currentPlaylist force:force];
 	
     // update albumCountArray, tableIndexes & libraryCount
 	libraryCount = 0;
     [albumCountArray release];
-	[[db libraryViewSource] arrayOfAlbumCounts:&albumCountArray _error:nil];
-    [albumCountArray retain];
+    albumCountArray = [[[db libraryViewSource] albumCounts] retain];
     [tableIndexes release];
 	tableIndexes = [[NSMutableIndexSet indexSet] retain];
 	for (NSNumber *i in albumCountArray) {
@@ -128,21 +125,21 @@
     }
     if ((tables & PRBrowser1View) == PRBrowser1View) {
         [browser1TableView reloadData];
-        [[db libraryViewSource] selectionIndexSet:&indexSet forBrowser:1 withPlaylist:currentPlaylist _error:nil];
+        indexSet = [[db libraryViewSource] selectionForBrowser:1];
         if (![indexSet isEqualToIndexSet:[browser1TableView selectedRowIndexes]]) {
             [browser1TableView selectRowIndexes:indexSet byExtendingSelection:FALSE];
         }
     }
     if ((tables & PRBrowser2View) == PRBrowser2View) {
         [browser2TableView reloadData];
-        [[db libraryViewSource] selectionIndexSet:&indexSet forBrowser:2 withPlaylist:currentPlaylist _error:nil];
+        indexSet = [[db libraryViewSource] selectionForBrowser:2];
         if (![indexSet isEqualToIndexSet:[browser2TableView selectedRowIndexes]]) {
             [browser2TableView selectRowIndexes:indexSet byExtendingSelection:FALSE];
         }
     }
     if ((tables & PRBrowser3View) == PRBrowser3View) {
         [browser3TableView reloadData];
-        [[db libraryViewSource] selectionIndexSet:&indexSet forBrowser:3 withPlaylist:currentPlaylist _error:nil];
+        indexSet = [[db libraryViewSource] selectionForBrowser:3];
         if (![indexSet isEqualToIndexSet:[browser3TableView selectedRowIndexes]]) {
             [browser3TableView selectRowIndexes:indexSet byExtendingSelection:FALSE];
         }
@@ -150,7 +147,7 @@
 	refreshing = FALSE;
 	
     // update cachedArt
-    [cachedArt removeAllObjects];
+    [cachedArtwork removeAllObjects];
     
 	// post notification
 	[[NSNotificationCenter defaultCenter] postNotificationName:PRLibraryViewDidChangeNotification object:self];
@@ -182,6 +179,7 @@
 	if ([albumTableView clickedRow] == -1) {
 		return;
 	}
+    [now stop];
 	[[db playlists] clearPlaylist:[now currentPlaylist]];
 	
 	int currentIndex;
@@ -194,13 +192,12 @@
 	int maxIndex = currentIndex + [[albumCountArray objectAtIndex:row] intValue];
     
 	for (; currentIndex < maxIndex; currentIndex++) {
-        PRFile file_;
-		[[db libraryViewSource] file:&file_ forRow:currentIndex + 1 _error:NULL];
-        [[db playlists] appendFile:file_ toPlaylist:[now currentPlaylist]];
+        PRFile file = [[db libraryViewSource] fileForRow:currentIndex + 1];
+        [[db playlists] appendFile:file toPlaylist:[now currentPlaylist]];
 	}
 	
+    [now postNotificationForCurrentPlaylist];
 	[now playPlaylist:[now currentPlaylist] fileAtIndex:1];
-	[now postNotificationForCurrentPlaylist];
 }
 
 // ========================================
@@ -272,52 +269,33 @@
       			        row:(NSInteger)tableRow
 {
 	if (tableView == albumTableView) {
-		PRFile file;
-		
 		int dbRow = [[albumSumCountArray objectAtIndex:tableRow] intValue];
-		[[db libraryViewSource] file:&file forRow:dbRow _error:nil];
+		PRFile file = [[db libraryViewSource] fileForRow:dbRow];
         
 		NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 		[dict setObject:db forKey:@"db"];
 		[dict setObject:[NSNumber numberWithInt:file] forKey:@"file"];
         [dict setObject:[NSImage imageNamed:@"PRLightAlbumArt"] forKey:@"icon"];
-        
-//        // synchronous drawing
-//        [dict setObject:[NSImage imageNamed:@"PRLightAlbumArt"] forKey:@"icon"];
-//        int guessedFile;
-//        for (int i = dbRow - [[albumCountArray objectAtIndex:tableRow] intValue] + 1; i < dbRow + 1; i++) {
-//            [libSrc file:&guessedFile forRow:i _error:nil];
-//            if ([[db albumArtController] fileHasAlbumArt:guessedFile]) {
-//                NSImage *icon;
-//                [[db albumArtController] thumbnail:&icon forFile:guessedFile _error:nil];
-//                [dict setObject:icon forKey:@"icon"];
-//                break;
-//            }
-//            guessedFile = file;
-//        }
-        
+                
         // asynchronous drawing
-        [lock lock];
-        NSImage *icon = [cachedArt objectForKey:[NSNumber numberWithInt:file]];
-        [lock unlock];
+        NSImage *icon = [cachedArtwork objectForKey:[NSNumber numberWithInt:file]];
 		if (icon) {
             [dict setObject:icon forKey:@"icon"];
         } else {
             NSMutableIndexSet *mfiles = [[[NSMutableIndexSet alloc] init] autorelease];
             for (int i = dbRow - [[albumCountArray objectAtIndex:tableRow] intValue] + 1; i < dbRow + 1; i++) {
-                int guessedFile;
-                [[db libraryViewSource] file:&guessedFile forRow:i _error:nil];
+                int guessedFile = [[db libraryViewSource] fileForRow:i];
                 [mfiles addIndex:guessedFile];
             }
-            NSIndexSet *files = [[[NSIndexSet alloc] initWithIndexSet:mfiles] autorelease];
+            NSDictionary *artworkInfo = [[db albumArtController] artworkInfoForFiles:mfiles];
             NSRect dirtyRect = [albumTableView rectOfRow:tableRow];
             
-            NSMethodSignature *methodSignature = [[self class] instanceMethodSignatureForSelector:@selector(cacheAlbumArtForFile:files:dirtyRect:)];
+            NSMethodSignature *methodSignature = [[self class] instanceMethodSignatureForSelector:@selector(cacheAlbumArtForFile:artworkInfo:dirtyRect:)];
             NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
             [invocation setTarget:self];
-            [invocation setSelector:@selector(cacheAlbumArtForFile:files:dirtyRect:)];
+            [invocation setSelector:@selector(cacheAlbumArtForFile:artworkInfo:dirtyRect:)];
             [invocation setArgument:&file atIndex:2];
-            [invocation setArgument:&files atIndex:3];
+            [invocation setArgument:&artworkInfo atIndex:3];
             [invocation setArgument:&dirtyRect atIndex:4];
             [invocation retainArguments];
             [invocation performSelectorInBackground:@selector(invoke) withObject:nil];
@@ -328,30 +306,16 @@
 	}
 }
 
-- (void)cacheAlbumArtForFile:(int)file files:(NSIndexSet *)files dirtyRect:(NSRect)dirtyRect
+- (void)cacheAlbumArtForFile:(int)file artworkInfo:(NSDictionary *)artworkInfo dirtyRect:(NSRect)dirtyRect
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
-    NSImage *icon = nil;
-    NSInteger guessedFile = [files firstIndex];
-    while (guessedFile != NSNotFound) {
-        if ([[db albumArtController] fileHasAlbumArt:guessedFile]) {
-            [[db albumArtController] albumArt:&icon forFile:guessedFile _error:nil];
-            break;
-        }
-        guessedFile = [files indexGreaterThanIndex:guessedFile];
-    }
-    
+    NSImage *icon = [[db albumArtController] artworkForArtworkInfo:artworkInfo];;    
     if (!icon) {
         icon = [NSImage imageNamed:@"PRLightAlbumArt"];
     }
     
-    [lock lock];
-    if ([cachedArt count] > 20) {
-        [cachedArt removeAllObjects];
-    }
-    [cachedArt setObject:icon forKey:[NSNumber numberWithInt:file]];
-    [lock unlock];
+    [cachedArtwork setObject:icon forKey:[NSNumber numberWithInt:file]];
     
     NSMethodSignature *methodSignature = [[NSTableView class] instanceMethodSignatureForSelector:@selector(setNeedsDisplayInRect:)];
     NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
@@ -371,12 +335,8 @@
   writeRowsWithIndexes:(NSIndexSet *)rowIndexes
 		  toPasteboard:(NSPasteboard*)pboard
 {
-	NSData *data;
 	NSInteger currentIndex = 0;
-	PRFile file;
 	NSMutableArray *files = [NSMutableArray array];
-	NSNumber *fileNumber;
-	
 	if (tableView == albumTableView) {
 		int row = [rowIndexes firstIndex];
 		if (row == 0) {
@@ -387,8 +347,8 @@
 		int maxIndex = currentIndex + [[albumCountArray objectAtIndex:row] intValue];
 		
 		for (; currentIndex < maxIndex; currentIndex++) {
-			[[db libraryViewSource] file:&file forRow:currentIndex + 1 _error:nil];
-			fileNumber = [NSNumber numberWithInt:file];
+			PRFile file = [[db libraryViewSource] fileForRow:currentIndex + 1];
+			NSNumber *fileNumber = [NSNumber numberWithInt:file];
 			[files addObject:fileNumber];
 		}
 		
@@ -396,13 +356,11 @@
 		if ([files count] == 0) {
 			return FALSE;
 		}
-		data = [NSKeyedArchiver archivedDataWithRootObject:files];
+		NSData *data = [NSKeyedArchiver archivedDataWithRootObject:files];
 		[pboard declareTypes:[NSArray arrayWithObject:PRFilePboardType] owner:self];
 		[pboard setData:data forType:PRFilePboardType];
-		
-		return TRUE;		
-	} 
-	
+		return TRUE;
+	}
 	return [super tableView:tableView writeRowsWithIndexes:rowIndexes toPasteboard:pboard];
 }
 
@@ -433,8 +391,8 @@
 - (void)tableView:(NSTableView *)tableView didClickTableColumn:(NSTableColumn *)tableColumn
 {
 	if (tableView == albumTableView) {
-		int sortColumn = [[db playlists] albumListViewSortColumnForPlaylist:currentPlaylist];
-		int ascending = [[db playlists] albumListViewAscendingForPlaylist:currentPlaylist];
+		int sortColumn = [self sortColumn];
+		int ascending = [self ascending];
 
         if (sortColumn == PRArtistAlbumSort) {
             ascending = !ascending;
@@ -442,13 +400,12 @@
             ascending = TRUE;
         }
         
-        [[db playlists] setValue:[NSNumber numberWithInt:PRArtistAlbumSort] 
-                     forPlaylist:currentPlaylist 
-                       attribute:PRAlbumListViewSortColumnPlaylistAttribute];
-        [[db playlists] setValue:[NSNumber numberWithInt:ascending] 
-                     forPlaylist:currentPlaylist 
-                       attribute:PRAlbumListViewAscendingPlaylistAttribute];
-		[self setCurrentPlaylist:currentPlaylist];
+        [self setSortColumn:PRArtistAlbumSort];
+        [self setAscending:ascending];
+        [self loadTableColumns];
+        [self reloadData:FALSE];
+        [tableView selectColumnIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
+        return;
 	}
 	[super tableView:tableView didClickTableColumn:tableColumn];
 }

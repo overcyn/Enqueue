@@ -13,7 +13,8 @@ NSString * const PRRuleDidChangeNotification = @"PRRuleDidChangeNotification";
 
 - (id)initWithLib:(PRLibrary *)lib_
 {
-	if ((self = [super init])) {
+    self = [super init];
+	if (self) {
 		lib = lib_;
 	}
 	return self;
@@ -22,11 +23,8 @@ NSString * const PRRuleDidChangeNotification = @"PRRuleDidChangeNotification";
 - (id)copyWithZone:(NSZone *)zone
 {
 	id result = [super copyWithZone:zone];
-	
 	[NSBundle loadNibNamed:@"PRRuleView" owner:result];
-	
 	[result setLib:lib];
-	
 	return result;
 }
 
@@ -146,7 +144,7 @@ NSString * const PRRuleDidChangeNotification = @"PRRuleDidChangeNotification";
 
 - (void)update
 {
-	[lib arrayOfUniqueValues:&array forAttribute:[[self representedObject] fileAttribute] _error:nil];
+//	[lib arrayOfUniqueValues:&array forAttribute:[[self representedObject] fileAttribute] _error:nil];
 	[tableView reloadData];
 }
 

@@ -59,8 +59,7 @@ typedef enum {
 - (id)initWithDb:(PRDb *)db_;
 
 - (void)create;
-- (void)initialize;
-- (BOOL)validate;
+- (BOOL)initialize;
 
 // ========================================
 // Accessors
@@ -70,7 +69,7 @@ typedef enum {
 + (PRColumn)columnForPlaylistAttribute:(PRPlaylistAttribute)attribute;
 
 - (BOOL)cleanPlaylists;
-- (BOOL)cleanPlaylistItems_error:(NSError **)error;
+- (BOOL)cleanPlaylistItems;
 
 // ========================================
 // Playlist Accessors
@@ -101,6 +100,7 @@ typedef enum {
 
 // Setters
 - (void)addFile:(PRFile)file atIndex:(int)index toPlaylist:(PRPlaylist)playlist;
+- (void)addFiles:(NSArray *)files atIndex:(int)index toPlaylist:(PRPlaylist)playlist;
 - (void)appendFile:(PRFile)file toPlaylist:(PRPlaylist)playlist;
 - (void)appendFiles:(NSIndexSet *)files toPlaylist:(PRPlaylist)playlist;
 - (void)removeFileAtIndex:(int)index fromPlaylist:(PRPlaylist)playlist;

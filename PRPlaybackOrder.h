@@ -18,28 +18,22 @@
 - (id)initWithDb:(PRDb *)sqlDb;
 
 - (void)create;
-- (void)initialize;
-- (BOOL)validate;
+- (BOOL)initialize;
 
 // ========================================
 // Validation
 
-- (BOOL)clean_error:(NSError **)error;
+- (void)clean;
 
 // ========================================
 // Accessors
 
-- (BOOL)count:(int *)count _error:(NSError **)error;
-- (BOOL)playlistItem:(PRPlaylistItem *)playlistItem atIndex:(int)index _error:(NSError **)error;
-- (BOOL)appendPlaylistItem:(PRPlaylistItem)playlistItem _error:(NSError **)error;
-- (BOOL)clearPlaybackOrder_error:(NSError **)error;
+- (int)count;
+- (void)appendPlaylistItem:(PRPlaylistItem)playlistItem;
+- (PRPlaylistItem)playlistItemAtIndex:(int)index;
+- (void)clear;
 
-- (BOOL)removePlaylistItem:(PRPlaylistItem)playlistItem _error:(NSError **)error;
-
-- (BOOL)		 playlistItems:(NSArray **)playlistItems 
-			        inPlaylist:(PRPlaylist)playlist 
-  notInPlaybackOrderAfterIndex:(int)index
-						_error:(NSError **)error;
+- (NSArray *)playlistItemsInPlaylist:(PRPlaylist)playlist notInPlaybackOrderAfterIndex:(int)index;
 
 // ========================================
 // Update

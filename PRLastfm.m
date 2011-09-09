@@ -138,14 +138,10 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 
 - (void)nowPlayingCurrentFile
 {
-    NSString *title;
-    NSString *artist;
-    NSString *album;
-    NSNumber *time;
-    [[[core db] library] value:&title forFile:currentFile attribute:PRTitleFileAttribute _error:nil];
-    [[[core db] library] value:&artist forFile:currentFile attribute:PRArtistFileAttribute _error:nil];
-    [[[core db] library] value:&album forFile:currentFile attribute:PRAlbumFileAttribute _error:nil];
-    [[[core db] library] value:&time forFile:currentFile attribute:PRTimeFileAttribute _error:nil];
+    NSString *title = [[[core db] library] valueForFile:currentFile attribute:PRTitleFileAttribute];
+    NSString *artist = [[[core db] library] valueForFile:currentFile attribute:PRArtistFileAttribute];
+    NSString *album = [[[core db] library] valueForFile:currentFile attribute:PRAlbumFileAttribute];
+    NSNumber *time = [[[core db] library] valueForFile:currentFile attribute:PRTimeFileAttribute];
         
     if (!title || !artist) {
         return;
@@ -186,14 +182,10 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 
 - (void)scrobbleCurrentFile
 {
-    NSString *title;
-    NSString *artist;
-    NSString *album;
-    NSNumber *time;
-    [[[core db] library] value:&title forFile:currentFile attribute:PRTitleFileAttribute _error:nil];
-    [[[core db] library] value:&artist forFile:currentFile attribute:PRArtistFileAttribute _error:nil];
-    [[[core db] library] value:&album forFile:currentFile attribute:PRAlbumFileAttribute _error:nil];
-    [[[core db] library] value:&time forFile:currentFile attribute:PRTimeFileAttribute _error:nil];
+    NSString *title = [[[core db] library] valueForFile:currentFile attribute:PRTitleFileAttribute];
+    NSString *artist = [[[core db] library] valueForFile:currentFile attribute:PRArtistFileAttribute];
+    NSString *album = [[[core db] library] valueForFile:currentFile attribute:PRAlbumFileAttribute];
+    NSNumber *time = [[[core db] library] valueForFile:currentFile attribute:PRTimeFileAttribute];
     
     if (!(playTime > [time intValue]/2000 || playTime > 240)) {
         return;

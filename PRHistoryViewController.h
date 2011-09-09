@@ -26,10 +26,11 @@ typedef enum {
     IBOutlet NSButton *recentlyPlayedButton;
     
     NSArray *dataSource;
+    NSCache *artworkCache;
     
     PRHistoryMode2 historyMode;
 	
-	// Database, history, library, main window controller. (weak)
+	// Weak
 	PRDb *db;
 	PRHistory *history;
 	PRLibrary *library;

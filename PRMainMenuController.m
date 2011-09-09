@@ -95,6 +95,13 @@
         [menuItem setTarget:self];
         [menuItem setAction:@selector(showCurrentSong)];
         
+        menuItem = [viewMenu itemWithTag:6];
+        [menuItem setTarget:nil];
+        [menuItem setAction:@selector(toggleFullScreen:)];
+        if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_6) {
+            [menuItem setHidden:TRUE];
+        }
+        
         // Controls Menu
         menuItem = [controlsMenu itemWithTag:1];
         [menuItem setTarget:[core now]];

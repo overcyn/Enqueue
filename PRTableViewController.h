@@ -7,9 +7,6 @@
 PRNumberFormatter, PRSizeFormatter, PRTimeFormatter, PRBitRateFormatter, PRKindFormatter, PRDateFormatter,
 PRStringFormatter;
 
-
-// PRTableViewController
-//
 @interface PRTableViewController : NSViewController <NSSplitViewDelegate, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate>
 {
 	IBOutlet NSTableView *libraryTableView;
@@ -38,10 +35,10 @@ PRStringFormatter;
     PRKindFormatter *kindFormatter;
     PRDateFormatter *dateFormatter;
 	
-	// Current playlist. Default -1.
+	// Default -1
 	int currentPlaylist;
 	
-	// variable thats true when refreshing so that tableViewSelectionDid change doesnt get triggered for 
+	// True when updating so that tableViewSelectionDidChange doesnt get triggered
 	BOOL refreshing;
 	
 	NSMenu *libraryMenu;
@@ -101,8 +98,9 @@ PRStringFormatter;
 // ========================================
 // UI Update
 
-- (void)reloadData;
-- (void)forceReloadData;
+- (void)reloadData:(BOOL)force;
+//- (void)reloadData;
+//- (void)forceReloadData;
 
 - (void)loadBrowser;
 - (void)saveBrowser;

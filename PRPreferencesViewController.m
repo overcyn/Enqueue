@@ -34,12 +34,10 @@
         
         // hotkeys
         for (NSDictionary *i in [self hotkeyDictionary]) {
-            NSDictionary *hotkey = 
-              [NSDictionary dictionaryWithObjectsAndKeys:
-               [i objectForKey:@"defaultCode"], @"code",
-               [i objectForKey:@"defaultKeyMask"], @"keyMask", nil];
-            NSDictionary *defaults = 
-              [NSDictionary dictionaryWithObject:hotkey forKey:[i objectForKey:@"userDefaultsKey"]];
+            NSDictionary *hotkey = [NSDictionary dictionaryWithObjectsAndKeys:
+                                    [i objectForKey:@"defaultCode"], @"code",
+                                    [i objectForKey:@"defaultKeyMask"], @"keyMask", nil];
+            NSDictionary *defaults = [NSDictionary dictionaryWithObject:hotkey forKey:[i objectForKey:@"userDefaultsKey"]];
             [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
         }
         [[NSUserDefaults standardUserDefaults] synchronize];
@@ -50,7 +48,7 @@
 
 - (void)awakeFromNib
 {
-    [(PRScrollView *)[self view] setMinimumSize:NSMakeSize(650, 824)];
+    [(PRScrollView *)[self view] setMinimumSize:NSMakeSize(650, 804)];
     [(PRScrollView *)[self view] setDocumentView:[background superview]];
     [(NSScrollView *)[self view] scrollToTop];
     
@@ -60,6 +58,9 @@
     [divider4 setColor:[NSColor colorWithCalibratedWhite:0.8 alpha:1.0]];
     
     // Album artist
+    [folderArtwork setTarget:self];
+    [folderArtwork setAction:@selector(toggleFolderArtwork)];
+    
     [sortWithAlbumArtist setTarget:self];
     [sortWithAlbumArtist setAction:@selector(toggleUseAlbumArtist)];
 
@@ -179,6 +180,7 @@
     // Misc preferences
     [sortWithAlbumArtist setState:[[PRUserDefaults userDefaults] useAlbumArtist]];
     [mediaKeys setState:[[PRUserDefaults userDefaults] mediaKeys]];
+    [folderArtwork setState:[[PRUserDefaults userDefaults] folderArtwork]];
     
     // Folders
     [foldersTableView reloadData];
@@ -244,6 +246,12 @@
 - (void)toggleMediaKeys
 {
     [[PRUserDefaults userDefaults] setMediaKeys:![[PRUserDefaults userDefaults] mediaKeys]];
+    [self updateUI];
+}
+
+- (void)toggleFolderArtwork
+{
+    [[PRUserDefaults userDefaults] setFolderArtwork:![[PRUserDefaults userDefaults] folderArtwork]];
     [self updateUI];
 }
 
@@ -531,10 +539,7 @@
     if (rating < 0 || rating > 100 || [now currentFile] == 0) {
         return;
     }
-    [[db library] setIntValue:rating 
-                      forFile:[now currentFile] 
-                    attribute:PRRatingFileAttribute 
-                       _error:nil];
+    [[db library] setValue:[NSNumber numberWithInt:rating] forFile:[now currentFile] attribute:PRRatingFileAttribute];
     NSDictionary *userInfo = [NSDictionary dictionaryWithObject:[NSArray arrayWithObject:[NSNumber numberWithInt:[now currentFile]]]
                                                          forKey:@"files"];
     [[NSNotificationCenter defaultCenter] postNotificationName:PRTagsDidChangeNotification 

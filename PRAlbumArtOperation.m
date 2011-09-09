@@ -29,25 +29,23 @@ NSString * const PRAWSSecretAccessKey = @"SkhTu0kx5hDvqhbD/m1yBEedJVUelza+v7hzrd
 - (void)main
 {
 	NSArray *fileIDArray;
-    PRAlbumArtController *albumArtController = [db albumArtController];
-	[library arrayOfFileIDsSortedByAlbumAndArtist:&fileIDArray _error:nil];
+//    PRAlbumArtController *albumArtController = [db albumArtController];
+//	[library arrayOfFileIDsSortedByAlbumAndArtist:&fileIDArray _error:nil];
 	
 	for (NSNumber *i in fileIDArray) {
         NSLog(@"%@",i);
         NSImage *albumArt = [self albumArtForFile:[i intValue]];
         if (albumArt) {
             NSLog(@"found");
-            [albumArtController setDownloadedAlbumArt:albumArt forFile:[i intValue] _error:nil];
+//            [albumArtController setDownloadedAlbumArt:albumArt forFile:[i intValue] _error:nil];
         }
 	}
 }
 
 - (NSImage *)albumArtForFile:(PRFile)file
 {
-	NSString *artist;
-	NSString *album;
-	[library value:&artist forFile:file	attribute:PRArtistFileAttribute _error:NULL];
-	[library value:&album forFile:file attribute:PRAlbumFileAttribute _error:NULL];
+	NSString *artist = [library valueForFile:file attribute:PRArtistFileAttribute];
+	NSString *album = [library valueForFile:file attribute:PRAlbumFileAttribute];
 	
 	if ([artist isEqualToString:@""] || [album isEqualToString:@""]) {
         return nil;

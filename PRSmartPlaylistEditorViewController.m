@@ -41,7 +41,7 @@
 				options:nil];
 	
 	[collectionView setMaxNumberOfRows:1];
-	[collectionView setItemPrototype:[[PRRuleViewController alloc] initWithLib:[[_core db] library]]];
+	[collectionView setItemPrototype:[[[PRRuleViewController alloc] initWithLib:[[_core db] library]] autorelease]];
     [self updateContent];
 }
 

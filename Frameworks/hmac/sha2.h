@@ -85,7 +85,8 @@ void sha256_update(sha256_ctx *ctx, const unsigned char *message,
 void sha256_final(sha256_ctx *ctx, unsigned char *digest);
 void sha256(const unsigned char *message, unsigned int len,
             unsigned char *digest);
-
+void sha256_transf(sha256_ctx *ctx, const unsigned char *message,
+                   unsigned int block_nb);
 void sha384_init(sha384_ctx *ctx);
 void sha384_update(sha384_ctx *ctx, const unsigned char *message,
                    unsigned int len);
@@ -99,6 +100,9 @@ void sha512_update(sha512_ctx *ctx, const unsigned char *message,
 void sha512_final(sha512_ctx *ctx, unsigned char *digest);
 void sha512(const unsigned char *message, unsigned int len,
             unsigned char *digest);
+void sha512_transf(sha512_ctx *ctx, const unsigned char *message,
+                   unsigned int block_nb);
+
 
 #ifdef __cplusplus
 }

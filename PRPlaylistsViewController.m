@@ -8,7 +8,7 @@
 #import "PRRolloverTableView.h"
 #import "NSScrollView+Extensions.h"
 #import "PRStringFormatter.h"
-#import "PRLog.h"
+#import "PREnqueue.h"
 #import "PRSmartPlaylistEditorViewController.h"
 #import "PRCore.h"
 
@@ -232,8 +232,7 @@
             icon = [NSImage imageNamed:@"NSListViewTemplate"];
             break;
         default:
-            icon = [NSImage imageNamed:@"NSListViewTemplate"];
-            [[PRLog sharedLog] presentFatalError:nil];
+            [PRException raise:NSInternalInconsistencyException format:@"Invalid Playlist Type"];
             break;
     }
     bool delete = !([[[_datasource objectAtIndex:row] objectForKey:@"type"] intValue] == PRNowPlayingPlaylistType);

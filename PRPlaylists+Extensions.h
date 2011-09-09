@@ -2,13 +2,18 @@
 #import "PRPlaylists.h"
 #import "PRLibraryViewController.h"
 
+typedef enum {
+    PRBrowserPositionHorizontal = 0, 
+    PRBrowserPositionVertical = 1, 
+    PRBrowserPositionHidden = 2,
+} PRBrowserPosition;
 
 @interface PRPlaylists (PRPlaylists_Extensions)
 
 - (NSMutableDictionary *)browserInfoForPlaylist:(PRPlaylist)playlist;
 - (void)setBrowserInfo:(NSMutableDictionary *)browserInfo forPlaylist:(PRPlaylist)playlist;
-- (BOOL)isVerticalForPlaylist:(PRPlaylist)playlist;
-- (void)setVertical:(BOOL)vertical forPlaylist:(PRPlaylist)playlist;
+- (int)isVerticalForPlaylist:(PRPlaylist)playlist;
+- (void)setVertical:(int)vertical forPlaylist:(PRPlaylist)playlist;
 - (float)verticalBrowser3WidthForPlaylist:(PRPlaylist)playlist;
 - (void)setVerticalBrowser3Width:(float)width forPlaylist:(PRPlaylist)playlist;
 - (float)horizontalBrowserHeightForPlaylist:(PRPlaylist)playlist;

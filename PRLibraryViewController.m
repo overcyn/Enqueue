@@ -131,8 +131,7 @@ NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDid
 	[centerSuperview replaceSubview:[oldViewController view] with:[currentViewController view]];    
 	[currentViewController setCurrentPlaylist:playlist];    
     
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRLibraryViewModeDidChangeNotification 
-														object:self];
+	[[NSNotificationCenter defaultCenter] postNotificationName:PRLibraryViewModeDidChangeNotification object:self];
     [[NSNotificationCenter defaultCenter] postNotificationName:PRLibraryViewSelectionDidChangeNotification object:currentViewController];
 }
 

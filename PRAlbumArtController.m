@@ -27,148 +27,243 @@
 // Accessors
 // ========================================
 
-- (BOOL)albumArt:(NSImage **)albumArt
-		 forFile:(PRFile)file
-		  _error:(NSError **)error
+- (NSDictionary *)artworkInfoForFile:(PRFile)file
 {
-	*albumArt = nil;
-    NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
-    int isAlbumArt;
-    if (![db intValue:&isAlbumArt 
-            forColumn:[PRLibrary columnNameForFileAttribute:PRAlbumArtFileAttribute] 
-                  row:file 
-                  key:@"file_id"
-                table:@"library"
-               _error:nil]) {
-        return FALSE;
-    }
-    
-    BOOL isDirectory;
-    BOOL fileExists = [fileManager fileExistsAtPath:[self cachedAlbumArtPathForFile:file] isDirectory:&isDirectory];
-    if (fileExists && !isDirectory) {
-		*albumArt = [[[NSImage alloc] initWithContentsOfFile:[self cachedAlbumArtPathForFile:file]] autorelease];
-		if (!*albumArt || ![*albumArt isValid]) {
-            [fileManager removeItemAtPath:[self cachedAlbumArtPathForFile:file] error:nil];
-            *albumArt = nil;
-		}
-	}
-    
-    if (*albumArt) {
-        return TRUE;
-    }
-    
-    fileExists = [fileManager fileExistsAtPath:[self downloadedAlbumArtPathForFile:file] isDirectory:&isDirectory];
-    if (fileExists && !isDirectory) {
-		*albumArt = [[[NSImage alloc] initWithContentsOfFile:[self downloadedAlbumArtPathForFile:file]] autorelease];
-		
-		if (!*albumArt || ![*albumArt isValid]) {
-            NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
-            [fileManager removeItemAtPath:[self downloadedAlbumArtPathForFile:file] error:nil];
-            *albumArt = nil;
-		}
-	}
-
-    if (*albumArt) {
-        return TRUE;
-    } else {
-        [db setValue:[NSNumber numberWithInt:0] 
-           forColumn:[PRLibrary columnNameForFileAttribute:PRAlbumArtFileAttribute] 
-                 row:file
-                 key:@"file_id" 
-               table:@"Library" 
-              _error:nil];
-    }
-    return TRUE;
+    return [self artworkInfoForFiles:[NSIndexSet indexSetWithIndex:file]];
 }
 
-- (BOOL)albumArt:(NSImage **)albumArt
-       forArtist:(NSString *)artist
-          _error:(NSError **)error
+- (NSDictionary *)artworkInfoForFiles:(NSIndexSet *)files
 {
+    NSMutableString *string = [NSMutableString stringWithString:@"SELECT file_id FROM library WHERE file_id IN ("];
+    NSInteger index = [files firstIndex];
+    while (index != NSNotFound) {
+        [string appendFormat:@"%d, ", index];
+        index = [files indexGreaterThanIndex:index];
+    }
+    [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
+    [string appendString:@") AND albumArt = 1"];
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *results = [db execute:string bindings:nil columns:columns];
+    
+    NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
+    for (NSArray *i in results) {
+        [indexSet addIndex:[[i objectAtIndex:0] intValue]];
+    }
+    
+    // Artwork in Folder
+    if (![[PRUserDefaults userDefaults] folderArtwork]) {
+        return [NSDictionary dictionaryWithObjectsAndKeys:indexSet, @"files", [NSArray array], @"paths", nil];
+    }
+    
+    string = [NSMutableString stringWithString:@"SELECT path FROM library WHERE file_id IN ("];
+    index = [files firstIndex];
+    while (index != NSNotFound) {
+        [string appendFormat:@"%d, ", index];
+        index = [files indexGreaterThanIndex:index];
+    }
+    [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
+    [string appendString:@")"];
+    columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnString], nil];
+    results = [db execute:string bindings:nil columns:columns];
+    
+    NSMutableArray *paths = [NSMutableArray array];
+    for (NSArray *i in results) {
+        [paths addObject:[i objectAtIndex:0]];
+    }
+    
+    return [NSDictionary dictionaryWithObjectsAndKeys:indexSet, @"files", paths, @"paths", nil];
+}
 
+- (NSDictionary *)artworkInfoForArtist:(NSString *)artist
+{
+    NSString *string;
+    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
+        string = @"SELECT file_id FROM library WHERE artistAlbumArtist COLLATE NOCASE2 = ?1";
+    } else {
+        string = @"SELECT file_id FROM library WHERE artist COLLATE NOCASE2 = ?1";
+    }
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               artist, [NSNumber numberWithInt:1], nil];
-    NSArray *result;
-    
-    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
-        if (![db executeStatement:@"SELECT file_id FROM library WHERE artistAlbumArtist COLLATE NOCASE2 = ?1 AND albumArt = 1"
-                     withBindings:bindings 
-                           result:&result 
-                           _error:nil]) {
-            return FALSE;
-        }
-    } else {
-        if (![db executeStatement:@"SELECT file_id FROM library WHERE artist COLLATE NOCASE2 = ?1 AND albumArt = 1"
-                     withBindings:bindings 
-                           result:&result 
-                           _error:nil]) {
-            return FALSE;
-        }
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *results = [db execute:string bindings:bindings columns:columns];
+    NSMutableIndexSet *files = [NSMutableIndexSet indexSet];
+    for (NSArray *i in results) {
+        [files addIndex:[[i objectAtIndex:0] intValue]];
     }
-    
-    *albumArt = nil;
-    for (NSNumber *i in result) {
-        [self albumArt:albumArt forFile:[i intValue] _error:nil];
-        if (*albumArt != nil) {
-            break;
-        }
-    }
-    return TRUE;
+    return [self artworkInfoForFiles:files];
 }
 
-- (BOOL)setCachedAlbumArt:(NSImage *)albumArt 
-                  forFile:(PRFile)file 
-				   _error:(NSError **)error
+- (NSImage *)artworkForArtworkInfo:(NSDictionary *)info
 {
-    if (![albumArt isValid]) {
+    NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
+    NSIndexSet *files = [info objectForKey:@"files"];
+    NSArray *paths = [info objectForKey:@"paths"];
+    
+    NSInteger file = [files firstIndex];
+    while (file != NSNotFound) {
+        BOOL isDirectory;
+        BOOL fileExists = [fileManager fileExistsAtPath:[self cachedAlbumArtPathForFile:file] isDirectory:&isDirectory];
+        if (fileExists && !isDirectory) {
+            NSImage *albumArt = [[[NSImage alloc] initWithContentsOfFile:[self cachedAlbumArtPathForFile:file]] autorelease];
+            if (albumArt || [albumArt isValid]) {
+                return albumArt;
+            } 
+        }
+        file = [files indexGreaterThanIndex:file];
+    }
+    
+    NSMutableSet *folderPaths = [NSMutableSet set];
+    for (NSString *path in paths) {
+        NSURL *URL = [NSURL URLWithString:path];
+        URL = [NSURL fileURLWithPath:[[URL path] stringByDeletingLastPathComponent]];
+        if (!URL || [folderPaths containsObject:[URL absoluteString]]) {
+            continue;
+        }
+        [folderPaths addObject:[URL absoluteString]];
+        NSError *error;
+        NSArray *contents = [fileManager contentsOfDirectoryAtURL:URL 
+                                       includingPropertiesForKeys:[NSArray array] 
+                                                          options:0 
+                                                            error:&error];
+        if (!contents) {
+            continue;
+        }
+        for (NSURL *content in contents) {
+            NSString *pathExtension = [content pathExtension];
+            if ([pathExtension caseInsensitiveCompare:@"jpg"] == NSOrderedSame ||
+                [pathExtension caseInsensitiveCompare:@"jpeg"] == NSOrderedSame ||
+                [pathExtension caseInsensitiveCompare:@"png"] == NSOrderedSame) {
+                NSImage *albumArt = [[[NSImage alloc] initWithContentsOfFile:[content path]] autorelease];
+                if (albumArt && [albumArt isValid]) {
+                    return albumArt;
+                }
+            }
+        }
+    }
+
+    return nil;
+}
+
+- (NSImage *)albumArtForFile:(PRFile)file
+{
+    return [self albumArtForFiles:[NSIndexSet indexSetWithIndex:file]];
+}
+
+- (NSImage *)albumArtForFiles:(NSIndexSet *)files
+{
+    // Cached album art
+    NSMutableString *string = [NSMutableString stringWithString:@"SELECT file_id FROM library WHERE file_id IN ("];
+    NSInteger index = [files firstIndex];
+    while (index != NSNotFound) {
+        [string appendFormat:@"%d, ", index];
+        index = [files indexGreaterThanIndex:index];
+    }
+    [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
+    [string appendString:@") AND albumArt = 1"];
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *results = [db execute:string bindings:nil columns:columns];
+    NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
+    for (NSArray *i in results) {
+        PRFile file = [[i objectAtIndex:0] intValue];
+        BOOL isDirectory;
+        BOOL fileExists = [fileManager fileExistsAtPath:[self cachedAlbumArtPathForFile:file] isDirectory:&isDirectory];
+        if (fileExists && !isDirectory) {
+            NSImage *albumArt = [[[NSImage alloc] initWithContentsOfFile:[self cachedAlbumArtPathForFile:file]] autorelease];
+            if (!albumArt || ![albumArt isValid]) {
+                [fileManager removeItemAtPath:[self cachedAlbumArtPathForFile:file] error:nil];
+                [[db library] setValue:[NSNumber numberWithBool:FALSE] forFile:file attribute:PRAlbumArtFileAttribute];
+            } else {
+                return albumArt;
+            }
+        }
+    }
+    
+    // Artwork in Folder
+    if (![[PRUserDefaults userDefaults] folderArtwork]) {
+        return nil;
+    }
+    
+    string = [NSMutableString stringWithString:@"SELECT path FROM library WHERE file_id IN ("];
+    index = [files firstIndex];
+    while (index != NSNotFound) {
+        [string appendFormat:@"%d, ", index];
+        index = [files indexGreaterThanIndex:index];
+    }
+    [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
+    [string appendString:@")"];
+    columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnString], nil];
+    results = [db execute:string bindings:nil columns:columns];
+    NSMutableSet *paths = [NSMutableSet set];
+    for (NSArray *i in results) {
+        NSURL *URL = [NSURL URLWithString:[i objectAtIndex:0]];
+        URL = [NSURL fileURLWithPath:[[URL path] stringByDeletingLastPathComponent]];
+        if (!URL || [paths containsObject:[URL absoluteString]]) {
+            continue;
+        } else {
+            [paths addObject:[URL absoluteString]];
+        }
+        NSError *error;
+        NSArray *directoryURLs = [fileManager contentsOfDirectoryAtURL:URL 
+                                            includingPropertiesForKeys:[NSArray array] 
+                                                                options:0 
+                                                                  error:&error];
+        if (!directoryURLs) {
+            continue;
+        }
+        for (NSURL *directoryURL in directoryURLs) {
+            NSString *pathExtension = [directoryURL pathExtension];
+            if ([pathExtension caseInsensitiveCompare:@"jpg"] == NSOrderedSame ||
+                [pathExtension caseInsensitiveCompare:@"jpeg"] == NSOrderedSame ||
+                [pathExtension caseInsensitiveCompare:@"png"] == NSOrderedSame) {
+                NSImage *albumArt = [[[NSImage alloc] initWithContentsOfFile:[directoryURL path]] autorelease];
+                if (albumArt && [albumArt isValid]) {
+                    return albumArt;
+                }
+            }
+        }
+    }
+    return nil;
+}
+
+- (NSImage *)albumArtForArtist:(NSString *)artist
+{
+    NSString *string;
+    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
+        string = @"SELECT file_id FROM library WHERE artistAlbumArtist COLLATE NOCASE2 = ?1";
+    } else {
+        string = @"SELECT file_id FROM library WHERE artist COLLATE NOCASE2 = ?1";
+    }
+    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
+                              artist, [NSNumber numberWithInt:1], nil];
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *results = [db execute:string bindings:bindings columns:columns];
+    NSMutableIndexSet *files = [NSMutableIndexSet indexSet];
+    for (NSArray *i in results) {
+        [files addIndex:[[i objectAtIndex:0] intValue]];
+    }
+    return [self albumArtForFiles:files];
+}
+
+- (void)setCachedAlbumArt:(NSImage *)image forFile:(PRFile)file;
+{
+    if (![image isValid]) {
         [self clearAlbumArtForFile:file];
-        return FALSE;
+        return;
     }
 	
     NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
-    NSData *data = [albumArt jpegRepresentationWithCompressionFactor:0.8];
+    NSData *data = [image jpegRepresentationWithCompressionFactor:0.8];
 	NSString *path = [self cachedAlbumArtPathForFile:file];
 	if (![fileManager findOrCreateDirectoryAtPath:[path stringByDeletingLastPathComponent] error:nil]) {
         [self clearAlbumArtForFile:file];
-		return FALSE;
-	}
+        return;
+    }
 	if (![data writeToFile:path atomically:TRUE]) {
         [self clearAlbumArtForFile:file];
-		return FALSE;
+		return;
 	}
-    if (![[db library] setValue:[NSNumber numberWithInt:1] forFile:file attribute:PRAlbumArtFileAttribute _error:nil]) {
-        return FALSE;
-    }
-	return TRUE;
-}
-
-- (BOOL)setDownloadedAlbumArt:(NSImage *)albumArt
-                      forFile:(PRFile)file
-					   _error:(NSError **)error
-{	
-    if (![albumArt isValid]) {
-        return FALSE;
-    }
-	
-	NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
-    NSData *data = [albumArt jpegRepresentationWithCompressionFactor:0.8];
-	NSString *path = [self downloadedAlbumArtPathForFile:file];
-	
-	if (![fileManager findOrCreateDirectoryAtPath:[path stringByDeletingLastPathComponent] error:nil]) {
-		return FALSE;
-	}
-	if (![data writeToFile:path atomically:TRUE]) {
-		return FALSE;
-	}
-    if (![db setValue:[NSNumber numberWithInt:1] 
-            forColumn:[PRLibrary columnNameForFileAttribute:PRAlbumArtFileAttribute] 
-                  row:file
-                  key:@"file_id" 
-                table:@"Library" 
-               _error:nil]) {
-        return FALSE;
-    }
-	return TRUE;
+    [[db library] setValue:[NSNumber numberWithBool:TRUE] forFile:file attribute:PRAlbumArtFileAttribute];
+	return;
 }
 
 // ========================================
@@ -206,21 +301,12 @@
     NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
     [fileManager removeItemAtPath:[self cachedAlbumArtPathForFile:file] error:nil];
     [fileManager removeItemAtPath:[self downloadedAlbumArtPathForFile:file] error:nil];
-    [[db library] setValue:[NSNumber numberWithInt:0] forFile:file attribute:PRAlbumArtFileAttribute _error:nil];
+    [[db library] setValue:[NSNumber numberWithInt:0] forFile:file attribute:PRAlbumArtFileAttribute];
 }
 
 - (BOOL)fileHasAlbumArt:(PRFile)file
 {
-    int isAlbumArt;
-    if (![db intValue:&isAlbumArt 
-            forColumn:[PRLibrary columnNameForFileAttribute:PRAlbumArtFileAttribute] 
-                  row:file 
-                  key:@"file_id"
-                table:@"library"
-               _error:nil]) {
-        return FALSE;
-    }
-
+    int isAlbumArt = [[[db library] valueForFile:file attribute:PRAlbumArtFileAttribute] intValue];
     return isAlbumArt;
 }
 

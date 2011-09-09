@@ -18,25 +18,16 @@
         icon = [NSImage imageNamed:@"PRLightAlbumArt"];
     }
     
-    NSString *artist;
-	NSString *album;
-    NSString *albumArtist;
-	NSNumber *year;
-	[[db library] value:&album forFile:file attribute:PRAlbumFileAttribute _error:nil];
-	[[db library] value:&artist forFile:file attribute:PRArtistFileAttribute _error:nil];
-    [[db library] value:&albumArtist forFile:file attribute:PRAlbumArtistFileAttribute _error:nil];
-	[[db library] value:&year forFile:file attribute:PRYearFileAttribute _error:nil];
+    NSString *artist = [[db library] valueForFile:file attribute:PRAlbumFileAttribute];
+	NSString *album = [[db library] comparisonArtistForFile:file];
+	NSNumber *year = [[db library] valueForFile:file attribute:PRYearFileAttribute];
     
 	// Inset the cell frame to give everything a little horizontal padding
 	NSRect insetRect = NSInsetRect(theCellFrame, 8, 8);
 	NSSize iconSize = NSMakeSize(150, 150);
     [icon setFlipped:TRUE];
 	
-	// Make attributes for our strings
-    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
-	[shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.1]];
-	[shadow setShadowOffset:NSMakeSize(1.1, -1.3)];
-	
+	// Make attributes for our strings	
 	NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
 	[paragraphStyle setLineBreakMode:NSLineBreakByTruncatingTail];
     [paragraphStyle setAlignment:NSCenterTextAlignment];
@@ -45,23 +36,18 @@
       [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
         [NSFont boldSystemFontOfSize:11], NSFontAttributeName,
         paragraphStyle, NSParagraphStyleAttributeName,
-//        shadow, NSShadowAttributeName,
         [NSColor colorWithCalibratedWhite:0.2 alpha:1.0], NSForegroundColorAttributeName,
         nil] autorelease];
 	NSMutableDictionary *subtitleAttributes = 
       [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
         [NSFont systemFontOfSize:11], NSFontAttributeName,
         paragraphStyle, NSParagraphStyleAttributeName,
-//        shadow, NSShadowAttributeName,
         [NSColor colorWithCalibratedWhite:0.2 alpha:1.0], NSForegroundColorAttributeName,
         nil] autorelease];
 	
 	// Make a Title string
 	NSString *title = album;
     NSString *subtitle = artist;
-    if ([[PRUserDefaults userDefaults] useAlbumArtist] && ![albumArtist isEqualToString:@""]) {
-        subtitle = albumArtist;
-    }
 	NSString *subSubtitle = [year stringValue];
     
     if ([title isEqualToString:@""]) {
@@ -133,7 +119,7 @@
     
     // drawBorder
     [NSGraphicsContext saveGraphicsState];
-    shadow = [[[NSShadow alloc] init] autorelease];
+    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
     [shadow setShadowOffset:NSMakeSize(0.0, -1.7)];
     [shadow setShadowBlurRadius:3];
     [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.4 alpha:1.0]];	
@@ -144,15 +130,11 @@
     [NSGraphicsContext restoreGraphicsState];
     
     // draw image
-        [image drawInRect:drawnRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0]; 
-    
-    //    [icon drawCenteredinRect:iconBox operation:NSCompositeSourceOver fraction:1.0];
+    [image drawInRect:drawnRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0]; 
     
 	// draw the text
 	[title drawInRect:titleBox withAttributes:titleAttributes];
-//    [[NSString stringWithFormat:@"%@ - %@", subtitle, subSubtitle] drawInRect:subtitleBox withAttributes:subtitleAttributes];
 	[subtitle drawInRect:subtitleBox withAttributes:subtitleAttributes];
-//    [subSubtitle drawInRect:subSubtitleBox withAttributes:subtitleAttributes];
 }
 
 - (NSRect)expansionFrameWithFrame:(NSRect)cellFrame inView:(NSView *)view

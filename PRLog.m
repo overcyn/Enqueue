@@ -83,13 +83,39 @@ static PRLog *sharedLog = nil;
 
 - (void)presentFatalError:(NSError *)error
 {
-    NSLog(@"blah:%@",error);
-    [self performSelectorInBackground:@selector(presentFatalError_:) withObject:nil];
+    NSAlert *alert = [NSAlert alertWithError:error];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert addButtonWithTitle:@"Close Enqueue"];
+    
+    NSButton *closeButton = [[alert buttons] objectAtIndex:0];
+    [closeButton setTarget:self];
+    [closeButton setAction:@selector(close)];
+    [alert runModal];
 }
 
 - (void)presentFatalError_:(NSError *)error
 {
-    [NSException raise:@"blahoeuntoh" format:@"reason"];
+    NSAlert *alert = [NSAlert alertWithError:error];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert addButtonWithTitle:@"Close Enqueue"];
+    
+    NSButton *closeButton = [[alert buttons] objectAtIndex:0];
+    [closeButton setTarget:self];
+    [closeButton setAction:@selector(close)];
+    [alert runModal];
+    
+    CFRunLoopRef runLoop = CFRunLoopGetMain();
+    CFArrayRef allModes = CFRunLoopCopyAllModes(runLoop);
+    for (NSString *mode in (NSArray *)allModes) {
+        CFRunLoopRunInMode((CFStringRef)mode, 0.001, false);
+    }
+    CFRelease(allModes);
+}
+
+- (void)close
+{
+    [NSApp terminate:nil];
+    exit(EXIT_FAILURE);
 }
 
 @end

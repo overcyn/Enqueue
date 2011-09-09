@@ -16,8 +16,7 @@
         ([browserInfo objectForKey:@"horizontalBrowserHeight"] && ![[browserInfo objectForKey:@"horizontalBrowserHeight"] isKindOfClass:[NSNumber class]])) {
         return [NSMutableDictionary dictionary];
     }
-    NSMutableDictionary *browserInfoMutable = [NSMutableDictionary dictionaryWithDictionary:browserInfo];
-    return browserInfoMutable;
+    return [NSMutableDictionary dictionaryWithDictionary:browserInfo];
 }
 
 - (void)setBrowserInfo:(NSMutableDictionary *)browserInfo forPlaylist:(PRPlaylist)playlist
@@ -29,20 +28,24 @@
 
 }
 
-- (BOOL)isVerticalForPlaylist:(PRPlaylist)playlist
+- (int)isVerticalForPlaylist:(PRPlaylist)playlist
 {
     NSNumber *isVertical = [[self browserInfoForPlaylist:playlist] objectForKey:@"isVertical"];
     if (isVertical) {
-        return [isVertical boolValue];
+        return [isVertical intValue];
     } else {
-        return FALSE;
+        if (playlist == [self libraryPlaylist]) {
+            return PRBrowserPositionHorizontal;
+        } else {
+            return PRBrowserPositionHidden;
+        }
     }
 }
 
-- (void)setVertical:(BOOL)vertical forPlaylist:(PRPlaylist)playlist
+- (void)setVertical:(int)vertical forPlaylist:(PRPlaylist)playlist
 {
     NSMutableDictionary *browserInfo = [self browserInfoForPlaylist:playlist];
-    [browserInfo setObject:[NSNumber numberWithBool:vertical] forKey:@"isVertical"];
+    [browserInfo setObject:[NSNumber numberWithInt:vertical] forKey:@"isVertical"];
     [self setBrowserInfo:browserInfo forPlaylist:playlist];
 }
 

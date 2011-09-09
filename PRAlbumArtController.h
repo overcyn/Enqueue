@@ -18,19 +18,16 @@
 // ========================================
 // Accessors
 
-- (BOOL)albumArt:(NSImage **)albumArt
-		 forFile:(PRFile)file
-		  _error:(NSError **)error;
-- (BOOL)albumArt:(NSImage **)albumArt
-       forArtist:(NSString *)artist
-          _error:(NSError **)error;
+- (NSDictionary *)artworkInfoForFile:(PRFile)file;
+- (NSDictionary *)artworkInfoForFiles:(NSIndexSet *)files;
+- (NSDictionary *)artworkInfoForArtist:(NSString *)artist;
+- (NSImage *)artworkForArtworkInfo:(NSDictionary *)info;
 
-- (BOOL)setDownloadedAlbumArt:(NSImage *)albumArt
-                      forFile:(PRFile)file
-					   _error:(NSError **)error;
-- (BOOL)setCachedAlbumArt:(NSImage *)albumArt 
-                  forFile:(PRFile)file 
-                   _error:(NSError **)error;
+- (NSImage *)albumArtForFile:(PRFile)file;
+- (NSImage *)albumArtForFiles:(NSIndexSet *)files;
+- (NSImage *)albumArtForArtist:(NSString *)artist;
+
+- (void)setCachedAlbumArt:(NSImage *)image forFile:(PRFile)file;
 
 // ========================================
 // Misc

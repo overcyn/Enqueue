@@ -1,4 +1,5 @@
 #import "PRNowPlayingViewSource.h"
+#import "PREnqueue.h"
 #import "PRDb.h"
 #import "PRUserDefaults.h"
 
@@ -22,16 +23,13 @@
 
 }
 
-- (void)initialize
+- (BOOL)initialize
 {	
     NSString *string = @"CREATE TEMP TABLE now_playing_view_source ("
     "row INTEGER NOT NULL PRIMARY KEY, "
-    "file_id INTEGER NOT NULL)";
-    [db executeString:string];
-}
-
-- (BOOL)validate
-{
+    "file_id INTEGER NOT NULL "
+    ")";
+    [db execute:string];
     return TRUE;
 }
 
@@ -40,18 +38,15 @@
 // ========================================
 
 - (BOOL)refreshWithPlaylist:(PRPlaylist)playlist 
-					   sort:(PRFileAttribute)attribute 
-				  ascending:(BOOL)asc 
-					 _error:(NSError **)error
 {
     NSString *string = @"DELETE FROM now_playing_view_source";
-    [db executeString:string];
+    [db execute:string];
     
     string = @"INSERT INTO now_playing_view_source (file_id) "
     "SELECT file_id FROM playlist_items WHERE playlist_id = ?1 ORDER BY playlist_index";
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
     return TRUE;
 }
 
@@ -59,53 +54,51 @@
 // Accessors
 // ========================================
 
-- (BOOL)count:(int *)count _error:(NSError **)error
+- (int)count
 {
-	if (![db count:count forTable:@"now_playing_view_source" _error:error]) {
-        return FALSE;
-    }    
-    return TRUE;
-}
-
-- (BOOL)file:(PRFile *)file forRow:(int)row _error:(NSError **)error
-{
-    return [db intValue:(int *)file 
-              forColumn:@"file_id" 
-                    row:row 
-                    key:@"row" 
-                  table:@"now_playing_view_source" 
-                 _error:nil];
-}
-
-- (BOOL)arrayOfAlbumCounts:(NSArray **)albumCounts _error:(NSError **)error
-{
-    NSArray *results;
-    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
-        if (![db executeStatement:@"SELECT library.album, library.artistAlbumArtist "
-              "FROM now_playing_view_source "
-              "JOIN library ON now_playing_view_source.file_id = library.file_id"
-                     withBindings:nil 
-                           result:&results 
-                           _error:nil]) {
-            return FALSE;
-        }
-	} else {
-        if (![db executeStatement:@"SELECT library.album, library.artist "
-              "FROM now_playing_view_source "
-              "JOIN library ON now_playing_view_source.file_id = library.file_id"
-                     withBindings:nil 
-                           result:&results 
-                           _error:nil]) {
-            return FALSE;
-        }
+    NSString *string = @"SELECT COUNT(*) FROM now_playing_view_source";
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *result = [db execute:string bindings:nil columns:columns];
+    if ([result count] != 1) {
+        [PRException raise:PRDbInconsistencyException format:@""];
     }
+    return [[result objectAtIndex:0] intValue];
+}
+
+- (PRFile)fileForRow:(int)row
+{
+    NSString *string = @"SELECT file_id FROM now_playing_view_source WHERE row = ?1";
+    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
+                              [NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil];
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *results = [db execute:string bindings:bindings columns:columns];
+    if ([results count] != 1) {
+        [PRException raise:PRDbInconsistencyException format:@""];
+    }
+    return [[[results objectAtIndex:0] objectAtIndex:0] intValue];
+}
+
+- (NSArray *)albumCounts
+{
+    NSString *string;
+    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
+        string = @"SELECT library.album, library.artistAlbumArtist "
+        "FROM now_playing_view_source "
+        "JOIN library ON now_playing_view_source.file_id = library.file_id";
+	} else {
+        string = @"SELECT library.album, library.artist "
+        "FROM now_playing_view_source "
+        "JOIN library ON now_playing_view_source.file_id = library.file_id";
+    }
+    NSArray *columns = [NSArray arrayWithObjects:
+                        [NSNumber numberWithInt:PRColumnString], 
+                        [NSNumber numberWithInt:PRColumnString], nil];
+    NSArray *results = [db execute:string bindings:nil columns:columns];
     
     if ([results count] == 0) {
-        *albumCounts = [NSArray array];
-        return TRUE;
+        return [NSArray array];
     } else if ([results count] == 1) {
-        *albumCounts = [NSArray arrayWithObject:[NSNumber numberWithInt:1]];
-        return TRUE;
+        return [NSArray arrayWithObject:[NSNumber numberWithInt:1]];
     }
     
     NSMutableArray *array = [NSMutableArray array];
@@ -116,19 +109,16 @@
         NSString *artistString = [[results objectAtIndex:i] objectAtIndex:1];
         NSString *albumString2 = [[results objectAtIndex:i + 1] objectAtIndex:0];
         NSString *artistString2 = [[results objectAtIndex:i + 1] objectAtIndex:1];
-        if (no_case(nil, [albumString lengthOfBytesUsingEncoding:NSUTF16StringEncoding], [albumString cStringUsingEncoding:NSUTF16StringEncoding], 
-                    [albumString2 lengthOfBytesUsingEncoding:NSUTF16StringEncoding], [albumString2 cStringUsingEncoding:NSUTF16StringEncoding]) != 0 ||
-            no_case(nil, [artistString lengthOfBytesUsingEncoding:NSUTF16StringEncoding], [artistString cStringUsingEncoding:NSUTF16StringEncoding], 
-                    [artistString2 lengthOfBytesUsingEncoding:NSUTF16StringEncoding], [artistString2 cStringUsingEncoding:NSUTF16StringEncoding]) != 0) {
-            [array addObject:[NSNumber numberWithInt:count]];
-            count = 0;
-        }
+        if ([albumString noCaseCompare:albumString2] != NSOrderedSame ||
+            [artistString noCaseCompare:artistString2] != NSOrderedSame) {
+                [array addObject:[NSNumber numberWithInt:count]];
+                count = 0;
+            }
         count++;
     }
     
     [array addObject:[NSNumber numberWithInt:count]];
-    *albumCounts = [NSArray arrayWithArray:array];
-    return TRUE;
+    return array;
 }
 
 @end

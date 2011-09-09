@@ -1,4 +1,5 @@
 #import "PRHistoryViewController.h"
+#import "PREnqueue.h"
 #import "PRDb.h"
 #import "PRHistory.h"
 #import "PRLibrary.h"
@@ -10,7 +11,6 @@
 #import "PRGradientView.h"
 #import "PRRolloverTableView.h"
 #import "NSScrollView+Extensions.h"
-#import "PRLog.h"
 
 
 @implementation PRHistoryViewController
@@ -28,6 +28,8 @@
 		db = db_;
 		mainWindowController = mainWindowController_;
         historyMode = PRTopArtistsHistoryMode;
+        artworkCache = [[NSCache alloc] init];
+        [artworkCache setCountLimit:50];
 	}
 	return self;
 }
@@ -110,11 +112,59 @@
             dataSource = [[[db history] recentlyPlayed] retain];
             break;
         default:
-            [[PRLog sharedLog] presentFatalError:nil];
+            [PRException raise:NSInternalInconsistencyException format:@"Invalid History Mode"];
             break;
     }
     [tableView reloadData];
     [self updateUI];
+    [artworkCache removeAllObjects];
+    if (historyMode == PRTopArtistsHistoryMode) {
+        NSArray *artists = [dataSource valueForKey:@"artist"];
+        NSMutableArray *info = [NSMutableArray array];
+        for (NSString *i in artists) {
+            NSDictionary *artworkInfo = [[db albumArtController] artworkInfoForArtist:i];
+            [info addObject:[NSDictionary dictionaryWithObjectsAndKeys:i, @"artist", artworkInfo, @"artworkInfo", nil]];
+        }
+        [self performSelectorInBackground:@selector(cacheArtworkForArtists:) withObject:info];
+    } else {
+        NSArray *files = [dataSource valueForKey:@"file"];
+        NSMutableArray *info = [NSMutableArray array];
+        for (NSNumber *i in files) {
+            NSDictionary *artworkInfo = [[db albumArtController] artworkInfoForFile:[i intValue]];
+            [info addObject:[NSDictionary dictionaryWithObjectsAndKeys:i, @"file", artworkInfo, @"artworkInfo", nil]];
+        }
+        [self performSelectorInBackground:@selector(cacheArtworkForFiles:) withObject:info];
+    }
+}
+
+- (void)cacheArtworkForArtists:(NSArray *)info
+{
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    for (NSDictionary *i in info) {
+        NSString *artist = [i objectForKey:@"artist"];
+        NSDictionary *artworkInfo = [i objectForKey:@"artworkInfo"];
+        NSImage *artwork = [[db albumArtController] artworkForArtworkInfo:artworkInfo];
+        if (artwork) {
+            [artworkCache setObject:artwork forKey:artist];
+        }
+    }
+    [tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:FALSE];
+    [pool drain];
+}
+
+- (void)cacheArtworkForFiles:(NSArray *)info
+{
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    for (NSDictionary *i in info) {
+        NSNumber *file = [i objectForKey:@"file"];
+        NSDictionary *artworkInfo = [i objectForKey:@"artworkInfo"];
+        NSImage *artwork = [[db albumArtController] artworkForArtworkInfo:artworkInfo];
+        if (artwork) {
+            [artworkCache setObject:artwork forKey:file];
+        }
+    }
+    [tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:FALSE];
+    [pool drain];
 }
 
 - (void)updateUI
@@ -177,10 +227,8 @@
     
     bool hidden = !(historyMode == PRTopArtistsHistoryMode || historyMode == PRTopSongsHistoryMode);
     if (hidden) {
-//        [tableView setBordered:0];
         [tableView setGridStyleMask:NSTableViewSolidHorizontalGridLineMask];
     } else {
-//        [tableView setBordered:0];
         [tableView setGridStyleMask:NSTableViewGridNone];
     }
 }
@@ -227,53 +275,66 @@
     }
     
     if (historyMode == PRTopArtistsHistoryMode) {
+        NSDictionary *dict = [dataSource objectAtIndex:row];
+        NSImage *icon = [artworkCache objectForKey:[dict objectForKey:@"artist"]];
+        if (!icon) {
+            icon = [NSImage imageNamed:@"PRLightAlbumArt.png"];
+        }
         return [NSDictionary dictionaryWithObjectsAndKeys:
-                [[dataSource objectAtIndex:row] objectForKey:@"artist"], @"title",
-                [[dataSource objectAtIndex:row] objectForKey:@"icon"], @"icon",
-                [[dataSource objectAtIndex:row] objectForKey:@"count"], @"value",
-                [[dataSource objectAtIndex:row] objectForKey:@"max"], @"max",
-                [[[dataSource objectAtIndex:row] objectForKey:@"count"] stringValue], @"subSubTitle",
+                [dict objectForKey:@"artist"], @"title",
+                [dict objectForKey:@"count"], @"value",
+                [dict objectForKey:@"max"], @"max",
+                [[dict objectForKey:@"count"] stringValue], @"subSubTitle",
+                icon, @"icon",
                 [NSNumber numberWithInt:0], @"kind",
                 nil];
     } else if (historyMode == PRTopSongsHistoryMode) {
+        NSDictionary *dict = [dataSource objectAtIndex:row];
+        NSImage *icon = [artworkCache objectForKey:[dict objectForKey:@"file"]];
+        if (!icon) {
+            icon = [NSImage imageNamed:@"PRLightAlbumArt.png"];
+        }
         return [NSDictionary dictionaryWithObjectsAndKeys:
-                [[dataSource objectAtIndex:row] objectForKey:@"title"], @"title",
-                [[dataSource objectAtIndex:row] objectForKey:@"artist"], @"subtitle",
-                [[dataSource objectAtIndex:row] objectForKey:@"icon"], @"icon",
-                [[dataSource objectAtIndex:row] objectForKey:@"count"], @"value",
-                [[dataSource objectAtIndex:row] objectForKey:@"max"] , @"max",
-                [[[dataSource objectAtIndex:row] objectForKey:@"count"] stringValue], @"subSubTitle",
+                [dict objectForKey:@"title"], @"title",
+                [dict objectForKey:@"artist"], @"subtitle",
+                [dict objectForKey:@"count"], @"value",
+                [dict objectForKey:@"max"] , @"max",
+                [[dict objectForKey:@"count"] stringValue], @"subSubTitle",
+                icon, @"icon",
                 [NSNumber numberWithInt:0], @"kind",
                 nil];
     } else if (historyMode == PRRecentlyAddedHistoryMode) {
-        NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-        [dateFormatter setDateFormat:@"M/dd  h:mm a"];
-        return [NSDictionary dictionaryWithObjectsAndKeys:
-                [[dataSource objectAtIndex:row] objectForKey:@"title"], @"title",
-                [[dataSource objectAtIndex:row] objectForKey:@"artist"], @"subtitle",
-                [[dataSource objectAtIndex:row] objectForKey:@"icon"], @"icon",
-                [dateFormatter stringFromDate:[[dataSource objectAtIndex:row] objectForKey:@"date"]], @"subSubTitle",
-                [NSNumber numberWithInt:1], @"kind",
-                nil];
-    } else if (historyMode == PRRecentlyPlayedHistoryMode) {
-        PRFile file = [[[dataSource objectAtIndex:row] objectForKey:@"file"] intValue];
-        NSImage *icon;
-        [[db albumArtController] albumArt:&icon forFile:file _error:nil];
+        NSDictionary *dict = [dataSource objectAtIndex:row];
+        NSImage *icon = [artworkCache objectForKey:[dict objectForKey:@"file"]];
         if (!icon) {
-            icon = [NSImage imageNamed:@"PRLightAlbumArt"];
+            icon = [NSImage imageNamed:@"PRLightAlbumArt.png"];
         }
         NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
         [dateFormatter setDateFormat:@"M/dd  h:mm a"];
-        NSDate *date = [[dataSource objectAtIndex:row] objectForKey:@"date"];
         return [NSDictionary dictionaryWithObjectsAndKeys:
-                [[dataSource objectAtIndex:row] objectForKey:@"title"], @"title",
-                [[dataSource objectAtIndex:row] objectForKey:@"artist"], @"subtitle",
+                [dict objectForKey:@"title"], @"title",
+                [dict objectForKey:@"artist"], @"subtitle",
                 icon, @"icon",
-                [dateFormatter stringFromDate:date], @"subSubTitle",
+                [dateFormatter stringFromDate:[dict objectForKey:@"date"]], @"subSubTitle",
+                [NSNumber numberWithInt:1], @"kind",
+                nil];
+    } else if (historyMode == PRRecentlyPlayedHistoryMode) {
+        NSDictionary *dict = [dataSource objectAtIndex:row];
+        NSImage *icon = [artworkCache objectForKey:[dict objectForKey:@"file"]];
+        if (!icon) {
+            icon = [NSImage imageNamed:@"PRLightAlbumArt.png"];
+        }
+        NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
+        [dateFormatter setDateFormat:@"M/dd  h:mm a"];
+        return [NSDictionary dictionaryWithObjectsAndKeys:
+                [dict objectForKey:@"title"], @"title",
+                [dict objectForKey:@"artist"], @"subtitle",
+                icon, @"icon",
+                [dateFormatter stringFromDate:[dict objectForKey:@"date"]], @"subSubTitle",
                 [NSNumber numberWithInt:1], @"kind",
                 nil];
     } else {
-        [[PRLog sharedLog] presentFatalError:nil];
+        [PRException raise:NSInternalInconsistencyException format:@"Invalid History Mode"];
     }
 	return nil;
 }

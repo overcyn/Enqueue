@@ -1,11 +1,9 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface PRNowPlayingCell : NSTextFieldCell 
+@interface PRNowPlayingCell : NSCell 
 {
 
 }
-
-- (void)drawHeaderWithFrame:(NSRect)cellFrame inView:(NSView *)controlView;
 
 @end

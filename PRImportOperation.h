@@ -6,29 +6,34 @@
 @interface PRImportOperation : NSOperation 
 {
 	NSArray *URLs;
+    NSArray *_removeIfInFolder;
+    
+    BOOL _removeMissing;
     BOOL background;
     BOOL playWhenDone;
-    PRTask *task;
     NSMutableArray *URLsToPlay;
+    PRTask *task;
     int _tempFileCount;
-    PRDb *_db;
     
     NSInvocation *completionInvocation;
     NSInvocation *completionInvocation2;
     
     PRCore *core;
+    PRDb *_db;
 }
 
 // ========================================
 // Initialization
 
-- (id)initWithURLs:(NSArray *)URLs_ recursive:(BOOL)recursive_ core:(PRCore *)core_;
+- (id)initWithURLs:(NSArray *)URLs_ core:(PRCore *)core_;
 
 // ========================================
 // Accessors
 
 @property (readwrite) BOOL background;
 @property (readwrite) BOOL playWhenDone;
+
+@property (readwrite) BOOL removeMissing;
 
 // invoked on main thread if successful completion without cancellation
 @property (readwrite, retain) NSInvocation *completionInvocation;

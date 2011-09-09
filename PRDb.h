@@ -1,7 +1,11 @@
 #import <Cocoa/Cocoa.h>
 
-@class sqlite3, sqlite3_stmt, PRHistory, PRLibrary, PRPlaylists, PRLibraryViewSource, PRNowPlayingViewSource, 
-PRAlbumArtController, PRPlaybackOrder, PRQueue, PRResult, PRStatement;
+#ifndef _SQLITE3_H_
+@class sqlite3, sqlite3_stmt;
+#endif
+
+@class PRHistory, PRLibrary, PRPlaylists, PRLibraryViewSource, PRNowPlayingViewSource, 
+PRAlbumArtController, PRPlaybackOrder, PRQueue, PRResult, PRStatement, PRReturnTypes, PRBindings;
 
 
 // ========================================
@@ -30,26 +34,8 @@ typedef enum {PRColumnInteger, PRColumnFloat, PRColumnString, PRColumnData} PRCo
 	PRNowPlayingViewSource *nowPlayingViewSource;
     PRPlaybackOrder *playbackOrder;
 	PRAlbumArtController *albumArtController;
-    
     int transaction;
 }
-
-// ========================================
-// Initialization
-
-- (BOOL)open;
-- (void)create;
-- (BOOL)update;
-- (void)initialize;
-- (BOOL)validate;
-
-// ========================================
-// Error
-
-- (NSError *)databaseWasMovedError:(NSString *)newPath;
-- (NSError *)databaseCouldNotBeInitializedError;
-- (NSError *)errorForSQLiteResult:(int)result;
-- (NSArray *)descriptionAndRecoveryForResultCode:(int)resultCode;
 
 // ========================================
 // Properties
@@ -65,73 +51,32 @@ typedef enum {PRColumnInteger, PRColumnFloat, PRColumnString, PRColumnData} PRCo
 @property (readonly) PRQueue *queue;
 
 // ========================================
+// Initialization
+
+- (BOOL)open;
+- (void)create;
+- (BOOL)update;
+- (BOOL)initialize;
+- (BOOL)move:(NSError **)err;
+
+// ========================================
 // Action
 
 - (void)begin;
 - (void)rollback;
 - (void)commit;
-- (NSArray *)executeString:(NSString *)string;
-- (NSArray *)executeString:(NSString *)string withBindings:(NSDictionary *)bindings columns:(NSArray *)columns;
-- (NSArray *)executeCachedString:(NSString *)string;
-- (NSArray *)executeCachedString:(NSString *)string withBindings:(NSDictionary *)bindings columns:(NSArray *)columns;
 
-- (BOOL)executeStatement:(NSString *)stmt _error:(NSError **)error;
-- (BOOL)executeStatement:(NSString *)stmtString 
-            withBindings:(NSDictionary *)dictionary
-                  _error:(NSError **)error;
-- (BOOL)executeStatement:(NSString *)stmt 
-            withBindings:(NSDictionary *)bindings
-                  result:(NSArray **)result
-                  _error:(NSError **)error;
-
-- (BOOL)count:(int *)count forTable:(NSString *)table _error:(NSError **)error;
-- (BOOL)value:(id *)value  
-    forColumn:(NSString *)column 
-          row:(int)row 
-		  key:(NSString *)key 
-		table:(NSString *)table 
-       _error:(NSError **)error;
-- (BOOL)setValue:(id)value 
-	   forColumn:(NSString *)column 
-			 row:(int)row 
-			 key:(NSString *)key 
-		   table:(NSString *)table 
-		  _error:(NSError **)error;
-
-- (BOOL)intValue:(int *)value 
-	   forColumn:(NSString *)column 
-			 row:(int)row 
-			 key:(NSString *)key 
-		   table:(NSString *)table 
-		  _error:(NSError **)error;
-- (BOOL)setIntValue:(int)value 
-		  forColumn:(NSString *)column 
-				row:(int)row 
-				key:(NSString *)key 
-			  table:(NSString *)table 
-			 _error:(NSError **)error;
-@end
+- (NSArray *)execute:(NSString *)string;
+- (NSArray *)execute:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns;
+- (NSArray *)attempt:(NSString *)string;
+- (NSArray *)attempt:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns;
 
 // ========================================
-// PRStatement
-// ========================================
-@interface PRStatement : NSObject 
-{
-    sqlite3 *_sqlite3;
-    sqlite3_stmt *_stmt;
-    NSArray *_columnTypes;
-    NSString *_statement;
-}
+// Error
 
-- (id)initWithString:(NSString *)string db:(PRDb *)db;
-+ (PRStatement *)statementWithString:(NSString *)string db:(PRDb *)db;
-
-- (void)setBindings:(NSDictionary *)bindings;
-- (void)setColumnTypes:(NSArray *)columnTypes;
-
-- (NSArray *)execute;
-+ (NSArray *)executeString:(NSString *)string withDb:(PRDb *)db bindings:(NSDictionary *)bindings columnTypes:(NSArray *)columnTypes;
-+ (NSArray *)executeString:(NSString *)string withDb:(PRDb *)db;
+- (NSError *)databaseWasMovedError:(NSString *)newPath;
+- (NSError *)databaseCouldNotBeMovedError;
+- (NSError *)databaseCouldNotBeInitializedError;
 
 @end
 

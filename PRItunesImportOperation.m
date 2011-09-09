@@ -8,7 +8,6 @@
 #import "PRTask.h"
 #import "PRCore.h"
 #import "PRTagEditor.h"
-#import "PRLog.h"
 
 
 @implementation PRItunesImportOperation
@@ -90,8 +89,7 @@
         }
         
         // Existing files?
-        NSIndexSet *files;
-        [[_db library] files:&files withPath:[URL absoluteString] caseSensitive:[URL caseSensitive] _error:nil];
+        NSIndexSet *files = [[_db library] filesWithPath:[URL absoluteString] caseSensitive:[URL caseSensitive]];
         if ([files count] > 0) {
             [pool2 drain];
             continue;

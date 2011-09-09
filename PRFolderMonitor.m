@@ -109,7 +109,7 @@
         [invocation2 setTarget:self];
         [invocation2 setSelector:@selector(monitor)];
         
-        PRImportOperation *op = [[[PRImportOperation alloc] initWithURLs:folders recursive:TRUE core:core] autorelease];
+        PRImportOperation *op = [[[PRImportOperation alloc] initWithURLs:folders core:core] autorelease];
         [op setBackground:FALSE];
         [op setCompletionInvocation:invocation];
         [op setCompletionInvocation2:invocation2];
@@ -136,27 +136,28 @@ void mycallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_
                 const FSEventStreamEventId eventIds[])
 {
     PRFolderMonitor *folderMonitor = (PRFolderMonitor *)clientCallBackInfo;
+    PRCore *core = [folderMonitor core];
+    NSOperationQueue *opQueue = [core opQueue];
     char **paths = eventPaths;
     
+    NSMutableArray *URLs = [NSMutableArray array];
     for (int i = 0; i < numEvents; i++) {
         /* flags are unsigned long, IDs are uint64_t */
         NSLog(@"Change %llu in %s, flags %lu\n", eventIds[i], paths[i], (unsigned long)eventFlags[i]);
         
         // kFSEventStreamEventFlagHistoryDone: denotes an old event
-        if (eventFlags[i] & kFSEventStreamEventFlagHistoryDone) {
+        if ((eventFlags[i] & kFSEventStreamEventFlagHistoryDone) == kFSEventStreamEventFlagHistoryDone) {
             continue;
         }
         
         NSString *path = [NSString stringWithCString:paths[i] encoding:NSUTF8StringEncoding];
-        NSURL *URL = [NSURL fileURLWithPath:path];
-        
-        PRImportOperation *op = [[PRImportOperation alloc] initWithURLs:[NSArray arrayWithObject:URL] 
-                                                              recursive:FALSE 
-                                                                   core:[folderMonitor core]];
-        [op setBackground:TRUE];
-        [[[folderMonitor core] opQueue] addOperation:op];
-        [op release];
+        [URLs addObject:[NSURL fileURLWithPath:path]];
     }
+    PRImportOperation *op = [[PRImportOperation alloc] initWithURLs:URLs core:core];
+    [op setRemoveMissing:TRUE];
+    [op setBackground:TRUE];
+    [opQueue addOperation:op];
+    [op release];
     
     FSEventStreamEventId lastEventId = eventIds[numEvents - 1];
     NSMethodSignature *methodSignature = [PRUserDefaults instanceMethodSignatureForSelector:@selector(setLastEventStreamEventId:)];

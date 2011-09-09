@@ -133,8 +133,7 @@ using namespace TagLib;
         _tempFile = FALSE;
         _postNotification = FALSE;
         
-        NSString *URLString;
-        [[db library] value:&URLString forFile:file attribute:PRPathFileAttribute _error:NULL];
+        NSString *URLString = [[db library] valueForFile:file attribute:PRPathFileAttribute];
         URL = [[NSURL alloc] initWithString:URLString];
         taglibFile = [[self class] fileAtURL:URL type:&fileType];
         if (fileType == PRFileTypeUnknown) {
@@ -310,7 +309,7 @@ using namespace TagLib;
     NSData *albumArtData = [tags objectForKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
     if (albumArtData) {
         NSImage *albumArt = [[[NSImage alloc] initWithData:albumArtData] autorelease];
-        [[db albumArtController] setCachedAlbumArt:albumArt forFile:file _error:nil];
+        [[db albumArtController] setCachedAlbumArt:albumArt forFile:file];
         [tags setObject:[NSNumber numberWithBool:TRUE] forKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
     } else {
         [[db albumArtController] clearAlbumArtForFile:file];
@@ -348,8 +347,7 @@ using namespace TagLib;
     if (_tempFile) {
         [[db library] setAttributes:tags forTempFile:file];
     } else {
-        NSDictionary *prevTags;
-        [[db library] attributes:&prevTags forFile:file _error:nil];
+        NSDictionary *prevTags = [[db library] attributesForFile:file];
         NSMutableDictionary *tagsToUpdate = [NSMutableDictionary dictionary];
         for (id i in [tags allKeys]) {
             if (![[prevTags objectForKey:i] isEqual:[tags objectForKey:i]]) {
@@ -357,7 +355,7 @@ using namespace TagLib;
             }
         }
         if ([tagsToUpdate count] > 0) {
-            [[db library] setAttributes:tagsToUpdate forFile:file _error:nil];
+            [[db library] setAttributes:tagsToUpdate forFile:file];
             if (_postNotification) {
                 NSDictionary *userInfo = [NSDictionary dictionaryWithObject:[NSArray arrayWithObject:[NSNumber numberWithInt:file]]
                                                                      forKey:@"files"];
@@ -1432,10 +1430,17 @@ using namespace TagLib;
                 itemDidChange = TRUE;
             }
             break;
-        case PRCommentsFileAttribute:
-            id3v2tag->setComment(TagLib::String([tag UTF8String], String::UTF8));
+        case PRCommentsFileAttribute:{
+            id3v2tag->removeFrames(frameID);
+            if ([tag length] != 0) {
+                ID3v2::CommentsFrame *frame = new ID3v2::CommentsFrame(String::UTF8);
+                frame->setText(TagLib::String([tag UTF8String], String::UTF8));
+                frame->setLanguage(ByteVector("eng", 3));
+                id3v2tag->addFrame(frame);
+            }
             return;
             break;
+        }
 		case PRBPMFileAttribute:
 		case PRYearFileAttribute:
             if ([tag intValue] != 0) {

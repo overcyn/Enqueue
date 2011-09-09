@@ -13,6 +13,7 @@
     IBOutlet PRGradientView *divider4;
     
     IBOutlet NSButton *sortWithAlbumArtist;
+    IBOutlet NSButton *folderArtwork;
     
     IBOutlet NSButton *mediaKeys;
     IBOutlet SRRecorderControl *playPause;
@@ -71,6 +72,7 @@
 - (void)setMasterVolume:(id)sender;
 - (void)toggleUseAlbumArtist;
 - (void)toggleMediaKeys;
+- (void)toggleFolderArtwork;
 
 // ========================================
 // Folder Monitoring

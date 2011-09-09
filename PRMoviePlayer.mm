@@ -86,6 +86,9 @@ static void renderingFinished(void *context, const AudioDecoder *decoder)
 - (BOOL)openFileAndPlay:(NSString *)file
 {
     AudioDecoder *decoder = AudioDecoder::CreateDecoderForURL(reinterpret_cast<CFURLRef>([NSURL URLWithString:file]));
+    if(decoder == NULL) {
+		return FALSE;
+    }
     decoder->SetDecodingStartedCallback(decodingStarted, self);
     decoder->SetDecodingFinishedCallback(decodingFinished, self);
     decoder->SetRenderingStartedCallback(renderingStarted, self);
@@ -97,9 +100,12 @@ static void renderingFinished(void *context, const AudioDecoder *decoder)
         PLAYER->Stop();
     }
     PLAYER->ClearQueuedDecoders();
-    PLAYER->Enqueue(decoder);
+    if(!PLAYER->Enqueue(decoder)) {
+        delete decoder;
+        return FALSE;
+    }
     [self setVolume:[self volume]];
-    return true;
+    return TRUE;
 }
 
 - (void)pause

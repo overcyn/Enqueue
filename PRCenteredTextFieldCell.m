@@ -15,7 +15,13 @@
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView 
 {
     NSRect titleRect = [self titleRectForBounds:cellFrame];
-    [[self attributedStringValue] drawInRect:titleRect];
+    NSMutableAttributedString *string = [[NSMutableAttributedString alloc] initWithAttributedString:[self attributedStringValue]];
+    NSColor *color = [NSColor colorWithCalibratedWhite:0.10 alpha:1];
+    if ([self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder] && [[[self controlView] window] isMainWindow]) {
+        color = [NSColor whiteColor];
+    }
+    [string addAttributes:[NSDictionary dictionaryWithObjectsAndKeys:color, NSForegroundColorAttributeName, nil] range:NSMakeRange(0, [string length])];
+    [string drawInRect:titleRect];
 }
 
 //- (void)editWithFrame:(NSRect)aRect 

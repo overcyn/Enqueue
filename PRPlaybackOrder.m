@@ -1,5 +1,6 @@
 #import "PRPlaybackOrder.h"
 #import "PRDb.h"
+#import "PREnqueue.h"
 
 
 NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
@@ -26,23 +27,20 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
 - (void)create
 {
     NSString *string = PR_TBL_PLAYBACK_ORDER_SQL;
-    [db executeString:string];
+    [db execute:string];
 }
 
-- (void)initialize
-{
-    NSString *string = @"DELETE FROM playback_order";
-    [db executeString:string];
-}
-
-- (BOOL)validate
-{
+- (BOOL)initialize
+{   
     NSString *string = @"SELECT sql FROM sqlite_master WHERE name = 'playback_order'";
     NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnString], nil];
-    NSArray *result = [db executeString:string withBindings:nil columns:columns];
+    NSArray *result = [db execute:string bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_PLAYBACK_ORDER_SQL]) {
         return FALSE;
     }
+    
+    string = @"DELETE FROM playback_order";
+    [db execute:string];
     return TRUE;
 }
 
@@ -50,177 +48,106 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
 // Validation
 // ========================================
 
-- (BOOL)clean_error:(NSError **)error
+- (void)clean
 {
-//    NSString *statement = @"DELETE FROM playback_order "
-//    "WHERE playlist_item_id NOT IN (SELECT playlist_item_id FROM playlist_items)";
-//    if ([db executeStatement:statement _error:nil]) {
-//        return FALSE;
+    NSString *string = @"DELETE FROM playback_order";
+    [db execute:string];
+//    int count = [self count];
+//    NSString *string = @"SELECT MAX(index_) from playback_order";
+//    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+//    NSArray *results = [db execute:string bindings:nil columns:columns];
+//    if ([results count] != 1) {
+//        [PRException raise:PRDbInconsistencyException format:@""];
 //    }
+//    int max = [[[results objectAtIndex:0] objectAtIndex:0] intValue];
 //    
-    int count;
-    if (![db count:&count forTable:@"playback_order" _error:nil]) {
-        return FALSE;
-    }
-    
-    NSArray *results;
-    NSString *statement = @"SELECT MAX(index_) from playback_order";
-    if ([db executeStatement:statement withBindings:nil result:&results _error:nil]) {
-        return FALSE;
-    }
-    if ([[[results objectAtIndex:0] objectAtIndex:0] intValue] == count) {
-        return TRUE;
-    }
-    
-    // Begin clean
-    statement = @"SELECT index_ FROM playback_order ORDER BY index_";
-    if ([db executeStatement:statement withBindings:nil  result:&results _error:nil]) {
-        return FALSE;
-    }   
-    for (int i = 0; i < [results count]; i++) {
-        int oldIndex = [[[results objectAtIndex:i] objectAtIndex:0] intValue];
-        statement = @"UPDATE playback_order SET index_ = ?1 WHERE index_ = ?2";
-        NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-                                  [NSNumber numberWithInt:i + 1], [NSNumber numberWithInt:1],
-                                  [NSNumber numberWithInt:oldIndex], [NSNumber numberWithInt:2], nil];
-        if (![db executeStatement:statement withBindings:bindings _error:nil]) {
-            return FALSE;
-        }
-    }
-    
-    return TRUE;
+//    string = @"SELECT MIN(index_) from playback_order";
+//    columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+//    results = [db execute:string bindings:nil columns:columns];
+//    if ([results count] != 1) {
+//        [PRException raise:PRDbInconsistencyException format:@""];
+//    }
+//    int min = [[[results objectAtIndex:0] objectAtIndex:0] intValue];
+//    
+//    if (min != 0 && max != count - 1) {
+//        // clean up playback order
+//        NSLog(@"PRPlaylistItems Inconsistency error!!!!!!!!!!!!!!!!!!!!");
+//    }
+//
+//    
+//    string = @"SELECT index_ FROM playback_order ORDER BY index_";
+//    columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+//    results = [db execute:string bindings:nil columns:columns];
+//    
+//    for (int i = 0; i < [results count]; i++) {
+//        int oldIndex = [[[results objectAtIndex:i] objectAtIndex:0] intValue];
+//        string = @"UPDATE playback_order SET index_ = ?1 WHERE index_ = ?2";
+//        NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
+//                                  [NSNumber numberWithInt:i + 1], [NSNumber numberWithInt:1],
+//                                  [NSNumber numberWithInt:oldIndex], [NSNumber numberWithInt:2], nil];
+//        [db execute:string bindings:bindings columns:nil];
+//    }
 }
 
 // ========================================
 // Accessors
 // ========================================
 
-- (BOOL)cleanPlaybackOrder
+- (int)count
 {
-    int count, min, max;
-    [self count:&count _error:nil];
-    if (count == 0) {
-        return TRUE;
+    NSString *string = @"SELECT COUNT(*) FROM playback_order";
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *results = [db execute:string bindings:nil columns:columns];
+    if ([results count] != 1) {
+        [PRException raise:PRDbInconsistencyException format:@""];
     }
-    
-    NSArray *result;
-    if (![db executeStatement:@"SELECT max(index_) FROM playback_order"
-                 withBindings:nil 
-                       result:&result 
-                       _error:nil]) {
-        return FALSE;
-    }
-    max = [[result objectAtIndex:0] intValue];
-
-    if (![db executeStatement:@"SELECT min(index_) FROM playback_order"
-                 withBindings:nil 
-                       result:&result 
-                       _error:nil]) {
-        return FALSE;
-    }
-    min = [[result objectAtIndex:0] intValue];
-
-    if (min != 0 && max != count - 1) {
-        // clean up playback order
-        NSLog(@"PRPlaylistItems Inconsistency error!!!!!!!!!!!!!!!!!!!!");
-        return FALSE;
-    }
-    
-    return TRUE;
+    return [[[results objectAtIndex:0] objectAtIndex:0] intValue];
 }
 
-- (BOOL)count:(int *)count _error:(NSError **)error
+- (PRPlaylistItem)playlistItemAtIndex:(int)index
 {
-	return [db count:count forTable:@"playback_order" _error:error];
-}
-
-- (BOOL)playlistItem:(PRPlaylistItem *)playlistItem atIndex:(int)index _error:(NSError **)error;
-{
+    NSString *string = @"SELECT playlist_item_id FROM playback_order WHERE index_ = ?1";
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:index],[NSNumber numberWithInt:1], nil];
-    NSArray *results;
-    if (![db executeStatement:@"SELECT playlist_item_id FROM playback_order WHERE index_ = ?1" 
-                 withBindings:bindings 
-                       result:&results 
-                       _error:nil]) {
-        return FALSE;
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *results = [db execute:string bindings:bindings columns:columns];
+    if ([results count] != 1) {
+        [PRException raise:PRDbInconsistencyException format:@""];
     }
-    if ([results count] != 1 || ![[results objectAtIndex:0] isKindOfClass:[NSNumber class]]) {
-        return FALSE;
-    }
-    if (playlistItem) {
-        *playlistItem = [[results objectAtIndex:0] intValue];
-    }
-	return TRUE;
+    return [[[results objectAtIndex:0] objectAtIndex:0] intValue];
 }
 
-- (BOOL)appendPlaylistItem:(PRPlaylistItem)playlistItem _error:(NSError **)error;
+- (void)appendPlaylistItem:(PRPlaylistItem)playlistItem
 {
-    int count;
-	[self count:&count _error:error];
-    
+    int count = [self count];
+    NSString *string = @"INSERT INTO playback_order (index_, playlist_item_id) VALUES (?1, ?2)";
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:count + 1], [NSNumber numberWithInt:1],
                               [NSNumber numberWithInt:playlistItem], [NSNumber numberWithInt:2], nil];
-    if (![db executeStatement:@"INSERT INTO playback_order (index_, playlist_item_id) "
-          "VALUES (?1, ?2)" 
-                 withBindings:bindings 
-                       _error:nil]) {
-        return FALSE;
-    }
-    return TRUE;
+    [db execute:string bindings:bindings columns:nil];
 }
 
-- (BOOL)clearPlaybackOrder_error:(NSError **)error
+- (void)clear
 {
-    if (![db executeStatement:@"DELETE FROM playback_order" _error:nil]) {
-        return FALSE;
-    }
-    return TRUE;
+    [db execute:@"DELETE FROM playback_order"];
 }
 
-- (BOOL)removePlaylistItem:(PRPlaylistItem)playlistItem _error:(NSError **)error
+- (NSArray *)playlistItemsInPlaylist:(PRPlaylist)playlist notInPlaybackOrderAfterIndex:(int)index
 {
-    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSNumber numberWithInt:playlistItem], [NSNumber numberWithInt:1],
-                              nil];
-    if (![db executeStatement:@"DELETE FROM playback_order WHERE playlist_item_id = ?1"
-                 withBindings:bindings
-                       _error:nil]) {
-        return FALSE;
-    }
-    
-    if ([self clean_error:(NSError **)error]) {
-        return FALSE;
-    }
-    return TRUE;
-}
-
-- (BOOL)         playlistItems:(NSArray **)playlistItems 
-			        inPlaylist:(PRPlaylist)playlist 
-  notInPlaybackOrderAfterIndex:(int)index
-				        _error:(NSError **)error;
-{
+    NSString *string = @"SELECT playlist_item_id FROM playlist_items "
+    "LEFT OUTER JOIN (SELECT index_, playlist_item_id AS temp FROM playback_order "
+    "GROUP BY playlist_item_id) ON playlist_item_id = temp "
+    "WHERE playlist_id = ?1 AND (index_ <= ?2 OR index_ IS NULL)";
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1],
                               [NSNumber numberWithInt:index], [NSNumber numberWithInt:2], nil];
-    NSArray *results;
-    if (![db executeStatement:@"SELECT playlist_item_id "
-          "FROM playlist_items "
-          "LEFT OUTER JOIN (SELECT index_, playlist_item_id AS temp "
-          "FROM playback_order "
-          "GROUP BY playlist_item_id) ON playlist_item_id = temp "
-          "WHERE playlist_id = ?1 AND (index_ <= ?2 OR index_ IS NULL)" 
-                 withBindings:bindings 
-                       result:&results 
-                       _error:nil]) {
-        return FALSE;
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *results = [db execute:string bindings:bindings columns:columns];
+    NSMutableArray *playlistItems = [NSMutableArray array];
+    for (NSArray *i in results) {
+        [playlistItems addObject:[i objectAtIndex:0]];
     }
-    
-    if (playlistItems) {
-        *playlistItems = results;
-    }
-	return TRUE;
+	return playlistItems;
 }
 
 // ========================================
@@ -229,9 +156,7 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
 
 - (BOOL)confirmPlaylistItemDelete:(NSError **)error
 {
-    if (![self clean_error:nil]) {
-        return FALSE;
-    }
+    [self clean];
     return TRUE;
 }
 

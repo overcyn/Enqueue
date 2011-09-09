@@ -61,39 +61,37 @@ typedef enum {
 - (id)initWithDb:(PRDb *)db_;
 
 - (void)create;
-- (void)initialize;
-- (BOOL)validate;
+- (BOOL)initialize;
 
 // ========================================
-// Accessors
+// Misc
 
 + (NSDictionary *)columnDict;
++ (NSDictionary *)columnForAttribute;
 + (NSString *)columnNameForFileAttribute:(PRFileAttribute)attribute;
 + (PRFileAttribute)fileAttributeForName:(NSString *)name;
 
-- (BOOL)value:(id *)value forFile:(PRFile)file attribute:(PRFileAttribute)attr _error:(NSError **)error;
-- (BOOL)setValue:(id)value forFile:(PRFile)file attribute:(PRFileAttribute)attr _error:(NSError **)error;
-- (BOOL)intValue:(int *)value forFile:(PRFile)file attribute:(PRFileAttribute)attribute _error:(NSError **)error;
-- (BOOL)setIntValue:(int)value forFile:(PRFile)file attribute:(PRFileAttribute)attr _error:(NSError **)error;
-- (BOOL)attributes:(NSDictionary **)dictionary forFile:(PRFile)file _error:(NSError **)error;
-- (BOOL)setAttributes:(NSDictionary *)dictionary forFile:(PRFile)file _error:(NSError **)error;
-
-- (BOOL)addFile:(PRFile *)file withPath:(NSString *)path _error:(NSError **)error;
-- (BOOL)removeFiles:(NSIndexSet *)fileIndexes _error:(NSError **)error;
-- (BOOL)addFile:(PRFile *)file withAttributes:(NSDictionary *)attributes _error:(NSError **)error;
-
-- (BOOL)files:(NSIndexSet **)files withPath:(NSString *)path caseSensitive:(BOOL)caseSensitive _error:(NSError **)error;
-- (BOOL)files:(NSIndexSet **)files withValue:(id)value forAttribute:(PRFileAttribute)attribute _error:(NSError **)error;
-- (BOOL)arrayOfUniqueValues:(NSArray **)array forAttribute:(PRFileAttribute)attr _error:(NSError **)error;
-- (BOOL)arrayOfFileIDsSortedByAlbumAndArtist:(NSArray **)array _error:(NSError **)error;
-
 // ========================================
-// Temp Library
+// Accessors
 
 - (PRFile)addTempFileWithPath:(NSString *)path;
 - (void)setAttributes:(NSDictionary *)attributes forTempFile:(PRFile)file;
 - (void)mergeTempFilesToLibrary;
 - (void)clearTempFiles;
+- (void)removeFiles:(NSIndexSet *)files;
+
+- (id)valueForFile:(PRFile)file attribute:(PRFileAttribute)attribute;
+- (void)setValue:(id)value forFile:(PRFile)file attribute:(PRFileAttribute)attribute;
+- (NSDictionary *)attributesForFile:(PRFile)file;
+- (void)setAttributes:(NSDictionary *)attirbutes forFile:(PRFile)file;
+
+// ========================================
+// Accessors Misc
+
+- (NSString *)comparisonArtistForFile:(PRFile)file;
+- (NSIndexSet *)filesWithValue:(id)value forAttribute:(PRFileAttribute)attribute;
+- (NSIndexSet *)filesWithPath:(NSString *)path caseSensitive:(BOOL)caseSensitive;
+//- (BOOL)arrayOfUniqueValues:(NSArray **)array forAttribute:(PRFileAttribute)attr _error:(NSError **)error;
 
 // ========================================
 // Update

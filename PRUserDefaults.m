@@ -58,7 +58,7 @@ NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidCh
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object boolValue];
     } else {
-        return TRUE;
+        return FALSE;
     }
 }
 
@@ -73,7 +73,7 @@ NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidCh
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object boolValue];
     } else {
-        return TRUE;
+        return FALSE;
     }
 }
 
@@ -101,7 +101,8 @@ NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidCh
 @dynamic showWelcomeSheet;
 @dynamic showsArtwork;
 @dynamic useAlbumArtist;
-
+@dynamic nowPlayingCollapsible;
+@dynamic folderArtwork;
 
 - (BOOL)showWelcomeSheet
 {
@@ -146,6 +147,36 @@ NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidCh
 - (void)setUseAlbumArtist:(BOOL)usesAlbumArt
 {
     [defaults setObject:[NSNumber numberWithBool:usesAlbumArt] forKey:@"usesAlbumArt"];
+}
+
+- (BOOL)nowPlayingCollapsible
+{
+    NSNumber *object = [defaults objectForKey:@"nowPlayingCollapsible"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object boolValue];
+    } else {
+        return TRUE;
+    }
+}
+
+- (void)setNowPlayingCollapsible:(BOOL)nowPlayingCollapsible
+{
+    [defaults setObject:[NSNumber numberWithBool:nowPlayingCollapsible] forKey:@"nowPlayingCollapsible"];
+}
+
+- (BOOL)folderArtwork
+{
+    NSNumber *object = [defaults objectForKey:@"folderArtwork"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object boolValue];
+    } else {
+        return TRUE;
+    }
+}
+
+- (void)setFolderArtwork:(BOOL)folderArtwork
+{
+    [defaults setObject:[NSNumber numberWithBool:folderArtwork] forKey:@"folderArtwork"];
 }
 
 @dynamic mediaKeys;
@@ -244,6 +275,7 @@ NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidCh
 
 @dynamic applicationSupportPath;
 @dynamic libraryPath;
+@dynamic backupPath;
 @dynamic cachedAlbumArtPath;
 @dynamic downloadedAlbumArtPath;
 
@@ -259,6 +291,12 @@ NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidCh
 - (NSString *)libraryPath
 {
     NSString *path = [[self applicationSupportPath] stringByAppendingPathComponent:@"Enqueue.db"];
+    return path;
+}
+
+- (NSString *)backupPath
+{
+    NSString *path = [[self applicationSupportPath] stringByAppendingPathComponent:@"Backup"];
     return path;
 }
 

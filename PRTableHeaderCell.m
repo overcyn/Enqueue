@@ -7,7 +7,7 @@
 //{
 //    [[self stringValue] drawInRect:cellFrame withAttributes:nil];
 //}
-
+// 
 //- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 //{
 //    NSGradient *gradient_ = [[[NSGradient alloc] initWithStartingColor:[NSColor colorWithDeviceWhite:0.94 alpha:1.0] 

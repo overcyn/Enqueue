@@ -1,7 +1,9 @@
 #import "PRLibrary.h"
+#import "PREnqueue.h"
 #import "PRDb.h"
 #import "PRPlaylists.h"
 #import "PRAlbumArtController.h"
+#import "PRUserDefaults.h"
 
 NSString * const PR_TBL_LIBRARY_SQL = @"CREATE TABLE library ("
 "file_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
@@ -127,62 +129,59 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
 - (void)create
 {
-    [db executeString:PR_TBL_LIBRARY_SQL];
-    [db executeString:PR_IDX_PATH_SQL];
-    [db executeString:PR_IDX_ALBUM_SQL];
-    [db executeString:PR_IDX_ARTIST_SQL];
-    [db executeString:PR_IDX_GENRE_SQL];
-    [db executeString:PR_IDX_ARTIST_ALBUM_ARTIST_SQL];
+    [db execute:PR_TBL_LIBRARY_SQL];
+    [db execute:PR_IDX_PATH_SQL];
+    [db execute:PR_IDX_ALBUM_SQL];
+    [db execute:PR_IDX_ARTIST_SQL];
+    [db execute:PR_IDX_GENRE_SQL];
+    [db execute:PR_IDX_ARTIST_ALBUM_ARTIST_SQL];
 }
 
-- (void)initialize
-{
-    [db executeString:PR_TRG_ARTIST_ALBUM_ARTIST_SQL];
-    [db executeString:PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL];
-    NSString *string = @"UPDATE library SET artistAlbumArtist = coalesce(nullif(albumArtist, ''), artist) "
-    "WHERE artistAlbumArtist != coalesce(nullif(albumArtist, ''), artist)";
-    [db executeString:string];
-    [db executeString:PR_TEMP_TBL_LIBRARY_SQL];
-}
-
-- (BOOL)validate
+- (BOOL)initialize
 {
     NSString *string = @"SELECT sql FROM sqlite_master WHERE name = 'library'";
     NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnString], nil];
-    NSArray *result = [db executeString:string withBindings:nil columns:columns];
+    NSArray *result = [db execute:string bindings:nil columns:columns];
     if ([result count] != 1 || !([[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_LIBRARY_SQL] || [[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_LIBRARY_SQL2])) {
         return FALSE;
     }
     
     string = @"SELECT sql FROM sqlite_master WHERE name = 'index_path'";
-    result = [db executeString:string withBindings:nil columns:columns];
+    result = [db execute:string bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_PATH_SQL]) {
         return FALSE;
     }
     
     string = @"SELECT sql FROM sqlite_master WHERE name = 'index_album'";
-    result = [db executeString:string withBindings:nil columns:columns];
+    result = [db execute:string bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_ALBUM_SQL]) {
         return FALSE;
     }
     
     string = @"SELECT sql FROM sqlite_master WHERE name = 'index_artist'";
-    result = [db executeString:string withBindings:nil columns:columns];
+    result = [db execute:string bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_ARTIST_SQL]) {
         return FALSE;
     }
     
     string = @"SELECT sql FROM sqlite_master WHERE name = 'index_genre'";
-    result = [db executeString:string withBindings:nil columns:columns];
+    result = [db execute:string bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_GENRE_SQL]) {
         return FALSE;
     }
     
     string = @"SELECT sql FROM sqlite_master WHERE name = 'index_artistAlbumArtist'";
-    result = [db executeString:string withBindings:nil columns:columns];
+    result = [db execute:string bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_ARTIST_ALBUM_ARTIST_SQL]) {
         return FALSE;
     }
+
+    [db execute:PR_TRG_ARTIST_ALBUM_ARTIST_SQL];
+    [db execute:PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL];
+    string = @"UPDATE library SET artistAlbumArtist = coalesce(nullif(albumArtist, ''), artist) "
+    "WHERE artistAlbumArtist != coalesce(nullif(albumArtist, ''), artist)";
+    [db execute:string];
+    [db execute:PR_TEMP_TBL_LIBRARY_SQL];
     return TRUE;
 }
 
@@ -190,45 +189,125 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 // Acccesors
 // ========================================
 
++ (NSArray *)attributes
+{
+    static NSArray *_attributes;
+    if (!_attributes) {
+        _attributes =  [[NSArray arrayWithObjects:
+                         [NSNumber numberWithInt:PRPathFileAttribute],
+                         [NSNumber numberWithInt:PRTitleFileAttribute],
+                         [NSNumber numberWithInt:PRArtistFileAttribute],
+                         [NSNumber numberWithInt:PRAlbumFileAttribute],
+                         [NSNumber numberWithInt:PRBPMFileAttribute],
+                         [NSNumber numberWithInt:PRYearFileAttribute],
+                         [NSNumber numberWithInt:PRTrackNumberFileAttribute],
+                         [NSNumber numberWithInt:PRTrackCountFileAttribute],
+                         [NSNumber numberWithInt:PRComposerFileAttribute],
+                         [NSNumber numberWithInt:PRDiscNumberFileAttribute],
+                         [NSNumber numberWithInt:PRDiscCountFileAttribute], 
+                         [NSNumber numberWithInt:PRCommentsFileAttribute],
+                         [NSNumber numberWithInt:PRAlbumArtistFileAttribute],
+                         [NSNumber numberWithInt:PRGenreFileAttribute],
+                         [NSNumber numberWithInt:PRDateAddedFileAttribute],
+                         [NSNumber numberWithInt:PRLastPlayedFileAttribute],
+                         [NSNumber numberWithInt:PRPlayCountFileAttribute],
+                         [NSNumber numberWithInt:PRRatingFileAttribute],
+                         [NSNumber numberWithInt:PRSizeFileAttribute],
+                         [NSNumber numberWithInt:PRKindFileAttribute],
+                         [NSNumber numberWithInt:PRTimeFileAttribute],
+                         [NSNumber numberWithInt:PRBitrateFileAttribute],
+                         [NSNumber numberWithInt:PRChannelsFileAttribute],
+                         [NSNumber numberWithInt:PRSampleRateFileAttribute],
+                         [NSNumber numberWithInt:PRAlbumArtFileAttribute],
+                         [NSNumber numberWithInt:PRCheckSumFileAttribute],
+                         [NSNumber numberWithInt:PRArtistAlbumArtistFileAttribute],
+                         [NSNumber numberWithInt:PRLastModifiedFileAttribute],
+                         nil] retain];
+    } 
+    return _attributes;
+}
+
 + (NSDictionary *)columnDict
 {
-	return [NSDictionary dictionaryWithObjectsAndKeys:
-			@"path",				[NSNumber numberWithInt:PRPathFileAttribute],
-			@"title",				[NSNumber numberWithInt:PRTitleFileAttribute],
-			@"artist",				[NSNumber numberWithInt:PRArtistFileAttribute],
-			@"album",				[NSNumber numberWithInt:PRAlbumFileAttribute],
-			@"BPM",					[NSNumber numberWithInt:PRBPMFileAttribute],
-			@"year",				[NSNumber numberWithInt:PRYearFileAttribute],
-			@"trackNumber",			[NSNumber numberWithInt:PRTrackNumberFileAttribute],
-			@"trackCount",			[NSNumber numberWithInt:PRTrackCountFileAttribute],
-			@"composer",			[NSNumber numberWithInt:PRComposerFileAttribute],
-			@"discNumber",			[NSNumber numberWithInt:PRDiscNumberFileAttribute],
-			@"discCount",			[NSNumber numberWithInt:PRDiscCountFileAttribute], 
-			@"comments",			[NSNumber numberWithInt:PRCommentsFileAttribute],
-			@"albumArtist",			[NSNumber numberWithInt:PRAlbumArtistFileAttribute],
-			@"genre",				[NSNumber numberWithInt:PRGenreFileAttribute],
-			@"dateAdded",			[NSNumber numberWithInt:PRDateAddedFileAttribute],
-			@"lastPlayed",			[NSNumber numberWithInt:PRLastPlayedFileAttribute],
-			@"playCount",			[NSNumber numberWithInt:PRPlayCountFileAttribute],
-			@"rating",				[NSNumber numberWithInt:PRRatingFileAttribute],
-			@"size",				[NSNumber numberWithInt:PRSizeFileAttribute],
-			@"kind",				[NSNumber numberWithInt:PRKindFileAttribute],
-			@"time",				[NSNumber numberWithInt:PRTimeFileAttribute],
-			@"bitrate",				[NSNumber numberWithInt:PRBitrateFileAttribute],
-			@"channels",			[NSNumber numberWithInt:PRChannelsFileAttribute],
-			@"sampleRate",			[NSNumber numberWithInt:PRSampleRateFileAttribute],
-			@"albumArt",            [NSNumber numberWithInt:PRAlbumArtFileAttribute],
-            @"checkSum",            [NSNumber numberWithInt:PRCheckSumFileAttribute],
-            @"artistAlbumArtist",   [NSNumber numberWithInt:PRArtistAlbumArtistFileAttribute],
-            @"lastModified",        [NSNumber numberWithInt:PRLastModifiedFileAttribute],
-			nil];
+	static NSDictionary *_nameForAttribute;
+    if (!_nameForAttribute) {
+        _nameForAttribute =  [[NSDictionary dictionaryWithObjectsAndKeys:
+                               @"path",				[NSNumber numberWithInt:PRPathFileAttribute],
+                               @"title",			[NSNumber numberWithInt:PRTitleFileAttribute],
+                               @"artist",			[NSNumber numberWithInt:PRArtistFileAttribute],
+                               @"album",			[NSNumber numberWithInt:PRAlbumFileAttribute],
+                               @"BPM",				[NSNumber numberWithInt:PRBPMFileAttribute],
+                               @"year",				[NSNumber numberWithInt:PRYearFileAttribute],
+                               @"trackNumber",		[NSNumber numberWithInt:PRTrackNumberFileAttribute],
+                               @"trackCount",		[NSNumber numberWithInt:PRTrackCountFileAttribute],
+                               @"composer",			[NSNumber numberWithInt:PRComposerFileAttribute],
+                               @"discNumber",		[NSNumber numberWithInt:PRDiscNumberFileAttribute],
+                               @"discCount",		[NSNumber numberWithInt:PRDiscCountFileAttribute], 
+                               @"comments",			[NSNumber numberWithInt:PRCommentsFileAttribute],
+                               @"albumArtist",		[NSNumber numberWithInt:PRAlbumArtistFileAttribute],
+                               @"genre",			[NSNumber numberWithInt:PRGenreFileAttribute],
+                               @"dateAdded",		[NSNumber numberWithInt:PRDateAddedFileAttribute],
+                               @"lastPlayed",		[NSNumber numberWithInt:PRLastPlayedFileAttribute],
+                               @"playCount",		[NSNumber numberWithInt:PRPlayCountFileAttribute],
+                               @"rating",			[NSNumber numberWithInt:PRRatingFileAttribute],
+                               @"size",				[NSNumber numberWithInt:PRSizeFileAttribute],
+                               @"kind",				[NSNumber numberWithInt:PRKindFileAttribute],
+                               @"time",				[NSNumber numberWithInt:PRTimeFileAttribute],
+                               @"bitrate",			[NSNumber numberWithInt:PRBitrateFileAttribute],
+                               @"channels",			[NSNumber numberWithInt:PRChannelsFileAttribute],
+                               @"sampleRate",		[NSNumber numberWithInt:PRSampleRateFileAttribute],
+                               @"albumArt",         [NSNumber numberWithInt:PRAlbumArtFileAttribute],
+                               @"checkSum",         [NSNumber numberWithInt:PRCheckSumFileAttribute],
+                               @"artistAlbumArtist",[NSNumber numberWithInt:PRArtistAlbumArtistFileAttribute],
+                               @"lastModified",     [NSNumber numberWithInt:PRLastModifiedFileAttribute],
+                               nil] retain];
+    } 
+    return _nameForAttribute;
+}
+
++ (NSDictionary *)columnForAttribute
+{
+    static NSDictionary *_columnForAttribute;
+    if (!_columnForAttribute) {
+        _columnForAttribute = [[NSDictionary dictionaryWithObjectsAndKeys:
+                                [NSNumber numberWithInt:PRColumnString],    [NSNumber numberWithInt:PRPathFileAttribute],
+                                [NSNumber numberWithInt:PRColumnString],    [NSNumber numberWithInt:PRTitleFileAttribute],
+                                [NSNumber numberWithInt:PRColumnString],    [NSNumber numberWithInt:PRArtistFileAttribute],
+                                [NSNumber numberWithInt:PRColumnString],    [NSNumber numberWithInt:PRAlbumFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRBPMFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRYearFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRTrackNumberFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRTrackCountFileAttribute],
+                                [NSNumber numberWithInt:PRColumnString],    [NSNumber numberWithInt:PRComposerFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRDiscNumberFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRDiscCountFileAttribute], 
+                                [NSNumber numberWithInt:PRColumnString],    [NSNumber numberWithInt:PRCommentsFileAttribute],
+                                [NSNumber numberWithInt:PRColumnString],    [NSNumber numberWithInt:PRAlbumArtistFileAttribute],
+                                [NSNumber numberWithInt:PRColumnString],    [NSNumber numberWithInt:PRGenreFileAttribute],
+                                [NSNumber numberWithInt:PRColumnString],    [NSNumber numberWithInt:PRDateAddedFileAttribute],
+                                [NSNumber numberWithInt:PRColumnString],    [NSNumber numberWithInt:PRLastPlayedFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRPlayCountFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRRatingFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRSizeFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRKindFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRTimeFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRBitrateFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRChannelsFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRSampleRateFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRAlbumArtFileAttribute],
+                                [NSNumber numberWithInt:PRColumnData],      [NSNumber numberWithInt:PRCheckSumFileAttribute],
+                                [NSNumber numberWithInt:PRColumnString],    [NSNumber numberWithInt:PRArtistAlbumArtistFileAttribute],
+                                [NSNumber numberWithInt:PRColumnString],    [NSNumber numberWithInt:PRLastModifiedFileAttribute],
+                                nil] retain];
+    }
+    return _columnForAttribute;
 }
 
 + (NSString *)columnNameForFileAttribute:(PRFileAttribute)attribute;
 {
 	NSString *columnName = [[PRLibrary columnDict] objectForKey:[NSNumber numberWithInt:attribute]];
 	if (!columnName) {
-		columnName = @"";
+		return @"";
 	}
 	return columnName;
 }
@@ -242,313 +321,157 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     return 0;
 }
 
-- (BOOL)value:(id *)value forFile:(PRFile)file  attribute:(PRFileAttribute)attribute _error:(NSError **)error;
-{    
-	NSString *column = [[PRLibrary columnDict] objectForKey:[NSNumber numberWithInt:attribute]];
-	return [db value:value 
-		   forColumn:column 
-				 row:file 
-				 key:@"file_id" 
-			   table:@"library" 
-			  _error:error];	
-}
-
-- (BOOL)setValue:(id)value forFile:(PRFile)file attribute:(PRFileAttribute)attr _error:(NSError **)error;
+- (id)valueForFile:(PRFile)file attribute:(PRFileAttribute)attribute
 {
-	NSString *column = [[PRLibrary columnDict] objectForKey:[NSNumber numberWithInt:attr]];
-	return [db setValue:value 
-			  forColumn:column 
-					row:file 
-					key:@"file_id" 
-				  table:@"library" 
-				 _error:error];
-}
-
-- (BOOL)intValue:(int *)value forFile:(PRFile)file attribute:(PRFileAttribute)attribute _error:(NSError **)error
-{
-	NSString *column = [[PRLibrary columnDict] objectForKey:[NSNumber numberWithInt:attribute]];
-	return [db intValue:value 
-			  forColumn:column 
-					row:file 
-					key:@"file_id" 
-				  table:@"library" 
-				 _error:error];
-}
-
-- (BOOL)setIntValue:(int)value forFile:(PRFile)file attribute:(PRFileAttribute)attr _error:(NSError **)error
-{
-	NSString *column = [[PRLibrary columnDict] objectForKey:[NSNumber numberWithInt:attr]];
-	return [db setIntValue:value 
-                 forColumn:column 
-                       row:file 
-                       key:@"file_id" 
-                     table:@"library" 
-                    _error:error];
-}
-
-- (BOOL)attributes:(NSDictionary **)attributes forFile:(PRFile)file _error:(NSError **)error
-{
-    NSString *statement = [NSString stringWithFormat:
-                           @"SELECT path, "
-                           "title, artist, album, BPM, year, trackNumber, trackCount, composer, discNumber, discCount, comments, albumArtist, genre, "
-                           "albumArt, "
-                           "size, kind, time, bitrate, channels, sampleRate, checkSum, lastModified, "
-                           "dateAdded, lastPlayed, playCount, rating, "
-                           "artistAlbumArtist "
-                           "FROM library WHERE file_id = ?1"];
+    NSString *string = [NSString stringWithFormat:@"SELECT %@ FROM library WHERE file_id = ?1", 
+                        [[PRLibrary columnDict] objectForKey:[NSNumber numberWithInt:attribute]]];
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:file], [NSNumber numberWithInt:1], nil];
-    NSArray *result;
-    if (![db executeStatement:statement withBindings:bindings result:&result _error:nil]) {
-        return FALSE;
+    NSArray *columns = [NSArray arrayWithObjects:[[PRLibrary columnForAttribute] objectForKey:[NSNumber numberWithInt:attribute]], nil];
+    NSArray *results = [db execute:string bindings:bindings columns:columns];
+    if ([results count] != 1) {
+        [PRException raise:PRDbInconsistencyException format:@""];
     }
-    if ([result count] == 0) {
-        *attributes = nil;
-        return TRUE;
+    return [[results objectAtIndex:0] objectAtIndex:0];
+}
+
+- (void)setValue:(id)value forFile:(PRFile)file attribute:(PRFileAttribute)attribute
+{
+    NSString *string = [NSString stringWithFormat:@"UPDATE library SET %@ = ?1 WHERE file_id = ?2", 
+                        [[PRLibrary columnDict] objectForKey:[NSNumber numberWithInt:attribute]]];
+    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
+                              value, [NSNumber numberWithInt:1], 
+                              [NSNumber numberWithInt:file], [NSNumber numberWithInt:2], nil];
+    [db execute:string bindings:bindings columns:nil];
+}
+
+- (NSDictionary *)attributesForFile:(PRFile)file
+{
+    NSMutableString *string = [NSMutableString stringWithString:@"SELECT "];
+    for (NSNumber *i in [PRLibrary attributes]) {
+        [string appendFormat:@"%@, ",[[PRLibrary columnDict] objectForKey:i]];
     }
-    result = [result objectAtIndex:0];
+    [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
+    [string appendString:@"FROM library WHERE file_id = ?1"];
+    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
+                              [NSNumber numberWithInt:file], [NSNumber numberWithInt:1], nil];
+    NSMutableArray *columns = [NSMutableArray array];
+    for (NSNumber *i in [PRLibrary attributes]) {
+        [columns addObject:[[PRLibrary columnForAttribute] objectForKey:i]];
+    }
+    NSArray *results = [db execute:string bindings:bindings columns:columns];
+    if ([results count] != 1) {
+        [PRException raise:PRDbInconsistencyException format:@""];
+    }
+    NSArray *row = [results objectAtIndex:0];
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
-    [dictionary setObject:[result objectAtIndex:0] forKey:[NSNumber numberWithInt:PRPathFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:1] forKey:[NSNumber numberWithInt:PRTitleFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:2] forKey:[NSNumber numberWithInt:PRArtistFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:3] forKey:[NSNumber numberWithInt:PRAlbumFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:4] forKey:[NSNumber numberWithInt:PRBPMFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:5] forKey:[NSNumber numberWithInt:PRYearFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:6] forKey:[NSNumber numberWithInt:PRTrackNumberFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:7] forKey:[NSNumber numberWithInt:PRTrackCountFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:8] forKey:[NSNumber numberWithInt:PRComposerFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:9] forKey:[NSNumber numberWithInt:PRDiscNumberFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:10] forKey:[NSNumber numberWithInt:PRDiscCountFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:11] forKey:[NSNumber numberWithInt:PRCommentsFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:12] forKey:[NSNumber numberWithInt:PRAlbumArtistFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:13] forKey:[NSNumber numberWithInt:PRGenreFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:14] forKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:15] forKey:[NSNumber numberWithInt:PRSizeFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:16] forKey:[NSNumber numberWithInt:PRKindFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:17] forKey:[NSNumber numberWithInt:PRTimeFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:18] forKey:[NSNumber numberWithInt:PRBitrateFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:19] forKey:[NSNumber numberWithInt:PRChannelsFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:20] forKey:[NSNumber numberWithInt:PRSampleRateFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:21] forKey:[NSNumber numberWithInt:PRCheckSumFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:22] forKey:[NSNumber numberWithInt:PRLastModifiedFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:23] forKey:[NSNumber numberWithInt:PRDateAddedFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:24] forKey:[NSNumber numberWithInt:PRLastPlayedFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:25] forKey:[NSNumber numberWithInt:PRPlayCountFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:26] forKey:[NSNumber numberWithInt:PRRatingFileAttribute]];
-    [dictionary setObject:[result objectAtIndex:27] forKey:[NSNumber numberWithInt:PRArtistAlbumArtistFileAttribute]];
-
-    
-    *attributes = dictionary;
-    return TRUE;
+    for (int i = 0; i < [[PRLibrary attributes] count]; i++) {
+        [dictionary setObject:[row objectAtIndex:i] forKey:[[PRLibrary attributes] objectAtIndex:i]];
+    }
+    return dictionary;
 }
 
-- (BOOL)setAttributes:(NSDictionary *)dictionary forFile:(PRFile)file _error:(NSError **)error
+- (void)setAttributes:(NSDictionary *)attributes forFile:(PRFile)file
 {
-    NSMutableString *statement = [NSMutableString stringWithString:@"UPDATE library SET "];
-    NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
-    int bindingIndex = 1;
-    for (NSNumber *i in [dictionary allKeys]) {
-        [statement appendFormat:@"%@ = ?%d, ", [[self class] columnNameForFileAttribute:[i intValue]], bindingIndex];
-        [bindings setObject:[dictionary objectForKey:i] 
-                     forKey:[NSNumber numberWithInt:bindingIndex]];
-        
-        bindingIndex += 1;
-    }
-    [statement deleteCharactersInRange:NSMakeRange([statement length] - 2, 1)];
-    
-    [statement appendFormat:@"WHERE file_id = ?%d", bindingIndex];
-    [bindings setObject:[NSNumber numberWithInt:file] 
-                 forKey:[NSNumber numberWithInt:bindingIndex]];
-    
-    if (![db executeStatement:statement 
-                 withBindings:bindings 
-                       _error:nil]) {
-        return FALSE;
-    }
-    return TRUE;
-}
-
-- (BOOL)addFile:(PRFile *)file withAttributes:(NSDictionary *)attributes _error:(NSError **)error
-{
-    NSMutableString *statement = [NSMutableString stringWithString:@"INSERT INTO library ("];
-    NSMutableString *statement2 = [NSMutableString stringWithString:@"VALUES ("];
+    NSMutableString *string = [NSMutableString stringWithString:@"UPDATE library SET "];
     NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
     int bindingIndex = 1;
     for (NSNumber *i in [attributes allKeys]) {
-        [statement appendFormat:@"%@, ", [[self class] columnNameForFileAttribute:[i intValue]]];
-        [statement2 appendFormat:@"?%d, ", bindingIndex];
+        [string appendFormat:@"%@ = ?%d, ", [[self class] columnNameForFileAttribute:[i intValue]], bindingIndex];
         [bindings setObject:[attributes objectForKey:i] forKey:[NSNumber numberWithInt:bindingIndex]];
         bindingIndex += 1;
     }
-    [statement deleteCharactersInRange:NSMakeRange([statement length] - 2, 1)];
-    [statement2 deleteCharactersInRange:NSMakeRange([statement2 length] - 2, 1)];
-    [statement appendString:@") "];
-    [statement2 appendString:@") "];
-    [statement appendString:statement2];
-    if (![db executeStatement:statement withBindings:bindings _error:nil]) {
-        return FALSE;
-    }
-        
-    NSString *statement3 = @"SELECT file_id FROM library WHERE path = ?1";
-    NSDictionary *bindings2 = [NSDictionary dictionaryWithObject:[attributes objectForKey:[NSNumber numberWithInt:PRPathFileAttribute]] 
-                                                          forKey:[NSNumber numberWithInt:1]];
-    NSArray *result;
-    if (![db executeStatement:statement3 withBindings:bindings2 result:&result _error:nil]) {
-        return FALSE;
-    }
-    
-    if  ([result count] == 1) {
-        *file = [[result objectAtIndex:0] intValue];
-    } else {
-        return FALSE;
-    }
-    return TRUE;
-
+    [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
+    [string appendFormat:@"WHERE file_id = ?%d", bindingIndex];
+    [bindings setObject:[NSNumber numberWithInt:file] forKey:[NSNumber numberWithInt:bindingIndex]];
+    [db execute:string bindings:bindings columns:nil];
 }
 
-- (BOOL)addFile:(PRFile *)file withPath:(NSString *)path _error:(NSError **)error
+- (void)removeFiles:(NSIndexSet *)files
 {
-    NSArray *result;
-    if (![db executeStatement:@"SELECT * FROM library WHERE path = ?1" 
-                 withBindings:[NSDictionary dictionaryWithObject:path forKey:[NSNumber numberWithInt:1]]
-                       result:&result
-                       _error:nil]) {
-        return FALSE;
-    }
-    if ([result count] > 0) {
-        return FALSE;
-    }
-    if (![db executeStatement:@"INSERT INTO library (path) VALUES (?1)" 
-                 withBindings:[NSDictionary dictionaryWithObject:path forKey:[NSNumber numberWithInt:1]] 
-                       _error:nil]) {
-        return FALSE;
-    }
-    NSArray *array;
-    if (![db executeStatement:@"SELECT file_id FROM library WHERE path = :path" 
-                 withBindings:[NSDictionary dictionaryWithObject:path forKey:[NSNumber numberWithInt:1]]  
-                       result:&array
-                       _error:nil]) {
-        return FALSE;
-    }
-    
-    if  ([array count] == 1) {
-        *file = [[array objectAtIndex:0] intValue];
-    } else {
-        return FALSE;
-    }
-    return TRUE;
-}
-
-- (BOOL)removeFiles:(NSIndexSet *)fileIndexes _error:(NSError **)error
-{
-    NSMutableString *stmtString = 
-    [NSMutableString stringWithString:@"DELETE FROM library WHERE file_id IN ("];
-    NSInteger file = [fileIndexes firstIndex];
+    NSMutableString *string = [NSMutableString stringWithString:@"DELETE FROM library WHERE file_id IN ("];
+    NSInteger file = [files firstIndex];
     while (file != NSNotFound) {
-        [stmtString appendString:[NSString stringWithFormat:@"%d, ", file]];
-        file = [fileIndexes indexGreaterThanIndex:file];
+        [string appendString:[NSString stringWithFormat:@"%d, ", file]];
+        file = [files indexGreaterThanIndex:file];
         // delete album art
         [[db albumArtController] clearAlbumArtForFile:file];
     }
-    [stmtString deleteCharactersInRange:NSMakeRange([stmtString length] - 2, 2)];
-    [stmtString appendString:@")"];
-    
-    if (![db executeStatement:stmtString _error:error]) {
-        return FALSE;
-    }
-    if (![self propagateFileDelete_error:error]) {
-        return FALSE;
-    }
-    return TRUE;
+    [string deleteCharactersInRange:NSMakeRange([string length] - 2, 2)];
+    [string appendString:@")"];
+    [db execute:string];
+    [self propagateFileDelete_error:nil];
 }
 
-- (BOOL)files:(NSIndexSet **)files withPath:(NSString *)path caseSensitive:(BOOL)caseSensitive _error:(NSError **)error
+// ========================================
+// Accessors Misc
+// ========================================
+
+- (NSString *)comparisonArtistForFile:(PRFile)file
 {
-    if (caseSensitive) {
-        return [self files:files withValue:path forAttribute:PRPathFileAttribute _error:nil];
+    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
+        return [self valueForFile:file attribute:PRArtistAlbumArtistFileAttribute];
+    } else {
+        return [self valueForFile:file attribute:PRArtistFileAttribute];
     }
-    NSString *statement = @"SELECT file_id FROM library WHERE path = ?1 COLLATE NOCASE";
-    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-                              path, [NSNumber numberWithInt:1], nil];
-    NSArray *result;
-    if (![db executeStatement:statement
-                 withBindings:bindings 
-                       result:&result 
-                       _error:nil]) {
-        return FALSE;
-    }
-    
-    NSMutableIndexSet *mutableFiles = [NSMutableIndexSet indexSet];
-    if (result) {
-        for (NSNumber *i in result) {
-            [mutableFiles addIndex:[i intValue]];
-        }
-    }
-    *files = [[[NSIndexSet alloc] initWithIndexSet:mutableFiles] autorelease];
-    return TRUE;
 }
 
-- (BOOL)files:(NSIndexSet **)files withValue:(id)value forAttribute:(PRFileAttribute)attribute _error:(NSError **)error
+- (NSIndexSet *)filesWithValue:(id)value forAttribute:(PRFileAttribute)attribute
 {
-    NSString *statement = [NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ = ?1", [[self class] columnNameForFileAttribute:attribute]];
+    NSString *string = [NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ = ?1", [PRLibrary columnNameForFileAttribute:attribute]];
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               value, [NSNumber numberWithInt:1], nil];
-    NSArray *result;
-    if (![db executeStatement:statement
-                 withBindings:bindings 
-                       result:&result 
-                       _error:nil]) {
-        return FALSE;
+    NSArray *columns = [NSArray arrayWithObjects:[[PRLibrary columnForAttribute] objectForKey:[NSNumber numberWithInt:attribute]], nil];
+    NSArray *result = [db execute:string bindings:bindings columns:columns];
+    NSMutableIndexSet *files = [NSMutableIndexSet indexSet];
+    for (NSArray *i in result) {
+        [files addIndex:[[i objectAtIndex:0] intValue]];
     }
-    
-    NSMutableIndexSet *mutableFiles = [NSMutableIndexSet indexSet];
-    if (result) {
-        for (NSNumber *i in result) {
-            [mutableFiles addIndex:[i intValue]];
-        }
-    }
-    *files = [[[NSIndexSet alloc] initWithIndexSet:mutableFiles] autorelease];
-    return TRUE;
+    return files;
 }
 
-- (BOOL)arrayOfUniqueValues:(NSArray **)array forAttribute:(PRFileAttribute)attr _error:(NSError **)error
+- (NSIndexSet *)filesWithPath:(NSString *)path caseSensitive:(BOOL)caseSensitive
 {
-    // array of files
-    NSArray *result;
-    NSString *attrString = [[PRLibrary columnDict] objectForKey:[NSNumber numberWithInt:attr]];
-    NSString *statement = [NSString stringWithFormat:@"SELECT file_id FROM library GROUP BY %@ COLLATE NOCASE2", attrString];
-    if ([db executeStatement:statement
-                withBindings:nil 
-                      result:&result 
-                      _error:nil]) {
-        return FALSE;
+    if (caseSensitive) {
+        return [self filesWithValue:path forAttribute:PRPathFileAttribute];
     }
-    
-    // array of values
-    NSMutableArray *uniqueValues = [NSMutableArray array];
-    for (NSNumber *file in result) {
-        id arrayObject;
-        [self value:&arrayObject forFile:[file intValue] attribute:attr _error:nil];
-        if (arrayObject) {
-			[uniqueValues addObject:arrayObject];
-		}
+    NSString *string = @"SELECT file_id FROM library WHERE path = ?1 COLLATE NOCASE";
+    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
+                              path, [NSNumber numberWithInt:1], nil];
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *result = [db execute:string bindings:bindings columns:columns];
+    NSMutableIndexSet *files = [NSMutableIndexSet indexSet];
+    for (NSArray *i in result) {
+        [files addIndex:[[i objectAtIndex:0] intValue]];
     }
-    
-    *array  = [NSArray arrayWithArray:uniqueValues];
-    return TRUE;	
+    return files;
 }
 
-- (BOOL)arrayOfFileIDsSortedByAlbumAndArtist:(NSArray **)array _error:(NSError **)error
-{
-    if ([db executeStatement:@"SELECT file_id FROM library "
-         "ORDER BY artist COLLATE NOCASE2, album COLLATE NOCASE2"
-                withBindings:nil
-                      result:array 
-                      _error:nil]) {
-        return FALSE;
-    }
-    return TRUE;
-}
+//- (BOOL)arrayOfUniqueValues:(NSArray **)array forAttribute:(PRFileAttribute)attr _error:(NSError **)error
+//{
+//    // array of files
+//    NSArray *result;
+//    NSString *attrString = [[PRLibrary columnDict] objectForKey:[NSNumber numberWithInt:attr]];
+//    NSString *statement = [NSString stringWithFormat:@"SELECT file_id FROM library GROUP BY %@ COLLATE NOCASE2", attrString];
+//    if ([db executeStatement:statement
+//                withBindings:nil 
+//                      result:&result 
+//                      _error:nil]) {
+//        return FALSE;
+//    }
+//    
+//    // array of values
+//    NSMutableArray *uniqueValues = [NSMutableArray array];
+//    for (NSNumber *file in result) {
+//        id arrayObject = [self valueForFile:[file intValue] attribute:attr];
+//        if (arrayObject) {
+//			[uniqueValues addObject:arrayObject];
+//		}
+//    }
+//    
+//    *array  = [NSArray arrayWithArray:uniqueValues];
+//    return TRUE;	
+//}
 
 // ========================================
 // Temp Library
@@ -559,13 +482,13 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     PRFile file;
     NSString *string = @"SELECT file_id from temp_tbl_library ORDER BY file_id DESC LIMIT 1";
     NSArray *columns = [NSArray arrayWithObject:[NSNumber numberWithInt:PRColumnInteger]];
-    NSArray *result = [db executeString:string withBindings:nil columns:columns];
+    NSArray *result = [db execute:string bindings:nil columns:columns];
     if ([result count] == 1) {
         file = [[[result objectAtIndex:0] objectAtIndex:0] intValue] + 1;
     } else {
         string = @"SELECT file_id from library ORDER BY file_id DESC LIMIT 1";
         columns = [NSArray arrayWithObject:[NSNumber numberWithInt:PRColumnInteger]];
-        result = [db executeString:string withBindings:nil columns:columns];
+        result = [db execute:string bindings:nil columns:columns];
         if ([result count] != 1) {
             file = 1;
         } else {
@@ -577,7 +500,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:file], [NSNumber numberWithInt:1],
                               path, [NSNumber numberWithInt:2], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
     return file;
 }
 
@@ -594,19 +517,19 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
     [string appendFormat:@"WHERE file_id = ?%d", bindingIndex];
     [bindings setObject:[NSNumber numberWithInt:file] forKey:[NSNumber numberWithInt:bindingIndex]];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
 }
 
 - (void)mergeTempFilesToLibrary
 {
     NSString *string = @"INSERT OR IGNORE INTO library SELECT * FROM temp_tbl_library";
-    [db executeString:string];
+    [db execute:string];
     [self clearTempFiles];
 }
 
 - (void)clearTempFiles
 {
-    [db executeString:@"DELETE FROM temp_tbl_library"];
+    [db execute:@"DELETE FROM temp_tbl_library"];
 }
 
 // ========================================

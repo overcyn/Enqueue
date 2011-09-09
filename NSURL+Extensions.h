@@ -10,5 +10,7 @@
 //- (NSString *)pathExtension;
 
 - (BOOL)caseSensitive;
+- (BOOL)contains:(NSURL *)URL;
+- (BOOL)compare:(NSURL *)URL;
 
 @end

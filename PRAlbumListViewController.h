@@ -15,8 +15,7 @@
 	NSMutableArray *albumSumCountArray; // array of sum of album counts
     
     // cached album art
-    NSLock *lock;
-    NSMutableDictionary *cachedArt;
+    NSCache *cachedArtwork;
 }
 
 // action
@@ -25,6 +24,6 @@
 
 - (BOOL)shouldDrawGridForRow:(int)row tableView:(NSTableView *)tableView;
 
-- (void)cacheAlbumArtForFile:(int)file files:(NSIndexSet *)files dirtyRect:(NSRect)dirtyRect;
+- (void)cacheAlbumArtForFile:(int)file artworkInfo:(NSDictionary *)artworkInfo dirtyRect:(NSRect)dirtyRect;
 
 @end

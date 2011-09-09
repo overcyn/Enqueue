@@ -1,6 +1,7 @@
 #import "PRTableView.h"
 #import "PRNowPlayingController.h"
 #import "PRCore.h"
+#import "PRNowPlayingViewController.h"
 
 
 @implementation PRTableView
@@ -17,11 +18,11 @@
     [self setSlideback:TRUE];
 }
 
-- (void)selectRowIndexes:(NSIndexSet *)indexes byExtendingSelection:(BOOL)extend
-{
-	[super selectRowIndexes:indexes byExtendingSelection:extend];
-	[self setNeedsDisplay];
-}
+//- (void)selectRowIndexes:(NSIndexSet *)indexes byExtendingSelection:(BOOL)extend
+//{
+//	[super selectRowIndexes:indexes byExtendingSelection:extend];
+//	[self setNeedsDisplay];
+//}
 
 - (void)rightMouseDown:(NSEvent *)event
 {
@@ -60,7 +61,6 @@
         [super mouseDown:event];
         return;
     }
-    
     
 	if ((([event modifierFlags] & NSShiftKeyMask) == NSShiftKeyMask) ||
 		(([event modifierFlags] & NSControlKeyMask) == NSControlKeyMask) ||
@@ -115,33 +115,25 @@
 	NSIndexSet *selectedRowIndexes = [self selectedRowIndexes];
 	int	row = visibleRowIndexes.location;
 	int endRow = row + visibleRowIndexes.length;
-	NSRect rowRect;
-	NSRect rectOfRow;
-	
-	// if the view is focused, use highlight color, otherwise use the out-of-focus highlight color
-	if (self == [[self window] firstResponder]
-		//&& [[self window] isMainWindow]
-		&& [[self window] isKeyWindow]) {
-        
-		[highlightColor set];
-	} else {
-		[secondaryHighlightColor set];
-	}
-	
 	// draw highlight for the visible, selected rows
     for (; row < endRow; row++) {
 		if([selectedRowIndexes containsIndex:row]) {
-			rectOfRow = [self rectOfRow:row]; 
-			rowRect.origin = rectOfRow.origin;
-			rowRect.size.width = rectOfRow.size.width;
-			rowRect.origin.y = rowRect.origin.y;
-			
-			if ([selectedRowIndexes containsIndex:(row + 1)]) {
-				rowRect.size.height = rectOfRow.size.height - 0.5;
-			} else {
-				rowRect.size.height = rectOfRow.size.height;
-			}
+            NSColor *color;
+            if (self == [[self window] firstResponder] && [[self window] isKeyWindow]) {
+                color = highlightColor;
+            } else {
+                color = secondaryHighlightColor;
+            }
+            [color set];
+            
+			NSRect rectOfRow = [self rectOfRow:row];
+            NSRect rowRect = rectOfRow;
+            rowRect.size.height -= 1;
 			[[NSBezierPath bezierPathWithRect:rowRect] fill];
+            rowRect.origin.y += rowRect.size.height;
+            rowRect.size.height = 1;
+            [[color blendedColorWithFraction:0.3 ofColor:[NSColor whiteColor]] set];
+            [[NSBezierPath bezierPathWithRect:rowRect] fill];
 		}
 	}
 }
@@ -149,7 +141,6 @@
 + (id)_dropHighlightBackgroundColor
 {
 	// Called in Leopard
-	
 	// don't want a background color for drop highlights
 	return [NSColor clearColor];
 }
@@ -231,7 +222,6 @@
 - (void)keyDown:(NSEvent *)event
 {
 	PRNowPlayingController *now = [(PRCore *)[NSApp delegate] now];
-//	NSLog(@"%x", [[event characters] characterAtIndex:0]);
     
     if ([[event characters] length] != 1) {
         [super keyDown:event];
@@ -257,7 +247,7 @@
 - (void)draggedImage:(NSImage *)image endedAt:(NSPoint)point operation:(NSDragOperation)operation
 {
     if ([self dataSource] && [[self dataSource] respondsToSelector:@selector(draggedImage:endedAt:operation:)]) {
-        [[self dataSource] draggedImage:image endedAt:point operation:operation];
+        [(PRNowPlayingViewController *)[self dataSource] draggedImage:image endedAt:point operation:operation];
     }
     [super draggedImage:image endedAt:point operation:operation];
 }
@@ -265,7 +255,7 @@
 - (void)draggedImage:(NSImage *)image movedTo:(NSPoint)point
 {
     if ([self dataSource] && [[self dataSource] respondsToSelector:@selector(draggedImage:movedTo:)]) {
-         [[self dataSource] draggedImage:image movedTo:point];
+         [(PRNowPlayingViewController *)[self dataSource] draggedImage:image movedTo:point];
     }
     [super draggedImage:image movedTo:point];
 }
@@ -308,6 +298,20 @@
     } else if ([self bordered] == 2) {
         NSBezierPath *bezierPath2 = [NSBezierPath bezierPathWithRoundedRect:[self frame] xRadius:5.0 yRadius:5.0];
         [bezierPath2 stroke];        
+    }
+}
+
+- (void)_drawContextMenuHighlightForIndexes:(id)arg1 clipRect:(struct CGRect)arg2
+{
+    [self highlightSelectionInClipRect:NSRectFromCGRect(arg2)];
+    NSIndexSet *selectedRowIndexes = [self selectedRowIndexes];
+    NSInteger i = [selectedRowIndexes firstIndex];
+    while (i != NSNotFound) {
+        for (int j = 0; j < [self numberOfColumns]; j++) {
+            NSRect intersection = [self frameOfCellAtColumn:j row:i];
+            [self _drawContentsAtRow:i column:j withCellFrame:intersection];
+        }
+        i = [selectedRowIndexes indexGreaterThanIndex:i];
     }
 }
 

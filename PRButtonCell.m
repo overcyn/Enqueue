@@ -68,7 +68,8 @@
     NSRect drawRect = NSMakeRect(round(cellFrame.origin.x + (cellFrame.size.width - [image size].width) / 2), 
                                  round(cellFrame.origin.y + (cellFrame.size.height - [image size].height) / 2), 
                                  [image size].height, [image size].width);
-    [image drawInRect:drawRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0 respectFlipped:TRUE hints:nil];
+    [image setFlipped:TRUE];
+    [image drawInRect:drawRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
 }
 
 @end

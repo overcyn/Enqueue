@@ -113,6 +113,9 @@ typedef enum {
 
 - (void)playlistsDidChange:(NSNotification *)notification;
 
+- (void)windowWillEnterFullScreen:(NSNotification *)notification;
+- (void)windowWillExitFullScreen:(NSNotification *)notification;
+
 // ========================================
 // Accessors
 

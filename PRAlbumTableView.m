@@ -1,5 +1,5 @@
 #import "PRAlbumTableView.h"
-
+#import "PRAlbumListViewController.h"
 
 @implementation PRAlbumTableView
 
@@ -9,7 +9,7 @@
 	[[NSColor gridColor] set];
 	[NSBezierPath setDefaultLineWidth:0];
 	for (int i = columnRange.location; i < NSMaxRange(columnRange); i++) {
-		if ([[self delegate] shouldDrawGridForRow:i tableView:self]) {
+		if ([(PRAlbumListViewController *)[self delegate] shouldDrawGridForRow:i tableView:self]) {
 			NSRect colRect = [self rectOfRow:i];
 			NSPoint startPoint = NSMakePoint(colRect.origin.x, colRect.origin.y + colRect.size.height - 0.5);
 			NSPoint endPoint = NSMakePoint(colRect.origin.x + colRect.size.width, colRect.origin.y + colRect.size.height - 0.5);
@@ -35,8 +35,8 @@
 	// draw highlight for the visible, selected rows
     int	row = visibleRowIndexes.location;
 	int endRow = row + visibleRowIndexes.length;
-    for (row; row < endRow; row++) {
-		int actualRow = [[self delegate] dbRowForTableRow:row];
+    for (; row < endRow; row++) {
+		int actualRow = [(PRAlbumListViewController *)[self delegate] dbRowForTableRow:row];
 		if ([selectedRowIndexes containsIndex:row] && actualRow != -1) {
 			NSRect rectOfRow = [self rectOfRow:row]; 
             NSRect rowRect;
@@ -44,13 +44,9 @@
 			rowRect.size.width = rectOfRow.size.width;
 			rowRect.origin.y = rowRect.origin.y;
 			
-			actualRow = [[self delegate] dbRowForTableRow:row + 1];
+//			actualRow = [(PRAlbumListViewController *)[self delegate] dbRowForTableRow:row + 1];
 			
-			if ([selectedRowIndexes containsIndex:(row + 1)] && actualRow != -1 ) {
-				rowRect.size.height = rectOfRow.size.height - 0.5;
-			} else {
-				rowRect.size.height = rectOfRow.size.height;
-			}
+			rowRect.size.height = rectOfRow.size.height - 0.3;
 			[[NSBezierPath bezierPathWithRect:rowRect] fill];
 		}
 	}

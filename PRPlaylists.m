@@ -2,7 +2,7 @@
 #import "PRPlaylists+Extensions.h"
 #import "PRDb.h"
 #import "PRPlaybackOrder.h"
-#import "PRLog.h"
+#import "PREnqueue.h"
 
 NSString * const PR_TBL_PLAYLISTS_SQL = @"CREATE TABLE playlists ("
 "playlist_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
@@ -56,45 +56,41 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 - (void)create
 {
     NSString *string = PR_TBL_PLAYLISTS_SQL;
-    [db executeString:string];
+    [db execute:string];
 
     string = PR_TBL_PLAYLIST_ITEMS_SQL;
-    [db executeString:string];
+    [db execute:string];
     
     string = PR_IDX_PLAYLIST_ITEMS_SQL;
-    [db executeString:string];
+    [db execute:string];
 }
 
-- (void)initialize
-{
-}
-
-- (BOOL)validate
+- (BOOL)initialize
 {
     NSString *string = @"SELECT sql FROM sqlite_master WHERE name = 'playlists'";
     NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnString], nil];
-    NSArray *result = [db executeString:string withBindings:nil columns:columns];
-    if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_PLAYLISTS_SQL]) {
+    NSArray *results = [db execute:string bindings:nil columns:columns];
+    if ([results count] != 1 || ![[[results objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_PLAYLISTS_SQL]) {
         return FALSE;
     }
-
+    
     string = @"SELECT sql FROM sqlite_master WHERE name = 'playlist_items'";
-    result = [db executeString:string withBindings:nil columns:columns];
-    if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_PLAYLIST_ITEMS_SQL]) {
+    results = [db execute:string bindings:nil columns:columns];
+    if ([results count] != 1 || ![[[results objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_PLAYLIST_ITEMS_SQL]) {
         return FALSE;
     }
     
     string = @"SELECT sql FROM sqlite_master WHERE name = 'index_playlistItems'";
-    result = [db executeString:string withBindings:nil columns:columns];
-    if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_PLAYLIST_ITEMS_SQL]) {
+    results = [db execute:string bindings:nil columns:columns];
+    if ([results count] != 1 || ![[[results objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_PLAYLIST_ITEMS_SQL]) {
         return FALSE;
     }
-
+    
     // Create library if it doesnt exist
     string = @"SELECT playlist_id FROM playlists WHERE type=0";
     columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    result = [db executeString:string withBindings:nil columns:columns];
-    if ([result count] != 1) {
+    results = [db execute:string bindings:nil columns:columns];
+    if ([results count] != 1) {
         PRPlaylist libraryPlaylist = [self addPlaylist];
         [self setValue:@"Music" forPlaylist:libraryPlaylist attribute:PRTitlePlaylistAttribute];
         [self setValue:[NSNumber numberWithInt:PRLibraryPlaylistType] forPlaylist:libraryPlaylist attribute:PRTypePlaylistAttribute];
@@ -103,36 +99,36 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 	// Create now playing playlist if it doesnt exist
     string = @"SELECT playlist_id FROM playlists WHERE type=1";
     columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    result = [db executeString:string withBindings:nil columns:columns];
-    if ([result count] != 1) {
+    results = [db execute:string bindings:nil columns:columns];
+    if ([results count] != 1) {
         PRPlaylist nowPlayingPlaylist = [self addPlaylist];
         [self setValue:@"Now Playing" forPlaylist:nowPlayingPlaylist attribute:PRTitlePlaylistAttribute];
         [self setValue:[NSNumber numberWithInt:PRNowPlayingPlaylistType] forPlaylist:nowPlayingPlaylist attribute:PRTypePlaylistAttribute];
     }
-        
+    
     // Create Duplicate playlist if it doesnt exist
     string = @"SELECT playlist_id FROM playlists WHERE type=4";
     columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    result = [db executeString:string withBindings:nil columns:columns];
-    if ([result count] != 1) {
+    results = [db execute:string bindings:nil columns:columns];
+    if ([results count] != 1) {
         string = @"DELETE FROM playlists WHERE type=4";
-        [db executeString:string];
+        [db execute:string];
         [self addDuplicatePlaylist];
     }
     
     // Create missing playlist if it doesnt exist
     string = @"SELECT playlist_id FROM playlists WHERE type=5";
     columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    result = [db executeString:string withBindings:nil columns:columns];
-    if ([result count] != 1) {
+    results = [db execute:string bindings:nil columns:columns];
+    if ([results count] != 1) {
         string = @"DELETE FROM playlists WHERE type=5";
-        [db executeString:string];
+        [db execute:string];
         [self addMissingPlaylist];
     }
     
     // Clean up
     [self cleanPlaylists];
-    [self cleanPlaylistItems_error:nil];
+    [self cleanPlaylistItems];
     return TRUE;
 }
 
@@ -199,39 +195,40 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return TRUE;
 }
 
-- (BOOL)cleanPlaylistItems_error:(NSError **)error
+- (BOOL)cleanPlaylistItems
 {
-    return TRUE;
+    // remove playlist_items where the playlist type is not static or nowplaying
+    NSString *string = @"DELETE FROM playlist_items WHERE playlist_id IN "
+    "(SELECT playlist_id FROM playlists WHERE type != ?1 || type != ?2)";
+    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
+                              [NSNumber numberWithInt:PRStaticPlaylistType], [NSNumber numberWithInt:1],
+                              [NSNumber numberWithInt:PRNowPlayingPlaylistType], [NSNumber numberWithInt:2], nil];
+    [db execute:string bindings:bindings columns:nil];
+    
+    // Make sure that there are no gaps in playlist_index
     NSArray *playlists = [self playlists];
     for (NSNumber *i in playlists) {
         PRPlaylist playlist = [i intValue];
         PRPlaylistType playlistType = [[self valueForPlaylist:playlist attribute:PRTypePlaylistAttribute] intValue];
         int count = [self countForPlaylist:playlist];
-        
-        if (!(playlistType == PRStaticPlaylistType || playlistType == PRNowPlayingPlaylistType) || count == 0) {
+        if ((playlistType != PRStaticPlaylistType && playlistType != PRNowPlayingPlaylistType) || count == 0) {
             continue;
         }
         
         // get max and min values for playlist_index
-        NSString *string = @"SELECT max(playlist_index) FROM playlist_items WHERE playlist_id = ?1";
+        NSString *string = @"SELECT max(playlist_index), min(playlist_index) "
+        "FROM playlist_items WHERE playlist_id = ?1";
         NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                                   [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1], nil];
-        NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-        NSArray *result = [db executeString:string withBindings:bindings columns:columns];
-        if ([result count] != 0) {
-            [[PRLog sharedLog] presentFatalError:nil];
+        NSArray *columns = [NSArray arrayWithObjects:
+                            [NSNumber numberWithInt:PRColumnInteger], 
+                            [NSNumber numberWithInt:PRColumnInteger], nil];
+        NSArray *results = [db execute:string bindings:bindings columns:columns];
+        if ([results count] != 1) {
+            [PRException raise:PRDbInconsistencyException format:@""];
         }
-        int max = [[[result objectAtIndex:0] objectAtIndex:0] intValue];
-        
-        string = @"SELECT min(playlist_index) FROM playlist_items WHERE playlist_id = ?1" ;
-        bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-                    [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1], nil];
-        columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-        result = [db executeString:string withBindings:bindings columns:columns];
-        if ([result count] != 0) {
-            [[PRLog sharedLog] presentFatalError:nil];
-        }
-        int min = [[[result objectAtIndex:0] objectAtIndex:0] intValue];
+        int max = [[[results objectAtIndex:0] objectAtIndex:0] intValue];
+        int min = [[[results objectAtIndex:0] objectAtIndex:1] intValue];
         
         // if max and min are invalid, update playlist_indexes of playlist_items
         if (min != 1 || max != count) {
@@ -240,34 +237,18 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
             bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                         [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1], nil];
             columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-            NSArray *playlistItemArray = [db executeString:string withBindings:bindings columns:columns];
+            NSArray *playlistItems = [db execute:string bindings:bindings columns:columns];
             
-            for (int i = 0; i < [playlistItemArray count]; i++) {
+            for (int i = 0; i < [playlistItems count]; i++) {
                 string = @"UPDATE playlist_items SET playlist_index = ?1 WHERE playlist_item_id = ?2";
                 bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                             [NSNumber numberWithInt:i + 1], [NSNumber numberWithInt:1],
-                            [playlistItemArray objectAtIndex:i], [NSNumber numberWithInt:2], nil];
-                [db executeString:string withBindings:bindings columns:nil];
+                            [[playlistItems objectAtIndex:i] objectAtIndex:0], [NSNumber numberWithInt:2], nil];
+                [db execute:string bindings:bindings columns:nil];
             }
             [db commit];
         }
     }
-    
-    // get all playlist_ids
-    if (![db executeStatement:@"SELECT playlist_id FROM playlist_items GROUP BY playlist_id" 
-                 withBindings:nil 
-                       result:&playlists 
-                       _error:nil]) {
-        return FALSE;
-    }
-    for (NSNumber *i in playlists) {
-        PRPlaylistType playlistType = [self typeForPlaylist:[i intValue]];
-        // if playlist_type is not PRStaticPlaylist, remove playlist_items with that playlist_id
-        if (!(playlistType == PRStaticPlaylistType || playlistType == PRNowPlayingPlaylistType)) {
-            NSLog(@"PRPlaylistItems Inconsistency error2!!!!!!!!!!!!!!!!!!!!!");
-        }
-    }
-        
     return TRUE;
 }
 
@@ -279,7 +260,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 {
     NSString *string = @"SELECT playlist_id FROM playlists ORDER BY type, title COLLATE NOCASE, playlist_id";
     NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *results = [db executeString:string withBindings:nil columns:columns];
+    NSArray *results = [db execute:string bindings:nil columns:columns];
     NSMutableArray *playlists = [NSMutableArray array];
     for (NSArray *i in results) {
         [playlists addObject:[i objectAtIndex:0]];
@@ -289,42 +270,40 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 
 - (PRPlaylist)libraryPlaylist
 {
+    NSString *string = @"SELECT playlist_id FROM playlists WHERE type = ?1";
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:PRLibraryPlaylistType], [NSNumber numberWithInt:1], nil];
-    NSArray *result;
-    if (![db executeStatement:@"SELECT playlist_id FROM playlists WHERE type = ?1"
-                 withBindings:bindings
-                       result:&result 
-                       _error:nil]) {
-        return FALSE;
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *results = [db execute:string bindings:bindings columns:columns];
+    if ([results count] != 1) {
+        [PRException raise:PRDbInconsistencyException format:@""];
     }
-    return [[result objectAtIndex:0] intValue];
+    return [[[results objectAtIndex:0] objectAtIndex:0] intValue];
 }
 
 - (PRPlaylist)nowPlayingPlaylist
 {
+    NSString *string = @"SELECT playlist_id FROM playlists WHERE type = ?1";
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:PRNowPlayingPlaylistType], [NSNumber numberWithInt:1], nil];
-    NSArray *result;
-    if (![db executeStatement:@"SELECT playlist_id FROM playlists WHERE type = ?1"
-                 withBindings:bindings
-                       result:&result 
-                       _error:nil]) {
-        return FALSE;
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *results = [db execute:string bindings:bindings columns:columns];
+    if ([results count] != 1) {
+        [PRException raise:PRDbInconsistencyException format:@""];
     }
-    return [[result objectAtIndex:0] intValue];
+    return [[[results objectAtIndex:0] objectAtIndex:0] intValue];
 }
 
 - (PRPlaylist)addPlaylist
 {
     [db begin];
-    [db executeString:@"INSERT INTO playlists DEFAULT VALUES"];
+    [db execute:@"INSERT INTO playlists DEFAULT VALUES"];
     NSString *string = @"SELECT MAX(playlist_id) FROM playlists";
     NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *result = [db executeString:string withBindings:nil columns:columns];
+    NSArray *result = [db execute:string bindings:nil columns:columns];
     if ([result count] != 1) {
         [db rollback];
-        [[PRLog sharedLog] presentFatalError:nil];
+        [PRException raise:PRDbInconsistencyException format:@""];
     }
     [db commit];
     return [[[result objectAtIndex:0] objectAtIndex:0] intValue];
@@ -336,6 +315,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     PRPlaylist playlist = [self addPlaylist];
     [self setValue:@"Untitled Playlist" forPlaylist:playlist attribute:PRTitlePlaylistAttribute];
     [self setValue:[NSNumber numberWithInt:PRStaticPlaylistType] forPlaylist:playlist attribute:PRTypePlaylistAttribute];
+    [self setValue:[NSNumber numberWithInt:PRPlaylistIndexSort] forPlaylist:playlist attribute:PRListViewSortColumnPlaylistAttribute];
     [db commit];
     return playlist;
 }
@@ -346,6 +326,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     PRPlaylist playlist = [self addPlaylist];
     [self setValue:@"Untitled Smart Playlist" forPlaylist:playlist attribute:PRTitlePlaylistAttribute];
     [self setValue:[NSNumber numberWithInt:PRSmartPlaylistType] forPlaylist:playlist attribute:PRTypePlaylistAttribute];
+    [self setValue:[NSNumber numberWithInt:PRPlaylistIndexSort] forPlaylist:playlist attribute:PRListViewSortColumnPlaylistAttribute];
     [db commit];
     return playlist;
 }
@@ -375,17 +356,17 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     NSString *string = @"DELETE FROM playlists WHERE playlist_id = ?1";
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
 }
 
 - (void)setValue:(id)value forPlaylist:(PRPlaylist)playlist attribute:(PRPlaylistAttribute)attribute 
 {
     NSString *string = [NSString stringWithFormat:@"UPDATE playlists SET %@ = ?1 WHERE playlist_id = ?2",
-                                 [PRPlaylists columnNameForPlaylistAttribute:attribute]];
+                        [PRPlaylists columnNameForPlaylistAttribute:attribute]];
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               value, [NSNumber numberWithInt:1], 
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:2], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
 }
 
 - (id)valueForPlaylist:(PRPlaylist)playlist attribute:(PRPlaylistAttribute)attribute
@@ -395,10 +376,9 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1], nil];
     NSArray *columns = [NSArray arrayWithObject:[NSNumber numberWithInt:[PRPlaylists columnForPlaylistAttribute:attribute]]];
-    NSArray *result = [db executeString:string withBindings:bindings columns:columns];
+    NSArray *result = [db execute:string bindings:bindings columns:columns];
     if ([result count] != 1) {
-        NSLog(@"valueForPlaylist:%d attribute:%d",playlist, attribute);
-        [[PRLog sharedLog] presentFatalError:nil];
+        [PRException raise:PRDbInconsistencyException format:@""];
     }
     return [[result objectAtIndex:0] objectAtIndex:0];
 }
@@ -412,7 +392,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
                         [NSNumber numberWithInt:PRColumnInteger], 
                         [NSNumber numberWithInt:PRColumnInteger], 
                         [NSNumber numberWithInt:PRColumnString], nil];
-    NSArray *results = [db executeString:string withBindings:nil columns:columns];
+    NSArray *results = [db execute:string bindings:nil columns:columns];
     NSMutableArray *playlists = [NSMutableArray array];
     for (NSArray *i in results) {
         [playlists addObject:[NSDictionary dictionaryWithObjectsAndKeys:
@@ -441,14 +421,22 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 
 - (void)addFile:(PRFile)file atIndex:(int)index toPlaylist:(PRPlaylist)playlist
 {
+    [self addFiles:[NSArray arrayWithObject:[NSNumber numberWithInt:file]] 
+           atIndex:index 
+        toPlaylist:playlist];
+}
+
+- (void)addFiles:(NSArray *)files atIndex:(int)index toPlaylist:(PRPlaylist)playlist
+{
     [db begin];
     NSString *string = @"UPDATE playlist_items "
-    "SET playlist_index = playlist_index + 10000001 "
+    "SET playlist_index = playlist_index + ?3 "
     "WHERE playlist_index >= ?1 AND playlist_id = ?2";
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:index], [NSNumber numberWithInt:1],
-                              [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:2], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+                              [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:2],
+                              [NSNumber numberWithInt:10000000 + [files count]], [NSNumber numberWithInt:3], nil];
+    [db execute:string bindings:bindings columns:nil];
     
     string = @"UPDATE playlist_items "
     "SET playlist_index = playlist_index - 10000000 "
@@ -456,15 +444,17 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                 [NSNumber numberWithInt:index], [NSNumber numberWithInt:1],
                 [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:2], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
     
-    string = @"INSERT INTO playlist_items (playlist_id, playlist_index, file_id) "
-    "VALUES (?1, ?2, ?3)";
-    bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-                [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1],
-                [NSNumber numberWithInt:index], [NSNumber numberWithInt:2], 
-                [NSNumber numberWithInt:file], [NSNumber numberWithInt:3], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    for (int i = 0; i < [files count]; i++) {
+        string = @"INSERT INTO playlist_items (playlist_id, playlist_index, file_id) "
+        "VALUES (?1, ?2, ?3)";
+        bindings = [NSDictionary dictionaryWithObjectsAndKeys:
+                    [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1],
+                    [NSNumber numberWithInt:index + i], [NSNumber numberWithInt:2], 
+                    [files objectAtIndex:i], [NSNumber numberWithInt:3], nil];
+        [db execute:string bindings:bindings columns:nil];
+    }
     [db commit];
 }
 
@@ -478,7 +468,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1],
                               [NSNumber numberWithInt:count + 1], [NSNumber numberWithInt:2],
                               [NSNumber numberWithInt:file], [NSNumber numberWithInt:3], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
     [db commit];
 }
 
@@ -500,21 +490,21 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1],
                               [NSNumber numberWithInt:index], [NSNumber numberWithInt:2], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
     
     string = @"UPDATE playlist_items SET playlist_index = playlist_index + 10000000 "
     "WHERE playlist_index > ?1 AND playlist_id = ?2";
     bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                 [NSNumber numberWithInt:index], [NSNumber numberWithInt:1],
                 [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:2], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
     
     string = @"UPDATE playlist_items SET playlist_index = playlist_index - 10000001 "
     "WHERE playlist_index > ?1 AND playlist_id = ?2";
     bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                 [NSNumber numberWithInt:index], [NSNumber numberWithInt:1],
                 [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:2], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
     
     [self propagatePlaylistDelete_error:nil];
     [self propagatePlaylistItemDelete_error:nil];
@@ -528,7 +518,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     // create temp table
     NSString *string = @"CREATE TEMP TABLE IF NOT EXISTS indexesToRemove (index2 INTEGER PRIMARY KEY)";
     NSDictionary *bindings;
-    [db executeString:string];
+    [db execute:string];
     
     // fill temp table with indexes to remove
 	NSInteger index = [indexes firstIndex];
@@ -536,7 +526,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
         string = @"INSERT INTO indexesToRemove (index2) VALUES (?1)";
         bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                     [NSNumber numberWithInt:index], [NSNumber numberWithInt:1], nil];
-        [db executeString:string withBindings:bindings columns:nil];
+        [db execute:string bindings:bindings columns:nil];
         index = [indexes indexGreaterThanIndex:index];
 	}
     
@@ -545,18 +535,18 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     "AND playlist_index IN (SELECT index2 FROM indexesToRemove)";
     bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                 [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
     
     // Delete temp table
     string = @"DROP TABLE indexesToRemove";
-    [db executeString:string];
+    [db execute:string];
     
     // Get array of playlist_item_ids ordered by playlists_index
     string = @"SELECT playlist_item_id FROM playlist_items WHERE playlist_id = ?1 ORDER BY playlist_index" ;
     bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                 [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1], nil];
     NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *result = [db executeString:string withBindings:bindings columns:columns];
+    NSArray *result = [db execute:string bindings:bindings columns:columns];
     
     // for each playlist_item_id update with new playlist_index
     for (int i = 0; i < [result count]; i++) {
@@ -564,7 +554,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
         bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                                   [NSNumber numberWithInt:i+1], [NSNumber numberWithInt:1], 
                                   [[result objectAtIndex:i] objectAtIndex:0], [NSNumber numberWithInt:2], nil];
-        [db executeString:string withBindings:bindings columns:nil];
+        [db execute:string bindings:bindings columns:nil];
     }
     
     [self propagatePlaylistItemDelete_error:nil];
@@ -577,7 +567,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     NSString *string = @"DELETE FROM playlist_items WHERE playlist_id = ?1";
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
     [self propagatePlaylistItemDelete_error:nil];
     [db commit];
 }
@@ -589,12 +579,12 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1], 
                               [NSNumber numberWithInt:index], [NSNumber numberWithInt:2], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
     
     string = @"UPDATE playlist_items SET playlist_index = 1 WHERE playlist_id = ?1";
     bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                 [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
     
     [self propagatePlaylistItemDelete_error:nil];
     [db commit];
@@ -609,7 +599,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 		[indexes count] == 0 || 
 		index > countForPlaylist + 1 ||
 		index < 1) {
-		[[PRLog sharedLog] presentFatalError:nil];
+		[PRException raise:PRDbInconsistencyException format:@""];
 	}
 	
 	[db begin];
@@ -618,14 +608,14 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1], nil];
     NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *playlistItemIDArray = [db executeString:string withBindings:bindings columns:columns];
+    NSArray *playlistItemIDArray = [db execute:string bindings:bindings columns:columns];
     
 	// Set playlist_id = -1 for all files
     string = @"UPDATE playlist_items SET playlist_id = ?1 WHERE playlist_id = ?2";
     bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                 [NSNumber numberWithInt:[self libraryPlaylist]], [NSNumber numberWithInt:1],
                 [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:2], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
     
 	// Update each playlistItemID with new playlistIndex
 	int newPlaylistIndex;
@@ -649,7 +639,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
                     [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1],
                     [NSNumber numberWithInt:newPlaylistIndex], [NSNumber numberWithInt:2],
                     [NSNumber numberWithInt:playlistItemID], [NSNumber numberWithInt:3], nil];
-        [db executeString:string withBindings:bindings columns:nil];
+        [db execute:string bindings:bindings columns:nil];
 	}
 	[db commit];
 }
@@ -663,27 +653,27 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
                         "(playlist_index INTEGER PRIMARY KEY, "
                         "file_id INTEGER, "
                         "playlist_id INTEGER DEFAULT %d)", playlist];
-    [db executeString:string];
+    [db execute:string];
     
     // insert temp value into temp table to increase the integer primary key
     int count = [self countForPlaylist:playlist];
     string = @"INSERT INTO temp_table (playlist_index, playlist_id) VALUES (?1, -1)";
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:count], [NSNumber numberWithInt:1], nil];
-    [db executeString:string withBindings:bindings columns:nil];
+    [db execute:string bindings:bindings columns:nil];
     
     // add files from libraryViewSource to temp table
     string = @"INSERT INTO temp_table (file_id) SELECT file_id FROM libraryViewSource ORDER BY row";
-    [db executeString:string];
+    [db execute:string];
     
     // copy files from temp table to playlist
     string = @"INSERT INTO playlist_items (playlist_id, playlist_index, file_id) "
     "SELECT playlist_id, playlist_index, file_id FROM temp_table WHERE playlist_id != -1";
-    [db executeString:string];
+    [db execute:string];
     
     // Drop temp table
     string = @"DROP TABLE temp_table";
-    [db executeString:string];
+    [db execute:string];
     
     [db commit];
 }
@@ -698,7 +688,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
                               [NSNumber numberWithInt:playlist2], [NSNumber numberWithInt:1],
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:2],
                               nil];
-    [db executeString:string withBindings:bindings columns:nil];    
+    [db execute:string bindings:bindings columns:nil];    
 }
 
 - (int)countForPlaylist:(PRPlaylist)playlist
@@ -707,9 +697,9 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1], nil];
     NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *result = [db executeString:string withBindings:bindings columns:columns];
+    NSArray *result = [db execute:string bindings:bindings columns:columns];
     if ([result count] != 1) {
-        [[PRLog sharedLog] presentFatalError:nil];
+        [PRException raise:PRDbInconsistencyException format:@""];
     }
     return [[[result objectAtIndex:0] objectAtIndex:0] intValue];
 }
@@ -722,9 +712,9 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1],
                               [NSNumber numberWithInt:index], [NSNumber numberWithInt:2], nil];
     NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *result = [db executeString:string withBindings:bindings columns:columns];
+    NSArray *result = [db execute:string bindings:bindings columns:columns];
     if ([result count] != 1) {
-        [[PRLog sharedLog] presentFatalError:nil];
+        [PRException raise:PRDbInconsistencyException format:@""];
     }
     return [[[result objectAtIndex:0] objectAtIndex:0] intValue];
 }
@@ -736,9 +726,9 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1],
                               [NSNumber numberWithInt:index], [NSNumber numberWithInt:2], nil];
     NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *result = [db executeString:string withBindings:bindings columns:columns];
+    NSArray *result = [db execute:string bindings:bindings columns:columns];
     if ([result count] != 1) {
-        [[PRLog sharedLog] presentFatalError:nil];
+        [PRException raise:PRDbInconsistencyException format:@""];
     }
     return [[[result objectAtIndex:0] objectAtIndex:0] intValue];
 }
@@ -749,9 +739,9 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:PRColumnInteger], [NSNumber numberWithInt:1] , nil];
     NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *results = [db executeString:string withBindings:bindings columns:columns];
+    NSArray *results = [db execute:string bindings:bindings columns:columns];
     if ([results count] != 1) {
-        [[PRLog sharedLog] presentFatalError:nil];
+        [PRException raise:PRDbInconsistencyException format:@""];
     }
     return [[[results objectAtIndex:0] objectAtIndex:0] intValue];
 }
@@ -762,10 +752,9 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:playlistItem], [NSNumber numberWithInt:1] , nil];
     NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *results = [db executeString:string withBindings:bindings columns:columns];
+    NSArray *results = [db execute:string bindings:bindings columns:columns];
     if ([results count] != 1) {
-        NSLog(@"indexForPlaylistItem:%d",playlistItem);
-        [[PRLog sharedLog] presentFatalError:nil];
+        [PRException raise:PRDbInconsistencyException format:@""];
     }
     return [[[results objectAtIndex:0] objectAtIndex:0] intValue];
 }
@@ -776,9 +765,9 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:PRColumnInteger], [NSNumber numberWithInt:1] , nil];
     NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *results = [db executeString:string withBindings:bindings columns:columns];
+    NSArray *results = [db execute:string bindings:bindings columns:columns];
     if ([results count] != 1) {
-        [[PRLog sharedLog] presentFatalError:nil];
+        [PRException raise:PRDbInconsistencyException format:@""];
     }
     return [[[results objectAtIndex:0] objectAtIndex:0] intValue];
 }
@@ -790,27 +779,23 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
                               [NSNumber numberWithInt:file], [NSNumber numberWithInt:1],
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:2], nil];
     NSArray *columns = [NSArray arrayWithObject:[NSNumber numberWithInt:PRColumnInteger]];
-    NSArray *result = [db executeString:string withBindings:bindings columns:columns];
+    NSArray *result = [db execute:string bindings:bindings columns:columns];
     return [result count] > 0;
 }
 
 - (BOOL)playlistIndexes:(NSIndexSet **)indexes forPlaylist:(PRPlaylist)playlist file:(PRFile)file _error:(NSError **)error
 {
+    NSString *string = @"SELECT playlist_index FROM playlist_items "
+    "WHERE file_id = ?2 AND playlist_id = ?1";
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1],
                               [NSNumber numberWithInt:file], [NSNumber numberWithInt:2], nil];
-    NSArray *results;
-    if (![db executeStatement:@"SELECT playlist_index FROM playlist_items "
-          "WHERE file_id = ?2 AND playlist_id = ?1"
-                 withBindings:bindings 
-                       result:&results 
-                       _error:error]) {
-        return FALSE;
-    }
+    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *results = [db execute:string bindings:bindings columns:columns];
     
     NSMutableIndexSet *mutableIndexes= [[[NSMutableIndexSet alloc] init] autorelease];
-    for (NSNumber *i in results) {
-        [mutableIndexes addIndex:[i intValue]];
+    for (NSArray *i in results) {
+        [mutableIndexes addIndex:[[i objectAtIndex:0] intValue]];
     }
     *indexes = [[[NSIndexSet alloc] initWithIndexSet:mutableIndexes] autorelease];
     return TRUE;
@@ -822,7 +807,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 
 - (BOOL)confirmFileDelete_error:(NSError **)error
 {
-    if (![self cleanPlaylistItems_error:nil]) {
+    if (![self cleanPlaylistItems]) {
         return FALSE;
     }
     if (![self propagatePlaylistItemDelete_error:nil]) {

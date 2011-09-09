@@ -16,16 +16,15 @@
 - (id)initWithDb:(PRDb *)db_;
 
 - (void)create;
-- (void)initialize;
-- (BOOL)validate;
+- (BOOL)initialize;
 
 // ========================================
 // Accessors
 // ========================================
 
-- (BOOL)queueArray:(NSArray **)array _error:(NSError **)error;
-- (BOOL)removePlaylistItem:(PRPlaylistItem)playlistItem _error:(NSError **)error;
-- (BOOL)appendPlaylistItem:(PRPlaylistItem)playlistItem _error:(NSError **)error;
-- (BOOL)clearQueue;
+- (NSArray *)queueArray;
+- (void)removePlaylistItem:(PRPlaylistItem)playlistItem;
+- (void)appendPlaylistItem:(PRPlaylistItem)playlistItem;
+- (void)clear;
 
 @end

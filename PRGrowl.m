@@ -37,18 +37,12 @@
         return;
     }
     
-    NSString *title;
-    [[[core db] library] value:&title forFile:file attribute:PRTitleFileAttribute _error:nil];
-    NSString *artist;
-    [[[core db] library] value:&artist forFile:file attribute:PRArtistFileAttribute _error:nil];
-    NSString *album;
-    [[[core db] library] value:&album forFile:file attribute:PRAlbumFileAttribute _error:nil];
-    NSNumber *time;
-    [[[core db] library] value:&time forFile:file attribute:PRTimeFileAttribute _error:nil];
+    NSString *title = [[[core db] library] valueForFile:file attribute:PRTitleFileAttribute];
+    NSString *artist = [[[core db] library] valueForFile:file attribute:PRArtistFileAttribute];
+    NSString *album = [[[core db] library] valueForFile:file attribute:PRAlbumFileAttribute];
+    NSNumber *time = [[[core db] library] valueForFile:file attribute:PRTimeFileAttribute];
     NSString *formattedTime = [[[[PRTimeFormatter alloc] init] autorelease] stringForObjectValue:time];
-    
-    NSImage *albumArt;
-    [[[core db] albumArtController] albumArt:&albumArt forFile:file _error:nil];
+    NSImage *albumArt = [[[core db] albumArtController] albumArtForFile:file];
     
     NSData *iconData = nil;
     if (albumArt) {

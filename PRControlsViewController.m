@@ -13,6 +13,7 @@
 #import "PRCore.h"
 #import "PRMainWindowController.h"
 #import "PRTimeFormatter.h"
+#import "PRUserDefaults.h"
 
 @implementation PRControlsViewController
 
@@ -125,7 +126,7 @@
         if (newRating > 100 || newRating < 0 || [now currentIndex] == 0) {
             return;
         }
-        [[db library] setIntValue:newRating forFile:[now currentFile] attribute:PRRatingFileAttribute _error:nil];
+        [[db library] setValue:[NSNumber numberWithInt:newRating] forFile:[now currentFile] attribute:PRRatingFileAttribute];
         NSDictionary *userInfo = 
             [NSDictionary dictionaryWithObject:[NSArray arrayWithObject:[NSNumber numberWithInt:[now currentFile]]]
                                         forKey:@"files"];
@@ -188,16 +189,13 @@
         artist = @"";
         album = @"";
     } else {
-        [[db library] value:&title forFile:[now currentFile] attribute:PRTitleFileAttribute _error:nil];
-        [[db library] value:&artist forFile:[now currentFile] attribute:PRArtistFileAttribute _error:nil];
-        [[db library] value:&album forFile:[now currentFile] attribute:PRAlbumFileAttribute _error:nil];
-        if (!title) {
-            title = @"";
-        }
-        if (!artist || [artist isEqualToString:@""]) {
+        title = [[db library] valueForFile:[now currentFile] attribute:PRTitleFileAttribute];
+        artist = [[db library] comparisonArtistForFile:[now currentFile]];
+        album = [[db library] valueForFile:[now currentFile] attribute:PRAlbumFileAttribute];
+        if ([artist isEqualToString:@""]) {
             artist = @"Unknown Artist";
         }
-        if (!album || [album isEqualToString:@""]) {
+        if ([album isEqualToString:@""]) {
             album = @"Unknown Album";
         }
     }
@@ -236,8 +234,8 @@
     int rating_;
 	if ([now currentIndex] == 0) {
 		rating_ = 0;
-	} else {		
-		[[db library] intValue:&rating_ forFile:[now currentFile] attribute:PRRatingFileAttribute _error:nil];
+	} else {
+        rating_ = [[[db library] valueForFile:[now currentFile] attribute:PRRatingFileAttribute] intValue];
         rating_ = floor(rating_ / 20.0);
 	}
     [ratingControl setSelectedSegment:rating_];
@@ -247,9 +245,9 @@
 	if ([now currentIndex] == 0) {
 		albumArt = nil;
 	} else {
-		[[db albumArtController] albumArt:&albumArt forFile:[now currentFile] _error:nil];
+        albumArt = [[db albumArtController] albumArtForFile:[now currentFile]];
 	}
-	if (albumArt == nil || ![albumArt isValid]) {
+	if (albumArt == nil) {
 		albumArt = [NSImage imageNamed:@"PRLightAlbumArt"];
 	}
     [albumArtView setImage:albumArt];
