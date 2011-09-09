@@ -83,7 +83,7 @@
 
 + (PRStatement *)statement:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns db:(PRDb *)db
 {
-    return [[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:db];
+    return [[[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:db] autorelease];
 }
 
 - (void)dealloc

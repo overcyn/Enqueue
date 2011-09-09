@@ -131,8 +131,6 @@
                                 shadow, NSShadowAttributeName,
                                 style, NSParagraphStyleAttributeName,
                                 [NSColor colorWithCalibratedWhite:0.0 alpha:0.4], NSForegroundColorAttributeName, nil];
-    NSAttributedString *string = [[NSAttributedString alloc] initWithString:@"Drag songs here to play" attributes:attributes];
-    [_dragLabel setAttributedStringValue:string];
     
     // playlist and current file obs
     [[NSNotificationCenter defaultCenter] addObserver:self 

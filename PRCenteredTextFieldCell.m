@@ -15,7 +15,7 @@
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView 
 {
     NSRect titleRect = [self titleRectForBounds:cellFrame];
-    NSMutableAttributedString *string = [[NSMutableAttributedString alloc] initWithAttributedString:[self attributedStringValue]];
+    NSMutableAttributedString *string = [[[NSMutableAttributedString alloc] initWithAttributedString:[self attributedStringValue]] autorelease];
     NSColor *color = [NSColor colorWithCalibratedWhite:0.10 alpha:1];
     if ([self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder] && [[[self controlView] window] isMainWindow]) {
         color = [NSColor whiteColor];
