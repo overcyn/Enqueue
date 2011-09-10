@@ -12,17 +12,22 @@
 
 @implementation PRItunesImportOperation
 
-- (id)initWithURL:(NSURL *)URL_ core:(PRCore *)core_
+- (id)initWithURL:(NSURL *)URL_ core:(PRCore *)core
 {
     self = [super init];
     if (self) {
-        core = core_;
-        _db = [core_ db2];
+        _core = core;
+        _db = [core db2];
         _tempFileCount = 0;
         iTunesURL = [URL_ retain];
     }
     
     return self;
+}
+
++ (id)operationWithURL:(NSURL *)URL core:(PRCore *)core
+{
+    return [[[PRItunesImportOperation alloc] initWithURL:URL core:core] autorelease];
 }
 
 - (void)dealloc
@@ -39,7 +44,7 @@
     
     PRTask *task = [[[PRTask alloc] init] autorelease];
     [task setTitle:@"Opening iTunes Library..."];
-    [[core taskManager] addTask:task];
+    [[_core taskManager] addTask:task];
     
     NSString *errorDescription;
     NSUInteger format;
@@ -183,7 +188,7 @@
     }
     
 end:;
-    [[core taskManager] removeTask:task];
+    [[_core taskManager] removeTask:task];
     NSNotification *notification = [NSNotification notificationWithName:PRLibraryDidChangeNotification 
                                                                  object:self 
                                                                userInfo:nil];

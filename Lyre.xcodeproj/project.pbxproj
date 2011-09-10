@@ -323,7 +323,6 @@
 		671C91ED13A43F800007D069 /* NSObject+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+Extensions.m"; sourceTree = "<group>"; };
 		671D31E01401699200B9FAA4 /* PRException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRException.h; sourceTree = "<group>"; };
 		671D31E11401699200B9FAA4 /* PRException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRException.m; sourceTree = "<group>"; };
-		671D31E314017B0C00B9FAA4 /* PREnqueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PREnqueue.h; sourceTree = "<group>"; };
 		671D31E41401A9D800B9FAA4 /* PRStatement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRStatement.h; sourceTree = "<group>"; };
 		671D31E51401A9D800B9FAA4 /* PRStatement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PRStatement.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		671D55E513B9834900DAD414 /* PRRoundedGradientView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRoundedGradientView.h; sourceTree = "<group>"; };
@@ -720,7 +719,7 @@
 		6706FCC312B9A06A00C9B075 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				67691F731338B64D00D27C01 /* UI */,
+				67691F731338B64D00D27C01 /* Cocoa */,
 				6739CBD81252AD2B00AB54A1 /* Formatters */,
 				67691F741338B69700D27C01 /* Categories */,
 			);
@@ -1044,7 +1043,7 @@
 			name = Button;
 			sourceTree = "<group>";
 		};
-		67691F731338B64D00D27C01 /* UI */ = {
+		67691F731338B64D00D27C01 /* Cocoa */ = {
 			isa = PBXGroup;
 			children = (
 				67C23B12137FA9080099A5CA /* Window */,
@@ -1059,7 +1058,7 @@
 				67691F721338B60E00D27C01 /* Button */,
 				67F15FE1138D4E270063F68A /* Progress Indicator */,
 			);
-			name = UI;
+			name = Cocoa;
 			sourceTree = "<group>";
 		};
 		67691F741338B69700D27C01 /* Categories */ = {
@@ -1395,6 +1394,8 @@
 		67C23B12137FA9080099A5CA /* Window */ = {
 			isa = PBXGroup;
 			children = (
+				671334CA13206A7D00764174 /* PRApplication.h */,
+				671334CB13206A7D00764174 /* PRApplication.m */,
 				67C23B13137FA91F0099A5CA /* PRWindow.h */,
 				67C23B14137FA91F0099A5CA /* PRWindow.m */,
 			);
@@ -1440,9 +1441,6 @@
 			children = (
 				256AC3F00F4B6AF500CF3369 /* Lyre_Prefix.pch */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
-				671D31E314017B0C00B9FAA4 /* PREnqueue.h */,
-				671334CA13206A7D00764174 /* PRApplication.h */,
-				671334CB13206A7D00764174 /* PRApplication.m */,
 				256AC3D80F4B6AC300CF3369 /* PRCore.h */,
 				256AC3D90F4B6AC300CF3369 /* PRCore.m */,
 			);

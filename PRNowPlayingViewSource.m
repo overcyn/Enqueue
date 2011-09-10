@@ -1,5 +1,4 @@
 #import "PRNowPlayingViewSource.h"
-#import "PREnqueue.h"
 #import "PRDb.h"
 #import "PRUserDefaults.h"
 

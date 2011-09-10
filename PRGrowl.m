@@ -12,12 +12,10 @@
 
 - (id)initWithCore:(PRCore *)core_
 {
-    if ((self = [super init])) {
-        core = core_;
-        [GrowlApplicationBridge setGrowlDelegate:self];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(currentFileDidChange:) name:PRCurrentFileDidChangeNotification object:nil];
-    }
-    
+    if (!(self = [super init])) {return nil;}
+    core = core_;
+    [GrowlApplicationBridge setGrowlDelegate:self];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(currentFileDidChange:) name:PRCurrentFileDidChangeNotification object:nil];
     return self;
 }
 

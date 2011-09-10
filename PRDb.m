@@ -1,5 +1,4 @@
 #import "PRDb.h"
-#import "PREnqueue.h"
 #import "PRHistory.h"
 #import "PRLibrary.h"
 #import "PRPlaylists.h"
@@ -56,10 +55,7 @@ NSString * const PRIndexesPboardType = @"PRIndexesPboardType";
 
 - (id)init
 {
-    self = [super init];
-    if (self == nil) {
-        return nil;
-    }
+    if (!(self = [super init])) {return nil;}
     
     history = [[PRHistory alloc] initWithDb:self];
     library = [[PRLibrary alloc] initWithDb:self];

@@ -2,7 +2,7 @@
 #import "PRPlaylists+Extensions.h"
 #import "PRDb.h"
 #import "PRPlaybackOrder.h"
-#import "PREnqueue.h"
+
 
 NSString * const PR_TBL_PLAYLISTS_SQL = @"CREATE TABLE playlists ("
 "playlist_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "

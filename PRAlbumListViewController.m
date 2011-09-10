@@ -19,16 +19,15 @@
    nowPlayingController:(PRNowPlayingController *)now_
   libraryViewController:(PRLibraryViewController *)libraryViewController_
 {
-	if ((self = [super initWithNibName:@"PRAlbumListView" bundle:nil])) {
-        db = db_;
-		now = now_;
-		libraryViewController = libraryViewController_;
-        refreshing = FALSE;
-		currentPlaylist = -1;
-        
-        cachedArtwork = [[NSCache alloc] init];
-        [cachedArtwork setCountLimit:50];
-	}
+	if (!(self = [super initWithNibName:@"PRAlbumListView" bundle:nil])) {return nil;}
+    db = db_;
+    now = now_;
+    libraryViewController = libraryViewController_;
+    refreshing = FALSE;
+    currentPlaylist = -1;
+    
+    cachedArtwork = [[NSCache alloc] init];
+    [cachedArtwork setCountLimit:50];
 	return self;
 }
 

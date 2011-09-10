@@ -1,10 +1,8 @@
-#import "PREnqueue.h"
 #import "PRCore.h"
 #import "PRDb.h"
 #import "PRNowPlayingController.h"
 #import "PRMainWindowController.h"
 #import "PRImportOperation.h"
-#import "PRHistory.h"
 #import "PRAlbumArtOperation.h"
 #import "PRItunesImportOperation.h"
 #import "PRFolderMonitor.h"
@@ -15,7 +13,6 @@
 #import "PRGrowl.h"
 #import "PRLastfm.h"
 #import "PRVacuumOperation.h"
-#import "Sparkle/Sparkle.h"
 
 @implementation PRCore
 
@@ -25,29 +22,29 @@
 
 - (id)init 
 {
-    self = [super init];
-    if (self) {
-        connection = [[NSConnection connectionWithReceivePort:[NSPort port] sendPort:[NSPort port]] retain];
-        if (![connection registerName:@"enqueue"]) {
-            [[PRLog sharedLog] presentFatalError:[self multipleInstancesError]];
-        }
-        
-        NSString *path = [[PRUserDefaults userDefaults] applicationSupportPath];
-        if (![[[[NSFileManager alloc] init] autorelease] findOrCreateDirectoryAtPath:path error:nil]) {
-            [[PRLog sharedLog] presentFatalError:[self couldNotCreateDirectoryError:path]];
-        }
-        
-        opQueue = [[NSOperationQueue alloc] init];
-        [opQueue setMaxConcurrentOperationCount:1];
-        taskManager = [[PRTaskManager alloc] init];
-        db = [[PRDb alloc] init];
-        db2 = [[PRDb alloc] init];
-        now = [[PRNowPlayingController alloc] initWithDb:db]; // requires: db
-        folderMonitor = [[PRFolderMonitor alloc] initWithCore:self]; // requires: opQueue, db & taskManager
-        win = [[PRMainWindowController alloc] initWithCore:self]; // requires: db, now, taskManager, folderMonitor
-        growl  = [[PRGrowl alloc] initWithCore:self];
-        lastfm = [[PRLastfm alloc] initWithCore:self];
+    if (!(self = [super init])) {return nil;}
+    
+    // Register a connection. Prevents multiple instances of application
+    _connection = [[NSConnection connectionWithReceivePort:[NSPort port] sendPort:[NSPort port]] retain];
+    if (![_connection registerName:@"enqueue"]) {
+        [[PRLog sharedLog] presentFatalError:[self multipleInstancesError]];
     }
+    
+    NSString *path = [[PRUserDefaults userDefaults] applicationSupportPath];
+    if (![[[[NSFileManager alloc] init] autorelease] findOrCreateDirectoryAtPath:path error:nil]) {
+        [[PRLog sharedLog] presentFatalError:[self couldNotCreateDirectoryError:path]];
+    }
+    
+    opQueue = [[NSOperationQueue alloc] init];
+    [opQueue setMaxConcurrentOperationCount:1];
+    taskManager = [[PRTaskManager alloc] init];
+    db = [[PRDb alloc] init];
+    db2 = [[PRDb alloc] init];
+    now = [[PRNowPlayingController alloc] initWithDb:db]; // requires: db
+    folderMonitor = [[PRFolderMonitor alloc] initWithCore:self]; // requires: opQueue, db & taskManager
+    win = [[PRMainWindowController alloc] initWithCore:self]; // requires: db, now, taskManager, folderMonitor
+    growl  = [[PRGrowl alloc] initWithCore:self];
+    lastfm = [[PRLastfm alloc] initWithCore:self];
     return self;
 }
 
@@ -97,15 +94,11 @@
 
 - (IBAction)itunesImport:(id)sender
 {
-    NSString *folderPath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Music"] 
-                            stringByAppendingPathComponent:@"iTunes"];;
+    NSString *folderPath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Music"] stringByAppendingPathComponent:@"iTunes"];;
     NSString *filePath = [folderPath stringByAppendingPathComponent:@"iTunes Music Library.xml"];
-    
     if ([[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:filePath]) {
-        PRItunesImportOperation *op = 
-            [[PRItunesImportOperation alloc] initWithURL:[NSURL fileURLWithPath:filePath] core:self];
+        PRItunesImportOperation *op = [PRItunesImportOperation operationWithURL:[NSURL fileURLWithPath:filePath] core:self];
         [opQueue addOperation:op];
-        [op release];
     } else {
         NSOpenPanel *panel = [NSOpenPanel openPanel];
         [panel setCanChooseFiles:YES];
@@ -129,19 +122,11 @@
                      returnCode:(NSInteger)returnCode 
                         context:(void*)context
 {
-    if (returnCode == NSCancelButton ||
-        [[openPanel URLs] count] == 0) {
+    if (returnCode == NSCancelButton || [[openPanel URLs] count] == 0) {
         return;
     }
-    PRItunesImportOperation *op = 
-        [[[PRItunesImportOperation alloc] initWithURL:[[openPanel URLs] objectAtIndex:0] core:self] autorelease];
+    PRItunesImportOperation *op = [PRItunesImportOperation operationWithURL:[[openPanel URLs] objectAtIndex:0] core:self];
     [opQueue addOperation:op];
-}
-
-- (IBAction)getAlbumArt:(id)sender
-{
-    PRAlbumArtOperation *op = [[[PRAlbumArtOperation alloc] initWithDb:db] autorelease];
-    [op main];
 }
 
 - (IBAction)showOpenPanel:(id)sender
@@ -160,14 +145,13 @@
                       contextInfo:nil];
 }
 
-- (void)importSheetDidEnd:(NSOpenPanel*)openPanel 
+- (void)importSheetDidEnd:(NSOpenPanel *)openPanel 
                returnCode:(NSInteger)returnCode 
-                  context:(void*)context
+                  context:(void *)context
 {
     if (returnCode == NSCancelButton) {
         return;
     }
-    
     NSMutableArray *paths = [NSMutableArray array];
     for (NSURL *i in [openPanel URLs]) {
         [paths addObject:[i path]];
@@ -196,9 +180,8 @@
 
 - (BOOL)application:(NSApplication *)application openFile:(NSString *)filename
 {
-    
     NSArray *URLs = [NSArray arrayWithObject:[NSURL fileURLWithPath:filename]];
-    PRImportOperation *op = [[[PRImportOperation alloc] initWithURLs:URLs core:self] autorelease];
+    PRImportOperation *op = [PRImportOperation operationWithURLs:URLs core:self];
     [op setPlayWhenDone:TRUE];
     [opQueue addOperation:op];
     return TRUE;
@@ -210,7 +193,7 @@
     for (NSString *i in filenames) {
         [URLs addObject:[NSURL fileURLWithPath:i]];
     }
-    PRImportOperation *op = [[[PRImportOperation alloc] initWithURLs:URLs core:self] autorelease];
+    PRImportOperation *op = [PRImportOperation operationWithURLs:URLs core:self];
     [op setPlayWhenDone:TRUE];
     [opQueue addOperation:op]; 
 }

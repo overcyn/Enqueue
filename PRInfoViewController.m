@@ -17,23 +17,20 @@
 
 - (id)initWithCore:(PRCore *)core_
 {
-    self = [super initWithNibName:@"PRInfoView" bundle:nil];
-	if (self) {
-        core = [core_ retain];
-		db = [[core db] retain];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self 
-                                                 selector:@selector(libraryViewSelectionDidChange:)
-                                                     name:PRLibraryViewSelectionDidChangeNotification
-                                                   object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self 
-                                                 selector:@selector(tagsDidChange:) 
-                                                     name:PRTagsDidChangeNotification 
-                                                   object:nil];
-        numberFormatter = [[PRNumberFormatter alloc] init];
-        stringFormatter = [[PRStringFormatter alloc] init];
-	}
-	
+	if (!(self = [super initWithNibName:@"PRInfoView" bundle:nil])) {return nil;}
+    core = [core_ retain];
+    db = [[core db] retain];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self 
+                                             selector:@selector(libraryViewSelectionDidChange:)
+                                                 name:PRLibraryViewSelectionDidChangeNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self 
+                                             selector:@selector(tagsDidChange:) 
+                                                 name:PRTagsDidChangeNotification 
+                                               object:nil];
+    numberFormatter = [[PRNumberFormatter alloc] init];
+    stringFormatter = [[PRStringFormatter alloc] init];
 	return self;
 }
 
@@ -41,6 +38,9 @@
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self 
                                                     name:PRLibraryViewSelectionDidChangeNotification 
+                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self 
+                                                    name:PRTagsDidChangeNotification 
                                                   object:nil];
     [db release];
     [super dealloc];

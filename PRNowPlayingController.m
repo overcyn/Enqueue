@@ -22,28 +22,23 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
 
 - (id)initWithDb:(PRDb *)db_
 {
-    self = [super init];
-	if (self) {
-		db = db_;
-        mov = [[PRMoviePlayer alloc] init];
-        
-		currentPlaylist = [[db playlists] nowPlayingPlaylist];
-		currentPlaylistItem = 0;
-		[self clearHistory];
-        
-        // queue
-        queue = [[NSMutableArray alloc] init];
-        
-        // invalid songs
-        invalidSongs = [[NSMutableIndexSet alloc] init];
-		
-		// register for movie notifications
-		[[NSNotificationCenter defaultCenter] addObserver:self 
-                                                 selector:@selector(movieDidFinish) 
-                                                     name:PRMovieDidFinishNotification 
-                                                   object:nil];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playlistDidChange:) name:PRPlaylistDidChangeNotification object:nil];
-	}
+    if (!(self = [super init])) {return nil;}
+    db = db_;
+    mov = [[PRMoviePlayer alloc] init];
+    
+    currentPlaylist = [[db playlists] nowPlayingPlaylist];
+    currentPlaylistItem = 0;
+    [self clearHistory];
+    
+    // queue
+    queue = [[NSMutableArray alloc] init];
+    
+    // invalid songs
+    invalidSongs = [[NSMutableIndexSet alloc] init];
+    
+    // register for movie notifications
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(movieDidFinish) name:PRMovieDidFinishNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playlistDidChange:) name:PRPlaylistDidChangeNotification object:nil];
 	return self;
 }
 

@@ -25,18 +25,16 @@ NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDid
 
 - (id)initWithCore:(PRCore *)core_
 {
-    self = [super initWithNibName:@"PRLibraryView" bundle:nil];
-	if (self) {
-        core = [core_ retain];
-        db = [[core db] retain];
-		now = [[core now] retain];
-		
-		dividerPosition = 330;
-		playlist = -1;
-        
-        [self infoViewToggle];
-        [self infoViewToggle];
-	}
+    if (!(self = [super initWithNibName:@"PRLibraryView" bundle:nil])) {return nil;}
+    core = [core_ retain];
+    db = [[core db] retain];
+    now = [[core now] retain];
+    
+    dividerPosition = 330;
+    playlist = -1;
+    
+    [self infoViewToggle];
+    [self infoViewToggle];
 	return self;
 }
 
@@ -203,7 +201,9 @@ NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDid
 	[editorSplitView setPosition:dividerPosition ofDividerAtIndex:0];
 }
 
+// ========================================
 // SplitView Delegate
+// ========================================
 
 - (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview 
 {

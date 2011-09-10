@@ -126,21 +126,19 @@ using namespace TagLib;
 
 - (id)initWithFile:(PRFile)file_ db:(PRDb *)db_
 {	
-	self = [super init];
-	if (self) {
-        file = file_;
-		db = db_;
-        _tempFile = FALSE;
-        _postNotification = FALSE;
-        
-        NSString *URLString = [[db library] valueForFile:file attribute:PRPathFileAttribute];
-        URL = [[NSURL alloc] initWithString:URLString];
-        taglibFile = [[self class] fileAtURL:URL type:&fileType];
-        if (fileType == PRFileTypeUnknown) {
-            [self release];
-            self = nil;
-        }
-	}
+	if (!(self = [super init])) {return nil;}
+    file = file_;
+    db = db_;
+    _tempFile = FALSE;
+    _postNotification = FALSE;
+    
+    NSString *URLString = [[db library] valueForFile:file attribute:PRPathFileAttribute];
+    URL = [[NSURL alloc] initWithString:URLString];
+    taglibFile = [[self class] fileAtURL:URL type:&fileType];
+    if (fileType == PRFileTypeUnknown) {
+        [self release];
+        self = nil;
+    }
 	return self;
 }
 

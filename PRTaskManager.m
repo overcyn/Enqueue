@@ -8,11 +8,9 @@
 
 - (id)init
 {
-    self = [super init];
-    if (self) {
-        tasks = [[NSMutableArray alloc] init];
-        [self updateTasksOnMain];
-    }
+    if (!(self = [super init])) {return nil;}
+    tasks = [[NSMutableArray alloc] init];
+    [self updateTasksOnMain];
     return self;
 }
 

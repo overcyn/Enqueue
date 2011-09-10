@@ -1,5 +1,4 @@
 #import "PRLibraryViewSource.h"
-#import "PREnqueue.h"
 #import "PRDb.h"
 #import "PRLibrary.h"
 #import "PRPlaylists.h"

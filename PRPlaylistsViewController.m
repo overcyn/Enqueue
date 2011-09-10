@@ -8,7 +8,6 @@
 #import "PRRolloverTableView.h"
 #import "NSScrollView+Extensions.h"
 #import "PRStringFormatter.h"
-#import "PREnqueue.h"
 #import "PRSmartPlaylistEditorViewController.h"
 #import "PRCore.h"
 

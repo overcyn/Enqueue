@@ -16,24 +16,27 @@
 // Initialization
 // ========================================
 
-- (id)initWithURLs:(NSArray *)URLs_ core:(PRCore *)core_
++ (id)operationWithURLs:(NSArray *)URLs core:(PRCore *)core
 {
-    self = [super init];
-	if (self) {
-        core = core_;
-        _db = [core db2];
-		URLs = [URLs_ retain];
-        URLsToPlay = [[NSMutableArray alloc] init];
-        _removeMissing = FALSE;
-        background = FALSE;
-        _tempFileCount = 0;
-	}
+    return [[[PRImportOperation alloc] initWithURLs:URLs core:core] autorelease];
+}
+
+- (id)initWithURLs:(NSArray *)URLs core:(PRCore *)core
+{
+    if (!(self = [super init])) {return nil;}
+    _core = core;
+    _db = [_core db2];
+    _URLs = [URLs retain];
+    URLsToPlay = [[NSMutableArray array] retain];
+    _removeMissing = FALSE;
+    background = FALSE;
+    _tempFileCount = 0;
 	return self;
 }
 
 - (void)dealloc
 {
-    [URLs release];
+    [_URLs release];
     [super dealloc];
 }
 
@@ -62,12 +65,12 @@
         [task setTitle:@"Adding Files..."];
     }
     [task setBackground:background];
-    [[core taskManager] addTask:task];
+    [[_core taskManager] addTask:task];
     [[_db library] clearTempFiles];
     
     BOOL playURLs = TRUE;
-    if ([URLs count] == 1 && [[[[URLs objectAtIndex:0] path] pathExtension] caseInsensitiveCompare:@"m3u"] == NSOrderedSame) {
-        [self addM3UFile:[URLs objectAtIndex:0] depth:0];
+    if ([_URLs count] == 1 && [[[[_URLs objectAtIndex:0] path] pathExtension] caseInsensitiveCompare:@"m3u"] == NSOrderedSame) {
+        [self addM3UFile:[_URLs objectAtIndex:0] depth:0];
         goto end;
     }
     
@@ -93,7 +96,7 @@
     
     // recurse through URLs adding files
     NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
-    for (NSURL *URL in URLs) {
+    for (NSURL *URL in _URLs) {
         BOOL isDir;
         NSString *path = [URL path];
         [fileManager fileExistsAtPath:path isDirectory:&isDir];
@@ -153,13 +156,13 @@ end:;
                 [filesToPlay addObject:[NSNumber numberWithInt:[files firstIndex]]];
             }
         }
-        [[core now] performSelectorOnMainThread:@selector(stop) withObject:nil waitUntilDone:TRUE];
-        [[_db playlists] clearPlaylist:[[core now] currentPlaylist]];
+        [[_core now] performSelectorOnMainThread:@selector(stop) withObject:nil waitUntilDone:TRUE];
+        [[_db playlists] clearPlaylist:[[_core now] currentPlaylist]];
         for (NSNumber *i in filesToPlay) {
-            [[_db playlists] appendFile:[i intValue] toPlaylist:[[core now] currentPlaylist]];
+            [[_db playlists] appendFile:[i intValue] toPlaylist:[[_core now] currentPlaylist]];
         }
-        [[core now] performSelectorOnMainThread:@selector(postNotificationForCurrentPlaylist) withObject:nil waitUntilDone:TRUE];
-        [[core now] performSelectorOnMainThread:@selector(playPause) withObject:nil waitUntilDone:TRUE];
+        [[_core now] performSelectorOnMainThread:@selector(postNotificationForCurrentPlaylist) withObject:nil waitUntilDone:TRUE];
+        [[_core now] performSelectorOnMainThread:@selector(playPause) withObject:nil waitUntilDone:TRUE];
     }
     
 	NSNotification *notification = [NSNotification notificationWithName:PRLibraryDidChangeNotification 
@@ -169,7 +172,7 @@ end:;
 														   withObject:notification 
 														waitUntilDone:TRUE];
 
-    [[core taskManager] removeTask:task];
+    [[_core taskManager] removeTask:task];
     [pool drain];
     NSLog(@"Finished Open Operation");
 }

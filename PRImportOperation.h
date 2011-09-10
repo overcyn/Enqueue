@@ -5,7 +5,7 @@
 
 @interface PRImportOperation : NSOperation 
 {
-	NSArray *URLs;
+	NSArray *_URLs;
     NSArray *_removeIfInFolder;
     
     BOOL _removeMissing;
@@ -18,14 +18,15 @@
     NSInvocation *completionInvocation;
     NSInvocation *completionInvocation2;
     
-    PRCore *core;
+    PRCore *_core;
     PRDb *_db;
 }
 
 // ========================================
 // Initialization
 
-- (id)initWithURLs:(NSArray *)URLs_ core:(PRCore *)core_;
++ (id)operationWithURLs:(NSArray *)URLs core:(PRCore *)core;
+- (id)initWithURLs:(NSArray *)URLs core:(PRCore *)core;
 
 // ========================================
 // Accessors

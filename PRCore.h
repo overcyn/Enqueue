@@ -8,7 +8,7 @@ PRWelcomeSheetController, PRGrowl, PRLastfm;
     IBOutlet NSMenu *mainMenu;
     
     PRWelcomeSheetController *welcomeSheet;
-    NSConnection *connection;
+    NSConnection *_connection;
     
 	PRDb *db;
     PRDb *db2;
@@ -38,7 +38,6 @@ PRWelcomeSheetController, PRGrowl, PRLastfm;
 // Actions
 
 - (void)itunesImport:(id)sender;
-- (void)getAlbumArt:(id)sender;
 - (IBAction)showOpenPanel:(id)sender;
 - (void)importSheetDidEnd:(NSOpenPanel*)openPanel 
 			   returnCode:(NSInteger)returnCode 

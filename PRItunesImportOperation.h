@@ -7,13 +7,14 @@
 {
     NSURL *iTunesURL;
     
-    PRCore *core;
+    PRCore *_core;
 	PRDb *_db;
     
     int _tempFileCount;
 }
 
 - (id)initWithURL:(NSURL *)URL_ core:(PRCore *)core;
++ (id)operationWithURL:(NSURL *)URL core:(PRCore *)core;
 
 @end
 

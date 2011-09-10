@@ -23,18 +23,17 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 
 - (id)initWithCore:(PRCore *)core_;
 {
-    if ((self = [super init])) {
-        core = core_;
-        cachedSessionKey = nil;
-        if ([[self username] length] != 0 && [[self sessionKey] length] != 0) {
-            [self setLastfmState:PRLastfmConnectedState];
-        } else {
-            [self setLastfmState:PRLastfmDisconnectedState];
-        }
-        
-        [[[core now] mov] addObserver:self forKeyPath:@"isPlaying" options:0 context:nil];
-        [[core now] addObserver:self forKeyPath:@"currentIndex" options:0 context:nil];
+    if (!(self = [super init])) {return nil;}
+    core = core_;
+    cachedSessionKey = nil;
+    if ([[self username] length] != 0 && [[self sessionKey] length] != 0) {
+        [self setLastfmState:PRLastfmConnectedState];
+    } else {
+        [self setLastfmState:PRLastfmDisconnectedState];
     }
+    
+    [[[core now] mov] addObserver:self forKeyPath:@"isPlaying" options:0 context:nil];
+    [[core now] addObserver:self forKeyPath:@"currentIndex" options:0 context:nil];
     return self;
 }
 

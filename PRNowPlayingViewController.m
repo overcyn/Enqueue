@@ -1,5 +1,4 @@
 #import "PRNowPlayingViewController.h"
-#import "PREnqueue.h"
 #import "PRDb.h"
 #import "PRLibrary.h"
 #import "PRPlaylists.h"
@@ -120,18 +119,7 @@
     
     _nowPlayingCell = [[PRNowPlayingCell alloc] initTextCell:@""];
     _nowPlayingHeaderCell = [[PRNowPlayingHeaderCell alloc] initTextCell:@""];
-    
-    NSMutableParagraphStyle *style = [[[NSMutableParagraphStyle alloc] init] autorelease];
-    [style setAlignment:NSCenterTextAlignment];
-    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
-    [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.8]];
-    [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
-    NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
-                                [NSFont systemFontOfSize:14.0], NSFontAttributeName,
-                                shadow, NSShadowAttributeName,
-                                style, NSParagraphStyleAttributeName,
-                                [NSColor colorWithCalibratedWhite:0.0 alpha:0.4], NSForegroundColorAttributeName, nil];
-    
+        
     // playlist and current file obs
     [[NSNotificationCenter defaultCenter] addObserver:self 
                                              selector:@selector(updateTableView)
@@ -404,20 +392,20 @@
 - (void)playlistDidChange:(NSNotification *)notification
 {
     if ([[[notification userInfo] valueForKey:@"playlist"] intValue] == [now currentPlaylist]) {
+        NSLog(@",");
         [self updateTableView];
         [nowPlayingTableView collapseItem:nil];
         if ([now currentIndex] != 0) {
             NSArray *parentItem = [self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:0]]];
             [nowPlayingTableView expandItem:parentItem];
         }
-        
-        [_dragLabel setHidden:([[db playlists] countForPlaylist:[now currentPlaylist]] != 0)];
     }
 }
 
 - (void)currentFileDidChange:(NSNotification *)notification
 {
     if ([now currentIndex] != 0) {
+        NSLog(@".");
 //        NSIndexSet *selectedRowIndexes = [nowPlayingTableView selectedRowIndexes];
         [self updateTableView];
         [nowPlayingTableView reloadItem:[self itemForDbRow:_prevRow]];

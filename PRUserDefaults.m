@@ -15,9 +15,7 @@ NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidCh
 
 - (id)init
 {
-    if (!(self = [super init])) {
-        return nil;
-    }
+    if (!(self = [super init])) {return nil;}
     defaults = [NSUserDefaults standardUserDefaults];
     [defaults setBool:TRUE forKey:@"NSDisabledCharacterPaletteMenuItem"];
     return self;

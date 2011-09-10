@@ -54,27 +54,24 @@ static void renderingFinished(void *context, const AudioDecoder *decoder)
 
 - (id)init
 {
-    self = [super init];
-	if (self) {
-        player = new AudioPlayer();
-        PLAYER->EnableDigitalVolume(TRUE);
-        PLAYER->EnableDigitalPreGain(TRUE);
-        
-        // Update the UI 5 times per second in all run loop modes (so menus, etc. don't stop updates)
-        timer = [NSTimer timerWithTimeInterval:0.2 
-                                        target:self 
-                                      selector:@selector(update) 
-                                      userInfo:nil 
-                                       repeats:YES];
-        
-        // addTimer:forMode: will retain timer
-        [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(preGainDidChange:) name:PRPreGainDidChangeNotification object:nil];
-        [self preGainDidChange:nil];
-        [self setVolume:[self volume]];
-	}
-	
+    if (!(self = [super init])) {return nil;}
+    player = new AudioPlayer();
+    PLAYER->EnableDigitalVolume(TRUE);
+    PLAYER->EnableDigitalPreGain(TRUE);
+    
+    // Update the UI 5 times per second in all run loop modes (so menus, etc. don't stop updates)
+    timer = [NSTimer timerWithTimeInterval:0.2 
+                                    target:self 
+                                  selector:@selector(update) 
+                                  userInfo:nil 
+                                   repeats:YES];
+    
+    // addTimer:forMode: will retain timer
+    [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(preGainDidChange:) name:PRPreGainDidChangeNotification object:nil];
+    [self preGainDidChange:nil];
+    [self setVolume:[self volume]];
 	return self;
 }
 

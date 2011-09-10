@@ -1,5 +1,4 @@
 #import "sqlite3.h"
-#import "PREnqueue.h"
 #import "PRStatement.h"
 #import "PRDb.h"
 
@@ -16,10 +15,7 @@
 
 - (id)initWithString:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns db:(PRDb *)db
 {
-    if (!(self = [super init])) {
-        return nil;
-    }
-    
+    if (!(self = [super init])) {return nil;}
     _statement = [string retain];
     if (!bindings) {
         bindings = [NSDictionary dictionary];

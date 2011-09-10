@@ -1,6 +1,5 @@
 #import "PRPlaybackOrder.h"
 #import "PRDb.h"
-#import "PREnqueue.h"
 
 
 NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("

@@ -99,8 +99,6 @@ PRStringFormatter;
 // UI Update
 
 - (void)reloadData:(BOOL)force;
-//- (void)reloadData;
-//- (void)forceReloadData;
 
 - (void)loadBrowser;
 - (void)saveBrowser;

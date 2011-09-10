@@ -3,28 +3,31 @@
 
 @implementation PRTask
 
-@synthesize title;
-@synthesize value;
-@synthesize shouldCancel;
-@synthesize background;
-
 // ========================================
 // Initialization
 // ========================================
 
 - (id)init
 {
-    self = [super init];
-    if (self) {
-        shouldCancel = FALSE;
-    }
+    if (!(self = [super init])) {return nil;}
+    shouldCancel = FALSE;
     return self;
 }
 
 - (void)dealloc
 {
     [title release];
+    [value release];
     [super dealloc];
 }
+
+// ========================================
+// Accessors
+// ========================================
+
+@synthesize title;
+@synthesize value;
+@synthesize shouldCancel;
+@synthesize background;
 
 @end

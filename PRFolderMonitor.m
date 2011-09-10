@@ -16,12 +16,11 @@
 
 - (id)initWithCore:(PRCore *)core_
 {
-    if ((self = [super init])) {
-        core = [core_ retain];
-        db = [[core db] retain];
-        stream = nil;
-        [self monitor];
-    }
+    if (!(self = [super init])) {return nil;}
+    core = [core_ retain];
+    db = [[core db] retain];
+    stream = nil;
+    [self monitor];
     return self;
 }
 

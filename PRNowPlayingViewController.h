@@ -12,7 +12,6 @@ PRGradientView, PRMainWindowController, PRNowPlayingCell, PRNowPlayingHeaderCell
 	IBOutlet PRGradientView *barGradient;
     IBOutlet NSSlider *volumeSlider;
     IBOutlet NSScrollView *scrollview;
-    IBOutlet NSTextField *_dragLabel;
     
     NSMenu *_contextMenu;
     NSMenu *playlistMenu;

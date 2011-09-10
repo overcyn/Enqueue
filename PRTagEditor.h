@@ -30,7 +30,7 @@ typedef enum {
     
     BOOL _tempFile;
     BOOL _postNotification;
-        
+    
 	PRDb *db;
 }
 
