@@ -120,17 +120,19 @@
     // drawBorder
     [NSGraphicsContext saveGraphicsState];
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
-    [shadow setShadowOffset:NSMakeSize(0.0, -1.7)];
-    [shadow setShadowBlurRadius:3];
-    [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.4 alpha:1.0]];	
+    [shadow setShadowOffset:NSMakeSize(0.0, -2.0)];
+    [shadow setShadowBlurRadius:5];
+    [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.3]];	
     [shadow set];
     
-    [[NSColor whiteColor] set];
-    [NSBezierPath fillRect:drawnRect];
+//    [[NSColor colorWithDeviceWhite:1.0 alpha:1.0] set];
+//    [NSBezierPath fillRect:drawnRect];
+    [image drawInRect:drawnRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0]; 
     [NSGraphicsContext restoreGraphicsState];
     
+//    drawnRect = NSInsetRect(drawnRect, 5, 5);
     // draw image
-    [image drawInRect:drawnRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0]; 
+//    [image drawInRect:drawnRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0]; 
     
 	// draw the text
 	[title drawInRect:titleBox withAttributes:titleAttributes];
