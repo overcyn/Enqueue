@@ -1058,10 +1058,10 @@ using namespace TagLib;
     NSString *stringValue;
     TagLib::Ogg::FieldListMap tagMap = tag->fieldListMap();
     
-    TagLib::Ogg::FieldListMap::ConstIterator it = tagMap.begin();
-    for(; it != tagMap.end(); it++) {
-        NSLog(@"key:%s field:%s",(*it).first.toCString(TRUE),(*it).second.toString().toCString(TRUE));
-    }
+//    TagLib::Ogg::FieldListMap::ConstIterator it = tagMap.begin();
+//    for(; it != tagMap.end(); it++) {
+//        NSLog(@"key:%s field:%s",(*it).first.toCString(TRUE),(*it).second.toString().toCString(TRUE));
+//    }
     
     if (tagMap.contains("TITLE")) {
         stringValue = [NSString stringWithUTF8String:tagMap["TITLE"].front().toCString(TRUE)];
