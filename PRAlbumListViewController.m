@@ -44,7 +44,7 @@
 {
 	[super awakeFromNib];
 	
-    [albumTableView setBackgroundColor:[NSColor colorWithCalibratedWhite:0.93 alpha:1.0]];
+    [albumTableView setBackgroundColor:[NSColor colorWithCalibratedWhite:0.94 alpha:1.0]];
 	[albumTableView setDataSource:self];
 	[albumTableView setDelegate:self];
 	[albumTableView setTarget:self];
