@@ -20,9 +20,6 @@
         gradient = [[[NSGradient alloc] initWithColorsAndLocations: 
                      [NSColor colorWithDeviceWhite:0.8 alpha:1.0], 1.0, nil] autorelease];
     } else {
-//        gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-//                     [NSColor colorWithCalibratedWhite:0.92 alpha:1.0], 0.0, 
-//                     [NSColor colorWithCalibratedWhite:0.87 alpha:1.0], 1.0, nil] autorelease];
         gradient = [[[NSGradient alloc] initWithColorsAndLocations:
                      [NSColor colorWithCalibratedWhite:0.90 alpha:1.0], 0.0, 
                      [NSColor colorWithCalibratedWhite:0.87 alpha:1.0], 1.0, nil] autorelease];
@@ -30,16 +27,16 @@
     [gradient drawInRect:cellFrame angle:90];
     
     // Top Border
-    [[NSColor colorWithDeviceWhite:0.0 alpha:0.2] set];
+    [[NSColor colorWithDeviceWhite:0.0 alpha:0.25] set];
     NSRect rect = NSMakeRect(cellFrame.origin.x, cellFrame.origin.y, cellFrame.size.width, 1);
     [NSBezierPath fillRect:rect];
-    [[NSColor colorWithDeviceWhite:1.0 alpha:0.2] set];
+    [[NSColor colorWithDeviceWhite:1.0 alpha:0.25] set];
     rect = NSMakeRect(cellFrame.origin.x, cellFrame.origin.y + 1, cellFrame.size.width, 1);
     [NSBezierPath fillRect:rect];
     
     // Bottom Border
     if (drawBorder) {
-        [[NSColor colorWithDeviceWhite:0.0 alpha:0.2] set];
+        [[NSColor colorWithDeviceWhite:0.0 alpha:0.25] set];
         NSRect rect = NSMakeRect(cellFrame.origin.x, cellFrame.origin.y + cellFrame.size.height - 1 , cellFrame.size.width, 1);
         [NSBezierPath fillRect:rect];
     }
