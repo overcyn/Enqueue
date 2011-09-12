@@ -51,10 +51,10 @@
 	NSString *subSubtitle = [year stringValue];
     
     if ([title isEqualToString:@""]) {
-        title = @"Unknown Album";
+        title = @"Unknown Artist";
     }
     if ([subtitle isEqualToString:@""]) {
-        subtitle = @"Unknown Artist";
+        subtitle = @"Unknown Album";
     }
     if ([subSubtitle isEqualToString:@"0"]) {
         subSubtitle = @"";
