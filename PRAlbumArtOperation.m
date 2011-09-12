@@ -33,10 +33,8 @@ NSString * const PRAWSSecretAccessKey = @"SkhTu0kx5hDvqhbD/m1yBEedJVUelza+v7hzrd
 //	[library arrayOfFileIDsSortedByAlbumAndArtist:&fileIDArray _error:nil];
 	
 	for (NSNumber *i in fileIDArray) {
-        NSLog(@"%@",i);
         NSImage *albumArt = [self albumArtForFile:[i intValue]];
         if (albumArt) {
-            NSLog(@"found");
 //            [albumArtController setDownloadedAlbumArt:albumArt forFile:[i intValue] _error:nil];
         }
 	}
@@ -123,7 +121,6 @@ NSString * const PRAWSSecretAccessKey = @"SkhTu0kx5hDvqhbD/m1yBEedJVUelza+v7hzrd
     // parse data
     NSXMLDocument *XMLDocument = 
       [[[NSXMLDocument alloc] initWithData:URLData options:NSXMLDocumentTidyXML error:nil] autorelease];
-    NSLog(@"%@",XMLDocument);
     NSXMLNode *rootNode = [XMLDocument rootElement];
     NSArray *array = [rootNode nodesForXPath:@"Items/Item/LargeImage/URL" error:nil];
     if ([array count] == 0) {

@@ -78,7 +78,6 @@
 
 - (void)beginSheet
 {
-    NSLog(@"window:%@ %@",[self window],[[_core win] window]);
 	[NSApp beginSheet:[self window]
        modalForWindow:[[_core win] window]
         modalDelegate:self 

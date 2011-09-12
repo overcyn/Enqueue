@@ -392,7 +392,6 @@
 - (void)playlistDidChange:(NSNotification *)notification
 {
     if ([[[notification userInfo] valueForKey:@"playlist"] intValue] == [now currentPlaylist]) {
-        NSLog(@",");
         [self updateTableView];
         [nowPlayingTableView collapseItem:nil];
         if ([now currentIndex] != 0) {
@@ -405,7 +404,6 @@
 - (void)currentFileDidChange:(NSNotification *)notification
 {
     if ([now currentIndex] != 0) {
-        NSLog(@".");
 //        NSIndexSet *selectedRowIndexes = [nowPlayingTableView selectedRowIndexes];
         [self updateTableView];
         [nowPlayingTableView reloadItem:[self itemForDbRow:_prevRow]];

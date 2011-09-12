@@ -55,12 +55,7 @@
 }
 
 - (BOOL)startTrackingAt:(NSPoint)startPoint inView:(NSView *)controlView
-{
-//    NSLog(@"isEnabled%d",[self isEnabled]);
-//    if (![self isEnabled]) {
-//        return FALSE;
-//    }
-    
+{    
 	editing = TRUE;
 	for (int i = 0; i < [self segmentCount]; i++) {
 		if (NSPointInRect(startPoint, [self frameForSegment:i])) {
