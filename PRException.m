@@ -10,7 +10,6 @@ NSString * const PRDbInconsistencyException = @"PRDbInconsistencyException";
     while (TRUE) {
         sleep(1000);
     }
-
 }
 
 - (void)raise_

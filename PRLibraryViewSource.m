@@ -103,7 +103,7 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
     int tables = 0;
     [self updateSortIndex];
     if ([self populateBrowser:1]) {
-        tables = tables | PRBrowser1View;
+        tables = PRBrowser1View;
     }
     if ([self populateBrowser:2]) {
         tables = tables | PRBrowser2View;
