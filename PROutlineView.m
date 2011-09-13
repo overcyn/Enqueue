@@ -26,12 +26,6 @@
     return FALSE;
 }
 
-- (void)selectRowIndexes:(NSIndexSet *)indexes byExtendingSelection:(BOOL)extend
-{
-	[super selectRowIndexes:indexes byExtendingSelection:extend];
-//	[self setNeedsDisplay];
-}
-
 - (id)_highlightColorForCell:(NSCell *)cell
 {
 	// we need to override this to return nil
@@ -146,17 +140,32 @@
     }
 }
 
-// Action
+// Selection
+
+- (void)selectRowIndexes:(NSIndexSet *)indexes byExtendingSelection:(BOOL)extend
+{
+    if ([[self delegate] respondsToSelector:@selector(outlineView:selectionIndexesForProposedSelection:)]) {
+        indexes = [[self delegate] outlineView:self selectionIndexesForProposedSelection:indexes];
+    }
+    [super selectRowIndexes:indexes byExtendingSelection:extend];
+}
+
+- (NSMenu *)menuForEvent:(NSEvent *)theEvent
+{
+	if ([[self selectedRowIndexes] count] == 0) {
+		return nil;
+	}
+	return [super menuForEvent:theEvent];
+}
+
 - (void)rightMouseDown:(NSEvent *)event
 {
 	NSPoint p = [self convertPoint:[event locationInWindow] fromView:nil];
 	int row = [self rowAtPoint:p];
-	
 	if (![[self selectedRowIndexes] containsIndex:row]) {
         NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:row];
 		[self selectRowIndexes:indexes byExtendingSelection:FALSE];
 	}
-	
 	[super rightMouseDown:event];
 }
 

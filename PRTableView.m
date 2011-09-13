@@ -18,11 +18,13 @@
     [self setSlideback:TRUE];
 }
 
-//- (void)selectRowIndexes:(NSIndexSet *)indexes byExtendingSelection:(BOOL)extend
-//{
-//	[super selectRowIndexes:indexes byExtendingSelection:extend];
-//	[self setNeedsDisplay];
-//}
+- (void)selectRowIndexes:(NSIndexSet *)indexes byExtendingSelection:(BOOL)extend
+{
+    if ([[self delegate] respondsToSelector:@selector(tableView:selectionIndexesForProposedSelection:)]) {
+        indexes = [[self delegate] tableView:self selectionIndexesForProposedSelection:indexes];
+    }
+    [super selectRowIndexes:indexes byExtendingSelection:extend];
+}
 
 - (void)rightMouseDown:(NSEvent *)event
 {
@@ -30,40 +32,24 @@
 	int row = [self rowAtPoint:p];
 	
 	if (![[self selectedRowIndexes] containsIndex:row]) {
-        NSIndexSet *indexes;
-		if ([[self delegate] respondsToSelector:@selector(tableView:selectionIndexesForProposedSelection:)]) {
-			indexes = [[self delegate] tableView:self 
-			selectionIndexesForProposedSelection:[NSIndexSet indexSetWithIndex:row]];
-		} else {
-			indexes = [NSIndexSet indexSetWithIndex:row];
-		}
-		[self selectRowIndexes:indexes byExtendingSelection:FALSE];
+        [self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:FALSE];
 	}
-	
 	[super rightMouseDown:event];
 }
 
 - (NSMenu *)menuForEvent:(NSEvent *)theEvent
 {
-	NSPoint p = [theEvent locationInWindow];
-	p = [self convertPoint:p fromView:nil];
-	int row = [self rowAtPoint:p];
-	
-	if ([[self selectedRowIndexes] containsIndex:row]) {
-		return [super menuForEvent:theEvent];
+	if ([[self selectedRowIndexes] count] == 0) {
+		return nil;
 	}
-	return nil;
+	return [super menuForEvent:theEvent];
 }
 
 - (void)mouseDown:(NSEvent *)event
 {
-    if (![[self window] isKeyWindow]) {
-        [super mouseDown:event];
-        return;
-    }
-    
-	if ((([event modifierFlags] & NSShiftKeyMask) == NSShiftKeyMask) ||
-		(([event modifierFlags] & NSControlKeyMask) == NSControlKeyMask) ||
+    if (![[self window] isKeyWindow] ||
+        (([event modifierFlags] & NSShiftKeyMask) == NSShiftKeyMask) ||
+//		(([event modifierFlags] & NSControlKeyMask) == NSControlKeyMask) ||
 		(([event modifierFlags] & NSCommandKeyMask) == NSCommandKeyMask)) {
 		[super mouseDown:event];
 		return;
@@ -71,22 +57,9 @@
 	
 	NSPoint p = [self convertPoint:[event locationInWindow] fromView:nil];
 	int row = [self rowAtPoint:p];
-//	int column = [self columnAtPoint:p];
 	if (![[self selectedRowIndexes] containsIndex:row]) {
-        NSIndexSet *indexes;
-		if ([[self delegate] respondsToSelector:@selector(tableView:selectionIndexesForProposedSelection:)]) {
-			indexes = [[self delegate] tableView:self 
-			selectionIndexesForProposedSelection:[NSIndexSet indexSetWithIndex:row]];
-		} else {
-			indexes = [NSIndexSet indexSetWithIndex:row];
-		}
-		[self selectRowIndexes:indexes byExtendingSelection:FALSE];
+		[self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:FALSE];
 	}
-
-//	if (([event modifierFlags] & NSControlKeyMask) == NSControlKeyMask &&
-//		[[self selectedRowIndexes] count] == 0) {
-//		return;
-//	}
 	[super mouseDown:event];
 }
 

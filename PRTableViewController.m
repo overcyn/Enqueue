@@ -937,7 +937,7 @@
 	for (NSMenuItem *i in [libraryMenu itemArray]) {
 		[libraryMenu removeItem:i];
 	}	
-	
+	    
 	// populate context menu if clicked on row
 	if (clickedRow != -1) {
 		// play menu
