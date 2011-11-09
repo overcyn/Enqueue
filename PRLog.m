@@ -1,11 +1,7 @@
 #import "PRLog.h"
-#import "PRMainWindowController.h"
-#import "NSError+Extensions.h"
-#include <execinfo.h>
 
 NSString * const PREnqueueErrorDomain = @"PREnqueueErrorDomain";
 NSString * const PRSQLiteErrorDomain = @"PRSQLiteErrorDomain";
-static PRLog *sharedLog = nil;
 
 @implementation PRLog
 
@@ -15,55 +11,7 @@ static PRLog *sharedLog = nil;
 
 + (PRLog *)sharedLog
 {
-    if (sharedLog == nil) {
-        sharedLog = [[super allocWithZone:NULL] init];
-    }
-    return sharedLog;
-}
-
-- (id)init
-{
-    self = [super init];
-    if (self) {
-        fatalError = FALSE;
-        backtrace_ = @"";
-    }
-    return self;
-}
-
-+ (id)allocWithZone:(NSZone *)zone
-{
-    return [[self sharedLog] retain];   
-}
-
-- (id)copyWithZone:(NSZone *)zone
-{
-    return self;   
-}
-
-- (id)retain
-{
-    return self;
-}
-
-- (NSUInteger)retainCount
-{
-    return NSUIntegerMax;  //denotes an object that cannot be released
-}
-
-- (void)release
-{
-    //do nothing
-}
-
-- (id)autorelease
-{
-    return self;
-}
-
-- (void)dealloc
-{
-    [super dealloc];
+    return [[[PRLog alloc] init] autorelease];
 }
 
 // ========================================

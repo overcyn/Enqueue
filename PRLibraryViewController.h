@@ -6,9 +6,6 @@ PRSmartPlaylistEditorViewController, PRStaticPlaylistEditorViewController,
 PRAlbumListViewController, PRGradientView, PRCore;
 
 
-extern NSString * const PRLibraryViewSelectionDidChangeNotification;
-extern NSString * const PRLibraryViewModeDidChangeNotification;
-
 // Various library views
 typedef enum {
 	PRListMode,
@@ -34,8 +31,6 @@ typedef enum {
 	
 	// Bool indicating whether pane is collapsed
 	BOOL edit;
-	// Height of pane divider when uncollapsed
-	float dividerPosition;
 	
 	// Current pane view controller. Default smartPlaylistEditorViewController. (weak)
 	id currentPaneViewController;

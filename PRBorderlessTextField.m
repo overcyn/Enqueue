@@ -9,7 +9,7 @@
 		[self setBordered:TRUE];
 		[self setDrawsBackground:TRUE];
 	}
-	return TRUE;
+	return [super becomeFirstResponder];
 }
 
 - (void)textDidEndEditing:(NSNotification *)aNotification
@@ -18,6 +18,7 @@
 	[self setBordered:FALSE];
 	[self validateEditing];
 	[self abortEditing];
+    [super textDidEndEditing:aNotification];
 }
 
 - (void)cancelOperation:(id)sender

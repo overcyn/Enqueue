@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 
+
 @interface NSString (NSString_Extensions)
 
 + (NSString *)stringWithNumber:(NSNumber *)number;

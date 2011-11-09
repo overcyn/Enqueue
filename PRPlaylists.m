@@ -386,7 +386,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 - (NSArray *)playlistsViewSource
 {
     NSString *string = @"SELECT playlist_id, type, title FROM playlists "
-    "WHERE type IN (1,2,3) "
+    "WHERE type IN (2,3) "
     "ORDER BY type, title COLLATE NOCASE2, playlist_id ";
     NSArray *columns = [NSArray arrayWithObjects:
                         [NSNumber numberWithInt:PRColumnInteger], 
@@ -479,6 +479,15 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     while (file != NSNotFound) {
         [self appendFile:file toPlaylist:playlist];
         file = [files indexGreaterThanIndex:file];
+    }
+    [db commit];
+}
+
+- (void)appendFiles2:(NSArray *)files toPlaylist:(PRPlaylist)playlist
+{
+    [db begin];
+    for (NSNumber *i in files) {
+        [self appendFile:[i intValue] toPlaylist:playlist];
     }
     [db commit];
 }
@@ -688,7 +697,8 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
                               [NSNumber numberWithInt:playlist2], [NSNumber numberWithInt:1],
                               [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:2],
                               nil];
-    [db execute:string bindings:bindings columns:nil];    
+    [db execute:string bindings:bindings columns:nil];
+    [db commit];
 }
 
 - (int)countForPlaylist:(PRPlaylist)playlist
@@ -737,7 +747,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 {
     NSString *string = @"SELECT file_id FROM playlist_items WHERE playlist_item_id = ?1";
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSNumber numberWithInt:PRColumnInteger], [NSNumber numberWithInt:1] , nil];
+                              [NSNumber numberWithInt:playlistItem], [NSNumber numberWithInt:1] , nil];
     NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
     NSArray *results = [db execute:string bindings:bindings columns:columns];
     if ([results count] != 1) {

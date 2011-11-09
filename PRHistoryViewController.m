@@ -10,6 +10,10 @@
 #import "PRGradientView.h"
 #import "PRRolloverTableView.h"
 #import "NSScrollView+Extensions.h"
+#import "PRHistoryCell.h"
+#import "PRHistoryCell2.h"
+#import "PRTableViewController.h"
+#import "NSColor+Extensions.h"
 
 
 @implementation PRHistoryViewController
@@ -22,20 +26,32 @@
 
 - (id)initWithDb:(PRDb *)db_ mainWindowController:(PRMainWindowController *)mainWindowController_
 {
-    self = [super initWithNibName:@"PRHistoryView" bundle:nil];
-	if (self) {
-		db = db_;
-		mainWindowController = mainWindowController_;
-        historyMode = PRTopArtistsHistoryMode;
-        artworkCache = [[NSCache alloc] init];
-        [artworkCache setCountLimit:50];
-	}
+	if (!(self = [super initWithNibName:@"PRHistoryView" bundle:nil])) {return nil;}
+    db = db_;
+    mainWindowController = mainWindowController_;
+    historyMode = PRTopArtistsHistoryMode;
+    
+    _dateFormatter = [[NSDateFormatter alloc] init];
+    [_dateFormatter setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMM dd" options:0 locale:[NSLocale currentLocale]]];
+    
+    _timeFormatter = [[NSDateFormatter alloc] init];
+    if ([[_timeFormatter AMSymbol] isEqualToString:@"AM"]) {
+        [_timeFormatter setAMSymbol:@"am"];
+    }
+    if ([[_timeFormatter PMSymbol] isEqualToString:@"PM"]) {
+        [_timeFormatter setPMSymbol:@"pm"];
+    }
+    [_timeFormatter setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"h mm a" options:0 locale:[NSLocale currentLocale]]];
+    
+
 	return self;
 }
 
 - (void)dealloc
 {
-    [db release];
+    [dataSource release];
+    [_dateFormatter release];
+    [_timeFormatter release];
     [super dealloc];
 }
 
@@ -44,9 +60,7 @@
     [(PRScrollView *)[self view] setMinimumSize:NSMakeSize(650, 2267)];
     [(PRScrollView *)[self view] setDocumentView:[background superview]];
     [(NSScrollView *)[self view] scrollToTop];
-    
-    [divider setColor:[NSColor colorWithCalibratedWhite:0.8 alpha:1.0]];
-    
+        
     [topSongsButton setTag:PRTopSongsHistoryMode];
     [topArtistsButton setTag:PRTopArtistsHistoryMode];
     [recentlyAddedButton setTag:PRRecentlyAddedHistoryMode];
@@ -61,18 +75,20 @@
     [recentlyPlayedButton setAction:@selector(historyModeButtonAction:)];
       
     [tableView setDelegate:self];
-    [tableView setRowHeight:42];
     [tableView setIntercellSpacing:NSMakeSize(0, 0)];
     [tableView setDataSource:self];
     [tableView setTarget:self];
     [tableView setDoubleAction:@selector(tableViewAction:)];
     
-    [[topSongsButton cell] setHighlightsBy:NSContentsCellMask];
-    [[topArtistsButton cell] setHighlightsBy:NSContentsCellMask];
-    [[recentlyAddedButton cell] setHighlightsBy:NSContentsCellMask];
-    [[recentlyPlayedButton cell] setHighlightsBy:NSContentsCellMask];
+    // Tabs
+    [divider setBotBorder2:[NSColor PRTabBorderColor]];
+    [divider setBotBorder:[NSColor PRTabBorderHighlightColor]];
+    [divider setColor:[NSColor PRTabBackgroundColor]];
     
-    [self updateUI];
+    [divider2 setTopBorder:[NSColor PRGridColor]];
+    [divider2 setBotBorder:[NSColor PRGridHighlightColor]];
+    
+    [self update];
 }
 
 // ========================================
@@ -114,71 +130,29 @@
             [PRException raise:NSInternalInconsistencyException format:@"Invalid History Mode"];
             break;
     }
-    [tableView reloadData];
-    [self updateUI];
-    [artworkCache removeAllObjects];
-    if (historyMode == PRTopArtistsHistoryMode) {
-        NSArray *artists = [dataSource valueForKey:@"artist"];
-        NSMutableArray *info = [NSMutableArray array];
-        for (NSString *i in artists) {
-            NSDictionary *artworkInfo = [[db albumArtController] artworkInfoForArtist:i];
-            [info addObject:[NSDictionary dictionaryWithObjectsAndKeys:i, @"artist", artworkInfo, @"artworkInfo", nil]];
-        }
-        [self performSelectorInBackground:@selector(cacheArtworkForArtists:) withObject:info];
+    
+    if (historyMode == PRTopArtistsHistoryMode || historyMode == PRTopSongsHistoryMode) {
+        _rowHeight = 30;
+        [[[tableView tableColumns] objectAtIndex:0] setDataCell:[[[PRHistoryCell2 alloc] init] autorelease]];
     } else {
-        NSArray *files = [dataSource valueForKey:@"file"];
-        NSMutableArray *info = [NSMutableArray array];
-        for (NSNumber *i in files) {
-            NSDictionary *artworkInfo = [[db albumArtController] artworkInfoForFile:[i intValue]];
-            [info addObject:[NSDictionary dictionaryWithObjectsAndKeys:i, @"file", artworkInfo, @"artworkInfo", nil]];
-        }
-        [self performSelectorInBackground:@selector(cacheArtworkForFiles:) withObject:info];
+        _rowHeight = 30;
+        [[[tableView tableColumns] objectAtIndex:0] setDataCell:[[[PRHistoryCell alloc] init] autorelease]];
     }
-}
+    [tableView setRowHeight:_rowHeight];
+    
+    [tableView reloadData];
 
-- (void)cacheArtworkForArtists:(NSArray *)info
-{
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    for (NSDictionary *i in info) {
-        NSString *artist = [i objectForKey:@"artist"];
-        NSDictionary *artworkInfo = [i objectForKey:@"artworkInfo"];
-        NSImage *artwork = [[db albumArtController] artworkForArtworkInfo:artworkInfo];
-        if (artwork) {
-            [artworkCache setObject:artwork forKey:artist];
-        }
-    }
-    [tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:FALSE];
-    [pool drain];
-}
-
-- (void)cacheArtworkForFiles:(NSArray *)info
-{
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    for (NSDictionary *i in info) {
-        NSNumber *file = [i objectForKey:@"file"];
-        NSDictionary *artworkInfo = [i objectForKey:@"artworkInfo"];
-        NSImage *artwork = [[db albumArtController] artworkForArtworkInfo:artworkInfo];
-        if (artwork) {
-            [artworkCache setObject:artwork forKey:file];
-        }
-    }
-    [tableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:FALSE];
-    [pool drain];
-}
-
-- (void)updateUI
-{
     int rows = [self numberOfRowsInTableView:tableView];
-    float height = 235 + 42 * (rows-2);
-    if (height < 400) {
-        height = 400;
+    if (rows < 5) {
+        rows = 5;
     }
+    float height = 53 + _rowHeight * rows + 50;
     [(PRScrollView *)[self view] setMinimumSize:NSMakeSize(650, height)];
-    [background setFrame:NSMakeRect([background frame].origin.x, [[background superview] frame].size.height - height, 650, height)];
+//    [background setFrame:NSMakeRect([background frame].origin.x, [[background superview] frame].size.height - height, 650, height)];
     
-    NSColor *color = [NSColor colorWithDeviceWhite:0.7 alpha:1.0];
-    NSColor *alternateColor = [NSColor colorWithCalibratedWhite:0.2 alpha:1.0];
-    
+    for (NSButton *i in [NSArray arrayWithObjects:topArtistsButton, topSongsButton, recentlyAddedButton, recentlyPlayedButton, nil]) {
+        [i setState:NSOffState];
+    }
     NSButton *button;
     switch (historyMode) {
         case PRTopArtistsHistoryMode:
@@ -197,39 +171,16 @@
             button = topArtistsButton;
             break;
     }
-    [topSongsButton setTextColor:color];
-    [topArtistsButton setTextColor:color];
-    [recentlyAddedButton setTextColor:color];
-    [recentlyPlayedButton setTextColor:color];
-    [button setTextColor:alternateColor];
+    [button setState:NSOnState];
     
-    NSTextFieldCell *cell = [[tableView tableColumnWithIdentifier:@"column2"] dataCell];
-    [cell setBackgroundStyle:NSBackgroundStyleLight];
-    [cell setTextColor:[NSColor colorWithCalibratedWhite:0.3 alpha:1.0]];
-    switch (historyMode) {
-        case PRTopArtistsHistoryMode:
-            [cell setFont:[NSFont fontWithName:@"HelveticaNeue-Medium" size:18]];
-            break;
-        case PRTopSongsHistoryMode:
-            [cell setFont:[NSFont fontWithName:@"HelveticaNeue-Medium" size:18]];
-            break;
-        case PRRecentlyAddedHistoryMode:
-            [cell setFont:[NSFont fontWithName:@"HelveticaNeue-Medium" size:12]];
-            break;
-        case PRRecentlyPlayedHistoryMode:
-            [cell setFont:[NSFont fontWithName:@"HelveticaNeue-Medium" size:12]];
-            break;
-        default:
-            [cell setFont:[NSFont fontWithName:@"HelveticaNeue-Medium" size:14]];
-            break;
-    }
-    
-    bool hidden = !(historyMode == PRTopArtistsHistoryMode || historyMode == PRTopSongsHistoryMode);
-    if (hidden) {
-        [tableView setGridStyleMask:NSTableViewSolidHorizontalGridLineMask];
+    if (!(historyMode == PRTopArtistsHistoryMode || historyMode == PRTopSongsHistoryMode)) {
+        [divider2 setTopBorder:[NSColor PRGridColor]];
+        [divider2 setBotBorder:[NSColor clearColor]]; // no clue why you have to draw the top one but not the bottom.
     } else {
-        [tableView setGridStyleMask:NSTableViewGridNone];
+        [divider2 setTopBorder:[[NSColor PRGridColor] blendedColorWithFraction:0.07 ofColor:[NSColor blackColor]]];
+        [divider2 setBotBorder:[NSColor clearColor]]; // no clue why you have to draw the top one but not the bottom.
     }
+    [divider2 setNeedsDisplay:TRUE];
 }
 
 // ========================================
@@ -246,11 +197,15 @@
 	if ([sender clickedRow] == -1) {
 		return;
 	}
-	
-    PRFile file = [[[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"file"] intValue];
     [mainWindowController setCurrentMode:PRLibraryMode];
     [mainWindowController setCurrentPlaylist:[[db playlists] libraryPlaylist]];
-    [[mainWindowController libraryViewController] highlightFile:file];
+    if (historyMode == PRTopArtistsHistoryMode) {
+        NSString *artist = [[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"artist"];
+        [(PRTableViewController *)[[mainWindowController libraryViewController] currentViewController] highlightArtist:artist];
+    } else {
+        PRFile file = [[[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"file"] intValue];
+        [[mainWindowController libraryViewController] highlightFile:file];
+    }
 }
 
 // ========================================
@@ -275,62 +230,46 @@
     
     if (historyMode == PRTopArtistsHistoryMode) {
         NSDictionary *dict = [dataSource objectAtIndex:row];
-        NSImage *icon = [artworkCache objectForKey:[dict objectForKey:@"artist"]];
-        if (!icon) {
-            icon = [NSImage imageNamed:@"PRLightAlbumArt.png"];
-        }
         return [NSDictionary dictionaryWithObjectsAndKeys:
                 [dict objectForKey:@"artist"], @"title",
                 [dict objectForKey:@"count"], @"value",
                 [dict objectForKey:@"max"], @"max",
                 [[dict objectForKey:@"count"] stringValue], @"subSubTitle",
-                icon, @"icon",
-                [NSNumber numberWithInt:0], @"kind",
                 nil];
     } else if (historyMode == PRTopSongsHistoryMode) {
         NSDictionary *dict = [dataSource objectAtIndex:row];
-        NSImage *icon = [artworkCache objectForKey:[dict objectForKey:@"file"]];
-        if (!icon) {
-            icon = [NSImage imageNamed:@"PRLightAlbumArt.png"];
-        }
         return [NSDictionary dictionaryWithObjectsAndKeys:
                 [dict objectForKey:@"title"], @"title",
                 [dict objectForKey:@"artist"], @"subtitle",
                 [dict objectForKey:@"count"], @"value",
                 [dict objectForKey:@"max"] , @"max",
                 [[dict objectForKey:@"count"] stringValue], @"subSubTitle",
-                icon, @"icon",
-                [NSNumber numberWithInt:0], @"kind",
                 nil];
     } else if (historyMode == PRRecentlyAddedHistoryMode) {
         NSDictionary *dict = [dataSource objectAtIndex:row];
-        NSImage *icon = [artworkCache objectForKey:[dict objectForKey:@"file"]];
-        if (!icon) {
-            icon = [NSImage imageNamed:@"PRLightAlbumArt.png"];
+        NSString *dateStr;
+        if ([[dict objectForKey:@"date"] timeIntervalSinceDate:[NSDate dateWithNaturalLanguageString:@"midnight today"]] > 0) {
+            dateStr = [_timeFormatter stringFromDate:[dict objectForKey:@"date"]];
+        } else {
+            dateStr = [_dateFormatter stringFromDate:[dict objectForKey:@"date"]];
         }
-        NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-        [dateFormatter setDateFormat:@"M/dd  h:mm a"];
         return [NSDictionary dictionaryWithObjectsAndKeys:
                 [dict objectForKey:@"title"], @"title",
                 [dict objectForKey:@"artist"], @"subtitle",
-                icon, @"icon",
-                [dateFormatter stringFromDate:[dict objectForKey:@"date"]], @"subSubTitle",
-                [NSNumber numberWithInt:1], @"kind",
+                dateStr, @"subSubTitle",
                 nil];
     } else if (historyMode == PRRecentlyPlayedHistoryMode) {
         NSDictionary *dict = [dataSource objectAtIndex:row];
-        NSImage *icon = [artworkCache objectForKey:[dict objectForKey:@"file"]];
-        if (!icon) {
-            icon = [NSImage imageNamed:@"PRLightAlbumArt.png"];
+        NSString *dateStr;
+        if ([[dict objectForKey:@"date"] timeIntervalSinceDate:[NSDate dateWithNaturalLanguageString:@"midnight today"]] > 0) {
+            dateStr = [_timeFormatter stringFromDate:[dict objectForKey:@"date"]];
+        } else {
+            dateStr = [_dateFormatter stringFromDate:[dict objectForKey:@"date"]];
         }
-        NSDateFormatter *dateFormatter = [[[NSDateFormatter alloc] init] autorelease];
-        [dateFormatter setDateFormat:@"M/dd  h:mm a"];
         return [NSDictionary dictionaryWithObjectsAndKeys:
                 [dict objectForKey:@"title"], @"title",
                 [dict objectForKey:@"artist"], @"subtitle",
-                icon, @"icon",
-                [dateFormatter stringFromDate:[dict objectForKey:@"date"]], @"subSubTitle",
-                [NSNumber numberWithInt:1], @"kind",
+                dateStr, @"subSubTitle",
                 nil];
     } else {
         [PRException raise:NSInternalInconsistencyException format:@"Invalid History Mode"];

@@ -3,10 +3,6 @@
 #import "PRRule.h"
 
 
-NSString * const PRAddRuleNotification = @"PRAddRuleNotification";
-NSString * const PRDeleteRuleNotification = @"PRDeleteRuleNotification";
-NSString * const PRRuleDidChangeNotification = @"PRRuleDidChangeNotification";
-
 @implementation PRRuleViewController
 
 // initialization
@@ -156,26 +152,17 @@ NSString * const PRRuleDidChangeNotification = @"PRRuleDidChangeNotification";
 	[(PRRule *) [self representedObject] setSelectedObjects:[[[NSMutableArray alloc] init] autorelease]];
 	[self update];
 	
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRRuleDidChangeNotification 
-														object:self 
-													  userInfo:nil];
 }
 
 - (void)delete
 {
-	NSDictionary *userInfo;
-	
-	userInfo = [NSDictionary dictionaryWithObject:[self representedObject] forKey:@"rule"];
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRDeleteRuleNotification 
-														object:self 
-													  userInfo:userInfo];
+//	NSDictionary *userInfo;
+//	
+//	userInfo = [NSDictionary dictionaryWithObject:[self representedObject] forKey:@"rule"];
 }
 
 - (void)add
 {
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRAddRuleNotification 
-														object:self 
-													  userInfo:nil];
 }
 
 // NSTableView Data Source
@@ -219,9 +206,6 @@ NSString * const PRRuleDidChangeNotification = @"PRRuleDidChangeNotification";
 		[selectedObjects addObject:object];
 	}
 	
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRRuleDidChangeNotification 
-														object:self 
-													  userInfo:nil];
 }
 
 @end

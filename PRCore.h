@@ -5,27 +5,25 @@ PRWelcomeSheetController, PRGrowl, PRLastfm;
 
 @interface PRCore : NSObject <NSApplicationDelegate>
 {
-    IBOutlet NSMenu *mainMenu;
+    IBOutlet NSMenu *_mainMenu;
     
-    PRWelcomeSheetController *welcomeSheet;
+    PRWelcomeSheetController *_welcomeSheet;
     NSConnection *_connection;
     
-	PRDb *db;
-    PRDb *db2;
-	PRNowPlayingController *now;
-	PRMainWindowController *win;
-	NSOperationQueue *opQueue;
-    PRFolderMonitor *folderMonitor;
-    PRTaskManager *taskManager;
-    PRGrowl *growl;
-    PRLastfm *lastfm;
+	PRDb *_db;
+	PRNowPlayingController *_now;
+	PRMainWindowController *_win;
+	NSOperationQueue *_opQueue;
+    PRFolderMonitor *_folderMonitor;
+    PRTaskManager *_taskManager;
+    PRGrowl *_growl;
+    PRLastfm *_lastfm;
 }
 
 // ========================================
 // Properties
 
 @property (readonly) PRDb *db;
-@property (readonly) PRDb *db2;
 @property (readonly) PRMainWindowController *win;
 @property (readonly) PRNowPlayingController *now;
 @property (readonly) NSOperationQueue *opQueue;
@@ -39,9 +37,6 @@ PRWelcomeSheetController, PRGrowl, PRLastfm;
 
 - (void)itunesImport:(id)sender;
 - (IBAction)showOpenPanel:(id)sender;
-- (void)importSheetDidEnd:(NSOpenPanel*)openPanel 
-			   returnCode:(NSInteger)returnCode 
-				  context:(void*)context;
 
 // ========================================
 // Error

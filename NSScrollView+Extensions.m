@@ -24,8 +24,6 @@
         newScrollOrigin = NSMakePoint(0.0, 0.0);
     }
     [[self documentView] scrollPoint:newScrollOrigin];
-    
 }
-
 
 @end

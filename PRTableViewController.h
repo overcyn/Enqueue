@@ -11,6 +11,7 @@ PRStringFormatter;
 {
 	IBOutlet NSTableView *libraryTableView;
     IBOutlet NSView *libraryScrollView;
+    IBOutlet NSScrollView *libraryScrollView2;
     
     IBOutlet NSSplitView *horizontalBrowserSplitView;
     IBOutlet NSSplitView *horizontalBrowserSubSplitview;
@@ -39,6 +40,7 @@ PRStringFormatter;
 	int currentPlaylist;
 	
 	// True when updating so that tableViewSelectionDidChange doesnt get triggered
+    BOOL monitorSelection;
 	BOOL refreshing;
 	
 	NSMenu *libraryMenu;
@@ -77,6 +79,7 @@ PRStringFormatter;
 
 - (void)libraryDidChange:(NSNotification *)notification;
 - (void)playlistDidChange:(NSNotification *)notification;
+- (void)playlistFilesChanged:(NSNotification *)note;
 - (void)tagsDidChange:(NSNotification *)notification;
 - (void)ruleDidChange:(NSNotification *)notification;
 
@@ -117,6 +120,7 @@ PRStringFormatter;
 - (void)toggleColumn:(id)sender;
 - (void)toggleBrowser:(id)sender;
 
+- (void)browseToArtist:(NSString *)artist;
 - (void)highlightFile:(PRFile)file;
 - (void)highlightFiles:(NSIndexSet *)indexSet;
 - (void)highlightArtist:(NSString *)artist;

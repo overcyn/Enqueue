@@ -18,12 +18,7 @@
 // ========================================
 // Initialization
 
-- (id)initWithCore:(PRCore *)core;
-
-// ========================================
-// Accessors
-
-@property (readwrite) PRPlaylist playlist;
+- (id)initWithCore:(PRCore *)core playlist:(PRPlaylist)playlist;
 
 // ========================================
 // Update

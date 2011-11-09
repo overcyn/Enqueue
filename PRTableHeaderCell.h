@@ -1,7 +1,8 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface PRTableHeaderCell : NSTableHeaderCell {
+@interface PRTableHeaderCell : NSTableHeaderCell 
+{
 
 }
 

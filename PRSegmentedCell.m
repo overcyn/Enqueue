@@ -18,7 +18,7 @@
     [shadow setShadowBlurRadius:0];
     [shadow set];
     NSBezierPath *frame = [NSBezierPath bezierPathWithRoundedRect:cellFrame xRadius:3 yRadius:3];
-    [[NSColor colorWithCalibratedWhite:COLOR_2 alpha:1.0] set];
+    [[NSColor colorWithCalibratedWhite:0.55 alpha:1.0] set];
     [frame stroke];
     [NSGraphicsContext restoreGraphicsState];
     NSRect cellFrame2 = cellFrame;

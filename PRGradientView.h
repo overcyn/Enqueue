@@ -3,47 +3,51 @@
 
 @interface PRGradientView : NSView
 {
-    NSColor *color;
-    NSColor *alternateColor;
+    NSColor *_color;
+    NSGradient *_horizontalGradient;
+    NSGradient *_verticalGradient;
+    NSColor *_topGradient;
+    NSColor *_botGradient;
+    NSColor *_leftGradient;
+    NSColor *_rightGradient;
     
-    NSGradient *verticalGradient;
-    NSGradient *alternateVerticalGradient;
-    NSColor *topGradient;
-    NSColor *botGradient;
-    NSColor *alternateTopGradient;
-    NSColor *alternateBotGradient;
-    NSColor *topBorder;
-    NSColor *botBorder;
-    
-    NSGradient *horizontalGradient;
-    NSGradient *alternateHorizontalGradient;
-    NSColor *leftGradient;
-    NSColor *rightGradient;
-    NSColor *alternateLeftGradient;
-    NSColor *alternateRightGradient;
-    NSColor *leftBorder;
-    NSColor *rightBorder;
+    NSColor *_altColor;
+    NSGradient *_altHorizontalGradient;
+    NSGradient *_altVerticalGradient;
+    NSColor *_altTopGradient;
+    NSColor *_altBotGradient;
+    NSColor *_altLeftGradient;
+    NSColor *_altRightGradient;
+
+    NSColor *_topBorder;
+    NSColor *_botBorder;
+    NSColor *_leftBorder;
+    NSColor *_rightBorder;
+    NSColor *_topBorder2;
+    NSColor *_botBorder2;
 }
 
-@property (readwrite, retain) NSColor *color;
-@property (readwrite, retain) NSColor *alternateColor;
+@property (readwrite, copy) NSColor *color;
+@property (readwrite, copy) NSGradient *horizontalGradient;
+@property (readwrite, copy) NSGradient *verticalGradient;
+@property (readwrite, copy) NSColor *topGradient;
+@property (readwrite, copy) NSColor *botGradient;
+@property (readwrite, copy) NSColor *leftGradient;
+@property (readwrite, copy) NSColor *rightGradient;
 
-@property (readwrite, retain) NSGradient *verticalGradient;
-@property (readwrite, retain) NSGradient *alternateVerticalGradient;
-@property (readwrite, retain) NSColor *topGradient;
-@property (readwrite, retain) NSColor *botGradient;
-@property (readwrite, retain) NSColor *alternateTopGradient;
-@property (readwrite, retain) NSColor *alternateBotGradient;
-@property (readwrite, retain) NSColor *topBorder;
-@property (readwrite, retain) NSColor *botBorder;
+@property (readwrite, copy) NSColor *altColor;
+@property (readwrite, copy) NSGradient *altHorizontalGradient;
+@property (readwrite, copy) NSGradient *altVerticalGradient;
+@property (readwrite, copy) NSColor *altTopGradient;
+@property (readwrite, copy) NSColor *altBotGradient;
+@property (readwrite, copy) NSColor *altLeftGradient;
+@property (readwrite, copy) NSColor *altRightGradient;
 
-@property (readwrite, retain) NSGradient *horizontalGradient;
-@property (readwrite, retain) NSGradient *alternateHorizontalGradient;
-@property (readwrite, retain) NSColor *leftGradient;
-@property (readwrite, retain) NSColor *rightGradient;
-@property (readwrite, retain) NSColor *alternateLeftGradient;
-@property (readwrite, retain) NSColor *alternateRightGradient;
-@property (readwrite, retain) NSColor *leftBorder;
-@property (readwrite, retain) NSColor *rightBorder;
+@property (readwrite, copy) NSColor *topBorder;
+@property (readwrite, copy) NSColor *botBorder;
+@property (readwrite, copy) NSColor *leftBorder;
+@property (readwrite, copy) NSColor *rightBorder;
+@property (readwrite, copy) NSColor *topBorder2;
+@property (readwrite, copy) NSColor *botBorder2;
 
 @end

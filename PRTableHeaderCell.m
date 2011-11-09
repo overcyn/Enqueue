@@ -3,28 +3,10 @@
 
 @implementation PRTableHeaderCell
 
-//- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
-//{
-//    [[self stringValue] drawInRect:cellFrame withAttributes:nil];
-//}
-// 
-//- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
-//{
-//    NSGradient *gradient_ = [[[NSGradient alloc] initWithStartingColor:[NSColor colorWithDeviceWhite:0.94 alpha:1.0] 
-//                                                           endingColor:[NSColor colorWithDeviceWhite:1.0 alpha:1.0]] autorelease];
-//    [gradient_ drawInRect:cellFrame angle:90.0];
-//    
-//    [[NSColor lightGrayColor] set];
-//    [NSBezierPath strokeRect:cellFrame];
-//
-//    [self drawInteriorWithFrame:cellFrame inView:controlView];
-//}
-
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
     NSTableHeaderView *tableHeaderView = (NSTableHeaderView *)controlView;
     NSImage *indicator = nil;
-    
     for (NSTableColumn *i in [[tableHeaderView tableView] tableColumns]) {
         if ([i headerCell] == self) {
             indicator = [[tableHeaderView tableView] indicatorImageInTableColumn:i];
@@ -50,9 +32,7 @@
     
     if (indicator) {
         NSRect indicatorRect = NSMakeRect(cellFrame.origin.x + cellFrame.size.width - 15, 
-                                          cellFrame.origin.y + 3, 
-                                          9, 
-                                          9);
+                                          cellFrame.origin.y + 3, 9, 9);
         [indicator drawAdjustedInRect:indicatorRect 
                              fromRect:NSZeroRect 
                             operation:NSCompositeSourceOver 

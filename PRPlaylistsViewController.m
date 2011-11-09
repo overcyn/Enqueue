@@ -10,6 +10,7 @@
 #import "PRStringFormatter.h"
 #import "PRSmartPlaylistEditorViewController.h"
 #import "PRCore.h"
+#import "NSColor+Extensions.h"
 
 
 @implementation PRPlaylistsViewController
@@ -24,7 +25,7 @@
         _core = core;
 		win = [core win];
         db = [core db];
-        smartPlaylistEditorViewController = [[PRSmartPlaylistEditorViewController alloc] initWithCore:_core];
+//        smartPlaylistEditorViewController = [[PRSmartPlaylistEditorViewController alloc] initWithCore:_core];
         stringFormatter = [[PRStringFormatter alloc] init];
         [stringFormatter setMaxLength:80];
 	}
@@ -33,6 +34,7 @@
 
 - (void)dealloc
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [stringFormatter release];
     [super dealloc];
 }
@@ -52,24 +54,22 @@
     [tableView setTrackMouseWithinCell:TRUE];
     [[[[tableView tableColumns] objectAtIndex:0] dataCell] setFormatter:stringFormatter];
     
-    [divider setColor:[NSColor colorWithCalibratedWhite:0.8 alpha:1.0]];
+    [divider setBotBorder2:[NSColor PRTabBorderColor]];
+    [divider setBotBorder:[NSColor PRTabBorderHighlightColor]];
+    [divider setColor:[NSColor PRTabBackgroundColor]];
     
-	[self playlistsDidChangeNotification:nil];
-	
+    [divider2 setTopBorder:[NSColor PRGridColor]];
+    [divider2 setBotBorder:[NSColor PRGridHighlightColor]];
+    
 	// buttons
 	[newSmartPlaylistButton setTarget:self];
 	[newSmartPlaylistButton setAction:@selector(newSmartPlaylist)];
 	[newPlaylistButton setTarget:self];
 	[newPlaylistButton setAction:@selector(newStaticPlaylist)];
-	
-	[[NSNotificationCenter defaultCenter] addObserver:self 
-											 selector:@selector(playlistsDidChangeNotification:)
-												 name:PRPlaylistsDidChangeNotification 
-											   object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self 
-											 selector:@selector(playlistDidChangeNotification:)
-												 name:PRPlaylistDidChangeNotification 
-											   object:nil];
+    
+    [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(update)];
+	[[NSNotificationCenter defaultCenter] observePlaylistsChanged:self sel:@selector(update)];
+    [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(update)];
     [self update];
 }
 
@@ -79,39 +79,37 @@
 
 - (void)tableViewAction
 {
-    [win setCurrentMode:PRLibraryMode];
-    int playlist = [[[_datasource objectAtIndex:[tableView clickedRow]] objectForKey:@"playlist"] intValue];
+    int idx = [tableView clickedRow];
+    if (idx >= [_datasource count]) {return;}
+    int playlist = [[[_datasource objectAtIndex:idx] objectForKey:@"playlist"] intValue];
     [win setCurrentPlaylist:playlist];
+    [win setCurrentMode:PRLibraryMode];
 }
 
 - (void)newStaticPlaylist
 {
 	PRPlaylist playlist = [[db playlists] addStaticPlaylist];
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification 
-														object:self
-													  userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
     [self renamePlaylist:playlist];
 }
 
 - (void)newSmartPlaylist
 {
 	PRPlaylist playlist = [[db playlists] addSmartPlaylist];
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification 
-														object:self
-													  userInfo:nil];
+	[[NSNotificationCenter defaultCenter] postPlaylistsChanged];
     [self renamePlaylist:playlist];
 }
 
 - (void)duplicatePlaylist:(PRPlaylist)playlist
 {
     PRPlaylistType type = [[db playlists] typeForPlaylist:playlist];
-    if (type == PRStaticPlaylistType) {
+    if (type == PRStaticPlaylistType || type == PRNowPlayingPlaylistType) {
         int newPlaylist = [[db playlists] addStaticPlaylist];
         [[db playlists] copyFilesFromPlaylist:playlist toPlaylist:newPlaylist];
         NSString *title = [[db playlists] titleForPlaylist:playlist];
         NSString *title2 = [title stringByAppendingString:@" Copy"];
         [[db playlists] setValue:title2 forPlaylist:newPlaylist attribute:PRTitlePlaylistAttribute];
-        [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification object:self userInfo:nil];
+        [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
         [self renamePlaylist:newPlaylist];
     } else if (type == PRSmartPlaylistType) {
         int newPlaylist = [[db playlists] addSmartPlaylist];
@@ -119,7 +117,7 @@
         NSString *title = [[db playlists] titleForPlaylist:playlist];
         NSString *title2 = [title stringByAppendingString:@" Copy"];
         [[db playlists] setValue:title2 forPlaylist:newPlaylist attribute:PRTitlePlaylistAttribute];
-        [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification object:self userInfo:nil];
+        [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
         [self renamePlaylist:newPlaylist];
     }
 }
@@ -127,7 +125,7 @@
 - (void)deletePlaylist:(PRPlaylist)playlist
 {
     [[db playlists] removePlaylist:playlist];
-    [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification object:self];
+    [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
 }
 
 - (void)renamePlaylist:(PRPlaylist)playlist
@@ -167,29 +165,18 @@
 // Update
 // ========================================
 
-- (void)playlistsDidChangeNotification:(NSNotification *)notification
-{
-    [self update];
-}
-
-- (void)playlistDidChangeNotification:(NSNotification *)notification
-{
-    [self update];
-}
-
 - (void)update
 {
+    [newPlaylistButton setState:NSOffState];
     [_datasource release];
     _datasource = [[[db playlists] playlistsViewSource] retain];
     [tableView reloadData];
     int rows = [self numberOfRowsInTableView:tableView];
-    float height = 235 + 42 * (rows - 2);
-    if (height < 400) {
-        height = 400;
+    if (rows < 5) {
+        rows = 5;
     }
+    float height = 53 + 42 * rows + 50;
     [(PRScrollView *)[self view] setMinimumSize:NSMakeSize(650, height)];
-    [(PRScrollView *)[self view] viewFrameDidChange:nil];
-    [background setFrame:NSMakeRect([background frame].origin.x, [[background superview] frame].size.height - height, 650, height)];
     [tableView updateTrackingArea];
 }
 
@@ -231,7 +218,7 @@
             icon = [NSImage imageNamed:@"NSListViewTemplate"];
             break;
         default:
-            [PRException raise:NSInternalInconsistencyException format:@"Invalid Playlist Type"];
+            [PRException raise:NSInternalInconsistencyException format:@"Invalid Playlist Type"];return nil;
             break;
     }
     bool delete = !([[[_datasource objectAtIndex:row] objectForKey:@"type"] intValue] == PRNowPlayingPlaylistType);
@@ -253,12 +240,11 @@
 {
     if ([object isKindOfClass:[NSString class]]) {
         int playlist = [self playlistForRow:row];
-        
         if (playlist == -1) {
             return;
         }
         [[db playlists] setValue:object forPlaylist:playlist attribute:PRTitlePlaylistAttribute];
-        [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification object:self];
+        [[NSNotificationCenter defaultCenter] postPlaylistChanged:playlist];
     }
 }
 

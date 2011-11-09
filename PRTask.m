@@ -14,6 +14,11 @@
     return self;
 }
 
++ (PRTask *)task
+{
+    return [[[PRTask alloc] init] autorelease];
+}
+
 - (void)dealloc
 {
     [title release];

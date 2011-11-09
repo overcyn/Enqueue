@@ -1,84 +1,105 @@
 #import "PRGradientView.h"
+#import "NSBezierPath+Extensions.h"
 
 
 @implementation PRGradientView
 
-@synthesize color;
-@synthesize alternateColor;
+// ========================================
+// Initialization
+// ========================================
 
-@synthesize verticalGradient;
-@synthesize alternateVerticalGradient;
-@synthesize topGradient;
-@synthesize botGradient;
-@synthesize topBorder;
-@synthesize botBorder;
-@synthesize alternateTopGradient;
-@synthesize alternateBotGradient;
-
-@synthesize horizontalGradient;
-@synthesize alternateHorizontalGradient;
-@synthesize leftGradient;
-@synthesize rightGradient;
-@synthesize alternateLeftGradient;
-@synthesize alternateRightGradient;
-@synthesize leftBorder;
-@synthesize rightBorder;
-
-
-- (id)init
+- (void)dealloc
 {
-    self = [super init];
-    if (self) {
-
-    }
+    [_color release];
+    [_horizontalGradient release];
+    [_verticalGradient release];
+    [_topGradient release];
+    [_botGradient release];
+    [_leftGradient release];
+    [_rightGradient release];
     
-    return self;
+    [_altColor release];
+    [_altHorizontalGradient release];
+    [_altVerticalGradient release];
+    [_altTopGradient release];
+    [_altBotGradient release];
+    [_altLeftGradient release];
+    [_altRightGradient release];
+    
+    [_topBorder release];
+    [_botBorder release];
+    [_leftBorder release];
+    [_rightBorder release];
+    
+    [super dealloc];
 }
 
-- (void)awakeFromNib
-{
-}
+// ========================================
+// Properties
+// ========================================
+
+@synthesize color = _color;
+@synthesize horizontalGradient = _horizontalGradient;
+@synthesize verticalGradient = _verticalGradient;
+@synthesize topGradient = _topGradient;
+@synthesize botGradient = _botGradient;
+@synthesize leftGradient = _leftGradient;
+@synthesize rightGradient = _rightGradient;
+
+@synthesize altColor = _altColor;
+@synthesize altHorizontalGradient = _altHorizontalGradient;
+@synthesize altVerticalGradient = _altVerticalGradient;
+@synthesize altTopGradient = _altTopGradient;
+@synthesize altBotGradient = _altBotGradient;
+@synthesize altLeftGradient = _altLeftGradient;
+@synthesize altRightGradient = _altRightGradient;
+
+@synthesize topBorder = _topBorder;
+@synthesize botBorder = _botBorder;
+@synthesize leftBorder = _leftBorder;
+@synthesize rightBorder = _rightBorder;
+@synthesize topBorder2 = _topBorder2;
+@synthesize botBorder2 = _botBorder2;
+
+// ========================================
+// Drawing
+// ========================================
 
 - (void)drawRect:(NSRect)rect
 {   
     NSRect bounds = [self bounds];
-//    bounds.origin.x -= 0.5;
-//    bounds.origin.y -= 0.5;
-//    bounds.size.width += 1;
-//    bounds.size.height += 1;
-    
-    
-    NSColor *tempColor = color;
-    NSGradient *tempVerticalGradient = verticalGradient;
-    NSGradient *tempHorizontalGradient = horizontalGradient;
-    NSColor *tempTopGradient = topGradient;
-    NSColor *tempBotGradient = botGradient;
-    NSColor *tempLeftGradient = leftGradient;
-    NSColor *tempRightGradient = rightGradient;
+        
+    NSColor *tempColor = _color;
+    NSGradient *tempVerticalGradient = _verticalGradient;
+    NSGradient *tempHorizontalGradient = _horizontalGradient;
+    NSColor *tempTopGradient = _topGradient;
+    NSColor *tempBotGradient = _botGradient;
+    NSColor *tempLeftGradient = _leftGradient;
+    NSColor *tempRightGradient = _rightGradient;
     
     [NSBezierPath setDefaultLineWidth:1.0];
     
     if (![[self window] isMainWindow]) {
-        if (alternateColor) {
-            tempColor = alternateColor;
+        if (_altColor) {
+            tempColor = _altColor;
         }
-        if (alternateVerticalGradient) {
-            tempVerticalGradient = alternateVerticalGradient;
+        if (_altVerticalGradient) {
+            tempVerticalGradient = _altVerticalGradient;
         }
-        if (alternateHorizontalGradient) {
-            tempHorizontalGradient = alternateHorizontalGradient;
+        if (_altHorizontalGradient) {
+            tempHorizontalGradient = _altHorizontalGradient;
         }
-        if (alternateTopGradient) {
-            tempTopGradient = alternateTopGradient;
+        if (_altTopGradient) {
+            tempTopGradient = _altTopGradient;
         }
-        if (alternateBotGradient) {
-            tempBotGradient = alternateBotGradient;
+        if (_altBotGradient) {
+            tempBotGradient = _altBotGradient;
         }
-        if (alternateLeftGradient) {
-            tempLeftGradient = alternateLeftGradient;
+        if (_altLeftGradient) {
+            tempLeftGradient = _altLeftGradient;
         }
-        if (alternateRightGradient) {
-            tempRightGradient = alternateRightGradient;
+        if (_altRightGradient) {
+            tempRightGradient = _altRightGradient;
         }
     }
 
@@ -93,56 +114,37 @@
         [tempHorizontalGradient drawInRect:bounds angle:0.0];
     }
     if (tempTopGradient && tempBotGradient) {
-        NSGradient *gradient_ = [[[NSGradient alloc] initWithStartingColor:tempTopGradient 
-                                                               endingColor:tempBotGradient] autorelease];
+        NSGradient *gradient_ = [[[NSGradient alloc] initWithStartingColor:tempTopGradient endingColor:tempBotGradient] autorelease];
         [gradient_ drawInRect:bounds angle:-90.0];
     }
     if (tempLeftGradient && tempRightGradient) {
-        NSGradient *gradient_ = [[[NSGradient alloc] initWithStartingColor:tempLeftGradient 
-                                                               endingColor:tempRightGradient] autorelease];
+        NSGradient *gradient_ = [[[NSGradient alloc] initWithStartingColor:tempLeftGradient endingColor:tempRightGradient] autorelease];
         [gradient_ drawInRect:bounds angle:0.0];
     }
-    if (botBorder) {
-        [botBorder set];
-        NSPoint p1;
-        p1.x = bounds.origin.x;
-        p1.y = bounds.origin.y + 0.5;
-        NSPoint p2;
-        p2.x = bounds.origin.x + bounds.size.width;
-        p2.y = bounds.origin.y + 0.5;
-        [NSBezierPath strokeLineFromPoint:p1 toPoint:p2];
+    if (_botBorder2) {
+        [_botBorder2 set];
+        [NSBezierPath fillRect:[NSBezierPath botBorderOfRect:NSInsetRect(bounds, 0, 1)]];
     }
-    if (topBorder) {
-        [topBorder set];
-        NSPoint p1;
-        p1.x = bounds.origin.x;
-        p1.y = bounds.origin.y + bounds.size.height - 0.5;
-        NSPoint p2;
-        p2.x = bounds.origin.x + bounds.size.width;
-        p2.y = bounds.origin.y + bounds.size.height - 0.5;
-        [NSBezierPath strokeLineFromPoint:p1 toPoint:p2];
+    if (_topBorder2) {
+        [_topBorder2 set];
+        [NSBezierPath fillRect:[NSBezierPath topBorderOfRect:NSInsetRect(bounds, 0, 1)]];
     }
-    if (leftBorder) {
-        [leftBorder set];
-        NSPoint p1;
-        p1.x = bounds.origin.x;
-        p1.y = bounds.origin.y;
-        NSPoint p2;
-        p2.x = bounds.origin.x;
-        p2.y = bounds.origin.y + bounds.size.height;
-        [NSBezierPath strokeLineFromPoint:p1 toPoint:p2];
+    if (_leftBorder) {
+        [_leftBorder set];
+        [NSBezierPath fillRect:[NSBezierPath leftBorderOfRect:bounds]];
     }
-    if (rightBorder) {
-        [rightBorder set];
-        NSPoint p1;
-        p1.x = bounds.origin.x + bounds.size.width;
-        p1.y = bounds.origin.y;
-        NSPoint p2;
-        p2.x = bounds.origin.x + bounds.size.width;
-        p2.y = bounds.origin.y + bounds.size.height;
-        [NSBezierPath strokeLineFromPoint:p1 toPoint:p2];
+    if (_rightBorder) {
+        [_rightBorder set];
+        [NSBezierPath fillRect:[NSBezierPath rightBorderOfRect:bounds]];
+    }
+    if (_botBorder) {
+        [_botBorder set];
+        [NSBezierPath fillRect:[NSBezierPath botBorderOfRect:bounds]];
+    }
+    if (_topBorder) {
+        [_topBorder set];
+        [NSBezierPath fillRect:[NSBezierPath topBorderOfRect:bounds]];
     }
 }
-
 
 @end

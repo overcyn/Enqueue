@@ -3,13 +3,13 @@
 
 @interface PRRatingCell : NSSegmentedCell
 {
-	BOOL showDots;
-	NSRect cellFrame_;
-	BOOL editing;
-	int editSelectedSegment;
+	BOOL _showDots;
+	NSRect _cellFrame;
+	BOOL _editing;
 }
 
+@property (readwrite) BOOL showDots;
+
 - (NSRect)frameForSegment:(BOOL)segment;
-- (void)setShowDots:(BOOL)newShowDots;
 
 @end

@@ -1,6 +1,7 @@
 #import "PRWindow.h"
 #import <objc/runtime.h>
 
+
 @interface PRWindow(hush)
 - (float)roundedCornerRadius;
 - (void)drawRectOriginal:(NSRect)rect;
@@ -22,67 +23,39 @@
     Method m1 = class_getInstanceMethod(class, @selector(drawRect:)); 
     Method m2 = class_getInstanceMethod(class, @selector(drawRectOriginal:)); 
     method_exchangeImplementations(m1, m2);
+    [super awakeFromNib];
 }
 
 - (void)themeDrawRect:(NSRect)rect
 {
-	// Call original drawing method
 	[self drawRectOriginal:rect];
-    
     if (![[self window] isMainWindow]) {
         return;
     }
     
-	//
-	// Build clipping path : intersection of frame clip (bezier path with rounded corners) and rect argument
-	//
+    // Clip corner
     NSRect windowRect = [[self window] frame];
-    float cornerRadius = [self roundedCornerRadius];
     windowRect.origin = NSMakePoint(0, 0);
+    float cornerRadius = [self roundedCornerRadius];
     [[NSBezierPath bezierPathWithRoundedRect:windowRect xRadius:cornerRadius yRadius:cornerRadius] addClip];
     
-//	[[NSBezierPath bezierPathWithRect:rect] addClip];
-    
-    
-//    NSRect tempRect = NSMakeRect(0, windowRect.size.height - 60, windowRect.size.width, 60);
-//    NSGradient *gradient2 = [[[NSGradient alloc] initWithColorsAndLocations:
-//                             [NSColor colorWithCalibratedWhite:0.99 alpha:1.0], 0.0,
-//                             [NSColor colorWithCalibratedWhite:0.97 alpha:1.0], 0.2,
-//                             [NSColor colorWithCalibratedWhite:0.92 alpha:1.0], 0.5,
-//                             [NSColor colorWithCalibratedWhite:0.82 alpha:1.0], 1.0,
-//                             nil] autorelease];
-//    [gradient2 drawInRect:tempRect angle:-90.0];
-    
-    
+    // Fill
     NSRect controlRect = NSMakeRect(0, windowRect.size.height - 26, 185, 26);
-//    [[NSBezierPath bezierPathWithRoundedRect:controlRect xRadius:cornerRadius yRadius:cornerRadius] addClip];
-    
-    NSGradient *gradient_ = [[[NSGradient alloc] initWithColorsAndLocations:
-                              [NSColor colorWithCalibratedWhite:0.87 alpha:1.0], 0.0, 
-                              [NSColor colorWithCalibratedWhite:0.8 alpha:1.0], 0.3, 
-                              [NSColor colorWithCalibratedWhite:0.7 alpha:1.0], 1.0,
-                              nil] autorelease];
-    [gradient_ drawInRect:controlRect angle:-90.0];
     NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                             [NSColor colorWithCalibratedWhite:1.0 alpha:0.03], 0.0, 
-                             [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.2,
-                             [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.8,
-                             [NSColor colorWithCalibratedWhite:1.0 alpha:0.03], 1.0,
-                             nil] autorelease];
+                             [NSColor colorWithCalibratedWhite:0.87 alpha:1.0], 0.0, 
+                             [NSColor colorWithCalibratedWhite:0.8 alpha:1.0], 0.3, 
+                             [NSColor colorWithCalibratedWhite:0.7 alpha:1.0], 1.0,
+                              nil] autorelease];
+    [gradient drawInRect:controlRect angle:-90.0];
+    gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+                 [NSColor colorWithCalibratedWhite:1.0 alpha:0.04], 0.0, 
+                 [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.2,
+                 [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.8,
+                 [NSColor colorWithCalibratedWhite:1.0 alpha:0.04], 1.0,
+                 nil] autorelease];
     [gradient drawInRect:controlRect angle:0.0];
     
-//    NSBezierPath *rightCurve = [NSBezierPath bezierPath];
-//    [rightCurve appendBezierPathWithArcWithCenter:NSMakePoint(185 - cornerRadius, windowRect.size.height - cornerRadius)
-//                                           radius:cornerRadius-.3
-//                                       startAngle:90.0
-//                                         endAngle:0.0 
-//                                        clockwise:TRUE];
-//    [[NSColor lightGrayColor] set];
-//    [rightCurve setLineWidth:1.0];
-//    [rightCurve stroke];
-    
-    
-    // left border
+    // Left border
     [[NSColor colorWithDeviceWhite:0.98 alpha:1.0] set];
     NSPoint p1;
     p1.x = windowRect.origin.x;
@@ -91,8 +64,6 @@
     p2.x = windowRect.origin.x + windowRect.size.width;
     p2.y = windowRect.origin.y + windowRect.size.height;
     [NSBezierPath strokeLineFromPoint:p1 toPoint:p2];
-
 }
-
 
 @end

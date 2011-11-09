@@ -7,9 +7,13 @@ PRGradientView, PRMainWindowController, PRNowPlayingCell, PRNowPlayingHeaderCell
 @interface PRNowPlayingViewController : NSViewController <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, NSTextFieldDelegate>
 {
 	IBOutlet NSOutlineView *nowPlayingTableView;
+    IBOutlet NSPopUpButton *settingsButton;
+    IBOutlet NSButton *speakerButton;
 	IBOutlet NSButton *clearButton;
     IBOutlet PRGradientView *backgroundGradient;
 	IBOutlet PRGradientView *barGradient;
+    IBOutlet PRGradientView *divider1;
+    IBOutlet PRGradientView *divider2;
     IBOutlet NSSlider *volumeSlider;
     IBOutlet NSScrollView *scrollview;
     
@@ -28,7 +32,6 @@ PRGradientView, PRMainWindowController, PRNowPlayingCell, PRNowPlayingHeaderCell
     NSMutableDictionary *_parentItems;
     NSMutableDictionary *_childItems;
     
-    int _prevRow;    
     NSPoint dropPoint;
 	
     PRMainWindowController *win;
@@ -42,24 +45,26 @@ PRGradientView, PRMainWindowController, PRNowPlayingCell, PRNowPlayingHeaderCell
 
 @end
 
-
 @interface PRNowPlayingViewController ()
 
 // ========================================
-// Action
+// TableView Actions
 
 - (void)playItem:(id)item;
-- (void)addSelectedToQueue;
-- (void)removeSelectedFromQueue;
 - (void)playSelected;
 - (void)removeSelected;
+- (void)addSelectedToQueue;
+- (void)removeSelectedFromQueue;
 - (void)addToPlaylist:(id)sender;
 - (IBAction)delete:(id)sender;
-- (void)clearPlaylist;
 - (void)showInLibrary;
 - (void)revealInFinder;
-- (void)getInfo;
 
+// ========================================
+// PlaylistMenu Actions
+
+- (void)mute;
+- (void)clearPlaylist;
 - (void)saveAsPlaylist:(id)sender;
 - (void)newPlaylist:(id)sender;
 
@@ -69,6 +74,7 @@ PRGradientView, PRMainWindowController, PRNowPlayingCell, PRNowPlayingHeaderCell
 - (void)updateTableView;
 - (void)playlistDidChange:(NSNotification *)notification;
 - (void)currentFileDidChange:(NSNotification *)notification;
+- (void)volumeChanged:(NSNotification *)notification;
 
 // ========================================
 // Menu

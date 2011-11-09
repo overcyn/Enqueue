@@ -33,23 +33,18 @@
 
 - (void)drawAdjustedAtPoint:(NSPoint)aPoint fromRect:(NSRect)srcRect operation:(NSCompositingOperation)op fraction:(CGFloat)delta
 {
-	NSSize		size = [self size];
+	NSSize size = [self size];
 	
 	[self drawAdjustedInRect:NSMakeRect(aPoint.x, aPoint.y, size.width, size.height) fromRect:srcRect operation:op fraction:delta];
 }
 
 - (void)drawAdjustedInRect:(NSRect)dstRect fromRect:(NSRect)srcRect operation:(NSCompositingOperation)op fraction:(CGFloat)delta
 {
-	NSGraphicsContext	*context;
-	BOOL				contextIsFlipped;
+	NSGraphicsContext *context = [NSGraphicsContext currentContext];
+	BOOL contextIsFlipped = [context isFlipped];
 	
-	context = [NSGraphicsContext currentContext];
-	contextIsFlipped = [context isFlipped];
-	
-	if (contextIsFlipped)
-	{
-		NSAffineTransform			*transform;
-		
+	if (contextIsFlipped) {
+		NSAffineTransform *transform;
 		[context saveGraphicsState];
 		
 		// Flip the coordinate system back.
@@ -64,21 +59,18 @@
 	
 	[self drawInRect:dstRect fromRect:srcRect operation:op fraction:delta];
 	
-	if (contextIsFlipped)
-	{
+	if (contextIsFlipped) {
 		[context restoreGraphicsState];
 	}
 }
 
 - (NSImage *)unflippedImage
 {
-	if ([self isFlipped])
-	{
+	if ([self isFlipped]) {
 		NSImage	*newImage = [[[NSImage alloc] initWithSize:[self size]] autorelease];
 		[newImage lockFocus];
 		[self drawAdjustedAtPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositeCopy fraction:1.0];
 		[newImage unlockFocus];
-		
 		return newImage;
 	}
 	return self;

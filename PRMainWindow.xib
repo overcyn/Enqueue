@@ -127,7 +127,7 @@
 					<object class="NSButton" id="880141396">
 						<reference key="NSNextResponder" ref="864440652"/>
 						<int key="NSvFlags">289</int>
-						<string key="NSFrame">{{793, 6}, {20, 15}}</string>
+						<string key="NSFrame">{{843, 4}, {14, 16}}</string>
 						<reference key="NSSuperview" ref="864440652"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="956571819"/>
@@ -136,20 +136,19 @@
 						<object class="NSButtonCell" key="NSCell" id="936755934">
 							<int key="NSCellFlags">67239424</int>
 							<int key="NSCellFlags2">134217728</int>
-							<string key="NSContents">x</string>
+							<string key="NSContents"/>
 							<object class="NSFont" key="NSSupport">
-								<string key="NSName">MyriadPro-Regular</string>
+								<string key="NSName">KozGoPr6N-Bold</string>
 								<double key="NSSize">12</double>
 								<int key="NSfFlags">16</int>
 							</object>
 							<string key="NSCellIdentifier">_NS:1491</string>
 							<reference key="NSControlView" ref="880141396"/>
-							<int key="NSButtonFlags">-2046410497</int>
-							<int key="NSButtonFlags2">198</int>
-							<object class="NSFont" key="NSAlternateImage">
-								<string key="NSName">LucidaGrande</string>
-								<double key="NSSize">12</double>
-								<int key="NSfFlags">16</int>
+							<int key="NSButtonFlags">138690815</int>
+							<int key="NSButtonFlags2">6</int>
+							<object class="NSCustomResource" key="NSNormalImage">
+								<string key="NSClassName">NSImage</string>
+								<string key="NSResourceName">Cancel</string>
 							</object>
 							<string key="NSAlternateContents"/>
 							<string key="NSKeyEquivalent"/>
@@ -160,7 +159,7 @@
 					<object class="NSCustomView" id="124439736">
 						<reference key="NSNextResponder" ref="864440652"/>
 						<int key="NSvFlags">289</int>
-						<string key="NSFrame">{{790, 6}, {1, 12}}</string>
+						<string key="NSFrame">{{839, 6}, {1, 12}}</string>
 						<reference key="NSSuperview" ref="864440652"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="880141396"/>
@@ -376,7 +375,7 @@
 					<object class="NSTextField" id="956571819">
 						<reference key="NSNextResponder" ref="864440652"/>
 						<int key="NSvFlags">289</int>
-						<string key="NSFrame">{{812, 5}, {196, 14}}</string>
+						<string key="NSFrame">{{857, 5}, {144, 14}}</string>
 						<reference key="NSSuperview" ref="864440652"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView"/>
@@ -924,6 +923,7 @@
 						<int key="objectID">323</int>
 						<reference key="object" ref="124439736"/>
 						<reference key="parent" ref="864440652"/>
+						<string key="objectName">Gradient View</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">326</int>
@@ -1318,6 +1318,7 @@
 			<object class="NSArray" key="dict.sortedKeys">
 				<bool key="EncodedWithXMLCoder">YES</bool>
 				<string>AlbumListViewTemplate</string>
+				<string>Cancel</string>
 				<string>History</string>
 				<string>HistoryAlt</string>
 				<string>Info</string>
@@ -1331,6 +1332,7 @@
 			</object>
 			<object class="NSMutableArray" key="dict.values">
 				<bool key="EncodedWithXMLCoder">YES</bool>
+				<string>{10, 10}</string>
 				<string>{10, 10}</string>
 				<string>{72, 30}</string>
 				<string>{72, 30}</string>

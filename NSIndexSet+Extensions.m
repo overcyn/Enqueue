@@ -3,18 +3,22 @@
 
 @implementation NSIndexSet (Extensions)
 
-- (NSUInteger)nthIndex:(NSUInteger)n
+- (NSUInteger)positionOfIndex:(NSUInteger)index
 {
-	NSUInteger count = 0;
-	NSUInteger index = 0;
-	while ((index = [self indexGreaterThanOrEqualToIndex:index]) != NSNotFound) {
-		count++;		
-		if (count == n) {
+    return [self countOfIndexesInRange:NSMakeRange(0, index+1)];
+}
+
+- (NSUInteger)indexAtPosition:(NSUInteger)position
+{
+    NSUInteger count = 0;
+	NSUInteger index = [self firstIndex];
+	while (index != NSNotFound) {
+		count++;
+		if (count == position) {
 			return index;
 		}
-		index++;
+		index = [self indexGreaterThanIndex:index];
 	}
-	
 	return NSNotFound;
 }
 
@@ -27,9 +31,17 @@
     return indexes;    
 }
 
-- (NSUInteger)positionOfIndex:(NSUInteger)index
+- (NSIndexSet *)intersectionWithIndexSet:(NSIndexSet *)indexSet
 {
-    return [self countOfIndexesInRange:NSMakeRange(0, index+1)];
+    NSMutableIndexSet *intersection = [NSMutableIndexSet indexSet];
+    NSUInteger index = [self firstIndex];
+    while (index != NSNotFound) {
+        if ([indexSet containsIndex:index]) {
+            [intersection addIndex:index];
+        }
+        index = [self indexGreaterThanIndex:index];
+    }
+    return intersection;
 }
 
 @end

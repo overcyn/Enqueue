@@ -2,10 +2,6 @@
 #import "PRLibrary.h"
 
 
-extern NSString * const PRAddRuleNotification;
-extern NSString * const PRDeleteRuleNotification;
-extern NSString * const PRRuleDidChangeNotification;
-
 @class PRLibrary;
 
 @interface PRRuleViewController : NSCollectionViewItem <NSTableViewDataSource>

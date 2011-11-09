@@ -3,7 +3,9 @@
 #import "PRDb.h"
 #import "PRCore.h"
 #import "PRImportOperation.h"
+#import "PRRescanOperation.h"
 #import "PRUserDefaults.h"
+#import "NSFileManager+Extensions.h"
 
 
 @implementation PRFolderMonitor
@@ -81,90 +83,74 @@
     }
     
     // get new paths
-    NSArray *folders = [self monitoredFolders];
-    if ([folders count] == 0) {
+    if ([[self monitoredFolders] count] == 0) {
         return;
     }
-    NSMutableArray *mutablePaths = [NSMutableArray array];
-    for (NSURL *i in folders) {
-        [mutablePaths addObject:[i path]];
+    NSMutableArray *paths = [NSMutableArray array];
+    for (NSURL *i in [self monitoredFolders]) {
+        [paths addObject:[i path]];
     }
-    NSArray *paths = [NSArray arrayWithArray:mutablePaths];
-    
-    FSEventStreamEventId lastEventStreamEventId = [[PRUserDefaults userDefaults] lastEventStreamEventId];
-    
-    // if no previous monitor. scan entire directory
-    if (lastEventStreamEventId == 0) {
-        FSEventStreamEventId currentEventStreamEventId = FSEventsGetCurrentEventId();
-        NSMethodSignature *methodSignature = [PRUserDefaults instanceMethodSignatureForSelector:@selector(setLastEventStreamEventId:)];
-        NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
-        [invocation retainArguments];
-        [invocation setTarget:[PRUserDefaults userDefaults]];
-        [invocation setSelector:@selector(setLastEventStreamEventId:)];
-        [invocation setArgument:&currentEventStreamEventId atIndex:2];
-        methodSignature = [[self class] instanceMethodSignatureForSelector:@selector(monitor)];
-        NSInvocation *invocation2 = [NSInvocation invocationWithMethodSignature:methodSignature];
-        [invocation retainArguments];
-        [invocation2 setTarget:self];
-        [invocation2 setSelector:@selector(monitor)];
-        
-        PRImportOperation *op = [[[PRImportOperation alloc] initWithURLs:folders core:core] autorelease];
-        [op setBackground:FALSE];
-        [op setCompletionInvocation:invocation];
-        [op setCompletionInvocation2:invocation2];
+    // if no event id. add URLs and re-monitor
+    if ([[PRUserDefaults userDefaults] lastEventStreamEventId] == 0) {
+        PRRescanOperation *op = [PRRescanOperation operationWithURLs:[self monitoredFolders] core:core];
+        [op setEventId:FSEventsGetCurrentEventId()];
+        [op setMonitor:TRUE];
         [[core opQueue] addOperation:op];
-    } else {
-        // create and schedule new monitor
-        FSEventStreamContext context;
-        context.info = self;
-        context.version = 0;
-        context.retain = NULL;
-        context.release = NULL;
-        context.copyDescription = NULL;
-        stream = FSEventStreamCreate(NULL, &mycallback, &context, (CFArrayRef)paths, 
-                                     lastEventStreamEventId, 20.0, kFSEventStreamCreateFlagNone);
-        FSEventStreamScheduleWithRunLoop(stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-        FSEventStreamStart(stream);
+        return;
     }
+    // create and schedule new monitor
+    FSEventStreamContext context;
+    context.info = self;
+    context.version = 0;
+    context.retain = NULL;
+    context.release = NULL;
+    context.copyDescription = NULL;
+    stream = FSEventStreamCreate(NULL, &eventCallback, &context, (CFArrayRef)paths, 
+                                 [[PRUserDefaults userDefaults] lastEventStreamEventId], 5.0, kFSEventStreamCreateFlagNone);
+    FSEventStreamScheduleWithRunLoop(stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+    FSEventStreamStart(stream);
+}
+
+- (void)rescan
+{
+    PRRescanOperation *op = [PRRescanOperation operationWithURLs:[self monitoredFolders] core:core];
+    [op setEventId:FSEventsGetCurrentEventId()];
+    [[core opQueue] addOperation:op];
 }
 
 @end
 
-void mycallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents,
-                void *eventPaths, const FSEventStreamEventFlags eventFlags[],
-                const FSEventStreamEventId eventIds[])
+void eventCallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents,
+                   void *eventPaths, const FSEventStreamEventFlags eventFlags[],
+                   const FSEventStreamEventId eventIds[])
 {
     PRFolderMonitor *folderMonitor = (PRFolderMonitor *)clientCallBackInfo;
     PRCore *core = [folderMonitor core];
-    NSOperationQueue *opQueue = [core opQueue];
+    NSFileManager *fm = [[[NSFileManager alloc] init] autorelease];
     char **paths = eventPaths;
     
     NSMutableArray *URLs = [NSMutableArray array];
     for (int i = 0; i < numEvents; i++) {
-        /* flags are unsigned long, IDs are uint64_t */
+        NSURL *URL = [NSURL fileURLWithPath:[NSString stringWithCString:paths[i] encoding:NSUTF8StringEncoding]];
         NSLog(@"Change %llu in %s, flags %lu\n", eventIds[i], paths[i], (unsigned long)eventFlags[i]);
         
-        // kFSEventStreamEventFlagHistoryDone: denotes an old event
-        if ((eventFlags[i] & kFSEventStreamEventFlagHistoryDone) == kFSEventStreamEventFlagHistoryDone) {
+        // if old event
+        if ((eventFlags[i] & kFSEventStreamEventFlagHistoryDone) != 0) { 
             continue;
         }
         
-        NSString *path = [NSString stringWithCString:paths[i] encoding:NSUTF8StringEncoding];
-        [URLs addObject:[NSURL fileURLWithPath:path]];
+        // if not in monitored folders
+        BOOL valid = FALSE;
+        for (NSURL *j in [folderMonitor monitoredFolders]) {
+            if ([fm itemAtURL:j containsItemAtURL:URL] || [fm itemAtURL:j equalsItemAtURL:URL]) {
+                valid = TRUE;
+            }
+        }
+        if (!valid) {continue;}
+        
+        [URLs addObject:URL];
     }
-    PRImportOperation *op = [[PRImportOperation alloc] initWithURLs:URLs core:core];
-    [op setRemoveMissing:TRUE];
-    [op setBackground:TRUE];
-    [opQueue addOperation:op];
-    [op release];
-    
-    FSEventStreamEventId lastEventId = eventIds[numEvents - 1];
-    NSMethodSignature *methodSignature = [PRUserDefaults instanceMethodSignatureForSelector:@selector(setLastEventStreamEventId:)];
-    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
-    [invocation setTarget:[PRUserDefaults userDefaults]];
-    [invocation setSelector:@selector(setLastEventStreamEventId:)];
-    [invocation setArgument:&lastEventId atIndex:2];
-    NSInvocationOperation *invocationOp = [[NSInvocationOperation alloc] initWithInvocation:invocation];
-    [[[folderMonitor core] opQueue] addOperation:invocationOp];
-    [invocationOp release];
+    PRRescanOperation *op = [PRRescanOperation operationWithURLs:URLs core:core];
+    [op setEventId:eventIds[numEvents - 1]];
+    [[core opQueue] addOperation:op];
 }

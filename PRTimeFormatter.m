@@ -1,5 +1,6 @@
 #import "PRTimeFormatter.h"
 
+
 @implementation PRTimeFormatter
 
 - (NSString *)stringForObjectValue:(id)object 
@@ -23,12 +24,6 @@
 	  errorDescription:(NSString **)error 
 {
     return NO;
-}
-
-- (NSAttributedString *)attributedStringForObjectValue:(id)anObject 
-								 withDefaultAttributes:(NSDictionary *)attributes
-{
-	return nil;
 }
 
 @end

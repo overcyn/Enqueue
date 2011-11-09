@@ -14,9 +14,6 @@
 #import "PRCore.h"
 
 
-NSString * const PRLibraryViewSelectionDidChangeNotification = @"PRLibraryViewSelectionDidChangeNotification";
-NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDidChangeNotification";
-
 @implementation PRLibraryViewController
 
 // ========================================
@@ -30,7 +27,6 @@ NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDid
     db = [[core db] retain];
     now = [[core now] retain];
     
-    dividerPosition = 330;
     playlist = -1;
     
     [self infoViewToggle];
@@ -40,8 +36,6 @@ NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDid
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:PRLibraryViewModeDidChangeNotification object:nil];
-    
     [smartPlaylistEditorViewController release];
     [staticPlaylistEditorViewController release];
     [infoViewController release];
@@ -98,7 +92,6 @@ NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDid
 	}
 	playlist = newPlaylist;
 	[self setLibraryViewMode:[self libraryViewMode]];
-//	[smartPlaylistEditorViewController setCurrentPlaylist:currentPlaylist];
 }
 
 - (PRLibraryViewMode)libraryViewMode
@@ -129,8 +122,8 @@ NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDid
 	[centerSuperview replaceSubview:[oldViewController view] with:[currentViewController view]];    
 	[currentViewController setCurrentPlaylist:playlist];    
     
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRLibraryViewModeDidChangeNotification object:self];
-    [[NSNotificationCenter defaultCenter] postNotificationName:PRLibraryViewSelectionDidChangeNotification object:currentViewController];
+    [[NSNotificationCenter defaultCenter] postPlaylistChanged:playlist];
+    [[NSNotificationCenter defaultCenter] postLibraryViewSelectionChanged];
 }
 
 - (void)setListMode
@@ -174,8 +167,7 @@ NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDid
 		
 		currentPaneViewController = infoViewController;
 	}
-    [self willChangeValueForKey:@"infoViewVisible"];
-    [self didChangeValueForKey:@"infoViewVisible"];
+    [[NSNotificationCenter defaultCenter] postInfoViewVisibleChanged];
 }
 
 - (BOOL)infoViewVisible
@@ -198,7 +190,7 @@ NSString * const PRLibraryViewModeDidChangeNotification = @"PRLibraryViewModeDid
 - (void)paneViewUncollapse
 {
 	edit = TRUE;
-	[editorSplitView setPosition:dividerPosition ofDividerAtIndex:0];
+	[editorSplitView setPosition:330 ofDividerAtIndex:0];
 }
 
 // ========================================

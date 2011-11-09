@@ -6,4 +6,6 @@
     NSTimer *autoexpand_timer;
 }
 
+- (void)reloadVisibleItems;
+
 @end

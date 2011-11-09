@@ -74,24 +74,28 @@ typedef enum {
 // ========================================
 // Accessors
 
-- (PRFile)addTempFileWithPath:(NSString *)path;
-- (void)setAttributes:(NSDictionary *)attributes forTempFile:(PRFile)file;
-- (void)mergeTempFilesToLibrary;
-- (void)clearTempFiles;
+- (BOOL)containsFile:(PRFile)file;
+
+- (PRFile)addFileWithAttributes:(NSDictionary *)attrs;
 - (void)removeFiles:(NSIndexSet *)files;
 
 - (id)valueForFile:(PRFile)file attribute:(PRFileAttribute)attribute;
-- (void)setValue:(id)value forFile:(PRFile)file attribute:(PRFileAttribute)attribute;
 - (NSDictionary *)attributesForFile:(PRFile)file;
+- (void)setValue:(id)value forFile:(PRFile)file attribute:(PRFileAttribute)attribute;
 - (void)setAttributes:(NSDictionary *)attirbutes forFile:(PRFile)file;
+
+// ========================================
+// Accessors Tag
+
+- (BOOL)updateTagsForFile:(PRFile)file;
 
 // ========================================
 // Accessors Misc
 
+- (NSURL *)URLforFile:(PRFile)file;
 - (NSString *)comparisonArtistForFile:(PRFile)file;
+- (NSArray *)filesWithSimilarURL:(NSURL *)URL;
 - (NSIndexSet *)filesWithValue:(id)value forAttribute:(PRFileAttribute)attribute;
-- (NSIndexSet *)filesWithPath:(NSString *)path caseSensitive:(BOOL)caseSensitive;
-//- (BOOL)arrayOfUniqueValues:(NSArray **)array forAttribute:(PRFileAttribute)attr _error:(NSError **)error;
 
 // ========================================
 // Update

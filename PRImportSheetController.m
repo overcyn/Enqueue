@@ -1,5 +1,6 @@
 #import "PRCore.h"
 #import "PRImportSheetController.h"
+#import "PRMainWindowController.h"
 
 
 @implementation PRImportSheetController
@@ -7,7 +8,7 @@
 - (void)beginSheet
 {
 	[NSApp beginSheet:[self window] 
-	   modalForWindow:[[[NSApp delegate] win] window]
+	   modalForWindow:[[(PRCore *)[NSApp delegate] win] window]
         modalDelegate:self 
 	   didEndSelector:NULL 
 		  contextInfo:nil];

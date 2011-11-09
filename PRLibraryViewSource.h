@@ -84,6 +84,7 @@ typedef enum {
 // ========================================
 // Misc
 
+- (int)firstRowWithValue:(id)value forAttribute:(PRFileAttribute)attribute;
 - (NSString *)tableNameForBrowser:(int)browser;
 - (NSString *)groupingStringForPlaylist:(PRPlaylist)playlist browser:(int)browser;
 

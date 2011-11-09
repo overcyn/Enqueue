@@ -2,6 +2,20 @@
  Shuffle is implemented in the following manner: PRPlaybackOrder contains a list of recently played
  playlist_item_ids from oldest to newest. orderPosition indicates the current position in the 
  playlist history. Ordinarily this would be the last item in playbackorder. 
+ 
+         <-- 0 : Marker
+ 0  fileA
+         <-- 1
+ 1  fileB
+         <-- 2
+ 2  fileC
+         <-- 3
+ 3  fileD
+         <-- 4 : Position
+ count:4
+ 
+ orderPostion by default when not in history would be 4.
+ orderMarker by default would be 0.
  */
 
 #import <Cocoa/Cocoa.h>
@@ -9,28 +23,17 @@
 #import "PRLibrary.h"
 
 
-extern NSString * const PRCurrentFileDidChangeNotification;
-extern NSString * const PRShuffleDidChangeNotification;
-extern NSString * const PRRepeatDidChangeNotification;
-
 @class PRDb, PRPlaybackOrder, PRHistory, PRMoviePlayer;
 
 @interface PRNowPlayingController : NSObject 
-{	
-	PRPlaylist currentPlaylist;
+{
 	PRPlaylistItem currentPlaylistItem; // 0 if none
-	
-	NSMutableArray *queue;
+	int _position; // current position in playback history. usually count of playbackorder
+	int _marker; // position in history AFTER which not to random from
+	NSMutableIndexSet *_invalidSongs;
     
-    // current position in playback history. usually the end
-	int orderPosition;
-	// position in history BEFORE which not to play from
-	int orderMarker;
-	
 	PRMoviePlayer *mov;
-	
-    NSMutableIndexSet *invalidSongs;
-    
+
 	// weak
 	PRDb *db;
 }
@@ -44,47 +47,25 @@ extern NSString * const PRRepeatDidChangeNotification;
 // Accessors
 
 @property (readonly) NSMutableIndexSet *invalidSongs;
-@property (readonly) NSMutableArray *queue;
+@property (readonly) PRMoviePlayer *mov;
+@property (readonly) PRPlaylist currentPlaylist;
+@property (readonly) PRPlaylistItem currentPlaylistItem;
+@property (readonly) PRFile currentFile; // convenience method
+@property (readonly) int currentIndex; // convenience method
+
 @property (readwrite) BOOL shuffle;
 @property (readwrite) int repeat;
-
-- (PRMoviePlayer *)mov;
-- (PRPlaylist)currentPlaylist;
-- (void)setCurrentPlaylist:(PRPlaylist)playlist;
-- (int)currentIndex;
-- (void)setCurrentIndex:(int)index; // private
-- (PRFile)currentFile;
-
-- (void)appendToQueue:(PRPlaylistItem)playlistItem;
-- (void)removeFromQueueObjectAtIndex:(int)index;
-- (void)clearQueue;
-
-// ========================================
-// Action
-
-- (void)stop;
-- (void)playPause;
-- (void)playPlaylist:(PRPlaylist)playlist fileAtIndex:(int)index;
-- (void)playNext;
-- (void)playPrevious;
 
 - (void)toggleRepeat;
 - (void)toggleShuffle;
 
-- (void)clearHistory;
+// ========================================
+// Playback
 
-- (void)postNotificationForCurrentPlaylist;
-
-// Update
-- (void)movieDidFinish;
-
-@end
-
-
-// Private methods for PRNowPlayingController
-//
-@interface PRNowPlayingController ()
-
-- (BOOL)playFileAtIndex:(int)index;
+- (void)playItemAtIndex:(int)index;
+- (void)playPause;
+- (void)playNext;
+- (void)playPrevious;
+- (void)stop;
 
 @end

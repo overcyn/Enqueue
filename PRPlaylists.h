@@ -103,6 +103,7 @@ typedef enum {
 - (void)addFiles:(NSArray *)files atIndex:(int)index toPlaylist:(PRPlaylist)playlist;
 - (void)appendFile:(PRFile)file toPlaylist:(PRPlaylist)playlist;
 - (void)appendFiles:(NSIndexSet *)files toPlaylist:(PRPlaylist)playlist;
+- (void)appendFiles2:(NSArray *)files toPlaylist:(PRPlaylist)playlist;
 - (void)removeFileAtIndex:(int)index fromPlaylist:(PRPlaylist)playlist;
 - (void)removeFilesAtIndexes:(NSIndexSet *)indexes fromPlaylist:(PRPlaylist)playlist;
 - (void)clearPlaylist:(PRPlaylist)playlist;

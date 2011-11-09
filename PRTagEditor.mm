@@ -36,6 +36,7 @@
 #import "taglib/fileRef.h"
 #import "taglib/textidentificationframe.h"
 #import "taglib/tstring.h"
+#import "taglib/mp4coverart.h"
 #import "mp4v2/mp4v2.h"
 #import "mp4v2/itmf_tags.h"
 #import "mp4v2/itmf_generic.h"
@@ -50,8 +51,6 @@ using namespace TagLib;
 // ========================================
 // Tag Reading
 
-- (NSDictionary *)tags;
-- (NSDictionary *)properties;
 - (NSDictionary *)APETags;
 - (NSDictionary *)ASFTags;
 - (NSDictionary *)FLACTags;
@@ -124,64 +123,193 @@ using namespace TagLib;
 // Initialization
 // ========================================
 
-- (id)initWithFile:(PRFile)file_ db:(PRDb *)db_
-{	
-	if (!(self = [super init])) {return nil;}
-    file = file_;
-    db = db_;
-    _tempFile = FALSE;
-    _postNotification = FALSE;
-    
-    NSString *URLString = [[db library] valueForFile:file attribute:PRPathFileAttribute];
-    URL = [[NSURL alloc] initWithString:URLString];
-    taglibFile = [[self class] fileAtURL:URL type:&fileType];
-    if (fileType == PRFileTypeUnknown) {
+- (id)initWithURL:(NSURL *)URL
+{
+    if (!(self = [super init])) {return nil;}
+    _URL = [URL retain];
+    _taglibFile = [[self class] fileAtURL:_URL type:&_fileType];
+    if (_fileType == PRFileTypeUnknown) {
         [self release];
-        self = nil;
+        return nil;
     }
-	return self;
+    return self;
 }
 
-- (id)initWithURL:(NSURL *)URL_ db:(PRDb *)db_
-{	
-	self = [super init];
-	if (self) {
-        URL = [URL_ retain];
-		db = db_;
-        _tempFile = FALSE;
-        _postNotification = FALSE;
-        
-        taglibFile = [[self class] fileAtURL:URL type:&fileType];
-        if (fileType == PRFileTypeUnknown) {
-            [self release];
-            self = nil;
-        }
-	}
-	return self;
++ (PRTagEditor *)tagEditorForURL:(NSURL *)URL
+{
+    return [[[PRTagEditor alloc] initWithURL:URL] autorelease];
 }
 
 - (void)dealloc
 {
-    if (taglibFile) {
-        delete reinterpret_cast<File *>(taglibFile);
+    if (_taglibFile) {
+        delete reinterpret_cast<File *>(_taglibFile);
     }
-    [URL release];
+    [_URL release];
     [super dealloc];
+}
+
+// ========================================
+// Constants
+// ========================================
+
++ (NSArray *)tagList
+{
+    return [NSArray arrayWithObjects:
+            [NSNumber numberWithInt:PRTitleFileAttribute],
+            [NSNumber numberWithInt:PRArtistFileAttribute],
+            [NSNumber numberWithInt:PRAlbumFileAttribute],
+            [NSNumber numberWithInt:PRComposerFileAttribute],
+            [NSNumber numberWithInt:PRAlbumArtistFileAttribute],
+            [NSNumber numberWithInt:PRGenreFileAttribute],
+            [NSNumber numberWithInt:PRCommentsFileAttribute],
+            [NSNumber numberWithInt:PRBPMFileAttribute],
+            [NSNumber numberWithInt:PRYearFileAttribute],
+            [NSNumber numberWithInt:PRTrackCountFileAttribute],
+            [NSNumber numberWithInt:PRTrackNumberFileAttribute],
+            [NSNumber numberWithInt:PRDiscNumberFileAttribute],
+            [NSNumber numberWithInt:PRDiscCountFileAttribute], nil];
+}
+
++ (NSDictionary *)defaultTags
+{
+    return [NSDictionary dictionaryWithObjectsAndKeys:
+            @"", [NSNumber numberWithInt:PRTitleFileAttribute],
+            @"", [NSNumber numberWithInt:PRArtistFileAttribute], 
+            @"", [NSNumber numberWithInt:PRAlbumFileAttribute],
+            @"", [NSNumber numberWithInt:PRComposerFileAttribute],
+            @"", [NSNumber numberWithInt:PRAlbumArtistFileAttribute],
+            @"", [NSNumber numberWithInt:PRGenreFileAttribute],
+            @"", [NSNumber numberWithInt:PRCommentsFileAttribute],
+            [NSNumber numberWithInt:0], [NSNumber numberWithInt:PRBPMFileAttribute],
+            [NSNumber numberWithInt:0], [NSNumber numberWithInt:PRYearFileAttribute],
+            [NSNumber numberWithInt:0], [NSNumber numberWithInt:PRTrackCountFileAttribute],
+            [NSNumber numberWithInt:0], [NSNumber numberWithInt:PRTrackNumberFileAttribute],
+            [NSNumber numberWithInt:0], [NSNumber numberWithInt:PRDiscNumberFileAttribute],
+            [NSNumber numberWithInt:0], [NSNumber numberWithInt:PRDiscCountFileAttribute], nil];
 }
 
 // ========================================
 // Accessors
 // ========================================
 
-@synthesize tempFile = _tempFile;
-@synthesize postNotification = _postNotification;
-
-- (void)setFile:(PRFile)file_
+- (NSMutableDictionary *)info
 {
-    file = file_;
+    NSMutableDictionary *info = [NSMutableDictionary dictionary];
+    NSAutoreleasePool *p = [[NSAutoreleasePool alloc] init];
+    NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary:[self tags]];
+    // Artwork
+    NSData *data = [tags objectForKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
+    NSImage *art = nil;
+    if (data) {
+        art = [[[NSImage alloc] initWithData:data] autorelease];
+        [tags removeObjectForKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
+        if ([art isValid]) {
+            [tags setObject:[NSNumber numberWithBool:TRUE] forKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
+            [info setObject:art forKey:@"art"];
+        }
+    }
+    // Title
+    if (![tags objectForKey:[NSNumber numberWithInt:PRTitleFileAttribute]] || 
+        [[tags objectForKey:[NSNumber numberWithInt:PRTitleFileAttribute]] isEqualToString:@""]) {
+        NSString *filename = [_URL lastPathComponent];
+        [tags setObject:filename forKey:[NSNumber numberWithInt:PRTitleFileAttribute]];
+    }
+    // Dates & URLs
+    for (NSNumber *i in [tags allKeys]) {
+        if ([[tags objectForKey:i] isKindOfClass:[NSDate class]]) {
+            NSString *str = [(NSDate *)[tags objectForKey:i] description];
+            [tags setObject:str forKey:i];
+        } else if ([[tags objectForKey:i] isKindOfClass:[NSURL class]]) {
+            NSString *str = [(NSURL *)[tags objectForKey:i] absoluteString];
+            [tags setObject:str forKey:i];
+        }
+    }
+    [info setObject:tags forKey:@"attr"];
+    [p drain];
+    return info;
 }
 
-- (void)setValue:(id)value forAttribute:(PRFileAttribute)attribute postNotification:(BOOL)post
+- (NSDictionary *)tags
+{
+    NSDictionary *temp;
+    switch (_fileType) {
+        case PRFileTypeAPE:
+            temp = [self APETags];
+            break;
+        case PRFileTypeASF:
+            temp = [self ASFTags];
+            break;
+        case PRFileTypeFLAC:
+            temp = [self FLACTags];
+            break;
+        case PRFileTypeMP4:
+            temp = [self MP4Tags];
+            break;
+        case PRFileTypeMPC:
+            temp = [self MPCTags];
+            break;
+        case PRFileTypeMPEG:
+            temp = [self MPEGTags];
+            break;
+        case PRFileTypeOggFLAC:
+            temp = [self OggFLACTags];
+            break;
+        case PRFileTypeOggSpeex:
+            temp = [self OggSpeexTags];
+            break;
+        case PRFileTypeOggVorbis:
+            temp = [self OggVorbisTags];
+            break;
+        case PRFileTypeAIFF:
+            temp = [self AIFFTags];
+            break;
+        case PRFileTypeWAV:
+            temp = [self WAVTags];
+            break;
+        case PRFileTypeTrueAudio:
+            temp = [self TrueAudioTags];
+            break;
+        case PRFileTypeWavPack:
+            temp = [self WavPackTags];
+            break;
+        default:
+            temp = [NSDictionary dictionary];
+            break;
+    }
+    
+    NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary:temp];
+    NSString *path = [_URL path];
+	TagLib::FileRef fileRef([path UTF8String]);
+	if(!fileRef.isNull() && fileRef.audioProperties()) {
+		TagLib::AudioProperties *prop = fileRef.audioProperties();
+        [tags setObject:[NSNumber numberWithInt:prop->length() * 1000]
+                 forKey:[NSNumber numberWithInt:PRTimeFileAttribute]];
+        [tags setObject:[NSNumber numberWithInt:prop->bitrate()]
+                 forKey:[NSNumber numberWithInt:PRBitrateFileAttribute]];
+        [tags setObject:[NSNumber numberWithInt:prop->sampleRate()]
+                 forKey:[NSNumber numberWithInt:PRSampleRateFileAttribute]];
+        [tags setObject:[NSNumber numberWithInt:prop->channels()]
+                 forKey:[NSNumber numberWithInt:PRChannelsFileAttribute]];
+	}
+    NSData *checkSum = [PRTagEditor checkSumForFileAtPath:path];
+    if (checkSum) {
+        [tags setObject:checkSum forKey:[NSNumber numberWithInt:PRCheckSumFileAttribute]];
+    }
+    NSNumber *size = [PRTagEditor sizeForFileAtPath:path];
+    if (size) {
+        [tags setObject:size forKey:[NSNumber numberWithInt:PRSizeFileAttribute]];
+    }
+    NSDate *lastModified = [PRTagEditor lastModifiedForFileAtPath:path];
+    if (lastModified) {
+        [tags setObject:[lastModified description] forKey:[NSNumber numberWithInt:PRLastModifiedFileAttribute]];
+    }
+    [tags setObject:[NSNumber numberWithInt:_fileType] forKey:[NSNumber numberWithInt:PRKindFileAttribute]];
+    [tags setObject:[_URL absoluteString] forKey:[NSNumber numberWithInt:PRPathFileAttribute]];
+    return tags;
+}
+
+- (void)setValue:(id)value forTag:(PRFileAttribute)attribute
 {
     if (attribute == PRTitleFileAttribute ||
 		attribute == PRArtistFileAttribute ||
@@ -202,11 +330,22 @@ using namespace TagLib;
 		if (![value isKindOfClass:[NSNumber class]] || [value intValue] > 9999 || [value intValue] < 0) {
 			return;
 		}
+	} else if (attribute == PRAlbumArtFileAttribute) {
+		if (![value isKindOfClass:[NSData class]]) {
+            return;
+        }
+        if ([value length] != 0) {
+            NSImage *img = [[[NSImage alloc] initWithData:value] autorelease];
+            if (![img isValid]) {
+                return;
+            }
+            value = [NSBitmapImageRep representationOfImageRepsInArray:[img representations] usingType:NSPNGFileType properties:nil];
+        }
 	} else {
-		return;
-	}
+        return;
+    }
     
-    switch (fileType) {
+    switch (_fileType) {
         case PRFileTypeAPE:
             [self APESetValue:value forAttribute:attribute];
             break;
@@ -251,123 +390,18 @@ using namespace TagLib;
             break;
     }
     
-    reinterpret_cast<File *>(taglibFile)->save();
-    _postNotification = post;
-    [self updateTags];
-}
-
-// ========================================
-// Update
-// ========================================
-
-- (void)updateTags
-{
-    NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary:[self tags]];
-    
-    // Tags
-    if (![tags objectForKey:[NSNumber numberWithInt:PRTitleFileAttribute]] || 
-        [[tags objectForKey:[NSNumber numberWithInt:PRTitleFileAttribute]] isEqualToString:@""]) {
-        [tags setObject:[[URL path] lastPathComponent] forKey:[NSNumber numberWithInt:PRTitleFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRArtistFileAttribute]]) {
-        [tags setObject:@"" forKey:[NSNumber numberWithInt:PRArtistFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRAlbumFileAttribute]]) {
-        [tags setObject:@"" forKey:[NSNumber numberWithInt:PRAlbumFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRBPMFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRBPMFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRYearFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRYearFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRTrackNumberFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRTrackNumberFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRComposerFileAttribute]]) {
-        [tags setObject:@"" forKey:[NSNumber numberWithInt:PRComposerFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRDiscNumberFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRDiscNumberFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRDiscCountFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRDiscCountFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRCommentsFileAttribute]]) {
-        [tags setObject:@"" forKey:[NSNumber numberWithInt:PRCommentsFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRAlbumArtistFileAttribute]]) {
-        [tags setObject:@"" forKey:[NSNumber numberWithInt:PRAlbumArtistFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRGenreFileAttribute]]) {
-        [tags setObject:@"" forKey:[NSNumber numberWithInt:PRGenreFileAttribute]];
-    }
-
-    // Album Art
-    NSData *albumArtData = [tags objectForKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
-    if (albumArtData) {
-        NSImage *albumArt = [[[NSImage alloc] initWithData:albumArtData] autorelease];
-        [[db albumArtController] setCachedAlbumArt:albumArt forFile:file];
-        [tags setObject:[NSNumber numberWithBool:TRUE] forKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
-    } else {
-        [[db albumArtController] clearAlbumArtForFile:file];
-        [tags setObject:[NSNumber numberWithBool:FALSE] forKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
-    }
-    
-    // Properties
-    [tags addEntriesFromDictionary:[self properties]];
-    
-    if (![tags objectForKey:[NSNumber numberWithInt:PRSizeFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRSizeFileAttribute]];
-    } 
-    if (![tags objectForKey:[NSNumber numberWithInt:PRKindFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:PRFileTypeUnknown] forKey:[NSNumber numberWithInt:PRKindFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRTimeFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRTimeFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRBitrateFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRBitrateFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRChannelsFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRChannelsFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRSampleRateFileAttribute]]) {
-        [tags setObject:[NSNumber numberWithInt:0] forKey:[NSNumber numberWithInt:PRSampleRateFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRCheckSumFileAttribute]]) {
-        [tags setObject:[NSData data] forKey:[NSNumber numberWithInt:PRCheckSumFileAttribute]];
-    }
-    if (![tags objectForKey:[NSNumber numberWithInt:PRLastModifiedFileAttribute]]) {
-        [tags setObject:@"" forKey:[NSNumber numberWithInt:PRLastModifiedFileAttribute]];
-    }
-    
-    if (_tempFile) {
-        [[db library] setAttributes:tags forTempFile:file];
-    } else {
-        NSDictionary *prevTags = [[db library] attributesForFile:file];
-        NSMutableDictionary *tagsToUpdate = [NSMutableDictionary dictionary];
-        for (id i in [tags allKeys]) {
-            if (![[prevTags objectForKey:i] isEqual:[tags objectForKey:i]]) {
-                [tagsToUpdate setObject:[tags objectForKey:i] forKey:i];
-            }
-        }
-        if ([tagsToUpdate count] > 0) {
-            [[db library] setAttributes:tagsToUpdate forFile:file];
-            if (_postNotification) {
-                NSDictionary *userInfo = [NSDictionary dictionaryWithObject:[NSArray arrayWithObject:[NSNumber numberWithInt:file]]
-                                                                     forKey:@"files"];
-                [[NSNotificationCenter defaultCenter] postNotificationName:PRTagsDidChangeNotification 
-                                                                    object:nil 
-                                                                  userInfo:userInfo];
-            }
-        }
-    }
+    reinterpret_cast<File *>(_taglibFile)->save();
+    return;
 }
 
 // ========================================
 // Tag Reading
 // ========================================
+
++ (NSDate *)lastModifiedAtURL:(NSURL *)URL
+{
+    return [PRTagEditor lastModifiedForFileAtPath:[URL path]];
+}
 
 + (NSDate *)lastModifiedForFileAtPath:(NSString *)path
 {
@@ -393,13 +427,6 @@ using namespace TagLib;
 
 + (NSNumber *)sizeForFileAtPath:(NSString *)path
 {
-//    NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
-//	NSDictionary *fileAttributes = [fileManager attributesOfItemAtPath:path error:nil];
-//    if (fileAttributes) {
-//        return [fileAttributes objectForKey:NSFileSize];
-//    } else {
-//        return nil;
-//    }
     FSRef fileRef;
     OSStatus err = FSPathMakeRef ((const UInt8 *)[path fileSystemRepresentation], &fileRef, NULL);
     if (err == noErr) {
@@ -412,103 +439,14 @@ using namespace TagLib;
     return nil;
 }
 
-- (NSDictionary *)tags
-{
-    NSDictionary *temp;
-    switch (fileType) {
-        case PRFileTypeAPE:
-            temp = [self APETags];
-            break;
-        case PRFileTypeASF:
-            temp = [self ASFTags];
-            break;
-        case PRFileTypeFLAC:
-            temp = [self FLACTags];
-            break;
-        case PRFileTypeMP4:
-            temp = [self MP4Tags];
-            break;
-        case PRFileTypeMPC:
-            temp = [self MPCTags];
-            break;
-        case PRFileTypeMPEG:
-            temp = [self MPEGTags];
-            break;
-        case PRFileTypeOggFLAC:
-            temp = [self OggFLACTags];
-            break;
-        case PRFileTypeOggSpeex:
-            temp = [self OggSpeexTags];
-            break;
-        case PRFileTypeOggVorbis:
-            temp = [self OggVorbisTags];
-            break;
-        case PRFileTypeAIFF:
-            temp = [self AIFFTags];
-            break;
-        case PRFileTypeWAV:
-            temp = [self WAVTags];
-            break;
-        case PRFileTypeTrueAudio:
-            temp = [self TrueAudioTags];
-            break;
-        case PRFileTypeWavPack:
-            temp = [self WavPackTags];
-            break;
-        default:
-            temp = [NSDictionary dictionary];
-            break;
-    }
-    return temp;
-}
-
-- (NSDictionary *)properties
-{
-    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    NSString *path = [URL path];
-	TagLib::FileRef fileRef([path UTF8String]);
-	
-	if(!fileRef.isNull() && fileRef.audioProperties()) {
-		TagLib::AudioProperties *prop = fileRef.audioProperties();
-		
-        [properties setObject:[NSNumber numberWithInt:prop->length() * 1000]
-                       forKey:[NSNumber numberWithInt:PRTimeFileAttribute]];
-        [properties setObject:[NSNumber numberWithInt:prop->bitrate()]
-                       forKey:[NSNumber numberWithInt:PRBitrateFileAttribute]];
-        [properties setObject:[NSNumber numberWithInt:prop->sampleRate()]
-                       forKey:[NSNumber numberWithInt:PRSampleRateFileAttribute]];
-        [properties setObject:[NSNumber numberWithInt:prop->channels()]
-                       forKey:[NSNumber numberWithInt:PRChannelsFileAttribute]];
-	}
-	
-    NSData *checkSum = [[self class] checkSumForFileAtPath:path];
-    if (checkSum) {
-        [properties setObject:checkSum forKey:[NSNumber numberWithInt:PRCheckSumFileAttribute]];
-    }
-    
-    NSNumber *size = [[self class] sizeForFileAtPath:path];
-    if (size) {
-        [properties setObject:size forKey:[NSNumber numberWithInt:PRSizeFileAttribute]];
-    }
-    NSDate *lastModified = [[self class] lastModifiedForFileAtPath:path];
-    if (lastModified) {
-        [properties setObject:[lastModified description] forKey:[NSNumber numberWithInt:PRLastModifiedFileAttribute]];
-    }
-    
-    [properties setObject:[NSNumber numberWithInt:fileType] 
-                   forKey:[NSNumber numberWithInt:PRKindFileAttribute]];
-
-    return [NSDictionary dictionaryWithDictionary:properties];
-}
-
 - (NSDictionary *)APETags
 {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    ID3v1::Tag *ID3v1Tag = reinterpret_cast<APE::File *>(taglibFile)->ID3v1Tag();
+    ID3v1::Tag *ID3v1Tag = reinterpret_cast<APE::File *>(_taglibFile)->ID3v1Tag();
     if (ID3v1Tag) {
         [tags addEntriesFromDictionary:[[self class] tagsForID3v1Tag:ID3v1Tag]];
     }
-	APE::Tag *APETag = reinterpret_cast<APE::File *>(taglibFile)->APETag(TRUE);
+	APE::Tag *APETag = reinterpret_cast<APE::File *>(_taglibFile)->APETag(TRUE);
 	if (APETag) {
 		[tags addEntriesFromDictionary:[[self class] tagsForAPETag:APETag]];
 	}
@@ -518,7 +456,7 @@ using namespace TagLib;
 - (NSDictionary *)ASFTags
 {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    ASF::Tag *ASFTag = reinterpret_cast<ASF::File *>(taglibFile)->tag();
+    ASF::Tag *ASFTag = reinterpret_cast<ASF::File *>(_taglibFile)->tag();
     if (ASFTag) {
         [tags addEntriesFromDictionary:[[self class] tagsForASFTag:ASFTag]];
     }
@@ -528,19 +466,19 @@ using namespace TagLib;
 - (NSDictionary *)FLACTags
 {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    ID3v1::Tag *ID3v1Tag = reinterpret_cast<FLAC::File *>(taglibFile)->ID3v1Tag();
+    ID3v1::Tag *ID3v1Tag = reinterpret_cast<FLAC::File *>(_taglibFile)->ID3v1Tag();
     if (ID3v1Tag) {
         [tags addEntriesFromDictionary:[[self class] tagsForID3v1Tag:ID3v1Tag]];
     }
-	ID3v2::Tag *ID3v2Tag = reinterpret_cast<FLAC::File *>(taglibFile)->ID3v2Tag();
+	ID3v2::Tag *ID3v2Tag = reinterpret_cast<FLAC::File *>(_taglibFile)->ID3v2Tag();
 	if (ID3v2Tag) {
         [tags addEntriesFromDictionary:[[self class] tagsForID3v2Tag:ID3v2Tag]];
 	}
-    Ogg::XiphComment *xiphComment = reinterpret_cast<FLAC::File *>(taglibFile)->xiphComment(TRUE);
+    Ogg::XiphComment *xiphComment = reinterpret_cast<FLAC::File *>(_taglibFile)->xiphComment(TRUE);
 	if (xiphComment) {
         [tags addEntriesFromDictionary:[[self class] tagsForXiphComment:xiphComment]];
 	}
-    List<FLAC::Picture *> pictures = reinterpret_cast<FLAC::File *>(taglibFile)->pictureList();
+    List<FLAC::Picture *> pictures = reinterpret_cast<FLAC::File *>(_taglibFile)->pictureList();
     if (pictures.size() >= 1) {
         NSData *data = [NSData dataWithBytes:pictures.front()->data().data() length:pictures.front()->data().size()];
         [tags setObject:data forKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
@@ -551,7 +489,7 @@ using namespace TagLib;
 - (NSDictionary *)MP4Tags
 {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    MP4::Tag *MP4Tag = reinterpret_cast<MP4::File *>(taglibFile)->tag();
+    MP4::Tag *MP4Tag = reinterpret_cast<MP4::File *>(_taglibFile)->tag();
     if (MP4Tag) {
         [tags addEntriesFromDictionary:[[self class] tagsForMP4Tag:MP4Tag]];
     }
@@ -561,11 +499,11 @@ using namespace TagLib;
 - (NSDictionary *)MPCTags
 {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    ID3v1::Tag *ID3v1Tag = reinterpret_cast<MPC::File *>(taglibFile)->ID3v1Tag();
+    ID3v1::Tag *ID3v1Tag = reinterpret_cast<MPC::File *>(_taglibFile)->ID3v1Tag();
     if (ID3v1Tag) {
         [tags addEntriesFromDictionary:[[self class] tagsForID3v1Tag:ID3v1Tag]];
     }
-	APE::Tag *APETag = reinterpret_cast<MPC::File *>(taglibFile)->APETag(TRUE);
+	APE::Tag *APETag = reinterpret_cast<MPC::File *>(_taglibFile)->APETag(TRUE);
 	if (APETag) {
 		[tags addEntriesFromDictionary:[[self class] tagsForAPETag:APETag]];
 	}
@@ -575,15 +513,15 @@ using namespace TagLib;
 - (NSDictionary *)MPEGTags
 {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    ID3v1::Tag *ID3v1Tag = reinterpret_cast<MPEG::File *>(taglibFile)->ID3v1Tag();
+    ID3v1::Tag *ID3v1Tag = reinterpret_cast<MPEG::File *>(_taglibFile)->ID3v1Tag();
     if (ID3v1Tag) {
         [tags addEntriesFromDictionary:[[self class] tagsForID3v1Tag:ID3v1Tag]];
     }
-    ID3v2::Tag *ID3v2Tag = reinterpret_cast<MPEG::File *>(taglibFile)->ID3v2Tag(TRUE);
+    ID3v2::Tag *ID3v2Tag = reinterpret_cast<MPEG::File *>(_taglibFile)->ID3v2Tag(TRUE);
 	if (ID3v2Tag) {
         [tags addEntriesFromDictionary:[[self class] tagsForID3v2Tag:ID3v2Tag]];
 	}
-	APE::Tag *APETag = reinterpret_cast<MPEG::File *>(taglibFile)->APETag();
+	APE::Tag *APETag = reinterpret_cast<MPEG::File *>(_taglibFile)->APETag();
 	if (APETag) {
 		[tags addEntriesFromDictionary:[[self class] tagsForAPETag:APETag]];
 	}
@@ -593,7 +531,7 @@ using namespace TagLib;
 - (NSDictionary *)OggFLACTags
 {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    Ogg::XiphComment *xiphComment = reinterpret_cast<Ogg::FLAC::File *>(taglibFile)->tag();
+    Ogg::XiphComment *xiphComment = reinterpret_cast<Ogg::FLAC::File *>(_taglibFile)->tag();
 	if (xiphComment) {
         [tags addEntriesFromDictionary:[[self class] tagsForXiphComment:xiphComment]];
 	}
@@ -603,7 +541,7 @@ using namespace TagLib;
 - (NSDictionary *)OggVorbisTags
 {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    Ogg::XiphComment *xiphComment = reinterpret_cast<Ogg::Vorbis::File *>(taglibFile)->tag();
+    Ogg::XiphComment *xiphComment = reinterpret_cast<Ogg::Vorbis::File *>(_taglibFile)->tag();
 	if (xiphComment) {
         [tags addEntriesFromDictionary:[[self class] tagsForXiphComment:xiphComment]];
 	}
@@ -613,7 +551,7 @@ using namespace TagLib;
 - (NSDictionary *)OggSpeexTags
 {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    Ogg::XiphComment *xiphComment = reinterpret_cast<Ogg::Speex::File *>(taglibFile)->tag();
+    Ogg::XiphComment *xiphComment = reinterpret_cast<Ogg::Speex::File *>(_taglibFile)->tag();
 	if (xiphComment) {
         [tags addEntriesFromDictionary:[[self class] tagsForXiphComment:xiphComment]];
 	}
@@ -623,7 +561,7 @@ using namespace TagLib;
 - (NSDictionary *)AIFFTags
 {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-	ID3v2::Tag *ID3v2Tag = reinterpret_cast<RIFF::WAV::File *>(taglibFile)->tag();
+	ID3v2::Tag *ID3v2Tag = reinterpret_cast<RIFF::WAV::File *>(_taglibFile)->tag();
 	if (ID3v2Tag) {
         [tags addEntriesFromDictionary:[[self class] tagsForID3v2Tag:ID3v2Tag]];
 	}
@@ -633,7 +571,7 @@ using namespace TagLib;
 - (NSDictionary *)WAVTags
 {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-	ID3v2::Tag *ID3v2Tag = reinterpret_cast<RIFF::WAV::File *>(taglibFile)->tag();
+	ID3v2::Tag *ID3v2Tag = reinterpret_cast<RIFF::WAV::File *>(_taglibFile)->tag();
 	if (ID3v2Tag) {
         [tags addEntriesFromDictionary:[[self class] tagsForID3v2Tag:ID3v2Tag]];
 	}
@@ -643,11 +581,11 @@ using namespace TagLib;
 - (NSDictionary *)TrueAudioTags
 {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    ID3v1::Tag *ID3v1Tag = reinterpret_cast<TrueAudio::File *>(taglibFile)->ID3v1Tag();
+    ID3v1::Tag *ID3v1Tag = reinterpret_cast<TrueAudio::File *>(_taglibFile)->ID3v1Tag();
     if (ID3v1Tag) {
         [tags addEntriesFromDictionary:[[self class] tagsForID3v1Tag:ID3v1Tag]];
     }
-	ID3v2::Tag *ID3v2Tag = reinterpret_cast<TrueAudio::File *>(taglibFile)->ID3v2Tag(TRUE);
+	ID3v2::Tag *ID3v2Tag = reinterpret_cast<TrueAudio::File *>(_taglibFile)->ID3v2Tag(TRUE);
 	if (ID3v2Tag) {
         [tags addEntriesFromDictionary:[[self class] tagsForID3v2Tag:ID3v2Tag]];
 	}
@@ -657,11 +595,11 @@ using namespace TagLib;
 - (NSDictionary *)WavPackTags
 {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    ID3v1::Tag *ID3v1Tag = reinterpret_cast<APE::File *>(taglibFile)->ID3v1Tag();
+    ID3v1::Tag *ID3v1Tag = reinterpret_cast<APE::File *>(_taglibFile)->ID3v1Tag();
     if (ID3v1Tag) {
         [tags addEntriesFromDictionary:[[self class] tagsForID3v1Tag:ID3v1Tag]];
     }
-	APE::Tag *APETag = reinterpret_cast<APE::File *>(taglibFile)->APETag(TRUE);
+	APE::Tag *APETag = reinterpret_cast<APE::File *>(_taglibFile)->APETag(TRUE);
 	if (APETag) {
 		[tags addEntriesFromDictionary:[[self class] tagsForAPETag:APETag]];
 	}
@@ -1136,11 +1074,11 @@ using namespace TagLib;
 
 - (void)APESetValue:(id)value forAttribute:(PRFileAttribute)attribute
 {
-    ID3v1::Tag *ID3v1Tag = reinterpret_cast<APE::File *>(taglibFile)->ID3v1Tag();
+    ID3v1::Tag *ID3v1Tag = reinterpret_cast<APE::File *>(_taglibFile)->ID3v1Tag();
     if (ID3v1Tag) {
         [[self class] setTag:value forAttribute:attribute ID3v1Tag:ID3v1Tag];
     }
-	APE::Tag *APETag = reinterpret_cast<APE::File *>(taglibFile)->APETag(TRUE);
+	APE::Tag *APETag = reinterpret_cast<APE::File *>(_taglibFile)->APETag(TRUE);
 	if (APETag) {
 		[[self class] setTag:value forAttribute:attribute APETag:APETag];
 	}
@@ -1148,7 +1086,7 @@ using namespace TagLib;
 
 - (void)ASFSetValue:(id)value forAttribute:(PRFileAttribute)attribute
 {
-    ASF::Tag *ASFTag = reinterpret_cast<ASF::File *>(taglibFile)->tag();
+    ASF::Tag *ASFTag = reinterpret_cast<ASF::File *>(_taglibFile)->tag();
     if (ASFTag) {
         [[self class] setTag:value forAttribute:attribute ASFTag:ASFTag];
     }
@@ -1156,23 +1094,34 @@ using namespace TagLib;
 
 - (void)FLACSetValue:(id)value forAttribute:(PRFileAttribute)attribute
 {
-    TagLib::ID3v1::Tag *id3v1tag = reinterpret_cast<FLAC::File *>(taglibFile)->ID3v1Tag();
+    TagLib::ID3v1::Tag *id3v1tag = reinterpret_cast<FLAC::File *>(_taglibFile)->ID3v1Tag();
     if (id3v1tag) {
         [[self class] setTag:value forAttribute:attribute ID3v1Tag:id3v1tag];
     }
-	TagLib::ID3v2::Tag *id3v2tag = reinterpret_cast<FLAC::File *>(taglibFile)->ID3v2Tag();
+	TagLib::ID3v2::Tag *id3v2tag = reinterpret_cast<FLAC::File *>(_taglibFile)->ID3v2Tag();
 	if (id3v2tag) {
 		[[self class] setTag:value forAttribute:attribute ID3v2Tag:id3v2tag];
 	}
-    TagLib::Ogg::XiphComment *xiphComment = reinterpret_cast<FLAC::File *>(taglibFile)->xiphComment(TRUE);
+    TagLib::Ogg::XiphComment *xiphComment = reinterpret_cast<FLAC::File *>(_taglibFile)->xiphComment(TRUE);
 	if (xiphComment) {
 		[[self class] setTag:value forAttribute:attribute XiphComment:xiphComment];
 	}
+    
+    if (attribute == PRAlbumArtFileAttribute) {
+        FLAC::File *file = reinterpret_cast<FLAC::File *>(_taglibFile);
+        file->removePictures();
+        NSData *data = value;
+        if ([data length] != 0) {
+            FLAC::Picture *p = new FLAC::Picture();
+            p->setData(ByteVector((const char *)[data bytes], [data length]));
+            file->addPicture(p);
+        }
+    }
 }
 
 - (void)MP4SetValue:(id)value forAttribute:(PRFileAttribute)attribute
 {
-    MP4::Tag *MP4Tag = reinterpret_cast<MP4::File *>(taglibFile)->tag();
+    MP4::Tag *MP4Tag = reinterpret_cast<MP4::File *>(_taglibFile)->tag();
     if (MP4Tag) {
         [[self class] setTag:value forAttribute:attribute MP4Tag:MP4Tag];
     }
@@ -1180,11 +1129,11 @@ using namespace TagLib;
 
 - (void)MPCSetValue:(id)value forAttribute:(PRFileAttribute)attribute
 {
-    TagLib::ID3v1::Tag *id3v1tag = reinterpret_cast<MPC::File *>(taglibFile)->ID3v1Tag();
+    TagLib::ID3v1::Tag *id3v1tag = reinterpret_cast<MPC::File *>(_taglibFile)->ID3v1Tag();
     if (id3v1tag) {
         [[self class] setTag:value forAttribute:attribute ID3v1Tag:id3v1tag];
     }
-	TagLib::APE::Tag *apetag = reinterpret_cast<MPC::File *>(taglibFile)->APETag(TRUE);
+	TagLib::APE::Tag *apetag = reinterpret_cast<MPC::File *>(_taglibFile)->APETag(TRUE);
 	if (apetag) {
 		[[self class] setTag:value forAttribute:attribute APETag:apetag];
 	}
@@ -1192,15 +1141,15 @@ using namespace TagLib;
 
 - (void)MPEGSetValue:(id)value forAttribute:(PRFileAttribute)attribute
 {
-    TagLib::ID3v1::Tag *id3v1tag = reinterpret_cast<MPEG::File *>(taglibFile)->ID3v1Tag();
+    TagLib::ID3v1::Tag *id3v1tag = reinterpret_cast<MPEG::File *>(_taglibFile)->ID3v1Tag();
     if (id3v1tag) {
         [[self class] setTag:value forAttribute:attribute ID3v1Tag:id3v1tag];
     }
-	TagLib::ID3v2::Tag *id3v2tag = reinterpret_cast<MPEG::File *>(taglibFile)->ID3v2Tag(TRUE);
+	TagLib::ID3v2::Tag *id3v2tag = reinterpret_cast<MPEG::File *>(_taglibFile)->ID3v2Tag(TRUE);
 	if (id3v2tag) {
 		[[self class] setTag:value forAttribute:attribute ID3v2Tag:id3v2tag];
 	}
-    TagLib::APE::Tag *apetag = reinterpret_cast<MPEG::File *>(taglibFile)->APETag();
+    TagLib::APE::Tag *apetag = reinterpret_cast<MPEG::File *>(_taglibFile)->APETag();
 	if (apetag) {
 		[[self class] setTag:value forAttribute:attribute APETag:apetag];
 	}
@@ -1208,7 +1157,7 @@ using namespace TagLib;
 
 - (void)OggFLACSetValue:(id)value forAttribute:(PRFileAttribute)attribute
 {
-    TagLib::Ogg::XiphComment *xiphComment = reinterpret_cast<Ogg::FLAC::File *>(taglibFile)->tag();
+    TagLib::Ogg::XiphComment *xiphComment = reinterpret_cast<Ogg::FLAC::File *>(_taglibFile)->tag();
 	if (xiphComment) {
 		[[self class] setTag:value forAttribute:attribute XiphComment:xiphComment];
 	}
@@ -1216,7 +1165,7 @@ using namespace TagLib;
 
 - (void)OggVorbisSetValue:(id)value forAttribute:(PRFileAttribute)attribute
 {
-    TagLib::Ogg::XiphComment *xiphComment = reinterpret_cast<Ogg::Vorbis::File *>(taglibFile)->tag();
+    TagLib::Ogg::XiphComment *xiphComment = reinterpret_cast<Ogg::Vorbis::File *>(_taglibFile)->tag();
 	if (xiphComment) {
 		[[self class] setTag:value forAttribute:attribute XiphComment:xiphComment];
 	}
@@ -1224,7 +1173,7 @@ using namespace TagLib;
 
 - (void)OggSpeexSetValue:(id)value forAttribute:(PRFileAttribute)attribute
 {
-    TagLib::Ogg::XiphComment *xiphComment = reinterpret_cast<Ogg::Speex::File *>(taglibFile)->tag();
+    TagLib::Ogg::XiphComment *xiphComment = reinterpret_cast<Ogg::Speex::File *>(_taglibFile)->tag();
 	if (xiphComment) {
 		[[self class] setTag:value forAttribute:attribute XiphComment:xiphComment];
 	}
@@ -1232,7 +1181,7 @@ using namespace TagLib;
 
 - (void)AIFFSetValue:(id)value forAttribute:(PRFileAttribute)attribute
 {
-    TagLib::ID3v2::Tag *id3v2tag = reinterpret_cast<RIFF::AIFF::File *>(taglibFile)->tag();
+    TagLib::ID3v2::Tag *id3v2tag = reinterpret_cast<RIFF::AIFF::File *>(_taglibFile)->tag();
 	if (id3v2tag) {
 		[[self class] setTag:value forAttribute:attribute ID3v2Tag:id3v2tag];
 	}
@@ -1240,7 +1189,7 @@ using namespace TagLib;
 
 - (void)WAVSetValue:(id)value forAttribute:(PRFileAttribute)attribute
 {
-    TagLib::ID3v2::Tag *id3v2tag = reinterpret_cast<RIFF::WAV::File *>(taglibFile)->tag();
+    TagLib::ID3v2::Tag *id3v2tag = reinterpret_cast<RIFF::WAV::File *>(_taglibFile)->tag();
 	if (id3v2tag) {
 		[[self class] setTag:value forAttribute:attribute ID3v2Tag:id3v2tag];
 	}
@@ -1248,11 +1197,11 @@ using namespace TagLib;
 
 - (void)TrueAudioSetValue:(id)value forAttribute:(PRFileAttribute)attribute
 {
-    TagLib::ID3v1::Tag *id3v1tag = reinterpret_cast<TrueAudio::File *>(taglibFile)->ID3v1Tag();
+    TagLib::ID3v1::Tag *id3v1tag = reinterpret_cast<TrueAudio::File *>(_taglibFile)->ID3v1Tag();
     if (id3v1tag) {
         [[self class] setTag:value forAttribute:attribute ID3v1Tag:id3v1tag];
     }
-	TagLib::ID3v2::Tag *id3v2tag = reinterpret_cast<TrueAudio::File *>(taglibFile)->ID3v2Tag(TRUE);
+	TagLib::ID3v2::Tag *id3v2tag = reinterpret_cast<TrueAudio::File *>(_taglibFile)->ID3v2Tag(TRUE);
 	if (id3v2tag) {
 		[[self class] setTag:value forAttribute:attribute ID3v2Tag:id3v2tag];
 	}
@@ -1260,11 +1209,11 @@ using namespace TagLib;
 
 - (void)WavPackSetValue:(id)value forAttribute:(PRFileAttribute)attribute
 {
-    TagLib::ID3v1::Tag *id3v1tag = reinterpret_cast<WavPack::File *>(taglibFile)->ID3v1Tag();
+    TagLib::ID3v1::Tag *id3v1tag = reinterpret_cast<WavPack::File *>(_taglibFile)->ID3v1Tag();
     if (id3v1tag) {
         [[self class] setTag:value forAttribute:attribute ID3v1Tag:id3v1tag];
     }
-    TagLib::APE::Tag *apetag = reinterpret_cast<WavPack::File *>(taglibFile)->APETag(TRUE);
+    TagLib::APE::Tag *apetag = reinterpret_cast<WavPack::File *>(_taglibFile)->APETag(TRUE);
 	if (apetag) {
 		[[self class] setTag:value forAttribute:attribute APETag:apetag];
 	}
@@ -1272,11 +1221,10 @@ using namespace TagLib;
 
 + (void)setTag:(id)tag forAttribute:(PRFileAttribute)attribute MP4Tag:(MP4::Tag *)MP4Tag
 {
-    MP4::ItemListMap *itemListMap = &MP4Tag->itemListMap();
+    MP4::ItemListMap &itemListMap = MP4Tag->itemListMap();
     const char *MP4Code = [[self class] MP4CodeForAttribute:attribute];
     MP4::Item item;
-    bool itemDidChange = FALSE;
-    int secondaryNumber = 0;    
+    bool isItem = FALSE;
 	switch (attribute) {
 		case PRTitleFileAttribute:
 		case PRArtistFileAttribute:
@@ -1286,70 +1234,80 @@ using namespace TagLib;
         case PRCommentsFileAttribute:
             if ([tag length] != 0) {
                 item = StringList(String([tag UTF8String], String::UTF8));
-                itemDidChange = TRUE;
+                isItem = TRUE;
             }
 			break;
-        case PRGenreFileAttribute:
+        case PRGenreFileAttribute: // Genre is either '©gen' or 'gnre' so have to remove 'gnre' tag
             if ([tag length] != 0) {
                 item = StringList(String([tag UTF8String], String::UTF8));
-                itemDidChange = TRUE;
+                isItem = TRUE;
             }
-            itemListMap->erase("gnre");
+            itemListMap.erase("gnre");
 			break;
         case PRYearFileAttribute:
             tag = [tag stringValue];
             if ([tag length] != 0) {
                 item = StringList(String([tag UTF8String], String::UTF8));
-                itemDidChange = TRUE;
+                isItem = TRUE;
             }
 			break;
 		case PRBPMFileAttribute:
             if ([tag intValue] != 0) {
                 item = [tag intValue];
-                itemDidChange = TRUE;
+                isItem = TRUE;
             }
 			break;
 		case PRTrackNumberFileAttribute:
-        case PRDiscNumberFileAttribute:
-            if (itemListMap->contains(MP4Code)) {
-                secondaryNumber = (*itemListMap)[MP4Code].toIntPair().second;
+        case PRDiscNumberFileAttribute: {
+            int secondaryNumber = 0;
+            if (itemListMap.contains(MP4Code)) {
+                secondaryNumber = itemListMap[MP4Code].toIntPair().second;
             }
             if (secondaryNumber != 0 || [tag intValue] != 0) {
                 item = MP4::Item([tag intValue], secondaryNumber);
-                itemDidChange = TRUE;
+                isItem = TRUE;
             }
+        }
 			break;
 		case PRTrackCountFileAttribute:
-        case PRDiscCountFileAttribute:
-            if (itemListMap->contains(MP4Code)) {
-                secondaryNumber = (*itemListMap)[MP4Code].toIntPair().first;
+        case PRDiscCountFileAttribute: {
+            int secondaryNumber = 0;
+            if (itemListMap.contains(MP4Code)) {
+                secondaryNumber = itemListMap[MP4Code].toIntPair().first;
             }
             if (secondaryNumber != 0 || [tag intValue] != 0) {
                 item = MP4::Item(secondaryNumber, [tag intValue]);
-                itemDidChange = TRUE;
+                isItem = TRUE;
             }
-			break;
-		case PRAlbumArtFileAttribute:
-			return;
+        }
+            break;
+		case PRAlbumArtFileAttribute: {
+            NSData *data = tag;
+            if ([data length] != 0) {
+                MP4::CoverArtList list;
+                list.append(MP4::CoverArt(MP4::CoverArt::PNG, ByteVector((char *)[data bytes], [data length])));
+                item = MP4::Item(list);
+                isItem = TRUE;
+            }
+        }
 			break;
 		default:
 			break;
 	}
     
-    if (itemDidChange) {
-        itemListMap->insert(MP4Code, item);
+    if (isItem) {
+        itemListMap.insert(MP4Code, item);
     } else {
-        itemListMap->erase(MP4Code);
+        itemListMap.erase(MP4Code);
     }
 }
 
 + (void)setTag:(id)tag forAttribute:(PRFileAttribute)attribute ASFTag:(ASF::Tag *)ASFTag
 {
-    ASF::AttributeListMap attributeListMap = ASFTag->attributeListMap();
+    ASF::AttributeListMap &attributeListMap = ASFTag->attributeListMap();
     const char *ASFAttributeName = [[self class] ASFAttributeNameForAttribute:attribute];
     ASF::Attribute ASFAttribute;
-    bool attributeDidChange = FALSE;
-    int secondaryValue = 0;
+    bool isAttr = FALSE;
 	switch (attribute) {
 		case PRTitleFileAttribute:
 		case PRArtistFileAttribute:
@@ -1362,49 +1320,60 @@ using namespace TagLib;
         case PRBPMFileAttribute:
             if ([tag count] == 0) {
                 ASFAttribute = String([tag UTF8String], String::UTF8);
-                attributeDidChange = TRUE;
+                isAttr = TRUE;
             }
 			break;
 		case PRTrackNumberFileAttribute:
-        case PRDiscNumberFileAttribute:
+        case PRDiscNumberFileAttribute: {
+            int secondaryValue = 0;
             if (attributeListMap.contains(ASFAttributeName) && attributeListMap[ASFAttributeName].size() > 0) {
                 secondaryValue = [[self class] secondValue:attributeListMap[ASFAttributeName][0].toString().toCString(TRUE)];
             }
             if (secondaryValue == 0 && [tag intValue] != 0) {
                 ASFAttribute = String([[tag stringValue] UTF8String], String::UTF8);
-                attributeDidChange = TRUE;
+                isAttr = TRUE;
             } else if (secondaryValue != 0) {
                 tag = [NSString stringWithFormat:@"%.1d/%d", [tag intValue], secondaryValue];
                 ASFAttribute = String([tag UTF8String], String::UTF8);
-                attributeDidChange = TRUE;
+                isAttr = TRUE;
             }
             ASFTag->removeItem("WM/Track");
+        }
 			break;
 		case PRTrackCountFileAttribute:
-        case PRDiscCountFileAttribute:
+        case PRDiscCountFileAttribute: {
+            int secondaryValue = 0;
             if (attributeListMap.contains(ASFAttributeName) && attributeListMap[ASFAttributeName].size() > 0) {
                 secondaryValue = [[self class] secondValue:attributeListMap[ASFAttributeName][0].toString().toCString(TRUE)];
             }
             if (secondaryValue != 0 && [tag intValue] == 0) {
                 tag = [NSString stringWithFormat:@"%d", secondaryValue, tag];
                 ASFAttribute = String([tag UTF8String], String::UTF8);
-                attributeDidChange = TRUE;
+                isAttr = TRUE;
             } else if ([tag intValue] != 0) {
                 tag = [NSString stringWithFormat:@"%.1d/%@", secondaryValue, tag];
                 ASFAttribute = String([tag UTF8String], String::UTF8);
-                attributeDidChange = TRUE;
+                isAttr = TRUE;
             }
             ASFTag->removeItem("WM/Track");
+        }
 			break;
-		case PRAlbumArtFileAttribute:
-            return;
+		case PRAlbumArtFileAttribute: {
+            NSData *data = tag;
+            if ([data length] != 0) {
+                ASF::Picture p;
+                p.setPicture(ByteVector((char *)[data bytes], [data length]));
+                ASFAttribute = ASF::Attribute(p);
+                isAttr = TRUE;
+            }
+        }            
 			break;
 		default:
             return;
 			break;
 	}
     
-    if (attributeDidChange) {
+    if (isAttr) {
         ASFTag->setAttribute(ASFAttributeName, ASFAttribute);
     } else {
         ASFTag->removeItem(ASFAttributeName);
@@ -1414,9 +1383,8 @@ using namespace TagLib;
 + (void)setTag:(id)tag forAttribute:(PRFileAttribute)attribute ID3v2Tag:(ID3v2::Tag *)id3v2tag
 {
 	TagLib::ID3v2::FrameListMap frameListMap = id3v2tag->frameListMap();
-    bool itemDidChange = FALSE;
 	const char *frameID = [[self class] ID3v2FrameIDForAttribute:attribute];
-	int secondaryValue = 0;
+    ID3v2::Frame *frame = NULL;
 	switch (attribute) {
 		case PRTitleFileAttribute:
 		case PRArtistFileAttribute:
@@ -1425,29 +1393,33 @@ using namespace TagLib;
 		case PRAlbumArtistFileAttribute:
 		case PRGenreFileAttribute:
             if ([tag length] != 0) {
-                itemDidChange = TRUE;
+                ID3v2::TextIdentificationFrame *f = new ID3v2::TextIdentificationFrame(frameID, String::UTF8);
+                f->setText(TagLib::String([tag UTF8String], String::UTF8));
+                frame = f;
             }
             break;
         case PRCommentsFileAttribute:{
             id3v2tag->removeFrames(frameID);
             if ([tag length] != 0) {
-                ID3v2::CommentsFrame *frame = new ID3v2::CommentsFrame(String::UTF8);
-                frame->setText(TagLib::String([tag UTF8String], String::UTF8));
-                frame->setLanguage(ByteVector("eng", 3));
-                id3v2tag->addFrame(frame);
+                ID3v2::CommentsFrame *f = new ID3v2::CommentsFrame(String::UTF8);
+                f->setText(TagLib::String([tag UTF8String], String::UTF8));
+                f->setLanguage(ByteVector("eng", 3));
+                frame = f;
             }
-            return;
             break;
         }
 		case PRBPMFileAttribute:
 		case PRYearFileAttribute:
             if ([tag intValue] != 0) {
                 tag = [tag stringValue];
-                itemDidChange = TRUE;
+                ID3v2::TextIdentificationFrame *f = new ID3v2::TextIdentificationFrame(frameID, String::UTF8);
+                f->setText(TagLib::String([tag UTF8String], String::UTF8));
+                frame = f;
             }
 			break;
 		case PRTrackNumberFileAttribute:
-		case PRDiscNumberFileAttribute:
+		case PRDiscNumberFileAttribute: {
+            int secondaryValue = 0;
             if (attribute == PRTrackNumberFileAttribute) {
                 secondaryValue = [[[[self class] tagsForID3v2Tag:id3v2tag] objectForKey:[NSNumber numberWithInt:PRTrackCountFileAttribute]] intValue];
             } else if (attribute == PRDiscNumberFileAttribute) {
@@ -1455,14 +1427,20 @@ using namespace TagLib;
             }
             if (secondaryValue == 0 && [tag intValue] != 0) {
                 tag = [tag stringValue];
-                itemDidChange = TRUE;
+                ID3v2::TextIdentificationFrame *f = new ID3v2::TextIdentificationFrame(frameID, String::UTF8);
+                f->setText(TagLib::String([tag UTF8String], String::UTF8));
+                frame = f;
             } else if (secondaryValue != 0) {
                 tag = [NSString stringWithFormat:@"%.1d/%d", [tag intValue], secondaryValue];
-                itemDidChange = TRUE;
+                ID3v2::TextIdentificationFrame *f = new ID3v2::TextIdentificationFrame(frameID, String::UTF8);
+                f->setText(TagLib::String([tag UTF8String], String::UTF8));
+                frame = f;
             }
+        }
 			break;
 		case PRTrackCountFileAttribute:
-		case PRDiscCountFileAttribute:
+		case PRDiscCountFileAttribute: {
+            int secondaryValue = 0;
             if (attribute == PRTrackCountFileAttribute) {
                 secondaryValue = [[[[self class] tagsForID3v2Tag:id3v2tag] objectForKey:[NSNumber numberWithInt:PRTrackNumberFileAttribute]] intValue];
             } else if (attribute == PRDiscCountFileAttribute) {
@@ -1470,14 +1448,25 @@ using namespace TagLib;
             }
             if (secondaryValue != 0 && [tag intValue] == 0) {
                 tag = [NSString stringWithFormat:@"%d",secondaryValue];
-                itemDidChange = TRUE;
+                ID3v2::TextIdentificationFrame *f = new ID3v2::TextIdentificationFrame(frameID, String::UTF8);
+                f->setText(TagLib::String([tag UTF8String], String::UTF8));
+                frame = f;
             } else if ([tag intValue] != 0) {
                 tag = [NSString stringWithFormat:@"%.1d/%d", secondaryValue, [tag intValue]];
-                itemDidChange = TRUE;
+                ID3v2::TextIdentificationFrame *f = new ID3v2::TextIdentificationFrame(frameID, String::UTF8);
+                f->setText(TagLib::String([tag UTF8String], String::UTF8));
+                frame = f; 
             }
+        }
 			break;
-		case PRAlbumArtFileAttribute:
-			return;
+		case PRAlbumArtFileAttribute: {
+            NSData *data = tag;
+            if ([data length] != 0) {
+                ID3v2::AttachedPictureFrame *f = new ID3v2::AttachedPictureFrame();
+                f->setPicture(ByteVector((const char *)[data bytes], [data length]));
+                frame = f;
+            }
+        }
 			break;
 		default:
 			return;
@@ -1485,9 +1474,7 @@ using namespace TagLib;
 	}
     
     id3v2tag->removeFrames(frameID);
-    if (itemDidChange) {
-		ID3v2::TextIdentificationFrame *frame = new ID3v2::TextIdentificationFrame(frameID, String::UTF8);
-		frame->setText(TagLib::String([tag UTF8String], String::UTF8));
+    if (frame) {
 		id3v2tag->addFrame(frame);
     }
 }
@@ -1534,11 +1521,10 @@ using namespace TagLib;
 
 + (void)setTag:(id)tag forAttribute:(PRFileAttribute)attribute APETag:(APE::Tag *)apeTag
 {
-    const APE::ItemListMap *itemListMap = &apeTag->itemListMap();
+    const APE::ItemListMap &itemListMap = apeTag->itemListMap();
     const char *APEKey = [[self class] APEKeyForAttribute:attribute];
     APE::Item item;
-    bool itemDidChange = FALSE;
-	int secondaryValue = 0;
+    bool isItem = FALSE;
 	switch (attribute) {
 		case PRTitleFileAttribute:
 		case PRArtistFileAttribute:
@@ -1549,54 +1535,67 @@ using namespace TagLib;
         case PRGenreFileAttribute:
             if ([tag length] > 0) {
                 item = APE::Item(APEKey, String([tag UTF8String], String::UTF8));
-                itemDidChange = TRUE;
+                isItem = TRUE;
             }
 			break;
 		case PRBPMFileAttribute:
 		case PRYearFileAttribute:
             if ([tag intValue] != 0) {
                 item = APE::Item(APEKey, String([[tag stringValue] UTF8String], String::UTF8));
-                itemDidChange = TRUE;
+                isItem = TRUE;
             }
 			break;
 		case PRTrackNumberFileAttribute:
-        case PRDiscNumberFileAttribute:
-			if ((*itemListMap)[APEKey].toStringList().size() > 2) {
-                secondaryValue = (*itemListMap)[APEKey].toStringList()[1].toInt();
+        case PRDiscNumberFileAttribute: {
+            int secondaryValue = 0;
+			if (itemListMap[APEKey].toStringList().size() > 2) {
+                secondaryValue = itemListMap[APEKey].toStringList()[1].toInt();
             }
             if (secondaryValue == 0 && [tag intValue] != 0) {
                 item = APE::Item(APEKey, String([[tag stringValue] UTF8String], String::UTF8));
-                itemDidChange = TRUE;
+                isItem = TRUE;
             } else if (secondaryValue != 0) {
                 StringList list = StringList(String([[tag stringValue] UTF8String], String::UTF8));
                 list.append(String::number(secondaryValue));
                 item = APE::Item(APEKey, list);
-                itemDidChange = TRUE;
+                isItem = TRUE;
             }
+        }
 			break;
 		case PRTrackCountFileAttribute:
-		case PRDiscCountFileAttribute:
-            if ((*itemListMap)[APEKey].toStringList().size() > 1) {
-                secondaryValue = (*itemListMap)[APEKey].toStringList()[0].toInt();
+		case PRDiscCountFileAttribute: {
+            int secondaryValue = 0;
+            if (itemListMap[APEKey].toStringList().size() > 1) {
+                secondaryValue = itemListMap[APEKey].toStringList()[0].toInt();
             }
             if (secondaryValue != 0 && [tag intValue] == 0) {
                 item = APE::Item(APEKey, String::number(secondaryValue));
-                itemDidChange = TRUE;
+                isItem = TRUE;
             } else if ([tag intValue] != 0) {
                 StringList list = StringList(String::number(secondaryValue));
                 list.append(String([[tag stringValue] UTF8String], String::UTF8));
                 item = APE::Item(APEKey, list);
-                itemDidChange = TRUE;
+                isItem = TRUE;
             }
+        }
             break;
-		case PRAlbumArtFileAttribute:
+		case PRAlbumArtFileAttribute: {
+            return;
+//            NSData *data = tag;
+//            if ([data length] != 0) {
+//                ASF::Picture p;
+//                p.setPicture(ByteVector((char *)[data bytes], [data length]));
+//                ASFAttribute = ASF::Attribute(p);
+//                isItem = TRUE;
+//            }
+        }
 			break;
 		default:
 			return;
 			break;
 	}
     
-    if (itemDidChange) {
+    if (isItem) {
         apeTag->setItem(APEKey, item);
     } else {
         apeTag->removeItem(APEKey);
@@ -1606,7 +1605,6 @@ using namespace TagLib;
 + (void)setTag:(id)tag forAttribute:(PRFileAttribute)attribute XiphComment:(Ogg::XiphComment *)xiphComment
 {
     bool tagDidChange = FALSE;
-	const char *fieldName = [[self class] XiphFieldNameForAttribute:attribute];
 	switch (attribute) {
 		case PRTitleFileAttribute:
 		case PRArtistFileAttribute:
@@ -1636,6 +1634,7 @@ using namespace TagLib;
 			break;
 	}
     
+    const char *fieldName = [[self class] XiphFieldNameForAttribute:attribute];
     if (tagDidChange) {
         xiphComment->addField(fieldName, TagLib::String([tag UTF8String], TagLib::String::UTF8), TRUE);
     } else {
@@ -1670,7 +1669,7 @@ using namespace TagLib;
             goto end;
         }
         
-        MP4FileHandle mp4FileHandle = MP4Read(reinterpret_cast<const char *>(buf), 0);
+        MP4FileHandle mp4FileHandle = MP4Read(reinterpret_cast<const char *>(buf));
         if (mp4FileHandle == MP4_INVALID_FILE_HANDLE) {
             fileType_ = PRFileTypeUnknown;
             MP4Close(mp4FileHandle);
@@ -1753,13 +1752,11 @@ using namespace TagLib;
     }
     
 end:
-    if (file) {
-        if (!file->isValid()) {
-            fileType_ = PRFileTypeUnknown;
-            delete file;
-            file = NULL;
-        }
-    } else {
+    if (file && !file->isValid()) {
+        fileType_ = PRFileTypeUnknown;
+        delete file;
+        file = NULL;
+    } else if (!file) {
         fileType_ = PRFileTypeUnknown;
     }
 
@@ -1832,7 +1829,7 @@ end:
 			return "TCON";
 			break;
 		case PRAlbumArtFileAttribute:
-			return "";
+			return "APIC";
 			break;
 		default:
 			return "";

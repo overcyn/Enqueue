@@ -30,11 +30,8 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
         
         _prevSourceString = [@"" retain];
         _prevSourceBindings = [[NSDictionary dictionary] retain];
-        prevBrowser1Bindings = [@"" retain];
         prevBrowser1Bindings = [[NSDictionary dictionary] retain];
-        prevBrowser2Bindings = [@"" retain];
         prevBrowser2Bindings = [[NSDictionary dictionary] retain];
-        prevBrowser3Bindings = [@"" retain];
         prevBrowser3Bindings = [[NSDictionary dictionary] retain];
         _prevSort = [@"" retain];
         _prevBrowser1Grouping = [@"" retain];
@@ -95,7 +92,7 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
 // ========================================
 
 - (int)refreshWithPlaylist:(PRPlaylist)playlist force:(BOOL)force
-{   
+{
     [_cachedValues removeAllObjects];
     _playlist = playlist;
     _force = force;
@@ -135,7 +132,7 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
     // Sort column
     NSString *sortColumnName;
     if (sortColumn == PRPlaylistIndexSort) {
-        [PRException raise:NSInternalInconsistencyException format:@"Invalid Sort Column"];
+        [PRException raise:NSInternalInconsistencyException format:@"Invalid Sort Column"];return FALSE;
     } else if ([[PRUserDefaults userDefaults] useAlbumArtist] && sortColumn == PRArtistFileAttribute) {
         sortColumnName = @"artistAlbumArtist";
     } else {
@@ -206,7 +203,7 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
 }
 
 - (BOOL)populateSource
-{    
+{
     BOOL whereTerm = FALSE;
 	int bindingIndex = 1;
 	NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
@@ -595,7 +592,7 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
     return [[[results objectAtIndex:0] objectAtIndex:0] intValue];
 }
 
-- (id)valueForRow:(int)row attribute:(PRFileAttribute)attribute andCacheAttributes:(NSArray *)attributes;
+- (id)valueForRow:(int)row attribute:(PRFileAttribute)attribute andCacheAttributes:(NSArray *)attributes
 {
     id cachedValue = [[_cachedValues objectForKey:[NSNumber numberWithInt:row]] objectForKey:[NSNumber numberWithInt:attribute]];
     if (cachedValue) {
@@ -741,6 +738,25 @@ NSString * const browser3ViewSource = @"browser3ViewSource";
     }
     [array addObject:[NSNumber numberWithInt:count]];
     return array;
+}
+
+// ========================================
+// Misc
+// ========================================
+
+- (int)firstRowWithValue:(id)value forAttribute:(PRFileAttribute)attribute
+{
+    NSString *stm = [NSString stringWithFormat:@"SELECT row FROM libraryViewSource "
+                     "JOIN library ON libraryViewSource.file_id = library.file_id WHERE %@ = ?1 COLLATE NOCASE2 "
+                     "ORDER BY row LIMIT 1", 
+                     [PRLibrary columnNameForFileAttribute:attribute]];
+    NSDictionary *bnd = [NSDictionary dictionaryWithObjectsAndKeys:value, [NSNumber numberWithInt:1], nil];
+    NSArray *col = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *rlt = [db execute:stm bindings:bnd columns:col];
+    if ([rlt count] == 0) {
+        return -1;
+    }
+    return [[[rlt objectAtIndex:0] objectAtIndex:0] intValue];
 }
 
 @end

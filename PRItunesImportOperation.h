@@ -6,6 +6,7 @@
 @interface PRItunesImportOperation : NSOperation 
 {
     NSURL *iTunesURL;
+    NSMutableDictionary *_fileTrackIdDictionary;
     
     PRCore *_core;
 	PRDb *_db;
@@ -15,7 +16,8 @@
 
 - (id)initWithURL:(NSURL *)URL_ core:(PRCore *)core;
 + (id)operationWithURL:(NSURL *)URL core:(PRCore *)core;
-
+- (void)addTracks:(NSArray *)tracks;
+- (void)addPlaylist:(NSDictionary *)playlist;
 @end
 
 

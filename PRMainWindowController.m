@@ -22,6 +22,8 @@
 #import "PRTableViewController.h"
 #import "PRStringFormatter.h"
 #import <Quartz/Quartz.h>
+#import "NSWindow+Extensions.h"
+
 
 @interface NSWindow (hush)
 - (void)setBottomCornerRounded:(BOOL)rounded;
@@ -34,27 +36,19 @@
 // Initialization
 // ========================================
 
-- (id)initWithCore:(PRCore *)core_
+- (id)initWithCore:(PRCore *)core
 {
-    self = [super initWithWindowNibName:@"PRMainWindow"];
-	if (self) {
-        core = [core_ retain];
-		db = [[core_ db] retain];
-		now = [[core_ now] retain];
-        folderMonitor = [[core_ folderMonitor] retain];
-        stringFormatter = [[PRStringFormatter alloc] init];
-        [stringFormatter setMaxLength:80];
-		currentMode = PRLibraryMode;
-		currentPlaylist = 0;
-	}
+	if (!(self = [super initWithWindowNibName:@"PRMainWindow"])) {return nil;}
+    _core = core;
+    _db = [core db];
+    currentMode = PRLibraryMode;
+    currentPlaylist = 0;
 	return self;
 }
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self 
-                                                    name:PRLibraryViewModeDidChangeNotification
-                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
      
     [mainMenuController release];
     [libraryViewController release];
@@ -63,83 +57,61 @@
     [historyViewController release];
     [nowPlayingViewController release];
     [controlsViewController release];
-    [db release];
-    [now release];
-    [folderMonitor release];
     [super dealloc];
 }
 
 - (void)awakeFromNib
 {   
-    if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
-        [cancelButton setBezelStyle:15];
-        [cancelButton setBordered:TRUE];
-        NSRect frame = [cancelButton frame];
-        frame.origin.y -= 2;
-        frame.origin.x += 3;
-        frame.size.width -= 6;
-        [cancelButton setFrame:frame];
-    }
-    
     // Main Menu
-    mainMenuController = [[PRMainMenuController alloc] initWithCore:core];
+    mainMenuController = [[PRMainMenuController alloc] initWithCore:_core];
     
 	// Window
     [[self window] setDelegate:self];
     [[self window] setBottomCornerRounded:NO];
     
     // Toolbar View
-    float x = 0.14; //0.02
     NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                             [NSColor colorWithCalibratedWhite:1.06-x alpha:1.0], 0.0,
-                             [NSColor colorWithCalibratedWhite:0.96-x alpha:1.0], 0.5,
-                             [NSColor colorWithCalibratedWhite:0.91-x alpha:1.0], 0.8,
-                             [NSColor colorWithCalibratedWhite:0.87-x alpha:1.0], 1.0,
+                             [NSColor colorWithCalibratedWhite:0.92 alpha:1.0], 0.0,
+                             [NSColor colorWithCalibratedWhite:0.82 alpha:1.0], 0.5,
+                             [NSColor colorWithCalibratedWhite:0.77 alpha:1.0], 0.8,
+                             [NSColor colorWithCalibratedWhite:0.73 alpha:1.0], 1.0,
                              nil] autorelease];
     [toolbarView setVerticalGradient:gradient];
-    x = 0.04;
     gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                 [NSColor colorWithCalibratedWhite:0.99-x alpha:1.0], 0.0,
-                 [NSColor colorWithCalibratedWhite:0.97-x alpha:1.0], 0.2,
-                 [NSColor colorWithCalibratedWhite:0.95-x alpha:1.0], 0.5,
-                 [NSColor colorWithCalibratedWhite:0.94-x alpha:1.0], 1.0,
+                 [NSColor colorWithCalibratedWhite:0.99 alpha:1.0], 0.0,
+                 [NSColor colorWithCalibratedWhite:0.90 alpha:1.0], 0.5,
+                 [NSColor colorWithCalibratedWhite:0.85 alpha:1.0], 1.0,
                  nil] autorelease];
-    [toolbarView setAlternateVerticalGradient:gradient];
+    [toolbarView setAltVerticalGradient:gradient];
     [toolbarView setTopBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.42]];
-    [toolbarView setBotBorder:[NSColor colorWithCalibratedWhite:0.4 alpha:1.0]];
+    [toolbarView setBotBorder:[NSColor colorWithCalibratedWhite:0.5 alpha:1.0]];
     [toolbarView setFrame:NSMakeRect(185, [[self window] frame].size.height - [toolbarView frame].size.height, 
                                      [[self window] frame].size.width - 185, [toolbarView frame].size.height)];
     [[[[self window] contentView] superview] addSubview:toolbarView];
     
     [mainDivider setColor:[NSColor colorWithCalibratedWhite:0.55 alpha:1.0]];
-    [toolbarView setLeftBorder:[NSColor colorWithCalibratedWhite:0.4 alpha:1.0]];
+    [toolbarView setLeftBorder:[NSColor colorWithCalibratedWhite:0.55 alpha:1.0]];
     
     [divider setHidden:TRUE];
     [divider setColor:[NSColor colorWithCalibratedWhite:0.0 alpha:0.3]];
     [divider setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.8]];
     [divider5 setTopBorder:[NSColor colorWithCalibratedWhite:0.0 alpha:0.3]];
-    [divider5 setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.4]];
-    
-    // task window
-    NSPoint p = [progressIndicator frame].origin;
-    p = [[progressIndicator superview] convertPointToBase:p];
-    p.x += 8;
-    p.y += 2;
-	
+    [divider5 setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.3]];
+    	
     // ViewControllers
-    libraryViewController = [[PRLibraryViewController alloc] initWithCore:core];
-    preferencesViewController = [[PRPreferencesViewController alloc] initWithCore:core];
-	playlistsViewController = [[PRPlaylistsViewController alloc] initWithCore:core];
-    historyViewController = [[PRHistoryViewController alloc] initWithDb:db mainWindowController:self];
-    taskManagerViewController = [[PRTaskManagerViewController alloc] initWithTaskManager:[core taskManager] core:(PRCore *)core];
+    libraryViewController = [[PRLibraryViewController alloc] initWithCore:_core];
+    preferencesViewController = [[PRPreferencesViewController alloc] initWithCore:_core];
+	playlistsViewController = [[PRPlaylistsViewController alloc] initWithCore:_core];
+    historyViewController = [[PRHistoryViewController alloc] initWithDb:_db mainWindowController:self];
+    taskManagerViewController = [[PRTaskManagerViewController alloc] initWithTaskManager:[_core taskManager] core:(PRCore *)_core];
     
-    nowPlayingViewController = [[PRNowPlayingViewController alloc] initWithDb:db 
-                                                         nowPlayingController:now 
+    nowPlayingViewController = [[PRNowPlayingViewController alloc] initWithDb:_db 
+                                                         nowPlayingController:[_core now] 
                                                          mainWindowController:self];
     [[nowPlayingViewController view] setFrame:[nowPlayingSuperview bounds]];
     [nowPlayingSuperview addSubview:[nowPlayingViewController view]];
 	
-    controlsViewController = [[PRControlsViewController alloc] initWithCore:core];
+    controlsViewController = [[PRControlsViewController alloc] initWithCore:_core];
     [[controlsViewController view] setFrame:[controlsSuperview bounds]];
     [controlsSuperview addSubview:[controlsViewController view]];
     
@@ -149,20 +121,19 @@
     [[libraryViewController view] setFrame:[centerSuperview bounds]];
     [centerSuperview addSubview:[libraryViewController view]];
 	currentViewController = libraryViewController;
-    [self setCurrentPlaylist:[[db playlists] libraryPlaylist]];
+    [self setCurrentPlaylist:[[_db playlists] libraryPlaylist]];
     [self setCurrentMode:PRLibraryMode];
 		
     // Progress Indicator
     [cancelButton setTarget:taskManagerViewController];
     [cancelButton setAction:@selector(cancelTask)];
-    [progressIndicator setUsesThreadedAnimation:TRUE];
-    [progressIndicator setMaxValue:1];
-    [progressIndicator setDisplayedWhenStopped:FALSE];
     [self setProgressHidden:TRUE];
     [self setProgressTitle:@"Scanning for Updates..."];
     
 	// Search Field
     NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:@"", NSNullPlaceholderBindingOption, nil];
+    PRStringFormatter *stringFormatter = [[[PRStringFormatter alloc] init] autorelease];
+    [stringFormatter setMaxLength:80];
 	[searchField bind:@"value" toObject:self withKeyPath:@"search" options:options];
     [searchField setFormatter:stringFormatter];
     
@@ -196,26 +167,13 @@
         [[button cell] setShowsStateBy:NSNoCellMask];
         [[button cell] setHighlightsBy:NSContentsCellMask];
     }
-        
-    [libraryViewController addObserver:self forKeyPath:@"infoViewVisible" options:0 context:nil];
     
 	// Update
-    [[NSNotificationCenter defaultCenter] addObserver:self 
-                                             selector:@selector(libraryViewModeDidChange:)
-                                                 name:PRLibraryViewModeDidChangeNotification 
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self 
-                                             selector:@selector(playlistDidChange:)
-                                                 name:PRPlaylistDidChangeNotification 
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self 
-                                             selector:@selector(playlistsDidChange:)
-                                                 name:PRPlaylistsDidChangeNotification 
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self 
-											 selector:@selector(libraryViewDidChange:) 
-												 name:PRLibraryViewDidChangeNotification 
-											   object:nil];
+    [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(playlistDidChange:)];
+    [[NSNotificationCenter defaultCenter] observePlaylistsChanged:self sel:@selector(playlistsDidChange:)];
+    [[NSNotificationCenter defaultCenter] observeLibraryViewChanged:self sel:@selector(libraryViewDidChange:)];
+    [[NSNotificationCenter defaultCenter] observeInfoViewVisibleChanged:self sel:@selector(updateUI)];
+    
     if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
         [[NSNotificationCenter defaultCenter] addObserver:self 
                                                  selector:@selector(windowWillEnterFullScreen:) 
@@ -225,6 +183,9 @@
                                                  selector:@selector(windowWillExitFullScreen:) 
                                                      name:NSWindowWillExitFullScreenNotification 
                                                    object:[self window]];
+        if ([[PRUserDefaults userDefaults] fullscreen] && ![[self window] isFullScreen]) {
+//            [[NSOperationQueue mainQueue] addBlock:^{[[self window] toggleFullScreen:self];}];
+        }
     }
 }
 
@@ -271,14 +232,13 @@
 			newViewController = preferencesViewController;
 			break;
 		default:
+            [PRException raise:NSInternalInconsistencyException format:@"Invalid Mode"];return;
 			break;
 	}
     [[newViewController view] setFrame:[centerSuperview bounds]];
 	[centerSuperview replaceSubview:[currentViewController view] with:[newViewController view]];
 	currentViewController = newViewController;
     [self updateUI];
-    [self willChangeValueForKey:@"libraryViewMode"];
-	[self didChangeValueForKey:@"libraryViewMode"];
 	[self willChangeValueForKey:@"search"];
 	[self didChangeValueForKey:@"search"];
 }
@@ -295,8 +255,6 @@
     
     [self updateUI];
     
-    [self willChangeValueForKey:@"libraryViewMode"];
-	[self didChangeValueForKey:@"libraryViewMode"];
 	[self willChangeValueForKey:@"search"];
 	[self didChangeValueForKey:@"search"];
 }
@@ -337,7 +295,6 @@
 
 @dynamic progressHidden;
 @dynamic progressTitle;
-@dynamic progressValue;
 
 - (BOOL)progressHidden
 {
@@ -376,18 +333,8 @@
                                  centerAlign, NSParagraphStyleAttributeName,				  
                                  shadow2, NSShadowAttributeName,
                                  nil];
-	NSMutableAttributedString *attributedString = [[[NSMutableAttributedString alloc] initWithString:progressTitle attributes:attributes2] autorelease];
+	NSAttributedString *attributedString = [[[NSAttributedString alloc] initWithString:progressTitle attributes:attributes2] autorelease];
 	[progressTextField setAttributedStringValue:attributedString];
-}
-
-- (float)progressValue
-{
-    return [progressIndicator doubleValue];
-}
-
-- (void)setProgressValue:(float)progressValue
-{
-//    [progressIndicator setDoubleValue:progressValue];
 }
 
 // ========================================
@@ -401,9 +348,10 @@
     [playlistsButton setImage:[NSImage imageNamed:@"Playlists"]];
     [historyButton setImage:[NSImage imageNamed:@"History"]];
     [preferencesButton setImage:[NSImage imageNamed:@"Preferences"]];
+    [searchField setEnabled:currentMode == PRLibraryMode];
     switch (currentMode) {
 		case PRLibraryMode:
-            if ([self currentPlaylist] == [[db playlists] libraryPlaylist]) {
+            if ([self currentPlaylist] == [[_db playlists] libraryPlaylist]) {
                 [libraryButton setImage:[NSImage imageNamed:@"LibraryAlt"]];
             } else {
                 [playlistsButton setImage:[NSImage imageNamed:@"PlaylistsAlt"]];
@@ -423,29 +371,18 @@
 	}
     
     // Library view mode buttons
-    [listModeButton setState:NSOnState];
-    [listModeButton setEnabled:TRUE];
-    [albumListModeButton setState:NSOnState];
-    [albumListModeButton setEnabled:TRUE];
-    
     switch ([self libraryViewMode]) {
         case PRListMode:
             [libraryModeButton setSelectedSegment:0];
-            [listModeButton setState:NSOffState];
-            [listModeButton setEnabled:FALSE];
             break;
         case PRAlbumListMode:
             [libraryModeButton setSelectedSegment:1];
-            [albumListModeButton setState:NSOffState];
-            [albumListModeButton setEnabled:FALSE];
             break;
         default:
             break;
     }
-    
-    [searchField  setHidden:(currentMode != PRLibraryMode)];
-    [libraryModeButton setHidden:(currentMode != PRLibraryMode)];
     [infoButton setHidden:(currentMode != PRLibraryMode)];
+    [libraryModeButton setHidden:(currentMode != PRLibraryMode)];
     
     if ([libraryViewController infoViewVisible]) {
         [infoButton setImage:[NSImage imageNamed:@"InfoAlt"]];
@@ -459,11 +396,11 @@
         return;
     }
     NSString *title;
-    PRPlaylistType type = [[db playlists] typeForPlaylist:currentPlaylist];
+    PRPlaylistType type = [[_db playlists] typeForPlaylist:currentPlaylist];
     if (type == PRLibraryPlaylistType) {
         title = @" ";
     } else {
-        title = [[db playlists] titleForPlaylist:currentPlaylist];
+        title = [[_db playlists] titleForPlaylist:currentPlaylist];
         title = [NSString stringWithFormat:@"%@ : ", title];
     }
         
@@ -512,16 +449,6 @@
 // Update
 // ========================================
 
-- (void)observeValueForKeyPath:(NSString *)keyPath 
-                      ofObject:(id)object 
-                        change:(NSDictionary *)change 
-                       context:(void *)context
-{
-    if (object == libraryViewController && [keyPath isEqualToString:@"infoViewVisible"]) {
-        [self updateUI];
-    }
-}
-
 // Private Methods
 
 - (void)playlistDidChange:(NSNotification *)notification
@@ -529,13 +456,6 @@
 	[self willChangeValueForKey:@"search"];
 	[self didChangeValueForKey:@"search"];
     [self updateUI];
-}
-
-- (void)libraryViewModeDidChange:(NSNotification *)notification
-{
-    [self updateUI];
-	[self willChangeValueForKey:@"libraryViewMode"];
-	[self didChangeValueForKey:@"libraryViewMode"];
 }
 
 - (void)libraryViewDidChange:(NSNotification *)notification
@@ -550,6 +470,7 @@
 
 - (void)windowWillEnterFullScreen:(NSNotification *)notification
 {
+    [[PRUserDefaults userDefaults] setFullscreen:TRUE];
     NSRect frame = [centerSuperview frame];
     frame.size.height -= 11;
     [centerSuperview setFrame:frame];
@@ -563,6 +484,7 @@
 
 - (void)windowWillExitFullScreen:(NSNotification *)notification
 {
+    [[PRUserDefaults userDefaults] setFullscreen:FALSE];
     NSRect frame = [centerSuperview frame];
     frame.size.height += 11;
     [centerSuperview setFrame:frame];
@@ -579,7 +501,7 @@
 	if (currentMode != PRLibraryMode) {
 		return nil;
 	}
-	return [[db playlists] searchForPlaylist:currentPlaylist];
+	return [[_db playlists] searchForPlaylist:currentPlaylist];
 }
 
 - (void)setSearch:(NSString *)search
@@ -590,13 +512,8 @@
 	if (!search) {
 		search = @"";
 	}
-	[[db playlists] setValue:search forPlaylist:currentPlaylist attribute:PRSearchPlaylistAttribute];
-	NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSNumber numberWithInt:currentPlaylist], @"playlist", 
-                              [NSNumber numberWithBool:TRUE], @"search", nil];
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistDidChangeNotification 
-														object:self
-													  userInfo:userInfo];
+	[[_db playlists] setValue:search forPlaylist:currentPlaylist attribute:PRSearchPlaylistAttribute];
+    [[NSNotificationCenter defaultCenter] postPlaylistChanged:currentPlaylist];
 }
 
 - (void)libraryModeButtonAction
@@ -624,7 +541,7 @@
 - (void)headerButtonAction:(id)sender
 {
     if ([sender tag] == PRLibraryMode) {
-        [self setCurrentPlaylist:[[db playlists] libraryPlaylist]];
+        [self setCurrentPlaylist:[[_db playlists] libraryPlaylist]];
     }
     [self setCurrentMode:[sender tag]];
 }

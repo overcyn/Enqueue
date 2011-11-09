@@ -5,12 +5,13 @@
 
 - (id)init
 {
-	if ((self = [super init])) {
-		showDots = FALSE;
-		editing = FALSE;
-	}
+	if (!(self = [super init])) {return nil;}
+    _showDots = FALSE;
+    _editing = FALSE;
 	return self;
 }
+
+@synthesize showDots = _showDots;
 
 - (void)drawSegment:(NSInteger)segment inFrame:(NSRect)frame withView:(NSView *)controlView
 {	
@@ -18,16 +19,16 @@
 	if (segment == 0) {
 		icon = [NSImage imageNamed:@"PREmptyIcon"];
 	} else if (segment <= [self selectedSegment]) {
-		if (([self isHighlighted] || editing) && !showDots) {
+		if (([self isHighlighted] || _editing) && !_showDots) {
 			icon = [NSImage imageNamed:@"PRLightRatingIcon"];
 		} else {
 			icon = [NSImage imageNamed:@"PRRatingIcon"];
 		}
 	} else {
-		if (([self isHighlighted] || editing) && !showDots) {
+		if (([self isHighlighted] || _editing) && !_showDots) {
 			icon = [NSImage imageNamed:@"PRLightEmptyRatingIcon"];
 		} else {
-			if (showDots) {
+			if (_showDots) {
 				icon = [NSImage imageNamed:@"PREmptyRatingIcon"];
 			} else {
 				icon = [NSImage imageNamed:@"PREmptyIcon"];
@@ -50,13 +51,13 @@
 
 - (BOOL)trackMouse:(NSEvent *)event_ inRect:(NSRect)cellFrame ofView:(NSView *)controlView untilMouseUp:(BOOL)untilMouseUp
 {
-    cellFrame_ = cellFrame;
+    _cellFrame = cellFrame;
 	return [super trackMouse:event_ inRect:cellFrame ofView:controlView untilMouseUp:untilMouseUp];
 }
 
 - (BOOL)startTrackingAt:(NSPoint)startPoint inView:(NSView *)controlView
 {    
-	editing = TRUE;
+	_editing = TRUE;
 	for (int i = 0; i < [self segmentCount]; i++) {
 		if (NSPointInRect(startPoint, [self frameForSegment:i])) {
 			[self setSelectedSegment:i];
@@ -100,13 +101,13 @@
 		}
 	}
 	
-	editing = FALSE;
+	_editing = FALSE;
 	[super stopTracking:lastPoint at:currentPoint inView:controlView mouseIsUp:flag];
 }
 
 - (NSRect)frameForSegment:(BOOL)segment
 {
-	NSRect frame = NSMakeRect(cellFrame_.origin.x + 2, cellFrame_.origin.y + 1, 0, 15);
+	NSRect frame = NSMakeRect(_cellFrame.origin.x + 2, _cellFrame.origin.y + 1, 0, 15);
 	for (int i = 0; i < [self segmentCount]; i++) {
 		frame.size.width = [self widthForSegment:i] + 2;
 		if (i == segment) {
@@ -115,11 +116,6 @@
 		frame.origin.x = frame.origin.x + frame.size.width - 1;
 	}
 	return frame;
-}
-
-- (void)setShowDots:(BOOL)newShowDots
-{
-	showDots = newShowDots;
 }
 
 @end

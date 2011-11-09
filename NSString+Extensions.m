@@ -1,5 +1,5 @@
 #import "NSString+Extensions.h"
-#import "PRDb.h"
+#import "sqlite_str.h"
 
 @implementation NSString (NSString_Extensions)
 

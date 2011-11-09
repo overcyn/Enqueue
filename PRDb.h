@@ -1,8 +1,5 @@
 #import <Cocoa/Cocoa.h>
-
-#ifndef _SQLITE3_H_
-@class sqlite3, sqlite3_stmt;
-#endif
+#include "sqlite3.h"
 
 @class PRHistory, PRLibrary, PRPlaylists, PRLibraryViewSource, PRNowPlayingViewSource, 
 PRAlbumArtController, PRPlaybackOrder, PRQueue, PRResult, PRStatement, PRReturnTypes, PRBindings;
@@ -11,11 +8,6 @@ PRAlbumArtController, PRPlaybackOrder, PRQueue, PRResult, PRStatement, PRReturnT
 // ========================================
 // Constants & Typedefs
 
-extern NSString * const PRLibraryDidChangeNotification;
-extern NSString * const PRTagsDidChangeNotification;
-extern NSString * const PRLibraryViewDidChangeNotification;
-extern NSString * const PRPlaylistDidChangeNotification;
-extern NSString * const PRPlaylistsDidChangeNotification;
 extern NSString * const PRFilePboardType;
 extern NSString * const PRIndexesPboardType;
 
@@ -66,6 +58,8 @@ typedef enum {PRColumnInteger, PRColumnFloat, PRColumnString, PRColumnData} PRCo
 - (void)rollback;
 - (void)commit;
 
+- (long)lastInsertRowid;
+
 - (NSArray *)execute:(NSString *)string;
 - (NSArray *)execute:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns;
 - (NSArray *)attempt:(NSString *)string;
@@ -80,5 +74,3 @@ typedef enum {PRColumnInteger, PRColumnFloat, PRColumnString, PRColumnData} PRCo
 
 @end
 
-int no_case(void *udp, int lenA, const void *strA, int lenB, const void *strB);
-CFRange PRFormatString(UniChar *string, int length);

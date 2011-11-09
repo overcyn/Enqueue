@@ -16,39 +16,46 @@
 - (id)initWithString:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns db:(PRDb *)db
 {
     if (!(self = [super init])) {return nil;}
-    _statement = [string retain];
-    if (!bindings) {
-        bindings = [NSDictionary dictionary];
-    }
-    _bindings = [bindings retain];
-    if (columns == nil) {
-        columns = [NSArray array];
-    }
-    _columns = [columns retain];
+    _statement = [string copy];
+    _bindings = [bindings copy];
+    _columns = [columns copy];
     _sqlite3 = [db sqlDb];
     
+    if (!_bindings) {
+        _bindings = [[NSDictionary dictionary] retain];
+    }
+    if (_columns == nil) {
+        _columns = [[NSArray array] retain];
+    }
+    
+    // Prepare statement
     BOOL l = TRUE;
     while (l) {
         int e = sqlite3_prepare_v2(_sqlite3, [_statement UTF8String], -1, &_stmt, NULL);
-        if (e == SQLITE_OK) {
-            l = FALSE;
-        } else if (e == SQLITE_BUSY) {
-            usleep(50);
-        } else {
-            [PRException raise:PRDbInconsistencyException 
-                        format:@"Prep Failed - self:%@ code:%d msg:%s", self, e, sqlite3_errmsg(_sqlite3)];
+        switch (e) {
+            case SQLITE_OK:
+                l = FALSE;
+                break;
+            case SQLITE_BUSY:
+            case SQLITE_LOCKED:
+                usleep(50);
+            default:
+                [PRException raise:PRDbInconsistencyException 
+                            format:@"Prep Failed - self:%@ code:%d msg:%s", self, e, sqlite3_errmsg(_sqlite3)];
+                break;
         }
     }
     
+    // Bind values
     for (NSNumber *key in [_bindings allKeys]) {
         BOOL l = TRUE;
         while (l) {
-            id object = [_bindings objectForKey:key]; 
+            id object = [_bindings objectForKey:key];
             int e;
             if ([object isKindOfClass:[NSNumber class]]) {
                 if ([object objCType][0] == 'f' || [object objCType][0] == 'd') { // if float or double
                     e = sqlite3_bind_double(_stmt, [key intValue], [object doubleValue]);
-                } else {
+                } else { // if int
                     e = sqlite3_bind_int64(_stmt, [key intValue], [object longLongValue]);
                 }
             } else if ([object isKindOfClass:[NSString class]]) {
@@ -64,6 +71,7 @@
                 case SQLITE_OK:
                     l = FALSE;
                     break;
+                case SQLITE_LOCKED:
                 case SQLITE_BUSY:
                     usleep(50);
                     break;
@@ -85,6 +93,7 @@
 - (void)dealloc
 {
     sqlite3_finalize(_stmt);
+    [_bindings release];
     [_statement release];
     [_columns release];
     [super dealloc];
@@ -106,6 +115,11 @@
 
 - (NSArray *)execute_:(BOOL)crash
 {
+//    if (![NSThread isMainThread]) {
+//        [PRException raise:PRDbInconsistencyException format:@"Not on main thread!", self];
+//        return nil;
+//    }
+    
     NSMutableArray *result = [NSMutableArray array];
     BOOL l = TRUE;
     while (l) {
@@ -114,8 +128,7 @@
             case SQLITE_ROW:
                 if (sqlite3_column_count(_stmt) != [_columns count]) {
                     if (!crash) {return nil;}
-                    [PRException raise:PRDbInconsistencyException 
-                                format:@"Mismatch column count - self:%@", self];
+                    [PRException raise:PRDbInconsistencyException format:@"Mismatch column count - self:%@", self];
                 }
                 NSMutableArray *column = [NSMutableArray array];
                 for (int i = 0; i < [_columns count]; i++) {
@@ -136,7 +149,7 @@
                         default:
                             if (!crash) {return nil;}
                             [PRException raise:PRDbInconsistencyException 
-                                        format:@"Unknown column type - self:%@", self];
+                                        format:@"Unknown column type - self:%@", self];return nil;
                             break;
                     }
                     [column addObject:value];

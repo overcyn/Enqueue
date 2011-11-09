@@ -1,11 +1,6 @@
 #import "PRUserDefaults.h"
+#import "PREQ.h"
 
-// ========================================
-// Constants
-// ========================================
-
-NSString * const PRPreGainDidChangeNotification = @"PRPreGainDidChangeNotification";
-NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidChangeNotification";
 
 @implementation PRUserDefaults
 
@@ -82,6 +77,7 @@ NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidCh
 
 - (float)preGain
 {
+    return 0;
     NSNumber *object = [defaults objectForKey:@"preGain"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object floatValue];
@@ -93,14 +89,107 @@ NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidCh
 - (void)setPreGain:(float)preGain
 {
     [defaults setObject:[NSNumber numberWithFloat:preGain] forKey:@"preGain"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:PRPreGainDidChangeNotification object:self];
 }
 
+@dynamic customEQs;
+@dynamic isCustomEQ;
+@dynamic EQIndex;
+@dynamic EQIsEnabled;
+
+- (NSArray *)customEQs
+{
+    PREQ *defaultEQ = [PREQ flat];
+    [defaultEQ setTitle:@"Custom"];
+    NSArray *defaultEQArray = [NSArray arrayWithObjects:defaultEQ, nil];
+    
+    id object = [defaults objectForKey:@"CustomEQs"];
+    if (!object || ![object isKindOfClass:[NSData class]]) {
+        return defaultEQArray;
+    }
+    
+    id EQArray = [NSKeyedUnarchiver unarchiveObjectWithData:object];
+    if (!EQArray || ![EQArray isKindOfClass:[NSArray class]]) {
+        return defaultEQArray;
+    }
+    
+    for (id i in EQArray) {
+        if (![i isKindOfClass:[PREQ class]]) {
+            return defaultEQArray;
+        }
+    }
+    
+    if ([EQArray count] < 1 || ![[(PREQ *)[EQArray objectAtIndex:0] title] isEqualToString:@"Custom"]) {
+        return defaultEQArray;
+    }
+    return EQArray;
+}
+
+- (void)setCustomEQs:(NSArray *)customEQs
+{
+    NSData *object = [NSKeyedArchiver archivedDataWithRootObject:customEQs];
+    [defaults setObject:object forKey:@"CustomEQs"];
+}
+
+- (BOOL)isCustomEQ
+{
+    NSNumber *object = [defaults objectForKey:@"isCustomEQ"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object boolValue];
+    } else {
+        return TRUE;
+    }
+}
+
+- (void)setIsCustomEQ:(BOOL)isCustomEQ
+{
+    [defaults setObject:[NSNumber numberWithBool:isCustomEQ] forKey:@"isCustomEQ"];
+}
+
+- (int)EQIndex
+{
+    int EQIndex;
+    NSNumber *object = [defaults objectForKey:@"EQIndex"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        EQIndex = [object intValue];
+    } else {
+        EQIndex = 0;
+    }
+    
+    if ([self isCustomEQ]) {
+        if (EQIndex < 0 || EQIndex >= [[self customEQs] count]) {
+            return 0;
+        }
+    } else {
+        if (EQIndex < 0 || EQIndex >= [[PREQ defaultEQs] count]) {
+            return 0;
+        }
+    }
+    return EQIndex;
+}
+
+- (void)setEQIndex:(int)EQIndex
+{
+    [defaults setObject:[NSNumber numberWithInt:EQIndex] forKey:@"EQIndex"];
+}
+
+- (BOOL)EQIsEnabled
+{
+    NSNumber *object = [defaults objectForKey:@"EQIsEnabled"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object boolValue];
+    } else {
+        return FALSE;
+    }
+}
+
+- (void)setEQIsEnabled:(BOOL)EQisEnabled
+{
+    [defaults setObject:[NSNumber numberWithBool:EQisEnabled] forKey:@"EQIsEnabled"];
+}
+
+
 @dynamic showWelcomeSheet;
-@dynamic showsArtwork;
-@dynamic useAlbumArtist;
-@dynamic nowPlayingCollapsible;
-@dynamic folderArtwork;
+@dynamic fullscreen;
 
 - (BOOL)showWelcomeSheet
 {
@@ -115,6 +204,74 @@ NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidCh
 - (void)setShowWelcomeSheet:(BOOL)showsWelcomeSheet
 {
     [defaults setObject:[NSNumber numberWithBool:showsWelcomeSheet] forKey:@"showsWelcomeSheet"];
+}
+
+- (BOOL)fullscreen
+{
+    NSNumber *object = [defaults objectForKey:@"fullscreen"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object boolValue];
+    } else {
+        return FALSE;
+    }
+}
+
+- (void)setFullscreen:(BOOL)fullscreen
+{
+    [defaults setObject:[NSNumber numberWithBool:fullscreen] forKey:@"fullscreen"];
+}
+
+@dynamic mediaKeys;
+@dynamic postGrowlNotification;
+@dynamic lastFMUsername;
+@dynamic showsArtwork;
+@dynamic useAlbumArtist;
+@dynamic nowPlayingCollapsible;
+@dynamic folderArtwork;
+
+- (BOOL)mediaKeys
+{
+    NSNumber *object = [defaults objectForKey:@"mediaKeys"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object boolValue];
+    } else {
+        return TRUE;
+    }
+}
+
+- (void)setMediaKeys:(BOOL)mediaKeys
+{
+    [defaults setObject:[NSNumber numberWithBool:mediaKeys] forKey:@"mediaKeys"];
+}
+
+- (BOOL)postGrowlNotification
+{
+    NSNumber *object = [defaults objectForKey:@"postGrowlNotification"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object boolValue];
+    } else {
+        return TRUE;
+    }
+}
+
+- (void)setPostGrowlNotification:(BOOL)postGrowlNotification
+{
+    [defaults setObject:[NSNumber numberWithBool:postGrowlNotification] forKey:@"postGrowlNotification"];
+}
+
+- (NSString *)lastFMUsername
+{
+    NSString *object = [defaults objectForKey:@"lastFMUsername"];
+    if (object && [object isKindOfClass:[NSString class]]) {
+        return object;
+    } else {
+        return @"";
+    }
+}
+
+- (void)setLastFMUsername:(NSString *)lastFMUsername
+{
+    [defaults setObject:lastFMUsername forKey:@"lastFMUsername"];
 }
 
 - (BOOL)showsArtwork
@@ -177,66 +334,17 @@ NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidCh
     [defaults setObject:[NSNumber numberWithBool:folderArtwork] forKey:@"folderArtwork"];
 }
 
-@dynamic mediaKeys;
-@dynamic postGrowlNotification;
-@dynamic lastFMUsername;
-
-- (BOOL)mediaKeys
-{
-    NSNumber *object = [defaults objectForKey:@"mediaKeys"];
-    if (object && [object isKindOfClass:[NSNumber class]]) {
-        return [object boolValue];
-    } else {
-        return FALSE;
-    }
-}
-
-- (void)setMediaKeys:(BOOL)mediaKeys
-{
-    [defaults setObject:[NSNumber numberWithBool:mediaKeys] forKey:@"mediaKeys"];
-}
-
-- (BOOL)postGrowlNotification
-{
-    NSNumber *object = [defaults objectForKey:@"postGrowlNotification"];
-    if (object && [object isKindOfClass:[NSNumber class]]) {
-        return [object boolValue];
-    } else {
-        return TRUE;
-    }
-}
-
-- (void)setPostGrowlNotification:(BOOL)postGrowlNotification
-{
-    [defaults setObject:[NSNumber numberWithBool:postGrowlNotification] forKey:@"postGrowlNotification"];
-}
-
-- (NSString *)lastFMUsername
-{
-    NSString *object = [defaults objectForKey:@"lastFMUsername"];
-    if (object && [object isKindOfClass:[NSString class]]) {
-        return object;
-    } else {
-        return @"";
-    }
-}
-
-- (void)setLastFMUsername:(NSString *)lastFMUsername
-{
-    [defaults setObject:lastFMUsername forKey:@"lastFMUsername"];
-}
-
 @dynamic monitoredFolders;
 @dynamic lastEventStreamEventId;
 
 - (NSArray *)monitoredFolders
 {
-    NSData *object = [defaults objectForKey:@"monitoredFolders"];
+    id object = [defaults objectForKey:@"monitoredFolders"];
     if (!object || ![object isKindOfClass:[NSData class]]) {
         return [NSArray array];
     }
     
-    NSArray *monitoredFolders = [NSKeyedUnarchiver unarchiveObjectWithData:object];
+    id monitoredFolders = [NSKeyedUnarchiver unarchiveObjectWithData:object];
     if (!monitoredFolders || ![monitoredFolders isKindOfClass:[NSArray class]]) {
         return [NSArray array];
     }
@@ -276,6 +384,7 @@ NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidCh
 @dynamic backupPath;
 @dynamic cachedAlbumArtPath;
 @dynamic downloadedAlbumArtPath;
+@dynamic tempArtPath;
 
 - (NSString *)applicationSupportPath
 {
@@ -308,6 +417,11 @@ NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidCh
 {
 	NSString *albumArtPath = [[self libraryPath] stringByDeletingLastPathComponent];
 	return [albumArtPath stringByAppendingPathComponent:@"Downloaded Album Art"];
+}
+
+- (NSString *)tempArtPath
+{
+    return [[self cachedAlbumArtPath] stringByAppendingPathComponent:@"Temporary Art"];
 }
 
 @end

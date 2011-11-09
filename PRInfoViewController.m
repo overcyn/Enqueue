@@ -12,6 +12,7 @@
 #import "PRCore.h"
 #import "PRTableViewController.h"
 #import "PRMainWindowController.h"
+#import "PRLibraryViewController.h"
 
 @implementation PRInfoViewController
 
@@ -20,28 +21,17 @@
 	if (!(self = [super initWithNibName:@"PRInfoView" bundle:nil])) {return nil;}
     core = [core_ retain];
     db = [[core db] retain];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self 
-                                             selector:@selector(libraryViewSelectionDidChange:)
-                                                 name:PRLibraryViewSelectionDidChangeNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self 
-                                             selector:@selector(tagsDidChange:) 
-                                                 name:PRTagsDidChangeNotification 
-                                               object:nil];
     numberFormatter = [[PRNumberFormatter alloc] init];
     stringFormatter = [[PRStringFormatter alloc] init];
+    
+    [[NSNotificationCenter defaultCenter] observeLibraryViewSelectionChanged:self sel:@selector(update)];
+    [[NSNotificationCenter defaultCenter] observeFilesChanged:self sel:@selector(update)];
 	return self;
 }
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self 
-                                                    name:PRLibraryViewSelectionDidChangeNotification 
-                                                  object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self 
-                                                    name:PRTagsDidChangeNotification 
-                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [db release];
     [super dealloc];
 }
@@ -66,13 +56,13 @@
 	[yearField bind:@"value" toObject:self withKeyPath:@"year" options:options2];
 	[bpmField bind:@"value" toObject:self withKeyPath:@"bpm" options:options2];
 	[trackField bind:@"value" toObject:self withKeyPath:@"track" options:options2];
-	[trackCountField	bind:@"value" toObject:self withKeyPath:@"trackCount" options:options2];
+	[trackCountField bind:@"value" toObject:self withKeyPath:@"trackCount" options:options2];
 	[discField bind:@"value" toObject:self withKeyPath:@"disc" options:options2];
 	[discCountField bind:@"value" toObject:self withKeyPath:@"discCount" options:options2];
 	[composerField bind:@"value" toObject:self withKeyPath:@"composer" options:options];
 	[commentsField bind:@"value" toObject:self withKeyPath:@"comments" options:options];
 	[genreField bind:@"value" toObject:self withKeyPath:@"genre" options:options];
-    [albumArtView bind:@"value" toObject:self withKeyPath:@"albumArt" options:nil];
+//    [albumArtView bind:@"value" toObject:self withKeyPath:@"albumArt" options:nil];
 	
 	[titleField bind:@"enabled" toObject:self withKeyPath:@"enabled" options:nil];
 	[artistField bind:@"enabled" toObject:self withKeyPath:@"enabled" options:nil];
@@ -89,6 +79,9 @@
 	[genreField bind:@"enabled" toObject:self withKeyPath:@"enabled" options:nil];
     [albumArtView bind:@"enabled" toObject:self withKeyPath:@"enabled" options:nil];
     [ratingControl bind:@"enabled" toObject:self withKeyPath:@"enabled" options:nil];
+    
+    [albumArtView addObserver:self forKeyPath:@"objectValue" options:0 context:nil];
+    [[ratingControl cell] addObserver:self forKeyPath:@"objectValue" options:0 context:nil];
     
     controls = [[NSArray arrayWithObjects:
                  titleField,
@@ -119,7 +112,8 @@
                discCountLabel,
                composerLabel,
                commentsLabel,
-               genreLabel, nil] retain];
+               genreLabel,
+               ratingLabel, nil] retain];
     
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
     [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:1.0]];
@@ -151,7 +145,6 @@
     
     // rating
     [((PRRatingCell *)[ratingControl cell]) setShowDots:TRUE];
-    [[ratingControl cell] addObserver:self forKeyPath:@"objectValue" options:0 context:nil];
     
     [self update];
 }
@@ -169,13 +162,17 @@
        for (NSNumber *i in selection) {
            [[db library] setValue:[NSNumber numberWithInt:rating] forFile:[i intValue] attribute:PRRatingFileAttribute];
        }
-       NSDictionary *userInfo = [NSDictionary dictionaryWithObject:selection forKey:@"files"];
-       [[NSNotificationCenter defaultCenter] postNotificationName:PRTagsDidChangeNotification object:self userInfo:userInfo];
-    }
+       [[NSNotificationCenter defaultCenter] postFilesChanged:[NSIndexSet indexSetWithArray:selection]];
+   } else if (object == albumArtView && [keyPath isEqualToString:@"objectValue"]) {
+       [self setAlbumArt:[object objectValue]];
+   }
 }
 
 - (void)update
 {
+    [selection release];
+	selection = [[[[[core win] libraryViewController] currentViewController] selection] retain];
+    
     [NoSelection setHidden:([selection count] != 0)];
     for (id i in controls) {
         [i setHidden:![selection count]];
@@ -218,28 +215,13 @@
     [self willChangeValueForKey:@"rating"];
     [self didChangeValueForKey:@"rating"];
     
+    [albumArtView setImage:[self albumArt]];
     NSNumber *rating = [self valueForAttribute:PRRatingFileAttribute];
     if ([rating isKindOfClass:[NSNumber class]]) {
         [ratingControl setSelectedSegment:floor([rating intValue] / 20)];
     } else {
         [ratingControl setSelectedSegment:0];
     }
-}
-
-// ========================================
-// Update
-// ========================================
-
-- (void)libraryViewSelectionDidChange:(NSNotification *)notification
-{	
-    [selection release];
-	selection = [[NSArray arrayWithArray:[[notification object] selection]] retain];
-	[self update];
-}
-
-- (void)tagsDidChange:(NSNotification *)notification
-{
-    [self update];
 }
 
 // ========================================
@@ -257,22 +239,22 @@
 		return;
 	}
     
-    NSIndexSet *selectionIndexes = [NSIndexSet indexSetWithArray:selection];
-    for (NSNumber *i in selection) {
-        PRTagEditor *tagEditor = [[[PRTagEditor alloc] initWithFile:[i intValue] db:db] autorelease];
-        [tagEditor setValue:value forAttribute:attribute postNotification:FALSE];
-    }
-    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:selection forKey:@"files"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:PRTagsDidChangeNotification 
-                                                        object:nil 
-                                                      userInfo:userInfo];
-    [[[[core win] libraryViewController] currentViewController] highlightFiles:selectionIndexes];
-    
     for (NSControl *control in controls) {
         if ([control isKindOfClass:[NSTextField class]]) {
             [control cancelOperation:nil];
         }
     }
+    
+    for (NSNumber *i in selection) {
+        PRTagEditor *te = [PRTagEditor tagEditorForURL:[[db library] URLforFile:[i intValue]]];
+        [te setValue:value forTag:attribute];
+        [[db library] updateTagsForFile:[i intValue]];
+    }
+    
+    NSIndexSet *selectionIndexes = [NSIndexSet indexSetWithArray:selection];
+    [[NSNotificationCenter defaultCenter] postFilesChanged:selectionIndexes];
+    [[[[core win] libraryViewController] currentViewController] highlightFiles:selectionIndexes];
+    [[NSOperationQueue mainQueue] addBlock:^{[self update];}];
 }
 
 - (id)valueForAttribute:(PRFileAttribute)attribute
@@ -466,16 +448,23 @@
 	return [self valueForAttribute:PRGenreFileAttribute];
 }
 
+- (void)setAlbumArt:(NSImage *)value
+{
+    NSData *data = [value TIFFRepresentation];
+    if (!value) {
+        data = [NSData data];
+    }
+    [self setValue:data forAttribute:PRAlbumArtFileAttribute];
+}
+
 - (NSImage *)albumArt
 {
     if ([selection count] == 0) {
-		return NSNoSelectionMarker;
-	} else if ([selection count] > 1) {
-		return NSMultipleValuesMarker;
-	}
+        return nil;
+    }
     
     PRFile file = [[selection objectAtIndex:0] intValue];
-    NSImage *albumArt = [[db albumArtController] albumArtForFile:file];
+    NSImage *albumArt = [[db albumArtController] cachedArtForFile:file];
     return albumArt;
 }
 

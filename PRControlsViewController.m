@@ -23,13 +23,11 @@
 
 - (id)initWithCore:(PRCore *)core_;
 {
-    self = [super initWithNibName:@"PRControlsView" bundle:nil];
-	if (self) {
-        core = core_;
-		db = [[core_ db] retain];
-		now = [[core_ now] retain];
-        libraryViewController = [[[core_ win] libraryViewController] retain];
-	}
+    if (!(self = [super initWithNibName:@"PRControlsView" bundle:nil])) {return nil;}
+    core = core_;
+    db = [[core_ db] retain];
+    now = [[core_ now] retain];
+    libraryViewController = [[[core_ win] libraryViewController] retain];
 	return self;
 }
 
@@ -48,16 +46,9 @@
                              [NSColor colorWithCalibratedWhite:1.0 alpha:0.0], 0.0, 
                              [NSColor colorWithCalibratedWhite:1.0 alpha:0.0], 1.0,
                              nil] autorelease];
-    [gradientView setAlternateVerticalGradient:gradient];
-    
-	// rating
-	[((PRRatingCell *)[ratingControl cell]) setShowDots:TRUE];
-    [[ratingControl cell] addObserver:self forKeyPath:@"objectValue" options:0 context:nil];
-	
-	// bind time and duration textfields
-//	[currentTime bind:@"value" toObject:now withKeyPath:@"mov.currentTime" options:nil];
-//	[duration bind:@"value" toObject:now withKeyPath:@"mov.duration" options:nil];
-	
+    [gradientView setAltVerticalGradient:gradient];
+    [gradientView setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.15]];
+    	
 	// bind time and volume sliders
     [controlSlider setCell:[[[PRSliderCell alloc] init] autorelease]];
 	[controlSlider setMinValue:0.0];
@@ -78,11 +69,6 @@
     [shuffle bind:@"target" toObject:now withKeyPath:@"toggleShuffle" options:options];
 	[repeat bind:@"target" toObject:now withKeyPath:@"toggleRepeat" options:options];
 
-    [now addObserver:self forKeyPath:@"shuffle" options:0 context:nil];
-    [now addObserver:self forKeyPath:@"repeat" options:0 context:nil];
-    [[now mov] addObserver:self forKeyPath:@"isPlaying" options:0 context:nil];
-    [now addObserver:self forKeyPath:@"currentIndex" options:0 context:nil];
-    
     NSTrackingArea *trackingArea = [[[NSTrackingArea alloc] initWithRect:[titleField frame]
                                                                  options:NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow  
                                                                    owner:self 
@@ -90,12 +76,12 @@
     [gradientView addTrackingArea:trackingArea];
     
 	// register for observers
-	[[NSNotificationCenter defaultCenter] addObserver:self 
-											 selector:@selector(update) 
-												 name:PRTagsDidChangeNotification 
-											   object:nil];
-    
-    [now addObserver:self forKeyPath:@"mov.currentTime" options:0 context:self];
+    [[NSNotificationCenter defaultCenter] observeFilesChanged:self sel:@selector(update)];
+    [[NSNotificationCenter defaultCenter] observeShuffleChanged:self sel:@selector(update)];
+    [[NSNotificationCenter defaultCenter] observeRepeatChanged:self sel:@selector(update)];
+    [[NSNotificationCenter defaultCenter] observeTimeChanged:self sel:@selector(updatePlayButton)];
+    [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(update)];
+    [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(update)];
     
     [titleButton setTarget:self];
     [titleButton setAction:@selector(showInLibrary)];
@@ -108,33 +94,6 @@
 // ========================================
 // Update
 // ========================================
-
-- (void)observeValueForKeyPath:(NSString *)keyPath 
-                      ofObject:(id)object 
-                        change:(NSDictionary *)change 
-                       context:(void *)context
-{
-    if ((object == now && [keyPath isEqualToString:@"currentIndex"]) || 
-        (object == [now mov] && [keyPath isEqualToString:@"isPlaying"]) ||
-        (object == now && [keyPath isEqualToString:@"shuffle"]) ||
-        (object == now && [keyPath isEqualToString:@"repeat"])) {
-        [self update];
-    } else if (object == now && [keyPath isEqualToString:@"mov.currentTime"]) {
-        [self updatePlayButton];
-    } else if (object == [ratingControl cell] && [keyPath isEqualToString:@"objectValue"]) {
-        int newRating = [[ratingControl objectValue] intValue] * 20;
-        if (newRating > 100 || newRating < 0 || [now currentIndex] == 0) {
-            return;
-        }
-        [[db library] setValue:[NSNumber numberWithInt:newRating] forFile:[now currentFile] attribute:PRRatingFileAttribute];
-        NSDictionary *userInfo = 
-            [NSDictionary dictionaryWithObject:[NSArray arrayWithObject:[NSNumber numberWithInt:[now currentFile]]]
-                                        forKey:@"files"];
-        [[NSNotificationCenter defaultCenter] postNotificationName:PRTagsDidChangeNotification 
-                                                            object:self
-                                                          userInfo:userInfo];
-    }
-}
 
 - (void)mouseEntered:(NSEvent *)theEvent
 {
@@ -163,9 +122,7 @@
         [currentTime setHidden:FALSE];
         [titleButton setHidden:FALSE];
     }
-    
-	[(PRSliderCell *)[controlSlider cell] setIndicator:([now currentIndex] != 0)];
-    
+
 	[icon setHidden:([now currentIndex] != 0)];
 	[ratingControl setHidden:([now currentIndex] == 0)];
 	
@@ -252,11 +209,14 @@
 	}
     [albumArtView setImage:albumArt];
     
+    [(PRSliderCell *)[controlSlider cell] setIndicator:([now currentIndex] != 0)];
+    
     [self updatePlayButton];
 }
 
 - (void)updatePlayButton
-{
+{    
+    // Play button
     if ([[now mov] isPlaying]) {
 		[playPause setImage:[NSImage imageNamed:@"PauseButton"]];
 	} else {
@@ -295,6 +255,9 @@
 
 - (void)showInLibrary
 {
+    if ([now currentFile] == 0) {
+        return;
+    }
     [[core win] setCurrentMode:PRLibraryMode];
     [[core win] setCurrentPlaylist:[[db playlists] libraryPlaylist]];
     [libraryViewController highlightFile:[now currentFile]];
@@ -305,26 +268,30 @@
     NSGradient *gradient;
     if (showsArtwork) {
         gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+//                     [NSColor colorWithCalibratedWhite:0.73 alpha:1.0], 0.0, 
+//                     [NSColor colorWithCalibratedWhite:0.69 alpha:1.0], 0.65,
+//                     [NSColor colorWithCalibratedWhite:0.64 alpha:1.0], 0.90,
+//                     [NSColor colorWithCalibratedWhite:0.58 alpha:1.0], 1.0,
                      [NSColor colorWithCalibratedWhite:0.73 alpha:1.0], 0.0, 
-                     [NSColor colorWithCalibratedWhite:0.685 alpha:1.0], 0.65,
-                     [NSColor colorWithCalibratedWhite:0.59 alpha:1.0], 0.90,
-                     [NSColor colorWithCalibratedWhite:0.54 alpha:1.0], 1.0,
+                     [NSColor colorWithCalibratedWhite:0.72 alpha:1.0], 0.65,
+                     [NSColor colorWithCalibratedWhite:0.67 alpha:1.0], 0.80,
+                     [NSColor colorWithCalibratedWhite:0.61 alpha:1.0], 1.0,
                      nil] autorelease];
     } else {
         gradient = [[[NSGradient alloc] initWithColorsAndLocations:
                      [NSColor colorWithCalibratedWhite:0.73 alpha:1.0], 0.0, 
                      [NSColor colorWithCalibratedWhite:0.85 alpha:1.0], 0.4,
-                     [NSColor colorWithCalibratedWhite:0.68 alpha:1.0], 0.7,
-                     [NSColor colorWithCalibratedWhite:0.56 alpha:1.0], 1.0,
+                     [NSColor colorWithCalibratedWhite:0.69 alpha:1.0], 0.7,
+                     [NSColor colorWithCalibratedWhite:0.61 alpha:1.0], 1.0,
                      nil] autorelease];
     }
     [gradientView setVerticalGradient:gradient];
     
     gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                 [NSColor colorWithCalibratedWhite:1.0 alpha:0.03], 0.0, 
+                 [NSColor colorWithCalibratedWhite:1.0 alpha:0.04], 0.0, 
                  [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.2,
                  [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.8,
-                 [NSColor colorWithCalibratedWhite:1.0 alpha:0.03], 1.0,
+                 [NSColor colorWithCalibratedWhite:1.0 alpha:0.04], 1.0,
                  nil] autorelease];
     [gradientView setHorizontalGradient:gradient];
 }

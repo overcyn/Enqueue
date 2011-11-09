@@ -3,7 +3,6 @@
 #import "PRNowPlayingController.h"
 #import "PRMainWindowController.h"
 #import "PRImportOperation.h"
-#import "PRAlbumArtOperation.h"
 #import "PRItunesImportOperation.h"
 #import "PRFolderMonitor.h"
 #import "PRTaskManager.h"
@@ -13,6 +12,7 @@
 #import "PRGrowl.h"
 #import "PRLastfm.h"
 #import "PRVacuumOperation.h"
+#include "PREnableLogger.h"
 
 @implementation PRCore
 
@@ -23,7 +23,6 @@
 - (id)init 
 {
     if (!(self = [super init])) {return nil;}
-    
     // Register a connection. Prevents multiple instances of application
     _connection = [[NSConnection connectionWithReceivePort:[NSPort port] sendPort:[NSPort port]] retain];
     if (![_connection registerName:@"enqueue"]) {
@@ -35,58 +34,59 @@
         [[PRLog sharedLog] presentFatalError:[self couldNotCreateDirectoryError:path]];
     }
     
-    opQueue = [[NSOperationQueue alloc] init];
-    [opQueue setMaxConcurrentOperationCount:1];
-    taskManager = [[PRTaskManager alloc] init];
-    db = [[PRDb alloc] init];
-    db2 = [[PRDb alloc] init];
-    now = [[PRNowPlayingController alloc] initWithDb:db]; // requires: db
-    folderMonitor = [[PRFolderMonitor alloc] initWithCore:self]; // requires: opQueue, db & taskManager
-    win = [[PRMainWindowController alloc] initWithCore:self]; // requires: db, now, taskManager, folderMonitor
-    growl  = [[PRGrowl alloc] initWithCore:self];
-    lastfm = [[PRLastfm alloc] initWithCore:self];
+    [PREnableLogger enableLogger];
+    
+    _opQueue = [[NSOperationQueue alloc] init];
+    [_opQueue setMaxConcurrentOperationCount:1];
+    _taskManager = [[PRTaskManager alloc] init];
+    _db = [[PRDb alloc] init];
+    _now = [[PRNowPlayingController alloc] initWithDb:_db]; // requires: db
+    _folderMonitor = [[PRFolderMonitor alloc] initWithCore:self]; // requires: opQueue, db & taskManager
+    _win = [[PRMainWindowController alloc] initWithCore:self]; // requires: db, now, taskManager, folderMonitor
+    _growl  = [[PRGrowl alloc] initWithCore:self];
+    _lastfm = [[PRLastfm alloc] initWithCore:self];
     return self;
 }
 
 - (void)dealloc
 {
-    [db release];
-    [now release];
-    [win release];
-    [opQueue release];
-    [folderMonitor release];
-    [taskManager release];
+    [_db release];
+    [_now release];
+    [_win release];
+    [_opQueue release];
+    [_folderMonitor release];
+    [_taskManager release];
+    [_growl release];
     [super dealloc];
 }
 
 - (void)awakeFromNib
 {
-    [win showWindow:nil];
+    [_win showWindow:nil];
     if ([[PRUserDefaults userDefaults] showWelcomeSheet]) {
         [[PRUserDefaults userDefaults] setShowWelcomeSheet:FALSE];
-        welcomeSheet = [[PRWelcomeSheetController alloc] initWithCore:self];
-        [NSApp beginSheet:[welcomeSheet window] 
-           modalForWindow:[win window]
-            modalDelegate:welcomeSheet
+        _welcomeSheet = [[PRWelcomeSheetController alloc] initWithCore:self];
+        [NSApp beginSheet:[_welcomeSheet window] 
+           modalForWindow:[_win window]
+            modalDelegate:_welcomeSheet
            didEndSelector:nil
               contextInfo:nil];
     }
-    [opQueue addOperation:[[[PRVacuumOperation alloc] initWithCore:self] autorelease]];
+    [_opQueue addOperation:[[[PRVacuumOperation alloc] initWithCore:self] autorelease]];
 }
 
 // ========================================
 // Properties
 // ========================================
 
-@synthesize db;
-@synthesize db2;
-@synthesize now;
-@synthesize win;
-@synthesize opQueue;
-@synthesize folderMonitor;
-@synthesize taskManager;
-@synthesize mainMenu;
-@synthesize lastfm;
+@synthesize db = _db;
+@synthesize now = _now;
+@synthesize win = _win;
+@synthesize opQueue = _opQueue;
+@synthesize folderMonitor = _folderMonitor;
+@synthesize taskManager = _taskManager;
+@synthesize mainMenu = _mainMenu;
+@synthesize lastfm = _lastfm;
 
 // ========================================
 // Importing
@@ -98,7 +98,7 @@
     NSString *filePath = [folderPath stringByAppendingPathComponent:@"iTunes Music Library.xml"];
     if ([[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:filePath]) {
         PRItunesImportOperation *op = [PRItunesImportOperation operationWithURL:[NSURL fileURLWithPath:filePath] core:self];
-        [opQueue addOperation:op];
+        [_opQueue addOperation:op];
     } else {
         NSOpenPanel *panel = [NSOpenPanel openPanel];
         [panel setCanChooseFiles:YES];
@@ -108,57 +108,35 @@
         [panel setAllowsMultipleSelection:NO];
         [panel setPrompt:@"Import"];
         [panel setMessage:@"Select the 'iTunes Music Library.xml' file to import."];
-        [panel beginSheetForDirectory:folderPath 
-                                 file:filePath 
-                                types:[NSArray arrayWithObject:@"xml"] 
-                       modalForWindow:[win window] 
-                        modalDelegate:self
-                       didEndSelector:@selector(itunesImportSheetDidEnd:returnCode:context:)
-                          contextInfo:nil];
+        [panel setDirectoryURL:[NSURL fileURLWithPath:filePath]];
+        [panel setAllowedFileTypes:[NSArray arrayWithObject:@"xml"]];
+        void (^handler)(NSInteger result) = ^(NSInteger result) {
+            if (result == NSCancelButton || [[panel URLs] count] == 0) {return;}
+            PRItunesImportOperation *op = [PRItunesImportOperation operationWithURL:[[panel URLs] objectAtIndex:0] core:self];
+            [_opQueue addOperation:op];
+        };
+        [panel beginSheetModalForWindow:[_win window] completionHandler:handler];
     }
-}
-
-- (void)itunesImportSheetDidEnd:(NSOpenPanel*)openPanel 
-                     returnCode:(NSInteger)returnCode 
-                        context:(void*)context
-{
-    if (returnCode == NSCancelButton || [[openPanel URLs] count] == 0) {
-        return;
-    }
-    PRItunesImportOperation *op = [PRItunesImportOperation operationWithURL:[[openPanel URLs] objectAtIndex:0] core:self];
-    [opQueue addOperation:op];
 }
 
 - (IBAction)showOpenPanel:(id)sender
-{    
+{
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     [panel setCanChooseFiles:YES];
     [panel setCanChooseDirectories:YES];
     [panel setCanCreateDirectories:NO];
     [panel setTreatsFilePackagesAsDirectories:NO];
     [panel setAllowsMultipleSelection:YES];
-    [panel beginSheetForDirectory:nil 
-                             file:nil 
-                   modalForWindow:[win window]
-                    modalDelegate:self 
-                   didEndSelector:@selector(importSheetDidEnd:returnCode:context:)
-                      contextInfo:nil];
-}
-
-- (void)importSheetDidEnd:(NSOpenPanel *)openPanel 
-               returnCode:(NSInteger)returnCode 
-                  context:(void *)context
-{
-    if (returnCode == NSCancelButton) {
-        return;
-    }
-    NSMutableArray *paths = [NSMutableArray array];
-    for (NSURL *i in [openPanel URLs]) {
-        [paths addObject:[i path]];
-    }
-    PRImportOperation *op = [[[PRImportOperation alloc] initWithURLs:[openPanel URLs] core:self] autorelease];
-    [op setPlayWhenDone:TRUE];
-    [opQueue addOperation:op];
+    void (^handler)(NSInteger result) = ^(NSInteger result) {
+        if (result == NSCancelButton) {return;}
+        NSMutableArray *paths = [NSMutableArray array];
+        for (NSURL *i in [panel URLs]) {
+            [paths addObject:[i path]];
+        }
+        PRImportOperation *op = [[[PRImportOperation alloc] initWithURLs:[panel URLs] core:self] autorelease];
+        [_opQueue addOperation:op];
+    };
+    [panel beginSheetModalForWindow:[_win window] completionHandler:handler];
 }
 
 // ========================================
@@ -173,7 +151,7 @@
                     hasVisibleWindows:(BOOL)flag
 {
     if (!flag) {
-        [[win window] makeKeyAndOrderFront:nil];
+        [[_win window] makeKeyAndOrderFront:nil];
     }
     return TRUE;
 }
@@ -182,8 +160,7 @@
 {
     NSArray *URLs = [NSArray arrayWithObject:[NSURL fileURLWithPath:filename]];
     PRImportOperation *op = [PRImportOperation operationWithURLs:URLs core:self];
-    [op setPlayWhenDone:TRUE];
-    [opQueue addOperation:op];
+    [_opQueue addOperation:op];
     return TRUE;
 }
 
@@ -194,8 +171,7 @@
         [URLs addObject:[NSURL fileURLWithPath:i]];
     }
     PRImportOperation *op = [PRImportOperation operationWithURLs:URLs core:self];
-    [op setPlayWhenDone:TRUE];
-    [opQueue addOperation:op]; 
+    [_opQueue addOperation:op]; 
 }
 
 // ========================================

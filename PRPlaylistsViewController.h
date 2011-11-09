@@ -9,8 +9,10 @@ PRStringFormatter, PRSmartPlaylistEditorViewController;
     IBOutlet NSView *background;
     IBOutlet PRRolloverTableView *tableView;
     IBOutlet PRGradientView *divider;
+    IBOutlet PRGradientView *divider2;
 	IBOutlet NSButton *newPlaylistButton;
 	IBOutlet NSButton *newSmartPlaylistButton;
+    IBOutlet NSButton *tabButton0;
     
     PRStringFormatter *stringFormatter;
     NSArray *_datasource;
@@ -30,8 +32,6 @@ PRStringFormatter, PRSmartPlaylistEditorViewController;
 // Update
 
 - (void)update;
-- (void)playlistsDidChangeNotification:(NSNotification *)notification;
-- (void)playlistDidChangeNotification:(NSNotification *)notification;
 
 // ========================================
 // Action

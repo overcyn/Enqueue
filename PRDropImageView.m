@@ -4,19 +4,49 @@
 
 - (id)init
 {
-    self = [super init];
-    if (self) {
-        focusRing = FALSE;
-    }
+    if (!(self = [super init])) {return nil;}
+    focusRing = FALSE;
     return self;
 }
 
 - (void)awakeFromNib
 {
+    [super awakeFromNib];
     [self registerForDraggedTypes:[NSArray arrayWithObjects:NSTIFFPboardType, NSFilenamesPboardType, nil]];
 }
 
 @synthesize focusRing;
+
+- (void)mouseDown:(NSEvent *)theEvent
+{
+    [[self window] makeFirstResponder:self];
+}
+
+- (BOOL)acceptsFirstResponder
+{
+    return TRUE;
+}
+
+- (BOOL)becomeFirstResponder
+{
+    [self setNeedsDisplay:TRUE];
+    return TRUE;
+}
+
+- (void)keyDown:(NSEvent *)event
+{
+    if ([[event characters] length] != 1) {
+        [super keyDown:event];
+        return;
+    }
+	if ([[event characters] characterAtIndex:0] == 0x7F ||
+        [[event characters] characterAtIndex:0] == 0xf728) {
+        [self setObjectValue:nil];
+        [self setNeedsDisplay:TRUE];
+    } else {
+		[super keyDown:event];
+	}
+}
 
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender
 {
@@ -38,11 +68,9 @@
     [[NSCursor arrowCursor] set];
 }
 
-
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender
 {
     focusRing = FALSE;
-    [self setNeedsDisplay:focusRing];
     [[NSCursor arrowCursor] set];
     
     NSPasteboard *paste = [sender draggingPasteboard];
@@ -52,7 +80,7 @@
         return FALSE;
     }
 
-    NSImage *newImage;
+    NSImage *newImage = nil;
     if ([desiredType isEqualToString:NSTIFFPboardType]) {
         newImage = [[[NSImage alloc] initWithData:carriedData] autorelease];
     } else if ([desiredType isEqualToString:NSFilenamesPboardType]) {
@@ -69,8 +97,8 @@
     if (!newImage) {
         return FALSE;
     }
-    [self setImage:newImage];
-    [self setNeedsDisplay:YES];
+    [self setObjectValue:newImage];
+    [self setNeedsDisplay:TRUE];
     return TRUE;
 }
 

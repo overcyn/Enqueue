@@ -66,6 +66,7 @@ extern const CFStringRef		kMetadataTrackTotalKey;
 extern const CFStringRef		kMetadataDiscNumberKey;
 extern const CFStringRef		kMetadataDiscTotalKey;
 extern const CFStringRef		kMetadataLyricsKey;
+extern const CFStringRef		kMetadataBPMKey;
 extern const CFStringRef		kMetadataCommentKey;
 extern const CFStringRef		kMetadataISRCKey;
 extern const CFStringRef		kMetadataMCNKey;
@@ -102,6 +103,7 @@ public:
 	// ========================================
 	// The URL containing this metadata
 	inline CFURLRef GetURL() const							{ return mURL; }
+	void SetURL(CFURLRef URL);
 	
 	// ========================================
 	// File access
@@ -164,6 +166,9 @@ public:
 	CFStringRef GetLyrics() const;
 	void SetLyrics(CFStringRef lyrics);
 	
+	CFNumberRef GetBPM() const;
+	void SetBPM(CFNumberRef BPM);
+
 	CFStringRef GetComment() const;
 	void SetComment(CFStringRef comment);
 

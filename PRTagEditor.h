@@ -23,39 +23,35 @@ typedef enum {
 
 @interface PRTagEditor : NSObject 
 {
-    NSURL *URL;
-    void *taglibFile;
-    PRFileType fileType;
-    PRFile file;
-    
-    BOOL _tempFile;
-    BOOL _postNotification;
-    
-	PRDb *db;
+    NSURL *_URL;
+    void *_taglibFile;
+    PRFileType _fileType;
 }
 
 // ========================================
 // Initialization
 
-- (id)initWithFile:(PRFile)file_ db:(PRDb *)db_;
-- (id)initWithURL:(NSURL *)URL_ db:(PRDb *)db_;
+// Does not include PRAlbumArtFileAttribute
+- (id)initWithURL:(NSURL *)URL;
++ (PRTagEditor *)tagEditorForURL:(NSURL *)URL;
+
+// ========================================
+// Constants
+
++ (NSArray *)tagList;
++ (NSDictionary *)defaultTags;
 
 // ========================================
 // Accessors
 
-@property (readwrite) BOOL tempFile;
-@property (readwrite) BOOL postNotification;
-- (void)setFile:(PRFile)file_;
-- (void)setValue:(id)value forAttribute:(PRFileAttribute)attribute postNotification:(BOOL)post;
-
-// ========================================
-// Update
-
-- (void)updateTags;
+- (NSMutableDictionary *)info; //mutabledict with artwork as @"art" and mutableattributes as @"attr"
+- (NSDictionary *)tags;
+- (void)setValue:(id)value forTag:(PRFileAttribute)tag;
 
 // ========================================
 // Tag Reading 
 
++ (NSDate *)lastModifiedAtURL:(NSURL *)URL;
 + (NSDate *)lastModifiedForFileAtPath:(NSString *)path;
 + (NSData *)checkSumForFileAtPath:(NSString *)path;
 + (NSNumber *)sizeForFileAtPath:(NSString *)path;

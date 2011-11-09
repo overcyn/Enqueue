@@ -10,7 +10,7 @@
 
 
 - (id)initWithCore:(PRCore *)core_;
-
+//- (void)playingChanged:(NSNotification *)notification;
 - (void)currentFileDidChange:(NSNotification *)notification;
 
 @end

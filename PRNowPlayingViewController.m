@@ -16,8 +16,9 @@
 #import "PRPlaylistsViewController.h"
 #import "PRUserDefaults.h"
 #import "PRQueue.h"
-#import "PRScroller.h"
 #import "NSIndexSet+Extensions.h"
+#import "PROutlineView.h"
+#import "PRMoviePlayer.h"
 
 @implementation PRNowPlayingViewController
 
@@ -48,12 +49,7 @@
     [now removeObserver:self forKeyPath:@"repeat"];
     [now removeObserver:self forKeyPath:@"currentPlaylist"];
     [now removeObserver:self forKeyPath:@"currentIndex"];
-    [[NSNotificationCenter defaultCenter] removeObserver:self 
-                                                    name:PRPlaylistDidChangeNotification 
-                                                  object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self 
-                                                    name:PRCurrentFileDidChangeNotification 
-                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [playlistMenu release];
     [db release];
     [now release];
@@ -66,15 +62,17 @@
     // background    
     [backgroundGradient setTopGradient:[NSColor colorWithDeviceRed:218./255. green:223./255. blue:230./255. alpha:1.0]];
     [backgroundGradient setBotGradient:[NSColor colorWithDeviceRed:218./255. green:223./255. blue:230./255. alpha:1.0]];
-    [backgroundGradient setAlternateTopGradient:[NSColor colorWithDeviceWhite:0.92 alpha:1.0]];
-    [backgroundGradient setAlternateBotGradient:[NSColor colorWithDeviceWhite:0.92 alpha:1.0]];
+    [backgroundGradient setAltTopGradient:[NSColor colorWithDeviceWhite:0.92 alpha:1.0]];
+    [backgroundGradient setAltBotGradient:[NSColor colorWithDeviceWhite:0.92 alpha:1.0]];
     
     [barGradient setColor:[NSColor colorWithCalibratedRed:234./255. green:238./255. blue:244./255. alpha:1.0]];
-    [barGradient setTopBorder:[NSColor colorWithCalibratedWhite:0.5 alpha:1.0]];
+    [barGradient setTopBorder:[NSColor colorWithCalibratedWhite:0.65 alpha:1.0]];
+    [barGradient setTopBorder2:[NSColor colorWithCalibratedWhite:0.97 alpha:1.0]];
+    
+    [divider1 setColor:[NSColor colorWithCalibratedWhite:0.7 alpha:1.0]];
+    [divider2 setColor:[NSColor colorWithCalibratedWhite:0.7 alpha:1.0]];
         
     // LibraryTableView
-//    [self setNextResponder:[nowPlayingTableView nextResponder]];
-//    [nowPlayingTableView setNextResponder:self];
     [nowPlayingTableView setDoubleAction:@selector(play)];
     [nowPlayingTableView setIntercellSpacing:NSMakeSize(0, 0)];
     [nowPlayingTableView setTarget:self];
@@ -88,11 +86,7 @@
 //    [nowPlayingTableView setSlideback:FALSE];
 //    [nowPlayingTableView setHighlightColor:[NSColor alternateSelectedControlColor]];
 //    [nowPlayingTableView setSecondaryHighlightColor:[NSColor colorWithCalibratedRed:134./255 green:151./255 blue:185./255 alpha:0.7]];
-    
-//    if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_6) {
-//        [scrollview setVerticalScroller:[[[PRScroller alloc] init] autorelease]];
-//    }
-    
+        
     // context menu
     _contextMenu = [[NSMenu alloc] init];
     [_contextMenu setDelegate:self];
@@ -101,6 +95,8 @@
     // playlist menu
     playlistMenu = [[NSMenu alloc] init];
     [playlistMenu setDelegate:self];
+    [playlistMenu setAutoenablesItems:FALSE];
+    [settingsButton setMenu:playlistMenu];
         
     // clear buttons
     [clearButton setTarget:self];
@@ -110,33 +106,20 @@
     [volumeSlider setMaxValue:1];
     [volumeSlider setMinValue:0];
     [volumeSlider bind:@"value" toObject:now withKeyPath:@"mov.volume" options:nil];
-    [(BWTexturedSlider *)volumeSlider setIndicatorIndex:3];
-    
-    [now addObserver:self forKeyPath:@"currentPlaylist" options:0 context:nil];
-    [now addObserver:self forKeyPath:@"currentFile" options:0 context:nil];
-    [self observeValueForKeyPath:@"currentPlaylist" ofObject:now change:nil context:nil];
-    [self observeValueForKeyPath:@"currentIndex" ofObject:now change:nil context:nil];
+    [speakerButton setTarget:self];
+    [speakerButton setAction:@selector(mute)];
     
     _nowPlayingCell = [[PRNowPlayingCell alloc] initTextCell:@""];
     _nowPlayingHeaderCell = [[PRNowPlayingHeaderCell alloc] initTextCell:@""];
         
     // playlist and current file obs
-    [[NSNotificationCenter defaultCenter] addObserver:self 
-                                             selector:@selector(updateTableView)
-                                                 name:PRTagsDidChangeNotification 
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self 
-                                             selector:@selector(playlistDidChange:)
-                                                 name:PRPlaylistDidChangeNotification 
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self 
-                                             selector:@selector(updateTableView)
-                                                 name:PRLibraryDidChangeNotification 
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self 
-                                             selector:@selector(currentFileDidChange:)
-                                                 name:PRCurrentFileDidChangeNotification 
-                                               object:nil];
+    [[NSNotificationCenter defaultCenter] observeFilesChanged:self sel:@selector(updateTableView)];
+    [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistDidChange:)];
+    [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(currentFileDidChange:)];
+    [[NSNotificationCenter defaultCenter] observeVolumeChanged:self sel:@selector(volumeChanged:)];
+    
+    [self volumeChanged:nil];
+    
     [self updateTableView];
     [nowPlayingTableView collapseItem:nil];
     NSArray *parentItem = [self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:0]]];
@@ -152,14 +135,16 @@
     if ([nowPlayingTableView clickedRow] == -1) {
         return;
     }
-    [self playItem:[nowPlayingTableView itemAtRow:[nowPlayingTableView clickedRow]]];
-    [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:[nowPlayingTableView clickedRow]] byExtendingSelection:FALSE];
+    id item = [nowPlayingTableView itemAtRow:[nowPlayingTableView clickedRow]];
+    [self playItem:item];
+    int row = [nowPlayingTableView rowForItem:item];
+    [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:FALSE];
 }
 
 - (void)playItem:(id)item
 {
     int dbRow = [self dbRowForItem:item];
-    [now playPlaylist:[now currentPlaylist] fileAtIndex:dbRow];
+    [now playItemAtIndex:dbRow];
 }
 
 - (void)clearPlaylist
@@ -173,7 +158,7 @@
         // otherwise delete all previous songs
         [[db playlists] clearPlaylist:[now currentPlaylist] exceptForIndex:[now currentIndex]];
     }
-    [now postNotificationForCurrentPlaylist];
+    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
     [nowPlayingTableView expandItem:nil];
 }
 
@@ -185,35 +170,41 @@
 - (void)saveAsPlaylist:(id)sender
 {
     int playlist = [[sender representedObject] intValue];
+    NSString *title = [[db playlists] titleForPlaylist:playlist];
+    NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+    [alert addButtonWithTitle:@"Save"];
+    [alert addButtonWithTitle:@"Cancel"];
+    [alert setMessageText:[NSString stringWithFormat:@"Are you sure you want to save this as \"%@\"?", title]];
+    [alert setInformativeText:@"Existing playlist contents will be removed."];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    
+    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(saveAsPlaylistHandler:code:context:) contextInfo:[NSNumber numberWithInt:playlist]];
+}
+
+- (void)saveAsPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context
+{
+    if (code != NSAlertFirstButtonReturn) {
+        return;
+    }
+    int playlist = [(NSNumber *)context intValue];
     [[db playlists] clearPlaylist:playlist];
     [[db playlists] copyFilesFromPlaylist:[now currentPlaylist] toPlaylist:playlist];
-    
-    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:playlist] 
-                                                         forKey:@"playlist"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistDidChangeNotification 
-                                                        object:self
-                                                      userInfo:userInfo];
-    [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification 
-                                                        object:self
-                                                      userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:playlist];
 }
 
 - (void)newPlaylist:(id)sender
 {
     PRPlaylist playlist = [[db playlists] addStaticPlaylist];
-    [[db playlists] clearPlaylist:playlist];
     [[db playlists] copyFilesFromPlaylist:[now currentPlaylist] toPlaylist:playlist];
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistsDidChangeNotification 
-                                                        object:self];
-    NSDictionary *userInfo = [NSDictionary dictionaryWithObject:[NSNumber numberWithInt:playlist] 
-                                                         forKey:@"playlist"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistDidChangeNotification 
-                                                        object:self
-                                                      userInfo:userInfo];
+    [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
     
     [win setCurrentMode:PRPlaylistsMode];
     [[win playlistsViewController] renamePlaylist:playlist];
+}
+
+- (void)mute
+{
+    [[now mov] setVolume:0];
 }
 
 // ========================================
@@ -225,7 +216,7 @@
     if ([[self selectedDbRows] count] == 0) {
         return;
     }
-    [now playPlaylist:[now currentPlaylist] fileAtIndex:[[self selectedDbRows] firstIndex]];
+    [now playItemAtIndex:[[self selectedDbRows] firstIndex]];
 }
 
 - (void)addSelectedToQueue
@@ -268,14 +259,7 @@
         [[db playlists] appendFile:file toPlaylist:playlist];
         dbRow = [dbRows indexGreaterThanIndex:dbRow];
     }
-    NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:[sender representedObject], @"playlist", nil];
-    [[NSNotificationCenter defaultCenter] postNotificationName:PRPlaylistDidChangeNotification object:self userInfo:userInfo];
-}
-
-- (void)getInfo
-{
-    [self showInLibrary];
-    [[win libraryViewController] infoViewToggle];
+    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[[sender representedObject] intValue]];
 }
 
 - (void)revealInFinder
@@ -336,7 +320,7 @@
         [now stop];
     }
     [[db playlists] removeFilesAtIndexes:dbRows fromPlaylist:[now currentPlaylist]];
-    [now postNotificationForCurrentPlaylist];
+    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
     [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
     
     for (int i = 0; i < [array count]; i++) {
@@ -351,16 +335,6 @@
 // ========================================
 // Update
 // ========================================
-
-- (void)observeValueForKeyPath:(NSString *)keyPath 
-                      ofObject:(id)object 
-                        change:(NSDictionary *)change 
-                       context:(void *)context
-{
-    if (object == now && [keyPath isEqualToString:@"currentPlaylist"]) {
-        [self updateTableView];
-    }
-}
 
 - (void)updateTableView
 {
@@ -386,7 +360,7 @@
         [_dbRowForAlbum addObject:[NSNumber numberWithInt:dbRow]];
         [_albumIndexes addIndex:dbRow];
     }
-    [nowPlayingTableView reloadData];    
+    [nowPlayingTableView reloadData];
 }
 
 - (void)playlistDidChange:(NSNotification *)notification
@@ -403,22 +377,32 @@
 
 - (void)currentFileDidChange:(NSNotification *)notification
 {
+    [(PROutlineView *)nowPlayingTableView reloadVisibleItems];
     if ([now currentIndex] != 0) {
-//        NSIndexSet *selectedRowIndexes = [nowPlayingTableView selectedRowIndexes];
-        [self updateTableView];
-        [nowPlayingTableView reloadItem:[self itemForDbRow:_prevRow]];
-        [nowPlayingTableView reloadItem:[self itemForDbRow:[now currentIndex]]];
-        _prevRow = [now currentIndex];
-        
-        if ([now shuffle]) {
-//            [nowPlayingTableView collapseItem:nil];
-        }
         id currentItem = [self itemForDbRow:[now currentIndex]];
         NSArray *parentItem = [self itemForItem:[NSArray arrayWithObject:[currentItem objectAtIndex:0]]];
+        if (![nowPlayingTableView isItemExpanded:parentItem]) {
+            [nowPlayingTableView collapseItem:nil];
+        }
         [nowPlayingTableView expandItem:parentItem];
         [nowPlayingTableView scrollRowToVisible:[nowPlayingTableView rowForItem:currentItem]];
-//        [nowPlayingTableView selectRowIndexes:selectedRowIndexes byExtendingSelection:FALSE];
     }
+}
+
+- (void)volumeChanged:(NSNotification *)notification
+{
+    float volume = [[now mov] volume];
+    NSImage *image = nil;
+    if (volume == 0) {
+        image = [NSImage imageNamed:@"NowSpeaker1"];
+    } else if (volume < 0.33) {
+        image = [NSImage imageNamed:@"NowSpeaker1"];
+    } else if (volume < 0.66) {
+        image = [NSImage imageNamed:@"NowSpeaker2"];
+    } else {
+        image = [NSImage imageNamed:@"NowSpeaker3"];
+    }
+    [speakerButton setImage:image];
 }
 
 // ========================================
@@ -583,7 +567,7 @@
         
         // Move dbIndexesToMove to dbIndexToInsert
         [[db playlists] moveItemsAtIndexes:dbIndexesToMove toIndex:dbIndexToInsert inPlaylist:[now currentPlaylist]];
-        [now postNotificationForCurrentPlaylist];
+        [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
         [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
         [nowPlayingTableView collapseItem:nil];
         
@@ -644,7 +628,7 @@
         }
         
         [[db playlists] addFiles:files atIndex:dbRow toPlaylist:[now currentPlaylist]];
-        [now postNotificationForCurrentPlaylist];
+        [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
         [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
         [nowPlayingTableView collapseItem:nil];
         
@@ -803,7 +787,8 @@
     }
 
     [_contextMenu addItemWithTitle:@"Play" action:@selector(playSelected) keyEquivalent:@""];
-    
+        
+    // Queue
     BOOL addToQueue = FALSE;
     BOOL removeFromQueue = FALSE;
     
@@ -830,6 +815,7 @@
     }
     [_contextMenu addItem:[NSMenuItem separatorItem]];
     
+    // Add To Playlist
     NSMenuItem *playlistMenuItem = [[[NSMenuItem alloc] initWithTitle:@"Add to Playlist" action:nil keyEquivalent:@""] autorelease];
     NSMenu *playlistMenu_ = [[[NSMenu alloc] init] autorelease];
     [playlistMenuItem setSubmenu:playlistMenu_];
@@ -838,18 +824,20 @@
     NSArray *playlistArray = [[db playlists] playlists];
     for (NSNumber *i in playlistArray) {
         int playlistType = [[db playlists] typeForPlaylist:[i intValue]];
-        if (playlistType != PRStaticPlaylistType || [i intValue] == [now currentPlaylist]) {
+        if (playlistType != PRStaticPlaylistType) {
             continue;
         }
-        NSString *playlistTitle = [[db playlists] titleForPlaylist:[i intValue]];
+        NSString *playlistTitle = [NSString stringWithFormat:@" %@", [[db playlists] titleForPlaylist:[i intValue]]];
         NSMenuItem *tempMenuItem = [[[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(addToPlaylist:) keyEquivalent:@""] autorelease];
+        [tempMenuItem setImage:[NSImage imageNamed:@"ListViewTemplate"]];
         [tempMenuItem setRepresentedObject:i];
         [tempMenuItem setTarget:self];
         [playlistMenu_ addItem:tempMenuItem];
     }
     [_contextMenu addItem:[NSMenuItem separatorItem]];
+    
+    // Other
     [_contextMenu addItemWithTitle:@"Show in Library" action:@selector(showInLibrary) keyEquivalent:@""];
-    [_contextMenu addItemWithTitle:@"Get Info" action:@selector(getInfo) keyEquivalent:@""];
     [_contextMenu addItemWithTitle:@"Reveal in Finder" action:@selector(revealInFinder) keyEquivalent:@""];
     [_contextMenu addItem:[NSMenuItem separatorItem]];
     [_contextMenu addItemWithTitle:@"Remove" action:@selector(removeSelected) keyEquivalent:@""];
@@ -864,100 +852,32 @@
     for (NSMenuItem *i in [playlistMenu itemArray]) {
         [playlistMenu removeItem:i];
     }
-//    [playlistMenu setShowsStateColumn:FALSE];
-    [playlistMenu setAutoenablesItems:FALSE];
     
     // Title of the popup button
     NSMenuItem *menuItem = [[[NSMenuItem alloc] init] autorelease];
-    [menuItem setTitle:@""];
-    [menuItem setImage:[NSImage imageNamed:@"PRActionIcon"]];
+    [menuItem setImage:[NSImage imageNamed:@"NowSettings"]];
     [playlistMenu addItem:menuItem];
-    //    NSString *currentPlaylist;
-    //    [[db playlists] value:&currentPlaylist 
-    //              forPlaylist:[now currentPlaylist] 
-    //                attribute:PRTitlePlaylistAttribute 
-    //                   _error:nil];
-    //    
-    //    NSMutableParagraphStyle *style = [[[NSMutableParagraphStyle alloc] init] autorelease];
-    //    [style setLineBreakMode:NSLineBreakByTruncatingTail];
-    // NSDictionary *attributes = 
-    //      [NSDictionary dictionaryWithObjectsAndKeys:[NSFont fontWithName:@"LucidaGrande-Bold" size:10],NSFontAttributeName,
-    //       style ,NSParagraphStyleAttributeName, nil];
-    //    [menuItem setAttributedTitle:[[[NSAttributedString alloc] initWithString:currentPlaylist attributes:attributes] autorelease]];
     
-    //    menuItem = [[[NSMenuItem alloc] initWithTitle:@"New Playlist" action:@selector(a) keyEquivalent:@""] autorelease];
-    //    [menuItem setTarget:self];
-    //    [menuItem setAction:@selector(newStaticPlaylist)];
-    //    [playlistMenu addItem:menuItem];
-    //    if ([now currentPlaylist] == PRScratchPlaylistIndex) {
-    //        menuItem = [[[NSMenuItem alloc] initWithTitle:@"Save" action:@selector(a) keyEquivalent:@""] autorelease];
-    //        [menuItem setTarget:self];
-    //        [menuItem setAction:@selector(savePlaylist)];
-    //        [playlistMenu addItem:menuItem];        
-    //    } else {
-    //        menuItem = [[[NSMenuItem alloc] initWithTitle:@"Duplicate" action:@selector(a) keyEquivalent:@""] autorelease];
-    //        [menuItem setTarget:self];
-    //        [menuItem setAction:@selector(savePlaylist)];
-    //        [playlistMenu addItem:menuItem];
-    //    }
-    //    menuItem = [[[NSMenuItem alloc] initWithTitle:@"Rename" action:@selector(a) keyEquivalent:@""] autorelease];
-    //    [menuItem setTarget:self];
-    //    [menuItem setAction:@selector(renamePlaylist)];
-    //    [menuItem setEnabled:([now currentPlaylist] != PRScratchPlaylistIndex)];
-    //    [playlistMenu addItem:menuItem];
-    //    menuItem = [[[NSMenuItem alloc] initWithTitle:@"Delete" action:@selector(a) keyEquivalent:@""] autorelease];
-    //    [menuItem setTarget:self];
-    //    [menuItem setAction:@selector(deletePlaylist)];
-    //    [menuItem setEnabled:([now currentPlaylist] != PRScratchPlaylistIndex)];
-    //    [playlistMenu addItem:menuItem];    
-    //    [playlistMenu addItem:[NSMenuItem separatorItem]];
-    //    
-    //    [playlistMenu addItemWithTitle:@"Play" action:@selector(play) keyEquivalent:@""];
-    //    [playlistMenu addItem:[NSMenuItem separatorItem]];
+    // Save
+    menuItem = [[[NSMenuItem alloc] initWithTitle:@"Save as..." action:nil keyEquivalent:@""] autorelease];
+    [menuItem setEnabled:FALSE];
+    [playlistMenu addItem:menuItem];
     
-    // 'Playlists' Header
-    NSMenu *loadMenu = [[[NSMenu alloc] init] autorelease];
-    menuItem = [[[NSMenuItem alloc] initWithTitle:@"Load Playlist" action:nil keyEquivalent:@""] autorelease];
-    //    [playlistMenu addItem:menuItem];
-    [menuItem setSubmenu:loadMenu];
+    menuItem = [[[NSMenuItem alloc] initWithTitle:@" New Playlist          " action:@selector(newPlaylist:) keyEquivalent:@""] autorelease];
+    [menuItem setImage:[NSImage imageNamed:@"Add"]];
+    [playlistMenu addItem:menuItem];
     
     NSArray *playlistArray = [[db playlists] playlists];
     for (NSNumber *i in playlistArray) {
-        int playlistType = [[db playlists] typeForPlaylist:[i intValue]];
-        if (playlistType != PRStaticPlaylistType || [i intValue] == [now currentPlaylist]) {
+        if ([[db playlists] typeForPlaylist:[i intValue]] != PRStaticPlaylistType) {
             continue;
         }
-        NSString *playlistTitle = [[db playlists] titleForPlaylist:[i intValue]];
-        menuItem = [[[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(loadPlaylist:) keyEquivalent:@""] autorelease];
-        [menuItem setRepresentedObject:i];
-        [menuItem setTarget:self];
-        [loadMenu addItem:menuItem];
-    }
-    NSMenu *saveMenu = [[[NSMenu alloc] init] autorelease];
-    menuItem = [[[NSMenuItem alloc] initWithTitle:@"Save as Playlist" action:nil keyEquivalent:@""] autorelease];
-    [playlistMenu addItem:menuItem];
-    [menuItem setSubmenu:saveMenu];
-    
-    menuItem = [[[NSMenuItem alloc] initWithTitle:@"New Playlist..." action:@selector(newPlaylist:) keyEquivalent:@""] autorelease];
-    [menuItem setTarget:self];
-    [saveMenu addItem:menuItem];
-    [saveMenu addItem:[NSMenuItem separatorItem]];
-    
-    playlistArray = [[db playlists] playlists];
-    for (NSNumber *i in playlistArray) {
-        int playlistType = [[db playlists] typeForPlaylist:[i intValue]];
-        if (playlistType != PRStaticPlaylistType || [i intValue] == [now currentPlaylist]) {
-            continue;
-        }
-        NSString *playlistTitle = [[db playlists] titleForPlaylist:[i intValue]];
+        NSString *playlistTitle = [NSString stringWithFormat:@" %@",[[db playlists] titleForPlaylist:[i intValue]]];
         menuItem = [[[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(saveAsPlaylist:) keyEquivalent:@""] autorelease];
         [menuItem setRepresentedObject:i];
-        [menuItem setTarget:self];
-        [saveMenu addItem:menuItem];
+        [menuItem setImage:[NSImage imageNamed:@"ListViewTemplate"]];
+        [playlistMenu addItem:menuItem];
     }
-    
-//    [playlistMenu addItem:[NSMenuItem separatorItem]];
-//    [playlistMenu addItemWithTitle:@"Clear" action:@selector(clearPlaylist) keyEquivalent:@""];
     
     for (NSMenuItem *i in [playlistMenu itemArray]) {
         [i setTarget:self];

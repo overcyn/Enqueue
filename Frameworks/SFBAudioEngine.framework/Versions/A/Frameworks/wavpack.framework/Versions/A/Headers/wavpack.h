@@ -42,10 +42,10 @@ typedef struct {
     char formType [4];
 } RiffChunkHeader;
 
-//typedef struct {
-//    char ckID [4];
-//    uint32_t ckSize;
-//} ChunkHeader;
+typedef struct {
+    char ckID [4];
+    uint32_t ckSize;
+} WPChunkHeader;
 
 #define ChunkHeaderFormat "4L"
 

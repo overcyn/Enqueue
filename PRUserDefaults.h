@@ -1,15 +1,6 @@
 #import <Cocoa/Cocoa.h>
 
 
-// ========================================
-// Constants 
-
-extern NSString * const PRPreGainDidChangeNotification;
-extern NSString * const PRUseAlbumArtistDidChangeNotification;
-
-// ========================================
-// PRUserDefaults
-// ========================================
 @interface PRUserDefaults : NSObject 
 {
 	NSUserDefaults *defaults;
@@ -28,15 +19,21 @@ extern NSString * const PRUseAlbumArtistDidChangeNotification;
 @property (readwrite) BOOL shuffle;
 @property (readwrite) float preGain;
 
+@property (readwrite, copy) NSArray *customEQs;
+@property (readwrite) BOOL isCustomEQ;
+@property (readwrite) int EQIndex;
+@property (readwrite) BOOL EQIsEnabled;
+
 @property (readwrite) BOOL showWelcomeSheet;
-@property (readwrite) BOOL showsArtwork;
-@property (readwrite) BOOL useAlbumArtist;
-@property (readwrite) BOOL nowPlayingCollapsible;
-@property (readwrite) BOOL folderArtwork;
+@property (readwrite) BOOL fullscreen;
 
 @property (readwrite) BOOL mediaKeys;
 @property (readwrite) BOOL postGrowlNotification;
 @property (readwrite, retain) NSString *lastFMUsername;
+@property (readwrite) BOOL showsArtwork;
+@property (readwrite) BOOL useAlbumArtist;
+@property (readwrite) BOOL nowPlayingCollapsible;
+@property (readwrite) BOOL folderArtwork;
 
 @property (readwrite, retain) NSArray *monitoredFolders;
 @property (readwrite) FSEventStreamEventId lastEventStreamEventId;
@@ -46,5 +43,6 @@ extern NSString * const PRUseAlbumArtistDidChangeNotification;
 @property (readonly) NSString *backupPath;
 @property (readonly) NSString *cachedAlbumArtPath;
 @property (readonly) NSString *downloadedAlbumArtPath;
+@property (readonly) NSString *tempArtPath;
 
 @end

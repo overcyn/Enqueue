@@ -24,6 +24,7 @@
     now = now_;
     libraryViewController = libraryViewController_;
     refreshing = FALSE;
+    monitorSelection = TRUE;
     currentPlaylist = -1;
     
     cachedArtwork = [[NSCache alloc] init];
@@ -44,7 +45,7 @@
 {
 	[super awakeFromNib];
 	
-    [albumTableView setBackgroundColor:[NSColor colorWithCalibratedWhite:0.94 alpha:1.0]];
+    [albumTableView setBackgroundColor:[NSColor colorWithCalibratedWhite:0.93 alpha:1.0]];
 	[albumTableView setDataSource:self];
 	[albumTableView setDelegate:self];
 	[albumTableView setTarget:self];
@@ -53,7 +54,7 @@
 	[albumTableView setDoubleAction:@selector(playAlbum)];
 	[[albumTableView headerView] setMenu:headerMenu];
 	
-	[libraryScrollView2 setSynchronizedScrollView:albumScrollView];
+	[(PRSynchronizedScrollView *)libraryScrollView2 setSynchronizedScrollView:albumScrollView];
 	[albumScrollView setSynchronizedScrollView:libraryScrollView2];
 }
 
@@ -101,7 +102,7 @@
 	for (NSNumber *i in albumCountArray) {
 		[tableIndexes addIndexesInRange:NSMakeRange(libraryCount, [i intValue])];
 		if ([i intValue] < 10) {
-			libraryCount += 11;
+			libraryCount += 10 + 1;
 		} else {
 			libraryCount += [i intValue] + 1;
 		}
@@ -118,6 +119,7 @@
     
 	// reload tables
     refreshing = TRUE;
+    monitorSelection = FALSE;
     NSIndexSet *indexSet;
     if ((tables & PRLibraryView) == PRLibraryView) {
         [libraryTableView reloadData];
@@ -145,13 +147,14 @@
         }
     }	
 	refreshing = FALSE;
+    monitorSelection = TRUE;
 	
     // update cachedArt
     [cachedArtwork removeAllObjects];
     
 	// post notification
-	[[NSNotificationCenter defaultCenter] postNotificationName:PRLibraryViewDidChangeNotification object:self];
-    [[NSNotificationCenter defaultCenter] postNotificationName:PRLibraryViewSelectionDidChangeNotification object:self];
+	[[NSNotificationCenter defaultCenter] postLibraryViewChanged];
+    [[NSNotificationCenter defaultCenter] postLibraryViewSelectionChanged];
     
     [pool drain];
 }
@@ -196,8 +199,8 @@
         [[db playlists] appendFile:file toPlaylist:[now currentPlaylist]];
 	}
 	
-    [now postNotificationForCurrentPlaylist];
-	[now playPlaylist:[now currentPlaylist] fileAtIndex:1];
+    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
+	[now playItemAtIndex:1];
 }
 
 // ========================================
@@ -288,17 +291,8 @@
                 [mfiles addIndex:guessedFile];
             }
             NSDictionary *artworkInfo = [[db albumArtController] artworkInfoForFiles:mfiles];
-            NSRect dirtyRect = [albumTableView rectOfRow:tableRow];
-            
-            NSMethodSignature *methodSignature = [[self class] instanceMethodSignatureForSelector:@selector(cacheAlbumArtForFile:artworkInfo:dirtyRect:)];
-            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
-            [invocation setTarget:self];
-            [invocation setSelector:@selector(cacheAlbumArtForFile:artworkInfo:dirtyRect:)];
-            [invocation setArgument:&file atIndex:2];
-            [invocation setArgument:&artworkInfo atIndex:3];
-            [invocation setArgument:&dirtyRect atIndex:4];
-            [invocation retainArguments];
-            [invocation performSelectorInBackground:@selector(invoke) withObject:nil];
+            NSRect dirtyRect = [albumTableView rectOfRow:tableRow];            
+            [[NSOperationQueue backgroundQueue] addBlock:^{[self cacheAlbumArtForFile:file artworkInfo:artworkInfo dirtyRect:dirtyRect];}];
         }
 		return dict;
 	} else {
@@ -309,21 +303,13 @@
 - (void)cacheAlbumArtForFile:(int)file artworkInfo:(NSDictionary *)artworkInfo dirtyRect:(NSRect)dirtyRect
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    
     NSImage *icon = [[db albumArtController] artworkForArtworkInfo:artworkInfo];;    
     if (!icon) {
         icon = [NSImage imageNamed:@"PRLightAlbumArt"];
     }
-    
     [cachedArtwork setObject:icon forKey:[NSNumber numberWithInt:file]];
     
-    NSMethodSignature *methodSignature = [[NSTableView class] instanceMethodSignatureForSelector:@selector(setNeedsDisplayInRect:)];
-    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
-    [invocation setTarget:albumTableView];
-    [invocation setSelector:@selector(setNeedsDisplayInRect:)];
-    [invocation setArgument:&dirtyRect atIndex:2];
-    [invocation performSelectorOnMainThread:@selector(invoke) withObject:nil waitUntilDone:FALSE];
-    
+    [[NSOperationQueue mainQueue] addBlock:^{[albumTableView setNeedsDisplayInRect:dirtyRect];}];
     [pool drain];
 }
 
@@ -376,17 +362,17 @@
 // TableView Delegate
 // ========================================
 
-//- (NSCell *)   tableView:(NSTableView *)tableView 
-//  dataCellForTableColumn:(NSTableColumn *)tableColumn 
-//					 row:(NSInteger)row
-//{
-//	if (tableView == libraryTableView && 
-//		[self dbRowForTableRow:row] == -1) {
-//		return [[[NSCell alloc] init] autorelease];
-//	} else {
-//		return [tableColumn dataCell];
-//	}
-//}
+- (NSCell *)   tableView:(NSTableView *)tableView 
+  dataCellForTableColumn:(NSTableColumn *)tableColumn 
+					 row:(NSInteger)row
+{
+	if (tableView == libraryTableView && 
+		[self dbRowForTableRow:row] == -1) {
+		return [[[NSCell alloc] init] autorelease];
+	} else {
+		return [tableColumn dataCell];
+	}
+}
 
 - (void)tableView:(NSTableView *)tableView didClickTableColumn:(NSTableColumn *)tableColumn
 {
@@ -461,7 +447,7 @@
 
 - (int)tableRowForDbRow:(int)dbRow
 {
-	NSInteger tableRow = [tableIndexes nthIndex:dbRow];
+	NSInteger tableRow = [tableIndexes indexAtPosition:dbRow];
 	if (tableRow == NSNotFound) {
 		return -1;
 	}

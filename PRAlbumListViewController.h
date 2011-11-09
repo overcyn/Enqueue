@@ -6,7 +6,6 @@
 @interface PRAlbumListViewController : PRTableViewController
 {
 	IBOutlet PRSynchronizedScrollView *albumScrollView;
-	IBOutlet PRSynchronizedScrollView *libraryScrollView2;
 	IBOutlet PRAlbumTableView2 *albumTableView;
 	
 	int libraryCount; // number of rows in libraryTableView

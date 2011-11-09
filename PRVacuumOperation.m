@@ -8,22 +8,22 @@
 
 - (id)initWithCore:(PRCore *)core
 {
-    self = [super init];
-    if (self) {
-        _core = core;
-    }
+    if (!(self = [super init])) {return nil;}
+    _core = core;
     return self;
 }
 
 - (void)main
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    _task = [[[PRTask alloc] init] autorelease];
+    _task = [PRTask task];
     [_task setTitle:@"Analyzing Library..."];
     [[_core taskManager] addTask:_task];
     
-    [[_core db2] execute:@"VACUUM"];
-    [[_core db2] execute:@"ANALYZE"];
+    [[NSOperationQueue mainQueue] addBlockAndWait:^{
+        [[_core db] execute:@"VACUUM"];
+        [[_core db] execute:@"ANALYZE"];
+    }];
     
     [[_core taskManager] removeTask:_task];
     [pool drain];

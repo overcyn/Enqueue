@@ -1,35 +1,27 @@
-//
-//  PRLengthFormatter.m
-//  Lyre
-//
-//  Created by Kevin Dang on 6/1/11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
-//
-
 #import "PRStringFormatter.h"
 
 
 @implementation PRStringFormatter
 
+// ========================================
+// Initialization
+// ========================================
+
 - (id)init
 {
-    self = [super init];
-    if (self) {
-        maxLength_ = 255;
-    }
+    if (!(self = [super init])) {return nil;}
+    _maxLength = 255;
     return self;
 }
 
-- (void)dealloc
-{
-    [super dealloc];
-}
-
-@synthesize maxLength = maxLength_;
+@synthesize maxLength = _maxLength;
 
 - (NSString *)stringForObjectValue:(id)object 
 {
-    return (NSString *)object;
+    if ([object isKindOfClass:[NSString class]]) {
+        return (NSString *)object;
+    }
+    return [object description];
 }
 
 - (BOOL)getObjectValue:(id *)object 
@@ -46,7 +38,7 @@
        originalSelectedRange:(NSRange)origSelRange
             errorDescription:(NSString **)error
 {
-    if ([*partialStringPtr length] > maxLength_) {
+    if ([*partialStringPtr length] > _maxLength) {
         return FALSE;
     }
     return TRUE;

@@ -9,8 +9,11 @@
     BOOL background;
 }
 
-@property (readwrite, retain) NSString *title;
-@property (readwrite, retain) NSNumber *value;
+- (id)init;
++ (PRTask *)task;
+
+@property (readwrite, copy) NSString *title;
+@property (readwrite, copy) NSNumber *value;
 @property (readwrite) BOOL shouldCancel;
 @property (readwrite) BOOL background;
 

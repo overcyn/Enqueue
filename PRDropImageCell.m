@@ -1,21 +1,14 @@
 #import "PRDropImageCell.h"
 #import "PRDropImageView.h"
 
+
 @implementation PRDropImageCell
-
-- (id)init
-{
-    self = [super init];
-    if (self) {
-
-    }
-    return self;
-}
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView 
 {
     [super drawWithFrame:cellFrame inView:controlView];
-    if ([(PRDropImageView *)[self controlView] focusRing]) {
+    if ([(PRDropImageView *)[self controlView] focusRing] || 
+        [self controlView] == [[[self controlView] window] firstResponder]) {
         NSRect focusRingFrame = cellFrame;
         [NSGraphicsContext saveGraphicsState];
         NSSetFocusRingStyle(NSFocusRingOnly);

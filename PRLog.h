@@ -2,23 +2,10 @@
 
 extern NSString * const PRSQLiteErrorDomain;
 extern NSString * const PREnqueueErrorDomain;
-enum {
-    PRLibraryInternalErrorCode,
-    PRLibraryPermissionsErrorCode,
-    PRLibraryCorruptErrorCode,
-    PRLibraryIOErrorCode,
-    PRLibraryDiskFullErrorCode,
-};
 
-@class PRMainWindowController;
-
-@interface PRLog : NSObject 
+@interface PRLog : NSObject
 {
-    NSString *backtrace_;
-    BOOL dismissed;
-    BOOL fatalError;
-    PRMainWindowController *mainWindowController;
-    NSMenu *mainMenu;
+    
 }
 
 // ========================================

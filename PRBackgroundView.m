@@ -1,4 +1,5 @@
 #import "PRBackgroundView.h"
+#import "NSColor+Extensions.h"
 
 
 @implementation PRBackgroundView
@@ -7,20 +8,21 @@
 {       
     [[NSBezierPath bezierPathWithRect:dirtyRect] addClip];
     NSRect bounds = [self bounds];
-    bounds.size.width -= 20;
-    bounds.origin.x += 10;
-    bounds.size.height -= 50;
-    bounds.origin.y += 30;
+    bounds.size.width -= 1;
+    bounds.origin.x += 0.5;
     
+
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
 	[shadow setShadowColor:[NSColor colorWithCalibratedWhite:0 alpha:0.5]];
     [shadow setShadowOffset:NSMakeSize(0,-2)];
-    [shadow setShadowBlurRadius:5];
-	[shadow set];
+    [shadow setShadowBlurRadius:4];
+//	[shadow set];
     
-    NSBezierPath *bezierPath = [NSBezierPath bezierPathWithRoundedRect:bounds xRadius:4 yRadius:4];
-    [[NSColor colorWithDeviceWhite:1.0 alpha:1.0] set];
+    NSBezierPath *bezierPath = [NSBezierPath bezierPathWithRoundedRect:bounds xRadius:0 yRadius:0];
+    [[NSColor PRForegroundColor] set];
     [bezierPath fill];
+    [[NSColor PRForegroundBorderColor] set];
+    [bezierPath stroke];
 }
 
 @end

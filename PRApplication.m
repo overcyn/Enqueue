@@ -14,41 +14,37 @@
 // rogueamoeba.com/utm/2007/09/29/
 - (void)sendEvent: (NSEvent*)event
 {
-	if( [event type] == NSSystemDefined && [event subtype] == 8 ) {
+	if([event type] == NSSystemDefined && [event subtype] == 8) {
 		int keyCode = (([event data1] & 0xFFFF0000) >> 16);
 		int keyFlags = ([event data1] & 0x0000FFFF);
 		int keyState = (((keyFlags & 0xFF00) >> 8)) == 0xA;
 		int keyRepeat = (keyFlags & 0x1);
-        
-		[self mediaKeyEvent: keyCode state: keyState repeat: keyRepeat];
+		[self mediaKeyEvent:keyCode state:keyState repeat:keyRepeat];
 	}
-    
-	[super sendEvent: event];
+	[super sendEvent:event];
 }
 
 - (void)mediaKeyEvent:(int)key state:(BOOL)state repeat:(BOOL)repeat
 {   
-    if (![[PRUserDefaults userDefaults] mediaKeys]) {
-        return;
+    if ([[PRUserDefaults userDefaults] mediaKeys]) {
+        switch(key) {
+            case NX_KEYTYPE_PLAY:
+                if (state == 0) {
+                    [[(PRCore *)[self delegate] now] playPause];
+                }
+                break;
+            case NX_KEYTYPE_FAST:
+                if (state == 0) {
+                    [[(PRCore *)[self delegate] now] playNext];
+                }
+                break;
+            case NX_KEYTYPE_REWIND:
+                if (state == 0) {
+                    [[(PRCore *)[self delegate] now] playPrevious];
+                }
+                break;
+        }
     }
-	switch(key) {
-		case NX_KEYTYPE_PLAY:
-			if (state == 0) {
-                [[(PRCore *)[self delegate] now] playPause];
-            }
-            break;
-		case NX_KEYTYPE_FAST:
-			if (state == 0) {
-				[[(PRCore *)[self delegate] now] playNext];
-            }
-            break;
-		case NX_KEYTYPE_REWIND:
-			if (state == 0) {
-				[[(PRCore *)[self delegate] now] playPrevious];
-            }
-            break;
-	}
 }
-
 
 @end

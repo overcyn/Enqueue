@@ -23,7 +23,7 @@
 	NSNumber *year = [[db library] valueForFile:file attribute:PRYearFileAttribute];
     
 	// Inset the cell frame to give everything a little horizontal padding
-	NSRect insetRect = NSInsetRect(theCellFrame, 8, 8);
+	NSRect insetRect = NSInsetRect(theCellFrame, 10, 9);
 	NSSize iconSize = NSMakeSize(150, 150);
     [icon setFlipped:TRUE];
 	
@@ -122,7 +122,7 @@
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
     [shadow setShadowOffset:NSMakeSize(0.0, -2.0)];
     [shadow setShadowBlurRadius:5];
-    [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.3]];	
+    [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.4]];	
     [shadow set];
     
 //    [[NSColor colorWithDeviceWhite:1.0 alpha:1.0] set];

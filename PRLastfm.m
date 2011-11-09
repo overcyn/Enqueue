@@ -2,17 +2,56 @@
 #import <Security/Security.h>
 #import "PRUserDefaults.h"
 #import "EMKeychainItem.h"
-#import "EMKeychainProxy.h"
 #import "PRCore.h"
 #import "PRNowPlayingController.h"
 #import "PRDb.h"
 #import "PRLibrary.h"
 #import "NSString+LFExtensions.h"
-#import "NSObject+Extensions.h"
+#import "NSURLConnection+Extensions.h"
+#import "PRMoviePlayer.h"
+#import "PRMainWindowController.h"
 
-NSString * const PRLastfmStateDidChangeNotification = @"PRLastfmStateDidChange";
 NSString * const PRLastfmSecret = @"7c36737d54802277880b10bf32fe8718";
 NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
+
+
+@interface PRLastfm ()
+
+// ========================================
+// Update
+
+- (void)playingChanged:(NSNotification *)note;
+- (void)playingFileChanged:(NSNotification *)note;
+
+// ========================================
+// Accessors
+
+- (void)setLastfmState:(PRLastfmState)state;
+- (void)setUsername:(NSString *)username;
+- (NSString *)sessionKey;
+- (void)setSessionKey:(NSString *)sessionKey;
+
+// ========================================
+// Scrobbling
+
+- (void)scrobble:(PRLastfmFile *)lastfmFile;
+- (void)nowPlaying:(PRLastfmFile *)lastfmFile;
+- (void)fileScrobbled:(NSData *)data;
+
+// ========================================
+// Authorization
+
+- (void)tokenGotten:(NSData *)data request:(NSURLRequest *)request;
+- (void)getSession:(NSDictionary *)info;
+- (void)sessionGotten:(NSData *)data request:(NSURLRequest *)request;
+
+// ========================================
+// Misc
+
+- (NSURLRequest *)requestForParameters:(NSDictionary *)parameters;
+- (NSString *)signatureForParameters:(NSDictionary *)parameters;
+
+@end
 
 
 @implementation PRLastfm
@@ -21,24 +60,34 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 // Initialization
 // ========================================
 
-- (id)initWithCore:(PRCore *)core_;
+- (id)initWithCore:(PRCore *)core;
 {
     if (!(self = [super init])) {return nil;}
-    core = core_;
-    cachedSessionKey = nil;
-    if ([[self username] length] != 0 && [[self sessionKey] length] != 0) {
+    _core = core;
+    _file = nil;
+    // Get cached session key if exists
+    BOOL connected = FALSE;
+    if ([[self username] length] != 0) {
+        EMGenericKeychainItem *keychain = [EMGenericKeychainItem genericKeychainItemForService:@"Last.fm (com.enqueue.enqueue)" withUsername:[self username]];
+        if (keychain && [keychain password]) {
+            connected = TRUE;
+            _cachedSessionKey = [[keychain password] retain];
+        }
+    }
+    if (connected) {
         [self setLastfmState:PRLastfmConnectedState];
     } else {
         [self setLastfmState:PRLastfmDisconnectedState];
     }
-    
-    [[[core now] mov] addObserver:self forKeyPath:@"isPlaying" options:0 context:nil];
-    [[core now] addObserver:self forKeyPath:@"currentIndex" options:0 context:nil];
+    [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(playingChanged:)];
+    [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(playingFileChanged:)];
     return self;
 }
 
 - (void)dealloc
 {
+    [_cachedSessionKey release];
+    [_file release];
     [super dealloc];
 }
 
@@ -46,11 +95,16 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 // Properties
 // ========================================
 
-@synthesize lastfmState;
-@synthesize error;
+- (void)setLastfmState:(PRLastfmState)state
+{
+    _lastfmState = state;
+    [[NSNotificationCenter defaultCenter] postLastfmStateChanged];
+}
 
-@dynamic username;
-@dynamic sessionKey;
+- (PRLastfmState)lastfmState
+{
+    return _lastfmState;
+}
 
 - (void)setUsername:(NSString *)username
 {
@@ -64,169 +118,136 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 
 - (void)setSessionKey:(NSString *)sessionKey
 {
-    if ([[self username] length] != 0) {
-        NSString *keychainService = [NSString stringWithFormat:@"Last.fm (%@)", [[NSBundle mainBundle] bundleIdentifier]];
-        EMGenericKeychainItem *keyItem = [[EMKeychainProxy sharedProxy] genericKeychainItemForService:keychainService withUsername:[self username]];
-        if (keyItem) {
-            [keyItem setPassword:sessionKey];
-        } else {
-            [[EMKeychainProxy sharedProxy] addGenericKeychainItemForService:keychainService withUsername:[self username] password:sessionKey];
-        }
+    [_cachedSessionKey release];
+    _cachedSessionKey = [sessionKey retain];
+    if ([[self username] length] == 0) {
+        return;
     }
-    [cachedSessionKey autorelease];
-    cachedSessionKey = [sessionKey retain];
+    EMGenericKeychainItem *keychain = [EMGenericKeychainItem genericKeychainItemForService:@"Last.fm (com.enqueue.enqueue)" withUsername:[self username]];
+    if (keychain) {
+        [keychain setPassword:sessionKey];
+    } else {
+        [EMGenericKeychainItem addGenericKeychainItemForService:@"Last.fm (com.enqueue.enqueue)" withUsername:[self username] password:sessionKey];
+    }
 }
 
 - (NSString *)sessionKey
 {
-    NSString *sessionKey = @"";
-    if (cachedSessionKey) {
-        sessionKey = cachedSessionKey;
-    } else if ([[self username] length] != 0) {
-        NSString *keychainService = [NSString stringWithFormat:@"Last.fm (%@)", [[NSBundle mainBundle] bundleIdentifier]];
-        EMGenericKeychainItem *keyItem = [[EMKeychainProxy sharedProxy] genericKeychainItemForService:keychainService withUsername:[self username]];
-        if (keyItem) {
-            sessionKey = [keyItem password];
-        }
-    }
-    [cachedSessionKey autorelease];
-    cachedSessionKey = [sessionKey retain];
-    return sessionKey;
+    return _cachedSessionKey;
 }
 
 // ========================================
 // Scrobbling
 // ========================================
 
-- (void)observeValueForKeyPath:(NSString *)keyPath 
-                      ofObject:(id)object 
-                        change:(NSDictionary *)change 
-                       context:(void *)context
+- (void)playingChanged:(NSNotification *)note
 {
-    if (object == [core now] && [keyPath isEqualToString:@"currentIndex"]) {
-        if (currentFile && datePlaying) {
-            playTime += [[NSDate date] timeIntervalSinceDate:datePlaying];
-            [self scrobbleCurrentFile];
-        }
-        
-        currentFile = [[core now] currentFile];
-        [dateStarted release];
-        [datePlaying release];
-        dateStarted = nil;
-        datePlaying = nil;
-        playTime = 0;
-        if (currentFile != 0) {
-            dateStarted = [[NSDate date] retain];
-            datePlaying = [[NSDate date] retain];
-            [self nowPlayingCurrentFile];
-        }
-    } else if (object == [[core now] mov] && [keyPath isEqualToString:@"isPlaying"]) {
-        if (!currentFile) {
-            return;
-        }
-        if ([[[core now] mov] isPlaying] && !datePlaying) {
-            [datePlaying release];
-            datePlaying = [[NSDate date] retain];
-        } else if (![[[core now] mov] isPlaying] && datePlaying)  {
-            playTime += [[NSDate date] timeIntervalSinceDate:datePlaying];
-            [datePlaying release];
-            datePlaying = nil;
-        }
+    if ([[[_core now] mov] isPlaying]) {
+        [_file play];
+    } else {
+        [_file pause];
     }
 }
 
-- (void)nowPlayingCurrentFile
+- (void)playingFileChanged:(NSNotification *)note
 {
-    NSString *title = [[[core db] library] valueForFile:currentFile attribute:PRTitleFileAttribute];
-    NSString *artist = [[[core db] library] valueForFile:currentFile attribute:PRArtistFileAttribute];
-    NSString *album = [[[core db] library] valueForFile:currentFile attribute:PRAlbumFileAttribute];
-    NSNumber *time = [[[core db] library] valueForFile:currentFile attribute:PRTimeFileAttribute];
-        
-    if (!title || !artist) {
-        return;
+    if (_file) {
+        [self scrobble:_file];
     }
-    if ([[self username] length] == 0 || [[self sessionKey] length] == 0) {
+    [_file release];
+    _file = nil;
+    if ([[_core now] currentFile] != 0) {
+        _file = [[PRLastfmFile alloc] initWithFile:[[_core now] currentFile]];
+        [_file play];
+        [self nowPlaying:_file];
+    }
+}
+
+- (void)nowPlaying:(PRLastfmFile *)file_
+{
+    PRFile file = [file_ file];
+    NSString *title = [[[_core db] library] valueForFile:file attribute:PRTitleFileAttribute];
+    NSString *artist = [[[_core db] library] valueForFile:file attribute:PRArtistFileAttribute];
+    NSString *album = [[[_core db] library] valueForFile:file attribute:PRAlbumFileAttribute];
+    NSNumber *time = [[[_core db] library] valueForFile:file attribute:PRTimeFileAttribute];
+    
+    if ([title length] == 0 || [artist length] == 0 || 
+        [[self username] length] == 0 || [[self sessionKey] length] == 0) {
         return;
     }
     
+    // Create request
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                        @"track.updateNowPlaying", @"method",
                                        artist, @"artist",
+                                       album, @"album",
                                        title, @"track",
+                                       [NSString stringWithFormat:@"%li", (long)[time longValue]/1000], @"duration",
                                        PRLastfmAPIKey, @"api_key",
                                        [self sessionKey], @"sk", nil];
-    if (time) {
-        [parameters setObject:[NSString stringWithFormat:@"%li", (long)[time longValue]/1000] forKey:@"duration"];
-    }
-    if (album) {
-        [parameters setObject:album forKey:@"album[0]"];
-    }
     [parameters setObject:[self signatureForParameters:parameters] forKey:@"api_sig"];
     NSURLRequest *request = [self requestForParameters:parameters];
-    [currentRequest release];
-    currentRequest = [request retain];
+    void (^handler)(NSURLResponse*, NSData*, NSError*) = 
+    ^(NSURLResponse *response, NSData *data, NSError *error) {};
 	
-	// send request
-    SEL selector = @selector(sendRequest:completion:);
-    SEL p2 = @selector(fileScrobbled:request:);
-    NSMethodSignature *signature = [self methodSignatureForSelector:selector];
-    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-    [invocation retainArguments];
-    [invocation setTarget:self];
-    [invocation setSelector:selector];
-    [invocation setArgument:&request atIndex:2];
-    [invocation setArgument:&p2 atIndex:3];
-    [invocation performSelectorInBackground:@selector(invoke) withObject:nil];
+	// Send request
+    [_currentRequest release];
+    _currentRequest = [request retain];
+    [NSURLConnection send:request onCompletion:handler];
 }
 
-- (void)scrobbleCurrentFile
+- (void)scrobble:(PRLastfmFile *)lastfmFile
 {
-    NSString *title = [[[core db] library] valueForFile:currentFile attribute:PRTitleFileAttribute];
-    NSString *artist = [[[core db] library] valueForFile:currentFile attribute:PRArtistFileAttribute];
-    NSString *album = [[[core db] library] valueForFile:currentFile attribute:PRAlbumFileAttribute];
-    NSNumber *time = [[[core db] library] valueForFile:currentFile attribute:PRTimeFileAttribute];
+    PRFile file = [lastfmFile file];
+    NSString *title = [[[_core db] library] valueForFile:file attribute:PRTitleFileAttribute];
+    NSString *artist = [[[_core db] library] valueForFile:file attribute:PRArtistFileAttribute];
+    NSString *album = [[[_core db] library] valueForFile:file attribute:PRAlbumFileAttribute];
+    NSNumber *time = [[[_core db] library] valueForFile:file attribute:PRTimeFileAttribute];
     
-    if (!(playTime > [time intValue]/2000 || playTime > 240)) {
-        return;
-    }
-    if (!title || !artist || [time intValue]/1000 < 30) {
-        return;
-    }
-    if ([[self username] length] == 0 || [[self sessionKey] length] == 0) {
+    if (!([lastfmFile playTime] > [time intValue]/2000 || [lastfmFile playTime] > 240) ||
+        [title length] == 0 || [artist length] == 0 || [time intValue]/1000 < 30 || 
+        [[self username] length] == 0 || [[self sessionKey] length] == 0) {
         return;
     }
     
+    // Create request
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                        @"track.scrobble", @"method",
-                                       [NSString stringWithFormat:@"%li",(long)[dateStarted timeIntervalSince1970]], @"timestamp[0]",
+                                       [NSString stringWithFormat:@"%li",(long)[[lastfmFile startDate] timeIntervalSince1970]], @"timestamp[0]",
                                        artist, @"artist[0]",
+                                       album, @"album[0]",
                                        title, @"track[0]",
                                        PRLastfmAPIKey, @"api_key",
                                        [self sessionKey], @"sk", nil];
-    if (album) {
-        [parameters setObject:album forKey:@"album[0]"];
-    }
     [parameters setObject:[self signatureForParameters:parameters] forKey:@"api_sig"];
     NSURLRequest *request = [self requestForParameters:parameters];
-    [currentRequest release];
-    currentRequest = [request retain];
+    void (^handler)(NSURLResponse*, NSData*, NSError*) = 
+    ^(NSURLResponse *response, NSData *data, NSError *error) {[self fileScrobbled:data];};
 	
-	// send request
-    SEL selector = @selector(sendRequest:completion:);
-    SEL p2 = @selector(fileScrobbled:request:);
-    NSMethodSignature *signature = [self methodSignatureForSelector:selector];
-    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-    [invocation retainArguments];
-    [invocation setTarget:self];
-    [invocation setSelector:selector];
-    [invocation setArgument:&request atIndex:2];
-    [invocation setArgument:&p2 atIndex:3];
-    [invocation performSelectorInBackground:@selector(invoke) withObject:nil];
+	// Send request
+    [_currentRequest release];
+    _currentRequest = [request retain];
+    [NSURLConnection send:request onCompletion:handler];
 }
 
-- (void)fileScrobbled:(NSData *)data request:(NSURLRequest *)request
+- (void)fileScrobbled:(NSData *)data
 {
-    
+    NSXMLDocument *XMLDocument = [[[NSXMLDocument alloc] initWithData:data options:0 error:nil] autorelease];
+    NSXMLElement *root = [XMLDocument rootElement];
+    if (![[[root attributeForName:@"status"] stringValue] isEqualToString:@"ok"]) {
+        NSXMLElement *error = [[root elementsForName:@"error"] objectAtIndex:0];
+        if ([[[error attributeForName:@"code"] stringValue] isEqualToString:@"9"]) {
+            NSLog(@"Last.fm Disconnected");
+            [self disconnect];
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert addButtonWithTitle:@"OK"];
+            [alert setMessageText:@"You have been disconnected from Last.fm"];
+            [alert setInformativeText:@"If this warning persists please contact support."];
+            [alert setAlertStyle:NSWarningAlertStyle];
+            [alert beginSheetModalForWindow:[[_core win] window] modalDelegate:nil didEndSelector:nil contextInfo:nil];
+        }
+        return;
+    }
 }
 
 // ========================================
@@ -236,146 +257,122 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 - (void)connect
 {
     [self disconnect];
-    
     [self setLastfmState:PRLastfmValidatingState];
+    // Create Request
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                        @"auth.getToken", @"method",
                                        PRLastfmAPIKey, @"api_key", nil];
     [parameters setObject:[self signatureForParameters:parameters] forKey:@"api_sig"];
     NSURLRequest *request = [self requestForParameters:parameters];
-    [currentRequest release];
-    currentRequest = [request retain];
-	
-	// send request
-    SEL selector = @selector(sendRequest:completion:);
-    SEL p2 = @selector(tokenGotten:request:);
-    NSMethodSignature *signature = [self methodSignatureForSelector:selector];
-    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-    [invocation retainArguments];
-    [invocation setTarget:self];
-    [invocation setSelector:selector];
-    [invocation setArgument:&request atIndex:2];
-    [invocation setArgument:&p2 atIndex:3];
-    [invocation performSelectorInBackground:@selector(invoke) withObject:nil];
+    void (^handler)(NSURLResponse*, NSData*, NSError*) = 
+    ^(NSURLResponse *response, NSData *data, NSError *error) {
+        [self tokenGotten:data request:request];
+    };
+    // Send Request
+    [_currentRequest release];
+    _currentRequest = [request retain];
+    [NSURLConnection send:request onCompletion:handler];
 }
 
 - (void)tokenGotten:(NSData *)data request:(NSURLRequest *)request
 {
-    if (request != currentRequest) {
-        [self disconnect];
+    if (request != _currentRequest) {
         return;
     }
-    
-    // get token
+    // Get token
     NSXMLDocument *XMLDocument = [[[NSXMLDocument alloc] initWithData:data options:0 error:nil] autorelease];
     if (![[[[XMLDocument rootElement] attributeForName:@"status"] stringValue] isEqualToString:@"ok"]) {
         [self disconnect];
         return;
     }
-    [token release];
-    token = [[[[[XMLDocument rootElement] elementsForName:@"token"] objectAtIndex:0] stringValue] retain];
-    
-    // request authorization in webbrowser
+    NSString *token = [[[[XMLDocument rootElement] elementsForName:@"token"] objectAtIndex:0] stringValue];
+    // Request authorization in webbrowser
     NSString *URLString = [NSString stringWithFormat:@"http://www.last.fm/api/auth/?api_key=%@&token=%@",PRLastfmAPIKey, token];
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:URLString]];
     [self setLastfmState:PRLastfmPendingState];
-    
-    [timer release];
-    timer = [[NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(getSession) userInfo:nil repeats:TRUE] retain];
+    // Check for authorization in 5 seconds
+    NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
+                          request, @"request", token, @"token", nil];
+    [self performSelector:@selector(getSession:) withObject:info afterDelay:5.0];
 }
 
-- (void)getSession
+- (void)getSession:(NSDictionary *)info
 {
+    NSString *token = [info objectForKey:@"token"];
+    NSURLRequest *currentRequest = [info objectForKey:@"request"];
+    if (currentRequest != _currentRequest) {
+        return;
+    }
+    // Create Request
     NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                        @"auth.getSession", @"method",
                                        token, @"token",
-                                       PRLastfmAPIKey, @"api_key",
-                                       nil];
+                                       PRLastfmAPIKey, @"api_key", nil];
     [parameters setObject:[self signatureForParameters:parameters] forKey:@"api_sig"];
     NSURLRequest *request = [self requestForParameters:parameters];
-    [currentRequest release];
-    currentRequest = [request retain];
-    
-    // send request
-    SEL selector = @selector(sendRequest:completion:);
-    SEL p2 = @selector(sessionGotten:request:);
-    NSMethodSignature *signature = [self methodSignatureForSelector:selector];
-    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-    [invocation retainArguments];
-    [invocation setTarget:self];
-    [invocation setSelector:selector];
-    [invocation setArgument:&request atIndex:2];
-    [invocation setArgument:&p2 atIndex:3];
-    [invocation performSelectorInBackground:@selector(invoke) withObject:nil];
+    void (^handler)(NSURLResponse*, NSData*, NSError*) = 
+    ^(NSURLResponse *response, NSData *data, NSError *error) {
+        [self sessionGotten:data request:currentRequest];
+        return;
+    };
+    // Send request
+    [NSURLConnection send:request onCompletion:handler];
+    // Recheck for authorization in 5 seconds
+    [self performSelector:@selector(getSession:) withObject:info afterDelay:5.0];
 }
 
 - (void)sessionGotten:(NSData *)data request:(NSURLRequest *)request
 {
-    if (request != currentRequest) {
+    if (request != _currentRequest) {
         return;
     }
-    
     NSXMLDocument *XMLDocument = [[[NSXMLDocument alloc] initWithData:data options:0 error:nil] autorelease];
     if (![[[[XMLDocument rootElement] attributeForName:@"status"] stringValue] isEqualToString:@"ok"]) {
         return;
     }
-    [timer invalidate];
     NSString *username = [[[[[[XMLDocument rootElement] elementsForName:@"session"] objectAtIndex:0] elementsForName:@"name"] objectAtIndex:0] stringValue];
     NSString *key = [[[[[[XMLDocument rootElement] elementsForName:@"session"] objectAtIndex:0] elementsForName:@"key"] objectAtIndex:0] stringValue];
     [self setUsername:username];
     [self setSessionKey:key];
     [self setLastfmState:PRLastfmConnectedState];
+    [_currentRequest release];
+    _currentRequest = nil;
 }
 
 - (void)disconnect
 {
     [self setUsername:@""];
     [self setSessionKey:@""];
-    
-    [timer invalidate];
-    [currentRequest release];
-    currentRequest = nil;
+    [_currentRequest release];
+    _currentRequest = nil;
     [self setLastfmState:PRLastfmDisconnectedState];
 }
-
 
 // ========================================
 // Misc
 // ========================================
-
-- (void)sendRequest:(NSURLRequest *)request completion:(SEL)completion
-{
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    
-    NSURLResponse *response;
-    NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:nil];
-    SEL selector = completion;
-    NSMethodSignature *signature = [self methodSignatureForSelector:selector];
-    NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
-    [invocation retainArguments];
-    [invocation setTarget:self];
-    [invocation setSelector:selector];
-    [invocation setArgument:&data atIndex:2];
-    [invocation setArgument:&request atIndex:3];
-    [invocation performSelectorOnMainThread:@selector(invoke) withObject:nil waitUntilDone:FALSE];
-    
-    [pool drain];
-}
 
 - (NSURLRequest *)requestForParameters:(NSDictionary *)parameters
 {
     NSURL *URL = [NSURL URLWithString:@"http://ws.audioscrobbler.com/2.0/"];
     NSMutableString *body = [NSMutableString string];
     for (NSString *i in [parameters allKeys]) {
-        [body appendFormat:@"%@=%@&", i, [parameters objectForKey:i]];
+        NSMutableString *escaped = [NSMutableString stringWithString:[parameters objectForKey:i]];
+		[escaped replaceOccurrencesOfString:@"%" withString:@"%25" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+		[escaped replaceOccurrencesOfString:@"&" withString:@"%26" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+		[escaped replaceOccurrencesOfString:@"=" withString:@"%3D" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+		[escaped replaceOccurrencesOfString:@"+" withString:@"%2B" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+		[escaped replaceOccurrencesOfString:@"/" withString:@"%2F" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+		[escaped replaceOccurrencesOfString:@"?" withString:@"%3F" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+		[escaped replaceOccurrencesOfString:@"#" withString:@"%23" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+        [body appendFormat:@"%@=%@&", i, escaped];
     }
     [body deleteCharactersInRange:NSMakeRange([body length] - 1, 1)];
-    NSString *body2 = [body stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL
                                                            cachePolicy:NSURLRequestUseProtocolCachePolicy 
                                                        timeoutInterval:5];
     [request setHTTPMethod:@"POST"];
-    [request setHTTPBody:[body2 dataUsingEncoding:NSUTF8StringEncoding]];
+    [request setHTTPBody:[body dataUsingEncoding:NSUTF8StringEncoding]];
     return request;
 }
 

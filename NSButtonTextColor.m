@@ -18,8 +18,7 @@
 
 - (void)setTextColor:(NSColor *)textColor
 {
-    NSMutableAttributedString *attrTitle = 
-      [[[NSMutableAttributedString alloc] initWithAttributedString:[self attributedTitle]] autorelease];
+    NSMutableAttributedString *attrTitle = [[[NSMutableAttributedString alloc] initWithAttributedString:[self attributedTitle]] autorelease];
     int len = [attrTitle length];
     NSRange range = NSMakeRange(0, len);
     [attrTitle addAttribute:NSForegroundColorAttributeName 

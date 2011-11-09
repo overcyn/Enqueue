@@ -3,8 +3,9 @@
 
 @interface NSIndexSet (Extensions) 
 
-- (NSUInteger)nthIndex:(NSUInteger)n;
+- (NSUInteger)indexAtPosition:(NSUInteger)position;
 - (NSUInteger)positionOfIndex:(NSUInteger)index;
 + (NSIndexSet *)indexSetWithArray:(NSArray *)array;
+- (NSIndexSet *)intersectionWithIndexSet:(NSIndexSet *)indexSet;
 
 @end

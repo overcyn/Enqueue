@@ -16,6 +16,7 @@
 		libraryViewController = libraryViewController_;
 		db = db_;
 		refreshing = FALSE;
+        monitorSelection = TRUE;
 		currentPlaylist = -1;
 	}
 	return self;

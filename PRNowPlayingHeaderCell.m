@@ -21,8 +21,8 @@
                      [NSColor colorWithDeviceWhite:0.8 alpha:1.0], 1.0, nil] autorelease];
     } else {
         gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                     [NSColor colorWithCalibratedWhite:0.90 alpha:1.0], 0.0, 
-                     [NSColor colorWithCalibratedWhite:0.87 alpha:1.0], 1.0, nil] autorelease];
+                     [NSColor colorWithCalibratedWhite:0.90 alpha:0.8], 0.0, 
+                     [NSColor colorWithCalibratedWhite:0.87 alpha:0.8], 1.0, nil] autorelease];
     }
     [gradient drawInRect:cellFrame angle:90];
     
@@ -30,7 +30,7 @@
     [[NSColor colorWithDeviceWhite:0.0 alpha:0.25] set];
     NSRect rect = NSMakeRect(cellFrame.origin.x, cellFrame.origin.y, cellFrame.size.width, 1);
     [NSBezierPath fillRect:rect];
-    [[NSColor colorWithDeviceWhite:1.0 alpha:0.25] set];
+    [[NSColor colorWithDeviceWhite:1.0 alpha:0.4] set];
     rect = NSMakeRect(cellFrame.origin.x, cellFrame.origin.y + 1, cellFrame.size.width, 1);
     [NSBezierPath fillRect:rect];
     
@@ -62,7 +62,7 @@
         color = [NSColor whiteColor];
         altColor = [NSColor whiteColor];
     } else {
-        [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.5]];
+        [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.4]];
         [shadow setShadowOffset:NSMakeSize(1.1, -1.3)];
         color = [NSColor colorWithDeviceWhite:0.25 alpha:1.0];
         altColor = [NSColor colorWithDeviceWhite:0.4 alpha:1.0];

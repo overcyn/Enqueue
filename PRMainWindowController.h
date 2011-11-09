@@ -1,7 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import "PRPlaylists.h"
 
-
 @class PRCore, PRDb, PRPlaylists, PRNowPlayingController, PRFolderMonitor, PRTaskManagerViewController,
 PRNowPlayingViewController, PRControlsViewController, PRLibraryViewController, PRPreferencesViewController, 
 PRPlaylistsViewController, PRHistoryViewController, PRGradientView, 
@@ -15,6 +14,7 @@ typedef enum {
     PRSongMode,
 } PRMode;
 
+
 @interface PRMainWindowController : NSWindowController <NSWindowDelegate>
 {
     IBOutlet NSView *centerSuperview;
@@ -27,12 +27,9 @@ typedef enum {
     IBOutlet NSSearchField *searchField;
     
     IBOutlet NSTextField *progressTextField;
-    IBOutlet YRKSpinningProgressIndicator *progressIndicator;
     IBOutlet NSButton *cancelButton;
     
     IBOutlet NSButton *infoButton;
-    IBOutlet NSButton *listModeButton;
-    IBOutlet NSButton *albumListModeButton;
     IBOutlet NSSegmentedControl *libraryModeButton;
     
     IBOutlet PRGradientView *toolbarView;
@@ -42,7 +39,6 @@ typedef enum {
     
     IBOutlet NSTextField *playlistTitle;
     	
-    PRStringFormatter *stringFormatter;
     PRMode currentMode;
     int currentPlaylist;
     id currentViewController;
@@ -57,10 +53,9 @@ typedef enum {
     PRNowPlayingViewController *nowPlayingViewController;
     PRControlsViewController *controlsViewController;
 	
-    PRCore *core;
-    PRDb *db;
-    PRNowPlayingController *now;
-    PRFolderMonitor *folderMonitor;
+    // weak
+    PRCore *_core;
+    PRDb *_db;
 }
 
 // ========================================
@@ -86,7 +81,6 @@ typedef enum {
 
 @property (readwrite) BOOL progressHidden;
 @property (readwrite, retain) NSString *progressTitle;
-@property (readwrite) float progressValue;
 
 // ========================================
 // UI
@@ -104,9 +98,6 @@ typedef enum {
 
 // Updates searchField
 - (void)playlistDidChange:(NSNotification *)notification;
-
-// Updates segmentedControl
-- (void)libraryViewModeDidChange:(NSNotification *)notification;
 
 // update subBar
 - (void)libraryViewDidChange:(NSNotification *)notification;

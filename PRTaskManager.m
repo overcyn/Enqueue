@@ -2,41 +2,47 @@
 #import "PRTask.h"
 
 
+@interface PRTaskManager ()
+
+- (void)updateTasks;
+
+@end
+
 @implementation PRTaskManager
 
-@synthesize tasks;
+@synthesize tasks = _tasks;
 
 - (id)init
 {
     if (!(self = [super init])) {return nil;}
-    tasks = [[NSMutableArray alloc] init];
-    [self updateTasksOnMain];
+    _tasks = [[NSMutableArray alloc] init];
+    [self updateTasks];
     return self;
 }
 
 - (void)dealloc
 {
-    [tasks release];
+    [_tasks release];
     [super dealloc];
 }
 
 - (void)addTask:(PRTask *)task
 {   
-    if (![tasks containsObject:task]) {
+    if (![_tasks containsObject:task]) {
         [task addObserver:self forKeyPath:@"title" options:0 context:nil];
         [task addObserver:self forKeyPath:@"value" options:0 context:nil];
-        [tasks addObject:task];
-        [self updateTasksOnMain];
+        [_tasks addObject:task];
+        [self updateTasks];
     }
 }
 
 - (void)removeTask:(PRTask *)task
 {
-    if ([tasks containsObject:task]) {
+    if ([_tasks containsObject:task]) {
         [task removeObserver:self forKeyPath:@"title"];
         [task removeObserver:self forKeyPath:@"value"];
-        [tasks removeObject:task];
-        [self updateTasksOnMain];
+        [_tasks removeObject:task];
+        [self updateTasks];
     }
 }
 
@@ -45,18 +51,15 @@
                         change:(NSDictionary *)change 
                        context:(void *)context
 {
-    [self updateTasksOnMain];
-}
-
-- (void)updateTasksOnMain
-{
-    [self performSelectorOnMainThread:@selector(updateTasks) withObject:nil waitUntilDone:TRUE];
+    [self updateTasks];
 }
 
 - (void)updateTasks
 {
-    [self willChangeValueForKey:@"tasks"];
-    [self didChangeValueForKey:@"tasks"];
+    [[NSOperationQueue mainQueue] addBlock:^{
+        [self willChangeValueForKey:@"tasks"];
+        [self didChangeValueForKey:@"tasks"];
+    }];
 }
 
 @end

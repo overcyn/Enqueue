@@ -29,10 +29,4 @@
     return NO;
 }
 
-- (NSAttributedString *)attributedStringForObjectValue:(id)anObject 
-								 withDefaultAttributes:(NSDictionary *)attributes
-{
-	return nil;
-}
-
 @end

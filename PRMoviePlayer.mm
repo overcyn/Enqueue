@@ -1,49 +1,47 @@
 #import "PRMoviePlayer.h"
 #import "PRUserDefaults.h"
+#import "NSNotificationCenter+Extensions.h"
+#import <AudioUnit/AudioUnit.h>
 #include <cmath>
 #include <libkern/OSAtomic.h>
 #include <SFBAudioEngine/AudioPlayer.h>
 #include <SFBAudioEngine/AudioDecoder.h>
+#import "CAAUParameter.h"
+#import "AUParamInfo.h"
+#import "PREQ.h"
 
 #define DSP_ENABLED 0
 #define PLAYER (static_cast<AudioPlayer *>(player))
 
-NSString * const PRIsPlayingDidChangeNotification = @"PRIsPlayingDidChangeNotification";
-NSString * const PRMovieDidFinishNotification = @"PRMovieDidFinishNotification";
-
 volatile static uint32_t sPlayerFlags = 0;
 
-enum {
-	ePlayerFlagRenderingStarted = 1 << 0,
-	ePlayerFlagRenderingFinished = 1 << 1
-};
+@interface PRMoviePlayer ()
 
-static void decodingStarted(void *context, const AudioDecoder *decoder)
-{
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    [(PRMoviePlayer *)context decodingStarted];
-    [pool drain];
-}
+// ========================================
+// Playback
 
-static void renderingStarted(void *context, const AudioDecoder *decoder)
-{
-    OSAtomicTestAndClearBarrier(7, &sPlayerFlags);
-}
+- (void)transitionCallback:(NSTimer *)timer_;
 
-static void decodingFinished(void *context, const AudioDecoder *decoder)
-{
-    OSAtomicTestAndSetBarrier(7, &sPlayerFlags);
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    NSNotification *notification = [NSNotification notificationWithName:PRMovieDidFinishNotification object:nil];
-    [[NSNotificationCenter defaultCenter] performSelectorOnMainThread:@selector(postNotification:) 
-                                                           withObject:notification 
-                                                        waitUntilDone:FALSE];
-    [pool drain];
-}
+// ========================================
+// Accessors
 
-static void renderingFinished(void *context, const AudioDecoder *decoder)
-{
-}
+@property (readwrite, retain) NSTimer *transitionTimer;
+@property (readwrite) PRMovieQueueState queueState;
+@property (readonly) void *player;
+
+// ========================================
+// Update
+
+- (void)preGainDidChange:(NSNotification *)notification;
+- (void)EQChanged:(NSNotification *)note;
+- (void)update;
+
+@end
+
+static void decodingStarted(void *context, const AudioDecoder *decoder);
+static void renderingStarted(void *context, const AudioDecoder *decoder);
+static void decodingFinished(void *context, const AudioDecoder *decoder);
+static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 
 @implementation PRMoviePlayer
@@ -56,22 +54,48 @@ static void renderingFinished(void *context, const AudioDecoder *decoder)
 {
     if (!(self = [super init])) {return nil;}
     player = new AudioPlayer();
-    PLAYER->EnableDigitalVolume(TRUE);
-    PLAYER->EnableDigitalPreGain(TRUE);
     
     // Update the UI 5 times per second in all run loop modes (so menus, etc. don't stop updates)
-    timer = [NSTimer timerWithTimeInterval:0.2 
-                                    target:self 
-                                  selector:@selector(update) 
-                                  userInfo:nil 
-                                   repeats:YES];
-    
-    // addTimer:forMode: will retain timer
+    timer = [NSTimer timerWithTimeInterval:0.3 target:self selector:@selector(update) userInfo:nil repeats:YES];
     [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(preGainDidChange:) name:PRPreGainDidChangeNotification object:nil];
+    BOOL err = PLAYER->AddEffect(kAudioUnitSubType_GraphicEQ, kAudioUnitManufacturer_Apple, 0, 0, &_au);
+    if (!err) {
+        NSLog(@"fail2");
+    }
+    
+    OSStatus status = AudioUnitInitialize(_au);
+    if (status != 0) {
+        NSLog(@"Init:%d",(int)status);
+    }
+        
+    status = AudioUnitSetParameter(_au, kGraphicEQParam_NumberOfBands, kAudioUnitScope_Global, 0, 0, 0);
+    if (status != 0) {
+        NSLog(@"status:%d",(int)status);
+    }
+    
+//    // Public util
+//    AUParamInfo info(_au, FALSE, FALSE); 
+//    for(int i = 0; i < info.NumParams(); i++) {
+//        AudioUnitParameterID paramID = info.ParamID(i);
+//        const CAAUParameter *param = info.GetParamInfo(paramID);
+//        
+//        NSLog(@"param: %d",(int)paramID);
+//        if (param) {
+//            NSLog(@"name:%@",(NSString *)param->GetName());
+//            NSLog(@"value:%f",param->GetValue());
+//            AudioUnitParameterInfo paramInfo = param->ParamInfo();
+//            NSLog(@"min:%f max:%f default:%f", paramInfo.minValue, paramInfo.maxValue, paramInfo.defaultValue);
+//        }
+//    }
+    
+    [[NSNotificationCenter defaultCenter] observePreGainChanged:self sel:@selector(preGainDidChange:)];
+    [[NSNotificationCenter defaultCenter] observeEQChanged:self sel:@selector(EQChanged:)];
     [self preGainDidChange:nil];
+    [self EQChanged:nil];
     [self setVolume:[self volume]];
+    [self setQueueState:PRMovieQueueEmpty];
+    
 	return self;
 }
 
@@ -80,119 +104,86 @@ static void renderingFinished(void *context, const AudioDecoder *decoder)
     [super dealloc];
 }
 
-- (BOOL)openFileAndPlay:(NSString *)file
+// ========================================
+// Playback
+// ========================================
+
+- (BOOL)play:(NSString *)file
 {
+    // clear queue & stop
+    PLAYER->Pause();
+    PLAYER->Stop();
+    self.queueState = PRMovieQueueEmpty;
+    PLAYER->ClearQueuedDecoders();
+    
+    // invalidate transition timer and reset volume
+    if ([self transitionTimer]) {
+        [[self transitionTimer] invalidate];
+        [self setTransitionTimer:nil];
+        transitionState = PRNeitherTransitionState;
+    }
+    [self setVolume:[self volume]];
+    
     AudioDecoder *decoder = AudioDecoder::CreateDecoderForURL(reinterpret_cast<CFURLRef>([NSURL URLWithString:file]));
-    if(decoder == NULL) {
+    if (!decoder) {
 		return FALSE;
     }
     decoder->SetDecodingStartedCallback(decodingStarted, self);
     decoder->SetDecodingFinishedCallback(decodingFinished, self);
     decoder->SetRenderingStartedCallback(renderingStarted, self);
 	decoder->SetRenderingFinishedCallback(renderingFinished, self);
-    decoder->Open();
-    if(ePlayerFlagRenderingStarted & sPlayerFlags) {
-		OSAtomicTestAndClearBarrier(7 /* ePlayerFlagRenderingStarted */, &sPlayerFlags);
-    } else {
-        PLAYER->Stop();
-    }
-    PLAYER->ClearQueuedDecoders();
-    if(!PLAYER->Enqueue(decoder)) {
+    if (!decoder->Open() || !PLAYER->Enqueue(decoder)) {
         delete decoder;
         return FALSE;
     }
-    [self setVolume:[self volume]];
     return TRUE;
 }
 
-- (void)pause
+- (BOOL)queue:(NSString *)file
 {
-    if ([self isPlaying]) {
-        if (self.transitionTimer && [self.transitionTimer isValid]) {
-            [transitionTimer invalidate];
-        }
-        if (transitionState != PRPlayingTransitionState) {
-            transitionVolume = 1;
-        }
-        transitionState = PRPausingTransitionState;
-        PLAYER->SetDigitalVolume((pow(10, transitionVolume * [self volume]) - 1) / 9);
-        self.transitionTimer = [NSTimer scheduledTimerWithTimeInterval:0.05
-                                                                target:self 
-                                                              selector:@selector(transitionCallback:) 
-                                                              userInfo:nil 
-                                                               repeats:FALSE];
+    if (self.queueState == PRMovieQueueWaiting || self.queueState == PRMovieQueuePlayed) {
+        return FALSE;
     }
-    [self willChangeValueForKey:@"isPlaying"];
-    [self didChangeValueForKey:@"isPlaying"];
-}
-
-- (void)playImmediately
-{
-    PLAYER->Play();
-    [self setVolume:[self volume]];
-    [self willChangeValueForKey:@"isPlaying"];
-    [self didChangeValueForKey:@"isPlaying"];
-
-}
-
-- (void)play
-{
-    if (![self isPlaying]) {
-        if (self.transitionTimer && [self.transitionTimer isValid]) {
-            [transitionTimer invalidate];
-        }
-        if (transitionState != PRPausingTransitionState) {
-            transitionVolume = 0;
-        }
-        transitionState = PRPlayingTransitionState;
-        PLAYER->SetDigitalVolume((pow(10, transitionVolume * [self volume]) - 1) / 9);
-        PLAYER->Play();
-        self.transitionTimer = [NSTimer scheduledTimerWithTimeInterval:0.05
-                                                                target:self 
-                                                              selector:@selector(transitionCallback:) 
-                                                              userInfo:nil 
-                                                               repeats:FALSE];
+    // clear queue
+    PLAYER->ClearQueuedDecoders();
+    
+    AudioDecoder *decoder = AudioDecoder::CreateDecoderForURL(reinterpret_cast<CFURLRef>([NSURL URLWithString:file]));
+    if (!decoder) {
+		return FALSE;
     }
-    [self willChangeValueForKey:@"isPlaying"];
-    [self didChangeValueForKey:@"isPlaying"];
+    decoder->SetDecodingStartedCallback(decodingStarted, self);
+    decoder->SetDecodingFinishedCallback(decodingFinished, self);
+    decoder->SetRenderingStartedCallback(renderingStarted, self);
+	decoder->SetRenderingFinishedCallback(renderingFinished, self);
+    if (!decoder->Open() || !PLAYER->Enqueue(decoder)) {
+        delete decoder;
+        return FALSE;
+    }
+    self.queueState = PRMovieQueueWaiting;
+    return TRUE;
 }
 
-- (void)transitionCallback:(NSTimer *)timer_
+- (BOOL)playIfNotQueued:(NSString *)file
 {
-    switch (transitionState) {
-        case PRNeitherTransitionState:
-            break;
-        case PRPlayingTransitionState:
-            transitionVolume += 0.1;
-            if (transitionVolume >= 1) {
-                transitionVolume = 1;
-                transitionState = PRNeitherTransitionState;
-            } else {
-                self.transitionTimer = [NSTimer scheduledTimerWithTimeInterval:0.02
-                                                                        target:self 
-                                                                      selector:@selector(transitionCallback:) 
-                                                                      userInfo:nil 
-                                                                       repeats:FALSE];
+    switch (self.queueState) {
+        case PRMovieQueueEmpty:
+        case PRMovieQueueWaiting:
+            return [self play:file];
+        case PRMovieQueuePlayed:
+        {
+            NSURL *URL = (NSURL *)PLAYER->GetPlayingURL();
+            if (!URL) {
+                return [self play:file];
             }
-            PLAYER->SetDigitalVolume((pow(10, transitionVolume * [self volume]) - 1) / 9);
-            break;
-        case PRPausingTransitionState:
-            transitionVolume -= 0.1;
-            if (transitionVolume <= 0) {
-                transitionVolume = 0;
-                transitionState = PRNeitherTransitionState;
-                PLAYER->Pause();
+            if ([[URL absoluteString] isEqualToString:file]) {
+                self.queueState = PRMovieQueueEmpty;
+                return TRUE;
             } else {
-                self.transitionTimer = [NSTimer scheduledTimerWithTimeInterval:0.02
-                                                                        target:self 
-                                                                      selector:@selector(transitionCallback:) 
-                                                                      userInfo:nil 
-                                                                       repeats:FALSE];
+                return [self play:file];
             }
-            PLAYER->SetDigitalVolume((pow(10, transitionVolume * [self volume]) - 1) / 9);
-            break;
+        }
         default:
-            break;
+            return 0;
     }
 }
 
@@ -201,13 +192,49 @@ static void renderingFinished(void *context, const AudioDecoder *decoder)
     PLAYER->Stop();
 }
 
-- (void)playPause
+- (void)pause
 {
     if ([self isPlaying]) {
-        [self pause];
-    } else { 
-        [self play];
+        if (self.transitionTimer && [self.transitionTimer isValid]) {
+            [self.transitionTimer invalidate];
+        }
+        if (transitionState != PRPlayingTransitionState) {
+            transitionVolume = 1;
+        }
+        transitionState = PRPausingTransitionState;
+        PLAYER->SetVolume(transitionVolume * [self volume]);
+        self.transitionTimer = [NSTimer scheduledTimerWithTimeInterval:0.025
+                                                                target:self 
+                                                              selector:@selector(transitionCallback:) 
+                                                              userInfo:nil 
+                                                               repeats:FALSE];
     }
+    [self willChangeValueForKey:@"isPlaying"];
+    [self didChangeValueForKey:@"isPlaying"];
+    [[NSNotificationCenter defaultCenter] postPlayingChanged];
+}
+
+- (void)unpause
+{
+    if (![self isPlaying]) {
+        if (self.transitionTimer && [self.transitionTimer isValid]) {
+            [self.transitionTimer invalidate];
+        }
+        if (transitionState != PRPausingTransitionState) {
+            transitionVolume = 0;
+        }
+        transitionState = PRPlayingTransitionState;
+        PLAYER->SetVolume(transitionVolume * [self volume]);
+        PLAYER->Play();
+        self.transitionTimer = [NSTimer scheduledTimerWithTimeInterval:0.025
+                                                                target:self 
+                                                              selector:@selector(transitionCallback:) 
+                                                              userInfo:nil 
+                                                               repeats:FALSE];
+    }
+    [self willChangeValueForKey:@"isPlaying"];
+    [self didChangeValueForKey:@"isPlaying"];
+    [[NSNotificationCenter defaultCenter] postPlayingChanged];
 }
 
 - (void)seekForward
@@ -221,37 +248,72 @@ static void renderingFinished(void *context, const AudioDecoder *decoder)
 }
 
 // ========================================
-// Accessors
+// Playback Private
 // ========================================
 
-@synthesize transitionTimer;
+- (void)transitionCallback:(NSTimer *)timer_
+{
+    switch (transitionState) {
+        case PRNeitherTransitionState:
+            break;
+        case PRPlayingTransitionState:
+            transitionVolume += 0.1;
+            if (transitionVolume >= 1) {
+                transitionVolume = 1;
+                transitionState = PRNeitherTransitionState;
+            } else {
+                self.transitionTimer = [NSTimer scheduledTimerWithTimeInterval:0.025
+                                                                        target:self 
+                                                                      selector:@selector(transitionCallback:) 
+                                                                      userInfo:nil 
+                                                                       repeats:FALSE];
+            }
+            PLAYER->SetVolume(transitionVolume * [self volume]);
+            break;
+        case PRPausingTransitionState:
+            transitionVolume -= 0.1;
+            if (transitionVolume <= 0) {
+                transitionVolume = 0;
+                transitionState = PRNeitherTransitionState;
+                PLAYER->Pause();
+            } else {
+                self.transitionTimer = [NSTimer scheduledTimerWithTimeInterval:0.025
+                                                                        target:self 
+                                                                      selector:@selector(transitionCallback:) 
+                                                                      userInfo:nil 
+                                                                       repeats:FALSE];
+            }
+            PLAYER->SetVolume(transitionVolume * [self volume]);
+            break;
+        default:
+            break;
+    }
+}
+
+// ========================================
+// Accessors
+// ========================================
 
 - (BOOL)isPlaying
 {
     if (transitionState == PRPausingTransitionState) {
         return FALSE;
+    } else if (transitionState == PRPlayingTransitionState) {
+        return TRUE;
     }
     return PLAYER->IsPlaying();
 }
 
-- (BOOL)isStopped
-{
-    return !sPlayerFlags;
-}
-
 - (float)volume
 {
-    double volume;
-    volume = [[PRUserDefaults userDefaults] volume];
-    volume = log10(volume * 9 + 1);
-    return volume;
+    return [[PRUserDefaults userDefaults] volume];
 }
 
 - (void)setVolume:(float)volume
 {
-    volume = (pow(10, volume) - 1) / 9;
     [[PRUserDefaults userDefaults] setVolume:volume];
-    PLAYER->SetDigitalVolume(volume);
+    PLAYER->SetVolume(volume);
+    [[NSNotificationCenter defaultCenter] postVolumeChanged];
 }
 
 - (void)increaseVolume
@@ -292,33 +354,123 @@ static void renderingFinished(void *context, const AudioDecoder *decoder)
 }
 
 // ========================================
-// Update
+// Accessors Private
 // ========================================
 
-- (void)decodingStarted
+@synthesize transitionTimer = _transitionTimer;
+@dynamic queueState;
+@synthesize player = player;
+
+- (PRMovieQueueState)queueState
 {
-    PLAYER->Play();
+    if ((1 << 0) & sPlayerFlags) {
+        return PRMovieQueueEmpty;
+    } else if ((1 << 1) & sPlayerFlags) {
+        return PRMovieQueueWaiting;
+    } else if ((1 << 2) & sPlayerFlags) {
+        return PRMovieQueuePlayed;
+    }
+    return PRMovieQueueEmpty;
 }
+
+- (void)setQueueState:(PRMovieQueueState)queueState
+{
+    if (queueState == PRMovieQueueEmpty) {
+        OSAtomicTestAndSetBarrier(7, &sPlayerFlags);
+        OSAtomicTestAndClearBarrier(6, &sPlayerFlags);
+        OSAtomicTestAndClearBarrier(5, &sPlayerFlags);
+    } else if (queueState == PRMovieQueueWaiting) {
+        OSAtomicTestAndClearBarrier(7, &sPlayerFlags);
+        OSAtomicTestAndSetBarrier(6, &sPlayerFlags);
+        OSAtomicTestAndClearBarrier(5, &sPlayerFlags);
+    } else if (queueState == PRMovieQueuePlayed) {
+        OSAtomicTestAndClearBarrier(7, &sPlayerFlags);
+        OSAtomicTestAndClearBarrier(6, &sPlayerFlags);
+        OSAtomicTestAndSetBarrier(5, &sPlayerFlags);
+    }
+}
+
+// ========================================
+// Update Private
+// ========================================
 
 - (void)update
 {
-    [self willChangeValueForKey:@"currentTime"];
-    [self didChangeValueForKey:@"currentTime"];
+    [[NSNotificationCenter defaultCenter] postTimeChanged];
     [self willChangeValueForKey:@"duration"];
     [self didChangeValueForKey:@"duration"];
+    [self willChangeValueForKey:@"currentTime"];
+    [self didChangeValueForKey:@"currentTime"];
+    
+    int timeLeft = [self duration] - [self currentTime];
+    if ([self queueState] == PRMovieQueueEmpty && [self isPlaying] && timeLeft < 2000) {
+        [[NSNotificationCenter defaultCenter] postMovieAlmostFinished];
+    }
 }
 
-- (void)postMovieDidFinishNotification
+- (void)preGainDidChange:(NSNotification *)note
 {
-    [self willChangeValueForKey:@"isPlaying"];
-    [self didChangeValueForKey:@"isPlaying"];
-    [[NSNotificationCenter defaultCenter] postNotificationName:PRMovieDidFinishNotification object:self];
+//    float preGain = [[PRUserDefaults userDefaults] preGain];
+    PLAYER->SetPreGain(1.0);
 }
 
-- (void)preGainDidChange:(NSNotification *)notification
+- (void)EQChanged:(NSNotification *)note
 {
-    float preGain = [[PRUserDefaults userDefaults] preGain];
-    PLAYER->SetDigitalPreGain(preGain);
+    PREQ *EQ;
+    if (![[PRUserDefaults userDefaults] EQIsEnabled]) {
+        EQ = [PREQ flat];
+    } else if ([[PRUserDefaults userDefaults] isCustomEQ]) {
+        EQ = [[[PRUserDefaults userDefaults] customEQs] objectAtIndex:[[PRUserDefaults userDefaults] EQIndex]];
+    } else {
+        EQ = [[PREQ defaultEQs] objectAtIndex:[[PRUserDefaults userDefaults] EQIndex]];
+    }
+    
+    for (int i = 0; i < 10; i++) {
+        float amp = [EQ ampForFreq:(PREQFreq)(i + 1)] + [EQ ampForFreq:PREQFreqPreamp];
+        if (amp > 20) {
+            amp = 20;
+        } else if (amp < -20) {
+            amp = -20;
+        }
+        OSStatus status = AudioUnitSetParameter(_au, i, kAudioUnitScope_Global, 0, amp, 0);
+        if (status != 0) {
+            NSLog(@"EQ failed:%d",(int)status);
+        }
+    }
 }
 
 @end
+
+static void decodingStarted(void *context, const AudioDecoder *decoder)
+{
+//    NSLog(@"decodingStarted");
+//    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
+    NSAutoreleasePool *p = [[NSAutoreleasePool alloc] init];
+    PRMoviePlayer *player = (PRMoviePlayer *)context;
+    static_cast<AudioPlayer *>([player player])->Play();
+    if ([player queueState] == PRMovieQueueWaiting) {
+        [player setQueueState:PRMovieQueuePlayed];
+    }
+    [p drain];
+}
+
+static void renderingStarted(void *context, const AudioDecoder *decoder)
+{
+//    NSLog(@"renderingStarted");
+//    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
+}
+
+static void decodingFinished(void *context, const AudioDecoder *decoder)
+{
+//    NSLog(@"decodingFinished");
+//    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
+}
+
+static void renderingFinished(void *context, const AudioDecoder *decoder)
+{
+//    NSLog(@"renderingFinished");
+//    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
+    NSAutoreleasePool *p = [[NSAutoreleasePool alloc] init];
+    [[NSOperationQueue mainQueue] addBlock:^{[[NSNotificationCenter defaultCenter] postMovieFinished];}];
+    [p drain];
+}

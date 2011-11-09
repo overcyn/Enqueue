@@ -6,6 +6,9 @@
 
 @interface PRAlbumArtController : NSObject 
 {
+    int _tempIndex;
+    NSFileManager *_fileManager;
+    
 	PRLibrary *lib;
 	PRDb *db;
 }
@@ -27,7 +30,10 @@
 - (NSImage *)albumArtForFiles:(NSIndexSet *)files;
 - (NSImage *)albumArtForArtist:(NSString *)artist;
 
+- (NSImage *)cachedArtForFile:(PRFile)file;
+
 - (void)setCachedAlbumArt:(NSImage *)image forFile:(PRFile)file;
+- (void)setCachedAlbumArt2:(NSImage *)image forFile:(PRFile)file;
 
 // ========================================
 // Misc
@@ -35,6 +41,21 @@
 - (NSString *)cachedAlbumArtPathForFile:(PRFile)file;
 - (NSString *)downloadedAlbumArtPathForFile:(PRFile)file;
 - (void)clearAlbumArtForFile:(PRFile)file;
+- (void)clearAlbumArtForFile2:(PRFile)file;
 - (BOOL)fileHasAlbumArt:(PRFile)file;
+
+// ========================================
+// Temp
+
+- (void)setTempArt:(int)temp forFile:(PRFile)file;
+- (int)saveTempArt:(NSImage *)image;
+- (void)clearTempArt;
+
+// ========================================
+// Temp Misc
+
+- (int)nextTempValue;
+- (NSString *)tempArtPathForTempValue:(int)temp;
+
 
 @end

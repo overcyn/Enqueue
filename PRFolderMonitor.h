@@ -30,9 +30,10 @@
 // Action
 
 - (void)monitor;
+- (void)rescan;
 
 @end
 
-void mycallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents,
-                void *eventPaths, const FSEventStreamEventFlags eventFlags[], 
-                const FSEventStreamEventId eventIds[]);
+void eventCallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents,
+                   void *eventPaths, const FSEventStreamEventFlags eventFlags[], 
+                   const FSEventStreamEventId eventIds[]);

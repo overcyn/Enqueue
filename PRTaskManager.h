@@ -5,14 +5,12 @@
 
 @interface PRTaskManager : NSObject 
 {
-    NSMutableArray *tasks;
+    NSMutableArray *_tasks;
 }
 
 @property (readonly) NSMutableArray *tasks;
 
 - (void)addTask:(PRTask *)task;
 - (void)removeTask:(PRTask *)task;
-- (void)updateTasksOnMain;
-- (void)updateTasks;
 
 @end

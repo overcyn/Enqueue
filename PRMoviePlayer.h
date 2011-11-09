@@ -1,12 +1,10 @@
 #import <Cocoa/Cocoa.h>
+#import <AudioUnit/AudioUnit.h>
 
 @class PRMovie;
 
 // ========================================
 // Constants
-
-extern NSString * const PRIsPlayingDidChangeNotification;
-extern NSString * const PRMovieDidFinishNotification;
 
 enum {
     PRNeitherTransitionState,
@@ -14,43 +12,45 @@ enum {
     PRPausingTransitionState,
 };
 
+typedef enum {
+    PRMovieQueueEmpty,
+    PRMovieQueueWaiting,
+    PRMovieQueuePlayed,
+} PRMovieQueueState;
+
 // ========================================
 // PRMoviePlayer
 // ========================================
 @interface PRMoviePlayer : NSObject {
+    AudioUnit _au;
+    
     void *player; // An instance of AudioPlayer
 	NSTimer	*timer; // User interface update timer
     
     float transitionVolume;
     int transitionState;
-    NSTimer *transitionTimer;
+    NSTimer *_transitionTimer; // should only be accessed through accessor
+    
+    PRMovieQueueState _queueState; // should only be accessed through accessor
 }
 
 // ========================================
-// Action
+// Playback
 
-- (BOOL)openFileAndPlay:(NSString *)file;
-- (void)playImmediately;
-- (void)play;
-- (void)pause;
+- (BOOL)play:(NSString *)file;
+- (BOOL)queue:(NSString *)file;
+- (BOOL)playIfNotQueued:(NSString *)file;
+
 - (void)stop;
-- (void)playPause;
+- (void)unpause;
+- (void)pause;
 - (void)seekForward;
 - (void)seekBackward;
 
 // ========================================
-// Update
-
-- (void)decodingStarted;
-- (void)preGainDidChange:(NSNotification *)notification;
-
-// ========================================
 // Accessors
 
-@property (readwrite, retain) NSTimer *transitionTimer;
-
 - (BOOL)isPlaying;
-- (BOOL)isStopped;
 - (float)volume;
 - (void)setVolume:(float)newVolume;
 - (void)increaseVolume;
@@ -61,10 +61,3 @@ enum {
  
 @end
 
-
-@interface PRMoviePlayer ()
-
-- (void)update;
-- (void)postMovieDidFinishNotification;
-
-@end

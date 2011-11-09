@@ -5,7 +5,6 @@
 #import "PRPlaylists.h"
 #import "PRPlaylists+Extensions.h"
 #import "PRDb.h"
-#import "PRRuleArrayController.h"
 #import "PRCore.h"
 #import "PRMainWindowController.h"
 
@@ -15,12 +14,11 @@
 // Initialization
 // ========================================
 
-- (id)initWithCore:(id)core
+- (id)initWithCore:(PRCore *)core playlist:(PRPlaylist)playlist
 {
-    self = [super initWithWindowNibName:@"PRSmartPlaylistEditorView"];
-	if (self) {
-        _core = core;
-	}
+	if (!(self = [super initWithWindowNibName:@"PRSmartPlaylistEditorView"])) {return nil;}
+    _core = core;
+    _playlist = playlist;
 	return self;
 }
 
@@ -42,23 +40,6 @@
 	
 	[collectionView setMaxNumberOfRows:1];
 	[collectionView setItemPrototype:[[[PRRuleViewController alloc] initWithLib:[[_core db] library]] autorelease]];
-    [self updateContent];
-}
-
-// ========================================
-// Accessors
-// ========================================
-
-@dynamic playlist;
-
-- (PRPlaylist)playlist
-{
-    return _playlist;
-}
-
-- (void)setPlaylist:(PRPlaylist)playlist
-{
-    _playlist = playlist;
     [self updateContent];
 }
 

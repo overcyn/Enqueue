@@ -17,7 +17,6 @@ typedef enum {
     IBOutlet NSView *background;
     IBOutlet PRGradientView *divider;
     IBOutlet PRGradientView *divider2;
-    
     IBOutlet PRTableView *tableView;
     
     IBOutlet NSButton *topSongsButton;
@@ -26,10 +25,14 @@ typedef enum {
     IBOutlet NSButton *recentlyPlayedButton;
     
     NSArray *dataSource;
-    NSCache *artworkCache;
     
     PRHistoryMode2 historyMode;
+    
+    float _rowHeight;
 	
+    NSDateFormatter *_dateFormatter;
+    NSDateFormatter *_timeFormatter;
+    
 	// Weak
 	PRDb *db;
 	PRHistory *history;
@@ -51,7 +54,6 @@ typedef enum {
 
 // Updates Tableviews
 - (void)update;
-- (void)updateUI;
 
 // Action method for tableview
 - (void)tableViewAction:(id)sender;

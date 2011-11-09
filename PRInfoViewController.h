@@ -19,6 +19,7 @@
 	IBOutlet NSTextField *composerLabel;	
 	IBOutlet NSTextField *commentsLabel;
 	IBOutlet NSTextField *genreLabel;
+    IBOutlet NSTextField *ratingLabel;
 
 	IBOutlet NSTextField *titleField;
 	IBOutlet NSTextField *artistField;	
@@ -55,7 +56,8 @@
 - (id)initWithCore:(PRCore *)core_;
 - (void)update;
 - (id)valueForAttribute:(PRFileAttribute)attribute;
-- (void)tagsDidChange:(NSNotification *)notification;
-- (void)libraryViewSelectionDidChange:(NSNotification *)notification;
+
+- (void)setAlbumArt:(NSImage *)value;
+- (NSImage *)albumArt;
 
 @end

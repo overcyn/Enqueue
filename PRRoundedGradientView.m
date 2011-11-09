@@ -9,9 +9,7 @@
     clip.origin.y -= 7;
     clip.size.width += 7;
     clip.size.height += 7;
-    [[NSBezierPath bezierPathWithRoundedRect:clip 
-                                     xRadius:4.0 
-                                     yRadius:4.0] addClip];
+    [[NSBezierPath bezierPathWithRoundedRect:clip xRadius:4.0 yRadius:4.0] addClip];
     [super drawRect:dirtyRect];
 }
 

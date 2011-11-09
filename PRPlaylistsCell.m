@@ -1,6 +1,6 @@
 #import "PRPlaylistsCell.h"
 #import "PRPlaylistsViewController.h"
-
+#import "NSColor+Extensions.h"
 
 @implementation PRPlaylistsCell
 
@@ -10,6 +10,12 @@
 
 - (void)drawWithFrame:(NSRect)theCellFrame inView:(NSView *)theControlView
 {
+        
+    [[NSColor PRGridColor] set];
+    [NSBezierPath fillRect:NSMakeRect(theCellFrame.origin.x, theCellFrame.origin.y + theCellFrame.size.height - 3, theCellFrame.size.width, 1)];
+    [[NSColor PRGridHighlightColor] set];
+    [NSBezierPath fillRect:NSMakeRect(theCellFrame.origin.x, theCellFrame.origin.y + theCellFrame.size.height - 2, theCellFrame.size.width, 1)];
+        
     if ([[self objectValue] isKindOfClass:[NSString class]]) {
         [NSGraphicsContext saveGraphicsState];
         NSSetFocusRingStyle(NSFocusRingOnly);
@@ -20,13 +26,19 @@
         return;
     }
     
+    theCellFrame.origin.x += 20;
+    theCellFrame.size.width -= 20;
+    
+    theCellFrame.size.height -= 4;
+
+    
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
 	NSDictionary *dict = [self objectValue];
 	NSString *title = [dict objectForKey:@"title"];
 	NSString *subtitle = [dict objectForKey:@"subtitle"];
 	NSImage *icon = [dict objectForKey:@"icon"];
-	NSSize iconSize = NSMakeSize(17, 17);
+	NSSize iconSize = NSMakeSize(14, 14);
 	[icon setFlipped:YES];
     
 //    if ([[dict objectForKey:@"mouseOver"] boolValue]) {
@@ -43,7 +55,6 @@
     rect.origin.y += rect.size.height/2 - 10;
     rect.size.width = 21;
     rect.size.height = 21;
-    
     
     NSRect rect2 = theCellFrame;
     rect2.origin.x += rect.size.width - 40;
@@ -85,9 +96,9 @@
          nil];
     
     // Inset the cell frame to give everything a little horizontal padding
-	NSRect insetRect = NSInsetRect(theCellFrame, 5, 0);
-    insetRect.origin.x += 5;
-    insetRect.size.width -= 5;
+	NSRect insetRect = NSInsetRect(theCellFrame, 0, 0);
+//    insetRect.origin.x += 5;
+//    insetRect.size.width -= 5;
     
 	// get the size of the string for layout
 	NSSize titleSize = [title sizeWithAttributes:titleAttributes];
@@ -99,8 +110,8 @@
 	float horizontalPadding = 10;
 	
 	// Icon box: center the icon vertically inside of the inset rect
-	NSRect iconBox = NSMakeRect(insetRect.origin.x,
-								insetRect.origin.y + insetRect.size.height*.5 - iconSize.height*.5,
+	NSRect iconBox = NSMakeRect(insetRect.origin.x + 0.08,
+								floor(insetRect.origin.y + insetRect.size.height*.5 - iconSize.height*.5),
 								iconSize.width,
 								iconSize.height);
 	
@@ -176,7 +187,6 @@
         [i setTarget:[self target]];
         [i setTag:playlist];
     }
-    
     return menu_;
 }
 
@@ -187,7 +197,7 @@
     [self setFont:[NSFont fontWithName:@"HelveticaNeue-Medium" size:15]];
     
 //    if ([fieldEditor isKindOfClass:[NSTextView class]]) {
-//        [(NSTextView *)fieldEditor setTextContainerInset:NSMakeSize(10, 9)];
+//        [(NSTextView *)fieldEditor setTextContainerInset:NSMakeSize(0, -3)];
 //    }
     return fieldEditor;
 }

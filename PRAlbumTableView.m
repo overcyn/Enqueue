@@ -24,12 +24,12 @@
 	NSIndexSet *selectedRowIndexes = [self selectedRowIndexes];
 	
 	// if the view is focused, use highlight color, otherwise use the out-of-focus highlight color
-	if (self == [[self window] firstResponder]
-		&& [[self window] isMainWindow]
-		&& [[self window] isKeyWindow]) {
-		[highlightColor set];
+	if (self == [[self window] firstResponder] && 
+        [[self window] isMainWindow] && 
+        [[self window] isKeyWindow]) {
+        [[NSColor colorWithCalibratedRed:59./255 green:128./255 blue:223./255 alpha:1.0] set];
 	} else {
-		[secondaryHighlightColor set];
+		[[NSColor secondarySelectedControlColor] set];
 	}
 	
 	// draw highlight for the visible, selected rows

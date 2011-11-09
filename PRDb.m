@@ -7,24 +7,18 @@
 #import "PRNowPlayingViewSource.h"
 #import "PRAlbumArtController.h"
 #import "PRPlaybackOrder.h"
-#import "NSError+Extensions.h"
 #include <string.h>
 #include <ctype.h>
-#include "sqlite3.h"
 #include "PRUserDefaults.h"
 #include <sys/file.h>
 #import "PRStatement.h"
+#import "sqlite_str.h"
 
 
 // ========================================
 // Constants
 // ========================================
 
-NSString * const PRLibraryDidChangeNotification = @"PRLibraryDidChangeNotification";
-NSString * const PRLibraryViewDidChangeNotification = @"PRLibraryViewDidChangeNotification";
-NSString * const PRTagsDidChangeNotification = @"PRTagsDidChangeNotification";
-NSString * const PRPlaylistDidChangeNotification = @"PRPlaylistDidChangeNotification";
-NSString * const PRPlaylistsDidChangeNotification = @"PRPlaylistsDidChangeNotification";
 NSString * const PRFilePboardType = @"PRFilePboardType";
 NSString * const PRIndexesPboardType = @"PRIndexesPboardType";
 
@@ -56,7 +50,6 @@ NSString * const PRIndexesPboardType = @"PRIndexesPboardType";
 - (id)init
 {
     if (!(self = [super init])) {return nil;}
-    
     history = [[PRHistory alloc] initWithDb:self];
     library = [[PRLibrary alloc] initWithDb:self];
     playlists = [[PRPlaylists alloc] initWithDb:self];
@@ -66,12 +59,6 @@ NSString * const PRIndexesPboardType = @"PRIndexesPboardType";
     playbackOrder = [[PRPlaybackOrder alloc] initWithDb:self];
     albumArtController = [[PRAlbumArtController alloc] initWithDb:self];
     transaction = 0;
-    
-//    static BOOL temp = TRUE; // REMOVE
-//    if (temp) {
-//        temp = FALSE;
-//        goto create;
-//    }
     
     NSString *libraryPath = [[PRUserDefaults userDefaults] libraryPath];
     int e = [[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:libraryPath isDirectory:nil];
@@ -144,6 +131,12 @@ create:;
 	if (e != SQLITE_OK) {return FALSE;}
     
 	e = sqlite3_create_collation(sqlDb, "NOCASE2", SQLITE_UTF16, NULL, no_case);
+	if (e != SQLITE_OK) {return FALSE;}
+    
+    e = sqlite3_create_function_v2(sqlDb, "hfs_begins", 2, SQLITE_UTF16, NULL, hfs_begins, NULL, NULL, NULL);
+    if (e != SQLITE_OK) {return FALSE;}
+    
+    e = sqlite3_create_collation(sqlDb, "hfs_compare", SQLITE_UTF16, NULL, hfs_compare);
 	if (e != SQLITE_OK) {return FALSE;}
     
     return TRUE;
@@ -260,6 +253,23 @@ create:;
         [self commit];
         version = 4;
     }
+    if (version == 4) {
+        [self begin];
+        string = @"DROP INDEX IF EXISTS index_path";
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
+        string = @"CREATE INDEX index_path ON library (path COLLATE hfs_compare)";
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
+        string = @"UPDATE schema_version SET version = 5";
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
+        [self commit];
+        version = 5;
+    }
     return TRUE;
 }
 
@@ -267,7 +277,7 @@ create:;
 {
     NSString *string = @"CREATE TABLE schema_version (version INTEGER NOT NULL)";
     [self execute:string];
-    string = @"INSERT INTO schema_version (version) VALUES (4)";
+    string = @"INSERT INTO schema_version (version) VALUES (5)";
     [self execute:string];
     
     [history create];
@@ -389,6 +399,11 @@ create:;
     return [[PRStatement statement:string bindings:bindings columns:columns db:self] attempt];
 }
 
+- (long)lastInsertRowid
+{
+    return sqlite3_last_insert_rowid(sqlDb);
+}
+
 // ========================================
 // Error
 // ========================================
@@ -429,78 +444,4 @@ create:;
 
 @end
 
-int no_case(void *udp, int lenA, const void *strA, int lenB, const void *strB) 
-{
-    UniChar *uniCharA = (UniChar *)strA;
-    UniChar *uniCharB = (UniChar *)strB;
-    CFRange rangeA = PRFormatString(uniCharA, lenA/2);
-    CFRange rangeB = PRFormatString(uniCharB, lenB/2);
-    
-    if (rangeA.length == 0 && rangeB.length == 0) {
-        return 0;
-    } else if (rangeA.length == 0) {
-        return 1;
-    } else if (rangeB.length == 0) {
-        return -1;
-    }
-    
-    CFStringRef stringA = CFStringCreateWithCharactersNoCopy(NULL, uniCharA+rangeA.location, rangeA.length, kCFAllocatorNull);
-    CFStringRef stringB = CFStringCreateWithCharactersNoCopy(NULL, uniCharB+rangeB.location, rangeB.length, kCFAllocatorNull);
-    
-    int result = CFStringCompare(stringA, stringB, kCFCompareCaseInsensitive);
-    
-    CFRelease(stringA);
-    CFRelease(stringB);
-    
-    return result;
-}
 
-CFRange PRFormatString(UniChar *string, int length) 
-{
-    CFCharacterSetRef whiteSpace = CFCharacterSetGetPredefined(kCFCharacterSetWhitespace);
-    int index = 0;
-    int reverseIndex = length - 1;
-    while (index < length && CFCharacterSetIsCharacterMember(whiteSpace, string[index])) {
-        index++;
-    }
-    int skipCount = 0;
-    if (index + 4 < length &&
-		(string[index] == 't' || string[index] == 'T') &&
-		(string[index+1] == 'h' || string[index+1] == 'H') &&
-		(string[index+2] == 'e' || string[index+2] == 'E') &&
-		CFCharacterSetIsCharacterMember(whiteSpace, string[index+3])) {
-        skipCount = 4;
-		index += 4;
-	} else if (index + 2 < length &&
-               (string[index] == 'a' || string[index] == 'A') &&
-               CFCharacterSetIsCharacterMember(whiteSpace, string[index+1])) {
-        skipCount = 2;
-		index += 2;
-	} else if (index + 3 < length &&
-               (string[index] == 'a' || string[index] == 'A') &&
-               (string[index+1] == 'n' || string[index+1] == 'N') &&
-               CFCharacterSetIsCharacterMember(whiteSpace, string[index+2])) {
-        skipCount = 3;
-		index += 3;
-	}
-    while (index < length && CFCharacterSetIsCharacterMember(whiteSpace, string[index])) {
-        skipCount++;
-        index++;
-    }
-    if (index >= length) {
-        index -= skipCount;
-    }
-    while (reverseIndex >= index && CFCharacterSetIsCharacterMember(whiteSpace, string[reverseIndex])) {
-        reverseIndex--;
-    }
-    int tempIdxA = index;
-    while (tempIdxA < length && string[tempIdxA] >= '!' && string[tempIdxA] < 'A') {
-        string[tempIdxA] += 57344;
-        tempIdxA++;
-    }
-    int newLength = reverseIndex - index + 1;
-    if (newLength < 0) {
-        newLength = 0;
-    }
-    return CFRangeMake(index, newLength);
-}
