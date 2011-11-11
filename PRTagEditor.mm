@@ -909,6 +909,7 @@ using namespace TagLib;
 
 + (NSDictionary *)tagsForAPETag:(TagLib::APE::Tag *)tag
 {
+    return [NSDictionary dictionary];
     APE::ItemListMap itemListMap = tag->itemListMap();
     
 //    APE::ItemListMap::ConstIterator it = itemListMap.begin();
@@ -1646,18 +1647,22 @@ using namespace TagLib;
 // Tag Miscellaneous
 // ========================================
 
-+ (File *)fileAtURL:(NSURL *)URL type:(PRFileType *)fileType2
++ (File *)fileAtURL:(NSURL *)URL type:(PRFileType *)fileType
 {
     NSString *path = [URL path];
     NSString *pathExtension = [[path pathExtension] uppercaseString];
     File *file = NULL;
-    PRFileType fileType_;
     
+    delete file;
     if ([pathExtension compare:@"MP1"] == NSOrderedSame ||
         [pathExtension compare:@"MP2"] == NSOrderedSame ||
         [pathExtension compare:@"MP3"] == NSOrderedSame) {
         file = new MPEG::File([path UTF8String]);
-        fileType_ = PRFileTypeMPEG;
+        if (file->isValid()) {
+            *fileType = PRFileTypeMPEG;
+            return file;
+        }
+        delete file;
     } else if ([pathExtension compare:@"AAC"] == NSOrderedSame ||
                [pathExtension compare:@"M4A"] == NSOrderedSame ||
                [pathExtension compare:@"MP4"] == NSOrderedSame ||
@@ -1665,15 +1670,15 @@ using namespace TagLib;
                [pathExtension compare:@"M4R"] == NSOrderedSame) {
         UInt8 buf[PATH_MAX];
         if (!CFURLGetFileSystemRepresentation((CFURLRef)URL, FALSE, buf, PATH_MAX)) {
-            fileType_ = PRFileTypeUnknown;
-            goto end;
+            *fileType = PRFileTypeUnknown;
+            return NULL;
         }
         
         MP4FileHandle mp4FileHandle = MP4Read(reinterpret_cast<const char *>(buf));
         if (mp4FileHandle == MP4_INVALID_FILE_HANDLE) {
-            fileType_ = PRFileTypeUnknown;
             MP4Close(mp4FileHandle);
-            goto end;
+            *fileType = PRFileTypeUnknown;
+            return NULL;
         }
         
         if (MP4GetNumberOfTracks(mp4FileHandle) > 0) {
@@ -1683,85 +1688,105 @@ using namespace TagLib;
             // Verify this is an MPEG-4 audio file
             if(trackID == MP4_INVALID_TRACK_ID || strncmp("soun", MP4GetTrackType(mp4FileHandle, trackID), 4)) {
                 MP4Close(mp4FileHandle);
-                fileType_ = PRFileTypeUnknown;
-                goto end;
+                *fileType = PRFileTypeUnknown;
+                return NULL;
             }
         }
         MP4Close(mp4FileHandle);
         
         file = new MP4::File([path UTF8String]);
-        fileType_ = PRFileTypeMP4;
-        
+        if (file->isValid()) {
+            *fileType = PRFileTypeMP4;
+            return file;
+        }
+        delete file;
     } else if ([pathExtension compare:@"FLAC"] == NSOrderedSame) {
         file = new FLAC::File([path UTF8String]);
-        fileType_ = PRFileTypeFLAC;
+        if (file->isValid()) {
+            *fileType = PRFileTypeFLAC;
+            return file;
+        }
+        delete file;
     } else if ([pathExtension compare:@"ASF"] == NSOrderedSame ||
                [pathExtension compare:@"WMA"] == NSOrderedSame) {
         file = new ASF::File([path UTF8String]);
-        fileType_ = PRFileTypeASF;
+        if (file->isValid()) {
+            *fileType = PRFileTypeASF;
+            return file;
+        }
+        delete file;
     } else if ([pathExtension compare:@"OGG"] == NSOrderedSame ||
                [pathExtension compare:@"OGA"] == NSOrderedSame ||
                [pathExtension compare:@"OGX"] == NSOrderedSame || 
                [pathExtension compare:@"SPX"] == NSOrderedSame) {
         file = new Ogg::Vorbis::File([path UTF8String]);
         if (file->isValid()) {
-            fileType_ = PRFileTypeOggVorbis;
-            goto end;
-        } 
+            *fileType = PRFileTypeOggVorbis;
+            return file;
+        }
         delete file;
         
         file = new Ogg::FLAC::File([path UTF8String]);
         if (file->isValid()) {
-            fileType_ = PRFileTypeOggFLAC;
-            goto end;
-        } 
+            *fileType = PRFileTypeOggFLAC;
+            return file;
+        }
         delete file;
         
         file = new Ogg::Speex::File([path UTF8String]);
         if (file->isValid()) {
-            fileType_ = PRFileTypeOggSpeex;
-            goto end;
-        } 
+            *fileType = PRFileTypeOggSpeex;
+            return file;
+        }
         delete file;
-        file = NULL;
-        fileType_ = PRFileTypeUnknown;
     } else if ([pathExtension compare:@"AIFF"] == NSOrderedSame ||
                [pathExtension compare:@"AIF"] == NSOrderedSame) {
         file = new RIFF::AIFF::File([path UTF8String]);
-        fileType_ = PRFileTypeAIFF;
+        if (file->isValid()) {
+            *fileType = PRFileTypeAIFF;
+            return file;
+        }
+        delete file;
     } else if ([pathExtension compare:@"WAV"] == NSOrderedSame) {
         file = new RIFF::WAV::File([path UTF8String]);
-        fileType_ = PRFileTypeWAV;
+        if (file->isValid()) {
+            *fileType = PRFileTypeWAV;
+            return file;
+        }
+        delete file;
     } else if ([pathExtension compare:@"MPC"] == NSOrderedSame ||
                [pathExtension compare:@"MPP"] == NSOrderedSame ||
                [pathExtension compare:@"MP+"] == NSOrderedSame) {
         file = new MPC::File([path UTF8String]);
-        fileType_ = PRFileTypeMPC;
-        TagLib::MPC::File mpcFile([path UTF8String]);
+        if (file->isValid()) {
+            *fileType = PRFileTypeMPC;
+            return file;
+        }
+        delete file;
     } else if ([pathExtension compare:@"APE"] == NSOrderedSame) {
         file = new APE::File([path UTF8String]);
-        fileType_ = PRFileTypeAPE;
+        if (file->isValid()) {
+            *fileType = PRFileTypeAPE;
+            return file;
+        }
+        delete file;
     } else if ([pathExtension compare:@"TTA"] == NSOrderedSame) {
         file = new TrueAudio::File([path UTF8String]);
-        fileType_ = PRFileTypeTrueAudio;
+        if (file->isValid()) {
+            *fileType = PRFileTypeTrueAudio;
+            return file;
+        }
+        delete file;
     } else if ([pathExtension compare:@"WV"] == NSOrderedSame) {
         file = new WavPack::File([path UTF8String]);
-        fileType_ = PRFileTypeWavPack;
-    } else {
-        fileType_ = PRFileTypeUnknown;
-    }
-    
-end:
-    if (file && !file->isValid()) {
-        fileType_ = PRFileTypeUnknown;
+        if (file->isValid()) {
+            *fileType = PRFileTypeWavPack;
+            return file;
+        }
         delete file;
-        file = NULL;
-    } else if (!file) {
-        fileType_ = PRFileTypeUnknown;
     }
-
-    *fileType2 = fileType_;    
-    return file;
+    *fileType = PRFileTypeUnknown;
+    return NULL;
 }
 
 + (int)firstValue:(const char *)string
