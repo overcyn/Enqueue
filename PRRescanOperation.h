@@ -9,6 +9,7 @@
     FSEventStreamEventId _eventId;
     BOOL _monitor;
     
+    // weak
     PRCore *_core;
     PRDb *_db;
 }

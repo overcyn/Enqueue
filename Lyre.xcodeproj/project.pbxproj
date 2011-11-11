@@ -238,7 +238,6 @@
 		67EA4157135958CE00F27195 /* taglib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67EA4156135958CE00F27195 /* taglib.framework */; };
 		67EA4158135958D900F27195 /* taglib.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 67EA4156135958CE00F27195 /* taglib.framework */; };
 		67EA449D1449927D006DDB47 /* log4cxx.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67EA449C1449927D006DDB47 /* log4cxx.framework */; };
-		67EA449E1449928F006DDB47 /* log4cxx.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 67EA449C1449927D006DDB47 /* log4cxx.framework */; };
 		67EA44A014499336006DDB47 /* PREnableLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 67EA449F14499336006DDB47 /* PREnableLogger.mm */; };
 		67EB42451339B843009167BA /* PRBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67EB42441339B843009167BA /* PRBackgroundView.m */; };
 		67EC3B7C1349A55600AD0BE1 /* PRWelcomeSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67EC3B7B1349A55600AD0BE1 /* PRWelcomeSheetController.m */; };
@@ -256,6 +255,7 @@
 		67F1BFCA127102460075C401 /* PRButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F1BFC9127102460075C401 /* PRButtonCell.m */; };
 		67F3895D134AF48A00E76D9E /* PRActionIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 67F3895C134AF48A00E76D9E /* PRActionIcon.png */; };
 		67FCEE0E133EA07D00765EE1 /* PRLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 67FCEE0D133EA07D00765EE1 /* PRLog.m */; };
+		67FF0774146AE90F009A5767 /* log4cxx.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 67EA449C1449927D006DDB47 /* log4cxx.framework */; };
 		8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		8D11072D0486CEB800E47090 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
@@ -269,13 +269,13 @@
 			dstSubfolderSpec = 10;
 			files = (
 				67C0CE461458A7B300CBCE24 /* mp4v2.framework in CopyFiles */,
-				67EA449E1449928F006DDB47 /* log4cxx.framework in CopyFiles */,
 				673E4AB7138553FD00DD8260 /* Growl.framework in CopyFiles */,
 				670EDD8E135FFBF900CAB2F1 /* Sparkle.framework in CopyFiles */,
 				67EA414E1359536500F27195 /* SSCrypto.framework in CopyFiles */,
 				6727E4711368F92E00A21055 /* ShortcutRecorder.framework in CopyFiles */,
 				67EA4158135958D900F27195 /* taglib.framework in CopyFiles */,
 				67C0CE3E1458A67800CBCE24 /* SFBAudioEngine.framework in CopyFiles */,
+				67FF0774146AE90F009A5767 /* log4cxx.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1920,7 +1920,7 @@
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				LD_DYLIB_INSTALL_NAME = "";
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../frameworks @loader_path";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path @loader_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
@@ -1959,7 +1959,7 @@
 				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../frameworks @loader_path";
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path @loader_path/../Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)\"",
