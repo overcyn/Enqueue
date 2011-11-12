@@ -111,9 +111,9 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 - (BOOL)play:(NSString *)file
 {
     // clear queue & stop
+    [self setQueueState:PRMovieQueueEmpty];
     PLAYER->Pause();
     PLAYER->Stop();
-    self.queueState = PRMovieQueueEmpty;
     PLAYER->ClearQueuedDecoders();
     
     // invalidate transition timer and reset volume
@@ -141,9 +141,11 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 - (BOOL)queue:(NSString *)file
 {
-    if (self.queueState == PRMovieQueueWaiting || self.queueState == PRMovieQueuePlayed) {
+    if ([self queueState] == PRMovieQueueWaiting || [self queueState] == PRMovieQueuePlayed) {
         return FALSE;
     }
+    [self setQueueState:PRMovieQueueWaiting];
+    
     // clear queue
     PLAYER->ClearQueuedDecoders();
     
@@ -159,32 +161,25 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
         delete decoder;
         return FALSE;
     }
-    self.queueState = PRMovieQueueWaiting;
     return TRUE;
 }
 
 - (BOOL)playIfNotQueued:(NSString *)file
 {
-    switch (self.queueState) {
-        case PRMovieQueueEmpty:
-        case PRMovieQueueWaiting:
-            return [self play:file];
-        case PRMovieQueuePlayed:
-        {
-            NSURL *URL = (NSURL *)PLAYER->GetPlayingURL();
-            if (!URL) {
-                return [self play:file];
-            }
-            if ([[URL absoluteString] isEqualToString:file]) {
-                self.queueState = PRMovieQueueEmpty;
-                return TRUE;
-            } else {
-                return [self play:file];
-            }
+    BOOL success = FALSE;
+    int queueState = [self queueState];
+    [self setQueueState:PRMovieQueueEmpty];
+    if (queueState == PRMovieQueueEmpty || queueState == PRMovieQueueWaiting) {
+        success = [self play:file];
+    } else if (queueState == PRMovieQueuePlayed) {
+        NSURL *URL = (NSURL *)PLAYER->GetPlayingURL();
+        if (!URL || ![[URL absoluteString] isEqualToString:file]) {
+            success = [self play:file];
+        } else {
+            success = TRUE;
         }
-        default:
-            return 0;
     }
+    return success;
 }
 
 - (void)stop
