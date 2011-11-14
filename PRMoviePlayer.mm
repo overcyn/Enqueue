@@ -96,6 +96,9 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     [self setVolume:[self volume]];
     [self setQueueState:PRMovieQueueEmpty];
     
+    PLAYER->SetRingBufferCapacity(32768);
+    PLAYER->SetRingBufferWriteChunkSize(4096);
+    
 	return self;
 }
 
@@ -123,6 +126,8 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
         transitionState = PRNeitherTransitionState;
     }
     [self setVolume:[self volume]];
+    
+//    NSLog(@"capacity:%d, minchunksize:%d",PLAYER->GetRingBufferCapacity(), PLAYER->GetRingBufferWriteChunkSize());
     
     AudioDecoder *decoder = AudioDecoder::CreateDecoderForURL(reinterpret_cast<CFURLRef>([NSURL URLWithString:file]));
     if (!decoder) {
