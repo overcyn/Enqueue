@@ -34,7 +34,7 @@
         [[PRLog sharedLog] presentFatalError:[self couldNotCreateDirectoryError:path]];
     }
     
-    [PREnableLogger enableLogger];
+//    [PREnableLogger enableLogger];
     
     _opQueue = [[NSOperationQueue alloc] init];
     [_opQueue setMaxConcurrentOperationCount:1];
