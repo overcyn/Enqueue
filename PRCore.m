@@ -14,6 +14,7 @@
 #import "PRVacuumOperation.h"
 #include "PREnableLogger.h"
 #import "PRMainMenuController.h"
+#import "PRKeyboardShortcuts.h"
 
 @implementation PRCore
 
@@ -46,6 +47,7 @@
     _win = [[PRMainWindowController alloc] initWithCore:self]; // requires: db, now, taskManager, folderMonitor
     _growl  = [[PRGrowl alloc] initWithCore:self];
     _lastfm = [[PRLastfm alloc] initWithCore:self];
+    _keys = [[PRKeyboardShortcuts alloc] initWithCore:self];
     return self;
 }
 
@@ -88,6 +90,7 @@
 @synthesize taskManager = _taskManager;
 @synthesize mainMenu = _mainMenu;
 @synthesize lastfm = _lastfm;
+@synthesize keys = _keys;
 
 // ========================================
 // Importing

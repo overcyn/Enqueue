@@ -220,6 +220,10 @@
 		67D5208D128C04A4000D6AAC /* PRAlbumTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D5208C128C04A4000D6AAC /* PRAlbumTableView.m */; };
 		67D732A6132FBB4700AB2D14 /* PRScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D732A5132FBB4700AB2D14 /* PRScrollView.m */; };
 		67D744BB125DB8DA00A5AF3B /* PRSmartPlaylistEditorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D744BA125DB8DA00A5AF3B /* PRSmartPlaylistEditorViewController.m */; };
+		67D911DF147107D6001C9DE8 /* SPMediaKeyTap.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911DD147107D6001C9DE8 /* SPMediaKeyTap.m */; };
+		67D911E0147107D6001C9DE8 /* SPMediaKeyTapDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911DE147107D6001C9DE8 /* SPMediaKeyTapDelegate.m */; };
+		67D911E3147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911E2147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.m */; };
+		67D911E71471087B001C9DE8 /* PRKeyboardShortcuts.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911E61471087B001C9DE8 /* PRKeyboardShortcuts.m */; };
 		67DAC8161456387900E120B6 /* EMKeychainItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DAC8151456387900E120B6 /* EMKeychainItem.m */; };
 		67DC99A61266F9E1000C3942 /* PRRuleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC99A51266F9E1000C3942 /* PRRuleViewController.m */; };
 		67E94735126C528E00CAE943 /* PRCenteredTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */; };
@@ -600,6 +604,13 @@
 		67D732A5132FBB4700AB2D14 /* PRScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRScrollView.m; sourceTree = "<group>"; };
 		67D744B9125DB8DA00A5AF3B /* PRSmartPlaylistEditorViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRSmartPlaylistEditorViewController.h; sourceTree = "<group>"; };
 		67D744BA125DB8DA00A5AF3B /* PRSmartPlaylistEditorViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRSmartPlaylistEditorViewController.m; sourceTree = "<group>"; };
+		67D911DC147107D6001C9DE8 /* SPMediaKeyTap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SPMediaKeyTap.h; path = Frameworks/SPMediaKeyTap/SPMediaKeyTap.h; sourceTree = "<group>"; };
+		67D911DD147107D6001C9DE8 /* SPMediaKeyTap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SPMediaKeyTap.m; path = Frameworks/SPMediaKeyTap/SPMediaKeyTap.m; sourceTree = "<group>"; };
+		67D911DE147107D6001C9DE8 /* SPMediaKeyTapDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SPMediaKeyTapDelegate.m; path = Frameworks/SPMediaKeyTap/SPMediaKeyTapDelegate.m; sourceTree = "<group>"; };
+		67D911E1147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSObject+SPInvocationGrabbing.h"; path = "Frameworks/SPMediaKeyTap/SPInvocationGrabbing/NSObject+SPInvocationGrabbing.h"; sourceTree = "<group>"; };
+		67D911E2147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSObject+SPInvocationGrabbing.m"; path = "Frameworks/SPMediaKeyTap/SPInvocationGrabbing/NSObject+SPInvocationGrabbing.m"; sourceTree = "<group>"; };
+		67D911E51471087B001C9DE8 /* PRKeyboardShortcuts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRKeyboardShortcuts.h; sourceTree = "<group>"; };
+		67D911E61471087B001C9DE8 /* PRKeyboardShortcuts.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRKeyboardShortcuts.m; sourceTree = "<group>"; };
 		67DAC8141456387900E120B6 /* EMKeychainItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EMKeychainItem.h; path = Frameworks/EMKeychainItem/EMKeychainItem.h; sourceTree = "<group>"; };
 		67DAC8151456387900E120B6 /* EMKeychainItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EMKeychainItem.m; path = Frameworks/EMKeychainItem/EMKeychainItem.m; sourceTree = "<group>"; };
 		67DC99A41266F9E1000C3942 /* PRRuleViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleViewController.h; sourceTree = "<group>"; };
@@ -690,6 +701,7 @@
 				6739CCB4125313D400AB54A1 /* Tags */,
 				67133E181327425C00764174 /* Folder Monitor */,
 				67C4ACB21329B5AA00796610 /* Task Manager */,
+				67D911E414710856001C9DE8 /* Keyboard Shortcuts */,
 				673E4AB31385510900DD8260 /* Growl */,
 				673E4ACF13858CB000DD8260 /* LastFm */,
 				6706FCF512B9C64400C9B075 /* User Defaults */,
@@ -1403,6 +1415,7 @@
 		67A1E9821328CAFD007B81E3 /* Other */ = {
 			isa = PBXGroup;
 			children = (
+				67D911DB147107AB001C9DE8 /* SPMediaKeyTap */,
 				673540F7145CB744004044F1 /* Core Audio Public Utilities */,
 				678D5D78138D519F00A55E5D /* YRKSpinningIndicator */,
 				673E4AD31385920E00DD8260 /* EMKeychainItem */,
@@ -1542,6 +1555,27 @@
 				67EFE762145D406E00F05694 /* PREQ.m */,
 			);
 			name = "Now Playing";
+			sourceTree = "<group>";
+		};
+		67D911DB147107AB001C9DE8 /* SPMediaKeyTap */ = {
+			isa = PBXGroup;
+			children = (
+				67D911E1147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.h */,
+				67D911E2147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.m */,
+				67D911DC147107D6001C9DE8 /* SPMediaKeyTap.h */,
+				67D911DD147107D6001C9DE8 /* SPMediaKeyTap.m */,
+				67D911DE147107D6001C9DE8 /* SPMediaKeyTapDelegate.m */,
+			);
+			name = SPMediaKeyTap;
+			sourceTree = "<group>";
+		};
+		67D911E414710856001C9DE8 /* Keyboard Shortcuts */ = {
+			isa = PBXGroup;
+			children = (
+				67D911E51471087B001C9DE8 /* PRKeyboardShortcuts.h */,
+				67D911E61471087B001C9DE8 /* PRKeyboardShortcuts.m */,
+			);
+			name = "Keyboard Shortcuts";
 			sourceTree = "<group>";
 		};
 		67EA12F7145B346900309876 /* NowPlaying */ = {
@@ -1871,6 +1905,10 @@
 				67EFE772145F07DD00F05694 /* PRTabButton.m in Sources */,
 				67EE4AC91461ED680073C24C /* PRTabButtonCell2.m in Sources */,
 				67EE4ACC14633ABD0073C24C /* PRTableView2.m in Sources */,
+				67D911DF147107D6001C9DE8 /* SPMediaKeyTap.m in Sources */,
+				67D911E0147107D6001C9DE8 /* SPMediaKeyTapDelegate.m in Sources */,
+				67D911E3147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.m in Sources */,
+				67D911E71471087B001C9DE8 /* PRKeyboardShortcuts.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

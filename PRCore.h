@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class PRDb, PRNowPlayingController, PRMainWindowController, PRFolderMonitor, PRTaskManager,
-PRWelcomeSheetController, PRGrowl, PRLastfm;
+PRWelcomeSheetController, PRGrowl, PRLastfm, PRKeyboardShortcuts;
 
 @interface PRCore : NSObject <NSApplicationDelegate>
 {
@@ -18,6 +18,7 @@ PRWelcomeSheetController, PRGrowl, PRLastfm;
     PRTaskManager *_taskManager;
     PRGrowl *_growl;
     PRLastfm *_lastfm;
+    PRKeyboardShortcuts *_keys;
 }
 
 // ========================================
@@ -31,6 +32,7 @@ PRWelcomeSheetController, PRGrowl, PRLastfm;
 @property (readonly) PRTaskManager *taskManager;
 @property (readonly) NSMenu *mainMenu;
 @property (readonly) PRLastfm *lastfm;
+@property (readonly) PRKeyboardShortcuts *keys;
 
 // ========================================
 // Actions
