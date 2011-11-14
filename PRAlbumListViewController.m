@@ -346,7 +346,12 @@
 		[pboard declareTypes:[NSArray arrayWithObject:PRFilePboardType] owner:self];
 		[pboard setData:data forType:PRFilePboardType];
 		return TRUE;
-	}
+	} else if (tableView == libraryTableView) {
+        if ([self dbRowForTableRow:[rowIndexes firstIndex]] == -1) {
+            return FALSE;
+        }
+        return [super tableView:tableView writeRowsWithIndexes:rowIndexes toPasteboard:pboard];
+    }
 	return [super tableView:tableView writeRowsWithIndexes:rowIndexes toPasteboard:pboard];
 }
 
