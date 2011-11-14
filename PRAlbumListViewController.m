@@ -362,17 +362,17 @@
 // TableView Delegate
 // ========================================
 
-- (NSCell *)   tableView:(NSTableView *)tableView 
-  dataCellForTableColumn:(NSTableColumn *)tableColumn 
-					 row:(NSInteger)row
-{
-	if (tableView == libraryTableView && 
-		[self dbRowForTableRow:row] == -1) {
-		return [[[NSCell alloc] init] autorelease];
-	} else {
-		return [tableColumn dataCell];
-	}
-}
+//- (NSCell *)   tableView:(NSTableView *)tableView 
+//  dataCellForTableColumn:(NSTableColumn *)tableColumn 
+//					 row:(NSInteger)row
+//{
+//	if (tableView == libraryTableView && 
+//		[self dbRowForTableRow:row] == -1) {
+//		return [[[NSCell alloc] init] autorelease];
+//	} else {
+//		return [tableColumn dataCell];
+//	}
+//}
 
 - (void)tableView:(NSTableView *)tableView didClickTableColumn:(NSTableColumn *)tableColumn
 {
