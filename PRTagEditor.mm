@@ -909,7 +909,6 @@ using namespace TagLib;
 
 + (NSDictionary *)tagsForAPETag:(TagLib::APE::Tag *)tag
 {
-    return [NSDictionary dictionary];
     APE::ItemListMap itemListMap = tag->itemListMap();
     
 //    APE::ItemListMap::ConstIterator it = itemListMap.begin();
