@@ -141,7 +141,13 @@
     NSMenu *menu = [[[NSMenu alloc] initWithTitle:@"dockmenu"] autorelease];
     NSMenuItem *item;
     
-    item = [[[NSMenuItem alloc] initWithTitle:@"Play/Pause" action:@selector(playPause) keyEquivalent:@""] autorelease];
+    NSString *title;
+    if ([[[core now] mov] isPlaying]) {
+        title = @"Pause";
+    } else {
+        title = @"Play";
+    }
+    item = [[[NSMenuItem alloc] initWithTitle:title action:@selector(playPause) keyEquivalent:@""] autorelease];
     [item setTarget:[core now]];
     [menu addItem:item];
 
