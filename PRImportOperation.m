@@ -22,7 +22,7 @@
 - (void)main
 {
     NSLog(@"begin import");
-    NSAutoreleasePool *p = [[NSAutoreleasePool alloc] init];
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     PRTask *task = [PRTask task];
     [task setTitle:@"Adding Files..."];
     [[_core taskManager] addTask:task];
@@ -46,7 +46,7 @@
     
 end:;
     [[_core taskManager] removeTask:task];
-    [p drain];
+    [pool drain];
     NSLog(@"end import");
 }
 

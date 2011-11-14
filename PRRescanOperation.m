@@ -56,7 +56,7 @@
 - (void)main
 {
     NSLog(@"begin import");
-    NSAutoreleasePool *p = [[NSAutoreleasePool alloc] init];
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     PRTask *task = [PRTask task];
     [task setTitle:@"Scanning Folders..."];
     [[_core taskManager] addTask:task];
@@ -110,13 +110,13 @@
     
 end:;
     [[_core taskManager] removeTask:task];
-    [p drain];
+    [pool drain];
     NSLog(@"end import");
 }
 
 - (void)filterURLs:(NSArray *)URLs
 {
-    NSAutoreleasePool *p = [[NSAutoreleasePool alloc] init];
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSMutableArray *toUpdate = [NSMutableArray array];
     NSMutableArray *toAdd = [NSMutableArray array];
     NSMutableIndexSet *didRemove = [NSMutableIndexSet indexSet];
@@ -174,7 +174,7 @@ end:;
     [[NSOperationQueue mainQueue] addBlockAndWait:blk];
     [self addURLs:toAdd];
     [self updateFiles:toUpdate];
-    [p drain];
+    [pool drain];
 }
 
 - (NSIndexSet *)mergeFiles:(NSArray *)files newURL:(NSURL *)URL
@@ -202,9 +202,9 @@ end:;
     // Get info for URLs
     NSMutableArray *infoArray = [NSMutableArray array];
     for (int i = 0; i < [URLs count]; i++) {
-        NSAutoreleasePool *p = [[NSAutoreleasePool alloc] init];
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
         PRTagEditor *te = [PRTagEditor tagEditorForURL:[URLs objectAtIndex:i]];
-        if (!te) {continue;}
+        if (!te) {[pool drain]; continue;}
         NSMutableDictionary *info = [te info];
         [[info objectForKey:@"attr"] setObject:[[NSDate date] description] forKey:[NSNumber numberWithInt:PRDateAddedFileAttribute]];
         if ([info objectForKey:@"art"]) {
@@ -213,7 +213,7 @@ end:;
             [info removeObjectForKey:@"art"]; 
         }
         [infoArray addObject:info];
-        [p drain];
+        [pool drain];
     }
     void (^blk)(void) = ^{
         [_db begin];
@@ -264,7 +264,7 @@ end:;
     NSMutableArray *infoArray = [NSMutableArray array];
     NSMutableIndexSet *updated = [NSMutableIndexSet indexSet];
     for (NSDictionary *i in files) {
-        NSAutoreleasePool *p = [[NSAutoreleasePool alloc] init];
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
         PRTagEditor *te = [PRTagEditor tagEditorForURL:[i objectForKey:@"URL"]];
         if (te) {
             NSMutableDictionary *info = [te info];
@@ -279,7 +279,7 @@ end:;
         } else {
             [toRemove addObject:[i objectForKey:@"URL"]];
         }
-        [p drain];
+        [pool drain];
     }
     void (^blk)(void) = ^{
         [_db begin];
