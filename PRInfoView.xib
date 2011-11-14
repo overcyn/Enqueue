@@ -63,6 +63,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{125, 94}, {84, 14}}</string>
 										<reference key="NSSuperview" ref="660863224"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="151876628"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="417892774">
@@ -90,6 +91,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{125, 75}, {84, 14}}</string>
 										<reference key="NSSuperview" ref="660863224"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="389676945"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="838173311">
@@ -107,6 +109,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{125, 56}, {84, 14}}</string>
 										<reference key="NSSuperview" ref="660863224"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="801177214"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="836427334">
@@ -124,6 +127,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{125, 37}, {84, 14}}</string>
 										<reference key="NSSuperview" ref="660863224"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="569076293"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="418977626">
@@ -141,6 +145,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{125, 18}, {84, 14}}</string>
 										<reference key="NSSuperview" ref="660863224"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="126897117"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="718586688">
@@ -158,6 +163,7 @@
 										<int key="NSvFlags">266</int>
 										<string key="NSFrame">{{210, 89}, {185, 19}}</string>
 										<reference key="NSSuperview" ref="660863224"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="1068239187"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="515307362">
@@ -182,6 +188,7 @@
 										<int key="NSvFlags">266</int>
 										<string key="NSFrame">{{210, 70}, {185, 19}}</string>
 										<reference key="NSSuperview" ref="660863224"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="532879098"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="523404786">
@@ -199,6 +206,7 @@
 										<int key="NSvFlags">266</int>
 										<string key="NSFrame">{{210, 51}, {185, 19}}</string>
 										<reference key="NSSuperview" ref="660863224"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="424204314"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="458479812">
@@ -216,6 +224,7 @@
 										<int key="NSvFlags">266</int>
 										<string key="NSFrame">{{210, 12}, {185, 19}}</string>
 										<reference key="NSSuperview" ref="660863224"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="516062120"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="271529600">
@@ -233,6 +242,7 @@
 										<int key="NSvFlags">266</int>
 										<string key="NSFrame">{{210, 32}, {185, 19}}</string>
 										<reference key="NSSuperview" ref="660863224"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="398174928"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="700546625">
@@ -262,6 +272,7 @@
 										</object>
 										<string key="NSFrame">{{11, 10}, {100, 100}}</string>
 										<reference key="NSSuperview" ref="660863224"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="496375019"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSImageCell" key="NSCell" id="908257225">
@@ -277,11 +288,13 @@
 								</object>
 								<string key="NSFrameSize">{405, 120}</string>
 								<reference key="NSSuperview" ref="251654187"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="942563859"/>
 							</object>
 						</object>
 						<string key="NSFrame">{{24, 4}, {405, 120}}</string>
 						<reference key="NSSuperview" ref="170615298"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="660863224"/>
 						<string key="NSOffsets">{0, 0}</string>
 						<object class="NSTextFieldCell" key="NSTitleCell">
@@ -321,6 +334,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{9, 75}, {58, 14}}</string>
 										<reference key="NSSuperview" ref="296258963"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="669599681"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="862399789">
@@ -341,6 +355,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{9, 56}, {58, 14}}</string>
 										<reference key="NSSuperview" ref="296258963"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="65097169"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="294236159">
@@ -358,6 +373,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{9, 37}, {58, 14}}</string>
 										<reference key="NSSuperview" ref="296258963"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="353977953"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="844267790">
@@ -375,6 +391,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{9, 18}, {58, 14}}</string>
 										<reference key="NSSuperview" ref="296258963"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="658560054"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="497363595">
@@ -392,6 +409,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{102, 37}, {20, 14}}</string>
 										<reference key="NSSuperview" ref="296258963"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="416500203"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="952916455">
@@ -412,6 +430,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{102, 18}, {20, 14}}</string>
 										<reference key="NSSuperview" ref="296258963"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="512640437"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="583811212">
@@ -429,6 +448,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{68, 70}, {35, 19}}</string>
 										<reference key="NSSuperview" ref="296258963"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="966542705"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="163214268">
@@ -449,6 +469,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{68, 51}, {35, 19}}</string>
 										<reference key="NSSuperview" ref="296258963"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="929049310"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="179368580">
@@ -466,6 +487,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{68, 13}, {35, 19}}</string>
 										<reference key="NSSuperview" ref="296258963"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="1010613317"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="914288585">
@@ -483,6 +505,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{122, 32}, {35, 19}}</string>
 										<reference key="NSSuperview" ref="296258963"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="516102233"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="626341168">
@@ -500,6 +523,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{68, 32}, {35, 19}}</string>
 										<reference key="NSSuperview" ref="296258963"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="764099014"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="111070324">
@@ -517,6 +541,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{122, 13}, {35, 19}}</string>
 										<reference key="NSSuperview" ref="296258963"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="416400966"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="569567777">
@@ -534,6 +559,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{9, 94}, {58, 14}}</string>
 										<reference key="NSSuperview" ref="296258963"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="494142921"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="648428635">
@@ -551,6 +577,7 @@
 										<int key="NSvFlags">266</int>
 										<string key="NSFrame">{{68, 89}, {163, 19}}</string>
 										<reference key="NSSuperview" ref="296258963"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="684481152"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="709616352">
@@ -566,11 +593,13 @@
 								</object>
 								<string key="NSFrameSize">{247, 120}</string>
 								<reference key="NSSuperview" ref="129039567"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="613033974"/>
 							</object>
 						</object>
 						<string key="NSFrame">{{428, 4}, {247, 120}}</string>
 						<reference key="NSSuperview" ref="170615298"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="296258963"/>
 						<string key="NSOffsets">{0, 0}</string>
 						<object class="NSTextFieldCell" key="NSTitleCell">
@@ -605,6 +634,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{8, 75}, {84, 14}}</string>
 										<reference key="NSSuperview" ref="995778136"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="958202805"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="51120619">
@@ -625,7 +655,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{93, 9}, {225, 80}}</string>
 										<reference key="NSSuperview" ref="995778136"/>
-										<reference key="NSNextKeyView"/>
+										<reference key="NSWindow"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="145261830">
 											<int key="NSCellFlags">337772033</int>
@@ -646,6 +676,7 @@
 										<int key="NSvFlags">268</int>
 										<string key="NSFrame">{{34, 94}, {58, 14}}</string>
 										<reference key="NSSuperview" ref="995778136"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="825346714"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTextFieldCell" key="NSCell" id="495504946">
@@ -663,6 +694,7 @@
 										<int key="NSvFlags">-2147483380</int>
 										<string key="NSFrame">{{91, 91}, {75, 19}}</string>
 										<reference key="NSSuperview" ref="995778136"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="894864579"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSSegmentedCell" key="NSCell" id="98160885">
@@ -712,11 +744,13 @@
 								</object>
 								<string key="NSFrameSize">{324, 120}</string>
 								<reference key="NSSuperview" ref="416400966"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="460988371"/>
 							</object>
 						</object>
 						<string key="NSFrame">{{674, 4}, {324, 120}}</string>
 						<reference key="NSSuperview" ref="170615298"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="995778136"/>
 						<string key="NSOffsets">{0, 0}</string>
 						<object class="NSTextFieldCell" key="NSTitleCell">
@@ -739,8 +773,9 @@
 					<object class="NSTextField" id="516062120">
 						<reference key="NSNextResponder" ref="170615298"/>
 						<int key="NSvFlags">269</int>
-						<string key="NSFrame">{{354, 42}, {293, 44}}</string>
+						<string key="NSFrame">{{404, 42}, {193, 44}}</string>
 						<reference key="NSSuperview" ref="170615298"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="129039567"/>
 						<string key="NSReuseIdentifierKey">_NS:3937</string>
 						<bool key="NSEnabled">YES</bool>
@@ -750,11 +785,12 @@
 							<string key="NSContents">No Selection</string>
 							<object class="NSFont" key="NSSupport">
 								<string key="NSName">LucidaGrande</string>
-								<double key="NSSize">36</double>
+								<double key="NSSize">30</double>
 								<int key="NSfFlags">16</int>
 							</object>
 							<string key="NSCellIdentifier">_NS:3937</string>
 							<reference key="NSControlView" ref="516062120"/>
+							<bool key="NSDrawsBackground">YES</bool>
 							<object class="NSColor" key="NSBackgroundColor">
 								<int key="NSColorSpace">6</int>
 								<string key="NSCatalogName">System</string>
@@ -775,12 +811,14 @@
 						<int key="NSvFlags">274</int>
 						<string key="NSFrameSize">{1002, 128}</string>
 						<reference key="NSSuperview" ref="170615298"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="251654187"/>
 						<string key="NSClassName">PRGradientView</string>
 					</object>
 				</object>
 				<string key="NSFrameSize">{1002, 128}</string>
 				<reference key="NSSuperview"/>
+				<reference key="NSWindow"/>
 				<reference key="NSNextKeyView" ref="767316537"/>
 				<string key="NSClassName">PRTexturedView</string>
 			</object>
@@ -2030,7 +2068,326 @@
 			<nil key="sourceID"/>
 			<int key="maxID">698</int>
 		</object>
-		<object class="IBClassDescriber" key="IBDocument.Classes"/>
+		<object class="IBClassDescriber" key="IBDocument.Classes">
+			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
+				<bool key="EncodedWithXMLCoder">YES</bool>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRBorderlessTextField</string>
+					<string key="superclassName">NSTextField</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRBorderlessTextField.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRBox</string>
+					<string key="superclassName">NSBox</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRBox.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRDropImageCell</string>
+					<string key="superclassName">NSImageCell</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRDropImageCell.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRDropImageView</string>
+					<string key="superclassName">NSImageView</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRDropImageView.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRGradientView</string>
+					<string key="superclassName">NSView</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRGradientView.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRInfoViewController</string>
+					<string key="superclassName">NSViewController</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>NoSelection</string>
+							<string>albumArtView</string>
+							<string>albumArtistField</string>
+							<string>albumArtistLabel</string>
+							<string>albumField</string>
+							<string>albumLabel</string>
+							<string>artistField</string>
+							<string>artistLabel</string>
+							<string>bpmField</string>
+							<string>bpmLabel</string>
+							<string>commentsField</string>
+							<string>commentsLabel</string>
+							<string>composerField</string>
+							<string>composerLabel</string>
+							<string>discCountField</string>
+							<string>discCountLabel</string>
+							<string>discField</string>
+							<string>discLabel</string>
+							<string>genreField</string>
+							<string>genreLabel</string>
+							<string>gradientView</string>
+							<string>ratingControl</string>
+							<string>ratingLabel</string>
+							<string>titleField</string>
+							<string>titleLabel</string>
+							<string>trackCountField</string>
+							<string>trackCountLabel</string>
+							<string>trackField</string>
+							<string>trackLabel</string>
+							<string>yearField</string>
+							<string>yearLabel</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>NSTextField</string>
+							<string>NSImageView</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>PRGradientView</string>
+							<string>NSSegmentedControl</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+							<string>NSTextField</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>NoSelection</string>
+							<string>albumArtView</string>
+							<string>albumArtistField</string>
+							<string>albumArtistLabel</string>
+							<string>albumField</string>
+							<string>albumLabel</string>
+							<string>artistField</string>
+							<string>artistLabel</string>
+							<string>bpmField</string>
+							<string>bpmLabel</string>
+							<string>commentsField</string>
+							<string>commentsLabel</string>
+							<string>composerField</string>
+							<string>composerLabel</string>
+							<string>discCountField</string>
+							<string>discCountLabel</string>
+							<string>discField</string>
+							<string>discLabel</string>
+							<string>genreField</string>
+							<string>genreLabel</string>
+							<string>gradientView</string>
+							<string>ratingControl</string>
+							<string>ratingLabel</string>
+							<string>titleField</string>
+							<string>titleLabel</string>
+							<string>trackCountField</string>
+							<string>trackCountLabel</string>
+							<string>trackField</string>
+							<string>trackLabel</string>
+							<string>yearField</string>
+							<string>yearLabel</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">NoSelection</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">albumArtView</string>
+								<string key="candidateClassName">NSImageView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">albumArtistField</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">albumArtistLabel</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">albumField</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">albumLabel</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">artistField</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">artistLabel</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">bpmField</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">bpmLabel</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">commentsField</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">commentsLabel</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">composerField</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">composerLabel</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">discCountField</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">discCountLabel</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">discField</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">discLabel</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">genreField</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">genreLabel</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">gradientView</string>
+								<string key="candidateClassName">PRGradientView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">ratingControl</string>
+								<string key="candidateClassName">NSSegmentedControl</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">ratingLabel</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">titleField</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">titleLabel</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">trackCountField</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">trackCountLabel</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">trackField</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">trackLabel</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">yearField</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">yearLabel</string>
+								<string key="candidateClassName">NSTextField</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRInfoViewController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRLoweredTextField</string>
+					<string key="superclassName">NSTextField</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRLoweredTextField.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRNumberFormatter</string>
+					<string key="superclassName">NSNumberFormatter</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRNumberFormatter.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRRatingCell</string>
+					<string key="superclassName">NSSegmentedCell</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRRatingCell.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRTexturedView</string>
+					<string key="superclassName">NSView</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRTexturedView.h</string>
+					</object>
+				</object>
+			</object>
+		</object>
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaFramework</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDevelopmentDependencies">
