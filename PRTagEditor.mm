@@ -992,7 +992,7 @@ using namespace TagLib;
 
 + (NSDictionary *)tagsForXiphComment:(TagLib::Ogg::XiphComment *)tag;
 {    
-    NSMutableDictionary *tags = [[NSMutableDictionary alloc] init];;
+    NSMutableDictionary *tags = [NSMutableDictionary dictionary];
     NSNumber *numberValue;
     NSString *stringValue;
     TagLib::Ogg::FieldListMap tagMap = tag->fieldListMap();
