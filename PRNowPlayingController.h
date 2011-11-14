@@ -33,6 +33,8 @@
 	NSMutableIndexSet *_invalidSongs;
     
 	PRMoviePlayer *mov;
+    
+    long _random;
 
 	// weak
 	PRDb *db;

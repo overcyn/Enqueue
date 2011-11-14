@@ -54,6 +54,8 @@
     // invalid songs
     _invalidSongs = [[NSMutableIndexSet alloc] init];
     
+    _random = random();
+    
     // register for movie notifications
     [[NSNotificationCenter defaultCenter] observeMovieFinished:self sel:@selector(movieDidFinish)];
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistDidChange:)];
@@ -302,8 +304,9 @@
         }
     }
     if ([availableSongs count] > 0) {
-		int item = [[availableSongs objectAtIndex:random() % [availableSongs count]] intValue];
+		int item = [[availableSongs objectAtIndex:_random % [availableSongs count]] intValue];
         if (update) {
+            _random = random();
             [[db playbackOrder] appendPlaylistItem:item];
             [self setPosition:[self position] + 1];
         }
