@@ -193,6 +193,7 @@
 // Accessors
 // ========================================
 
+@synthesize mainMenuController;
 @synthesize taskManagerViewController;
 @synthesize libraryViewController;
 @synthesize historyViewController;

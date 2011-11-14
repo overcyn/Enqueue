@@ -13,6 +13,7 @@
 #import "PRLastfm.h"
 #import "PRVacuumOperation.h"
 #include "PREnableLogger.h"
+#import "PRMainMenuController.h"
 
 @implementation PRCore
 
@@ -20,7 +21,7 @@
 // Initialization
 // ========================================
 
-- (id)init 
+- (id)init
 {
     if (!(self = [super init])) {return nil;}
     // Register a connection. Prevents multiple instances of application
@@ -172,6 +173,15 @@
     }
     PRImportOperation *op = [PRImportOperation operationWithURLs:URLs core:self];
     [_opQueue addOperation:op]; 
+}
+
+- (NSMenu *)applicationDockMenu:(NSApplication *)sender
+{
+    NSMenu *menu = [[_win mainMenuController] dockMenu];
+    if (menu) {
+        return menu;
+    }
+    return nil;
 }
 
 // ========================================

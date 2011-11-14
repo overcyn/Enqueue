@@ -66,6 +66,7 @@ typedef enum {
 // ========================================
 // Accessors
 
+@property (readonly) PRMainMenuController *mainMenuController;
 @property (readonly) PRLibraryViewController *libraryViewController;
 @property (readonly) PRHistoryViewController *historyViewController;
 @property (readonly) PRPlaylistsViewController *playlistsViewController;

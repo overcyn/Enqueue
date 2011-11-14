@@ -7,6 +7,8 @@
 {
     PRCore *core;
     
+    IBOutlet NSMenu *_dockMenu;
+    
     NSMenu *mainMenu;
     NSMenu *enqueueMenu;
     NSMenu *fileMenu;
@@ -21,6 +23,8 @@
 // Initialization
 
 - (id)initWithCore:(PRCore *)core_;
+
+- (NSMenu *)dockMenu;
 
 // ========================================
 // Action

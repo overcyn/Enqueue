@@ -136,6 +136,38 @@
     [super dealloc];
 }
 
+- (NSMenu *)dockMenu
+{
+    NSMenu *menu = [[[NSMenu alloc] initWithTitle:@"dockmenu"] autorelease];
+    NSMenuItem *item;
+    
+    item = [[[NSMenuItem alloc] initWithTitle:@"Play/Pause" action:@selector(playPause) keyEquivalent:@""] autorelease];
+    [item setTarget:[core now]];
+    [menu addItem:item];
+
+    item = [[[NSMenuItem alloc] initWithTitle:@"Next" action:@selector(playNext) keyEquivalent:@""] autorelease];
+    [item setTarget:[core now]];
+    [menu addItem:item];
+    
+    item = [[[NSMenuItem alloc] initWithTitle:@"Previous" action:@selector(playPrevious) keyEquivalent:@""] autorelease];
+    [item setTarget:[core now]];
+    [menu addItem:item];
+    
+    [menu addItem:[NSMenuItem separatorItem]];
+    
+    item = [[[NSMenuItem alloc] initWithTitle:@"Shuffle" action:@selector(toggleShuffle) keyEquivalent:@""] autorelease];
+    [item setTarget:[core now]];
+    [item setState:[[core now] shuffle]];
+    [menu addItem:item];
+    
+    item = [[[NSMenuItem alloc] initWithTitle:@"Repeat" action:@selector(toggleRepeat) keyEquivalent:@""] autorelease];
+    [item setTarget:[core now]];
+    [item setState:[[core now] repeat]];
+    [menu addItem:item];
+    
+    return menu;
+}
+
 // ========================================
 // Update
 // ========================================
