@@ -232,6 +232,9 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 
 - (void)fileScrobbled:(NSData *)data
 {
+    if (!data) {
+        return;
+    }
     NSXMLDocument *XMLDocument = [[[NSXMLDocument alloc] initWithData:data options:0 error:nil] autorelease];
     NSXMLElement *root = [XMLDocument rootElement];
     if (![[[root attributeForName:@"status"] stringValue] isEqualToString:@"ok"]) {
@@ -246,7 +249,6 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
             [alert setAlertStyle:NSWarningAlertStyle];
             [alert beginSheetModalForWindow:[[_core win] window] modalDelegate:nil didEndSelector:nil contextInfo:nil];
         }
-        return;
     }
 }
 
