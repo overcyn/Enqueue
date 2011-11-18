@@ -120,12 +120,14 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 {
     NSString *stm;
     if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
-        stm = @"SELECT file_id, dateAdded, title, artistAlbumArtist FROM library ORDER BY 2 DESC LIMIT 250";
+        stm = @"SELECT file_id, dateAdded, count(album), artistAlbumArtist, album FROM library "
+        "GROUP BY artistAlbumArtist COLLATE NOCASE2, album COLLATE NOCASE2 ORDER BY 2 DESC LIMIT 250";
     } else {
-        stm = @"SELECT file_id, dateAdded, title, artist FROM library ORDER BY 2 DESC LIMIT 250";
+        stm = @"SELECT file_id, dateAdded, count(album), artist, album FROM library "
+        "GROUP BY artistAlbumArtist COLLATE NOCASE2, album COLLATE NOCASE2 ORDER BY 2 DESC LIMIT 250";
     }
     NSArray *col = [NSArray arrayWithObjects:
-                    [NSNumber numberWithInt:PRColumnInteger], [NSNumber numberWithInt:PRColumnString], 
+                    [NSNumber numberWithInt:PRColumnInteger], [NSNumber numberWithInt:PRColumnString], [NSNumber numberWithInt:PRColumnInteger], 
                     [NSNumber numberWithInt:PRColumnString], [NSNumber numberWithInt:PRColumnString], nil];
     NSArray *rlt = [db execute:stm bindings:nil columns:col];
     
@@ -137,8 +139,9 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         }
         [recentlyAdded addObject:[NSDictionary dictionaryWithObjectsAndKeys:
                                   [i objectAtIndex:0], @"file", 
-                                  [i objectAtIndex:2], @"title", 
+                                  [i objectAtIndex:2], @"count", 
                                   [i objectAtIndex:3], @"artist", 
+                                  [i objectAtIndex:4], @"album", 
                                   date, @"date", 
                                   nil]];
     }

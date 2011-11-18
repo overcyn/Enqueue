@@ -239,8 +239,8 @@
     } else if (historyMode == PRTopSongsHistoryMode) {
         NSDictionary *dict = [dataSource objectAtIndex:row];
         return [NSDictionary dictionaryWithObjectsAndKeys:
-                [dict objectForKey:@"title"], @"title",
-                [dict objectForKey:@"artist"], @"subtitle",
+                [dict objectForKey:@"artist"], @"title",
+                [dict objectForKey:@"title"], @"subtitle",
                 [dict objectForKey:@"count"], @"value",
                 [dict objectForKey:@"max"] , @"max",
                 [[dict objectForKey:@"count"] stringValue], @"subSubTitle",
@@ -254,8 +254,8 @@
             dateStr = [_dateFormatter stringFromDate:[dict objectForKey:@"date"]];
         }
         return [NSDictionary dictionaryWithObjectsAndKeys:
-                [dict objectForKey:@"title"], @"title",
-                [dict objectForKey:@"artist"], @"subtitle",
+                [NSString stringWithFormat:@"%@  —  %@",[dict objectForKey:@"count"],[dict objectForKey:@"album"]], @"subtitle",
+                [dict objectForKey:@"artist"], @"title",
                 dateStr, @"subSubTitle",
                 nil];
     } else if (historyMode == PRRecentlyPlayedHistoryMode) {
@@ -267,8 +267,8 @@
             dateStr = [_dateFormatter stringFromDate:[dict objectForKey:@"date"]];
         }
         return [NSDictionary dictionaryWithObjectsAndKeys:
-                [dict objectForKey:@"title"], @"title",
-                [dict objectForKey:@"artist"], @"subtitle",
+                [dict objectForKey:@"artist"], @"title",
+                [dict objectForKey:@"title"], @"subtitle",
                 dateStr, @"subSubTitle",
                 nil];
     } else {
