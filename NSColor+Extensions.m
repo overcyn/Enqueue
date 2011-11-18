@@ -14,7 +14,7 @@
 
 + (NSColor *)PRTabBorderColor
 {
-    return [NSColor colorWithCalibratedWhite:0.65 alpha:1.0];
+    return [NSColor colorWithCalibratedWhite:0.70 alpha:1.0];
 }
 
 + (NSColor *)PRTabBorderHighlightColor
@@ -54,7 +54,7 @@
 
 + (NSColor *)PRForegroundBorderColor
 {
-    return [NSColor colorWithCalibratedWhite:0.7 alpha:1.0];
+    return [NSColor colorWithCalibratedWhite:0.75 alpha:1.0];
 }
 
 @end
