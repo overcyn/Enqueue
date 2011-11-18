@@ -155,7 +155,11 @@ end:;
         if ([track objectForKey:@"Rating"]) {
             [[info objectForKey:@"attr"] setObject:[track objectForKey:@"Rating"] forKey:[NSNumber numberWithInt:PRRatingFileAttribute]];
         }
-        [[info objectForKey:@"attr"] setObject:[[NSDate date] description] forKey:[NSNumber numberWithInt:PRDateAddedFileAttribute]];
+        if ([track objectForKey:@"Date Added"]) {
+            [[info objectForKey:@"attr"] setObject:[[track objectForKey:@"Date Added"] description] forKey:[NSNumber numberWithInt:PRDateAddedFileAttribute]];
+        } else {
+            [[info objectForKey:@"attr"] setObject:[[NSDate date] description] forKey:[NSNumber numberWithInt:PRDateAddedFileAttribute]];
+        }
         [info setObject:[track objectForKey:@"Track ID"] forKey:@"trackid"];
         // Artwork
         int temp = [[_db albumArtController] saveTempArt:[info objectForKey:@"art"]];
