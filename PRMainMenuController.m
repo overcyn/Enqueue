@@ -199,6 +199,8 @@
         title = @"Show Info Pane";
     }
     [[viewMenu itemWithTag:4] setTitle:title];
+    NSMenu *browser = [[[[core win] libraryViewController] currentViewController] browserHeaderMenu];
+    [[viewMenu itemWithTitle:@"Browser"] setSubmenu:browser];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem

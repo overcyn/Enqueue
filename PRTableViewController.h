@@ -110,6 +110,7 @@ PRStringFormatter;
 
 - (void)highlightTableColumn:(NSTableColumn *)tableColumn ascending:(BOOL)ascending;
 
+- (NSMenu *)browserHeaderMenu;
 - (void)updateHeaderMenu;
 - (void)updateLibraryMenu;
 - (void)updateBrowserHeaderMenu;

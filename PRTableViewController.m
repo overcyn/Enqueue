@@ -1694,98 +1694,10 @@
 		[headerMenu removeItem:i];
 	}
 	
-    NSMenuItem *menuItem;
-	NSMenu *browserMenu;
-    menuItem = [[[NSMenuItem alloc] init] autorelease];
+    NSMenuItem *menuItem = [[[NSMenuItem alloc] init] autorelease];
 	[menuItem setTitle:@"Browser"];
+    [menuItem setSubmenu:[self browserHeaderMenu]];
 	[headerMenu addItem:menuItem];
-	browserMenu = [[[NSMenu alloc] init] autorelease];
-	[menuItem setSubmenu:browserMenu];
-    
-    int browserPosition = [[db playlists] isVerticalForPlaylist:currentPlaylist];
-    
-    menuItem = [[[NSMenuItem alloc] init] autorelease];
-	[menuItem setTitle:@"Hidden  "];
-	[menuItem setAction:@selector(toggleBrowser:)];
-	[menuItem setRepresentedObject:[NSNumber numberWithInt:-3]];
-    [browserMenu addItem:menuItem];
-    if (browserPosition == PRBrowserPositionHidden) {
-        [menuItem setState:NSOnState];
-    }
-    
-    menuItem = [[[NSMenuItem alloc] init] autorelease];
-	[menuItem setTitle:@"On Top"];
-	[menuItem setAction:@selector(toggleBrowser:)];
-	[menuItem setRepresentedObject:[NSNumber numberWithInt:-1]];
-    [browserMenu addItem:menuItem];
-    if (browserPosition == PRBrowserPositionHorizontal) {
-        [menuItem setState:NSOnState];
-    }
-    
-    menuItem = [[[NSMenuItem alloc] init] autorelease];
-	[menuItem setTitle:@"On Left"];
-	[menuItem setAction:@selector(toggleBrowser:)];
-	[menuItem setRepresentedObject:[NSNumber numberWithInt:-2]];
-    [browserMenu addItem:menuItem];
-    if (browserPosition == PRBrowserPositionVertical) {
-        [menuItem setState:NSOnState];
-    }
-    
-    if (browserPosition != PRBrowserPositionHidden) {
-        // Browser
-        int browser1Grouping = [[db playlists] browser1AttributeForPlaylist:currentPlaylist];
-        int browser2Grouping = [[db playlists] browser2AttributeForPlaylist:currentPlaylist];
-        int browser3Grouping = [[db playlists] browser3AttributeForPlaylist:currentPlaylist];
-        
-        [browserMenu addItem:[NSMenuItem separatorItem]];
-        
-        // Genre
-        menuItem = [[[NSMenuItem alloc] init] autorelease];
-        [menuItem setTitle:@"Genre"];
-        [menuItem setAction:@selector(toggleBrowser:)];
-        [menuItem setRepresentedObject:[NSNumber numberWithInt:13]];
-        if (browser1Grouping == 13 ||
-            browser2Grouping == 13 ||
-            browser3Grouping == 13) {
-            [menuItem setState:NSOnState];
-        }
-        [browserMenu addItem:menuItem];
-        
-        menuItem = [[[NSMenuItem alloc] init] autorelease];
-        [menuItem setTitle:@"Composer"];
-        [menuItem setAction:@selector(toggleBrowser:)];
-        [menuItem setRepresentedObject:[NSNumber numberWithInt:8]];
-        if (browser1Grouping == 8 ||
-            browser2Grouping == 8 ||
-            browser3Grouping == 8) {
-            [menuItem setState:NSOnState];
-        }
-        [browserMenu addItem:menuItem];
-        
-        // Artist
-        menuItem = [[[NSMenuItem alloc] init] autorelease];
-        [menuItem setTitle:@"Artist"];
-        [menuItem setAction:@selector(toggleBrowser:)];
-        [menuItem setRepresentedObject:[NSNumber numberWithInt:2]];
-        if (browser1Grouping == 2 ||
-            browser2Grouping == 2 ||
-            browser3Grouping == 2) {
-            [menuItem setState:NSOnState];
-        }
-        [browserMenu addItem:menuItem];
-        
-        // Album
-        menuItem = [[[NSMenuItem alloc] init] autorelease];
-        [menuItem setTitle:@"Album"];
-        [menuItem setAction:@selector(toggleBrowser:)];
-        [menuItem setRepresentedObject:[NSNumber numberWithInt:3]];
-        if (browser1Grouping == 3 ||
-            browser2Grouping == 3 ||
-            browser3Grouping == 3) {
-            [menuItem setState:NSOnState];
-        }	
-        [browserMenu addItem:menuItem];
-    }
     
     [headerMenu addItem:[NSMenuItem separatorItem]];
 	
@@ -1813,9 +1725,91 @@
 	for (NSMenuItem *i in [headerMenu itemArray]) {
 		[i setTarget:self];
 	}
-	for (NSMenuItem *i in [browserMenu itemArray]) {
+}
+
+- (NSMenu *)browserHeaderMenu
+{
+    NSMenu *menu = [[[NSMenu alloc] init] autorelease];
+    
+    // Browser position
+    int browserPosition = [[db playlists] isVerticalForPlaylist:currentPlaylist];
+    
+    NSMenuItem *item = [[[NSMenuItem alloc] init] autorelease];
+    [item setTitle:@"Hidden"];
+    [item setRepresentedObject:[NSNumber numberWithInt:-3]];
+    if (browserPosition == PRBrowserPositionHidden) {
+        [item setState:NSOnState];
+    }
+    [menu addItem:item];
+    
+    item = [[[NSMenuItem alloc] init] autorelease];
+    [item setTitle:@"On Top"];
+    [item setRepresentedObject:[NSNumber numberWithInt:-1]];
+    if (browserPosition == PRBrowserPositionHorizontal) {
+        [item setState:NSOnState];
+    }
+    [menu addItem:item];
+    
+    item = [[[NSMenuItem alloc] init] autorelease];
+    [item setTitle:@"On Left"];
+    [item setRepresentedObject:[NSNumber numberWithInt:-2]];
+    if (browserPosition == PRBrowserPositionVertical) {
+        [item setState:NSOnState];
+    }
+    [menu addItem:item];
+    
+    if (browserPosition != PRBrowserPositionHidden) {
+        [menu addItem:[NSMenuItem separatorItem]];
+        
+        // Get browser groupings
+        int browser1Grouping = [[db playlists] browser1AttributeForPlaylist:currentPlaylist];
+        int browser2Grouping = [[db playlists] browser2AttributeForPlaylist:currentPlaylist];
+        int browser3Grouping = [[db playlists] browser3AttributeForPlaylist:currentPlaylist];
+        
+        // Genre
+        item = [[[NSMenuItem alloc] init] autorelease];
+        [item setTitle:@"Genre"];
+        [item setRepresentedObject:[NSNumber numberWithInt:-2]];
+        [item setRepresentedObject:[NSNumber numberWithInt:13]];
+        if (browser1Grouping == 13 || browser2Grouping == 13 || browser3Grouping == 13) {
+            [item setState:NSOnState];
+        }
+        [menu addItem:item];
+        
+        // Composer
+        item = [[[NSMenuItem alloc] init] autorelease];
+        [item setTitle:@"Composer"];
+        [item setRepresentedObject:[NSNumber numberWithInt:8]];
+        if (browser1Grouping == 8 || browser2Grouping == 8 || browser3Grouping == 8) {
+            [item setState:NSOnState];
+        }
+        [menu addItem:item];
+        
+        // Artist
+        item = [[[NSMenuItem alloc] init] autorelease];
+        [item setTitle:@"Artist"];
+        [item setRepresentedObject:[NSNumber numberWithInt:2]];	
+        if (browser1Grouping == 2 || browser2Grouping == 2 || browser3Grouping == 2) {
+            [item setState:NSOnState];
+        }
+        [menu addItem:item];
+        
+        // Album
+        item = [[[NSMenuItem alloc] init] autorelease];
+        [item setTitle:@"Album"];
+        [item setRepresentedObject:[NSNumber numberWithInt:3]];	
+        if (browser1Grouping == 3 || browser2Grouping == 3 || browser3Grouping == 3) {
+            [item setState:NSOnState];
+        }
+        [menu addItem:item];
+    }
+	
+	for (NSMenuItem *i in [menu itemArray]) {
 		[i setTarget:self];
+		[i setAction:@selector(toggleBrowser:)];
 	}
+    
+    return menu;
 }
 
 - (void)updateBrowserHeaderMenu
@@ -1825,89 +1819,12 @@
 		[browserHeaderMenu removeItem:i];
 	}
 	
-    // Browser position
-    int browserPosition = [[db playlists] isVerticalForPlaylist:currentPlaylist];
-    
-    NSMenuItem *menuItem = [[[NSMenuItem alloc] init] autorelease];
-    [menuItem setTitle:@"Hidden"];
-    [menuItem setRepresentedObject:[NSNumber numberWithInt:-3]];
-    [browserHeaderMenu addItem:menuItem];
-    if (browserPosition == PRBrowserPositionHidden) {
-        [menuItem setState:NSOnState];
+    NSMenu *menu = [self browserHeaderMenu];
+    NSArray *items = [menu itemArray];
+    [menu removeAllItems];
+    for (NSMenuItem *i in items) {
+        [browserHeaderMenu addItem:i];
     }
-    
-    menuItem = [[[NSMenuItem alloc] init] autorelease];
-    [menuItem setTitle:@"On Top"];
-    [menuItem setRepresentedObject:[NSNumber numberWithInt:-1]];
-    [browserHeaderMenu addItem:menuItem];
-    if (browserPosition == PRBrowserPositionHorizontal) {
-        [menuItem setState:NSOnState];
-    }
-    
-    menuItem = [[[NSMenuItem alloc] init] autorelease];
-    [menuItem setTitle:@"On Left"];
-    [menuItem setRepresentedObject:[NSNumber numberWithInt:-2]];
-    [browserHeaderMenu addItem:menuItem];
-    if (browserPosition == PRBrowserPositionVertical) {
-        [menuItem setState:NSOnState];
-    }
-    
-    [browserHeaderMenu addItem:[NSMenuItem separatorItem]];
-    
-    // Get browser groupings
-	int browser1Grouping = [[db playlists] browser1AttributeForPlaylist:currentPlaylist];
-	int browser2Grouping = [[db playlists] browser2AttributeForPlaylist:currentPlaylist];
-	int browser3Grouping = [[db playlists] browser3AttributeForPlaylist:currentPlaylist];
-    
-	// Genre
-	menuItem = [[[NSMenuItem alloc] init] autorelease];
-	[menuItem setTitle:@"Genre"];
-    [menuItem setRepresentedObject:[NSNumber numberWithInt:-2]];
-	[menuItem setRepresentedObject:[NSNumber numberWithInt:13]];
-	if (browser1Grouping == 13 ||
-		browser2Grouping == 13 ||
-		browser3Grouping == 13) {
-		[menuItem setState:NSOnState];
-	}
-	[browserHeaderMenu addItem:menuItem];
-	
-    // Composer
-	menuItem = [[[NSMenuItem alloc] init] autorelease];
-	[menuItem setTitle:@"Composer"];
-	[menuItem setRepresentedObject:[NSNumber numberWithInt:8]];
-	if (browser1Grouping == 8 ||
-		browser2Grouping == 8 ||
-		browser3Grouping == 8) {
-		[menuItem setState:NSOnState];
-	}
-	[browserHeaderMenu addItem:menuItem];
-	
-	// Artist
-	menuItem = [[[NSMenuItem alloc] init] autorelease];
-	[menuItem setTitle:@"Artist"];
-	[browserHeaderMenu addItem:menuItem];
-	[menuItem setRepresentedObject:[NSNumber numberWithInt:2]];	
-	if (browser1Grouping == 2 ||
-		browser2Grouping == 2 ||
-		browser3Grouping == 2) {
-		[menuItem setState:NSOnState];
-	}
-	
-	// Album
-	menuItem = [[[NSMenuItem alloc] init] autorelease];
-	[menuItem setTitle:@"Album"];
-	[browserHeaderMenu addItem:menuItem];
-	[menuItem setRepresentedObject:[NSNumber numberWithInt:3]];	
-	if (browser1Grouping == 3 ||
-		browser2Grouping == 3 ||
-		browser3Grouping == 3) {
-		[menuItem setState:NSOnState];
-	}
-	
-	for (NSMenuItem *i in [browserHeaderMenu itemArray]) {
-		[i setTarget:self];
-		[i setAction:@selector(toggleBrowser:)];
-	}
 }
 
 @end
