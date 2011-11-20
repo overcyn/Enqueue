@@ -283,12 +283,12 @@
         [nowPlayingSuperview setFrame:frame];
     } else {
         NSRect frame = [controlsSuperview frame];
-        frame.origin.y = [[self window] frame].size.height - 106 - 22;
-        frame.size.height = 106;
+        frame.origin.y = [[self window] frame].size.height - 105 - 22;
+        frame.size.height = 105;
         [controlsSuperview setFrame:frame];
         
         frame = [nowPlayingSuperview frame];
-        frame.size.height = [[self window] frame].size.height - 106 - 22;
+        frame.size.height = [[self window] frame].size.height - 105 - 22;
         [nowPlayingSuperview setFrame:frame];
     }
     [controlsViewController setShowsArtwork:showsArtwork];
