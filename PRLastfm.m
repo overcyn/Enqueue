@@ -238,11 +238,11 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     NSXMLDocument *XMLDocument = [[[NSXMLDocument alloc] initWithData:data options:0 error:nil] autorelease];
     NSXMLElement *root = [XMLDocument rootElement];
     if (![[[root attributeForName:@"status"] stringValue] isEqualToString:@"ok"]) {
-        NSXMLElement *error = [[root elementsForName:@"error"] objectAtIndex:0];
-        if ([[[error attributeForName:@"code"] stringValue] isEqualToString:@"9"]) {
+        NSArray *errors = [root elementsForName:@"error"];
+        if ([errors count] > 0 && [[[[errors objectAtIndex:0] attributeForName:@"code"] stringValue] isEqualToString:@"9"]) {
             NSLog(@"Last.fm Disconnected");
             [self disconnect];
-            NSAlert *alert = [[NSAlert alloc] init];
+            NSAlert *alert = [[[NSAlert alloc] init] autorelease];
             [alert addButtonWithTitle:@"OK"];
             [alert setMessageText:@"You have been disconnected from Last.fm"];
             [alert setInformativeText:@"If this warning persists please contact support."];
