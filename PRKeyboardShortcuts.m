@@ -11,6 +11,10 @@
     if (!(self = [super init])) {return nil;}
     _core = core;
     _tap = [[SPMediaKeyTap alloc] initWithDelegate:self];
+    [_tap startWatchingMediaKeys];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:
+     [NSDictionary dictionaryWithObjectsAndKeys:
+      [SPMediaKeyTap defaultMediaKeyUserBundleIdentifiers], kMediaKeyUsingBundleIdentifiersDefaultsKey, nil]];
     return self;
 }
 
