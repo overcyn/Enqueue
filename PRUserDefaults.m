@@ -187,9 +187,9 @@
     [defaults setObject:[NSNumber numberWithBool:EQisEnabled] forKey:@"EQIsEnabled"];
 }
 
-
 @dynamic showWelcomeSheet;
 @dynamic fullscreen;
+@dynamic miniPlayer;
 
 - (BOOL)showWelcomeSheet
 {
@@ -219,6 +219,21 @@
 - (void)setFullscreen:(BOOL)fullscreen
 {
     [defaults setObject:[NSNumber numberWithBool:fullscreen] forKey:@"fullscreen"];
+}
+
+- (BOOL)miniPlayer
+{
+    NSNumber *object = [defaults objectForKey:@"miniPlayer"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object boolValue];
+    } else {
+        return FALSE;
+    }
+}
+
+- (void)setMiniPlayer:(BOOL)miniPlayer
+{
+    [defaults setObject:[NSNumber numberWithBool:miniPlayer] forKey:@"miniPlayer"];
 }
 
 @dynamic mediaKeys;

@@ -26,6 +26,7 @@
 
 @property (readwrite) BOOL showWelcomeSheet;
 @property (readwrite) BOOL fullscreen;
+@property (readwrite) BOOL miniPlayer;
 
 @property (readwrite) BOOL mediaKeys;
 @property (readwrite) BOOL postGrowlNotification;
