@@ -130,6 +130,11 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
     [self postNotificationName:PRUseAlbumArtistDidChangeNotification object:nil];
 }
 
+- (void)postEQChanged
+{
+    [self postNotificationName:PREQChangedNote object:nil];
+}
+
 - (void)observePreGainChanged:(id)obs sel:(SEL)sel
 {
     [self addObserver:obs selector:sel name:PRPreGainDidChangeNotification object:nil];
@@ -138,6 +143,11 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
 - (void)observeUseAlbumArtistChanged:(id)obs sel:(SEL)sel
 {
     [self addObserver:obs selector:sel name:PRUseAlbumArtistDidChangeNotification object:nil];
+}
+
+- (void)observeEQChanged:(id)obs sel:(SEL)sel
+{
+    [self addObserver:obs selector:sel name:PREQChangedNote object:nil];
 }
 
 // Lastfm
@@ -193,11 +203,6 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
     [self postNotificationName:PRVolumeChangedNote object:nil];
 }
 
-- (void)postEQChanged
-{
-    [self postNotificationName:PREQChangedNote object:nil];
-}
-
 - (void)observeTimeChanged:(id)obs sel:(SEL)sel
 {
     [self addObserver:obs selector:sel name:PRTimeChangedNote object:nil];
@@ -238,9 +243,6 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
     [self addObserver:obs selector:sel name:PRVolumeChangedNote object:nil];
 }
 
-- (void)observeEQChanged:(id)obs sel:(SEL)sel
-{
-    [self addObserver:obs selector:sel name:PREQChangedNote object:nil];
-}
+
 
 @end

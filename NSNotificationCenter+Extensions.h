@@ -29,9 +29,11 @@
 // Preferences
 - (void)postPreGainChanged;
 - (void)postUseAlbumArtistChanged;
+- (void)postEQChanged;
 
 - (void)observePreGainChanged:(id)obs sel:(SEL)sel;
 - (void)observeUseAlbumArtistChanged:(id)obs sel:(SEL)sel;
+- (void)observeEQChanged:(id)obs sel:(SEL)sel;
 
 // Last.fm
 - (void)postLastfmStateChanged;
@@ -47,7 +49,6 @@
 - (void)postShuffleChanged;
 - (void)postRepeatChanged;
 - (void)postVolumeChanged;
-- (void)postEQChanged;
 
 - (void)observeTimeChanged:(id)obs sel:(SEL)sel;
 - (void)observePlayingChanged:(id)obs sel:(SEL)sel;
@@ -57,6 +58,5 @@
 - (void)observeShuffleChanged:(id)obs sel:(SEL)sel;
 - (void)observeRepeatChanged:(id)obs sel:(SEL)sel;
 - (void)observeVolumeChanged:(id)obs sel:(SEL)sel;
-- (void)observeEQChanged:(id)obs sel:(SEL)sel;
 
 @end
