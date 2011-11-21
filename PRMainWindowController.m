@@ -183,9 +183,6 @@
                                                  selector:@selector(windowWillExitFullScreen:) 
                                                      name:NSWindowWillExitFullScreenNotification 
                                                    object:[self window]];
-        if ([[PRUserDefaults userDefaults] fullscreen] && ![[self window] isFullScreen]) {
-//            [[NSOperationQueue mainQueue] addBlock:^{[[self window] toggleFullScreen:self];}];
-        }
     }
 }
 
@@ -471,7 +468,6 @@
 
 - (void)windowWillEnterFullScreen:(NSNotification *)notification
 {
-    [[PRUserDefaults userDefaults] setFullscreen:TRUE];
     NSRect frame = [centerSuperview frame];
     frame.size.height -= 11;
     [centerSuperview setFrame:frame];
@@ -485,7 +481,6 @@
 
 - (void)windowWillExitFullScreen:(NSNotification *)notification
 {
-    [[PRUserDefaults userDefaults] setFullscreen:FALSE];
     NSRect frame = [centerSuperview frame];
     frame.size.height += 11;
     [centerSuperview setFrame:frame];

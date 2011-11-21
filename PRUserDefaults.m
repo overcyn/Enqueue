@@ -188,7 +188,6 @@
 }
 
 @dynamic showWelcomeSheet;
-@dynamic fullscreen;
 @dynamic miniPlayer;
 
 - (BOOL)showWelcomeSheet
@@ -204,21 +203,6 @@
 - (void)setShowWelcomeSheet:(BOOL)showsWelcomeSheet
 {
     [defaults setObject:[NSNumber numberWithBool:showsWelcomeSheet] forKey:@"showsWelcomeSheet"];
-}
-
-- (BOOL)fullscreen
-{
-    NSNumber *object = [defaults objectForKey:@"fullscreen"];
-    if (object && [object isKindOfClass:[NSNumber class]]) {
-        return [object boolValue];
-    } else {
-        return FALSE;
-    }
-}
-
-- (void)setFullscreen:(BOOL)fullscreen
-{
-    [defaults setObject:[NSNumber numberWithBool:fullscreen] forKey:@"fullscreen"];
 }
 
 - (BOOL)miniPlayer
