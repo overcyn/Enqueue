@@ -79,6 +79,7 @@ typedef enum {
 @property (readwrite) PRMode currentMode;
 @property (readwrite) PRPlaylist currentPlaylist;
 @property (readwrite) BOOL showsArtwork;
+@property (readwrite) BOOL miniPlayer;
 
 @property (readwrite) BOOL progressHidden;
 @property (readwrite, retain) NSString *progressTitle;
@@ -86,6 +87,7 @@ typedef enum {
 // ========================================
 // UI
 
+- (void)toggleMiniPlayer;
 - (void)updateUI;
 - (void)find;
 

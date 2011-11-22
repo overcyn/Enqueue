@@ -226,6 +226,7 @@
 		67D911E71471087B001C9DE8 /* PRKeyboardShortcuts.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911E61471087B001C9DE8 /* PRKeyboardShortcuts.m */; };
 		67DAC8161456387900E120B6 /* EMKeychainItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DAC8151456387900E120B6 /* EMKeychainItem.m */; };
 		67DC99A61266F9E1000C3942 /* PRRuleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC99A51266F9E1000C3942 /* PRRuleViewController.m */; };
+		67DE033A147B07A600BBB0F6 /* PRFileInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE0339147B07A600BBB0F6 /* PRFileInfo.m */; };
 		67E94735126C528E00CAE943 /* PRCenteredTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */; };
 		67E94DDA14551E8900B88EA4 /* Cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E94DD914551E8900B88EA4 /* Cancel.png */; };
 		67EA12F6145A9A9600309876 /* Add.png in Resources */ = {isa = PBXBuildFile; fileRef = 67EA12F5145A9A9600309876 /* Add.png */; };
@@ -615,6 +616,8 @@
 		67DAC8151456387900E120B6 /* EMKeychainItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EMKeychainItem.m; path = Frameworks/EMKeychainItem/EMKeychainItem.m; sourceTree = "<group>"; };
 		67DC99A41266F9E1000C3942 /* PRRuleViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleViewController.h; sourceTree = "<group>"; };
 		67DC99A51266F9E1000C3942 /* PRRuleViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleViewController.m; sourceTree = "<group>"; };
+		67DE0338147B07A600BBB0F6 /* PRFileInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; path = PRFileInfo.h; sourceTree = "<group>"; };
+		67DE0339147B07A600BBB0F6 /* PRFileInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRFileInfo.m; sourceTree = "<group>"; };
 		67E94733126C528E00CAE943 /* PRCenteredTextFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRCenteredTextFieldCell.h; sourceTree = "<group>"; };
 		67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRCenteredTextFieldCell.m; sourceTree = "<group>"; };
 		67E94DD914551E8900B88EA4 /* Cancel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Cancel.png; path = Icons/Cancel.png; sourceTree = "<group>"; };
@@ -930,6 +933,8 @@
 				6709D9EE12480DA800963B11 /* PRTagEditor.h */,
 				6709D9EF12480DA800963B11 /* PRTagEditor.mm */,
 				6792BCBA13050F810097A9F0 /* PRID3Genres.plist */,
+				67DE0338147B07A600BBB0F6 /* PRFileInfo.h */,
+				67DE0339147B07A600BBB0F6 /* PRFileInfo.m */,
 			);
 			name = Tags;
 			sourceTree = "<group>";
@@ -1909,6 +1914,7 @@
 				67D911E0147107D6001C9DE8 /* SPMediaKeyTapDelegate.m in Sources */,
 				67D911E3147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.m in Sources */,
 				67D911E71471087B001C9DE8 /* PRKeyboardShortcuts.m in Sources */,
+				67DE033A147B07A600BBB0F6 /* PRFileInfo.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

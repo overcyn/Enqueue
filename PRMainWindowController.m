@@ -146,8 +146,11 @@
     [libraryModeButton setAction:@selector(libraryModeButtonAction)];
 	
     if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
-        [[self window] setCollectionBehavior:[[self window] collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
+//        [[self window] setCollectionBehavior:[[self window] collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
     }
+    
+    // miniplayer
+    [self setMiniPlayer:[self miniPlayer]];
     
 	// Buttons
     NSArray *buttons = [NSArray arrayWithObjects:
@@ -202,6 +205,7 @@
 @dynamic currentMode;
 @dynamic currentPlaylist;
 @dynamic showsArtwork;
+@dynamic miniPlayer;
 
 - (PRMode)currentMode
 {
@@ -259,11 +263,7 @@
 
 - (BOOL)showsArtwork
 {
-    if ([controlsSuperview frame].size.height == 275 || [controlsSuperview frame].size.height == 286) {
-        return TRUE;
-    } else {
-        return FALSE;
-    }
+    return [[PRUserDefaults userDefaults] showsArtwork];
 }
 
 - (void)setShowsArtwork:(BOOL)showsArtwork
@@ -289,6 +289,42 @@
         [nowPlayingSuperview setFrame:frame];
     }
     [controlsViewController setShowsArtwork:showsArtwork];
+}
+
+- (BOOL)miniPlayer
+{
+    return [[PRUserDefaults userDefaults] miniPlayer];
+}
+
+- (void)setMiniPlayer:(BOOL)miniPlayer
+{
+    [[PRUserDefaults userDefaults] setMiniPlayer:miniPlayer];
+    if (miniPlayer) {
+        [self setShowsArtwork:FALSE];
+        NSRect frame = [[self window] frame];
+        frame.size.height = 500;
+        frame.size.width = 185;
+        [[self window] setFrame:frame display:TRUE animate:FALSE];
+        [[self window] setMinSize:NSMakeSize(185, 300)];
+        [[self window] setMaxSize:NSMakeSize(185, 10000)];
+        [centerSuperview setHidden:miniPlayer];
+        [toolbarView setHidden:miniPlayer];
+    } else {
+        [centerSuperview setHidden:miniPlayer];
+        [toolbarView setHidden:miniPlayer];
+        NSRect frame = [[self window] frame];
+        frame.size.height = 500;
+        frame.size.width = 900;
+        [[self window] setFrame:frame display:TRUE animate:FALSE];
+        [[self window] setMinSize:NSMakeSize(900, 500)];
+        [[self window] setMaxSize:NSMakeSize(10000, 10000)];
+        [self setShowsArtwork:TRUE];
+    }
+}
+
+- (void)toggleMiniPlayer
+{
+    [self setMiniPlayer:![self miniPlayer]];
 }
 
 @dynamic progressHidden;

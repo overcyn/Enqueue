@@ -102,6 +102,10 @@
         [menuItem setHidden:TRUE];
     }
     
+    menuItem = [viewMenu itemWithTag:7];
+    [menuItem setTarget:[core win]];
+    [menuItem setAction:@selector(toggleMiniPlayer)];
+    
     // Controls Menu
     menuItem = [controlsMenu itemWithTag:1];
     [menuItem setTarget:[core now]];
