@@ -50,46 +50,46 @@ end:;
     NSLog(@"end import");
 }
 
-- (void)addM3UFile:(NSURL *)URL depth:(int)depth
-{
-    NSURL *baseURL = [NSURL fileURLWithPath:[[URL path] stringByDeletingLastPathComponent]];
-    
-    NSStringEncoding stringEncoding;
-    NSString *contents = [NSString stringWithContentsOfURL:URL usedEncoding:&stringEncoding error:nil];
-    if (!contents) {
-        return;
-    }
-    NSArray *lines = [contents componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
-    NSMutableArray *trimmedLines = [NSMutableArray array];
-    for (NSString *i in lines) {
-        NSString *trimmedLine = [i stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        if ([trimmedLine length] != 0) {
-            [trimmedLines addObject:trimmedLine];
-        }
-    }
-    
-    if (![[trimmedLines objectAtIndex:0] hasPrefix:@"#EXTM3U"]) {
-        return;
-    }
-    for (NSString *i in trimmedLines) {
-        if ([i hasPrefix:@"#EXTINF"] || [i hasPrefix:@"#EXTM3U"] || [i hasPrefix:@"http://"]) {
-            continue;
-        }
-        NSURL *URL2 = [NSURL URLWithString:[i stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] 
-                             relativeToURL:baseURL];
-        if (!URL2) {
-            continue;
-        }
-        
-        if ([[[URL2 path] pathExtension] caseInsensitiveCompare:@"m3u"] == NSOrderedSame) {
-            if (depth < 5) {
-                [self addM3UFile:URL2 depth:depth+1];
-            }
-        } else {
-//            [self addFiles:[NSArray arrayWithObject:URL2]];
-        }
-    }
-}
+//- (void)addM3UFile:(NSURL *)URL depth:(int)depth
+//{
+//    NSURL *baseURL = [NSURL fileURLWithPath:[[URL path] stringByDeletingLastPathComponent]];
+//    
+//    NSStringEncoding stringEncoding;
+//    NSString *contents = [NSString stringWithContentsOfURL:URL usedEncoding:&stringEncoding error:nil];
+//    if (!contents) {
+//        return;
+//    }
+//    NSArray *lines = [contents componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+//    NSMutableArray *trimmedLines = [NSMutableArray array];
+//    for (NSString *i in lines) {
+//        NSString *trimmedLine = [i stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+//        if ([trimmedLine length] != 0) {
+//            [trimmedLines addObject:trimmedLine];
+//        }
+//    }
+//    
+//    if (![[trimmedLines objectAtIndex:0] hasPrefix:@"#EXTM3U"]) {
+//        return;
+//    }
+//    for (NSString *i in trimmedLines) {
+//        if ([i hasPrefix:@"#EXTINF"] || [i hasPrefix:@"#EXTM3U"] || [i hasPrefix:@"http://"]) {
+//            continue;
+//        }
+//        NSURL *URL2 = [NSURL URLWithString:[i stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] 
+//                             relativeToURL:baseURL];
+//        if (!URL2) {
+//            continue;
+//        }
+//        
+//        if ([[[URL2 path] pathExtension] caseInsensitiveCompare:@"m3u"] == NSOrderedSame) {
+//            if (depth < 5) {
+//                [self addM3UFile:URL2 depth:depth+1];
+//            }
+//        } else {
+////            [self addFiles:[NSArray arrayWithObject:URL2]];
+//        }
+//    }
+//}
 
 // ========================================
 // Misc

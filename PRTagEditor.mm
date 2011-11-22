@@ -41,6 +41,7 @@
 #import "mp4v2/itmf_tags.h"
 #import "mp4v2/itmf_generic.h"
 #import "SSCrypto/SSCrypto.h"
+#import "PRFileInfo.h"
 
 using namespace std;
 using namespace TagLib;
@@ -196,7 +197,7 @@ using namespace TagLib;
 - (NSMutableDictionary *)info
 {
     NSMutableDictionary *info = [NSMutableDictionary dictionary];
-    NSAutoreleasePool *p = [[NSAutoreleasePool alloc] init];
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary:[self tags]];
     // Artwork
     NSData *data = [tags objectForKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
@@ -204,7 +205,7 @@ using namespace TagLib;
     if (data) {
         art = [[[NSImage alloc] initWithData:data] autorelease];
         [tags removeObjectForKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
-        if ([art isValid]) {
+        if (art && [art isValid]) {
             [tags setObject:[NSNumber numberWithBool:TRUE] forKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
             [info setObject:art forKey:@"art"];
         }
@@ -226,7 +227,45 @@ using namespace TagLib;
         }
     }
     [info setObject:tags forKey:@"attr"];
-    [p drain];
+    [pool drain];
+    return info;
+}
+
+- (PRFileInfo *)fileInfo
+{
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    PRFileInfo *info = [PRFileInfo fileInfo];
+    NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary:[self tags]];
+    // Artwork
+    NSData *data = [tags objectForKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
+    NSImage *art = nil;
+    if (data) {
+        art = [[[NSImage alloc] initWithData:data] autorelease];
+        [tags removeObjectForKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
+        if (art && [art isValid]) {
+            [tags setObject:[NSNumber numberWithBool:TRUE] forKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
+            [info setArt:art];
+        }
+    }
+    // Title
+    if (![tags objectForKey:[NSNumber numberWithInt:PRTitleFileAttribute]] || 
+        [[tags objectForKey:[NSNumber numberWithInt:PRTitleFileAttribute]] isEqualToString:@""]) {
+        NSString *filename = [_URL lastPathComponent];
+        [tags setObject:filename forKey:[NSNumber numberWithInt:PRTitleFileAttribute]];
+    }
+    // Dates & URLs
+    for (NSNumber *i in [tags allKeys]) {
+        if ([[tags objectForKey:i] isKindOfClass:[NSDate class]]) {
+            NSString *str = [(NSDate *)[tags objectForKey:i] description];
+            [tags setObject:str forKey:i];
+        } else if ([[tags objectForKey:i] isKindOfClass:[NSURL class]]) {
+            NSString *str = [(NSURL *)[tags objectForKey:i] absoluteString];
+            [tags setObject:str forKey:i];
+        }
+    }
+    [info setAttributes:tags];    
+    
+    [pool drain];
     return info;
 }
 
@@ -1652,7 +1691,6 @@ using namespace TagLib;
     NSString *pathExtension = [[path pathExtension] uppercaseString];
     File *file = NULL;
     
-    delete file;
     if ([pathExtension compare:@"MP1"] == NSOrderedSame ||
         [pathExtension compare:@"MP2"] == NSOrderedSame ||
         [pathExtension compare:@"MP3"] == NSOrderedSame) {

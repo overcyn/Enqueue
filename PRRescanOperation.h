@@ -31,9 +31,9 @@
 
 - (void)filterURLs:(NSArray *)files;
 - (void)addURLs:(NSArray *)URLs;
-- (NSIndexSet *)mergeFiles:(NSArray *)files newURL:(NSURL *)URL;
+- (void)mergeSimilar:(NSURL *)URL;
 - (void)updateFiles:(NSArray *)files;
-- (void)removeFiles:(NSArray *)files;
+- (void)removeFiles:(NSIndexSet *)files;
 
 // ========================================
 // Misc

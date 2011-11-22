@@ -2,7 +2,7 @@
 #include <CoreFoundation/CoreFoundation.h>
 #import "PRLibrary.h"
 
-@class PRDb, PRLibrary, PRAlbumArtController;
+@class PRDb, PRLibrary, PRAlbumArtController, PRFileInfo;
 
 typedef enum {
     PRFileTypeUnknown,
@@ -45,6 +45,7 @@ typedef enum {
 // Accessors
 
 - (NSMutableDictionary *)info; //mutabledict with artwork as @"art" and mutableattributes as @"attr"
+- (PRFileInfo *)fileInfo;
 - (NSDictionary *)tags;
 - (void)setValue:(id)value forTag:(PRFileAttribute)tag;
 
