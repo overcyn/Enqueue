@@ -35,7 +35,7 @@
         return [isVertical intValue];
     } else {
         if (playlist == [self libraryPlaylist]) {
-            return PRBrowserPositionHorizontal;
+            return PRBrowserPositionVertical;
         } else {
             return PRBrowserPositionHidden;
         }
