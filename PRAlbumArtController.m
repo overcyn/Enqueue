@@ -367,7 +367,9 @@
 
 - (void)setTempArt:(int)temp forFile:(PRFile)file
 {
-    if (temp == 0) {return;}
+    if (temp == 0) {
+        return;
+    }
     NSString *path = [self tempArtPathForTempValue:temp];
     NSString *path2 = [self cachedAlbumArtPathForFile:file];
     if (![_fileManager findOrCreateDirectoryAtPath:[path2 stringByDeletingLastPathComponent] error:nil]) {return;}
@@ -378,12 +380,15 @@
 
 - (int)saveTempArt:(NSImage *)image
 {
-    NSData *data = [image jpegRepresentationWithCompressionFactor:0.8];
-    int tempValue = [self nextTempValue];
-    NSString *path = [self tempArtPathForTempValue:tempValue];
-    if (![_fileManager findOrCreateDirectoryAtPath:[path stringByDeletingLastPathComponent] error:nil]) {
+    if (![image isValid]) {
         return 0;
     }
+    NSData *data = [image jpegRepresentationWithCompressionFactor:0.8];
+    int tempValue = [self nextTempValue];
+    if (tempValue == 0) {
+        return 0;
+    }
+    NSString *path = [self tempArtPathForTempValue:tempValue];
 	if (![data writeToFile:path atomically:TRUE]) {
 		return 0;
 	}
@@ -393,8 +398,8 @@
 - (void)clearTempArt
 {
     _tempIndex = 1;
-    NSURL *URL = [NSURL fileURLWithPath:[[PRUserDefaults userDefaults] tempArtPath]];
-    [_fileManager removeItemAtURL:URL error:nil];
+    [_fileManager removeItemAtURL:[NSURL fileURLWithPath:[[PRUserDefaults userDefaults] tempArtPath]] error:nil];
+    [_fileManager findOrCreateDirectoryAtPath:[[PRUserDefaults userDefaults] tempArtPath] error:nil];
 }
 
 // ========================================
