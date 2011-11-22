@@ -11,6 +11,11 @@ PRAlbumArtController, PRPlaybackOrder, PRQueue, PRResult, PRStatement, PRReturnT
 extern NSString * const PRFilePboardType;
 extern NSString * const PRIndexesPboardType;
 
+extern NSString * const PRColInteger;
+extern NSString * const PRColFloat;
+extern NSString * const PRColString;
+extern NSString * const PRColData;
+
 typedef enum {PRColumnInteger, PRColumnFloat, PRColumnString, PRColumnData} PRColumn;
 
 // ========================================

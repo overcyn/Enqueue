@@ -22,6 +22,12 @@
 NSString * const PRFilePboardType = @"PRFilePboardType";
 NSString * const PRIndexesPboardType = @"PRIndexesPboardType";
 
+NSString * const PRColInteger = @"PRColInteger";
+NSString * const PRColFloat = @"PRColFloat";
+NSString * const PRColString = @"PRColString";
+NSString * const PRColData = @"PRColData";
+
+
 @implementation PRDb
 
 // ========================================

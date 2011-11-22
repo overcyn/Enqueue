@@ -133,24 +133,30 @@
                 NSMutableArray *column = [NSMutableArray array];
                 for (int i = 0; i < [_columns count]; i++) {
                     id value;
-                    switch ([[_columns objectAtIndex:i] intValue]) {
-                        case PRColumnInteger:
-                            value = [NSNumber numberWithLongLong:sqlite3_column_int64(_stmt, i)];
-                            break;
-                        case PRColumnFloat:
-                            value = [NSNumber numberWithDouble:sqlite3_column_double(_stmt, i)];
-                            break;
-                        case PRColumnString:
-                            value = [NSString stringWithUTF8String:(const char *)sqlite3_column_text(_stmt, i)];
-                            break;
-                        case PRColumnData:
-                            value = [NSData dataWithBytes:sqlite3_column_blob(_stmt, i) length:sqlite3_column_bytes(_stmt, i)];
-                            break;
-                        default:
-                            if (!crash) {return nil;}
-                            [PRException raise:PRDbInconsistencyException 
-                                        format:@"Unknown column type - self:%@", self];return nil;
-                            break;
+                    
+                    
+                    id col = [_columns objectAtIndex:i];
+                    if ([col isKindOfClass:[NSNumber class]]) {
+                        NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                              PRColInteger, [NSNumber numberWithInt:PRColumnInteger],
+                                              PRColFloat, [NSNumber numberWithInt:PRColumnFloat],
+                                              PRColString, [NSNumber numberWithInt:PRColumnString],
+                                              PRColData, [NSNumber numberWithInt:PRColumnData], nil];
+                        col = [dict objectForKey:col];
+                    }
+                    if (col == PRColInteger) {
+                        value = [NSNumber numberWithLongLong:sqlite3_column_int64(_stmt, i)];
+                    } else if (col == PRColFloat) {
+                        value = [NSNumber numberWithDouble:sqlite3_column_double(_stmt, i)];
+                    } else if (col == PRColString) {
+                        value = [NSString stringWithUTF8String:(const char *)sqlite3_column_text(_stmt, i)];
+                    } else if (col == PRColData) {
+                        value = [NSData dataWithBytes:sqlite3_column_blob(_stmt, i) length:sqlite3_column_bytes(_stmt, i)];
+                    } else {
+                        if (!crash) {return nil;}
+                        [PRException raise:PRDbInconsistencyException 
+                                    format:@"Unknown column type - self:%@", self];
+                        return nil;
                     }
                     [column addObject:value];
                 }
