@@ -60,7 +60,7 @@
 	</dict>
 	<dict>
 		<key>hidden</key>
-		<false/>
+		<true/>
 		<key>identifier</key>
 		<integer>13</integer>
 		<key>width</key>
