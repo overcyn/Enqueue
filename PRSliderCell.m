@@ -8,15 +8,15 @@
 - (void)drawBarInside:(NSRect)cellFrame flipped:(BOOL)flipped
 {	
     NSGradient *fillGradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                                 [NSColor colorWithCalibratedWhite:0.9 alpha:1.0], 0.0,
+                                 [NSColor colorWithCalibratedWhite:0.94 alpha:1.0], 0.0,
                                  [NSColor colorWithCalibratedWhite:0.85 alpha:1.0], 0.5, 
                                  [NSColor colorWithCalibratedWhite:0.8 alpha:1.0], 1.0, 
                                  nil] autorelease];
     NSGradient *backGradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                                 [NSColor colorWithCalibratedWhite:0.15 alpha:1.0], 0.0,
-                                 [NSColor colorWithCalibratedWhite:0.45 alpha:1.0], 0.4, 
+                                 [NSColor colorWithCalibratedWhite:0.2 alpha:1.0], 0.0,
+                                 [NSColor colorWithCalibratedWhite:0.5 alpha:1.0], 0.4, 
                                  [NSColor colorWithCalibratedWhite:0.5 alpha:1.0], 0.8,
-                                 [NSColor colorWithCalibratedWhite:0.35 alpha:1.0], 1.0, 
+                                 [NSColor colorWithCalibratedWhite:0.4 alpha:1.0], 1.0, 
                                  nil] autorelease];
 
     //draw background

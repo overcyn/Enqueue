@@ -140,8 +140,8 @@
     [genreField setFormatter:stringFormatter];
     
     [gradientView setTopBorder:[NSColor colorWithCalibratedWhite:0.7 alpha:1.0]];
-    [gradientView setTopGradient:[NSColor colorWithCalibratedWhite:1.0 alpha:0.6]];
-    [gradientView setBotGradient:[NSColor colorWithCalibratedWhite:1.0 alpha:0.0]];
+    [gradientView setTopGradient:[NSColor colorWithCalibratedWhite:0.9 alpha:1.0]];
+    [gradientView setBotGradient:[NSColor colorWithCalibratedWhite:0.8 alpha:1.0]];
     
     // rating
     [((PRRatingCell *)[ratingControl cell]) setShowDots:TRUE];

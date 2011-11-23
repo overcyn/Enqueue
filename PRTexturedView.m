@@ -20,8 +20,8 @@
 
 - (void)drawRect:(NSRect)dirtyRect
 {
-    [[NSColor colorWithPatternImage:[NSImage imageNamed:@"PRBackgroundPattern"]] set];
-    [NSBezierPath fillRect:dirtyRect];
+//    [[NSColor colorWithPatternImage:[NSImage imageNamed:@"PRBackgroundPattern"]] set];
+//    [NSBezierPath fillRect:dirtyRect];
     
     [[NSColor colorWithDeviceWhite:0.6 alpha:1.0] set];
     NSBezierPath *path = [[[NSBezierPath alloc] init] autorelease];
