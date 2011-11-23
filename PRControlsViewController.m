@@ -47,7 +47,6 @@
                              [NSColor colorWithCalibratedWhite:1.0 alpha:0.0], 1.0,
                              nil] autorelease];
     [gradientView setAltVerticalGradient:gradient];
-//    [gradientView setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.15]];
     	
 	// bind time and volume sliders
     [controlSlider setCell:[[[PRSliderCell alloc] init] autorelease]];
@@ -268,10 +267,14 @@
     NSGradient *gradient;
     if (showsArtwork) {
         gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+//                     [NSColor colorWithCalibratedWhite:0.73 alpha:1.0], 0.0, 
+//                     [NSColor colorWithCalibratedWhite:0.69 alpha:1.0], 0.65,
+//                     [NSColor colorWithCalibratedWhite:0.64 alpha:1.0], 0.90,
+//                     [NSColor colorWithCalibratedWhite:0.58 alpha:1.0], 1.0,
                      [NSColor colorWithCalibratedWhite:0.73 alpha:1.0], 0.0, 
                      [NSColor colorWithCalibratedWhite:0.72 alpha:1.0], 0.65,
                      [NSColor colorWithCalibratedWhite:0.67 alpha:1.0], 0.80,
-                     [NSColor colorWithCalibratedWhite:0.63 alpha:1.0], 1.0,
+                     [NSColor colorWithCalibratedWhite:0.61 alpha:1.0], 1.0,
                      nil] autorelease];
     } else {
         gradient = [[[NSGradient alloc] initWithColorsAndLocations:
