@@ -73,6 +73,8 @@
     [topArtistsButton setAction:@selector(historyModeButtonAction:)];
     [recentlyAddedButton setAction:@selector(historyModeButtonAction:)];
     [recentlyPlayedButton setAction:@selector(historyModeButtonAction:)];
+    [[topArtistsButton cell] setRounded:TRUE];
+    [[recentlyPlayedButton cell] setRounded:TRUE];
       
     [tableView setDelegate:self];
     [tableView setIntercellSpacing:NSMakeSize(0, 0)];

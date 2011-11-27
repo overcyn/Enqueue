@@ -24,7 +24,7 @@
     frame.size.width -= 40;
     frame.origin.x += 20;
     
-    graphFrame.size.width -= 70;
+    graphFrame.size.width -= 100;
     if (max < 10) {
         max = 10;
     }
@@ -33,7 +33,7 @@
 	NSDivideRect(graphFrame, &fillFrame, &eraseFrame, drawWidth, NSMinXEdge);
 	
     float radius = 0;
-    eraseFrame.size.width += 70;
+    eraseFrame.size.width += 100;
     
     [[[NSColor selectedTextBackgroundColor] blendedColorWithFraction:0.5 ofColor:[NSColor whiteColor]] set];
     [[NSBezierPath bezierPathWithRoundedRect:fillFrame xRadius:radius yRadius:radius] fill];

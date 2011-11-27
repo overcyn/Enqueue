@@ -2,7 +2,6 @@
 #import "PRCore.h"
 #import "PRDb.h"
 #import "PRLibrary.h"
-#import "PRTagEditor.h"
 #import "PRTask.h"
 #import "PRTaskManager.h"
 #import "NSIndexSet+Extensions.h"
@@ -13,6 +12,7 @@
 #import "PRUserDefaults.h"
 #import "PRNowPlayingController.h"
 #import "PRFileInfo.h"
+#import "PRTagger.h"
 
 
 @implementation PRRescanOperation
@@ -177,9 +177,10 @@ end:;
     NSMutableArray *infoArray = [NSMutableArray array];
     for (int i = 0; i < [URLs count]; i++) {
         NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-        PRTagEditor *te = [PRTagEditor tagEditorForURL:[URLs objectAtIndex:i]];
-        if (!te) {[pool drain];continue;}
-        PRFileInfo *info = [te fileInfo];
+        PRFileInfo *info = [PRTagger infoForURL:[URLs objectAtIndex:i]];
+        if (!info) {
+            [pool drain]; continue;
+        }
         [[info attributes] setObject:[[NSDate date] description] forKey:[NSNumber numberWithInt:PRDateAddedFileAttribute]];
         if ([info art]) {
             [info setTempArt:[[_db albumArtController] saveTempArt:[info art]]];
@@ -204,7 +205,7 @@ end:;
                 }
             }
             // Add file if doesnt exist. Update path if it does
-            if (moved != 0) {
+            if (moved == 0) {
                 PRFile file = [[_db library] addFileWithAttributes:[i attributes]];
                 [i setFile:file];
             } else {
@@ -235,9 +236,10 @@ end:;
     NSMutableArray *infoArray = [NSMutableArray array];
     for (NSDictionary *i in files) {
         NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-        PRTagEditor *te = [PRTagEditor tagEditorForURL:[i objectForKey:@"URL"]];
-        if (!te) {[pool drain]; continue;}
-        PRFileInfo *info = [te fileInfo];
+        PRFileInfo *info = [PRTagger infoForURL:[i objectForKey:@"URL"]];
+        if (!info) {
+            [pool drain]; continue;
+        }
         [info setFile:[[i objectForKey:@"file"] intValue]];
         if ([info art]) {
             [info setTempArt:[[_db albumArtController] saveTempArt:[info art]]];

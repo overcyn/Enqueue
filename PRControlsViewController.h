@@ -57,5 +57,6 @@ PRTimeFormatter;
 
 - (void)showInLibrary;
 - (void)setShowsArtwork:(BOOL)showsArtwork;
+- (void)setMiniPlayer:(BOOL)miniPlayer;
 
 @end

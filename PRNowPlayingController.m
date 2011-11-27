@@ -4,7 +4,6 @@
 #import "PRPlaybackOrder.h"
 #import "PRHistory.h"
 #import "PRDb.h"
-#import "PRTagEditor.h"
 #import "PRMoviePlayer.h"
 #import "PRQueue.h"
 #import "PRUserDefaults.h"
@@ -54,7 +53,8 @@
     // invalid songs
     _invalidSongs = [[NSMutableIndexSet alloc] init];
     
-    _random = random();
+    srandomdev();
+    _random = rand();
     
     // register for movie notifications
     [[NSNotificationCenter defaultCenter] observeMovieFinished:self sel:@selector(movieDidFinish)];

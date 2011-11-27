@@ -96,6 +96,9 @@
 
 - (void)mouseEntered:(NSEvent *)theEvent
 {
+    if ([[core win] miniPlayer]) {
+        return;
+    }
     if ([now currentIndex] != 0) {
         [[NSCursor pointingHandCursor] set];
     }
@@ -254,7 +257,7 @@
 
 - (void)showInLibrary
 {
-    if ([now currentFile] == 0) {
+    if ([now currentFile] == 0 || [[core win] miniPlayer]) {
         return;
     }
     [[core win] setCurrentMode:PRLibraryMode];
@@ -293,6 +296,11 @@
                  [NSColor colorWithCalibratedWhite:1.0 alpha:0.04], 1.0,
                  nil] autorelease];
     [gradientView setHorizontalGradient:gradient];
+}
+
+- (void)setMiniPlayer:(BOOL)miniPlayer
+{
+    [self mouseExited:nil];
 }
 
 

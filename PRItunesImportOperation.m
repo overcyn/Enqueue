@@ -6,9 +6,10 @@
 #import "PRTaskManager.h"
 #import "PRTask.h"
 #import "PRCore.h"
-#import "PRTagEditor.h"
 #import "NSEnumerator+Extensions.h"
 #import "NSFileManager+Extensions.h"
+#import "PRTagger.h"
+#import "PRFileInfo.h"
 
 
 @implementation PRItunesImportOperation
@@ -141,30 +142,30 @@ end:;
         }
         NSDictionary *track = [tracks objectAtIndex:i];
         NSURL *URL = [NSURL URLWithString:[track objectForKey:@"Location"]];
-        PRTagEditor *te = [PRTagEditor tagEditorForURL:URL];
-        if (!te) {
+        PRFileInfo *info = [PRTagger infoForURL:URL];
+        if (!info) {
             goto end;
         }
-        NSMutableDictionary *info = [te info];
         if ([track objectForKey:@"Play Date UTC"]) {
-            [[info objectForKey:@"attr"] setObject:[[track objectForKey:@"Play Date UTC"] description] forKey:[NSNumber numberWithInt:PRLastPlayedFileAttribute]];
+            [[info attributes] setObject:[[track objectForKey:@"Play Date UTC"] description] forKey:[NSNumber numberWithInt:PRLastPlayedFileAttribute]];
         }
         if ([track objectForKey:@"Play Count"]) {
-            [[info objectForKey:@"attr"] setObject:[track objectForKey:@"Play Count"] forKey:[NSNumber numberWithInt:PRPlayCountFileAttribute]];
+            [[info attributes] setObject:[track objectForKey:@"Play Count"] forKey:[NSNumber numberWithInt:PRPlayCountFileAttribute]];
         }
         if ([track objectForKey:@"Rating"]) {
-            [[info objectForKey:@"attr"] setObject:[track objectForKey:@"Rating"] forKey:[NSNumber numberWithInt:PRRatingFileAttribute]];
+            [[info attributes] setObject:[track objectForKey:@"Rating"] forKey:[NSNumber numberWithInt:PRRatingFileAttribute]];
         }
         if ([track objectForKey:@"Date Added"]) {
-            [[info objectForKey:@"attr"] setObject:[[track objectForKey:@"Date Added"] description] forKey:[NSNumber numberWithInt:PRDateAddedFileAttribute]];
+            [[info attributes] setObject:[[track objectForKey:@"Date Added"] description] forKey:[NSNumber numberWithInt:PRDateAddedFileAttribute]];
         } else {
-            [[info objectForKey:@"attr"] setObject:[[NSDate date] description] forKey:[NSNumber numberWithInt:PRDateAddedFileAttribute]];
+            [[info attributes] setObject:[[NSDate date] description] forKey:[NSNumber numberWithInt:PRDateAddedFileAttribute]];
         }
-        [info setObject:[track objectForKey:@"Track ID"] forKey:@"trackid"];
+        [info setTrackid:[[track objectForKey:@"Track ID"] intValue]];
         // Artwork
-        int temp = [[_db albumArtController] saveTempArt:[info objectForKey:@"art"]];
-        [info setObject:[NSNumber numberWithInt:temp] forKey:@"tempart"];
-        [info removeObjectForKey:@"art"];
+        if ([info art]) {
+            [info setTempArt:[[_db albumArtController] saveTempArt:[info art]]];
+            [info setArt:nil];
+        }
         [infoArray addObject:info];
     end:
         [pool2 drain];
@@ -172,19 +173,20 @@ end:;
     // Add files
     blk = ^{
         [_db begin];
-        for (NSMutableDictionary *i in infoArray) {
-            PRFile f = [[_db library] addFileWithAttributes:[i objectForKey:@"attr"]];
-            [i setObject:[NSNumber numberWithInt:f] forKey:@"file"];
-            [_fileTrackIdDictionary setValue:[NSNumber numberWithInt:f] forKey:[i objectForKey:@"trackid"]];
+        for (PRFileInfo *i in infoArray) {
+            PRFile f = [[_db library] addFileWithAttributes:[i attributes]];
+            [i setFile:f];
+            NSNumber *trackId = [NSNumber numberWithInt:[i trackid]];
+            [_fileTrackIdDictionary setObject:[NSNumber numberWithInt:f] forKey:trackId];
         }
         [_db commit];
         [[NSNotificationCenter defaultCenter] postLibraryChanged];
     };
     [[NSOperationQueue mainQueue] addBlockAndWait:blk];
     // Artwork
-    for (NSDictionary *i in infoArray) {
-        if (![i objectForKey:@"tempart"]) {continue;}
-        [[_db albumArtController] setTempArt:[[i objectForKey:@"tempart"] intValue] forFile:[[i objectForKey:@"file"] intValue]];
+    for (PRFileInfo *i in infoArray) {
+        if (![i tempArt]) {continue;}
+        [[_db albumArtController] setTempArt:[i tempArt] forFile:[i file]];
     }
     [pool drain];
 }

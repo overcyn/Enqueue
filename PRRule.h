@@ -6,33 +6,24 @@
 
 @interface PRRule : NSObject <NSCoding>
 {
-	BOOL match;
-	BOOL limit;
+	BOOL _match;
+	BOOL _limit;
 	
-	BOOL isCompoundRule;
-	NSMutableArray *subRules;
+	BOOL _isCompound;
+	NSMutableArray *_subRules;
 	
-	PRFileAttribute fileAttribute;
-	NSMutableArray *selectedObjects;
+	PRFileAttribute _fileAttribute;
+	NSMutableArray *_selectedObjects;
 }
 
 // accessors
-- (BOOL)match; 
-- (void)setMatch:(BOOL)newMatch;
+@property (readwrite) BOOL match;
+@property (readwrite) BOOL limit;
 
-- (BOOL)limit;
-- (void)setLimit:(BOOL)newLimit;
+@property (readwrite) BOOL isCompound;
+@property (readwrite, retain) NSMutableArray *subRules;
 
-- (BOOL)isCompoundRule;
-- (void)setIsCompoundRule:(BOOL)newIsCompoundRule;
-
-- (NSMutableArray *)subRules;
-- (void)setSubRules:(NSMutableArray *)newSubRules;
-
-- (PRFileAttribute)fileAttribute;
-- (void)setFileAttribute:(PRFileAttribute)newFileAttribute;
-
-- (NSMutableArray *)selectedObjects;
-- (void)setSelectedObjects:(NSMutableArray *)newSelectedObjects;
+@property (readwrite) PRFileAttribute fileAttribute;
+@property (readwrite,retain) NSMutableArray *selectedObjects;
 
 @end

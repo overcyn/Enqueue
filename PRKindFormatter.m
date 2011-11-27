@@ -1,5 +1,5 @@
 #import "PRKindFormatter.h"
-#import "PRTagEditor.h"
+#import "PRTagger.h"
 
 
 @implementation PRKindFormatter

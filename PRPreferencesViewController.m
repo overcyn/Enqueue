@@ -165,6 +165,8 @@
         [tab setTag:[i intValue]];
     }
     _prefMode = PRGeneralPrefMode;
+    [[_generalButton cell] setRounded:TRUE];
+    [[_shortcutsButton cell] setRounded:TRUE];
     
     // EQ
     [EQButton setTarget:self];
@@ -185,10 +187,14 @@
     
     for (PRGradientView *i in [NSArray arrayWithObjects:
                                _generalBorder, _playbackBorder, 
-                               _shortcutsBorder, _lastfmBorder, nil]) {
+                               _shortcutsBorder, _lastfmBorder, _topBorder, nil]) {
         [i setTopBorder:[NSColor PRGridColor]];
         [i setBotBorder:[NSColor PRGridHighlightColor]];
     }
+    
+    [_topBorder setTopBorder:[NSColor PRGridColor]];
+    [_topBorder setBotBorder:[NSColor PRGridHighlightColor]];
+//    [_topBorder setColor:[NSColor redColor]];
 
     for (NSNumber *i in [[self EQSliders] allKeys]) {
         NSSlider *slider = [[self EQSliders] objectForKey:i];

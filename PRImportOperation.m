@@ -1,6 +1,5 @@
 #import "PRImportOperation.h"
 #import "PRLibrary.h"
-#import "PRTagEditor.h"
 #import "PRPlaylists.h"
 #import "PRDb.h"
 #import "PRCore.h"

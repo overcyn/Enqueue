@@ -1,25 +1,10 @@
 #import <Cocoa/Cocoa.h>
 #include <CoreFoundation/CoreFoundation.h>
 #import "PRLibrary.h"
+#import "PRTagger.h"
 
 @class PRDb, PRLibrary, PRAlbumArtController, PRFileInfo;
 
-typedef enum {
-    PRFileTypeUnknown,
-    PRFileTypeAPE,
-    PRFileTypeASF,
-    PRFileTypeFLAC,
-    PRFileTypeMP4,
-    PRFileTypeMPC,
-    PRFileTypeMPEG,
-    PRFileTypeOggFLAC,
-    PRFileTypeOggVorbis,
-    PRFileTypeOggSpeex,
-    PRFileTypeAIFF,
-    PRFileTypeWAV,
-    PRFileTypeTrueAudio,
-    PRFileTypeWavPack,
-} PRFileType;
 
 @interface PRTagEditor : NSObject 
 {

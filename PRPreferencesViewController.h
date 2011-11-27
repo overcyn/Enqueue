@@ -25,6 +25,7 @@ typedef enum {
     IBOutlet NSView *_lastfmView;
     IBOutlet NSView *_contentView;
     
+    IBOutlet PRGradientView *_topBorder;
     IBOutlet PRGradientView *_generalBorder;
     IBOutlet PRGradientView *_playbackBorder;
     IBOutlet PRGradientView *_shortcutsBorder;

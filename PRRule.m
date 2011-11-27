@@ -7,101 +7,45 @@
 
 - (id)init
 {
-    self = [super init];
-	if (self) {
-		limit = FALSE;
-		match = FALSE;
-		fileAttribute = 2;
-		selectedObjects = [[NSMutableArray alloc] init];
-		subRules = [[NSMutableArray alloc] init];
-	}
+	if (!(self = [super init])) {return nil;}
+    _match = FALSE;
+    _limit = FALSE;
+    _isCompound = FALSE;
+    _subRules = [[NSMutableArray alloc] init];
+    _fileAttribute = 2;
+    _selectedObjects = [[NSMutableArray alloc] init];
 	return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
-	[coder encodeBool:limit forKey:@"limit"];	
-	[coder encodeBool:match forKey:@"match"];	
-	[coder encodeObject:subRules forKey:@"subRules"]; 
-	[coder encodeBool:isCompoundRule forKey:@"isCompoundRule"];
-	[coder encodeInt:fileAttribute forKey:@"fileAttribute"];
-	[coder encodeObject:selectedObjects forKey:@"selectedObjects"];
+    [coder encodeBool:_match forKey:@"match"];
+	[coder encodeBool:_limit forKey:@"limit"];
+    [coder encodeBool:_isCompound forKey:@"isCompound"];
+	[coder encodeObject:_subRules forKey:@"subRules"]; 
+	[coder encodeInt:_fileAttribute forKey:@"fileAttribute"];
+	[coder encodeObject:_selectedObjects forKey:@"selectedObjects"];
 }
 
 - (id)initWithCoder:(NSCoder *)coder
 {
-    self = [super init];
-	if (self) {
-		limit = [coder decodeBoolForKey:@"limit"];
-		match = [coder decodeBoolForKey:@"match"];
-		subRules = [coder decodeObjectForKey:@"subRules"];
-		isCompoundRule = [coder decodeBoolForKey:@"isCompoundRule"];
-		fileAttribute = [coder decodeIntForKey:@"fileAttribute"];
-		selectedObjects = [coder decodeObjectForKey:@"selectedObjects"];
-	}
+    if (!(self = [super init])) {return nil;}
+    _match = [coder decodeBoolForKey:@"match"];
+    _limit = [coder decodeBoolForKey:@"limit"];
+    _isCompound = [coder decodeBoolForKey:@"isCompound"];
+    _subRules = [coder decodeObjectForKey:@"subRules"];
+    _fileAttribute = [coder decodeIntForKey:@"fileAttribute"];
+    _selectedObjects = [coder decodeObjectForKey:@"selectedObjects"];
 	return self;
 }
 
 // accessors
 
-- (BOOL)match
-{
-	return match;
-}
-
-- (void)setMatch:(BOOL)newMatch
-{
-	match = newMatch;
-}
-
-- (BOOL)limit
-{
-	return limit;
-}
-
-- (void)setLimit:(BOOL)newLimit
-{
-	limit = newLimit;
-}
-
-- (BOOL)isCompoundRule
-{
-	return isCompoundRule;
-}
-
-- (void)setIsCompoundRule:(BOOL)newIsCompoundRule
-{
-	isCompoundRule = newIsCompoundRule;
-}
-
-- (NSMutableArray *)subRules
-{
-	return subRules;
-}
-
-- (void)setSubRules:(NSMutableArray *)newSubRules
-{
-	subRules = newSubRules;
-}
-
-- (PRFileAttribute)fileAttribute
-{
-	return fileAttribute;
-}
-
-- (void)setFileAttribute:(PRFileAttribute)newFileAttribute
-{
-	fileAttribute = newFileAttribute;
-}
-
-- (NSMutableArray *)selectedObjects
-{
-	return selectedObjects;
-}
-
-- (void)setSelectedObjects:(NSMutableArray *)newSelectedObjects
-{
-	selectedObjects = newSelectedObjects;
-}
+@synthesize match = _match;
+@synthesize limit = _limit;
+@synthesize isCompound = _isCompound;
+@synthesize subRules = _subRules;
+@synthesize fileAttribute = _fileAttribute;
+@synthesize selectedObjects = _selectedObjects;
 
 @end

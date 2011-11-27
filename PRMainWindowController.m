@@ -23,12 +23,45 @@
 #import "PRStringFormatter.h"
 #import <Quartz/Quartz.h>
 #import "NSWindow+Extensions.h"
+#import "NSOperationQueue+Extensions.h"
 
 
 @interface NSWindow (hush)
 - (void)setBottomCornerRounded:(BOOL)rounded;
 @end
 
+@interface PRMainWindowController ()
+
+// ========================================
+// UI
+
+- (NSRect)nowPlayingFrameForFrame:(NSRect)frame_;
+- (NSRect)centerFrameForFrame:(NSRect)frame_;
+
+// ========================================
+// Update
+
+// Updates searchField
+- (void)playlistDidChange:(NSNotification *)notification;
+
+// update subBar
+- (void)libraryViewDidChange:(NSNotification *)notification;
+
+- (void)playlistsDidChange:(NSNotification *)notification;
+
+- (void)windowWillEnterFullScreen:(NSNotification *)notification;
+- (void)windowWillExitFullScreen:(NSNotification *)notification;
+
+// ========================================
+// Accessors
+
+// Accessors for search field and segmented control bindings
+- (NSString *)search;
+- (void)setSearch:(NSString *)newSearch;
+- (int)libraryViewMode;
+- (void)setLibraryViewMode:(int)libraryViewMode;
+
+@end
 
 @implementation PRMainWindowController
 
@@ -120,7 +153,7 @@
     // Initialize currentViewController
     [[libraryViewController view] setFrame:[centerSuperview bounds]];
     [centerSuperview addSubview:[libraryViewController view]];
-	currentViewController = libraryViewController;
+    currentViewController = libraryViewController;
     [self setCurrentPlaylist:[[_db playlists] libraryPlaylist]];
     [self setCurrentMode:PRLibraryMode];
 		
@@ -144,13 +177,12 @@
     // Library view mode buttons
     [libraryModeButton setTarget:self];
     [libraryModeButton setAction:@selector(libraryModeButtonAction)];
-	
-    if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
-//        [[self window] setCollectionBehavior:[[self window] collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
-    }
-    
+	    
     // miniplayer
-    [self setMiniPlayer:[self miniPlayer]];
+    [centerSuperview retain];
+    BOOL mini = [self miniPlayer];
+    [self setMiniPlayer:FALSE];
+    [self setMiniPlayer:mini];
     
 	// Buttons
     NSArray *buttons = [NSArray arrayWithObjects:
@@ -269,6 +301,11 @@
 - (void)setShowsArtwork:(BOOL)showsArtwork
 {
     [[PRUserDefaults userDefaults] setShowsArtwork:showsArtwork];
+    [self setShowsArtwork_:showsArtwork];
+}
+
+- (void)setShowsArtwork_:(BOOL)showsArtwork
+{
     if (showsArtwork) {
         NSRect frame = [controlsSuperview frame];
         frame.origin.y = [[self window] frame].size.height - 275 - 22;
@@ -299,27 +336,64 @@
 - (void)setMiniPlayer:(BOOL)miniPlayer
 {
     [[PRUserDefaults userDefaults] setMiniPlayer:miniPlayer];
+    [centerSuperview setHidden:miniPlayer];
+    [toolbarView setHidden:miniPlayer];
+    
     if (miniPlayer) {
-        [self setShowsArtwork:FALSE];
-        NSRect frame = [[self window] frame];
-        frame.size.height = 500;
+        if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6 && [[self window] collectionBehavior] & NSWindowCollectionBehaviorFullScreenPrimary) {
+            [[self window] setCollectionBehavior:[[self window] collectionBehavior] ^ NSWindowCollectionBehaviorFullScreenPrimary];
+        }
+        
+        [self setShowsArtwork_:FALSE];
+        [centerSuperview removeFromSuperview];
+        [[PRUserDefaults userDefaults] setPlayerFrame:[[self window] frame]];
+        NSRect frame = [[PRUserDefaults userDefaults] miniPlayerFrame];
+        if (NSEqualRects(frame, NSZeroRect)) {
+            frame.origin.x = [[self window] frame].origin.x;
+            frame.origin.y = [[self window] frame].origin.y;
+            frame.size.height = 500;
+        }
+        if (frame.size.height < 300) {
+            frame.size.height = 300;
+        }
         frame.size.width = 185;
         [[self window] setFrame:frame display:TRUE animate:FALSE];
         [[self window] setMinSize:NSMakeSize(185, 300)];
         [[self window] setMaxSize:NSMakeSize(185, 10000)];
-        [centerSuperview setHidden:miniPlayer];
-        [toolbarView setHidden:miniPlayer];
     } else {
-        [centerSuperview setHidden:miniPlayer];
-        [toolbarView setHidden:miniPlayer];
-        NSRect frame = [[self window] frame];
-        frame.size.height = 500;
-        frame.size.width = 900;
-        [[self window] setFrame:frame display:TRUE animate:FALSE];
-        [[self window] setMinSize:NSMakeSize(900, 500)];
+        NSRect frame = [[PRUserDefaults userDefaults] playerFrame];
+        if (NSEqualRects(frame, NSZeroRect)) {
+            frame.origin.x = [[self window] frame].origin.x;
+            frame.origin.y = [[self window] frame].origin.y;
+            frame.size.height = 700;
+            frame.size.width = 1000;
+        }
+        if (frame.size.height < 500) {
+            frame.size.height = 500;
+        }
+        if (frame.size.width < 1000) {
+            frame.size.width = 1000;
+        }
+        [[self window] setMinSize:NSMakeSize(1000, 500)];
         [[self window] setMaxSize:NSMakeSize(10000, 10000)];
-        [self setShowsArtwork:TRUE];
+        
+        [self setShowsArtwork_:[self showsArtwork]];
+        
+        [[controlsSuperview superview] addSubview:centerSuperview];
+        
+        [nowPlayingSuperview setFrame:[self nowPlayingFrameForFrame:frame]];
+        [centerSuperview setFrame:[self centerFrameForFrame:frame]];
+        [nowPlayingSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewMaxYMargin];
+        [centerSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewMaxYMargin];
+        [[self window] setFrame:frame display:TRUE animate:FALSE];
+        [nowPlayingSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewHeightSizable];
+        [centerSuperview setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+        
+        if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
+            [[self window] setCollectionBehavior:[[self window] collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
+        }
     }
+    [[self controlsViewController] setMiniPlayer:miniPlayer];
 }
 
 - (void)toggleMiniPlayer
@@ -479,6 +553,30 @@
     [[searchField window] makeFirstResponder:searchField];
 }
 
+- (NSRect)nowPlayingFrameForFrame:(NSRect)frame_
+{
+    NSRect frame;
+    if ([self showsArtwork]) {
+        frame.size.height = frame_.size.height - 275 - 22;
+    } else {
+        frame.size.height = frame_.size.height - 105 - 22;
+    }
+    frame.size.width = 185;
+    frame.origin.x = 0;
+    frame.origin.y = 0; 
+    return frame;
+}
+
+- (NSRect)centerFrameForFrame:(NSRect)frame_
+{
+    NSRect frame;
+    frame.size.height = frame_.size.height - 65;
+    frame.size.width = frame_.size.width - 186;
+    frame.origin.x = 186;
+    frame.origin.y = 0;
+    return frame;
+}
+
 // ========================================
 // Update
 // ========================================
@@ -578,7 +676,6 @@
     [self setCurrentMode:[sender tag]];
 }
 
-
 // ========================================
 // Window Delegate
 // ========================================
@@ -595,9 +692,27 @@
 
 - (NSRect)window:(NSWindow *)window willPositionSheet:(NSWindow *)sheet usingRect:(NSRect)rect
 {
-    rect.origin.y -= 43;
-    rect.origin.x += 185/2;
+    if ([self miniPlayer]) {
+        rect.origin.y -= 105;
+    } else {
+        rect.origin.y -= 43;
+        rect.origin.x += 185/2;
+    }
     return rect;
+}
+
+- (void)windowDidResize:(NSNotification *)notification
+{
+    if ([self miniPlayer]) {
+        [[PRUserDefaults userDefaults] setMiniPlayerFrame:[[self window] frame]];
+    } else {
+        [[PRUserDefaults userDefaults] setPlayerFrame:[[self window] frame]];
+    }
+}
+
+- (void)windowDidMove:(NSNotification *)notification
+{
+    [self windowDidResize:nil];
 }
 
 @end

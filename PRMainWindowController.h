@@ -38,7 +38,7 @@ typedef enum {
     IBOutlet PRGradientView *divider5;
     
     IBOutlet NSTextField *playlistTitle;
-    	
+        
     PRMode currentMode;
     int currentPlaylist;
     id currentViewController;
@@ -81,6 +81,8 @@ typedef enum {
 @property (readwrite) BOOL showsArtwork;
 @property (readwrite) BOOL miniPlayer;
 
+- (void)setShowsArtwork_:(BOOL)showsArtwork;
+
 @property (readwrite) BOOL progressHidden;
 @property (readwrite, retain) NSString *progressTitle;
 
@@ -90,33 +92,5 @@ typedef enum {
 - (void)toggleMiniPlayer;
 - (void)updateUI;
 - (void)find;
-
-@end
-
-
-@interface PRMainWindowController ()
-
-// ========================================
-// Update
-
-// Updates searchField
-- (void)playlistDidChange:(NSNotification *)notification;
-
-// update subBar
-- (void)libraryViewDidChange:(NSNotification *)notification;
-
-- (void)playlistsDidChange:(NSNotification *)notification;
-
-- (void)windowWillEnterFullScreen:(NSNotification *)notification;
-- (void)windowWillExitFullScreen:(NSNotification *)notification;
-
-// ========================================
-// Accessors
-
-// Accessors for search field and segmented control bindings
-- (NSString *)search;
-- (void)setSearch:(NSString *)newSearch;
-- (int)libraryViewMode;
-- (void)setLibraryViewMode:(int)libraryViewMode;
 
 @end

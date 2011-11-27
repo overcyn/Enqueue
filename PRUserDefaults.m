@@ -189,6 +189,8 @@
 
 @dynamic showWelcomeSheet;
 @dynamic miniPlayer;
+@dynamic miniPlayerFrame;
+@dynamic playerFrame;
 
 - (BOOL)showWelcomeSheet
 {
@@ -219,6 +221,37 @@
 {
     [defaults setObject:[NSNumber numberWithBool:miniPlayer] forKey:@"miniPlayer"];
 }
+
+- (NSRect)miniPlayerFrame
+{
+    NSString *object = [defaults objectForKey:@"miniPlayerFrame"];
+    if (object && [object isKindOfClass:[NSString class]]) {
+        return NSRectFromString(object);
+    } else {
+        return NSZeroRect;
+    }
+}
+
+- (void)setMiniPlayerFrame:(NSRect)miniPlayerFrame
+{
+    [defaults setObject:NSStringFromRect(miniPlayerFrame) forKey:@"miniPlayerFrame"];
+}
+
+- (NSRect)playerFrame
+{
+    NSString *object = [defaults objectForKey:@"playerFrame"];
+    if (object && [object isKindOfClass:[NSString class]]) {
+        return NSRectFromString(object);
+    } else {
+        return NSZeroRect;
+    }
+}
+
+- (void)setPlayerFrame:(NSRect)playerFrame
+{
+    [defaults setObject:NSStringFromRect(playerFrame) forKey:@"playerFrame"];
+}
+
 
 @dynamic mediaKeys;
 @dynamic postGrowlNotification;

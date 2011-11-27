@@ -179,10 +179,7 @@
 	if ([[tableColumn identifier] isEqualToString:@"value"]) {
 		return [array objectAtIndex:rowIndex];
 	} else {
-		BOOL checkBoxState;
-		
-		checkBoxState = [[[self representedObject] selectedObjects] containsObject:[array objectAtIndex:rowIndex]];
-		
+		BOOL checkBoxState = [[[self representedObject] selectedObjects] containsObject:[array objectAtIndex:rowIndex]];
 		return [NSNumber numberWithBool:checkBoxState];
 	}
 

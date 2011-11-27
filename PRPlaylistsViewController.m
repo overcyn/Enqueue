@@ -25,7 +25,7 @@
         _core = core;
 		win = [core win];
         db = [core db];
-//        smartPlaylistEditorViewController = [[PRSmartPlaylistEditorViewController alloc] initWithCore:_core];
+        smartPlaylistEditorViewController = [[PRSmartPlaylistEditorViewController alloc] initWithCore:_core];
         stringFormatter = [[PRStringFormatter alloc] init];
         [stringFormatter setMaxLength:80];
 	}
@@ -65,7 +65,7 @@
 	[newSmartPlaylistButton setTarget:self];
 	[newSmartPlaylistButton setAction:@selector(newSmartPlaylist)];
 	[newPlaylistButton setTarget:self];
-	[newPlaylistButton setAction:@selector(newStaticPlaylist)];
+	[newPlaylistButton setAction:@selector(newSmartPlaylist)];
     
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(update)];
 	[[NSNotificationCenter defaultCenter] observePlaylistsChanged:self sel:@selector(update)];
@@ -88,43 +88,98 @@
 
 - (void)newStaticPlaylist
 {
-	PRPlaylist playlist = [[db playlists] addStaticPlaylist];
+    NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+    [alert addButtonWithTitle:@"Save"];
+    [alert addButtonWithTitle:@"Cancel"];
+    [alert setMessageText:@"New Playlist Title:"];
+    [alert setInformativeText:@""];
+    [alert setAccessoryView:[[[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 400, 0)] autorelease]];
+    [(NSTextField *)[alert accessoryView] setStringValue:@"Untitled Playlist"];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert layout];
+    NSRect frame2 = [[alert accessoryView] frame];
+    frame2.size.height = 24;
+    [[alert accessoryView] setFrame:frame2];
+    NSRect frame = [[[alert accessoryView] superview] frame];
+    frame.size.height = 24;
+    [[[alert accessoryView] superview] setFrame:frame];
+    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(newPlaylistHandler:code:context:) contextInfo:NULL];
+}
+
+- (void)newPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context
+{
+    if (code != NSAlertFirstButtonReturn) {
+        return;
+    }
+    PRPlaylist playlist = [[db playlists] addStaticPlaylist];
+    [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forPlaylist:playlist attribute:PRTitlePlaylistAttribute];
     [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
-    [self renamePlaylist:playlist];
 }
 
 - (void)newSmartPlaylist
 {
 	PRPlaylist playlist = [[db playlists] addSmartPlaylist];
 	[[NSNotificationCenter defaultCenter] postPlaylistsChanged];
-    [self renamePlaylist:playlist];
+//    [self renamePlaylist:playlist];
 }
 
 - (void)duplicatePlaylist:(PRPlaylist)playlist
 {
     PRPlaylistType type = [[db playlists] typeForPlaylist:playlist];
-    if (type == PRStaticPlaylistType || type == PRNowPlayingPlaylistType) {
-        int newPlaylist = [[db playlists] addStaticPlaylist];
-        [[db playlists] copyFilesFromPlaylist:playlist toPlaylist:newPlaylist];
-        NSString *title = [[db playlists] titleForPlaylist:playlist];
-        NSString *title2 = [title stringByAppendingString:@" Copy"];
-        [[db playlists] setValue:title2 forPlaylist:newPlaylist attribute:PRTitlePlaylistAttribute];
-        [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
-        [self renamePlaylist:newPlaylist];
-    } else if (type == PRSmartPlaylistType) {
-        int newPlaylist = [[db playlists] addSmartPlaylist];
-        [[db playlists] setRule:[[db playlists] ruleForPlaylist:playlist] forPlaylist:newPlaylist];
-        NSString *title = [[db playlists] titleForPlaylist:playlist];
-        NSString *title2 = [title stringByAppendingString:@" Copy"];
-        [[db playlists] setValue:title2 forPlaylist:newPlaylist attribute:PRTitlePlaylistAttribute];
-        [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
-        [self renamePlaylist:newPlaylist];
+    NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+    [alert addButtonWithTitle:@"Save"];
+    [alert addButtonWithTitle:@"Cancel"];
+    [alert setMessageText:@"New playlist title:"];
+    [alert setInformativeText:@""];
+    [alert setAccessoryView:[[[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 400, 0)] autorelease]];
+    NSString *title;
+    if (type == PRStaticPlaylistType) {
+        title = [[[db playlists] titleForPlaylist:playlist] stringByAppendingString:@" Copy"];
+    } else if (type == PRNowPlayingPlaylistType) {
+        title = @"Untitled Playlist";
     }
+    [(NSTextField *)[alert accessoryView] setStringValue:title];   
+    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert layout];
+    NSRect frame2 = [[alert accessoryView] frame];
+    frame2.size.height = 24;
+    [[alert accessoryView] setFrame:frame2];
+    NSRect frame = [[[alert accessoryView] superview] frame];
+    frame.size.height = 24;
+    [[[alert accessoryView] superview] setFrame:frame];
+    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(duplicateHandler:code:context:) contextInfo:[NSNumber numberWithInt:playlist]];
+}
+
+- (void)duplicateHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context 
+{
+    if (code != NSAlertFirstButtonReturn) {
+        return;
+    }
+    PRPlaylist playlist = [[db playlists] addStaticPlaylist];
+    [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forPlaylist:playlist attribute:PRTitlePlaylistAttribute];
+    [[db playlists] copyFilesFromPlaylist:[(NSNumber *)context intValue] toPlaylist:playlist];
+    [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
+    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:playlist];
 }
 
 - (void)deletePlaylist:(PRPlaylist)playlist
 {
-    [[db playlists] removePlaylist:playlist];
+    NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+    [alert addButtonWithTitle:@"Delete"];
+    [alert addButtonWithTitle:@"Cancel"];
+    [alert setMessageText:[NSString stringWithFormat:@"Delete playlist '%@'?",[[db playlists] valueForPlaylist:playlist attribute:PRTitlePlaylistAttribute]]];
+    [alert setInformativeText:@"This action cannot be undone."];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert layout];
+    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(deleteHandler:code:context:) contextInfo:[NSNumber numberWithInt:playlist]];
+}
+
+- (void)deleteHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context 
+{
+    if (code != NSAlertFirstButtonReturn) {
+        return;
+    }
+    [[db playlists] removePlaylist:[(NSNumber *)context intValue]];
     [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
 }
 

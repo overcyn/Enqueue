@@ -2,7 +2,7 @@
 #import "PRLibrary.h"
 
 
-@class PRDb, PRTagEditor, PRGradientView, PRNumberFormatter, PRStringFormatter, PRCore;
+@class PRDb, PRGradientView, PRNumberFormatter, PRStringFormatter, PRCore;
 
 @interface PRInfoViewController : NSViewController
 {	

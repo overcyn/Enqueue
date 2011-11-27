@@ -476,25 +476,6 @@
 									<reference key="NSMixedImage" ref="502551668"/>
 									<int key="NSTag">5</int>
 								</object>
-								<object class="NSMenuItem" id="161267229">
-									<reference key="NSMenu" ref="466310130"/>
-									<bool key="NSIsDisabled">YES</bool>
-									<bool key="NSIsSeparator">YES</bool>
-									<string key="NSTitle"/>
-									<string key="NSKeyEquiv"/>
-									<int key="NSMnemonicLoc">2147483647</int>
-									<reference key="NSOnImage" ref="35465992"/>
-									<reference key="NSMixedImage" ref="502551668"/>
-								</object>
-								<object class="NSMenuItem" id="610536952">
-									<reference key="NSMenu" ref="466310130"/>
-									<string key="NSTitle">Hide Artwork</string>
-									<string key="NSKeyEquiv"/>
-									<int key="NSMnemonicLoc">2147483647</int>
-									<reference key="NSOnImage" ref="35465992"/>
-									<reference key="NSMixedImage" ref="502551668"/>
-									<int key="NSTag">3</int>
-								</object>
 								<object class="NSMenuItem" id="213453698">
 									<reference key="NSMenu" ref="466310130"/>
 									<string key="NSTitle">Show Info</string>
@@ -515,15 +496,14 @@
 									<reference key="NSOnImage" ref="35465992"/>
 									<reference key="NSMixedImage" ref="502551668"/>
 								</object>
-								<object class="NSMenuItem" id="776359581">
+								<object class="NSMenuItem" id="610536952">
 									<reference key="NSMenu" ref="466310130"/>
-									<string key="NSTitle">Enter Full Screen</string>
-									<string key="NSKeyEquiv">f</string>
-									<int key="NSKeyEquivModMask">1572864</int>
+									<string key="NSTitle">Hide Artwork</string>
+									<string key="NSKeyEquiv"/>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="35465992"/>
 									<reference key="NSMixedImage" ref="502551668"/>
-									<int key="NSTag">6</int>
+									<int key="NSTag">3</int>
 								</object>
 								<object class="NSMenuItem" id="107564551">
 									<reference key="NSMenu" ref="466310130"/>
@@ -534,6 +514,16 @@
 									<reference key="NSOnImage" ref="35465992"/>
 									<reference key="NSMixedImage" ref="502551668"/>
 									<int key="NSTag">7</int>
+								</object>
+								<object class="NSMenuItem" id="776359581">
+									<reference key="NSMenu" ref="466310130"/>
+									<string key="NSTitle">Enter Full Screen</string>
+									<string key="NSKeyEquiv">f</string>
+									<int key="NSKeyEquivModMask">1572864</int>
+									<int key="NSMnemonicLoc">2147483647</int>
+									<reference key="NSOnImage" ref="35465992"/>
+									<reference key="NSMixedImage" ref="502551668"/>
+									<int key="NSTag">6</int>
 								</object>
 							</object>
 						</object>
@@ -742,6 +732,15 @@
 			</object>
 			<object class="NSCustomObject" id="941910785">
 				<string key="NSClassName">SUUpdater</string>
+			</object>
+			<object class="NSMenuItem" id="161267229">
+				<bool key="NSIsDisabled">YES</bool>
+				<bool key="NSIsSeparator">YES</bool>
+				<string key="NSTitle"/>
+				<string key="NSKeyEquiv"/>
+				<int key="NSMnemonicLoc">2147483647</int>
+				<reference key="NSOnImage" ref="35465992"/>
+				<reference key="NSMixedImage" ref="502551668"/>
 			</object>
 		</object>
 		<object class="IBObjectContainer" key="IBDocument.Objects">
@@ -1215,14 +1214,13 @@
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<reference ref="280448349"/>
 							<reference ref="758298307"/>
-							<reference ref="161267229"/>
-							<reference ref="610536952"/>
 							<reference ref="213453698"/>
-							<reference ref="776359581"/>
 							<reference ref="217377149"/>
 							<reference ref="860495059"/>
 							<reference ref="1008145663"/>
 							<reference ref="8852976"/>
+							<reference ref="776359581"/>
+							<reference ref="610536952"/>
 							<reference ref="107564551"/>
 						</object>
 						<reference key="parent" ref="586577488"/>
@@ -1335,11 +1333,6 @@
 					<object class="IBObjectRecord">
 						<int key="objectID">563</int>
 						<reference key="object" ref="758298307"/>
-						<reference key="parent" ref="466310130"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">565</int>
-						<reference key="object" ref="161267229"/>
 						<reference key="parent" ref="466310130"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -1484,6 +1477,11 @@
 						<int key="objectID">626</int>
 						<reference key="object" ref="107564551"/>
 						<reference key="parent" ref="466310130"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">565</int>
+						<reference key="object" ref="161267229"/>
+						<reference key="parent" ref="0"/>
 					</object>
 				</object>
 			</object>

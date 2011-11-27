@@ -203,15 +203,33 @@
         title = @"Show Info Pane";
     }
     [[viewMenu itemWithTag:4] setTitle:title];
+    if ([[core win] miniPlayer]) {
+        title = @"Switch to Main Player";
+    } else {
+        title = @"Switch to Mini Player";
+    }
+    [[viewMenu itemWithTag:7] setTitle:title];
+
     NSMenu *browser = [[[[core win] libraryViewController] currentViewController] browserHeaderMenu];
+    [browser setAutoenablesItems:FALSE];
     [[viewMenu itemWithTitle:@"Browser"] setSubmenu:browser];
+    for (NSMenuItem *i in [browser itemArray]) {
+        [i setEnabled:![[core win] miniPlayer]];
+    }
+    
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
-    if (menuItem == [fileMenu itemWithTitle:@"Import iTunes Library"] ||
-        menuItem == [fileMenu itemWithTitle:@"Add to Library…"]) {
+    if (menuItem == [fileMenu itemWithTag:3] ||
+        menuItem == [fileMenu itemWithTag:4]) {
         return [[[core opQueue] operations] count] == 0;
+    } else if (menuItem == [viewMenu itemWithTag:1] || 
+               menuItem == [viewMenu itemWithTag:2] ||
+               menuItem == [viewMenu itemWithTag:3] ||
+               menuItem == [viewMenu itemWithTag:4] ||
+               menuItem == [viewMenu itemWithTag:5]) {
+        return ![[core win] miniPlayer];
     }
     return TRUE;
 }

@@ -7,26 +7,48 @@
 - (void)drawWithFrame:(NSRect)frame inView:(NSView *)view
 {    
     NSRect frame2 = frame;
-    frame2.size.height -= 3;
-    frame2.origin.y += 2;
+    frame2.origin.y += 0.5;
+    frame2.size.height -= 1;
+    frame2.origin.x += 0.5;
+    frame2.size.width -= 1;
+    
+    NSBezierPath *path;
+    if (FALSE) {
+        path = [NSBezierPath bezierPathWithRoundedRect:frame2 xRadius:0 yRadius:0];
+    } else {
+        path = [NSBezierPath bezierPathWithRoundedRect:frame2 xRadius:2 yRadius:2];
+    }
+    
+    [NSGraphicsContext saveGraphicsState];
+    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
+    [shadow setShadowColor:[NSColor redColor]];
+    [shadow setShadowBlurRadius:0.0];
+    [shadow setShadowOffset:NSMakeSize(0.0, 3.0)];
+    [shadow set];
     
     // Draw background
+    NSGradient *gradient;
     if ([self isHighlighted]) {
-        [[NSColor PRAltTabDepressedColor] set];
+        gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+                     [NSColor colorWithCalibratedWhite:0.94 alpha:1.0],0.0,
+                     [NSColor colorWithCalibratedWhite:0.89 alpha:1.0],0.4,
+                     [NSColor colorWithCalibratedWhite:0.85 alpha:1.0],1.0, 
+                     nil] autorelease];
     } else {
-        [[NSColor PRAltTabColor] set];
+        gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+                     [NSColor colorWithCalibratedWhite:0.99 alpha:1.0],0.0,
+                     [NSColor colorWithCalibratedWhite:0.99 alpha:1.0],0.2,
+//                     [NSColor colorWithCalibratedWhite:0.92 alpha:1.0],0.8,
+                     [NSColor colorWithCalibratedWhite:0.92 alpha:1.0], 0.8, 
+                     nil] autorelease];
     }
-    [NSBezierPath fillRect:NSInsetRect(frame2, 1, 1)];
+    [gradient drawInBezierPath:path angle:90.0];
     
+    [NSGraphicsContext restoreGraphicsState];
     
     // Draw border
-    [[NSColor PRTabBorderColor] set];
-    [NSBezierPath fillRect:[NSBezierPath botBorderOfRect:frame2]];
-    [NSBezierPath fillRect:[NSBezierPath leftBorderOfRect:frame2]];
-    [NSBezierPath fillRect:[NSBezierPath rightBorderOfRect:frame2]];
-    
-    [[NSColor PRAltTabBorderHighlightColor] set];
-    [NSBezierPath fillRect:[NSBezierPath botBorderOfRect:NSInsetRect(frame2, 1, 1)]];
+    [[NSColor colorWithCalibratedWhite:0.65 alpha:1.0] set];
+    [path stroke];
     
     // Draw Interior
     [self drawInteriorWithFrame:frame inView:view];
@@ -44,7 +66,7 @@
     [shadow setShadowOffset:NSMakeSize(0.0, -1.0)];
     NSDictionary *attr = [NSDictionary dictionaryWithObjectsAndKeys:
                           [NSFont fontWithName:@"HelveticaNeue-Bold" size:12], NSFontAttributeName,
-                          [NSColor colorWithCalibratedWhite:0.55 alpha:1.0], NSForegroundColorAttributeName,
+                          [NSColor colorWithCalibratedWhite:0.15 alpha:1.0], NSForegroundColorAttributeName,
                           paragraphStyle, NSParagraphStyleAttributeName, 
                           shadow, NSShadowAttributeName, nil];
     attrTitle = [[[NSAttributedString alloc] initWithString:[self title] attributes:attr] autorelease];

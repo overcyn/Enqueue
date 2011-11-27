@@ -29,9 +29,6 @@
 - (void)themeDrawRect:(NSRect)rect
 {
 	[self drawRectOriginal:rect];
-    if (![[self window] isMainWindow]) {
-        return;
-    }
     
     // Clip corner
     NSRect windowRect = [[self window] frame];
@@ -40,20 +37,37 @@
     [[NSBezierPath bezierPathWithRoundedRect:windowRect xRadius:cornerRadius yRadius:cornerRadius] addClip];
     
     // Fill
-    NSRect controlRect = NSMakeRect(0, windowRect.size.height - 26, 185, 26);
-    NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                             [NSColor colorWithCalibratedWhite:0.87 alpha:1.0], 0.0, 
-                             [NSColor colorWithCalibratedWhite:0.8 alpha:1.0], 0.3, 
-                             [NSColor colorWithCalibratedWhite:0.7 alpha:1.0], 1.0,
-                              nil] autorelease];
-    [gradient drawInRect:controlRect angle:-90.0];
-    gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                 [NSColor colorWithCalibratedWhite:1.0 alpha:0.04], 0.0, 
-                 [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.2,
-                 [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.8,
-                 [NSColor colorWithCalibratedWhite:1.0 alpha:0.04], 1.0,
-                 nil] autorelease];
-    [gradient drawInRect:controlRect angle:0.0];
+    if ([[self window] isMainWindow]) {
+        NSRect controlRect = NSMakeRect(0, windowRect.size.height - 26, 185, 26);
+        NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+                                 [NSColor colorWithCalibratedWhite:0.87 alpha:1.0], 0.0, 
+                                 [NSColor colorWithCalibratedWhite:0.8 alpha:1.0], 0.3, 
+                                 [NSColor colorWithCalibratedWhite:0.7 alpha:1.0], 1.0,
+                                 nil] autorelease];
+        [gradient drawInRect:controlRect angle:-90.0];
+        gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+                     [NSColor colorWithCalibratedWhite:1.0 alpha:0.04], 0.0, 
+                     [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.2,
+                     [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.8,
+                     [NSColor colorWithCalibratedWhite:1.0 alpha:0.04], 1.0,
+                     nil] autorelease];
+        [gradient drawInRect:controlRect angle:0.0];
+    } else {
+        NSRect controlRect = NSMakeRect(0, windowRect.size.height - 100, 185, 100);
+        NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+                                 [NSColor colorWithCalibratedWhite:0.99 alpha:1.0], 0.0, 
+                                 [NSColor colorWithCalibratedWhite:0.96 alpha:1.0], 0.3, 
+                                 [NSColor colorWithCalibratedWhite:0.83 alpha:1.0], 1.0,
+                                 nil] autorelease];
+        [gradient drawInRect:controlRect angle:-90.0];
+        gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+                     [NSColor colorWithCalibratedWhite:1.0 alpha:0.04], 0.0, 
+                     [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.2,
+                     [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.8,
+                     [NSColor colorWithCalibratedWhite:1.0 alpha:0.04], 1.0,
+                     nil] autorelease];
+        [gradient drawInRect:controlRect angle:0.0];
+    }
     
     // Left border
     [[NSColor colorWithDeviceWhite:0.98 alpha:1.0] set];

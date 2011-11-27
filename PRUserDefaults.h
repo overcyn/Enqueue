@@ -26,6 +26,8 @@
 
 @property (readwrite) BOOL showWelcomeSheet;
 @property (readwrite) BOOL miniPlayer;
+@property (readwrite) NSRect miniPlayerFrame;
+@property (readwrite) NSRect playerFrame;
 
 @property (readwrite) BOOL mediaKeys;
 @property (readwrite) BOOL postGrowlNotification;

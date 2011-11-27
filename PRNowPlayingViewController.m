@@ -194,12 +194,7 @@
 
 - (void)newPlaylist:(id)sender
 {
-    PRPlaylist playlist = [[db playlists] addStaticPlaylist];
-    [[db playlists] copyFilesFromPlaylist:[now currentPlaylist] toPlaylist:playlist];
-    [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
-    
-    [win setCurrentMode:PRPlaylistsMode];
-    [[win playlistsViewController] renamePlaylist:playlist];
+    [[win playlistsViewController] duplicatePlaylist:[now currentPlaylist]];
 }
 
 - (void)mute

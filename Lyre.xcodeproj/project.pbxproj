@@ -210,8 +210,6 @@
 		67C37B551373FAEF00004859 /* NSScrollView+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C37B541373FAEF00004859 /* NSScrollView+Extensions.m */; };
 		67C4ACB51329B61C00796610 /* PRTaskManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C4ACB41329B61C00796610 /* PRTaskManager.m */; };
 		67C4ACBB1329CCD300796610 /* PRTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C4ACBA1329CCD300796610 /* PRTask.m */; };
-		67C4CB2612B78CB90087BA87 /* PRImportSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 67C4CB2312B78CB90087BA87 /* PRImportSheet.xib */; };
-		67C4CB2712B78CB90087BA87 /* PRImportSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C4CB2512B78CB90087BA87 /* PRImportSheetController.m */; };
 		67C58B561309F77B00E12F63 /* PRTimeFormatter2.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C58B551309F77B00E12F63 /* PRTimeFormatter2.m */; };
 		67C90931135D3D96008C70F3 /* PRHoverTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C90930135D3D96008C70F3 /* PRHoverTextField.m */; };
 		67CFB4491423FDB40045108D /* NSOperationQueue+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67CFB4481423FDB40045108D /* NSOperationQueue+Extensions.m */; };
@@ -227,6 +225,7 @@
 		67DAC8161456387900E120B6 /* EMKeychainItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DAC8151456387900E120B6 /* EMKeychainItem.m */; };
 		67DC99A61266F9E1000C3942 /* PRRuleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC99A51266F9E1000C3942 /* PRRuleViewController.m */; };
 		67DE033A147B07A600BBB0F6 /* PRFileInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE0339147B07A600BBB0F6 /* PRFileInfo.m */; };
+		67E38846147E541D00C094E5 /* PRTagger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 67E38845147E541D00C094E5 /* PRTagger.mm */; };
 		67E94735126C528E00CAE943 /* PRCenteredTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */; };
 		67E94DDA14551E8900B88EA4 /* Cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E94DD914551E8900B88EA4 /* Cancel.png */; };
 		67EA12F6145A9A9600309876 /* Add.png in Resources */ = {isa = PBXBuildFile; fileRef = 67EA12F5145A9A9600309876 /* Add.png */; };
@@ -587,9 +586,6 @@
 		67C4ACB41329B61C00796610 /* PRTaskManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRTaskManager.m; sourceTree = "<group>"; };
 		67C4ACB91329CCD300796610 /* PRTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRTask.h; sourceTree = "<group>"; };
 		67C4ACBA1329CCD300796610 /* PRTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRTask.m; sourceTree = "<group>"; };
-		67C4CB2312B78CB90087BA87 /* PRImportSheet.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PRImportSheet.xib; sourceTree = "<group>"; };
-		67C4CB2412B78CB90087BA87 /* PRImportSheetController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRImportSheetController.h; sourceTree = "<group>"; };
-		67C4CB2512B78CB90087BA87 /* PRImportSheetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRImportSheetController.m; sourceTree = "<group>"; };
 		67C58B541309F77B00E12F63 /* PRTimeFormatter2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRTimeFormatter2.h; sourceTree = "<group>"; };
 		67C58B551309F77B00E12F63 /* PRTimeFormatter2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRTimeFormatter2.m; sourceTree = "<group>"; };
 		67C9092F135D3D96008C70F3 /* PRHoverTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRHoverTextField.h; sourceTree = "<group>"; };
@@ -616,8 +612,10 @@
 		67DAC8151456387900E120B6 /* EMKeychainItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EMKeychainItem.m; path = Frameworks/EMKeychainItem/EMKeychainItem.m; sourceTree = "<group>"; };
 		67DC99A41266F9E1000C3942 /* PRRuleViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleViewController.h; sourceTree = "<group>"; };
 		67DC99A51266F9E1000C3942 /* PRRuleViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleViewController.m; sourceTree = "<group>"; };
-		67DE0338147B07A600BBB0F6 /* PRFileInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; path = PRFileInfo.h; sourceTree = "<group>"; };
+		67DE0338147B07A600BBB0F6 /* PRFileInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRFileInfo.h; sourceTree = "<group>"; };
 		67DE0339147B07A600BBB0F6 /* PRFileInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRFileInfo.m; sourceTree = "<group>"; };
+		67E38844147E541D00C094E5 /* PRTagger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRTagger.h; sourceTree = "<group>"; };
+		67E38845147E541D00C094E5 /* PRTagger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PRTagger.mm; sourceTree = "<group>"; };
 		67E94733126C528E00CAE943 /* PRCenteredTextFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRCenteredTextFieldCell.h; sourceTree = "<group>"; };
 		67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRCenteredTextFieldCell.m; sourceTree = "<group>"; };
 		67E94DD914551E8900B88EA4 /* Cancel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Cancel.png; path = Icons/Cancel.png; sourceTree = "<group>"; };
@@ -930,6 +928,8 @@
 		6739CCB4125313D400AB54A1 /* Tags */ = {
 			isa = PBXGroup;
 			children = (
+				67E38844147E541D00C094E5 /* PRTagger.h */,
+				67E38845147E541D00C094E5 /* PRTagger.mm */,
 				6709D9EE12480DA800963B11 /* PRTagEditor.h */,
 				6709D9EF12480DA800963B11 /* PRTagEditor.mm */,
 				6792BCBA13050F810097A9F0 /* PRID3Genres.plist */,
@@ -980,7 +980,6 @@
 				6771E783127974E2007A34F2 /* Playlists */,
 				6771E90A127A47C9007A34F2 /* History */,
 				67026EA0126977EB002E929F /* Preferences */,
-				67C4CB1912B78C720087BA87 /* Sheets */,
 			);
 			name = UI;
 			sourceTree = "<group>";
@@ -994,6 +993,7 @@
 				1DDD58140DA1D0A300B32029 /* MainMenu.xib */,
 				674415C0135AA86800A5B269 /* PRMainMenuController.h */,
 				674415C1135AA86800A5B269 /* PRMainMenuController.m */,
+				67EC3B791349A53600AD0BE1 /* Welcome Sheet */,
 			);
 			name = "Main Window";
 			sourceTree = "<group>";
@@ -1105,10 +1105,10 @@
 				6768E61713BBCEA600FA7474 /* PRSegmentedCell.m */,
 				67A5F63212A5E261003837CA /* PRRatingCell.h */,
 				67A5F63312A5E261003837CA /* PRRatingCell.m */,
-				67EFE76A145EA62200F05694 /* PRTabButtonCell.h */,
-				67EFE76B145EA62200F05694 /* PRTabButtonCell.m */,
 				67EFE770145F07DB00F05694 /* PRTabButton.h */,
 				67EFE771145F07DC00F05694 /* PRTabButton.m */,
+				67EFE76A145EA62200F05694 /* PRTabButtonCell.h */,
+				67EFE76B145EA62200F05694 /* PRTabButtonCell.m */,
 				67EE4AC71461ED680073C24C /* PRTabButtonCell2.h */,
 				67EE4AC81461ED680073C24C /* PRTabButtonCell2.m */,
 			);
@@ -1530,25 +1530,6 @@
 			name = "Task Manager";
 			sourceTree = "<group>";
 		};
-		67C4CB1912B78C720087BA87 /* Sheets */ = {
-			isa = PBXGroup;
-			children = (
-				67EC3B791349A53600AD0BE1 /* Welcome Sheet */,
-				67C4CB2812B78CBC0087BA87 /* Import Sheet */,
-			);
-			name = Sheets;
-			sourceTree = "<group>";
-		};
-		67C4CB2812B78CBC0087BA87 /* Import Sheet */ = {
-			isa = PBXGroup;
-			children = (
-				67C4CB2312B78CB90087BA87 /* PRImportSheet.xib */,
-				67C4CB2412B78CB90087BA87 /* PRImportSheetController.h */,
-				67C4CB2512B78CB90087BA87 /* PRImportSheetController.m */,
-			);
-			name = "Import Sheet";
-			sourceTree = "<group>";
-		};
 		67CE095C124C6A1B00A39077 /* Now Playing */ = {
 			isa = PBXGroup;
 			children = (
@@ -1684,7 +1665,6 @@
 				6771E78912797511007A34F2 /* PRPlaylistsView.xib in Resources */,
 				6771E90C127A47D8007A34F2 /* PRHistoryView.xib in Resources */,
 				672AED911282371E0034C641 /* PRAlbumListView.xib in Resources */,
-				67C4CB2612B78CB90087BA87 /* PRImportSheet.xib in Resources */,
 				675AC49E12D13B23006B8B95 /* PRAlbumArt.png in Resources */,
 				675AC4A412D13B23006B8B95 /* PRDownIcon.png in Resources */,
 				675AC4A512D13B23006B8B95 /* PREmptyAlbumArt.png in Resources */,
@@ -1830,7 +1810,6 @@
 				67A5F63412A5E261003837CA /* PRRatingCell.m in Sources */,
 				67F0D5B912B1DAD6008E1458 /* PRNumberFormatter.m in Sources */,
 				67ECC8DF12B38BF90005D88B /* PRLoweredTextField.m in Sources */,
-				67C4CB2712B78CB90087BA87 /* PRImportSheetController.m in Sources */,
 				6706FCC612B9A08200C9B075 /* NSFileManager+DirectoryLocations.m in Sources */,
 				6706FCF812B9C7BF00C9B075 /* PRUserDefaults.m in Sources */,
 				6706FDF712BB897B00C9B075 /* PRAlbumArtController.m in Sources */,
@@ -1915,6 +1894,7 @@
 				67D911E3147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.m in Sources */,
 				67D911E71471087B001C9DE8 /* PRKeyboardShortcuts.m in Sources */,
 				67DE033A147B07A600BBB0F6 /* PRFileInfo.m in Sources */,
+				67E38846147E541D00C094E5 /* PRTagger.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
