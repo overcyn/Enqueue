@@ -281,6 +281,10 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     if (request != _currentRequest) {
         return;
     }
+    if (!data) {
+        [self disconnect];
+        return;
+    }
     // Get token
     NSXMLDocument *XMLDocument = [[[NSXMLDocument alloc] initWithData:data options:0 error:nil] autorelease];
     if (![[[[XMLDocument rootElement] attributeForName:@"status"] stringValue] isEqualToString:@"ok"]) {
@@ -326,6 +330,10 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 - (void)sessionGotten:(NSData *)data request:(NSURLRequest *)request
 {
     if (request != _currentRequest) {
+        return;
+    }
+    if (!data) {
+        [self disconnect];
         return;
     }
     NSXMLDocument *XMLDocument = [[[NSXMLDocument alloc] initWithData:data options:0 error:nil] autorelease];

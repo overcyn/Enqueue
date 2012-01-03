@@ -1,6 +1,8 @@
 #import "PRWindow.h"
 #import <objc/runtime.h>
-
+#import "PRFrameView.h"
+#import "PRCore.h"
+#import "PRNowPlayingController.h"
 
 @interface PRWindow(hush)
 - (float)roundedCornerRadius;
@@ -12,6 +14,8 @@
 
 - (void)awakeFromNib
 {
+    [PRFrameView swizzle];
+    
     // Get window's frame view class 
     id class = [[[self contentView] superview] class];  
     
@@ -29,7 +33,7 @@
 - (void)themeDrawRect:(NSRect)rect
 {
 	[self drawRectOriginal:rect];
-    
+
     // Clip corner
     NSRect windowRect = [[self window] frame];
     windowRect.origin = NSMakePoint(0, 0);
@@ -38,46 +42,80 @@
     
     // Fill
     if ([[self window] isMainWindow]) {
-        NSRect controlRect = NSMakeRect(0, windowRect.size.height - 26, 185, 26);
+        NSRect controlRect = NSMakeRect(0, windowRect.size.height - 30, windowRect.size.width, 30);
         NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                                 [NSColor colorWithCalibratedWhite:0.87 alpha:1.0], 0.0, 
-                                 [NSColor colorWithCalibratedWhite:0.8 alpha:1.0], 0.3, 
-                                 [NSColor colorWithCalibratedWhite:0.7 alpha:1.0], 1.0,
+                                 [NSColor colorWithCalibratedWhite:0.92 alpha:1.0], 0.0, 
+                                 [NSColor colorWithCalibratedWhite:0.65 alpha:1.0], 1.0,
                                  nil] autorelease];
         [gradient drawInRect:controlRect angle:-90.0];
-        gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                     [NSColor colorWithCalibratedWhite:1.0 alpha:0.04], 0.0, 
-                     [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.2,
-                     [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.8,
-                     [NSColor colorWithCalibratedWhite:1.0 alpha:0.04], 1.0,
-                     nil] autorelease];
-        [gradient drawInRect:controlRect angle:0.0];
     } else {
-        NSRect controlRect = NSMakeRect(0, windowRect.size.height - 100, 185, 100);
+        NSRect controlRect = NSMakeRect(0, windowRect.size.height - 30, windowRect.size.width, 30);
         NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
                                  [NSColor colorWithCalibratedWhite:0.99 alpha:1.0], 0.0, 
                                  [NSColor colorWithCalibratedWhite:0.96 alpha:1.0], 0.3, 
                                  [NSColor colorWithCalibratedWhite:0.83 alpha:1.0], 1.0,
                                  nil] autorelease];
         [gradient drawInRect:controlRect angle:-90.0];
-        gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                     [NSColor colorWithCalibratedWhite:1.0 alpha:0.04], 0.0, 
-                     [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.2,
-                     [NSColor colorWithCalibratedWhite:1.0 alpha:0], 0.8,
-                     [NSColor colorWithCalibratedWhite:1.0 alpha:0.04], 1.0,
-                     nil] autorelease];
-        [gradient drawInRect:controlRect angle:0.0];
     }
-    
-    // Left border
-    [[NSColor colorWithDeviceWhite:0.98 alpha:1.0] set];
-    NSPoint p1;
-    p1.x = windowRect.origin.x;
-    p1.y = windowRect.origin.y + windowRect.size.height;
-    NSPoint p2;
-    p2.x = windowRect.origin.x + windowRect.size.width;
-    p2.y = windowRect.origin.y + windowRect.size.height;
-    [NSBezierPath strokeLineFromPoint:p1 toPoint:p2];
 }
+
+- (void)updateTrackingArea
+{
+    if (_trackingArea) {
+        [[[[self window] contentView] superview] removeTrackingArea:_trackingArea];
+        [_trackingArea release];
+    }
+    NSRect trackingRect = [[self standardWindowButton:NSWindowCloseButton] frame];
+    trackingRect.size.width = NSMaxX([[self standardWindowButton:NSWindowZoomButton] frame]) - NSMinX(trackingRect);
+    _trackingArea = [[NSTrackingArea alloc] initWithRect:trackingRect
+                                                 options:(NSTrackingMouseEnteredAndExited |
+                                                          NSTrackingActiveAlways)
+                                                   owner:self
+                                                userInfo:nil];
+    [[[[self window] contentView] superview] addTrackingArea:_trackingArea];
+}
+
+// Update our buttons so that they highlight correctly.
+- (void)mouseEntered:(NSEvent*)event {
+    _entered = YES;
+//    [closeButton_ setNeedsDisplay];
+//    [zoomButton_ setNeedsDisplay];
+//    [miniaturizeButton_ setNeedsDisplay];
+}
+
+// Update our buttons so that they highlight correctly.
+- (void)mouseExited:(NSEvent*)event {
+    _entered = NO;
+//    [closeButton_ setNeedsDisplay];
+//    [zoomButton_ setNeedsDisplay];
+//    [miniaturizeButton_ setNeedsDisplay];
+}
+
+- (BOOL)mouseInGroup:(NSButton*)widget {
+    return _entered;
+}
+
+- (BOOL)_isTitleHidden {
+    return TRUE;
+}
+
+- (void)keyDown:(NSEvent *)event
+{
+	PRNowPlayingController *now = [(PRCore *)[NSApp delegate] now];
+    if ([[event characters] length] != 1) {
+        [super keyDown:event];
+        return;
+    }
+	if ([[event characters] characterAtIndex:0] == 0xf703) {
+		[now playNext];
+	} else if ([[event characters] characterAtIndex:0] == 0xf702) {
+		[now playPrevious];
+	} else if ([[event characters] characterAtIndex:0] == 0x20) {
+		[now playPause];
+    } else {
+		[super keyDown:event];
+	}
+}
+
 
 @end

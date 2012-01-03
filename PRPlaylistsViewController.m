@@ -65,7 +65,7 @@
 	[newSmartPlaylistButton setTarget:self];
 	[newSmartPlaylistButton setAction:@selector(newSmartPlaylist)];
 	[newPlaylistButton setTarget:self];
-	[newPlaylistButton setAction:@selector(newSmartPlaylist)];
+	[newPlaylistButton setAction:@selector(newStaticPlaylist)];
     
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(update)];
 	[[NSNotificationCenter defaultCenter] observePlaylistsChanged:self sel:@selector(update)];
@@ -118,8 +118,8 @@
 
 - (void)newSmartPlaylist
 {
-	PRPlaylist playlist = [[db playlists] addSmartPlaylist];
-	[[NSNotificationCenter defaultCenter] postPlaylistsChanged];
+//	PRPlaylist playlist = [[db playlists] addSmartPlaylist];
+//	[[NSNotificationCenter defaultCenter] postPlaylistsChanged];
 //    [self renamePlaylist:playlist];
 }
 
@@ -132,7 +132,7 @@
     [alert setMessageText:@"New playlist title:"];
     [alert setInformativeText:@""];
     [alert setAccessoryView:[[[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 400, 0)] autorelease]];
-    NSString *title;
+    NSString *title = @"";
     if (type == PRStaticPlaylistType) {
         title = [[[db playlists] titleForPlaylist:playlist] stringByAppendingString:@" Copy"];
     } else if (type == PRNowPlayingPlaylistType) {
@@ -147,12 +147,13 @@
     NSRect frame = [[[alert accessoryView] superview] frame];
     frame.size.height = 24;
     [[[alert accessoryView] superview] setFrame:frame];
-    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(duplicateHandler:code:context:) contextInfo:[NSNumber numberWithInt:playlist]];
+    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(duplicateHandler:code:context:) contextInfo:[[NSNumber alloc] initWithInt:playlist]];
 }
 
 - (void)duplicateHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context 
 {
     if (code != NSAlertFirstButtonReturn) {
+        [(NSNumber *)context release];
         return;
     }
     PRPlaylist playlist = [[db playlists] addStaticPlaylist];
@@ -160,6 +161,7 @@
     [[db playlists] copyFilesFromPlaylist:[(NSNumber *)context intValue] toPlaylist:playlist];
     [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
     [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:playlist];
+    [(NSNumber *)context release];
 }
 
 - (void)deletePlaylist:(PRPlaylist)playlist
@@ -171,16 +173,19 @@
     [alert setInformativeText:@"This action cannot be undone."];
     [alert setAlertStyle:NSWarningAlertStyle];
     [alert layout];
-    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(deleteHandler:code:context:) contextInfo:[NSNumber numberWithInt:playlist]];
+    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(deleteHandler:code:context:) contextInfo:[[NSNumber alloc] initWithInt:playlist]];
 }
 
 - (void)deleteHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context 
 {
     if (code != NSAlertFirstButtonReturn) {
+        [(NSNumber *)context release];
         return;
     }
+    [[_core win] setCurrentPlaylist:[[[_core db] playlists] libraryPlaylist]];
     [[db playlists] removePlaylist:[(NSNumber *)context intValue]];
     [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
+    [(NSNumber *)context release];
 }
 
 - (void)renamePlaylist:(PRPlaylist)playlist

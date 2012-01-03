@@ -39,7 +39,7 @@
 
 - (void)main
 {
-    NSLog(@"begin import");
+    NSLog(@"begin itunesimport");
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     PRTask *task = [PRTask task];
     [task setTitle:@"Importing iTunes..."];
@@ -79,7 +79,7 @@
     NSArray *nextTracks = nil;
     while ((nextTracks = [enumerator nextXObjects:300])) {
         index += 300;
-        [task setTitle:[NSString stringWithFormat:@"Importing iTunes... %d%%", (int)(((float)index/(float)[tracks count]) * 90)]];
+        [task setPercent:(int)(((float)index/(float)[tracks count]) * 90)];
         [self addTracks:nextTracks];
         if ([task shouldCancel]) {goto end;}
     }
@@ -88,15 +88,14 @@
     index = 0;
     for (NSDictionary *i in [plist objectForKey:@"Playlists"]) {
         index += 1;
-        int percentage = ((float)index/(float)[[plist objectForKey:@"Playlists"] count]) * 9 + 90;
-        [task setTitle:[NSString stringWithFormat:@"Importing iTunes... %d%%", percentage]];
+        [task setPercent:((float)index/(float)[[plist objectForKey:@"Playlists"] count]) * 9 + 90];
         [self addPlaylist:i];
         if ([task shouldCancel]) {goto end;}
     }
 end:;
     [[_core taskManager] removeTask:task];
     [pool drain];
-    NSLog(@"end import");
+    NSLog(@"end itunesimport");
 }
 
 - (void)addTracks:(NSArray *)tracks

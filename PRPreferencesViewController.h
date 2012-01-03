@@ -33,6 +33,7 @@ typedef enum {
     
     IBOutlet NSButton *sortWithAlbumArtist;
     IBOutlet NSButton *folderArtwork;
+    IBOutlet NSButton *_compilationsButton;
     
     IBOutlet NSButton *mediaKeys;
     IBOutlet SRRecorderControl *playPause;
@@ -143,6 +144,7 @@ typedef enum {
 // Misc Preferences
 
 - (void)setMasterVolume:(id)sender;
+- (void)toggleCompilations;
 - (void)toggleUseAlbumArtist;
 - (void)toggleMediaKeys;
 - (void)toggleFolderArtwork;

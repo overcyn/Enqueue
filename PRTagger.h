@@ -25,8 +25,11 @@ typedef enum {
 
 + (PRFileInfo *)infoForURL:(NSURL *)URL;
 + (NSDictionary *)tagsForURL:(NSURL *)URL;
++ (NSDictionary *)simpleTagsForURL:(NSURL *)URL;
 
 + (void)setTag:(id)tag forAttribute:(PRFileAttribute)attr URL:(NSURL *)URL;
+
++ (NSDictionary *)defaultTags;
 
 // ========================================
 // Properties

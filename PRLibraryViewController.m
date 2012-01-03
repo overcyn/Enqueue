@@ -10,7 +10,6 @@
 #import "PRLibraryViewSource.h"
 #import "PRTimeFormatter2.h"
 #import "PRSizeFormatter.h"
-#import "PRGradientView.h"
 #import "PRCore.h"
 
 
@@ -26,18 +25,14 @@
     core = [core_ retain];
     db = [[core db] retain];
     now = [[core now] retain];
+    infoViewController = [[PRInfoViewController alloc] initWithCore:core];
     
     playlist = -1;
-    
-    [self infoViewToggle];
-    [self infoViewToggle];
-	return self;
+    return self;
 }
 
 - (void)dealloc
 {
-    [smartPlaylistEditorViewController release];
-    [staticPlaylistEditorViewController release];
     [infoViewController release];
     [listViewController release];
     [albumListViewController release];
@@ -48,17 +43,15 @@
 
 - (void)awakeFromNib
 {	
-	// Panes
-	infoViewController = [[PRInfoViewController alloc] initWithCore:core];
-	
-	[[smartPlaylistEditorViewController view] setFrame:[paneSuperview bounds]];
-	[paneSuperview addSubview:[smartPlaylistEditorViewController view]];
-	currentPaneViewController = smartPlaylistEditorViewController;
-	
-	// SplitViews
-	[editorSplitView setDelegate:self];
-	[self paneViewCollapse];
-	
+    [paneSuperview retain];
+    [centerSuperview retain];
+    
+	// Panes. Toggle on init to set initial frame
+	currentPaneViewController = infoViewController;
+    _edit = TRUE;
+    [self updateLayout];
+    [self infoViewToggle];
+    
 	// ListView
 	listViewController = [[PRListViewController alloc] initWithDb:db 
                                              nowPlayingController:now
@@ -72,11 +65,8 @@
 	[centerSuperview addSubview:[listViewController view]];
 	currentViewController = listViewController;
     
-    // PRGradientView
-    [gradientView setTopGradient:[NSColor colorWithCalibratedWhite:0.89 alpha:1.0]];
-    [gradientView setBotGradient:[NSColor colorWithCalibratedWhite:0.84 alpha:1.0]];
-    [gradientView setTopBorder:[NSColor colorWithCalibratedWhite:0.98 alpha:1.0]];
-    [gradientView setBotBorder:[NSColor colorWithCalibratedWhite:0.2 alpha:1.0]];
+    [[infoViewController view] setFrame:[paneSuperview bounds]];
+    [paneSuperview addSubview:[infoViewController view]];
 }
 
 // ========================================
@@ -126,6 +116,11 @@
     [[NSNotificationCenter defaultCenter] postLibraryViewSelectionChanged];
 }
 
+- (void)setLibraryViewModeAction:(id)sender
+{
+    [self setLibraryViewMode:[sender tag]];
+}
+
 - (void)setListMode
 {
     [self setLibraryViewMode:PRListMode];
@@ -140,39 +135,49 @@
 // UI
 // ========================================
 
-- (void)editorViewToggle
+- (void)updateLayout
 {
-	if (edit && currentPaneViewController == smartPlaylistEditorViewController) {
-		[self paneViewCollapse];
-	} else {
-		[self paneViewCollapse];
-		[self paneViewUncollapse];
-		[[smartPlaylistEditorViewController view] setFrame:[paneSuperview bounds]];
-		[paneSuperview addSubview:[smartPlaylistEditorViewController view]];
-		
-		currentPaneViewController = smartPlaylistEditorViewController;
-		
-	}
+    if (_edit) {
+        // PANE
+        NSRect frame;
+        frame.origin.x = 0;
+        frame.origin.y = 0;
+        frame.size.width = [[self view] frame].size.width;
+        frame.size.height = 140;
+        [paneSuperview removeFromSuperview];
+        [[self view] addSubview:paneSuperview];
+        [paneSuperview setFrame:frame];
+        
+        // CENTER
+        frame.origin.x = 0;
+        frame.origin.y = [paneSuperview frame].size.height;
+        frame.size.width = [[self view] frame].size.width;
+        frame.size.height = [[self view] frame].size.height - [paneSuperview frame].size.height;
+        [centerSuperview setFrame:frame];
+    } else {
+        // PANE
+        [paneSuperview removeFromSuperview];
+        
+        // CENTER
+        NSRect frame;
+        frame.origin.x = 0;
+        frame.origin.y = 0;
+        frame.size.width = [[self view] frame].size.width;
+        frame.size.height = [[self view] frame].size.height;
+        [centerSuperview setFrame:frame];
+    }
 }
 
 - (void)infoViewToggle
 {
-	if (edit && currentPaneViewController == infoViewController) {
-		[self paneViewCollapse];
-	} else {
-		[self paneViewCollapse];
-		[self paneViewUncollapse];
-		[[infoViewController view] setFrame:[paneSuperview bounds]];
-		[paneSuperview addSubview:[infoViewController view]];
-		
-		currentPaneViewController = infoViewController;
-	}
+    _edit = !_edit;
+    [self updateLayout];
     [[NSNotificationCenter defaultCenter] postInfoViewVisibleChanged];
 }
 
 - (BOOL)infoViewVisible
 {
-    return edit && currentPaneViewController == infoViewController;
+    return _edit;
 }
 
 - (void)highlightFile:(PRFile)file
@@ -180,51 +185,43 @@
 	[currentViewController highlightFile:file];
 }
 
-- (void)paneViewCollapse
-{	
-	edit = FALSE;
-	[[currentPaneViewController view] removeFromSuperview];
-	[editorSplitView setPosition:21 ofDividerAtIndex:0];
-}
-
-- (void)paneViewUncollapse
+- (NSMenu *)libraryViewMenu
 {
-	edit = TRUE;
-	[editorSplitView setPosition:330 ofDividerAtIndex:0];
-}
-
-// ========================================
-// SplitView Delegate
-// ========================================
-
-- (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview 
-{
-    return (subview == centerSuperview);
-}
-
-- (BOOL)splitView:(NSSplitView *)splitView shouldHideDividerAtIndex:(NSInteger)dividerIndex
-{
-	return TRUE;
-}
-
-- (NSRect)splitView:(NSSplitView *)splitView 
-	  effectiveRect:(NSRect)proposedEffectiveRect 
-	   forDrawnRect:(NSRect)drawnRect 
-   ofDividerAtIndex:(NSInteger)dividerIndex
-{
-    return NSZeroRect;
-}
-
-- (CGFloat)splitView:(NSSplitView *)splitView 
-  constrainSplitPosition:(CGFloat)proposedPosition 
-		 ofSubviewAt:(NSInteger)dividerIndex
-{	
-	if (!edit) {
-		return [editorSplitView frame].size.height;
-	} else {
-        return [editorSplitView frame].size.height - 128;	
-	}
-	return proposedPosition;
+    NSMenu *menu = [[[NSMenu alloc] init] autorelease];
+    NSMenuItem *item = [[[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""] autorelease];
+    NSImage *image;
+    if ([self libraryViewMode] == PRListMode) {
+        image = [NSImage imageNamed:@"List.png"];
+    } else { // Album List
+        image = [NSImage imageNamed:@"AlbumList.png"];
+    }
+    [item setImage:image];
+    [menu addItem:item];
+    item = [[[NSMenuItem alloc] initWithTitle:@"View As..." action:nil keyEquivalent:@""] autorelease];
+    [item setEnabled:FALSE];
+    [menu addItem:item];
+    item = [[[NSMenuItem alloc] initWithTitle:@"List" action:@selector(setLibraryViewModeAction:) keyEquivalent:@""] autorelease];
+    [item setTag:PRListMode];
+    if ([self libraryViewMode] == PRListMode) {
+        [item setState:NSOnState];
+    }
+    [menu addItem:item];
+    item = [[[NSMenuItem alloc] initWithTitle:@"Album List" action:@selector(setLibraryViewModeAction:) keyEquivalent:@""] autorelease];
+    [item setTag:PRAlbumListMode];
+    if ([self libraryViewMode] == PRAlbumListMode) {
+        [item setState:NSOnState];
+    }
+    [menu addItem:item];
+    
+    [menu addItem:[NSMenuItem separatorItem]];
+    item = [[[NSMenuItem alloc] initWithTitle:@"Browser" action:nil keyEquivalent:@""] autorelease];
+    [item setSubmenu:[[self currentViewController] browserHeaderMenu]];
+    [menu addItem:item];
+    
+    for (NSMenuItem *i in [menu itemArray]) {
+        [i setTarget:self];
+    }
+    return menu;
 }
 
 @end

@@ -30,7 +30,7 @@
 {   
     if (![_tasks containsObject:task]) {
         [task addObserver:self forKeyPath:@"title" options:0 context:nil];
-        [task addObserver:self forKeyPath:@"value" options:0 context:nil];
+        [task addObserver:self forKeyPath:@"percent" options:0 context:nil];
         [_tasks addObject:task];
         [self updateTasks];
     }
@@ -40,7 +40,7 @@
 {
     if ([_tasks containsObject:task]) {
         [task removeObserver:self forKeyPath:@"title"];
-        [task removeObserver:self forKeyPath:@"value"];
+        [task removeObserver:self forKeyPath:@"percent"];
         [_tasks removeObject:task];
         [self updateTasks];
     }

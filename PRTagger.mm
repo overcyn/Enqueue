@@ -36,6 +36,7 @@
 #import "taglib/textidentificationframe.h"
 #import "taglib/tstring.h"
 #import "taglib/mp4coverart.h"
+#import "taglib/unsynchronizedlyricsframe.h"
 #import "mp4v2/mp4v2.h"
 #import "mp4v2/itmf_tags.h"
 #import "mp4v2/itmf_generic.h"
@@ -217,7 +218,53 @@ using namespace TagLib;
     }
     delete file;
     
-    NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary:temp];
+    NSMutableDictionary *d = [NSMutableDictionary dictionaryWithDictionary:temp];
+    for (NSNumber *i in [d allKeys]) {
+        id value = [d objectForKey:i];
+        switch ([i intValue]) {
+            case PRTitleFileAttribute:
+            case PRArtistFileAttribute:
+            case PRAlbumFileAttribute:
+            case PRComposerFileAttribute:
+            case PRAlbumArtistFileAttribute:
+            case PRGenreFileAttribute:
+            case PRCommentsFileAttribute:
+                if (![value isKindOfClass:[NSString class]] || [value length] > 255) {
+                    [d removeObjectForKey:i];
+                }
+                break;
+            case PRBPMFileAttribute:
+            case PRYearFileAttribute:
+            case PRTrackCountFileAttribute:
+            case PRTrackNumberFileAttribute:
+            case PRDiscCountFileAttribute:
+            case PRDiscNumberFileAttribute:
+                if (![value isKindOfClass:[NSNumber class]] || [value intValue] > 9999 || [value intValue] < 0) {
+                    [d removeObjectForKey:i];
+                }
+                break;
+            case PRAlbumArtFileAttribute:
+                if (![value isKindOfClass:[NSData class]]) {
+                    [d removeObjectForKey:i];
+                }
+                break;
+            case PRCompilationFileAttribute:
+                if (![value isKindOfClass:[NSNumber class]] || [value intValue] > 1 || [value intValue] < 0) {
+                    [d removeObjectForKey:i];
+                }
+                break;
+            case PRLyricsFileAttribute:
+                if (![value isKindOfClass:[NSString class]] || [value length] > 10000) {
+                    [d removeObjectForKey:i];
+                }
+                break;
+            default:
+                [d removeObjectForKey:i];
+        }
+    }
+    
+    NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary:[PRTagger defaultTags]];
+    [tags addEntriesFromDictionary:d];
     NSString *path = [URL path];
 	TagLib::FileRef fileRef([path UTF8String]);
 	if(!fileRef.isNull() && fileRef.audioProperties()) {
@@ -245,6 +292,108 @@ using namespace TagLib;
     }
     [tags setObject:[NSNumber numberWithInt:fileType] forKey:[NSNumber numberWithInt:PRKindFileAttribute]];
     [tags setObject:[URL absoluteString] forKey:[NSNumber numberWithInt:PRPathFileAttribute]];
+    return tags;
+}
+
++ (NSDictionary *)simpleTagsForURL:(NSURL *)URL
+{
+    NSDictionary *temp;
+    PRFileType fileType;
+    File *file = [PRTagger fileAtURL:URL type:&fileType];
+    switch (fileType) {
+        case PRFileTypeAPE:
+            temp = [PRTagger tagsForAPEFile:reinterpret_cast<APE::File *>(file)];
+            break;
+        case PRFileTypeASF:
+            temp = [PRTagger tagsForASFFile:reinterpret_cast<ASF::File *>(file)];
+            break;
+        case PRFileTypeFLAC:
+            temp = [PRTagger tagsForFLACFile:reinterpret_cast<FLAC::File *>(file)];
+            break;
+        case PRFileTypeMP4:
+            temp = [PRTagger tagsForMP4File:reinterpret_cast<MP4::File *>(file)];
+            break;
+        case PRFileTypeMPC:
+            temp = [PRTagger tagsForMPCFile:reinterpret_cast<MPC::File *>(file)];
+            break;
+        case PRFileTypeMPEG:
+            temp = [PRTagger tagsForMPEGFile:reinterpret_cast<MPEG::File *>(file)];
+            break;
+        case PRFileTypeOggFLAC:
+            temp = [PRTagger tagsForOggFLACFile:reinterpret_cast<Ogg::FLAC::File *>(file)];
+            break;
+        case PRFileTypeOggSpeex:
+            temp = [PRTagger tagsForOggSpeexFile:reinterpret_cast<Ogg::Speex::File *>(file)];
+            break;
+        case PRFileTypeOggVorbis:
+            temp = [PRTagger tagsForOggVorbisFile:reinterpret_cast<Ogg::Vorbis::File *>(file)];
+            break;
+        case PRFileTypeAIFF:
+            temp = [PRTagger tagsForAIFFFile:reinterpret_cast<RIFF::AIFF::File *>(file)];
+            break;
+        case PRFileTypeWAV:
+            temp = [PRTagger tagsForWAVFile:reinterpret_cast<RIFF::WAV::File *>(file)];
+            break;
+        case PRFileTypeTrueAudio:
+            temp = [PRTagger tagsForTrueAudioFile:reinterpret_cast<TrueAudio::File *>(file)];
+            break;
+        case PRFileTypeWavPack:
+            temp = [PRTagger tagsForWavPackFile:reinterpret_cast<WavPack::File *>(file)];
+            break;
+        case PRFileTypeUnknown:
+        default:
+            return nil;
+            break;
+    }
+    delete file;
+    
+    NSMutableDictionary *d = [NSMutableDictionary dictionaryWithDictionary:temp];
+    for (NSNumber *i in [d allKeys]) {
+        id value = [d objectForKey:i];
+        switch ([i intValue]) {
+            case PRTitleFileAttribute:
+            case PRArtistFileAttribute:
+            case PRAlbumFileAttribute:
+            case PRComposerFileAttribute:
+            case PRAlbumArtistFileAttribute:
+            case PRGenreFileAttribute:
+            case PRCommentsFileAttribute:
+                if (![value isKindOfClass:[NSString class]] || [value length] > 255) {
+                    [d removeObjectForKey:i];
+                }
+                break;
+            case PRBPMFileAttribute:
+            case PRYearFileAttribute:
+            case PRTrackCountFileAttribute:
+            case PRTrackNumberFileAttribute:
+            case PRDiscCountFileAttribute:
+            case PRDiscNumberFileAttribute:
+                if (![value isKindOfClass:[NSNumber class]] || [value intValue] > 9999 || [value intValue] < 0) {
+                    [d removeObjectForKey:i];
+                }
+                break;
+            case PRAlbumArtFileAttribute:
+                if (![value isKindOfClass:[NSData class]]) {
+                    [d removeObjectForKey:i];
+                }
+                break;
+            case PRCompilationFileAttribute:
+                if (![value isKindOfClass:[NSNumber class]] || [value intValue] > 1 || [value intValue] < 0) {
+                    [d removeObjectForKey:i];
+                }
+                break;
+            case PRLyricsFileAttribute:
+                if (![value isKindOfClass:[NSString class]] || [value length] > 10000) {
+                    [d removeObjectForKey:i];
+                }
+                break;
+            default:
+                [d removeObjectForKey:i];
+        }
+    }
+    
+    NSMutableDictionary *tags = [NSMutableDictionary dictionaryWithDictionary:[PRTagger defaultTags]];
+    [tags addEntriesFromDictionary:d];
     return tags;
 }
 
@@ -282,6 +431,16 @@ using namespace TagLib;
             }
             tag = [NSBitmapImageRep representationOfImageRepsInArray:[img representations] usingType:NSPNGFileType properties:nil];
         }
+            break;
+        case PRCompilationFileAttribute:
+            if (![tag isKindOfClass:[NSNumber class]] || [tag intValue] > 1 || [tag intValue] < 0) {
+                return;
+            }
+            break;
+        case PRLyricsFileAttribute:
+            if (![tag isKindOfClass:[NSString class]] || [tag length] > 10000) {
+                return;
+            }
             break;
         default:
             return;
@@ -334,10 +493,35 @@ using namespace TagLib;
             return;
             break;
     }
-    delete file;
     file->save();
+    delete file;
     return;
 }
+
++ (NSDictionary *)defaultTags
+{
+    return [NSDictionary dictionaryWithObjectsAndKeys:
+            @"", [NSNumber numberWithInt:PRTitleFileAttribute],
+            @"", [NSNumber numberWithInt:PRArtistFileAttribute], 
+            @"", [NSNumber numberWithInt:PRAlbumFileAttribute],
+            @"", [NSNumber numberWithInt:PRComposerFileAttribute],
+            @"", [NSNumber numberWithInt:PRAlbumArtistFileAttribute],
+            @"", [NSNumber numberWithInt:PRGenreFileAttribute],
+            @"", [NSNumber numberWithInt:PRCommentsFileAttribute],
+            @"", [NSNumber numberWithInt:PRLyricsFileAttribute],
+            [NSNumber numberWithInt:0], [NSNumber numberWithInt:PRBPMFileAttribute],
+            [NSNumber numberWithInt:0], [NSNumber numberWithInt:PRYearFileAttribute],
+            [NSNumber numberWithInt:0], [NSNumber numberWithInt:PRTrackCountFileAttribute],
+            [NSNumber numberWithInt:0], [NSNumber numberWithInt:PRTrackNumberFileAttribute],
+            [NSNumber numberWithInt:0], [NSNumber numberWithInt:PRDiscNumberFileAttribute],
+            [NSNumber numberWithInt:0], [NSNumber numberWithInt:PRDiscCountFileAttribute], 
+            [NSNumber numberWithInt:0], [NSNumber numberWithInt:PRCompilationFileAttribute],
+            nil];
+}
+
+// ========================================
+// Tags Priv
+// ========================================
 
 + (File *)fileAtURL:(NSURL *)URL type:(PRFileType *)fileType
 {
@@ -705,276 +889,245 @@ using namespace TagLib;
 + (NSDictionary *)tagsForASFTag:(ASF::Tag *)tag
 {
     ASF::AttributeListMap tagMap = tag->attributeListMap();
-    NSNumber *numberValue;
-    NSString *stringValue;
-    NSData *dataValue;
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    if (tagMap.contains("WM/Year")) {
-        numberValue = [NSNumber numberWithInt:tagMap["WM/Year"][0].toString().toInt()];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {
-            [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRYearFileAttribute]];
-        }
-    }
-    if (tagMap.contains("WM/Composer")) {
-        stringValue = [NSString stringWithUTF8String:tagMap["WM/Composer"][0].toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRComposerFileAttribute]];
-    }
-    if (tagMap.contains("Author")) {
-        stringValue = [NSString stringWithUTF8String:tagMap["Author"][0].toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRArtistFileAttribute]];
-    }
-    if (tagMap.contains("WM/Comments")) {
-        stringValue = [NSString stringWithUTF8String:tagMap["WM/Comments"][0].toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRCommentsFileAttribute]];
-    }
-    if (tagMap.contains("Title")) {
-        stringValue = [NSString stringWithUTF8String:tagMap["Title"][0].toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRTitleFileAttribute]];
-    }
-    if (tagMap.contains("WM/AlbumTitle")) {
-        stringValue = [NSString stringWithUTF8String:tagMap["WM/AlbumTitle"][0].toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRAlbumFileAttribute]];
-    }
-    if (tagMap.contains("WM/AlbumArtist")) {
-        stringValue = [NSString stringWithUTF8String:tagMap["WM/AlbumArtist"][0].toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRAlbumArtistFileAttribute]];
-    }
-    if (tagMap.contains("WM/Genre")) {
-        stringValue = [NSString stringWithUTF8String:tagMap["WM/Genre"][0].toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRGenreFileAttribute]];
-    }
-    if (tagMap.contains("WM/BeatsPerMinute")) {
-        numberValue = [NSNumber numberWithInt:tagMap["WM/BeatsPerMinute"][0].toString().toInt()];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {
-            [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRBPMFileAttribute]];
-        }
-    }
-    if (tagMap.contains("WM/PartOfSet")) {
-        numberValue = [NSNumber numberWithInt:tagMap["WM/PartOfSet"][0].toString().toInt()];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {
-            [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRDiscNumberFileAttribute]];
-        }
-    }
-    if (tagMap.contains("WM/Track")) {
-        numberValue = [NSNumber numberWithInt:tagMap["WM/Track"][0].toUInt()];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {
-            [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRTrackNumberFileAttribute]];
-        }
-    }
-    if (tagMap.contains("WM/TrackNumber")) {
-        numberValue = [NSNumber numberWithInt:tagMap["WM/TrackNumber"][0].toString().toInt()];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {
-            [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRTrackNumberFileAttribute]];
-        }
-    }
-    if (tagMap.contains("WM/Picture")) {
-        dataValue = [NSData dataWithBytes:tagMap["WM/Picture"][0].toByteVector().data() 
-                                   length:tagMap["WM/Picture"][0].toByteVector().size()];
-        [tags setObject:dataValue forKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
-        
-    }
+    
+    // String
+    void (^readAttr)(PRFileAttribute attr, const char *name);
+    readAttr = ^(PRFileAttribute attr, const char *name){
+        if (!tagMap.contains(name)) {return;}
+        NSString *string = [NSString stringWithUTF8String:tagMap[name][0].toString().toCString(TRUE)];
+        [tags setObject:string forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRTitleFileAttribute, [PRTagger ASFAttributeNameForAttribute:PRTitleFileAttribute]);
+    readAttr(PRArtistFileAttribute, [PRTagger ASFAttributeNameForAttribute:PRArtistFileAttribute]);
+    readAttr(PRAlbumFileAttribute, [PRTagger ASFAttributeNameForAttribute:PRAlbumFileAttribute]);
+    readAttr(PRAlbumArtistFileAttribute, [PRTagger ASFAttributeNameForAttribute:PRAlbumArtistFileAttribute]);
+    readAttr(PRComposerFileAttribute, [PRTagger ASFAttributeNameForAttribute:PRComposerFileAttribute]);
+    readAttr(PRGenreFileAttribute, [PRTagger ASFAttributeNameForAttribute:PRGenreFileAttribute]);
+    readAttr(PRCommentsFileAttribute, [PRTagger ASFAttributeNameForAttribute:PRCommentsFileAttribute]);
+    readAttr(PRLyricsFileAttribute, [PRTagger ASFAttributeNameForAttribute:PRLyricsFileAttribute]);
+    
+    // Number
+    readAttr = ^(PRFileAttribute attr, const char *name){
+        if (!tagMap.contains(name)) {return;}
+        NSNumber *number = [NSNumber numberWithInt:tagMap[name][0].toString().toInt()];
+        [tags setObject:number forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRBPMFileAttribute, [PRTagger ASFAttributeNameForAttribute:PRBPMFileAttribute]);
+    readAttr(PRYearFileAttribute, [PRTagger ASFAttributeNameForAttribute:PRYearFileAttribute]);
+    readAttr(PRTrackNumberFileAttribute, [PRTagger ASFAttributeNameForAttribute:PRTrackNumberFileAttribute]);
+    readAttr(PRTrackCountFileAttribute, [PRTagger ASFAttributeNameForAttribute:PRTrackCountFileAttribute]);
+    
+    // Number 1
+    readAttr = ^(PRFileAttribute attr, const char *name){
+        if (!tagMap.contains(name)) {return;}
+        NSString *string = [NSString stringWithUTF8String:tagMap[name][0].toString().toCString(TRUE)];
+        NSArray *array = [string componentsSeparatedByString:@"/"];
+        [tags setObject:[NSNumber numberWithInt:[[array objectAtIndex:0] intValue]] forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRDiscNumberFileAttribute, [PRTagger ASFAttributeNameForAttribute:PRDiscNumberFileAttribute]);
+    
+    // Number 2
+    readAttr = ^(PRFileAttribute attr, const char *name){
+        if (!tagMap.contains(name)) {return;}
+        NSString *string = [NSString stringWithUTF8String:tagMap[name][0].toString().toCString(TRUE)];
+        NSArray *array = [string componentsSeparatedByString:@"/"];
+        if ([array count] < 2) {return;}
+        [tags setObject:[NSNumber numberWithInt:[[array objectAtIndex:1] intValue]] forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRDiscCountFileAttribute, [PRTagger ASFAttributeNameForAttribute:PRDiscCountFileAttribute]);
+    
+    // Artwork
+    readAttr = ^(PRFileAttribute attr, const char *name){
+        if (!tagMap.contains(name)) {return;}
+        NSData *data = [NSData dataWithBytes:tagMap["WM/Picture"][0].toByteVector().data() 
+                                      length:tagMap["WM/Picture"][0].toByteVector().size()];
+        [tags setObject:data forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRAlbumArtFileAttribute, [PRTagger ASFAttributeNameForAttribute:PRAlbumArtFileAttribute]);
     return tags;
 }
 
 + (NSDictionary *)tagsForMP4Tag:(MP4::Tag *)tag
 {
-    MP4::ItemListMap tags = tag->itemListMap();
+    NSMutableDictionary *tags = [NSMutableDictionary dictionary];
+    MP4::ItemListMap items = tag->itemListMap();
     
-    //    MP4::ItemListMap::ConstIterator it = tags.begin();
-    //    for (; it != tags.end(); it++) {
-    //        cout << (*it).first << " - \"" << (*it).second.toStringList() << " Int:" << (*it).second.toInt() << "\"" << endl;
-    //    }
+//    MP4::ItemListMap::ConstIterator it = tags.begin();
+//    for (; it != tags.end(); it++) {
+//        cout << (*it).first << " - \"" << (*it).second.toStringList() << " Int:" << (*it).second.toInt() << "\"" << endl;
+//    }
     
-    NSNumber *numberValue;
-    NSString *stringValue;
-    NSData *dataValue;
-    NSMutableDictionary *tagDictionary = [NSMutableDictionary dictionary];
-    if (tags.contains("\251day")) {
-        numberValue = [NSNumber numberWithInt:tags["\251day"].toStringList().toString().toInt()];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {
-            [tagDictionary setObject:numberValue forKey:[NSNumber numberWithInt:PRYearFileAttribute]];
-        }
-    }
-    if (tags.contains("\251wrt")) {
-        stringValue = [NSString stringWithUTF8String:tags["\251wrt"].toStringList().toString(", ").toCString(TRUE)];
-        [tagDictionary setObject:stringValue forKey:[NSNumber numberWithInt:PRComposerFileAttribute]];
-    }
-    if (tags.contains("\251ART")) {
-        stringValue = [NSString stringWithUTF8String:tags["\251ART"].toStringList().toString(", ").toCString(TRUE)];
-        [tagDictionary setObject:stringValue forKey:[NSNumber numberWithInt:PRArtistFileAttribute]];
-    }
-    if (tags.contains("\251cmt")) {
-        stringValue = [NSString stringWithUTF8String:tags["\251cmt"].toStringList().toString(", ").toCString(TRUE)];
-        [tagDictionary setObject:stringValue forKey:[NSNumber numberWithInt:PRCommentsFileAttribute]];
-    }
-    if (tags.contains("\251nam")) {
-        stringValue = [NSString stringWithUTF8String:tags["\251nam"].toStringList().toString(", ").toCString(TRUE)];
-        [tagDictionary setObject:stringValue forKey:[NSNumber numberWithInt:PRTitleFileAttribute]];
-    }
-    if (tags.contains("\251alb")) {
-        stringValue = [NSString stringWithUTF8String:tags["\251alb"].toStringList().toString(", ").toCString(TRUE)];
-        [tagDictionary setObject:stringValue forKey:[NSNumber numberWithInt:PRAlbumFileAttribute]];
-    }
-    if (tags.contains("gnre")) {
-        numberValue = [NSNumber numberWithInt:tags["gnre"].toInt()];
-        stringValue = [PRTagger genreForID3Genre:[numberValue stringValue]];
-        [tagDictionary setObject:stringValue forKey:[NSNumber numberWithInt:PRGenreFileAttribute]];
-    }
-    if (tags.contains("\251gen")) {
-        stringValue = [NSString stringWithUTF8String:tags["\251gen"].toStringList().toString(", ").toCString(TRUE)];
-        [tagDictionary setObject:stringValue forKey:[NSNumber numberWithInt:PRGenreFileAttribute]];
-    }
-    if (tags.contains("aART")) {
-        stringValue = [NSString stringWithUTF8String:tags["aART"].toStringList().toString(", ").toCString(TRUE)];
-        [tagDictionary setObject:stringValue forKey:[NSNumber numberWithInt:PRAlbumArtistFileAttribute]];
-    }
-    if (tags.contains("tmpo")) {
-        numberValue = [NSNumber numberWithInt:tags["tmpo"].toInt()];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {
-            [tagDictionary setObject:numberValue forKey:[NSNumber numberWithInt:PRBPMFileAttribute]];
-        }
-    }
-    if (tags.contains("disk")) {
-        numberValue = [NSNumber numberWithInt:tags["disk"].toIntPair().first];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {
-            [tagDictionary setObject:numberValue forKey:[NSNumber numberWithInt:PRDiscNumberFileAttribute]];
-        }
-        numberValue = [NSNumber numberWithInt:tags["disk"].toIntPair().second];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {
-            [tagDictionary setObject:numberValue forKey:[NSNumber numberWithInt:PRDiscCountFileAttribute]];
-        }
-    }
-    if (tags.contains("trkn")) {
-        numberValue = [NSNumber numberWithInt:tags["trkn"].toIntPair().first];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {
-            [tagDictionary setObject:numberValue forKey:[NSNumber numberWithInt:PRTrackNumberFileAttribute]];
-        }
-        numberValue = [NSNumber numberWithInt:tags["trkn"].toIntPair().second];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {
-            [tagDictionary setObject:numberValue forKey:[NSNumber numberWithInt:PRTrackCountFileAttribute]];
-        }
-    }
-    if (tags.contains("covr")) {
-        dataValue = [NSData dataWithBytes:tags["covr"].toCoverArtList().front().data().data() 
-                                   length:tags["covr"].toCoverArtList().front().data().size()];
-        [tagDictionary setObject:dataValue forKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
-    }
-    return tagDictionary;
+    // Genre
+    void (^readAttr)(PRFileAttribute attr, const char *code);
+    readAttr = ^(PRFileAttribute attr, const char *code){
+        if (!items.contains(code)) {return;}
+        NSNumber *number = [NSNumber numberWithInt:items[code].toInt()];
+        NSString *string = [PRTagger genreForID3Genre:[number stringValue]];
+        [tags setObject:string forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRGenreFileAttribute, "gnre");
+    
+    // String
+    readAttr = ^(PRFileAttribute attr, const char *code){
+        if (!items.contains(code)) {return;}
+        NSString *string = [NSString stringWithUTF8String:items[code].toStringList().toString(", ").toCString(TRUE)];
+        [tags setObject:string forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRTitleFileAttribute, [PRTagger MP4CodeForAttribute:PRTitleFileAttribute]);
+    readAttr(PRArtistFileAttribute, [PRTagger MP4CodeForAttribute:PRArtistFileAttribute]);
+    readAttr(PRAlbumFileAttribute, [PRTagger MP4CodeForAttribute:PRAlbumFileAttribute]);
+    readAttr(PRAlbumArtistFileAttribute, [PRTagger MP4CodeForAttribute:PRAlbumArtistFileAttribute]);
+    readAttr(PRComposerFileAttribute, [PRTagger MP4CodeForAttribute:PRComposerFileAttribute]);
+    readAttr(PRGenreFileAttribute, [PRTagger MP4CodeForAttribute:PRGenreFileAttribute]);
+    readAttr(PRCommentsFileAttribute, [PRTagger MP4CodeForAttribute:PRCommentsFileAttribute]);
+    readAttr(PRLyricsFileAttribute, [PRTagger MP4CodeForAttribute:PRLyricsFileAttribute]);
+    
+    // Number as String
+    readAttr = ^(PRFileAttribute attr, const char *code){
+        if (!items.contains(code)) {return;}
+        NSNumber *number = [NSNumber numberWithInt:items[code].toStringList().toString().toInt()];
+        [tags setObject:number forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRYearFileAttribute, [PRTagger MP4CodeForAttribute:PRYearFileAttribute]);
+    
+    // Number
+    readAttr = ^(PRFileAttribute attr, const char *code){
+        if (!items.contains(code)) {return;}
+        NSNumber *number = [NSNumber numberWithInt:items[code].toInt()];
+        [tags setObject:number forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRBPMFileAttribute, [PRTagger MP4CodeForAttribute:PRBPMFileAttribute]);
+    readAttr(PRCompilationFileAttribute, [PRTagger MP4CodeForAttribute:PRCompilationFileAttribute]);
+    
+    // Number 1
+    readAttr = ^(PRFileAttribute attr, const char *code){
+        if (!items.contains(code)) {return;}
+        NSNumber *number = [NSNumber numberWithInt:items[code].toIntPair().first];
+        [tags setObject:number forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRDiscNumberFileAttribute, [PRTagger MP4CodeForAttribute:PRDiscNumberFileAttribute]);
+    readAttr(PRTrackNumberFileAttribute, [PRTagger MP4CodeForAttribute:PRTrackNumberFileAttribute]);
+    
+    // Number 1
+    readAttr = ^(PRFileAttribute attr, const char *code){
+        if (!items.contains(code)) {return;}
+        NSNumber *number = [NSNumber numberWithInt:items[code].toIntPair().second];
+        [tags setObject:number forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRDiscCountFileAttribute, [PRTagger MP4CodeForAttribute:PRDiscCountFileAttribute]);
+    readAttr(PRTrackCountFileAttribute, [PRTagger MP4CodeForAttribute:PRTrackCountFileAttribute]);
+
+    // Artwork
+    readAttr = ^(PRFileAttribute attr, const char *code){
+        if (!items.contains(code)) {return;}
+        NSData *data = [NSData dataWithBytes:items[code].toCoverArtList().front().data().data() 
+                                      length:items[code].toCoverArtList().front().data().size()];
+        [tags setObject:data forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRAlbumArtFileAttribute, [PRTagger MP4CodeForAttribute:PRAlbumArtFileAttribute]);
+    return tags;
 }
 
 + (NSDictionary *)tagsForID3v2Tag:(TagLib::ID3v2::Tag *)tag
 {
-    //    ID3v2::FrameList::ConstIterator it = tag->frameList().begin();
-    //    for(; it != tag->frameList().end(); it++) {
-    //        cout << (*it)->frameID() << " - \"" << (*it)->toString() << "\"" << endl;
-    //    }
-    
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    NSString *stringValue;
-    NSNumber *numberValue;
-    NSData *dataValue;
-    NSArray *array;
-    if (!tag->frameListMap()["TIT2"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:tag->frameListMap()["TIT2"].front()->toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRTitleFileAttribute]];
-    }
-    if (!tag->frameListMap()["TPE1"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:tag->frameListMap()["TPE1"].front()->toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRArtistFileAttribute]];
-    }
-    if (!tag->frameListMap()["TALB"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:tag->frameListMap()["TALB"].front()->toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRAlbumFileAttribute]];
-    }
-    if (!tag->frameListMap()["TBPM"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:tag->frameListMap()["TBPM"].front()->toString().toCString(TRUE)];
-        numberValue = [NSNumber numberWithInt:[stringValue intValue]];
-        [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRBPMFileAttribute]];
-    }
-    if (!tag->frameListMap()["TDAT"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:tag->frameListMap()["TDAT"].front()->toString().toCString(TRUE)];
-        numberValue = [NSNumber numberWithInt:[stringValue intValue]];
-        [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRYearFileAttribute]];
-    }
-    if (!tag->frameListMap()["YEAR"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:tag->frameListMap()["YEAR"].front()->toString().toCString(TRUE)];
-        numberValue = [NSNumber numberWithInt:[stringValue intValue]];
-        [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRYearFileAttribute]];
-    }
-    if (!tag->frameListMap()["TDRC"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:tag->frameListMap()["TDRC"].front()->toString().toCString(TRUE)];
-        numberValue = [NSNumber numberWithInt:[stringValue intValue]];
-        [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRYearFileAttribute]];
-    }
-    if (!tag->frameListMap()["TRCK"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:tag->frameListMap()["TRCK"].front()->toString().toCString(TRUE)];
-        array = [stringValue componentsSeparatedByString:@"/"];
-        numberValue = [NSNumber numberWithInt:[[array objectAtIndex:0] intValue]];
-        [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRTrackNumberFileAttribute]];
-        if ([array count] > 1) {
-            numberValue = [NSNumber numberWithInt:[[array objectAtIndex:1] intValue]];
-            [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRTrackCountFileAttribute]];
+    
+//    ID3v2::FrameList::ConstIterator it = tag->frameList().begin();
+//    for(; it != tag->frameList().end(); it++) {
+//        cout << (*it)->frameID() << " - \"" << (*it)->toString() << "\"" << endl;
+//    }
+    
+    // String
+    void (^readAttr)(PRFileAttribute attr, const char *frameID);
+    readAttr = ^(PRFileAttribute attr, const char *frameID){
+        if (tag->frameListMap()[frameID].isEmpty()) {return;}
+        NSString *string = [NSString stringWithUTF8String:tag->frameListMap()[frameID].front()->toString().toCString(TRUE)];
+        [tags setObject:string forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRTitleFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRTitleFileAttribute]);
+    readAttr(PRArtistFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRArtistFileAttribute]);
+    readAttr(PRAlbumFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRAlbumFileAttribute]);
+    readAttr(PRAlbumArtistFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRAlbumArtistFileAttribute]);
+    readAttr(PRComposerFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRComposerFileAttribute]);
+    
+    // Genre
+    readAttr = ^(PRFileAttribute attr, const char *frameID){
+        if (tag->frameListMap()[frameID].isEmpty()) {return;}
+        NSString *string = [NSString stringWithUTF8String:tag->frameListMap()[frameID].front()->toString().toCString(TRUE)];
+        [tags setObject:[self genreForID3Genre:string] forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRGenreFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRGenreFileAttribute]);
+    
+    // Comments
+    readAttr = ^(PRFileAttribute attr, const char *frameID){
+        if (tag->frameListMap()[frameID].isEmpty()) {return;}
+        for (int i = 0; i < tag->frameListMap()[frameID].size(); i++) {
+            ID3v2::CommentsFrame *frame = dynamic_cast<ID3v2::CommentsFrame *>(tag->frameListMap()[frameID][i]);
+            if (!frame) {continue;}
+            NSString *description = [NSString stringWithUTF8String:frame->description().toCString(TRUE)];
+            if ([description isEqualToString:@"iTunes_CDDB_IDs"] || [description isEqualToString:@"iTunSMPB"] ||
+                [description isEqualToString:@"iTunPGAP"] || [description isEqualToString:@"iTunNORM"]) {continue;}
+            NSString *string = [NSString stringWithUTF8String:frame->toString().toCString(TRUE)];
+            [tags setObject:string forKey:[NSNumber numberWithInt:attr]];
+            return;
         }
-    }
-    if (!tag->frameListMap()["TPOS"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:tag->frameListMap()["TPOS"].front()->toString().toCString(TRUE)];
-        array = [stringValue componentsSeparatedByString:@"/"];
-        numberValue = [NSNumber numberWithInt:[[array objectAtIndex:0] intValue]];
-        [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRDiscNumberFileAttribute]];
-        if ([array count] > 1) {
-            numberValue = [NSNumber numberWithInt:[[array objectAtIndex:1] intValue]];
-            [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRDiscCountFileAttribute]];
-        }
-    }
-    if (!tag->frameListMap()["TCOM"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:tag->frameListMap()["TCOM"].front()->toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRComposerFileAttribute]];
-    }
-    if (!tag->frameListMap()["COMM"].isEmpty()) {
-        for(int i = 0; i < tag->frameListMap()["COMM"].size(); i++) {
-            ID3v2::CommentsFrame *commentsFrame = dynamic_cast<ID3v2::CommentsFrame *>(tag->frameListMap()["COMM"][i]);
-            if (!commentsFrame) {
-                continue;
-            }
-            NSString *description = [NSString stringWithUTF8String:commentsFrame->description().toCString(TRUE)];
-            if (![description isEqualToString:@"iTunes_CDDB_IDs"] &&
-                ![description isEqualToString:@"iTunSMPB"] &&
-                ![description isEqualToString:@"iTunPGAP"] &&
-                ![description isEqualToString:@"iTunNORM"]) {
-                
-                stringValue = [NSString stringWithUTF8String:commentsFrame->toString().toCString(TRUE)];
-                [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRCommentsFileAttribute]];
-                break;
-            }
-        }
-        //        ID3v2::FrameList::ConstIterator commentsIterator = tag->frameListMap()["COMM"].begin();
-        //        for(; commentsIterator != tag->frameListMap()["COMM"].end(); commentsIterator++) {
-        //            NSString *description = [NSString stringWithUTF8String:reinterpret_cast<ID3v2::CommentsFrame *>(*commentsIterator)->description().toCString(TRUE)];
-        //            if (![description isEqualToString:@"iTunes_CDDB_IDs"] &&
-        //                ![description isEqualToString:@"iTunSMPB"] &&
-        //                ![description isEqualToString:@"iTunPGAP"] &&
-        //                ![description isEqualToString:@"iTunNORM"]) {
-        //                
-        //                stringValue = [NSString stringWithUTF8String:reinterpret_cast<ID3v2::CommentsFrame *>(*commentsIterator)->toString().toCString(TRUE)];
-        //                [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRCommentsFileAttribute]];
-        //                break;
-        //            }
-        //        }
-    }
-    if (!tag->frameListMap()["TPE2"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:tag->frameListMap()["TPE2"].front()->toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRAlbumArtistFileAttribute]];
-    }
-    if (!tag->frameListMap()["TCON"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:tag->frameListMap()["TCON"].front()->toString().toCString(TRUE)];
-        stringValue = [self genreForID3Genre:stringValue];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRGenreFileAttribute]];
-    }
-    if (!tag->frameListMap()["APIC"].isEmpty()) {
-        dataValue = [NSData dataWithBytes:((ID3v2::AttachedPictureFrame *)tag->frameListMap()["APIC"].front())->picture().data() 
-                                   length:((ID3v2::AttachedPictureFrame *)tag->frameListMap()["APIC"].front())->picture().size()];
-        [tags setObject:dataValue forKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
-    }
+    };
+    readAttr(PRCommentsFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRCommentsFileAttribute]);
+    
+    // Lyrics
+    readAttr = ^(PRFileAttribute attr, const char *frameID){
+        if (tag->frameListMap()[frameID].isEmpty()) {return;}
+        ID3v2::UnsynchronizedLyricsFrame *frame = dynamic_cast<ID3v2::UnsynchronizedLyricsFrame *>(tag->frameListMap()[frameID].front());
+        if (!frame) {return;}
+        NSString *string = [NSString stringWithUTF8String:frame->toString().toCString(TRUE)];
+        [tags setObject:string forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRLyricsFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRLyricsFileAttribute]);
+    
+    // Number
+    readAttr = ^(PRFileAttribute attr, const char *frameID){
+        if (tag->frameListMap()[frameID].isEmpty()) {return;}
+        NSString *string = [NSString stringWithUTF8String:tag->frameListMap()[frameID].front()->toString().toCString(TRUE)];
+        [tags setObject:[NSNumber numberWithInt:[string intValue]] forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRYearFileAttribute, "TDAT");
+    readAttr(PRYearFileAttribute, "YEAR");
+    readAttr(PRYearFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRYearFileAttribute]);
+    readAttr(PRBPMFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRBPMFileAttribute]);
+    readAttr(PRCompilationFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRCompilationFileAttribute]);
+    
+    // Number 1
+    readAttr = ^(PRFileAttribute attr, const char *frameID){
+        if (tag->frameListMap()[frameID].isEmpty()) {return;}
+        NSString *string = [NSString stringWithUTF8String:tag->frameListMap()[frameID].front()->toString().toCString(TRUE)];
+        NSArray *array = [string componentsSeparatedByString:@"/"];
+        [tags setObject:[NSNumber numberWithInt:[[array objectAtIndex:0] intValue]] forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRTrackNumberFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRTrackNumberFileAttribute]);
+    readAttr(PRDiscNumberFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRDiscNumberFileAttribute]);
+    
+    // Number 2
+    readAttr = ^(PRFileAttribute attr, const char *frameID){
+        if (tag->frameListMap()[frameID].isEmpty()) {return;}
+        NSString *string = [NSString stringWithUTF8String:tag->frameListMap()[frameID].front()->toString().toCString(TRUE)];
+        NSArray *array = [string componentsSeparatedByString:@"/"];
+        if ([array count] < 2) {return;}
+        [tags setObject:[NSNumber numberWithInt:[[array objectAtIndex:1] intValue]] forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRTrackCountFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRTrackCountFileAttribute]);
+    readAttr(PRDiscCountFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRDiscCountFileAttribute]);
+    
+    // Artwork
+    readAttr = ^(PRFileAttribute attr, const char *frameID){
+        if (tag->frameListMap()[frameID].isEmpty()) {return;}
+        ID3v2::AttachedPictureFrame *frame = dynamic_cast<ID3v2::AttachedPictureFrame *>(tag->frameListMap()["APIC"].front());
+        if (!frame) {return;}
+        NSData *data = [NSData dataWithBytes:frame->picture().data() length:frame->picture().size()];
+        [tags setObject:data forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRAlbumArtFileAttribute, [PRTagger ID3v2FrameIDForAttribute:PRAlbumArtFileAttribute]);
+    
     return tags;
 }
 
@@ -999,167 +1152,111 @@ using namespace TagLib;
     stringValue = [PRTagger genreForID3Genre:stringValue];
     [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRGenreFileAttribute]];
     
-    //    NSLog(@"ID3v1:%@",tags);
+//    NSLog(@"ID3v1:%@",tags);
     return tags;
 }
 
 + (NSDictionary *)tagsForAPETag:(TagLib::APE::Tag *)tag
 {
+    NSMutableDictionary *tags = [NSMutableDictionary dictionary];
     APE::ItemListMap itemListMap = tag->itemListMap();
     
-    //    APE::ItemListMap::ConstIterator it = itemListMap.begin();
-    //    for(; it != itemListMap.end(); it++) {
-    //        cout << (*it).first << ". - \"" << (*it).second.toString() << "\"" << endl;
-    //    }
+//    APE::ItemListMap::ConstIterator it = itemListMap.begin();
+//    for(; it != itemListMap.end(); it++) {
+//        cout << (*it).first << ". - \"" << (*it).second.toString() << "\"" << endl;
+//    }
     
-    NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    NSString *stringValue;
-    NSNumber *numberValue;
-    NSArray *array;
-    //    NSData *dataValue;
-    if (!itemListMap["TITLE"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:itemListMap["TITLE"].toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRTitleFileAttribute]];
-    }
-    if (!itemListMap["ARTIST"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:itemListMap["ARTIST"].toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRArtistFileAttribute]];
-    }
-    if (!itemListMap["ALBUM"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:itemListMap["ALBUM"].toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRAlbumFileAttribute]];
-    }
-    if (!itemListMap["BPM"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:itemListMap["BPM"].toString().toCString(TRUE)];
-        numberValue = [NSNumber numberWithInt:[stringValue intValue]];
-        [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRBPMFileAttribute]];
-    }
-    if (!itemListMap["YEAR"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:itemListMap["YEAR"].toString().toCString(TRUE)];
-        numberValue = [NSNumber numberWithInt:[stringValue intValue]];
-        [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRYearFileAttribute]];
-    }
-    if (!itemListMap["TRACK"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:itemListMap["TRACK"].toString().toCString(TRUE)];
-        array = [stringValue componentsSeparatedByString:@"/"];
-        numberValue = [NSNumber numberWithInt:[[array objectAtIndex:0] intValue]];
-        [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRTrackNumberFileAttribute]];
-        if ([array count] > 1) {
-            numberValue = [NSNumber numberWithInt:[[array objectAtIndex:1] intValue]];
-            [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRTrackCountFileAttribute]];
-        }
-    }
-    if (!itemListMap["MEDIA"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:itemListMap["MEDIA"].toString().toCString(TRUE)];
-        array = [stringValue componentsSeparatedByString:@"/"];
-        numberValue = [NSNumber numberWithInt:[[array objectAtIndex:0] intValue]];
-        [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRDiscNumberFileAttribute]];
-        if ([array count] > 1) {
-            numberValue = [NSNumber numberWithInt:[[array objectAtIndex:1] intValue]];
-            [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRDiscCountFileAttribute]];
-        }
-    }
-    if (!itemListMap["COMPOSER"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:itemListMap["COMPOSER"].toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRComposerFileAttribute]];
-    }
-    if (!itemListMap["COMMENT"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:itemListMap["COMMENT"].toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRCommentsFileAttribute]];
-    }
-    if (!itemListMap["ALBUMARTIST"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:itemListMap["ALBUMARTIST"].toString().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRAlbumArtistFileAttribute]];
-    }
-    if (!itemListMap["GENRE"].isEmpty()) {
-        stringValue = [NSString stringWithUTF8String:itemListMap["GENRE"].toString().toCString(TRUE)];
-        stringValue = [PRTagger genreForID3Genre:stringValue];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRGenreFileAttribute]];
-    }
-    //    if (!itemListMap["APIC"].isEmpty()) {
-    //        dataValue = [NSData dataWithBytes:((ID3v2::AttachedPictureFrame *)itemListMap["APIC"].front())->picture().data() 
-    //                                   length:((ID3v2::AttachedPictureFrame *)itemListMap["APIC"].front())->picture().size()];
-    //        [tags setObject:dataValue forKey:[NSNumber numberWithInt:PRAlbumArtFileAttribute]];
-    //    }
+    // String
+    void (^readAttr)(PRFileAttribute attr, const char *key);
+    readAttr = ^(PRFileAttribute attr, const char *key){
+        if (itemListMap[key].isEmpty()) {return;}
+        NSString *string = [NSString stringWithUTF8String:itemListMap[key].toString().toCString(TRUE)];
+        [tags setObject:string forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRTitleFileAttribute, [PRTagger APEKeyForAttribute:PRTitleFileAttribute]);
+    readAttr(PRArtistFileAttribute, [PRTagger APEKeyForAttribute:PRArtistFileAttribute]);
+    readAttr(PRAlbumFileAttribute, [PRTagger APEKeyForAttribute:PRAlbumFileAttribute]);
+    readAttr(PRAlbumArtistFileAttribute, [PRTagger APEKeyForAttribute:PRAlbumArtistFileAttribute]);
+    readAttr(PRComposerFileAttribute, [PRTagger APEKeyForAttribute:PRComposerFileAttribute]);
+    readAttr(PRCommentsFileAttribute, [PRTagger APEKeyForAttribute:PRCommentsFileAttribute]);
+    readAttr(PRLyricsFileAttribute, [PRTagger APEKeyForAttribute:PRLyricsFileAttribute]);
+    readAttr(PRGenreFileAttribute, [PRTagger APEKeyForAttribute:PRGenreFileAttribute]);
+
+    // Number
+    readAttr = ^(PRFileAttribute attr, const char *key){
+        if (itemListMap[key].isEmpty()) {return;}
+        NSString *string = [NSString stringWithUTF8String:itemListMap[key].toString().toCString(TRUE)];
+        NSNumber *number = [NSNumber numberWithInt:[string intValue]];
+        [tags setObject:number forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRBPMFileAttribute, [PRTagger APEKeyForAttribute:PRBPMFileAttribute]);
+    readAttr(PRYearFileAttribute, [PRTagger APEKeyForAttribute:PRYearFileAttribute]);
+    readAttr(PRCompilationFileAttribute, [PRTagger APEKeyForAttribute:PRCompilationFileAttribute]);
+    
+    // Number 1
+    readAttr = ^(PRFileAttribute attr, const char *key){
+        if (itemListMap[key].isEmpty()) {return;}
+        NSString *string = [NSString stringWithUTF8String:itemListMap[key].toString().toCString(TRUE)];
+        NSArray *array = [string componentsSeparatedByString:@"/"];
+        NSNumber *number = [NSNumber numberWithInt:[[array objectAtIndex:0] intValue]];
+        [tags setObject:number forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRTrackNumberFileAttribute, [PRTagger APEKeyForAttribute:PRTrackNumberFileAttribute]);
+    readAttr(PRDiscNumberFileAttribute, [PRTagger APEKeyForAttribute:PRDiscNumberFileAttribute]);
+    
+    // Number 2
+    readAttr = ^(PRFileAttribute attr, const char *key){
+        if (itemListMap[key].isEmpty()) {return;}
+        NSString *string = [NSString stringWithUTF8String:itemListMap[key].toString().toCString(TRUE)];
+        NSArray *array = [string componentsSeparatedByString:@"/"];
+        if ([array count] < 2) {return;}
+        NSNumber *number = [NSNumber numberWithInt:[[array objectAtIndex:1] intValue]];
+        [tags setObject:number forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRTrackCountFileAttribute, [PRTagger APEKeyForAttribute:PRTrackCountFileAttribute]);
+    readAttr(PRDiscCountFileAttribute, [PRTagger APEKeyForAttribute:PRDiscCountFileAttribute]);    
     return tags;
 }
 
 + (NSDictionary *)tagsForXiphComment:(TagLib::Ogg::XiphComment *)tag;
-{    
+{
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
-    NSNumber *numberValue;
-    NSString *stringValue;
     TagLib::Ogg::FieldListMap tagMap = tag->fieldListMap();
     
-    //    TagLib::Ogg::FieldListMap::ConstIterator it = tagMap.begin();
-    //    for(; it != tagMap.end(); it++) {
-    //        NSLog(@"key:%s field:%s",(*it).first.toCString(TRUE),(*it).second.toString().toCString(TRUE));
-    //    }
+//    TagLib::Ogg::FieldListMap::ConstIterator it = tagMap.begin();
+//    for(; it != tagMap.end(); it++) {
+//        NSLog(@"key:%s field:%s",(*it).first.toCString(TRUE),(*it).second.toString().toCString(TRUE));
+//    }
     
-    if (tagMap.contains("TITLE")) {
-        stringValue = [NSString stringWithUTF8String:tagMap["TITLE"].front().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRTitleFileAttribute]];
-    }
-    if (tagMap.contains("ARTIST")) {
-        stringValue = [NSString stringWithUTF8String:tagMap["ARTIST"].front().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRArtistFileAttribute]];
-    }
-    if (tagMap.contains("ALBUMARTIST")) {
-        stringValue = [NSString stringWithUTF8String:tagMap["ALBUMARTIST"].front().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRAlbumArtistFileAttribute]];
-    }
-    if (tagMap.contains("COMPOSER")) {
-        stringValue = [NSString stringWithUTF8String:tagMap["COMPOSER"].front().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRComposerFileAttribute]];
-    }
-    if (tagMap.contains("ALBUM")) {
-        stringValue = [NSString stringWithUTF8String:tagMap["ALBUM"].front().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRAlbumFileAttribute]];
-    }
-    if (tagMap.contains("GENRE")) {
-        stringValue = [NSString stringWithUTF8String:tagMap["GENRE"].front().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRGenreFileAttribute]];
-    }
-    if (tagMap.contains("DESCRIPTION")) {
-        stringValue = [NSString stringWithUTF8String:tagMap["DESCRIPTION"].front().toCString(TRUE)];
-        [tags setObject:stringValue forKey:[NSNumber numberWithInt:PRCommentsFileAttribute]];
-    }
-    if (tagMap.contains("DATE")) {
-        numberValue = [NSNumber numberWithInt:tagMap["DATE"].front().stripWhiteSpace().toInt()];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {        
-            [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRYearFileAttribute]];
-        }
-    }
-    if (tagMap.contains("BPM")) {
-        numberValue = [NSNumber numberWithInt:tagMap["BPM"].front().stripWhiteSpace().toInt()];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {
-            [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRBPMFileAttribute]];
-        }
-    }
-    if (tagMap.contains("TRACKNUMBER")) {
-        numberValue = [NSNumber numberWithInt:tagMap["TRACKNUMBER"].front().stripWhiteSpace().toInt()];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {        
-            [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRTrackNumberFileAttribute]];
-        }   
-    }
-    if (tagMap.contains("TOTALTRACKS")) {
-        numberValue = [NSNumber numberWithInt:tagMap["TOTALTRACKS"].front().stripWhiteSpace().toInt()];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {        
-            [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRTrackCountFileAttribute]];
-        }   
-    }
-    if (tagMap.contains("DISCNUMBER")) {
-        numberValue = [NSNumber numberWithInt:tagMap["DISCNUMBER"].front().stripWhiteSpace().toInt()];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {        
-            [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRDiscNumberFileAttribute]];
-        }
-    }
-    if (tagMap.contains("TOTALDISCS")) {
-        numberValue = [NSNumber numberWithInt:tagMap["TOTALDISCS"].front().stripWhiteSpace().toInt()];
-        if ([numberValue intValue] > 0 && [numberValue intValue] <= 9999) {        
-            [tags setObject:numberValue forKey:[NSNumber numberWithInt:PRDiscCountFileAttribute]];
-        }
-    }
+    // String
+    void (^readAttr)(PRFileAttribute attr, const char *field);
+    readAttr = ^(PRFileAttribute attr, const char *field){
+        if (!tagMap.contains(field)) {return;}
+        NSString *string = [NSString stringWithUTF8String:tagMap[field].front().toCString(TRUE)];
+        [tags setObject:string forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRTitleFileAttribute, [PRTagger XiphFieldNameForAttribute:PRTitleFileAttribute]);
+    readAttr(PRArtistFileAttribute, [PRTagger XiphFieldNameForAttribute:PRArtistFileAttribute]);
+    readAttr(PRAlbumFileAttribute, [PRTagger XiphFieldNameForAttribute:PRAlbumFileAttribute]);
+    readAttr(PRAlbumArtistFileAttribute, [PRTagger XiphFieldNameForAttribute:PRAlbumArtistFileAttribute]);
+    readAttr(PRComposerFileAttribute, [PRTagger XiphFieldNameForAttribute:PRComposerFileAttribute]);
+    readAttr(PRGenreFileAttribute, [PRTagger XiphFieldNameForAttribute:PRGenreFileAttribute]);
+    readAttr(PRCommentsFileAttribute, [PRTagger XiphFieldNameForAttribute:PRCommentsFileAttribute]);
+    readAttr(PRLyricsFileAttribute, [PRTagger XiphFieldNameForAttribute:PRLyricsFileAttribute]);
+    
+    readAttr = ^(PRFileAttribute attr, const char *field){
+        if (!tagMap.contains(field)) {return;}
+        NSNumber *number = [NSNumber numberWithInt:tagMap[field].front().stripWhiteSpace().toInt()];
+        [tags setObject:number forKey:[NSNumber numberWithInt:attr]];
+    };
+    readAttr(PRYearFileAttribute, [PRTagger XiphFieldNameForAttribute:PRYearFileAttribute]);
+    readAttr(PRBPMFileAttribute, [PRTagger XiphFieldNameForAttribute:PRBPMFileAttribute]);
+    readAttr(PRTrackNumberFileAttribute, [PRTagger XiphFieldNameForAttribute:PRTrackNumberFileAttribute]);
+    readAttr(PRTrackCountFileAttribute, [PRTagger XiphFieldNameForAttribute:PRTrackCountFileAttribute]);
+    readAttr(PRDiscNumberFileAttribute, [PRTagger XiphFieldNameForAttribute:PRDiscNumberFileAttribute]);
+    readAttr(PRDiscCountFileAttribute, [PRTagger XiphFieldNameForAttribute:PRDiscCountFileAttribute]);
+    readAttr(PRCompilationFileAttribute, [PRTagger XiphFieldNameForAttribute:PRCompilationFileAttribute]);
+
     return tags;    
 }
 
@@ -1313,89 +1410,6 @@ using namespace TagLib;
 	}
 }
 
-+ (void)setTag:(id)tag forAttribute:(PRFileAttribute)attr MP4Tag:(MP4::Tag *)MP4Tag
-{
-    MP4::ItemListMap &itemListMap = MP4Tag->itemListMap();
-    const char *MP4Code = [[self class] MP4CodeForAttribute:attr];
-    MP4::Item item;
-    bool isItem = FALSE;
-	switch (attr) {
-		case PRTitleFileAttribute:
-		case PRArtistFileAttribute:
-		case PRAlbumFileAttribute:
-		case PRComposerFileAttribute:
-		case PRAlbumArtistFileAttribute:
-        case PRCommentsFileAttribute:
-            if ([tag length] != 0) {
-                item = StringList(String([tag UTF8String], String::UTF8));
-                isItem = TRUE;
-            }
-			break;
-        case PRGenreFileAttribute: // Genre is either '©gen' or 'gnre' so have to remove 'gnre' tag
-            if ([tag length] != 0) {
-                item = StringList(String([tag UTF8String], String::UTF8));
-                isItem = TRUE;
-            }
-            itemListMap.erase("gnre");
-			break;
-        case PRYearFileAttribute:
-            tag = [tag stringValue];
-            if ([tag length] != 0) {
-                item = StringList(String([tag UTF8String], String::UTF8));
-                isItem = TRUE;
-            }
-			break;
-		case PRBPMFileAttribute:
-            if ([tag intValue] != 0) {
-                item = [tag intValue];
-                isItem = TRUE;
-            }
-			break;
-		case PRTrackNumberFileAttribute:
-        case PRDiscNumberFileAttribute: {
-            int secondaryNumber = 0;
-            if (itemListMap.contains(MP4Code)) {
-                secondaryNumber = itemListMap[MP4Code].toIntPair().second;
-            }
-            if (secondaryNumber != 0 || [tag intValue] != 0) {
-                item = MP4::Item([tag intValue], secondaryNumber);
-                isItem = TRUE;
-            }
-        }
-			break;
-		case PRTrackCountFileAttribute:
-        case PRDiscCountFileAttribute: {
-            int secondaryNumber = 0;
-            if (itemListMap.contains(MP4Code)) {
-                secondaryNumber = itemListMap[MP4Code].toIntPair().first;
-            }
-            if (secondaryNumber != 0 || [tag intValue] != 0) {
-                item = MP4::Item(secondaryNumber, [tag intValue]);
-                isItem = TRUE;
-            }
-        }
-            break;
-		case PRAlbumArtFileAttribute: {
-            NSData *data = tag;
-            if ([data length] != 0) {
-                MP4::CoverArtList list;
-                list.append(MP4::CoverArt(MP4::CoverArt::PNG, ByteVector((char *)[data bytes], [data length])));
-                item = MP4::Item(list);
-                isItem = TRUE;
-            }
-        }
-			break;
-		default:
-			break;
-	}
-    
-    if (isItem) {
-        itemListMap.insert(MP4Code, item);
-    } else {
-        itemListMap.erase(MP4Code);
-    }
-}
-
 + (void)setTag:(id)tag forAttribute:(PRFileAttribute)attr ASFTag:(ASF::Tag *)ASFTag
 {
     ASF::AttributeListMap &attributeListMap = ASFTag->attributeListMap();
@@ -1412,6 +1426,7 @@ using namespace TagLib;
         case PRGenreFileAttribute:
         case PRYearFileAttribute:
         case PRBPMFileAttribute:
+        case PRLyricsFileAttribute:
             if ([tag count] == 0) {
                 ASFAttribute = String([tag UTF8String], String::UTF8);
                 isAttr = TRUE;
@@ -1464,13 +1479,97 @@ using namespace TagLib;
 			break;
 		default:
             return;
-			break;
 	}
     
     if (isAttr) {
         ASFTag->setAttribute(ASFAttributeName, ASFAttribute);
     } else {
         ASFTag->removeItem(ASFAttributeName);
+    }
+}
+
++ (void)setTag:(id)tag forAttribute:(PRFileAttribute)attr MP4Tag:(MP4::Tag *)MP4Tag
+{
+    MP4::ItemListMap &itemListMap = MP4Tag->itemListMap();
+    const char *MP4Code = [[self class] MP4CodeForAttribute:attr];
+    MP4::Item item;
+    bool isItem = FALSE;
+	switch (attr) {
+		case PRTitleFileAttribute:
+		case PRArtistFileAttribute:
+		case PRAlbumFileAttribute:
+		case PRComposerFileAttribute:
+		case PRAlbumArtistFileAttribute:
+        case PRCommentsFileAttribute:
+        case PRLyricsFileAttribute:
+            if ([tag length] != 0) {
+                item = StringList(String([tag UTF8String], String::UTF8));
+                isItem = TRUE;
+            }
+			break;
+        case PRGenreFileAttribute: // Genre is either '©gen' or 'gnre' so have to remove 'gnre' tag
+            if ([tag length] != 0) {
+                item = StringList(String([tag UTF8String], String::UTF8));
+                isItem = TRUE;
+            }
+            itemListMap.erase("gnre");
+			break;
+        case PRYearFileAttribute:
+            tag = [tag stringValue];
+            if ([tag length] != 0) {
+                item = StringList(String([tag UTF8String], String::UTF8));
+                isItem = TRUE;
+            }
+			break;
+        case PRCompilationFileAttribute:
+		case PRBPMFileAttribute:
+            if ([tag intValue] != 0) {
+                item = [tag intValue];
+                isItem = TRUE;
+            }
+			break;
+		case PRTrackNumberFileAttribute:
+        case PRDiscNumberFileAttribute: {
+            int secondaryNumber = 0;
+            if (itemListMap.contains(MP4Code)) {
+                secondaryNumber = itemListMap[MP4Code].toIntPair().second;
+            }
+            if (secondaryNumber != 0 || [tag intValue] != 0) {
+                item = MP4::Item([tag intValue], secondaryNumber);
+                isItem = TRUE;
+            }
+        }
+			break;
+		case PRTrackCountFileAttribute:
+        case PRDiscCountFileAttribute: {
+            int secondaryNumber = 0;
+            if (itemListMap.contains(MP4Code)) {
+                secondaryNumber = itemListMap[MP4Code].toIntPair().first;
+            }
+            if (secondaryNumber != 0 || [tag intValue] != 0) {
+                item = MP4::Item(secondaryNumber, [tag intValue]);
+                isItem = TRUE;
+            }
+        }
+            break;
+		case PRAlbumArtFileAttribute: {
+            NSData *data = tag;
+            if ([data length] != 0) {
+                MP4::CoverArtList list;
+                list.append(MP4::CoverArt(MP4::CoverArt::PNG, ByteVector((char *)[data bytes], [data length])));
+                item = MP4::Item(list);
+                isItem = TRUE;
+            }
+        }
+			break;
+		default:
+			return;
+	}
+    
+    if (isItem) {
+        itemListMap.insert(MP4Code, item);
+    } else {
+        itemListMap.erase(MP4Code);
     }
 }
 
@@ -1502,8 +1601,18 @@ using namespace TagLib;
             }
             break;
         }
+        case PRLyricsFileAttribute:
+            id3v2tag->removeFrames(frameID);
+            if ([tag length] != 0) {
+                ID3v2::UnsynchronizedLyricsFrame *f = new ID3v2::UnsynchronizedLyricsFrame(String::UTF8);
+                f->setText(TagLib::String([tag UTF8String], String::UTF8));
+                f->setLanguage(ByteVector("eng", 3));
+                frame = f;
+            }
+            break;
 		case PRBPMFileAttribute:
 		case PRYearFileAttribute:
+        case PRCompilationFileAttribute:
             if ([tag intValue] != 0) {
                 tag = [tag stringValue];
                 ID3v2::TextIdentificationFrame *f = new ID3v2::TextIdentificationFrame(frameID, String::UTF8);
@@ -1564,7 +1673,6 @@ using namespace TagLib;
 			break;
 		default:
 			return;
-			break;
 	}
     
     id3v2tag->removeFrames(frameID);
@@ -1618,7 +1726,6 @@ using namespace TagLib;
     const APE::ItemListMap &itemListMap = apeTag->itemListMap();
     const char *APEKey = [[self class] APEKeyForAttribute:attr];
     APE::Item item;
-    bool isItem = FALSE;
 	switch (attr) {
 		case PRTitleFileAttribute:
 		case PRArtistFileAttribute:
@@ -1627,16 +1734,22 @@ using namespace TagLib;
 		case PRAlbumArtistFileAttribute:
         case PRCommentsFileAttribute:
         case PRGenreFileAttribute:
+        case PRLyricsFileAttribute:
             if ([tag length] > 0) {
                 item = APE::Item(APEKey, String([tag UTF8String], String::UTF8));
-                isItem = TRUE;
+                apeTag->setItem(APEKey, item);
+            } else {
+                apeTag->removeItem(APEKey);
             }
 			break;
 		case PRBPMFileAttribute:
 		case PRYearFileAttribute:
+        case PRCompilationFileAttribute:
             if ([tag intValue] != 0) {
                 item = APE::Item(APEKey, String([[tag stringValue] UTF8String], String::UTF8));
-                isItem = TRUE;
+                apeTag->setItem(APEKey, item);
+            } else {
+                apeTag->removeItem(APEKey);
             }
 			break;
 		case PRTrackNumberFileAttribute:
@@ -1647,12 +1760,14 @@ using namespace TagLib;
             }
             if (secondaryValue == 0 && [tag intValue] != 0) {
                 item = APE::Item(APEKey, String([[tag stringValue] UTF8String], String::UTF8));
-                isItem = TRUE;
+                apeTag->setItem(APEKey, item);
             } else if (secondaryValue != 0) {
                 StringList list = StringList(String([[tag stringValue] UTF8String], String::UTF8));
                 list.append(String::number(secondaryValue));
                 item = APE::Item(APEKey, list);
-                isItem = TRUE;
+                apeTag->setItem(APEKey, item);
+            } else {
+                apeTag->removeItem(APEKey);
             }
         }
 			break;
@@ -1664,41 +1779,25 @@ using namespace TagLib;
             }
             if (secondaryValue != 0 && [tag intValue] == 0) {
                 item = APE::Item(APEKey, String::number(secondaryValue));
-                isItem = TRUE;
+                apeTag->setItem(APEKey, item);
             } else if ([tag intValue] != 0) {
                 StringList list = StringList(String::number(secondaryValue));
                 list.append(String([[tag stringValue] UTF8String], String::UTF8));
                 item = APE::Item(APEKey, list);
-                isItem = TRUE;
+                apeTag->setItem(APEKey, item);
+            } else {
+                apeTag->removeItem(APEKey);
             }
         }
             break;
-		case PRAlbumArtFileAttribute: {
-            return;
-            //            NSData *data = tag;
-            //            if ([data length] != 0) {
-            //                ASF::Picture p;
-            //                p.setPicture(ByteVector((char *)[data bytes], [data length]));
-            //                ASFAttribute = ASF::Attribute(p);
-            //                isItem = TRUE;
-            //            }
-        }
-			break;
 		default:
 			return;
-			break;
 	}
-    
-    if (isItem) {
-        apeTag->setItem(APEKey, item);
-    } else {
-        apeTag->removeItem(APEKey);
-    }
 }
 
 + (void)setTag:(id)tag forAttribute:(PRFileAttribute)attr XiphComment:(Ogg::XiphComment *)xiphComment
 {
-    bool tagDidChange = FALSE;
+    const char *fieldName = [[self class] XiphFieldNameForAttribute:attr];
 	switch (attr) {
 		case PRTitleFileAttribute:
 		case PRArtistFileAttribute:
@@ -1707,8 +1806,11 @@ using namespace TagLib;
 		case PRAlbumArtistFileAttribute:
         case PRCommentsFileAttribute:
 		case PRGenreFileAttribute:
+        case PRLyricsFileAttribute:
             if ([tag length] != 0) {
-                tagDidChange = TRUE;
+                xiphComment->addField(fieldName, TagLib::String([tag UTF8String], TagLib::String::UTF8), TRUE);
+            } else {
+                xiphComment->removeField(fieldName);
             }
             break;
 		case PRBPMFileAttribute:
@@ -1717,25 +1819,17 @@ using namespace TagLib;
 		case PRTrackCountFileAttribute:
 		case PRDiscNumberFileAttribute:
 		case PRDiscCountFileAttribute:
+        case PRCompilationFileAttribute:
             if ([tag intValue] != 0) {
-                tag = [tag stringValue];
-                tagDidChange = TRUE;
+                xiphComment->addField(fieldName, TagLib::String([[tag stringValue] UTF8String], TagLib::String::UTF8), TRUE);
+            } else {
+                xiphComment->removeField(fieldName);
             }
 			break;
-        case PRAlbumArtFileAttribute:
 		default:
-			return;
 			break;
 	}
-    
-    const char *fieldName = [[self class] XiphFieldNameForAttribute:attr];
-    if (tagDidChange) {
-        xiphComment->addField(fieldName, TagLib::String([tag UTF8String], TagLib::String::UTF8), TRUE);
-    } else {
-        xiphComment->removeField(fieldName);
-    }
 }
-
 
 // ========================================
 // Tag Miscellaneous
@@ -1772,45 +1866,36 @@ using namespace TagLib;
 	switch (attribute) {
 		case PRTitleFileAttribute:
 			return "TIT2";
-			break;
 		case PRArtistFileAttribute:
 			return "TPE1";
-			break;
 		case PRAlbumFileAttribute:
 			return "TALB";
-			break;
 		case PRComposerFileAttribute:
 			return "TCOM";
-			break;
 		case PRAlbumArtistFileAttribute:
-			return "TPE2";
-			break;			
+			return "TPE2";	
 		case PRBPMFileAttribute:
 			return "TBPM";
-			break;
 		case PRYearFileAttribute:
 			return "TDRC";
-			break;
 		case PRTrackNumberFileAttribute:
 		case PRTrackCountFileAttribute:
             return "TRCK";
-			break;
 		case PRDiscNumberFileAttribute:
 		case PRDiscCountFileAttribute:
             return "TPOS";
-			break;
 		case PRCommentsFileAttribute:
 			return "COMM";
-			break;
 		case PRGenreFileAttribute:
 			return "TCON";
-			break;
 		case PRAlbumArtFileAttribute:
 			return "APIC";
-			break;
+        case PRCompilationFileAttribute:
+            return "TCMP";
+        case PRLyricsFileAttribute:
+            return "USLT";
 		default:
 			return "";
-			break;
 	}
 }
 
@@ -1819,46 +1904,35 @@ using namespace TagLib;
     switch (attribute) {
 		case PRTitleFileAttribute:
             return "Title";
-			break;
 		case PRArtistFileAttribute:
             return "Author";
-			break;
 		case PRAlbumFileAttribute:
             return "WM/AlbumTitle";
-			break;
 		case PRComposerFileAttribute:
             return "WM/Composer";
-			break;
 		case PRAlbumArtistFileAttribute:
             return "WM/AlbumArtist";
-			break;			
 		case PRBPMFileAttribute:
             return "WM/BeatsPerMinute";
-			break;
 		case PRYearFileAttribute:
             return "WM/Year";
-			break;
 		case PRTrackNumberFileAttribute:
 		case PRTrackCountFileAttribute:
             return "WM/TrackNumber";
-			break;
 		case PRDiscNumberFileAttribute:
 		case PRDiscCountFileAttribute:
             return "WM/PartOfSet";
-			break;
 		case PRCommentsFileAttribute:
             return "WM/Comments";
-			break;
 		case PRGenreFileAttribute:
             return "WM/Genre";
-			break;
 		case PRAlbumArtFileAttribute:
             return "WM/Picture";
-			break;
+        case PRLyricsFileAttribute:
+            return "WM/Lyrics";
         default:
             return "";
     }
-    
 }
 
 + (const char *)APEKeyForAttribute:(PRFileAttribute)attribute
@@ -1866,46 +1940,32 @@ using namespace TagLib;
     switch (attribute) {
 		case PRTitleFileAttribute:
             return "TITLE";
-			break;
 		case PRArtistFileAttribute:
             return "ARTIST";
-			break;
 		case PRAlbumFileAttribute:
             return "ALBUM";
-			break;
 		case PRComposerFileAttribute:
             return "COMPOSER";
-			break;
 		case PRAlbumArtistFileAttribute:
             return "ALBUMARTIST";
-			break;			
 		case PRBPMFileAttribute:
             return "BPM";
-			break;
 		case PRYearFileAttribute:
             return "YEAR";
-			break;
 		case PRTrackNumberFileAttribute:
-            return "TRACK";
-			break;
 		case PRTrackCountFileAttribute:
             return "TRACK";
-			break;
 		case PRDiscNumberFileAttribute:
-            return "MEDIA";
-			break;
 		case PRDiscCountFileAttribute:
             return "MEDIA";
-			break;
 		case PRCommentsFileAttribute:
             return "COMMENT";
-			break;
 		case PRGenreFileAttribute:
             return "GENRE";
-			break;
-		case PRAlbumArtFileAttribute:
-            return "";
-			break;
+        case PRLyricsFileAttribute:
+            return "LYRICS";
+        case PRCompilationFileAttribute:
+            return "COMPILATION";
         default:
             return "";
     }
@@ -1916,46 +1976,34 @@ using namespace TagLib;
     switch (attribute) {
 		case PRTitleFileAttribute:
             return "\251nam";
-			break;
 		case PRArtistFileAttribute:
             return "\251ART";
-			break;
 		case PRAlbumFileAttribute:
             return "\251alb";
-			break;
 		case PRComposerFileAttribute:
             return "\251wrt";
-			break;
 		case PRAlbumArtistFileAttribute:
-            return "aART";
-			break;			
+            return "aART";	
 		case PRBPMFileAttribute:
             return "tmpo";
-			break;
 		case PRYearFileAttribute:
             return "\251day";
-			break;
 		case PRTrackNumberFileAttribute:
-            return "trkn";
-			break;
 		case PRTrackCountFileAttribute:
             return "trkn";
-			break;
 		case PRDiscNumberFileAttribute:
-            return "disk";
-			break;
 		case PRDiscCountFileAttribute:
             return "disk";
-			break;
 		case PRCommentsFileAttribute:
             return "\251cmt";
-			break;
 		case PRGenreFileAttribute:
             return "\251gen";
-			break;
 		case PRAlbumArtFileAttribute:
             return "covr";
-			break;
+        case PRCompilationFileAttribute:
+            return "cpil";
+        case PRLyricsFileAttribute:
+            return "\251lyr";
         default:
             return "";
     }
@@ -1966,43 +2014,34 @@ using namespace TagLib;
     switch (attribute) {
 		case PRTitleFileAttribute:
 			return "TITLE";
-			break;
 		case PRArtistFileAttribute:
 			return "ARTIST";
-			break;
 		case PRAlbumFileAttribute:
 			return "ALBUM";
-			break;
 		case PRComposerFileAttribute:
 			return "COMPOSER";
-			break;
 		case PRAlbumArtistFileAttribute:
 			return "ALBUMARTIST";
-			break;			
 		case PRBPMFileAttribute:
 			return "BPM";
-			break;
 		case PRYearFileAttribute:
 			return "DATE";
-			break;
 		case PRTrackNumberFileAttribute:
 			return "TRACKNUMBER";
-			break;
 		case PRTrackCountFileAttribute:
 			return "TOTALTRACKS";
-			break;
 		case PRDiscNumberFileAttribute:
 			return "DISCNUMBER";
-			break;
 		case PRDiscCountFileAttribute:
 			return "TOTALDISCS";
-			break;
 		case PRCommentsFileAttribute:
 			return "DESCRIPTION";
-			break;
 		case PRGenreFileAttribute:
 			return "GENRE";
-			break;
+        case PRCompilationFileAttribute:
+            return "COMPILATION";
+        case PRLyricsFileAttribute:
+            return "LYRICS";
 		default:
 			return "";
 			break;

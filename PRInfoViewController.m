@@ -3,7 +3,6 @@
 #import "PRLibrary.h"
 #import "PRAlbumArtController.h"
 #import "PRDb.h"
-#import "PRTagEditor.h"
 #import "PRRatingCell.h"
 #import "PRGradientView.h"
 #import "PRNumberFormatter.h"
@@ -13,6 +12,13 @@
 #import "PRTableViewController.h"
 #import "PRMainWindowController.h"
 #import "PRLibraryViewController.h"
+#import "PRPathFormatter.h"
+#import "PRKindFormatter.h"
+#import "PRSizeFormatter.h"
+#import "PRDateFormatter.h"
+#import "PRTimeFormatter.h"
+#import "PRBitRateFormatter.h"
+#import "PRTagger.h"
 
 @implementation PRInfoViewController
 
@@ -23,6 +29,13 @@
     db = [[core db] retain];
     numberFormatter = [[PRNumberFormatter alloc] init];
     stringFormatter = [[PRStringFormatter alloc] init];
+    _pathFormatter = [[PRPathFormatter alloc] init];
+    _kindFormatter = [[PRKindFormatter alloc] init];
+    _sizeFormatter = [[PRSizeFormatter alloc] init];
+    _dateFormatter = [[PRDateFormatter alloc] init];
+    _timeFormatter = [[PRTimeFormatter alloc] init];
+    _bitrateFormatter = [[PRBitRateFormatter alloc] init];
+    _mode = PRInfoModeTags;
     
     [[NSNotificationCenter defaultCenter] observeLibraryViewSelectionChanged:self sel:@selector(update)];
     [[NSNotificationCenter defaultCenter] observeFilesChanged:self sel:@selector(update)];
@@ -32,6 +45,10 @@
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [numberFormatter release];
+    [stringFormatter release];
+    [_pathFormatter release];
+    [_kindFormatter release];
     [db release];
     [super dealloc];
 }
@@ -48,8 +65,10 @@
                               @"Mul...", NSMultipleValuesPlaceholderBindingOption,
                               @"None", NSNullPlaceholderBindingOption,
                               nil];
+    NSDictionary *options3 = [NSDictionary dictionaryWithObjectsAndKeys:
+                              @"None", NSNullPlaceholderBindingOption, nil];
     
-	[titleField bind:@"value" toObject:self withKeyPath:@"title" options:nil];
+	[titleField bind:@"value" toObject:self withKeyPath:@"title" options:options3];
 	[artistField bind:@"value" toObject:self withKeyPath:@"artist" options:options];
 	[albumArtistField bind:@"value" toObject:self withKeyPath:@"albumArtist" options:options];
 	[albumField bind:@"value" toObject:self withKeyPath:@"album" options:options];
@@ -80,8 +99,26 @@
     [albumArtView bind:@"enabled" toObject:self withKeyPath:@"enabled" options:nil];
     [ratingControl bind:@"enabled" toObject:self withKeyPath:@"enabled" options:nil];
     
+    [_pathField bind:@"value" toObject:self withKeyPath:@"path" options:options];
+    [_kindField bind:@"value" toObject:self withKeyPath:@"kind" options:options3];
+    [_sizeField bind:@"value" toObject:self withKeyPath:@"size" options:options];
+    [_lastModifiedField bind:@"value" toObject:self withKeyPath:@"lastModified" options:options];
+    [_dateAddedField bind:@"value" toObject:self withKeyPath:@"dateAdded" options:options];
+    [_lengthField bind:@"value" toObject:self withKeyPath:@"length" options:options];
+    [_bitrateField bind:@"value" toObject:self withKeyPath:@"bitrate" options:options];
+    [_channelsField bind:@"value" toObject:self withKeyPath:@"channels" options:options];
+    [_sampleRateField bind:@"value" toObject:self withKeyPath:@"sampleRate" options:options];
+    [_playCountField bind:@"value" toObject:self withKeyPath:@"playCount" options:options];
+    [_lastPlayedField bind:@"value" toObject:self withKeyPath:@"lastPlayed" options:options];
+    
+    [_lyricsField bind:@"value" toObject:self withKeyPath:@"lyrics" options:options3];
+    [_lyricsField bind:@"enabled" toObject:self withKeyPath:@"enabled" options:nil];
+    
     [albumArtView addObserver:self forKeyPath:@"objectValue" options:0 context:nil];
     [[ratingControl cell] addObserver:self forKeyPath:@"objectValue" options:0 context:nil];
+    
+    [_compilationButton setTarget:self];
+    [_compilationButton setAction:@selector(toggleCompilation)];
     
     controls = [[NSArray arrayWithObjects:
                  titleField,
@@ -98,33 +135,9 @@
                  commentsField,
                  genreField,
                  albumArtView,
-                 ratingControl, nil] retain];
-    labels = [[NSArray arrayWithObjects:
-               titleLabel,
-               artistLabel,
-               albumArtistLabel,
-               albumLabel,
-               yearLabel,
-               bpmLabel,
-               trackLabel,
-               trackCountLabel,
-               discLabel,
-               discCountLabel,
-               composerLabel,
-               commentsLabel,
-               genreLabel,
-               ratingLabel, nil] retain];
-    
-    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
-    [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:1.0]];
-    [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
-    NSMutableDictionary *attributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                       [NSFont systemFontOfSize:30.0], NSFontAttributeName,
-                                       shadow, NSShadowAttributeName,
-                                       [NSColor colorWithCalibratedWhite:0.5 alpha:1.0], NSForegroundColorAttributeName, nil];
-    NSAttributedString *s = [[[NSAttributedString alloc] initWithString:@"No Selection" attributes:attributes] autorelease];
-    [NoSelection setAttributedStringValue:s];
-    
+                 ratingControl, 
+                 _lyricsField, nil] retain];
+        
     [titleField setFormatter:stringFormatter];
     [artistField setFormatter:stringFormatter];
     [albumArtistField setFormatter:stringFormatter];
@@ -139,14 +152,35 @@
     [commentsField setFormatter:stringFormatter];
     [genreField setFormatter:stringFormatter];
     
-    [gradientView setTopBorder:[NSColor colorWithCalibratedWhite:0.7 alpha:1.0]];
-    [gradientView setTopGradient:[NSColor colorWithCalibratedWhite:0.9 alpha:1.0]];
-    [gradientView setBotGradient:[NSColor colorWithCalibratedWhite:0.8 alpha:1.0]];
+    [_pathField setFormatter:_pathFormatter];
+    [_kindField setFormatter:_kindFormatter];
+    [_sizeField setFormatter:_sizeFormatter];
+    [_lastModifiedField setFormatter:_dateFormatter];
+    [_dateAddedField setFormatter:_dateFormatter];
+    [_lengthField setFormatter:_timeFormatter];
+    [_bitrateField setFormatter:_bitrateFormatter];
+    [_lastPlayedField setFormatter:_dateFormatter];
+    
+    PRGradientView *view = (PRGradientView *)[self view];
+    [view setTopBorder:[NSColor colorWithCalibratedWhite:0.7 alpha:1.0]];
+    [view setTopBorder2:[NSColor colorWithCalibratedWhite:1.0 alpha:0.5]];
+    [view setColor:[NSColor colorWithCalibratedWhite:0.85 alpha:1.0]];
+    [_border setTopBorder:[NSColor colorWithCalibratedWhite:0.7 alpha:1.0]];
+    [_border setTopBorder2:[NSColor colorWithCalibratedWhite:1.0 alpha:0.5]];
+    
+    for (NSDictionary *i in [self tabs]) {
+        NSButton *button = [i objectForKey:@"button"];
+        PRInfoMode mode = [[i objectForKey:@"mode"] intValue];
+        [button setTag:mode];
+        [button setTarget:self];
+        [button setAction:@selector(tabAction:)];
+    }
     
     // rating
     [((PRRatingCell *)[ratingControl cell]) setShowDots:TRUE];
     
     [self update];
+    [self updateTabControl];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath 
@@ -168,18 +202,22 @@
    }
 }
 
+- (void)toggleCompilation
+{
+    NSNumber *compilation = [self compilation];
+    if (compilation == NSMultipleValuesMarker || [compilation intValue] == 1) {
+        [self setCompilation:[NSNumber numberWithInt:0]];
+    } else {
+        [self setCompilation:[NSNumber numberWithInt:1]];
+    }
+}
+
 - (void)update
 {
     [selection release];
 	selection = [[[[[core win] libraryViewController] currentViewController] selection] retain];
     
-    [NoSelection setHidden:([selection count] != 0)];
-    for (id i in controls) {
-        [i setHidden:![selection count]];
-    }
-    for (id i in labels) {
-        [i setHidden:![selection count]];
-    }
+    [ratingControl setHidden:([selection count] == 0)];
     
     [self willChangeValueForKey:@"enabled"];
     [self didChangeValueForKey:@"enabled"];
@@ -215,6 +253,32 @@
     [self willChangeValueForKey:@"rating"];
     [self didChangeValueForKey:@"rating"];
     
+    [self willChangeValueForKey:@"path"];
+	[self didChangeValueForKey:@"path"];
+    [self willChangeValueForKey:@"kind"];
+	[self didChangeValueForKey:@"kind"];
+    [self willChangeValueForKey:@"size"];
+	[self didChangeValueForKey:@"size"];
+    [self willChangeValueForKey:@"lastModified"];
+	[self didChangeValueForKey:@"lastModified"];
+    [self willChangeValueForKey:@"dateAdded"];
+	[self didChangeValueForKey:@"dateAdded"];
+    [self willChangeValueForKey:@"length"];
+	[self didChangeValueForKey:@"length"];
+    [self willChangeValueForKey:@"channels"];
+    [self didChangeValueForKey:@"channels"];
+    [self willChangeValueForKey:@"bitrate"];
+    [self didChangeValueForKey:@"bitrate"];
+    [self willChangeValueForKey:@"sampleRate"];
+	[self didChangeValueForKey:@"sampleRate"];
+    [self willChangeValueForKey:@"playCount"];
+	[self didChangeValueForKey:@"playCount"];
+    [self willChangeValueForKey:@"lastPlayed"];
+	[self didChangeValueForKey:@"lastPlayed"];
+    
+    [self willChangeValueForKey:@"lyrics"];
+    [self didChangeValueForKey:@"lyrics"];
+    
     [albumArtView setImage:[self albumArt]];
     NSNumber *rating = [self valueForAttribute:PRRatingFileAttribute];
     if ([rating isKindOfClass:[NSNumber class]]) {
@@ -222,6 +286,69 @@
     } else {
         [ratingControl setSelectedSegment:0];
     }
+    
+    NSNumber *compilation = [self compilation];
+    if (compilation == NSMultipleValuesMarker) {
+        [_compilationButton setState:NSMixedState];
+    } else if (compilation == NSNoSelectionMarker) {
+        [_compilationButton setState:NSOffState];
+    } else if ([compilation boolValue] == TRUE) {
+        [_compilationButton setState:NSOnState];
+    } else if ([compilation boolValue] == FALSE) {
+        [_compilationButton setState:NSOffState];
+    }
+    [_compilationButton setEnabled:(compilation != NSNoSelectionMarker)];
+}
+
+// ========================================
+// Tab Control
+// ========================================
+
+- (NSDictionary *)tabs
+{
+    return [NSArray arrayWithObjects:
+            [NSDictionary dictionaryWithObjectsAndKeys:
+             [NSNumber numberWithInt:PRInfoModeTags], @"mode", 
+             _tagsView, @"view", 
+             _tagsButton, @"button", nil], 
+            [NSDictionary dictionaryWithObjectsAndKeys:
+             [NSNumber numberWithInt:PRInfoModeProperties], @"mode", 
+             _propertiesView, @"view", 
+             _propertiesButton, @"button", nil],
+            [NSDictionary dictionaryWithObjectsAndKeys:
+             [NSNumber numberWithInt:PRInfoModeLyrics], @"mode", 
+             _lyricsView, @"view", 
+             _lyricsButton, @"button", nil],
+            [NSDictionary dictionaryWithObjectsAndKeys:
+             [NSNumber numberWithInt:PRInfoModeArtwork], @"mode", 
+             _artworkView, @"view", 
+             _artworkButton, @"button", nil],
+            nil];
+}
+
+- (void)updateTabControl
+{    
+    for (NSDictionary *i in [self tabs]) {
+        BOOL isMode = ([[i objectForKey:@"mode"] intValue] == _mode);
+        NSButton *button = [i objectForKey:@"button"];
+        NSView *view = [i objectForKey:@"view"];
+        [button setState:NSOffState];
+        [view removeFromSuperview];
+        if (isMode) {
+            [button setState:NSOnState];
+            NSRect frame = [view frame];
+            frame.size.width = [[self view] frame].size.width - 120;
+            frame.origin.x = 120;
+            [view setFrame:frame];
+            [[self view] addSubview:view];
+        }
+    }
+}
+
+- (void)tabAction:(id)sender
+{
+    _mode = [sender tag];
+    [self updateTabControl];
 }
 
 // ========================================
@@ -246,8 +373,7 @@
     }
     
     for (NSNumber *i in selection) {
-        PRTagEditor *te = [PRTagEditor tagEditorForURL:[[db library] URLforFile:[i intValue]]];
-        [te setValue:value forTag:attribute];
+        [PRTagger setTag:value forAttribute:attribute URL:[[db library] URLforFile:[i intValue]]];
         [[db library] updateTagsForFile:[i intValue]];
     }
     
@@ -466,6 +592,87 @@
     PRFile file = [[selection objectAtIndex:0] intValue];
     NSImage *albumArt = [[db albumArtController] cachedArtForFile:file];
     return albumArt;
+}
+
+- (void)setCompilation:(NSNumber *)value
+{
+    if (!value) {
+        value = [NSNumber numberWithInt:0];
+    }
+    [self setValue:value forAttribute:PRCompilationFileAttribute];
+}
+
+- (NSNumber *)compilation
+{
+    return [self valueForAttribute:PRCompilationFileAttribute];
+}
+
+- (void)setLyrics:(NSString *)value
+{
+    if (!value) {
+        value = @"";
+    }
+    [self setValue:value forAttribute:PRLyricsFileAttribute];
+}
+
+- (NSString *)lyrics
+{
+    return [self valueForAttribute:PRLyricsFileAttribute];
+}
+
+- (NSString *)path
+{
+    return [self valueForAttribute:PRPathFileAttribute];
+}
+
+- (NSNumber *)kind
+{
+    return [self valueForAttribute:PRKindFileAttribute];
+}
+
+- (NSNumber *)size
+{
+    return [self valueForAttribute:PRSizeFileAttribute];
+}
+
+- (NSNumber *)lastModified
+{
+    return [self valueForAttribute:PRLastModifiedFileAttribute];
+}
+
+- (NSNumber *)dateAdded
+{
+    return [self valueForAttribute:PRDateAddedFileAttribute];
+}
+
+- (NSNumber *)length
+{
+    return [self valueForAttribute:PRTimeFileAttribute];
+}
+
+- (NSNumber *)bitrate
+{
+    return [self valueForAttribute:PRBitrateFileAttribute];
+}
+
+- (NSNumber *)channels
+{
+    return [self valueForAttribute:PRChannelsFileAttribute];
+}
+
+- (NSNumber *)sampleRate
+{
+    return [self valueForAttribute:PRSampleRateFileAttribute];
+}
+
+- (NSNumber *)playCount
+{
+    return [self valueForAttribute:PRPlayCountFileAttribute];
+}
+
+- (NSNumber *)lastPlayed
+{
+    return [self valueForAttribute:PRLastPlayedFileAttribute];
 }
 
 @end

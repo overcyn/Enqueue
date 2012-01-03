@@ -77,6 +77,7 @@ PRStringFormatter;
 // ========================================
 // Update
 
+- (void)playingFileChanged:(NSNotification *)note;
 - (void)libraryDidChange:(NSNotification *)notification;
 - (void)playlistDidChange:(NSNotification *)notification;
 - (void)playlistFilesChanged:(NSNotification *)note;

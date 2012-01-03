@@ -1,3 +1,4 @@
+#import "PRCore.h"
 #import "PRDb.h"
 #import "PRHistory.h"
 #import "PRLibrary.h"
@@ -11,6 +12,7 @@
 #include <ctype.h>
 #include "PRUserDefaults.h"
 #include <sys/file.h>
+#import "PRUpdate060Operation.h"
 #import "PRStatement.h"
 #import "sqlite_str.h"
 
@@ -53,9 +55,11 @@ NSString * const PRColData = @"PRColData";
 // Initialization
 // ========================================
 
-- (id)init
+- (id)initWithCore:(PRCore *)core
 {
     if (!(self = [super init])) {return nil;}
+    _core = core;
+    
     history = [[PRHistory alloc] initWithDb:self];
     library = [[PRLibrary alloc] initWithDb:self];
     playlists = [[PRPlaylists alloc] initWithDb:self];
@@ -72,15 +76,14 @@ NSString * const PRColData = @"PRColData";
     
     e = [self open];
     if (!e) {goto create;}
-    
+
     e = [self update];
     if (!e) {goto create;}
-    
+
     e = [self initialize];
     if (!e) {goto create;}
-    
+
 	return self;
-    
 create:;
     NSLog(@"create");
     
@@ -155,19 +158,19 @@ create:;
     
     e = [library initialize];
     if (!e) {return FALSE;}
-    
+    NSLog(@"e");
     e = [playlists initialize];
     if (!e) {return FALSE;}
-    
+    NSLog(@"2");
     e = [queue initialize];
     if (!e) {return FALSE;}
-    
+    NSLog(@"3");
     e = [libraryViewSource initialize];
     if (!e) {return FALSE;}
-    
+    NSLog(@"4");
     e = [nowPlayingViewSource initialize];
     if (!e) {return FALSE;}
-    
+    NSLog(@"5");
     return TRUE;
 }
 
@@ -276,6 +279,29 @@ create:;
         [self commit];
         version = 5;
     }
+    if (version == 5) {
+        [self begin];
+        string = @"ALTER TABLE library ADD COLUMN lyrics TEXT NOT NULL DEFAULT '' ";
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
+        string = @"ALTER TABLE library ADD COLUMN compilation INT NOT NULL DEFAULT 0 ";
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
+        string = @"CREATE INDEX index_compilation ON library (compilation)";
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
+        string = @"UPDATE schema_version SET version = 6";
+        e = [self attempt:string];
+        if (!e) {return FALSE;}
+        
+        [[_core opQueue] addOperation:[PRUpdate060Operation operationWithCore:_core]];
+        
+        [self commit];
+        version = 6;
+    }
     return TRUE;
 }
 
@@ -283,7 +309,7 @@ create:;
 {
     NSString *string = @"CREATE TABLE schema_version (version INTEGER NOT NULL)";
     [self execute:string];
-    string = @"INSERT INTO schema_version (version) VALUES (5)";
+    string = @"INSERT INTO schema_version (version) VALUES (6)";
     [self execute:string];
     
     [history create];

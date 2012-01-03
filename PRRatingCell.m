@@ -14,7 +14,10 @@
 @synthesize showDots = _showDots;
 
 - (void)drawSegment:(NSInteger)segment inFrame:(NSRect)frame withView:(NSView *)controlView
-{	
+{
+    if ([self objectValue] == nil) {
+        return;
+    }
 	NSImage *icon;
 	if (segment == 0) {
 		icon = [NSImage imageNamed:@"PREmptyIcon"];
@@ -41,6 +44,9 @@
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
+    if ([self objectValue] == nil) {
+        return;
+    }
 	NSRect frame = NSMakeRect(cellFrame.origin.x + 2, cellFrame.origin.y + 1, 0, 15);
 	for (int i = 0; i < [self segmentCount]; i++) {
 		frame.size.width = [self widthForSegment:i] + 2;

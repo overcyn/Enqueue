@@ -6,7 +6,6 @@
 #import "PRLibraryViewSource.h"
 #import "PRLibraryViewController.h"
 #import "PRRuleViewController.h"
-#import "PRTagEditor.h"
 #import "PRCenteredTextFieldCell.h"
 #import "PRNumberFormatter.h"
 #import "PRSizeFormatter.h"
@@ -22,6 +21,7 @@
 #import "PRPlaylists+Extensions.h"
 #import "NSString+Extensions.h"
 #import "sqlite_str.h"
+#import "PRTagger.h"
 
 
 @implementation PRTableViewController
@@ -421,6 +421,10 @@
 	[[horizontalBrowser3TableView headerView] setMenu:browserHeaderMenu];
     [[verticalBrowser1TableView headerView] setMenu:browserHeaderMenu];
     
+    [[[horizontalBrowser1TableView superview] superview] retain];
+    [[[horizontalBrowser2TableView superview] superview] retain];
+    [[[horizontalBrowser3TableView superview] superview] retain];
+    
 	// BrowserTableView
 	[horizontalBrowser1TableView setTarget:self];
 	[horizontalBrowser1TableView setDoubleAction:@selector(playBrowser:)];
@@ -448,6 +452,7 @@
     [[NSNotificationCenter defaultCenter] observeFilesChanged:self sel:@selector(tagsDidChange:)];
     [[NSNotificationCenter defaultCenter] observeUseAlbumArtistChanged:self sel:@selector(libraryDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistFilesChanged:)];
+    [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(playingFileChanged:)];
     
     [pool drain];
 }
@@ -498,16 +503,7 @@
 - (void)setCurrentPlaylist:(int)newPlaylist
 {	
 	currentPlaylist = newPlaylist;
-	if (currentPlaylist != -1) {
-        if ([[db playlists] browser1AttributeForPlaylist:currentPlaylist] == 0 &&
-            [[db playlists] browser2AttributeForPlaylist:currentPlaylist] == 0 &&
-            [[db playlists] browser3AttributeForPlaylist:currentPlaylist] == 2 &&
-            [[db playlists] isVerticalForPlaylist:currentPlaylist] == PRBrowserPositionHorizontal) {
-            [[db playlists] setBrowser1Attribute:PRGenreFileAttribute forPlaylist:currentPlaylist];
-            [[db playlists] setBrowser2Attribute:PRArtistFileAttribute forPlaylist:currentPlaylist];
-            [[db playlists] setBrowser3Attribute:PRAlbumFileAttribute forPlaylist:currentPlaylist];
-        }
-        
+	if (currentPlaylist != -1) {        
 		[self loadTableColumns];
         [self loadBrowser];
         [self reloadData:TRUE];
@@ -523,6 +519,13 @@
 // ========================================
 // Update
 // ========================================
+
+- (void)playingFileChanged:(NSNotification *)note
+{
+    NSIndexSet *rows = [NSIndexSet indexSetWithIndexesInRange:[libraryTableView rowsInRect:[libraryTableView visibleRect]]];
+    NSIndexSet *columns = [NSIndexSet indexSetWithIndex:[libraryTableView columnWithIdentifier:[NSString stringWithInt:PRTrackNumberFileAttribute]]];
+    [libraryTableView reloadDataForRowIndexes:rows columnIndexes:columns];
+}
 
 - (void)libraryDidChange:(NSNotification *)notification
 {
@@ -814,6 +817,25 @@
         bounds = [horizontalBrowserLibrarySuperview bounds];
         bounds.size.height += 1;
         [libraryScrollView setFrame:bounds];
+        
+        [[[horizontalBrowser1TableView superview] superview] removeFromSuperview];
+        [[[horizontalBrowser2TableView superview] superview] removeFromSuperview];
+        [[[horizontalBrowser3TableView superview] superview] removeFromSuperview];
+        
+        if ([[db playlists] browser2AttributeForPlaylist:currentPlaylist] == 0) {
+            [horizontalBrowserSubSplitview addSubview:[[horizontalBrowser3TableView superview] superview]];
+        } else if ([[db playlists] browser1AttributeForPlaylist:currentPlaylist] == 0) {
+            [horizontalBrowserSubSplitview addSubview:[[horizontalBrowser2TableView superview] superview]];
+            [horizontalBrowserSubSplitview addSubview:[[horizontalBrowser3TableView superview] superview]];
+            [horizontalBrowserSubSplitview setPosition:[horizontalBrowserSubSplitview frame].size.width*1/5 ofDividerAtIndex:0];
+        } else {
+            [horizontalBrowserSubSplitview addSubview:[[horizontalBrowser1TableView superview] superview]];
+            [horizontalBrowserSubSplitview addSubview:[[horizontalBrowser2TableView superview] superview]];
+            [horizontalBrowserSubSplitview addSubview:[[horizontalBrowser3TableView superview] superview]];
+            [horizontalBrowserSubSplitview setPosition:[horizontalBrowserSubSplitview frame].size.width/3 ofDividerAtIndex:0];
+            [horizontalBrowserSubSplitview setPosition:[horizontalBrowserSubSplitview frame].size.width*2/3 ofDividerAtIndex:1];
+        }
+        
         browser1TableView = horizontalBrowser1TableView;
         browser2TableView = horizontalBrowser2TableView;
         browser3TableView = horizontalBrowser3TableView;
@@ -976,25 +998,19 @@
 	[indexSet addIndex:browser1Grouping];
 	[indexSet addIndex:browser2Grouping];
 	[indexSet addIndex:browser3Grouping];
-	if ([indexSet containsIndex:browserGrouping]) {
-        [indexSet addIndex:3];
-        [indexSet addIndex:2];
-        [indexSet addIndex:8];
-        [indexSet addIndex:13];
-		[indexSet removeIndex:browserGrouping];
-	} else {
-        if (browserGrouping == PRComposerFileAttribute) {
-            [indexSet removeIndex:PRGenreFileAttribute];
-            [indexSet addIndex:PRComposerFileAttribute];
-            [indexSet addIndex:PRArtistFileAttribute];
-            [indexSet addIndex:PRAlbumFileAttribute];
-        } else {
-            [indexSet addIndex:PRGenreFileAttribute];
-            [indexSet removeIndex:PRComposerFileAttribute];
-            [indexSet addIndex:PRArtistFileAttribute];
-            [indexSet addIndex:PRAlbumFileAttribute];
-        }
-	}
+    if ([indexSet containsIndex:browserGrouping]) {
+        [indexSet removeIndex:browserGrouping];
+    } else {
+        [indexSet addIndex:browserGrouping];
+    }
+    
+    [indexSet removeIndex:0];
+    if ([indexSet count] == 0) {
+        [indexSet addIndex:PRArtistFileAttribute];
+    }
+    if ([indexSet count] > 3) {
+        [indexSet removeIndex:PRComposerFileAttribute];
+    }
 	
 	// sort
 	// 3,2,8,13,0,0,0
@@ -1014,6 +1030,7 @@
 	[array addObject:[NSNumber numberWithInt:0]];
 	[array addObject:[NSNumber numberWithInt:0]];
 	[array addObject:[NSNumber numberWithInt:0]];
+    
 	browser1Grouping = [[array objectAtIndex:2] intValue];
 	browser2Grouping = [[array objectAtIndex:1] intValue];
 	browser3Grouping = [[array objectAtIndex:0] intValue];
@@ -1272,6 +1289,11 @@
                 value = [NSNumber numberWithInt:floor([value intValue] / 20)];
             } else if (attr == PRPathFileAttribute) {
                 value = [[NSURL URLWithString:value] path];
+            } else if (attr == PRTrackNumberFileAttribute) {
+                PRFile file_ = [[db libraryViewSource] fileForRow:rowIndex];
+                if (file_ == [now currentFile]) {
+                    value = [NSString stringWithFormat:@"◈"]; // @"◈◉«⁕»❯❮●◆ ";
+                }
             }
             return value;
 		}
@@ -1314,11 +1336,8 @@
 			attribute == PRCommentsFileAttribute ||
 			attribute == PRGenreFileAttribute) {
             NSURL *URL = [NSURL URLWithString:[[db library] valueForFile:file attribute:PRPathFileAttribute]];
-            PRTagEditor *te = [PRTagEditor tagEditorForURL:URL];
-            if (te) {
-                [te setValue:object forTag:attribute];
-                [[db library] updateTagsForFile:file];
-            }
+            [PRTagger setTag:object forAttribute:attribute URL:URL];
+            [[db library] updateTagsForFile:file];
 		} else if (attribute == PRRatingFileAttribute) {
             int rating = [object intValue] * 20;
             [[db library] setValue:[NSNumber numberWithInt:rating] forFile:file attribute:PRRatingFileAttribute];
@@ -1481,20 +1500,19 @@
 	id object = [notification object];
 	if (object == libraryTableView) {
         [[NSNotificationCenter defaultCenter] postLibraryViewSelectionChanged];
-	} else if (currentPlaylist != -1 && (object == browser1TableView || object == browser2TableView ||object == browser3TableView)) {
+	} else if (currentPlaylist != -1 && (object == browser1TableView || object == browser2TableView || object == browser3TableView)) {
         if (!monitorSelection) {
             return;
         }
+        BOOL browser = [self browserForTableView:object];
 		NSMutableArray *selection = [NSMutableArray array];
-		NSIndexSet *selectionIndexes = [object selectedRowIndexes];
-		NSInteger currentIndex = [selectionIndexes firstIndex];
-		while (currentIndex != NSNotFound) {
-            if (currentIndex != 0) {
-                [selection addObject:[self tableView:object objectValueForTableColumn:nil row:currentIndex]];
+        [[object selectedRowIndexes] enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop){
+            if (idx == 0) {
+            } else {
+                [selection addObject:[self tableView:object objectValueForTableColumn:nil row:idx]];
             }
-            currentIndex = [selectionIndexes indexGreaterThanIndex:currentIndex];
-		}		
-        [[db playlists] setSelection:selection forBrowser:[self browserForTableView:object] playlist:currentPlaylist];
+        }];
+        [[db playlists] setSelection:selection forBrowser:browser playlist:currentPlaylist];
 		
 		// update tableviews
 		[libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
@@ -1536,15 +1554,6 @@
 // Split View Delegate
 // ========================================
 
-- (void)splitView:(NSSplitView *)splitView resizeSubviewsWithOldSize:(NSSize)oldSize
-{
-    if (splitView == horizontalBrowserSplitView) {
-        [horizontalBrowserSplitView setPosition:[horizontalBrowserSubSplitview frame].size.height
-                               ofDividerAtIndex:0];
-    }
-    [splitView adjustSubviews];
-}
-
 - (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview
 {
     if (splitView == horizontalBrowserSplitView) {
@@ -1560,11 +1569,21 @@
 	return TRUE;
 }
 
-- (void)splitViewDidResizeSubviews:(NSNotification *)aNotification
+- (void)splitViewDidResizeSubviews:(NSNotification *)notification
 {
-	if (!refreshing) {
-		[self saveBrowser];
-	}
+    if (refreshing) {return;}
+    if ([notification object] == horizontalBrowserSplitView) {
+        if ([horizontalBrowserSubSplitview frame].size.height < 120) {
+            NSRect frame = [horizontalBrowserSubSplitview frame];
+            frame.size.height = 120;
+            [horizontalBrowserSubSplitview setFrame:frame];
+        } else if ([horizontalBrowserLibrarySuperview frame].size.height < 120) {
+            NSRect frame = [horizontalBrowserSubSplitview frame];
+            frame.size.height = [horizontalBrowserSplitView frame].size.height - 120 - [horizontalBrowserSplitView dividerThickness];
+            [horizontalBrowserSubSplitview setFrame:frame];
+        }
+    }
+    [self saveBrowser];
 }
 
 - (CGFloat)    splitView:(NSSplitView *)splitView 
@@ -1578,17 +1597,24 @@
 			return 120;
 		}
 	} else if (splitView == horizontalBrowserSubSplitview) {
-        float width = ([horizontalBrowserSubSplitview frame].size.width - 2) / 3;
-        if (dividerIndex == 0) {
+        if ([[horizontalBrowserSubSplitview subviews] count] == 3) {
+            float width = ([horizontalBrowserSubSplitview frame].size.width - 2) / 3;
+            if (dividerIndex == 0) {
+                return width;
+            } else if (dividerIndex == 1) {
+                return width * 2 + 1;
+            }
+        } else if ([[horizontalBrowserSubSplitview subviews] count] == 2)  {
+            float width = [horizontalBrowserSubSplitview frame].size.width / 2;
             return width;
-        } else if (dividerIndex == 1) {
-            return width * 2 + 1;
+        } else {
+            return [horizontalBrowserSubSplitview frame].size.width;
         }
     } else if (splitView == horizontalBrowserSplitView) {
-        if (proposedPosition < 150) {
-            return 150;
-        } else if (proposedPosition > [horizontalBrowserSplitView frame].size.height - 150) {
-            return [horizontalBrowserSplitView frame].size.height - 150;
+        if (proposedPosition < 120) {
+            return 120;
+        } else if (proposedPosition > [horizontalBrowserSplitView frame].size.height - 120) {
+            return [horizontalBrowserSplitView frame].size.height - 120;
         }
     }
 	
@@ -1815,9 +1841,7 @@
 - (void)updateBrowserHeaderMenu
 {
 	// Clear menu
-	for (NSMenuItem *i in [browserHeaderMenu itemArray]) {
-		[browserHeaderMenu removeItem:i];
-	}
+    [browserHeaderMenu removeAllItems];
 	
     NSMenu *menu = [self browserHeaderMenu];
     NSArray *items = [menu itemArray];

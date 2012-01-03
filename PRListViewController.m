@@ -10,15 +10,14 @@
    nowPlayingController:(PRNowPlayingController *)now_
   libraryViewController:(PRLibraryViewController *)libraryViewController_
 {
-    self = [super initWithNibName:@"PRListView" bundle:nil];
-	if (self) {
-		now = now_;
-		libraryViewController = libraryViewController_;
-		db = db_;
-		refreshing = FALSE;
-        monitorSelection = TRUE;
-		currentPlaylist = -1;
-	}
+    
+	if (!(self = [super initWithNibName:@"PRListView" bundle:nil])) {return nil;}
+    now = now_;
+    libraryViewController = libraryViewController_;
+    db = db_;
+    refreshing = FALSE;
+    monitorSelection = TRUE;
+    currentPlaylist = -1;
 	return self;
 }
 

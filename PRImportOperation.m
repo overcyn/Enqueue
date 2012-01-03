@@ -36,7 +36,7 @@
     NSArray *files;
     PRDirectoryEnumerator *dirEnum = [PRDirectoryEnumerator enumeratorWithURLs:_URLs];
     while ((files = [dirEnum nextXObjects:200])) {
-        [task setTitle:[NSString stringWithFormat:@"Adding Files... %d%%", (int)([dirEnum progress] * 90)]];
+        [task setPercent:(int)([dirEnum progress] * 90)];
         [self filterURLs:files];
         if ([task shouldCancel]) {
             goto end;

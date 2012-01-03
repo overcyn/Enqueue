@@ -15,6 +15,7 @@
 
 - (void)main
 {
+    NSLog(@"begin vacuum");
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     _task = [PRTask task];
     [_task setTitle:@"Analyzing Library..."];
@@ -27,6 +28,7 @@
     
     [[_core taskManager] removeTask:_task];
     [pool drain];
+    NSLog(@"end vacuum");
 }
 
 @end

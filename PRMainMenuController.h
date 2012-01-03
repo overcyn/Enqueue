@@ -36,6 +36,7 @@
 - (void)open;
 - (void)itunesImport;
 - (void)rescanLibrary;
+- (void)rescanFullLibrary;
 - (void)duplicateFiles;
 - (void)missingFiles;
 
@@ -44,6 +45,7 @@
 - (void)viewAsList;
 - (void)viewAsAlbumList;
 - (void)toggleArtwork;
+- (void)toggleMiniPlayer;
 - (void)showInfo;
 - (void)showCurrentSong;
 

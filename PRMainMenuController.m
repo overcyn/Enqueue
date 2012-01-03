@@ -9,6 +9,8 @@
 #import "PRNowPlayingController.h"
 #import "PRMoviePlayer.h"
 #import "PRFolderMonitor.h"
+#import "NSWindow+Extensions.h"
+#import "PRFullRescanOperation.h"
 
 @implementation PRMainMenuController
 
@@ -69,6 +71,10 @@
     [menuItem setTarget:self];
     [menuItem setAction:@selector(missingFiles)];
     
+    menuItem = [fileMenu itemWithTag:8];
+    [menuItem setTarget:self];
+    [menuItem setAction:@selector(rescanFullLibrary)];
+    
     // Edit Menu
     menuItem = [editMenu itemWithTag:8];
     [menuItem setTarget:self];
@@ -86,6 +92,7 @@
     menuItem = [viewMenu itemWithTag:3];
     [menuItem setTarget:self];
     [menuItem setAction:@selector(toggleArtwork)];
+    [menuItem setHidden:TRUE];
     
     menuItem = [viewMenu itemWithTag:4];
     [menuItem setTarget:self];
@@ -103,7 +110,7 @@
     }
     
     menuItem = [viewMenu itemWithTag:7];
-    [menuItem setTarget:[core win]];
+    [menuItem setTarget:self];
     [menuItem setAction:@selector(toggleMiniPlayer)];
     
     // Controls Menu
@@ -210,26 +217,41 @@
     }
     [[viewMenu itemWithTag:7] setTitle:title];
 
+    
     NSMenu *browser = [[[[core win] libraryViewController] currentViewController] browserHeaderMenu];
     [browser setAutoenablesItems:FALSE];
     [[viewMenu itemWithTitle:@"Browser"] setSubmenu:browser];
-    for (NSMenuItem *i in [browser itemArray]) {
-        [i setEnabled:![[core win] miniPlayer]];
-    }
-    
+    [[viewMenu itemWithTitle:@"Browser"] setEnabled:([[core win] currentMode] == PRLibraryMode && ![[core win] miniPlayer])];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
+    NSArray *items = [NSArray arrayWithObjects:
+                      [viewMenu itemWithTag:1],
+                      [viewMenu itemWithTag:2],
+                      [viewMenu itemWithTag:4],
+                      nil];
+    for (NSMenuItem *i in items) {
+        if (menuItem == i && [[core win] currentMode] != PRLibraryMode) {
+            return FALSE;
+        }
+    }
+    
     if (menuItem == [fileMenu itemWithTag:3] ||
-        menuItem == [fileMenu itemWithTag:4]) {
+        menuItem == [fileMenu itemWithTag:4] ||
+        menuItem == [fileMenu itemWithTag:5] ||
+        menuItem == [fileMenu itemWithTag:8]) {
         return [[[core opQueue] operations] count] == 0;
     } else if (menuItem == [viewMenu itemWithTag:1] || 
                menuItem == [viewMenu itemWithTag:2] ||
                menuItem == [viewMenu itemWithTag:3] ||
                menuItem == [viewMenu itemWithTag:4] ||
-               menuItem == [viewMenu itemWithTag:5]) {
+               menuItem == [viewMenu itemWithTag:5] ||
+               menuItem == [editMenu itemWithTag:8] ||
+               menuItem == [fileMenu itemWithTag:1]) {
         return ![[core win] miniPlayer];
+    } else if (menuItem == [viewMenu itemWithTag:7]) {
+        return ![[[core win] window] isFullScreen];
     }
     return TRUE;
 }
@@ -270,6 +292,11 @@
     [[core folderMonitor] rescan];
 }
 
+- (void)rescanFullLibrary
+{
+    [[core opQueue] addOperation:[PRFullRescanOperation operationWithCore:core]];
+}
+
 - (void)duplicateFiles
 {
     
@@ -293,6 +320,11 @@
 - (void)viewAsAlbumList
 {
     [[[core win] libraryViewController] setAlbumListMode];
+}
+
+- (void)toggleMiniPlayer
+{
+    [[core win] toggleMiniPlayer];
 }
 
 - (void)toggleArtwork

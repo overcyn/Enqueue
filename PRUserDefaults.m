@@ -191,6 +191,7 @@
 @dynamic miniPlayer;
 @dynamic miniPlayerFrame;
 @dynamic playerFrame;
+@dynamic sidebarWidth;
 
 - (BOOL)showWelcomeSheet
 {
@@ -252,12 +253,27 @@
     [defaults setObject:NSStringFromRect(playerFrame) forKey:@"playerFrame"];
 }
 
+- (float)sidebarWidth
+{
+    NSNumber *object = [defaults objectForKey:@"sidebarWidth"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object floatValue];
+    } else {
+        return 185;
+    }
+}
+
+- (void)setSidebarWidth:(float)sidebarWidth
+{
+    [defaults setObject:[NSNumber numberWithFloat:sidebarWidth] forKey:@"sidebarWidth"];
+}
 
 @dynamic mediaKeys;
 @dynamic postGrowlNotification;
 @dynamic lastFMUsername;
 @dynamic showsArtwork;
 @dynamic useAlbumArtist;
+@dynamic useCompilation;
 @dynamic nowPlayingCollapsible;
 @dynamic folderArtwork;
 
@@ -334,6 +350,21 @@
 - (void)setUseAlbumArtist:(BOOL)usesAlbumArt
 {
     [defaults setObject:[NSNumber numberWithBool:usesAlbumArt] forKey:@"usesAlbumArt"];
+}
+
+- (BOOL)useCompilation
+{
+    NSNumber *object = [defaults objectForKey:@"useCompilation"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object boolValue];
+    } else {
+        return TRUE;
+    }
+}
+
+- (void)setUseCompilation:(BOOL)useCompilation
+{
+    [defaults setObject:[NSNumber numberWithBool:useCompilation] forKey:@"useCompilation"];
 }
 
 - (BOOL)nowPlayingCollapsible

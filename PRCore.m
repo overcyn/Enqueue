@@ -15,6 +15,7 @@
 #include "PREnableLogger.h"
 #import "PRMainMenuController.h"
 #import "PRKeyboardShortcuts.h"
+#import "PRFullRescanOperation.h"
 
 @implementation PRCore
 
@@ -40,8 +41,9 @@
     
     _opQueue = [[NSOperationQueue alloc] init];
     [_opQueue setMaxConcurrentOperationCount:1];
+    [_opQueue setSuspended:TRUE];
     _taskManager = [[PRTaskManager alloc] init];
-    _db = [[PRDb alloc] init];
+    _db = [[PRDb alloc] initWithCore:self];
     _now = [[PRNowPlayingController alloc] initWithDb:_db]; // requires: db
     _folderMonitor = [[PRFolderMonitor alloc] initWithCore:self]; // requires: opQueue, db & taskManager
     _win = [[PRMainWindowController alloc] initWithCore:self]; // requires: db, now, taskManager, folderMonitor
@@ -76,6 +78,7 @@
               contextInfo:nil];
     }
     [_opQueue addOperation:[[[PRVacuumOperation alloc] initWithCore:self] autorelease]];
+    [_opQueue setSuspended:FALSE];
 }
 
 // ========================================

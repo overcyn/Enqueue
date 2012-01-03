@@ -14,6 +14,7 @@
 #import "PRHistoryCell2.h"
 #import "PRTableViewController.h"
 #import "NSColor+Extensions.h"
+#import "PRTabButtonCell.h"
 
 
 @implementation PRHistoryViewController
@@ -42,8 +43,6 @@
         [_timeFormatter setPMSymbol:@"pm"];
     }
     [_timeFormatter setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"h mm a" options:0 locale:[NSLocale currentLocale]]];
-    
-
 	return self;
 }
 
@@ -73,8 +72,8 @@
     [topArtistsButton setAction:@selector(historyModeButtonAction:)];
     [recentlyAddedButton setAction:@selector(historyModeButtonAction:)];
     [recentlyPlayedButton setAction:@selector(historyModeButtonAction:)];
-    [[topArtistsButton cell] setRounded:TRUE];
-    [[recentlyPlayedButton cell] setRounded:TRUE];
+    [(PRTabButtonCell *)[topArtistsButton cell] setRounded:TRUE];
+    [(PRTabButtonCell *)[recentlyPlayedButton cell] setRounded:TRUE];
       
     [tableView setDelegate:self];
     [tableView setIntercellSpacing:NSMakeSize(0, 0)];

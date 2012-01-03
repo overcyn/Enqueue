@@ -90,6 +90,10 @@
 	
     if ([[event characters] characterAtIndex:0] == 0x20) {
 		[now playPause];
+    } else if ([[event characters] characterAtIndex:0] == 0xf703) {
+        [now playNext];
+    } else if ([[event characters] characterAtIndex:0] == 0xf702) {
+        [now playPrevious];
 	} else if ([[event characters] characterAtIndex:0] == 0x7F) {
         [(PRNowPlayingViewController *)[self delegate] delete:nil];
         //		[[NSApplication sharedApplication] sendAction:@selector(delete:) to:nil from:self];

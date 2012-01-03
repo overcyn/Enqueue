@@ -2,34 +2,43 @@
 
 
 @class PRDb, PRLibrary, PRNowPlayingController, PRGradientView, PRLibraryViewController, PRCore,
-PRTimeFormatter;
+PRTimeFormatter, PRHeaderBox, PRHyperlinkButton;
 
 @interface PRControlsViewController : NSViewController 
 {	
-	IBOutlet NSSlider *volumeSlider;
-	IBOutlet NSSlider *controlSlider;
 	IBOutlet NSButton *playPause;
 	IBOutlet NSButton *next;
 	IBOutlet NSButton *previous;
 	IBOutlet NSButton *shuffle;
 	IBOutlet NSButton *repeat;	
 	
-    IBOutlet NSButton *titleButton;
-	IBOutlet NSTextField *titleField;
-	IBOutlet NSTextField *albumField;
-	IBOutlet NSTextField *artistField;
+    IBOutlet PRHeaderBox *_box;
+    IBOutlet PRHyperlinkButton *titleButton;
+    IBOutlet NSTextField *_artistAlbumField;
 	IBOutlet NSSegmentedControl *ratingControl;
+    
+    IBOutlet NSSlider *controlSlider;
 	IBOutlet NSTextField *currentTime;
 	IBOutlet NSTextField *duration;
 	
 	IBOutlet NSImageView *albumArtView;
 	IBOutlet NSImageView *icon;
     
+    IBOutlet NSButton *_volumeButton;
+    IBOutlet NSSlider *_volumeSlider;
+    
+    IBOutlet NSView *_containerView;
     IBOutlet PRGradientView *gradientView;
     
+    IBOutlet PRGradientView *_progressDivider;
+    IBOutlet NSTextField *_progressTextField;
+    IBOutlet NSTextField *_progressPercentTextField;
+    IBOutlet NSButton *_progressButton;
+    
+    BOOL _progressHidden;
+    
     PRTimeFormatter *timeFormatter;
-    BOOL mouseInTitle;
-        
+    
     PRCore *core;
     PRDb *db;
 	PRLibrary *lib;
@@ -43,20 +52,28 @@ PRTimeFormatter;
 - (id)initWithCore:(PRCore *)core_;
 
 // ========================================
+// Accessors
+
+- (NSImageView *)albumArtView;
+
+// ========================================
 // Update
 
-- (void)update;
-
-// For some reason |PRMoviePlayer isPlaying| is slow to update. Probably has to do with threading. 
-// So we update the playbutton with the currentTime and we do it seperately from the rest of the UI
-// to not bog everything down.
+- (void)updateLayout;
+- (void)updateControls;
 - (void)updatePlayButton;
+
+- (void)volumeChanged:(NSNotification *)notification;
 
 // ========================================
 // Action
 
+- (BOOL)progressHidden;
+- (void)setProgressHidden:(BOOL)progressHidden;
+- (void)setProgressTitle:(NSString *)progressTitle;
+- (void)setProgressPercent:(int)progressPercent;
+
 - (void)showInLibrary;
-- (void)setShowsArtwork:(BOOL)showsArtwork;
-- (void)setMiniPlayer:(BOOL)miniPlayer;
+- (void)mute;
 
 @end

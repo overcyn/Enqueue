@@ -21,8 +21,8 @@
                      [NSColor colorWithDeviceWhite:0.8 alpha:1.0], 1.0, nil] autorelease];
     } else {
         gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                     [NSColor colorWithCalibratedWhite:0.90 alpha:0.8], 0.0, 
-                     [NSColor colorWithCalibratedWhite:0.87 alpha:0.8], 1.0, nil] autorelease];
+                     [NSColor colorWithCalibratedWhite:0.90 alpha:1.0], 0.0, 
+                     [NSColor colorWithCalibratedWhite:0.87 alpha:1.0], 1.0, nil] autorelease];
     }
     [gradient drawInRect:cellFrame angle:90];
     

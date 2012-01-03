@@ -13,24 +13,17 @@ typedef enum {
     PRGridMode
 } PRLibraryViewMode;
 
-@interface PRLibraryViewController : NSViewController <NSSplitViewDelegate>
+@interface PRLibraryViewController : NSViewController
 {
-	IBOutlet NSSplitView *editorSplitView;
 	IBOutlet NSView *centerSuperview;
 	IBOutlet NSView *paneSuperview;
-	IBOutlet NSTextField *playlistTitle;
-	IBOutlet NSTextField *libraryViewCount;
-    IBOutlet PRGradientView *gradientView;
 	
-	// View controllers and pane view controllers.
-	PRSmartPlaylistEditorViewController *smartPlaylistEditorViewController;
-	PRStaticPlaylistEditorViewController *staticPlaylistEditorViewController;
 	PRInfoViewController *infoViewController;
 	PRListViewController *listViewController;
 	PRAlbumListViewController *albumListViewController;
 	
 	// Bool indicating whether pane is collapsed
-	BOOL edit;
+	BOOL _edit;
 	
 	// Current pane view controller. Default smartPlaylistEditorViewController. (weak)
 	id currentPaneViewController;
@@ -40,7 +33,6 @@ typedef enum {
 	// Current Playlist
 	PRPlaylist playlist;
 	
-	// Database, nowPlayingController, playlists. (weak)
     PRCore *core;
 	PRDb *db;
 	PRNowPlayingController *now;
@@ -68,23 +60,14 @@ typedef enum {
 // ========================================
 // UI
 
-// Toggles the editor and info view
-- (void)editorViewToggle;
+- (void)updateLayout;
+
 - (void)infoViewToggle;
 - (BOOL)infoViewVisible;
 
 // Highlights file in currentViewController.
 - (void)highlightFile:(PRFile)file;
 
-@end
-
-
-// Private methods for PRLibraryViewController
-//
-@interface PRLibraryViewController ()
-
-// Collapses and uncollapses the splitView
-- (void)paneViewCollapse;
-- (void)paneViewUncollapse;
+- (NSMenu *)libraryViewMenu;
 
 @end

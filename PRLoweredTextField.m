@@ -6,7 +6,7 @@
 - (void)awakeFromNib
 {
 	[super awakeFromNib];
-	[[self cell] setBackgroundStyle:NSBackgroundStyleRaised];
+//	[[self cell] setBackgroundStyle:NSBackgroundStyleRaised];
 }
 
 @end

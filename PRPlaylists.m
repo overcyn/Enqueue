@@ -94,6 +94,10 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
         PRPlaylist libraryPlaylist = [self addPlaylist];
         [self setValue:@"Music" forPlaylist:libraryPlaylist attribute:PRTitlePlaylistAttribute];
         [self setValue:[NSNumber numberWithInt:PRLibraryPlaylistType] forPlaylist:libraryPlaylist attribute:PRTypePlaylistAttribute];
+        
+        [self setValue:[NSNumber numberWithInt:PRGenreFileAttribute] forPlaylist:libraryPlaylist attribute:PRBrowser1AttributePlaylistAttribute];
+        [self setValue:[NSNumber numberWithInt:PRArtistFileAttribute] forPlaylist:libraryPlaylist attribute:PRBrowser2AttributePlaylistAttribute];
+        [self setValue:[NSNumber numberWithInt:PRAlbumFileAttribute] forPlaylist:libraryPlaylist attribute:PRBrowser3AttributePlaylistAttribute];
     }
 	
 	// Create now playing playlist if it doesnt exist

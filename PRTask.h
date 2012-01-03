@@ -4,7 +4,7 @@
 @interface PRTask : NSObject 
 {
     NSString *title;
-    NSNumber *value;
+    int percent;
     BOOL shouldCancel;
     BOOL background;
 }
@@ -13,7 +13,7 @@
 + (PRTask *)task;
 
 @property (readwrite, copy) NSString *title;
-@property (readwrite, copy) NSNumber *value;
+@property (readwrite) int percent;
 @property (readwrite) BOOL shouldCancel;
 @property (readwrite) BOOL background;
 

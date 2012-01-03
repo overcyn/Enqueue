@@ -4,7 +4,6 @@
 #import "PRLibraryViewController.h"
 
 @class PRDb;
-@class PRPlaylists;
 
 // ========================================
 // Constants
@@ -21,17 +20,16 @@ typedef enum {
     PRBrowser3View = 1 << 3,
 } PRBrowser;
 
-
 // ========================================
-// Class - PRLibraryViewSource
+// PRLibraryViewSource
 // ========================================
 @interface PRLibraryViewSource : NSObject 
 {
 	PRDb *db;
-	PRPlaylists *play;
 	
     PRPlaylist _playlist;
     NSCache *_cachedValues;
+    BOOL _compilation;
     
     BOOL _force;
     NSString *_prevSourceString;
@@ -43,17 +41,17 @@ typedef enum {
     NSString *prevBrowser3Statement;
     NSDictionary *prevBrowser3Bindings;
     
-    NSString *_prevSort;
-    NSString *_prevBrowser1Grouping;
-    NSString *_prevBrowser2Grouping;
-    NSString *_prevBrowser3Grouping;
+    NSString *_cachedSortIndexStatement;
+    NSString *_cachedBrowser1Statement;
+    NSString *_cachedBrowser2Statement;
+    NSString *_cachedBrowser3Statement;
+    BOOL _cachedCompilation;
 }
 
 // ========================================
 // Initialization
 
 - (id)initWithDb:(PRDb *)sqlDb;
-
 - (void)create;
 - (BOOL)initialize;
 
@@ -66,24 +64,29 @@ typedef enum {
 - (BOOL)populateBrowser:(int)browser;
 
 // ========================================
-// Accessors
-
-- (NSDictionary *)info;
+// Library Accessors
 
 - (int)count;
 - (PRFile)fileForRow:(int)row;
 - (int)rowForFile:(PRFile)file;
 - (id)valueForRow:(int)row attribute:(PRFileAttribute)attribute andCacheAttributes:(NSArray *)attributes;
 
+- (NSDictionary *)info;
+- (NSArray *)albumCounts;
+
+// ========================================
+// Browser Accessors
+
 - (int)countForBrowser:(int)browser;
 - (NSString *)valueForRow:(int)row browser:(int)browser;
 - (NSIndexSet *)selectionForBrowser:(int)browser;
 
-- (NSArray *)albumCounts;
+- (BOOL)compilation;
 
 // ========================================
 // Misc
 
+- (BOOL)compilationForBrowser:(int)browser;
 - (int)firstRowWithValue:(id)value forAttribute:(PRFileAttribute)attribute;
 - (NSString *)tableNameForBrowser:(int)browser;
 - (NSString *)groupingStringForPlaylist:(PRPlaylist)playlist browser:(int)browser;

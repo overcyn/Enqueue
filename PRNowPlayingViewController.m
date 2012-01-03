@@ -50,7 +50,6 @@
     [now removeObserver:self forKeyPath:@"currentPlaylist"];
     [now removeObserver:self forKeyPath:@"currentIndex"];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [playlistMenu release];
     [db release];
     [now release];
     [win release];
@@ -64,13 +63,6 @@
     [backgroundGradient setBotGradient:[NSColor colorWithDeviceRed:218./255. green:223./255. blue:230./255. alpha:1.0]];
     [backgroundGradient setAltTopGradient:[NSColor colorWithDeviceWhite:0.92 alpha:1.0]];
     [backgroundGradient setAltBotGradient:[NSColor colorWithDeviceWhite:0.92 alpha:1.0]];
-    
-    [barGradient setColor:[NSColor colorWithCalibratedRed:234./255. green:238./255. blue:244./255. alpha:1.0]];
-    [barGradient setTopBorder:[NSColor colorWithCalibratedWhite:0.65 alpha:1.0]];
-    [barGradient setTopBorder2:[NSColor colorWithCalibratedWhite:0.97 alpha:1.0]];
-    
-    [divider1 setColor:[NSColor colorWithCalibratedWhite:0.7 alpha:1.0]];
-    [divider2 setColor:[NSColor colorWithCalibratedWhite:0.7 alpha:1.0]];
         
     // LibraryTableView
     [nowPlayingTableView setDoubleAction:@selector(play)];
@@ -91,24 +83,7 @@
     _contextMenu = [[NSMenu alloc] init];
     [_contextMenu setDelegate:self];
     [nowPlayingTableView setMenu:_contextMenu];
-    
-    // playlist menu
-    playlistMenu = [[NSMenu alloc] init];
-    [playlistMenu setDelegate:self];
-    [playlistMenu setAutoenablesItems:FALSE];
-    [settingsButton setMenu:playlistMenu];
         
-    // clear buttons
-    [clearButton setTarget:self];
-    [clearButton setAction:@selector(clearPlaylist)];
-    
-    // volume slider
-    [volumeSlider setMaxValue:1];
-    [volumeSlider setMinValue:0];
-    [volumeSlider bind:@"value" toObject:now withKeyPath:@"mov.volume" options:nil];
-    [speakerButton setTarget:self];
-    [speakerButton setAction:@selector(mute)];
-    
     _nowPlayingCell = [[PRNowPlayingCell alloc] initTextCell:@""];
     _nowPlayingHeaderCell = [[PRNowPlayingHeaderCell alloc] initTextCell:@""];
         
@@ -116,10 +91,7 @@
     [[NSNotificationCenter defaultCenter] observeFilesChanged:self sel:@selector(updateTableView)];
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(currentFileDidChange:)];
-    [[NSNotificationCenter defaultCenter] observeVolumeChanged:self sel:@selector(volumeChanged:)];
-    
-    [self volumeChanged:nil];
-    
+        
     [self updateTableView];
     [nowPlayingTableView collapseItem:nil];
     NSArray *parentItem = [self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:0]]];
@@ -197,9 +169,19 @@
     [[win playlistsViewController] duplicatePlaylist:[now currentPlaylist]];
 }
 
-- (void)mute
+- (void)higlightPlayingFile
 {
-    [[now mov] setVolume:0];
+    if ([now currentFile] == 0) {
+        return;
+    }
+    id currentItem = [self itemForDbRow:[now currentIndex]];
+    NSArray *parentItem = [self itemForItem:[NSArray arrayWithObject:[currentItem objectAtIndex:0]]];
+    if (![nowPlayingTableView isItemExpanded:parentItem]) {
+        [nowPlayingTableView collapseItem:nil];
+    }
+    [nowPlayingTableView expandItem:parentItem];
+    [nowPlayingTableView scrollRowToVisible:[nowPlayingTableView rowForItem:currentItem]];
+//    [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:[nowPlayingTableView rowForItem:currentItem]] byExtendingSelection:FALSE];
 }
 
 // ========================================
@@ -382,22 +364,6 @@
         [nowPlayingTableView expandItem:parentItem];
         [nowPlayingTableView scrollRowToVisible:[nowPlayingTableView rowForItem:currentItem]];
     }
-}
-
-- (void)volumeChanged:(NSNotification *)notification
-{
-    float volume = [[now mov] volume];
-    NSImage *image = nil;
-    if (volume == 0) {
-        image = [NSImage imageNamed:@"NowSpeaker1"];
-    } else if (volume < 0.33) {
-        image = [NSImage imageNamed:@"NowSpeaker1"];
-    } else if (volume < 0.66) {
-        image = [NSImage imageNamed:@"NowSpeaker2"];
-    } else {
-        image = [NSImage imageNamed:@"NowSpeaker3"];
-    }
-    [speakerButton setImage:image];
 }
 
 // ========================================
@@ -622,6 +588,24 @@
             }
         }
         
+        // Checks if adding single album
+        PRFileAttribute artistAttr = PRArtistFileAttribute;
+        if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
+            artistAttr = PRArtistAlbumArtistFileAttribute;
+        }
+        BOOL singleAlbum = TRUE;
+        if ([files count] > 1) {
+            NSString *artist = [[db library] valueForFile:[[files objectAtIndex:0] intValue] attribute:artistAttr];
+            NSString *album = [[db library] valueForFile:[[files objectAtIndex:0] intValue] attribute:PRAlbumFileAttribute];
+            for (NSNumber *i in files) {
+                NSString *nextArtist = [[db library] valueForFile:[i intValue] attribute:artistAttr];
+                NSString *nextAlbum = [[db library] valueForFile:[i intValue] attribute:PRAlbumFileAttribute];
+                if (![artist isEqualToString:nextArtist] || ![album isEqualToString:nextAlbum]) {
+                    singleAlbum = FALSE;
+                }
+            }
+        }
+        
         [[db playlists] addFiles:files atIndex:dbRow toPlaylist:[now currentPlaylist]];
         [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
         [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
@@ -644,6 +628,11 @@
                 [nowPlayingTableView collapseItem:item];
             }
         }
+        
+        if (singleAlbum) {
+            id item = [self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:[beforeArray count]]]];
+            [nowPlayingTableView expandItem:item];
+        }
     }
     
     return TRUE;
@@ -652,7 +641,7 @@
 - (void)draggedImage:(NSImage *)anImage endedAt:(NSPoint)aPoint operation:(NSDragOperation)operation
 {
     [[NSCursor arrowCursor] set];
-    if (operation == 0 && !NSMouseInRect([[nowPlayingTableView window] convertScreenToBase:dropPoint], [[[nowPlayingTableView superview] superview] frame], TRUE)) {
+    if (operation == 0 && !NSMouseInRect([nowPlayingTableView convertPointFromBase:[[nowPlayingTableView window] convertScreenToBase:dropPoint]], [nowPlayingTableView bounds], TRUE)) {
         NSShowAnimationEffect(NSAnimationEffectDisappearingItemDefault, 
                               dropPoint, NSZeroSize, nil, nil, nil);
         [self removeSelected];
@@ -662,7 +651,7 @@
 - (void)draggedImage:(NSImage *)anImage movedTo:(NSPoint)point
 {
     dropPoint = [NSEvent mouseLocation];
-    if (!NSMouseInRect([[nowPlayingTableView window] convertScreenToBase:dropPoint], [[[nowPlayingTableView superview] superview] frame], TRUE)) {
+    if (!NSMouseInRect([nowPlayingTableView convertPointFromBase:[[nowPlayingTableView window] convertScreenToBase:dropPoint]], [nowPlayingTableView bounds], TRUE)) {
         [[NSCursor disappearingItemCursor] set];
     } else {
         [[NSCursor arrowCursor] set];
@@ -764,9 +753,7 @@
 
 - (void)menuNeedsUpdate:(NSMenu *)menu
 {
-    if (menu == playlistMenu) {
-        [self playlistMenuNeedsUpdate];
-    } else if (menu == _contextMenu) {
+    if (menu == _contextMenu) {
         [self contextMenuNeedsUpdate];
     }
 }
@@ -842,25 +829,22 @@
     }
 }
 
-- (void)playlistMenuNeedsUpdate
+- (NSMenu *)playlistMenu
 {
-    for (NSMenuItem *i in [playlistMenu itemArray]) {
-        [playlistMenu removeItem:i];
-    }
-    
+    NSMenu *menu = [[[NSMenu alloc] init] autorelease];
     // Title of the popup button
     NSMenuItem *menuItem = [[[NSMenuItem alloc] init] autorelease];
-    [menuItem setImage:[NSImage imageNamed:@"NowSettings"]];
-    [playlistMenu addItem:menuItem];
+    [menuItem setImage:[NSImage imageNamed:@"Settings"]];
+    [menu addItem:menuItem];
     
     // Save
     menuItem = [[[NSMenuItem alloc] initWithTitle:@"Save as..." action:nil keyEquivalent:@""] autorelease];
     [menuItem setEnabled:FALSE];
-    [playlistMenu addItem:menuItem];
+    [menu addItem:menuItem];
     
     menuItem = [[[NSMenuItem alloc] initWithTitle:@" New Playlist          " action:@selector(newPlaylist:) keyEquivalent:@""] autorelease];
     [menuItem setImage:[NSImage imageNamed:@"Add"]];
-    [playlistMenu addItem:menuItem];
+    [menu addItem:menuItem];
     
     NSArray *playlistArray = [[db playlists] playlists];
     for (NSNumber *i in playlistArray) {
@@ -871,12 +855,13 @@
         menuItem = [[[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(saveAsPlaylist:) keyEquivalent:@""] autorelease];
         [menuItem setRepresentedObject:i];
         [menuItem setImage:[NSImage imageNamed:@"ListViewTemplate"]];
-        [playlistMenu addItem:menuItem];
+        [menu addItem:menuItem];
     }
     
-    for (NSMenuItem *i in [playlistMenu itemArray]) {
+    for (NSMenuItem *i in [menu itemArray]) {
         [i setTarget:self];
     }
+    return menu;
 }
 
 // ========================================

@@ -7,18 +7,10 @@ PRGradientView, PRMainWindowController, PRNowPlayingCell, PRNowPlayingHeaderCell
 @interface PRNowPlayingViewController : NSViewController <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, NSTextFieldDelegate>
 {
 	IBOutlet NSOutlineView *nowPlayingTableView;
-    IBOutlet NSPopUpButton *settingsButton;
-    IBOutlet NSButton *speakerButton;
-	IBOutlet NSButton *clearButton;
     IBOutlet PRGradientView *backgroundGradient;
-	IBOutlet PRGradientView *barGradient;
-    IBOutlet PRGradientView *divider1;
-    IBOutlet PRGradientView *divider2;
-    IBOutlet NSSlider *volumeSlider;
     IBOutlet NSScrollView *scrollview;
     
     NSMenu *_contextMenu;
-    NSMenu *playlistMenu;
     
     // tableview delegate
     PRNowPlayingCell *_nowPlayingCell;
@@ -47,6 +39,8 @@ PRGradientView, PRMainWindowController, PRNowPlayingCell, PRNowPlayingHeaderCell
 
 @interface PRNowPlayingViewController ()
 
+- (void)higlightPlayingFile;
+
 // ========================================
 // TableView Actions
 
@@ -63,7 +57,6 @@ PRGradientView, PRMainWindowController, PRNowPlayingCell, PRNowPlayingHeaderCell
 // ========================================
 // PlaylistMenu Actions
 
-- (void)mute;
 - (void)clearPlaylist;
 - (void)saveAsPlaylist:(id)sender;
 - (void)newPlaylist:(id)sender;
@@ -74,13 +67,12 @@ PRGradientView, PRMainWindowController, PRNowPlayingCell, PRNowPlayingHeaderCell
 - (void)updateTableView;
 - (void)playlistDidChange:(NSNotification *)notification;
 - (void)currentFileDidChange:(NSNotification *)notification;
-- (void)volumeChanged:(NSNotification *)notification;
 
 // ========================================
 // Menu
 
+- (NSMenu *)playlistMenu;
 - (void)contextMenuNeedsUpdate;
-- (void)playlistMenuNeedsUpdate;
 
 // ========================================
 // Misc

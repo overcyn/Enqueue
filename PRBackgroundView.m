@@ -10,14 +10,10 @@
     NSRect bounds = [self bounds];
     bounds.size.width -= 1;
     bounds.origin.x += 0.5;
+    bounds.size.height += 2;
+    bounds.origin.y -= 1;
     
-
-    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
-	[shadow setShadowColor:[NSColor colorWithCalibratedWhite:0 alpha:0.5]];
-    [shadow setShadowOffset:NSMakeSize(0,-2)];
-    [shadow setShadowBlurRadius:4];
-//	[shadow set];
-    
+        
     NSBezierPath *bezierPath = [NSBezierPath bezierPathWithRoundedRect:bounds xRadius:0 yRadius:0];
     [[NSColor PRForegroundColor] set];
     [bezierPath fill];

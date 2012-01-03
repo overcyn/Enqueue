@@ -33,12 +33,6 @@
 @interface PRMainWindowController ()
 
 // ========================================
-// UI
-
-- (NSRect)nowPlayingFrameForFrame:(NSRect)frame_;
-- (NSRect)centerFrameForFrame:(NSRect)frame_;
-
-// ========================================
 // Update
 
 // Updates searchField
@@ -74,8 +68,10 @@
 	if (!(self = [super initWithWindowNibName:@"PRMainWindow"])) {return nil;}
     _core = core;
     _db = [core db];
-    currentMode = PRLibraryMode;
+    _mode = PRLibraryMode;
     currentPlaylist = 0;
+    _playlistMenu = [[NSMenu alloc] init];
+    _libraryViewMenu = [[NSMenu alloc] init];
 	return self;
 }
 
@@ -83,6 +79,9 @@
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
      
+    [_playlistMenu release];
+    [_libraryViewMenu release];
+    
     [mainMenuController release];
     [libraryViewController release];
     [preferencesViewController release];
@@ -94,74 +93,60 @@
 }
 
 - (void)awakeFromNib
-{   
+{
+    [centerSuperview retain];
+    [controlsSuperview retain];
+    [_splitView retain];
+    [nowPlayingSuperview retain];
+    
     // Main Menu
     mainMenuController = [[PRMainMenuController alloc] initWithCore:_core];
     
 	// Window
     [[self window] setDelegate:self];
-    [[self window] setBottomCornerRounded:NO];
     
     // Toolbar View
-    NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                             [NSColor colorWithCalibratedWhite:0.92 alpha:1.0], 0.0,
-                             [NSColor colorWithCalibratedWhite:0.82 alpha:1.0], 0.5,
-                             [NSColor colorWithCalibratedWhite:0.77 alpha:1.0], 0.8,
-                             [NSColor colorWithCalibratedWhite:0.73 alpha:1.0], 1.0,
-                             nil] autorelease];
-    [toolbarView setVerticalGradient:gradient];
-    gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-                 [NSColor colorWithCalibratedWhite:0.99 alpha:1.0], 0.0,
-                 [NSColor colorWithCalibratedWhite:0.90 alpha:1.0], 0.5,
-                 [NSColor colorWithCalibratedWhite:0.85 alpha:1.0], 1.0,
-                 nil] autorelease];
-    [toolbarView setAltVerticalGradient:gradient];
-    [toolbarView setTopBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.42]];
+    float temp = 0;//185
+    [toolbarView setTopBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.6]];
     [toolbarView setBotBorder:[NSColor colorWithCalibratedWhite:0.5 alpha:1.0]];
-    [toolbarView setFrame:NSMakeRect(185, [[self window] frame].size.height - [toolbarView frame].size.height, 
-                                     [[self window] frame].size.width - 185, [toolbarView frame].size.height)];
+    [toolbarView setFrame:NSMakeRect(temp, [[self window] frame].size.height - [toolbarView frame].size.height, 
+                                     [[self window] frame].size.width - temp, [toolbarView frame].size.height)];    
+
+    // Window Buttons
+    if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
+        [[self window] setCollectionBehavior:[[self window] collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
+    }
+        
     [[[[self window] contentView] superview] addSubview:toolbarView];
     
-    [mainDivider setColor:[NSColor colorWithCalibratedWhite:0.55 alpha:1.0]];
-    [toolbarView setLeftBorder:[NSColor colorWithCalibratedWhite:0.55 alpha:1.0]];
-    
-    [divider setHidden:TRUE];
-    [divider setColor:[NSColor colorWithCalibratedWhite:0.0 alpha:0.3]];
-    [divider setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.8]];
-    [divider5 setTopBorder:[NSColor colorWithCalibratedWhite:0.0 alpha:0.3]];
-    [divider5 setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.3]];
+    [_verticalDivider setColor:[NSColor colorWithCalibratedWhite:0.0 alpha:0.2]];
+    [_verticalDivider setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.8]];
     	
     // ViewControllers
     libraryViewController = [[PRLibraryViewController alloc] initWithCore:_core];
     preferencesViewController = [[PRPreferencesViewController alloc] initWithCore:_core];
 	playlistsViewController = [[PRPlaylistsViewController alloc] initWithCore:_core];
     historyViewController = [[PRHistoryViewController alloc] initWithDb:_db mainWindowController:self];
-    taskManagerViewController = [[PRTaskManagerViewController alloc] initWithTaskManager:[_core taskManager] core:(PRCore *)_core];
+    taskManagerViewController = [[PRTaskManagerViewController alloc] initWithCore:(PRCore *)_core];
     
-    nowPlayingViewController = [[PRNowPlayingViewController alloc] initWithDb:_db 
-                                                         nowPlayingController:[_core now] 
-                                                         mainWindowController:self];
+    nowPlayingViewController = [[PRNowPlayingViewController alloc] initWithDb:_db nowPlayingController:[_core now] mainWindowController:self];
     [[nowPlayingViewController view] setFrame:[nowPlayingSuperview bounds]];
     [nowPlayingSuperview addSubview:[nowPlayingViewController view]];
 	
     controlsViewController = [[PRControlsViewController alloc] initWithCore:_core];
     [[controlsViewController view] setFrame:[controlsSuperview bounds]];
     [controlsSuperview addSubview:[controlsViewController view]];
-    
-    [self setShowsArtwork:[[PRUserDefaults userDefaults] showsArtwork]];
-	
+    	
     // Initialize currentViewController
     [[libraryViewController view] setFrame:[centerSuperview bounds]];
     [centerSuperview addSubview:[libraryViewController view]];
     currentViewController = libraryViewController;
     [self setCurrentPlaylist:[[_db playlists] libraryPlaylist]];
     [self setCurrentMode:PRLibraryMode];
-		
-    // Progress Indicator
-    [cancelButton setTarget:taskManagerViewController];
-    [cancelButton setAction:@selector(cancelTask)];
-    [self setProgressHidden:TRUE];
-    [self setProgressTitle:@"Scanning for Updates..."];
+		    
+    // Info button
+    [infoButton setTarget:libraryViewController];
+    [infoButton setAction:@selector(infoViewToggle)];
     
 	// Search Field
     NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:@"", NSNullPlaceholderBindingOption, nil];
@@ -169,39 +154,47 @@
     [stringFormatter setMaxLength:80];
 	[searchField bind:@"value" toObject:self withKeyPath:@"search" options:options];
     [searchField setFormatter:stringFormatter];
-    
-    // Info button
-    [infoButton setTarget:libraryViewController];
-    [infoButton setAction:@selector(infoViewToggle)];
-    
-    // Library view mode buttons
-    [libraryModeButton setTarget:self];
-    [libraryModeButton setAction:@selector(libraryModeButtonAction)];
-	    
+    	    
     // miniplayer
     [centerSuperview retain];
     BOOL mini = [self miniPlayer];
     [self setMiniPlayer:FALSE];
     [self setMiniPlayer:mini];
     
-	// Buttons
-    NSArray *buttons = [NSArray arrayWithObjects:
-                        [NSDictionary dictionaryWithObjectsAndKeys:libraryButton, @"button", [NSNumber numberWithInt:PRLibraryMode], @"tag", nil], 
-                        [NSDictionary dictionaryWithObjectsAndKeys:playlistsButton, @"button", [NSNumber numberWithInt:PRPlaylistsMode], @"tag", nil], 
-                        [NSDictionary dictionaryWithObjectsAndKeys:historyButton, @"button", [NSNumber numberWithInt:PRHistoryMode], @"tag", nil], 
-                        [NSDictionary dictionaryWithObjectsAndKeys:preferencesButton, @"button", [NSNumber numberWithInt:PRPreferencesMode], @"tag", nil], 
-                        nil];
+    // Playlist Buttons
+    [_clearPlaylistButton setTarget:nowPlayingViewController];
+    [_clearPlaylistButton setAction:@selector(clearPlaylist)];
+    [_playlistPopupButton setMenu:_playlistMenu];
+    [_playlistMenu setDelegate:self];
+    [_playlistMenu setAutoenablesItems:FALSE];
     
-    for (NSDictionary *i in buttons) {
+    // LibraryView Button
+    [_libraryViewPopupButton setMenu:_libraryViewMenu];
+    [_libraryViewMenu setDelegate:self];
+    [_libraryViewMenu setAutoenablesItems:FALSE];
+    
+	// Buttons
+    for (NSDictionary *i in [NSArray arrayWithObjects:
+                             [NSDictionary dictionaryWithObjectsAndKeys:libraryButton, @"button", [NSNumber numberWithInt:PRLibraryMode], @"tag", nil], 
+                             [NSDictionary dictionaryWithObjectsAndKeys:playlistsButton, @"button", [NSNumber numberWithInt:PRPlaylistsMode], @"tag", nil], 
+                             [NSDictionary dictionaryWithObjectsAndKeys:historyButton, @"button", [NSNumber numberWithInt:PRHistoryMode], @"tag", nil], 
+                             [NSDictionary dictionaryWithObjectsAndKeys:preferencesButton, @"button", [NSNumber numberWithInt:PRPreferencesMode], @"tag", nil], 
+                             nil]) {
         NSButton *button = [i objectForKey:@"button"];
         int tag = [[i objectForKey:@"tag"] intValue];
-        
         [button setAction:@selector(headerButtonAction:)];
         [button setTarget:self];
         [button setTag:tag];
-        [[button cell] setShowsStateBy:NSNoCellMask];
-        [[button cell] setHighlightsBy:NSContentsCellMask];
     }
+    
+    // artwork
+//    [[controlsViewController albumArtView] retain];
+//    [[controlsViewController albumArtView] removeFromSuperview];
+//    [nowPlayingSuperview addSubview:[controlsViewController albumArtView]];
+    
+    
+    // SplitView
+    [_splitView setDelegate:self];
     
 	// Update
     [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(playlistDidChange:)];
@@ -241,17 +234,14 @@
 
 - (PRMode)currentMode
 {
-    return currentMode;
+    return _mode;
 }
 
-- (void)setCurrentMode:(PRMode)mode_
+- (void)setCurrentMode:(PRMode)mode
 {
-    if (currentMode == mode_) {
-        return;
-    }
-    currentMode = mode_;
+    _mode = mode;
     id newViewController;
-	switch (currentMode) {
+	switch (_mode) {
 		case PRLibraryMode:
 			newViewController = libraryViewController;
 			break;
@@ -301,31 +291,6 @@
 - (void)setShowsArtwork:(BOOL)showsArtwork
 {
     [[PRUserDefaults userDefaults] setShowsArtwork:showsArtwork];
-    [self setShowsArtwork_:showsArtwork];
-}
-
-- (void)setShowsArtwork_:(BOOL)showsArtwork
-{
-    if (showsArtwork) {
-        NSRect frame = [controlsSuperview frame];
-        frame.origin.y = [[self window] frame].size.height - 275 - 22;
-        frame.size.height = 275;
-        [controlsSuperview setFrame:frame];
-        
-        frame = [nowPlayingSuperview frame];
-        frame.size.height = [[self window] frame].size.height - 275 - 22;
-        [nowPlayingSuperview setFrame:frame];
-    } else {
-        NSRect frame = [controlsSuperview frame];
-        frame.origin.y = [[self window] frame].size.height - 105 - 22;
-        frame.size.height = 105;
-        [controlsSuperview setFrame:frame];
-        
-        frame = [nowPlayingSuperview frame];
-        frame.size.height = [[self window] frame].size.height - 105 - 22;
-        [nowPlayingSuperview setFrame:frame];
-    }
-    [controlsViewController setShowsArtwork:showsArtwork];
 }
 
 - (BOOL)miniPlayer
@@ -336,64 +301,35 @@
 - (void)setMiniPlayer:(BOOL)miniPlayer
 {
     [[PRUserDefaults userDefaults] setMiniPlayer:miniPlayer];
-    [centerSuperview setHidden:miniPlayer];
-    [toolbarView setHidden:miniPlayer];
     
-    if (miniPlayer) {
-        if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6 && [[self window] collectionBehavior] & NSWindowCollectionBehaviorFullScreenPrimary) {
-            [[self window] setCollectionBehavior:[[self window] collectionBehavior] ^ NSWindowCollectionBehaviorFullScreenPrimary];
+    NSRect winFrame;
+    if ([self miniPlayer]) {
+        winFrame = [[PRUserDefaults userDefaults] miniPlayerFrame];
+        if (NSEqualRects(winFrame, NSZeroRect)) {
+            winFrame.origin.x = [[self window] frame].origin.x;
+            winFrame.origin.y = [[self window] frame].origin.y;
+            winFrame.size.height = 500;
         }
-        
-        [self setShowsArtwork_:FALSE];
-        [centerSuperview removeFromSuperview];
-        [[PRUserDefaults userDefaults] setPlayerFrame:[[self window] frame]];
-        NSRect frame = [[PRUserDefaults userDefaults] miniPlayerFrame];
-        if (NSEqualRects(frame, NSZeroRect)) {
-            frame.origin.x = [[self window] frame].origin.x;
-            frame.origin.y = [[self window] frame].origin.y;
-            frame.size.height = 500;
+        if (winFrame.size.height < 400 && winFrame.size.height != 140) {
+            winFrame.size.height = 400;
         }
-        if (frame.size.height < 300) {
-            frame.size.height = 300;
-        }
-        frame.size.width = 185;
-        [[self window] setFrame:frame display:TRUE animate:FALSE];
-        [[self window] setMinSize:NSMakeSize(185, 300)];
-        [[self window] setMaxSize:NSMakeSize(185, 10000)];
+        winFrame.size.width = 215;        
     } else {
-        NSRect frame = [[PRUserDefaults userDefaults] playerFrame];
-        if (NSEqualRects(frame, NSZeroRect)) {
-            frame.origin.x = [[self window] frame].origin.x;
-            frame.origin.y = [[self window] frame].origin.y;
-            frame.size.height = 700;
-            frame.size.width = 1000;
+        winFrame = [[PRUserDefaults userDefaults] playerFrame];
+        if (NSEqualRects(winFrame, NSZeroRect)) {
+            winFrame.origin.x = [[self window] frame].origin.x;
+            winFrame.origin.y = [[self window] frame].origin.y;
+            winFrame.size.height = 700;
+            winFrame.size.width = 1000;
         }
-        if (frame.size.height < 500) {
-            frame.size.height = 500;
+        if (winFrame.size.height < 500) {
+            winFrame.size.height = 500;
         }
-        if (frame.size.width < 1000) {
-            frame.size.width = 1000;
-        }
-        [[self window] setMinSize:NSMakeSize(1000, 500)];
-        [[self window] setMaxSize:NSMakeSize(10000, 10000)];
-        
-        [self setShowsArtwork_:[self showsArtwork]];
-        
-        [[controlsSuperview superview] addSubview:centerSuperview];
-        
-        [nowPlayingSuperview setFrame:[self nowPlayingFrameForFrame:frame]];
-        [centerSuperview setFrame:[self centerFrameForFrame:frame]];
-        [nowPlayingSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewMaxYMargin];
-        [centerSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewMaxYMargin];
-        [[self window] setFrame:frame display:TRUE animate:FALSE];
-        [nowPlayingSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewHeightSizable];
-        [centerSuperview setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
-        
-        if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
-            [[self window] setCollectionBehavior:[[self window] collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
+        if (winFrame.size.width < 700+185) {
+            winFrame.size.width = 700+185;
         }
     }
-    [[self controlsViewController] setMiniPlayer:miniPlayer];
+    [self updateLayoutWithFrame:winFrame];
 }
 
 - (void)toggleMiniPlayer
@@ -401,96 +337,198 @@
     [self setMiniPlayer:![self miniPlayer]];
 }
 
-@dynamic progressHidden;
-@dynamic progressTitle;
-
-- (BOOL)progressHidden
-{
-    return [divider isHidden];
-}
-
-- (void)setProgressHidden:(BOOL)progressHidden
-{
-    [divider setHidden:progressHidden];
-    [cancelButton setHidden:progressHidden];
-    [progressTextField setHidden:progressHidden];
-//    [progressIndicator setHidden:progressHidden];
-//    if (progressHidden) {
-//        [progressIndicator stopAnimation:nil];
-//    } else {
-//        [progressIndicator startAnimation:nil];
-//    }
-}
-
-- (NSString *)progressTitle
-{
-    return [progressTextField stringValue];
-}
-
-- (void)setProgressTitle:(NSString *)progressTitle
-{
-    NSShadow *shadow2 = [[[NSShadow alloc] init] autorelease];
-	[shadow2 setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.5]];
-	[shadow2 setShadowOffset:NSMakeSize(1.1, -1.3)];
-    NSMutableParagraphStyle *centerAlign = [[[NSMutableParagraphStyle alloc] init] autorelease];
-	[centerAlign setAlignment:NSLeftTextAlignment];
-    [centerAlign setLineBreakMode:NSLineBreakByTruncatingTail];
-	NSDictionary *attributes2 = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 [NSFont systemFontOfSize:11], NSFontAttributeName,
-                                 [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-                                 centerAlign, NSParagraphStyleAttributeName,				  
-                                 shadow2, NSShadowAttributeName,
-                                 nil];
-	NSAttributedString *attributedString = [[[NSAttributedString alloc] initWithString:progressTitle attributes:attributes2] autorelease];
-	[progressTextField setAttributedStringValue:attributedString];
-}
-
 // ========================================
 // UI
 // ========================================
 
+- (void)updateLayoutWithFrame:(NSRect)winFrame
+{
+    [[self window] setDelegate:nil];
+    [_splitView setDelegate:nil];
+        
+    for (id i in [NSArray arrayWithObjects:_verticalDivider,libraryButton,playlistsButton, historyButton, preferencesButton, infoButton, _libraryViewPopupButton, searchField, nil]) {
+        [i setHidden:[self miniPlayer]];
+    }
+    [toolbarView setHidden:([self miniPlayer] && winFrame.size.height == 140)];
+    
+    if ([self miniPlayer] && winFrame.size.height != 140) {
+        // FULLSCREEN
+        if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6 && [[self window] collectionBehavior] & NSWindowCollectionBehaviorFullScreenPrimary) {
+            [[self window] setCollectionBehavior:[[self window] collectionBehavior] ^ NSWindowCollectionBehaviorFullScreenPrimary];
+        }
+        
+        NSRect frame;
+        // CONTROLS
+        frame.origin.x = 0;
+        frame.origin.y = 0;
+        frame.size.height = 125;
+        frame.size.width = winFrame.size.width;
+        [controlsSuperview setFrame:frame];
+        [controlsSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewMaxYMargin];
+        [[self controlsViewController] updateLayout];
+        
+        // SPLIT VIEW
+        [_splitView removeFromSuperview];
+        
+        // NOW PLAYING
+        [nowPlayingSuperview removeFromSuperview];
+        [[[self window] contentView] addSubview:nowPlayingSuperview];
+        frame.origin.x = 0;
+        frame.origin.y = 125; 
+        frame.size.height = winFrame.size.height - 30 - frame.origin.y;
+        frame.size.width = winFrame.size.width;
+        [nowPlayingSuperview setFrame:frame];
+        [nowPlayingSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewMaxYMargin];
+        
+        // CENTER
+        [centerSuperview removeFromSuperview];
+        
+        // WINDOW
+        [[self window] setFrame:winFrame display:TRUE animate:FALSE];
+        [[self window] setMinSize:NSMakeSize(215, 140)]; // min 140 / 400
+        [[self window] setMaxSize:NSMakeSize(215, 10000)];
+        [controlsSuperview setAutoresizingMask:NSViewMaxYMargin|NSViewWidthSizable];
+        [nowPlayingSuperview setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+    } else if ([self miniPlayer]) {
+        // FULLSCREEN
+        if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6 && [[self window] collectionBehavior] & NSWindowCollectionBehaviorFullScreenPrimary) {
+            [[self window] setCollectionBehavior:[[self window] collectionBehavior] ^ NSWindowCollectionBehaviorFullScreenPrimary];
+        }
+        
+        NSRect frame;
+        // CONTROLS
+        frame.origin.x = 0;
+        frame.origin.y = 0;
+        frame.size.height = 125;
+        frame.size.width = winFrame.size.width;
+        [controlsSuperview setFrame:frame];
+        [controlsSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewMaxYMargin];
+        [[self controlsViewController] updateLayout];
+        
+        // SPLIT VIEW
+        [_splitView removeFromSuperview];
+        
+        // NOW PLAYING
+        [nowPlayingSuperview removeFromSuperview];
+        
+        // CENTER
+        [centerSuperview removeFromSuperview];
+        
+        // WINDOW
+        [[self window] setFrame:winFrame display:TRUE animate:FALSE];
+        [[self window] setMinSize:NSMakeSize(215, 140)]; // min 140 / 400
+        [[self window] setMaxSize:NSMakeSize(215, 10000)];
+        [controlsSuperview setAutoresizingMask:NSViewMaxYMargin|NSViewWidthSizable];
+    } else {
+        // FULLSCREEN
+        if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
+            [[self window] setCollectionBehavior:[[self window] collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
+        }
+        
+        NSRect frame;
+        // CONTROLS
+        frame.origin.x = 0;
+        frame.origin.y = 0;
+        frame.size.height = 54;
+        frame.size.width = winFrame.size.width;
+        [controlsSuperview setFrame:frame];
+        [controlsSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewMaxYMargin];
+        [[self controlsViewController] updateLayout];
+        
+        // SPLIT VIEW
+        [[[self window] contentView] addSubview:_splitView];
+        frame.origin.x = 0;
+        frame.origin.y = 54;
+        frame.size.height = winFrame.size.height - 30 - 54;
+        frame.size.width = winFrame.size.width;
+        [_splitView setFrame:frame];
+        [_splitView setAutoresizingMask:NSViewMaxXMargin|NSViewMaxYMargin];
+        
+        // NOW PLAYING
+        [nowPlayingSuperview removeFromSuperview];
+        [_splitView addSubview:nowPlayingSuperview];
+        
+        // CENTER
+        [centerSuperview removeFromSuperview];
+        [_splitView addSubview:centerSuperview];
+        
+        [_splitView setPosition:[[PRUserDefaults userDefaults] sidebarWidth] ofDividerAtIndex:0];
+        
+        // WINDOW
+        [[self window] setMinSize:NSMakeSize(700+185, 500)];
+        [[self window] setMaxSize:NSMakeSize(10000, 10000)];
+        [[self window] setFrame:winFrame display:TRUE animate:FALSE];
+        [controlsSuperview setAutoresizingMask:NSViewMaxYMargin|NSViewWidthSizable];
+        [_splitView setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+        [nowPlayingSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewHeightSizable];
+        [centerSuperview setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+    }
+    
+    [self updateSplitView];
+    [self updateUI];
+    [self updateWindowButtons];
+    
+    [[self window] setDelegate:self];
+    [_splitView setDelegate:self];
+}
+
+- (void)updateSplitView
+{
+    NSRect frame;
+    frame = [_toolbarSubview frame];
+    frame.origin.x = [nowPlayingSuperview frame].size.width - 54;
+    frame.size.width = [[self window] frame].size.width - [nowPlayingSuperview frame].size.width + 54;
+    [_toolbarSubview setFrame:frame];
+    
+    if (![self miniPlayer] && ([[self window] frame].size.width - [nowPlayingSuperview frame].size.width < 700)) {
+        [_splitView setPosition:[[self window] frame].size.width-700 ofDividerAtIndex:0];
+    }
+    
+//    frame.origin.x = 0;
+//    frame.origin.y = 0;
+//    frame.size.width = [nowPlayingSuperview frame].size.width;
+//    frame.size.height = [nowPlayingSuperview frame].size.width;
+//    [[controlsViewController albumArtView] setFrame:frame];
+    
+}
+
 - (void)updateUI
 {
     // Header buttons
-    [libraryButton setImage:[NSImage imageNamed:@"Library"]];
-    [playlistsButton setImage:[NSImage imageNamed:@"Playlists"]];
-    [historyButton setImage:[NSImage imageNamed:@"History"]];
-    [preferencesButton setImage:[NSImage imageNamed:@"Preferences"]];
-    [searchField setEnabled:currentMode == PRLibraryMode];
-    switch (currentMode) {
+    NSButton *button;
+    switch (_mode) {
 		case PRLibraryMode:
             if ([self currentPlaylist] == [[_db playlists] libraryPlaylist]) {
-                [libraryButton setImage:[NSImage imageNamed:@"LibraryAlt"]];
+                button = libraryButton;
             } else {
-                [playlistsButton setImage:[NSImage imageNamed:@"PlaylistsAlt"]];
+                button = playlistsButton;
             }
 			break;
 		case PRPlaylistsMode:
-            [playlistsButton setImage:[NSImage imageNamed:@"PlaylistsAlt"]];
+            button = playlistsButton;
 			break;
 		case PRHistoryMode:
-            [historyButton setImage:[NSImage imageNamed:@"HistoryAlt"]];
+            button = historyButton;
 			break;
 		case PRPreferencesMode:
-            [preferencesButton setImage:[NSImage imageNamed:@"PreferencesAlt"]];
+            button = preferencesButton;
 			break;
 		default:
+            button = libraryButton;
 			break;
 	}
+    for (NSButton *i in [NSArray arrayWithObjects:libraryButton,playlistsButton,historyButton,preferencesButton,nil]) {
+        [i setState:NSOffState];
+    }
+    [button setState:NSOnState];
     
     // Library view mode buttons
-    switch ([self libraryViewMode]) {
-        case PRListMode:
-            [libraryModeButton setSelectedSegment:0];
-            break;
-        case PRAlbumListMode:
-            [libraryModeButton setSelectedSegment:1];
-            break;
-        default:
-            break;
+    if (![self miniPlayer]) {
+        [searchField setHidden:(_mode != PRLibraryMode)];
+        [infoButton setHidden:(_mode != PRLibraryMode)];
+        [_libraryViewPopupButton setHidden:(_mode != PRLibraryMode)];
     }
-    [infoButton setHidden:(currentMode != PRLibraryMode)];
-    [libraryModeButton setHidden:(currentMode != PRLibraryMode)];
+    [self menuNeedsUpdate:_libraryViewMenu];
     
     if ([libraryViewController infoViewVisible]) {
         [infoButton setImage:[NSImage imageNamed:@"InfoAlt"]];
@@ -499,82 +537,83 @@
     }
     
     // Playlist title
-    [playlistTitle setHidden:!(currentMode == PRLibraryMode)];
-    if (currentMode != PRLibraryMode) {
-        return;
-    }
-    NSString *title;
-    PRPlaylistType type = [[_db playlists] typeForPlaylist:currentPlaylist];
-    if (type == PRLibraryPlaylistType) {
-        title = @" ";
-    } else {
-        title = [[_db playlists] titleForPlaylist:currentPlaylist];
-        title = [NSString stringWithFormat:@"%@ : ", title];
-    }
+    [playlistTitle setHidden:!(_mode == PRLibraryMode)];
+    if (_mode != PRLibraryMode) {
+        NSString *title;
+        PRPlaylistType type = [[_db playlists] typeForPlaylist:currentPlaylist];
+        if (type == PRLibraryPlaylistType) {
+            title = @" ";
+        } else {
+            title = [[_db playlists] titleForPlaylist:currentPlaylist];
+        }
         
-	NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
-	[shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.5]];
-	[shadow setShadowOffset:NSMakeSize(1.1, -1.3)];
-    NSMutableParagraphStyle *centerAlign = [[[NSMutableParagraphStyle alloc] init] autorelease];
-	[centerAlign setAlignment:NSCenterTextAlignment];
-    [centerAlign setLineBreakMode:NSLineBreakByTruncatingTail];
-	NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
-                                [NSFont boldSystemFontOfSize:12.5], NSFontAttributeName,
-                                [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-                                centerAlign, NSParagraphStyleAttributeName,
-                                shadow, NSShadowAttributeName,
-                                nil];
-	NSMutableAttributedString *attributedString = [[[NSMutableAttributedString alloc] initWithString:title attributes:attributes] autorelease];
-    
-    // other
-    PRTimeFormatter2 *timeFormatter2 = [[[PRTimeFormatter2 alloc] init] autorelease];
-	PRSizeFormatter *sizeFormatter = [[[PRSizeFormatter alloc] init] autorelease];
-	NSDictionary *userInfo = [(PRTableViewController *)[libraryViewController currentViewController] info];
-	NSString *formattedString = [NSString stringWithFormat:@"%@ songs, %@, %@", 
-                                 [userInfo valueForKey:@"count"], 
-                                 [timeFormatter2 stringForObjectValue:[userInfo valueForKey:@"time"]], 
-                                 [sizeFormatter stringForObjectValue:[userInfo valueForKey:@"size"]]];
-	
-	NSMutableDictionary *attributes2 = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                         [NSFont systemFontOfSize:11], NSFontAttributeName,
-                                         [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-                                         shadow, NSShadowAttributeName,
-                                         centerAlign, NSParagraphStyleAttributeName,				  
-                                         nil] autorelease];
-	[attributedString appendAttributedString:[[[NSAttributedString alloc] initWithString:formattedString attributes:attributes2] autorelease]];
-    [attributedString addAttributes:[NSDictionary dictionaryWithObject:centerAlign forKey:NSParagraphStyleAttributeName]
-                              range:NSMakeRange(0, [attributedString length])];
-	
-	[playlistTitle setAttributedStringValue:attributedString];
+        NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
+        [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.5]];
+        [shadow setShadowOffset:NSMakeSize(1.1, -1.3)];
+        NSMutableParagraphStyle *centerAlign = [[[NSMutableParagraphStyle alloc] init] autorelease];
+        [centerAlign setAlignment:NSLeftTextAlignment];
+        [centerAlign setLineBreakMode:NSLineBreakByTruncatingTail];
+        NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                    [NSFont systemFontOfSize:12], NSFontAttributeName,
+                                    [NSColor colorWithDeviceWhite:0.4 alpha:1.0], NSForegroundColorAttributeName,
+                                    centerAlign, NSParagraphStyleAttributeName,
+                                    shadow, NSShadowAttributeName,
+                                    nil];
+        NSMutableAttributedString *attributedString = [[[NSMutableAttributedString alloc] initWithString:title attributes:attributes] autorelease];
+        
+        // other
+        PRTimeFormatter2 *timeFormatter2 = [[[PRTimeFormatter2 alloc] init] autorelease];
+        PRSizeFormatter *sizeFormatter = [[[PRSizeFormatter alloc] init] autorelease];
+        NSDictionary *userInfo = [(PRTableViewController *)[libraryViewController currentViewController] info];
+        NSString *formattedString = [NSString stringWithFormat:@"%@ songs, %@, %@", 
+                                     [userInfo valueForKey:@"count"], 
+                                     [timeFormatter2 stringForObjectValue:[userInfo valueForKey:@"time"]], 
+                                     [sizeFormatter stringForObjectValue:[userInfo valueForKey:@"size"]]];
+        
+        NSMutableDictionary *attributes2 = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
+                                             [NSFont systemFontOfSize:11], NSFontAttributeName,
+                                             [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
+                                             shadow, NSShadowAttributeName,
+                                             centerAlign, NSParagraphStyleAttributeName,				  
+                                             nil] autorelease];
+        [attributedString appendAttributedString:[[[NSAttributedString alloc] initWithString:formattedString attributes:attributes2] autorelease]];
+        [attributedString addAttributes:[NSDictionary dictionaryWithObject:centerAlign forKey:NSParagraphStyleAttributeName]
+                                  range:NSMakeRange(0, [attributedString length])];
+        
+        [playlistTitle setAttributedStringValue:attributedString];
+    }
+}
+
+- (void)updateWindowButtons
+{
+    // Window Buttons
+    if ([self miniPlayer] && [[self window] frame].size.height == 140) {
+        
+    } else {
+        float x = 10;
+        for (NSButton *i in [NSArray arrayWithObjects:
+                             [[self window] standardWindowButton:NSWindowCloseButton],
+                             [[self window] standardWindowButton:NSWindowMiniaturizeButton],
+                             [[self window] standardWindowButton:NSWindowZoomButton], nil]) {
+            NSRect frame = [i frame];
+            frame.origin.y = [[self window] frame].size.height - [i bounds].size.height - 7;
+            frame.origin.x = x;
+            [i setFrame:frame];
+            x += 20;
+        }
+    }
+    if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
+        NSButton *fullScreen = [[self window] standardWindowButton:NSWindowFullScreenButton];
+        NSRect frame = [fullScreen frame];
+        frame.origin.y = [[self window] frame].size.height - [fullScreen bounds].size.height - 6;
+        frame.origin.x = [[self window] frame].size.width - [fullScreen bounds].size.width - 9;
+        [fullScreen setFrame:frame];
+    }
 }
 
 - (void)find
 {
     [[searchField window] makeFirstResponder:searchField];
-}
-
-- (NSRect)nowPlayingFrameForFrame:(NSRect)frame_
-{
-    NSRect frame;
-    if ([self showsArtwork]) {
-        frame.size.height = frame_.size.height - 275 - 22;
-    } else {
-        frame.size.height = frame_.size.height - 105 - 22;
-    }
-    frame.size.width = 185;
-    frame.origin.x = 0;
-    frame.origin.y = 0; 
-    return frame;
-}
-
-- (NSRect)centerFrameForFrame:(NSRect)frame_
-{
-    NSRect frame;
-    frame.size.height = frame_.size.height - 65;
-    frame.size.width = frame_.size.width - 186;
-    frame.origin.x = 186;
-    frame.origin.y = 0;
-    return frame;
 }
 
 // ========================================
@@ -600,35 +639,9 @@
     [self updateUI];
 }
 
-- (void)windowWillEnterFullScreen:(NSNotification *)notification
-{
-    NSRect frame = [centerSuperview frame];
-    frame.size.height -= 11;
-    [centerSuperview setFrame:frame];
-    frame = [controlsSuperview frame];
-    frame.origin.y -= 11;
-    [controlsSuperview setFrame:frame];
-    frame = [nowPlayingSuperview frame];
-    frame.size.height -= 11;
-    [nowPlayingSuperview setFrame:frame];
-}
-
-- (void)windowWillExitFullScreen:(NSNotification *)notification
-{
-    NSRect frame = [centerSuperview frame];
-    frame.size.height += 11;
-    [centerSuperview setFrame:frame];
-    frame = [controlsSuperview frame];
-    frame.origin.y += 11;
-    [controlsSuperview setFrame:frame];
-    frame = [nowPlayingSuperview frame];
-    frame.size.height += 11;
-    [nowPlayingSuperview setFrame:frame];
-}
-
 - (NSString *)search
 {
-	if (currentMode != PRLibraryMode) {
+	if (_mode != PRLibraryMode) {
 		return nil;
 	}
 	return [[_db playlists] searchForPlaylist:currentPlaylist];
@@ -636,7 +649,7 @@
 
 - (void)setSearch:(NSString *)search
 {	
-	if (currentMode != PRLibraryMode) {
+	if (_mode != PRLibraryMode) {
 		return;
 	}
 	if (!search) {
@@ -646,14 +659,9 @@
     [[NSNotificationCenter defaultCenter] postPlaylistChanged:currentPlaylist];
 }
 
-- (void)libraryModeButtonAction
-{
-    [self setLibraryViewMode:[libraryModeButton selectedSegment]];
-}
-
 - (int)libraryViewMode
 {
-	if (currentMode != PRLibraryMode) {
+	if (_mode != PRLibraryMode) {
 		return -1;
 	} else {
 		return [libraryViewController libraryViewMode];
@@ -662,7 +670,7 @@
 
 - (void)setLibraryViewMode:(int)libraryViewMode
 {
-	if (currentMode != PRLibraryMode) {
+	if (_mode != PRLibraryMode) {
 		return;
 	}
 	[libraryViewController setLibraryViewMode:libraryViewMode];
@@ -680,11 +688,43 @@
 // Window Delegate
 // ========================================
 
+- (void)windowWillEnterFullScreen:(NSNotification *)notification
+{
+    NSRect frame = [_splitView frame];
+    frame.size.height = [[self window] frame].size.height - 30 - 54 - 22;
+    [_splitView setFrame:frame];
+}
+
+- (void)windowWillExitFullScreen:(NSNotification *)notification
+{
+    _resizingSplitView = TRUE;
+//    [_splitView setDelegate:nil];
+    NSRect frame = [_splitView frame];
+    frame.size.height = [[self window] frame].size.height - 30 - 54 + 22;
+    [_splitView setFrame:frame];
+    
+    if ([[PRUserDefaults userDefaults] playerFrame].size.width - [nowPlayingSuperview frame].size.width < 700) {
+        [_splitView setPosition:[[PRUserDefaults userDefaults] playerFrame].size.width - 700 ofDividerAtIndex:0];
+    }
+}
+
+- (void)windowDidExitFullScreen:(NSNotification *)notification
+{
+    if ([self window].frame.size.width - [nowPlayingSuperview frame].size.width < 700) {
+        [_splitView setPosition:[self window].frame.size.width-700 ofDividerAtIndex:0];
+    } else if ([nowPlayingSuperview frame].size.width < 185) {
+        [_splitView setPosition:185 ofDividerAtIndex:0];
+    }
+    [self updateSplitView];
+//    [_splitView setDelegate:self];
+    _resizingSplitView = FALSE;
+}
+
 - (BOOL)windowShouldClose:(id)sender
 {
     if (sender == [self window]) {
         [[self window] orderOut:self];
-        [NSApp addWindowsItem:[self window] title:@"Lyre" filename:FALSE];
+        [NSApp addWindowsItem:[self window] title:@"Enqueue" filename:FALSE];
         return FALSE;
     }
     return TRUE;
@@ -692,17 +732,41 @@
 
 - (NSRect)window:(NSWindow *)window willPositionSheet:(NSWindow *)sheet usingRect:(NSRect)rect
 {
-    if ([self miniPlayer]) {
-        rect.origin.y -= 105;
-    } else {
-        rect.origin.y -= 43;
-        rect.origin.x += 185/2;
-    }
+    rect.origin.y -= 8;
     return rect;
+}
+
+- (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize
+{
+    if (![self miniPlayer] && (frameSize.width - [nowPlayingSuperview frame].size.width < 700)) {
+        [_splitView setPosition:frameSize.width-700 ofDividerAtIndex:0];
+    } else if ([self miniPlayer]) {
+        if (frameSize.height < 170) {
+            frameSize.height = 140;
+            if ([[self window] frame].size.height != 140) {
+                _windowWillResize = TRUE;
+            }
+        } else if (frameSize.height < 400) {
+            frameSize.height = 400;
+            if ([[self window] frame].size.height == 140) {
+                _windowWillResize = TRUE;
+            }
+        }
+    }
+    return frameSize;
 }
 
 - (void)windowDidResize:(NSNotification *)notification
 {
+    if (_windowWillResize) {
+        [self updateLayoutWithFrame:[[self window] frame]];
+        _windowWillResize = FALSE;
+    }
+    
+    if ([[self window] styleMask] & NSFullScreenWindowMask) {
+        return;
+    }
+    [self updateWindowButtons];
     if ([self miniPlayer]) {
         [[PRUserDefaults userDefaults] setMiniPlayerFrame:[[self window] frame]];
     } else {
@@ -712,7 +776,81 @@
 
 - (void)windowDidMove:(NSNotification *)notification
 {
-    [self windowDidResize:nil];
+    if ([[self window] styleMask] & NSFullScreenWindowMask) {
+        return;
+    }
+    [self updateWindowButtons];
+    if ([self miniPlayer]) {
+        [[PRUserDefaults userDefaults] setMiniPlayerFrame:[[self window] frame]];
+    } else {
+        [[PRUserDefaults userDefaults] setPlayerFrame:[[self window] frame]];
+    }
+}
+
+// ========================================
+// SplitView Delegate
+// ========================================
+
+- (void)splitViewDidResizeSubviews:(NSNotification *)note
+{
+    if (_resizingSplitView) {
+        return;
+    }
+    if ([self window].frame.size.width - [nowPlayingSuperview frame].size.width < 700) {
+        if (!([[self window] styleMask] & NSFullScreenWindowMask)) {
+            NSRect frame = [[self window] frame];
+            frame.size.width = [nowPlayingSuperview frame].size.width + 700;
+            [[self window] setFrame:frame display:TRUE];
+        } else {
+            [_splitView setPosition:[self window].frame.size.width-700 ofDividerAtIndex:0];
+        }
+    }
+    [self updateSplitView];
+    [[PRUserDefaults userDefaults] setSidebarWidth:[nowPlayingSuperview frame].size.width];
+}
+
+- (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview
+{
+    if (subview == nowPlayingSuperview) {
+        return FALSE;
+    }
+    return TRUE;
+}
+
+- (CGFloat)splitView:(NSSplitView *)splitView constrainSplitPosition:(CGFloat)proposedPosition ofSubviewAt:(NSInteger)dividerIndex
+{
+    if (proposedPosition < 185) {
+        return 185;
+    } else if (proposedPosition > 600) {
+        return 600;
+    } else {
+        return proposedPosition;
+    }
+}
+
+// ========================================
+// Menu Delegate
+// ========================================
+
+- (void)menuNeedsUpdate:(NSMenu *)menu
+{
+    if (menu == _playlistMenu) {
+        [_playlistMenu removeAllItems];
+        NSMenu *menu = [nowPlayingViewController playlistMenu];
+        NSArray *items = [menu itemArray];
+        [menu removeAllItems];
+        for (NSMenuItem *i in items) {
+            [_playlistMenu addItem:i];
+        }
+    } else if (menu == _libraryViewMenu) {
+        [_libraryViewMenu removeAllItems];
+        NSMenu *menu = [libraryViewController libraryViewMenu];
+        NSArray *items = [menu itemArray];
+        [menu removeAllItems];
+        for (NSMenuItem *i in items) {
+            [_libraryViewMenu addItem:i];
+        }
+    }
 }
 
 @end

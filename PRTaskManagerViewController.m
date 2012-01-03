@@ -3,6 +3,7 @@
 #import "PRCore.h"
 #import "PRMainWindowController.h"
 #import "PRTask.h"
+#import "PRControlsViewController.h"
 
 
 @implementation PRTaskManagerViewController
@@ -11,16 +12,11 @@
 // Initialization
 // ========================================
 
-- (id)initWithTaskManager:(PRTaskManager *)taskManager_ core:(PRCore *)core_
+- (id)initWithCore:(PRCore *)core
 {
-    self = [super initWithWindowNibName:@"PRTaskManagerView"];
-    if (self) {
-        taskManager = taskManager_;
-        core = core_;
-        
-        [taskManager addObserver:self forKeyPath:@"tasks" options:0 context:nil];
-    }
-    
+    if (!(self = [super initWithWindowNibName:@"PRTaskManagerView"])) {return nil;}
+    _core = core;
+    [[_core taskManager] addObserver:self forKeyPath:@"tasks" options:0 context:nil];
     return self;
 }
 
@@ -41,25 +37,25 @@
 
 - (void)update
 {
-	if ([[taskManager tasks] count] > 0) {
-        PRTask *task = [[taskManager tasks] objectAtIndex:0];
-        if (TRUE || [task background]) {
-            [[core win] setProgressHidden:FALSE];
+	if ([[[_core taskManager] tasks] count] > 0) {
+        PRTask *task = [[[_core taskManager] tasks] objectAtIndex:0];
+        if ([task background]) {
+            [[[_core win] controlsViewController] setProgressHidden:FALSE];
+            [[[_core win] controlsViewController] setProgressTitle:[task title]];
+            [[[_core win] controlsViewController] setProgressPercent:[task percent]];
             if ([[self window] isVisible]) {
                 [self endSheet];
             }
-            [[core win] setProgressTitle:[task title]];
         } else {
-            [[core win] setProgressHidden:TRUE];
+            [[[_core win] controlsViewController] setProgressHidden:TRUE];
             if (![[self window] isVisible]) {
                 [self beginSheet];
             }
-            
             [titleTextField setStringValue:[task title]];
         }
     } else {
         [self endSheet];
-        [[core win] setProgressHidden:TRUE];
+        [[[_core win] controlsViewController] setProgressHidden:TRUE];
     }
 }
 
@@ -69,7 +65,7 @@
                        context:(void *)context
 {
     
-    if (object == [core taskManager] && [keyPath isEqualToString:@"tasks"]) {
+    if (object == [_core taskManager] && [keyPath isEqualToString:@"tasks"]) {
         [self update];
     }
 }
@@ -81,7 +77,7 @@
 - (void)beginSheet
 {
 	[NSApp beginSheet:[self window] 
-	   modalForWindow:[[core win] window]
+	   modalForWindow:[[_core win] window]
         modalDelegate:self 
 	   didEndSelector:NULL 
 		  contextInfo:nil];
@@ -105,7 +101,7 @@
 
 - (void)cancelTask
 {
-    PRTask *task = [[taskManager tasks] objectAtIndex:0];
+    PRTask *task = [[[_core taskManager] tasks] objectAtIndex:0];
     [task setShouldCancel:TRUE];
 }
 

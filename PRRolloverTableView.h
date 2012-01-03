@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
-#import "PRTableView.h"
+#import "PRTableView2.h"
 
-@interface PRRolloverTableView : PRTableView 
+@interface PRRolloverTableView : PRTableView2 
 {
     NSTrackingArea *trackingArea;
     

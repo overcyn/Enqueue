@@ -11,6 +11,8 @@
 {
     if (!(self = [super init])) {return nil;}
     shouldCancel = FALSE;
+    background = TRUE;
+    percent = 0;
     return self;
 }
 
@@ -22,7 +24,6 @@
 - (void)dealloc
 {
     [title release];
-    [value release];
     [super dealloc];
 }
 
@@ -31,7 +32,7 @@
 // ========================================
 
 @synthesize title;
-@synthesize value;
+@synthesize percent;
 @synthesize shouldCancel;
 @synthesize background;
 

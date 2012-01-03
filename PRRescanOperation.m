@@ -56,13 +56,13 @@
 
 - (void)main
 {
-    NSLog(@"begin import");
+    NSLog(@"begin folderrescan");
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     PRTask *task = [PRTask task];
+    [task setTitle:@"Rescanning Folders..."];
     [[_core taskManager] addTask:task];
     
     // Get Monitored files
-    [task setTitle:@"Scanning Folders..."];
     [[NSOperationQueue mainQueue] addBlockAndWait:^{
         [_db execute:@"DROP TABLE IF EXISTS tmp_tbl_monitored_files"];
         [_db execute:@"CREATE TEMP TABLE tmp_tbl_monitored_files (file_id INTEGER UNIQUE NOT NULL, path TEXT NOT NULL, exist INTEGER DEFAULT 0)"];
@@ -76,8 +76,8 @@
     // Filter and add/update files
     NSArray *files;
     PRDirectoryEnumerator *dirEnum = [PRDirectoryEnumerator enumeratorWithURLs:_URLs];
-    while ((files = [dirEnum nextXObjects:200])) {
-        [task setTitle:[NSString stringWithFormat:@"Scanning Folders... %d%%", (int)([dirEnum progress] * 90)]];
+    while ((files = [dirEnum nextXObjects:100])) {
+        [task setPercent:(int)([dirEnum progress] * 90)];
         [self filterURLs:files];
         if ([task shouldCancel]) {
             goto end;
@@ -85,7 +85,7 @@
     }
     
     // Remove files
-    [task setTitle:@"Scanning Folders... 95%%"];
+    [task setPercent:95];
     NSMutableIndexSet *toRemove = [NSMutableIndexSet indexSet];
     [[NSOperationQueue mainQueue] addBlockAndWait:^{
         NSArray *rlt = [_db execute:@"SELECT file_id FROM tmp_tbl_monitored_files WHERE exist = 0"
@@ -98,7 +98,7 @@
     [self removeFiles:toRemove];
     
     // Update lastEventStreamEventId
-    [task setTitle:@"Scanning Folders... 100%%"];
+    [task setPercent:99];
     [[NSOperationQueue mainQueue] addBlockAndWait:^{
         [[PRUserDefaults userDefaults] setLastEventStreamEventId:_eventId];
         if (_monitor) {
@@ -109,7 +109,7 @@
 end:;
     [[_core taskManager] removeTask:task];
     [pool drain];
-    NSLog(@"end import");
+    NSLog(@"end folderrescan");
 }
 
 - (void)filterURLs:(NSArray *)URLs // Array of dictionaries containing NSURL, size, lastmodified, caseSensitive

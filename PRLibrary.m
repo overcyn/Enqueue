@@ -3,7 +3,8 @@
 #import "PRPlaylists.h"
 #import "PRAlbumArtController.h"
 #import "PRUserDefaults.h"
-#import "PRTagEditor.h"
+#import "PRTagger.h"
+#import "PRFileInfo.h"
 
 NSString * const PR_TBL_LIBRARY_SQL = @"CREATE TABLE library ("
 "file_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
@@ -34,7 +35,9 @@ NSString * const PR_TBL_LIBRARY_SQL = @"CREATE TABLE library ("
 "lastPlayed TEXT NOT NULL DEFAULT '', "
 "playCount INT NOT NULL DEFAULT 0, "
 "rating INT NOT NULL DEFAULT 0 ,"
-"artistAlbumArtist TEXT NOT NULL DEFAULT '' "
+"artistAlbumArtist TEXT NOT NULL DEFAULT '' , "
+"lyrics TEXT NOT NULL DEFAULT '', "
+"compilation INT NOT NULL DEFAULT 0"
 ")";
 NSString * const PR_TBL_LIBRARY_SQL2 = @"CREATE TABLE library ("
 "file_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
@@ -65,12 +68,16 @@ NSString * const PR_TBL_LIBRARY_SQL2 = @"CREATE TABLE library ("
 "playCount INT NOT NULL DEFAULT 0, "
 "rating INT NOT NULL DEFAULT 0 ,"
 "artistAlbumArtist TEXT NOT NULL DEFAULT '' , "
-"lastModified TEXT NOT NULL DEFAULT '')";
+"lastModified TEXT NOT NULL DEFAULT '', "
+"lyrics TEXT NOT NULL DEFAULT '', "
+"compilation INT NOT NULL DEFAULT 0"
+")";
 NSString * const PR_IDX_PATH_SQL = @"CREATE INDEX index_path ON library (path COLLATE hfs_compare)";
 NSString * const PR_IDX_ALBUM_SQL = @"CREATE INDEX index_album ON library (album COLLATE NOCASE2)";
 NSString * const PR_IDX_ARTIST_SQL = @"CREATE INDEX index_artist ON library (artist COLLATE NOCASE2)";
 NSString * const PR_IDX_GENRE_SQL = @"CREATE INDEX index_genre ON library (genre COLLATE NOCASE2)";
 NSString * const PR_IDX_ARTIST_ALBUM_ARTIST_SQL = @"CREATE INDEX index_artistAlbumArtist ON library (artistAlbumArtist COLLATE NOCASE2)";
+NSString * const PR_IDX_COMPILATION_SQL = @"CREATE INDEX index_compilation ON library (compilation)";
 NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_SQL = @"CREATE TEMP TRIGGER trg_artistAlbumArtist "
 "AFTER UPDATE OF artist, albumArtist ON library FOR EACH ROW BEGIN "
 "UPDATE library SET artistAlbumArtist = coalesce(nullif(albumArtist, ''), artist) "
@@ -102,6 +109,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     [db execute:PR_IDX_ARTIST_SQL];
     [db execute:PR_IDX_GENRE_SQL];
     [db execute:PR_IDX_ARTIST_ALBUM_ARTIST_SQL];
+    [db execute:PR_IDX_COMPILATION_SQL];
 }
 
 - (BOOL)initialize
@@ -140,6 +148,12 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     string = @"SELECT sql FROM sqlite_master WHERE name = 'index_artistAlbumArtist'";
     result = [db execute:string bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_ARTIST_ALBUM_ARTIST_SQL]) {
+        return FALSE;
+    }
+    
+    string = @"SELECT sql FROM sqlite_master WHERE name = 'index_compilation'";
+    result = [db execute:string bindings:nil columns:columns];
+    if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_COMPILATION_SQL]) {
         return FALSE;
     }
 
@@ -188,6 +202,8 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
                          [NSNumber numberWithInt:PRCheckSumFileAttribute],
                          [NSNumber numberWithInt:PRArtistAlbumArtistFileAttribute],
                          [NSNumber numberWithInt:PRLastModifiedFileAttribute],
+                         [NSNumber numberWithInt:PRCompilationFileAttribute],
+                         [NSNumber numberWithInt:PRLyricsFileAttribute],
                          nil] retain];
     } 
     return _attributes;
@@ -226,6 +242,8 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
                                @"checkSum",         [NSNumber numberWithInt:PRCheckSumFileAttribute],
                                @"artistAlbumArtist",[NSNumber numberWithInt:PRArtistAlbumArtistFileAttribute],
                                @"lastModified",     [NSNumber numberWithInt:PRLastModifiedFileAttribute],
+                               @"compilation",      [NSNumber numberWithInt:PRCompilationFileAttribute],
+                               @"lyrics",           [NSNumber numberWithInt:PRLyricsFileAttribute],
                                nil] retain];
     } 
     return _nameForAttribute;
@@ -264,6 +282,8 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
                                 [NSNumber numberWithInt:PRColumnData],      [NSNumber numberWithInt:PRCheckSumFileAttribute],
                                 [NSNumber numberWithInt:PRColumnString],    [NSNumber numberWithInt:PRArtistAlbumArtistFileAttribute],
                                 [NSNumber numberWithInt:PRColumnString],    [NSNumber numberWithInt:PRLastModifiedFileAttribute],
+                                [NSNumber numberWithInt:PRColumnInteger],   [NSNumber numberWithInt:PRCompilationFileAttribute],
+                                [NSNumber numberWithInt:PRColumnString],    [NSNumber numberWithInt:PRLyricsFileAttribute],
                                 nil] retain];
     }
     return _columnForAttribute;
@@ -280,7 +300,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
 + (PRFileAttribute)fileAttributeForName:(NSString *)name
 {
-    NSArray *keys = [[[self class] columnDict] allKeysForObject:name];
+    NSArray *keys = [[PRLibrary columnDict] allKeysForObject:name];
     if ([keys count] > 0) {
         return [[keys objectAtIndex:0] intValue];
     }
@@ -379,7 +399,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
     int bindingIndex = 1;
     for (NSNumber *i in [attributes allKeys]) {
-        [string appendFormat:@"%@ = ?%d, ", [[self class] columnNameForFileAttribute:[i intValue]], bindingIndex];
+        [string appendFormat:@"%@ = ?%d, ", [PRLibrary columnNameForFileAttribute:[i intValue]], bindingIndex];
         [bindings setObject:[attributes objectForKey:i] forKey:[NSNumber numberWithInt:bindingIndex]];
         bindingIndex += 1;
     }
@@ -412,15 +432,11 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 - (BOOL)updateTagsForFile:(PRFile)file
 {
     NSURL *URL = [NSURL URLWithString:[self valueForFile:file attribute:PRPathFileAttribute]];
-    PRTagEditor *te = [PRTagEditor tagEditorForURL:URL];
-    if (!te) {
-        return FALSE;
-    }
-    NSDictionary *info = [te info];
+    PRFileInfo *info = [PRTagger infoForURL:URL];
+    if (!info) {return FALSE;}
     
     BOOL change = FALSE;
-    NSMutableDictionary *attr = [NSMutableDictionary dictionaryWithDictionary:[PRTagEditor defaultTags]];
-    [attr addEntriesFromDictionary:[info objectForKey:@"attr"]];
+    NSDictionary *attr = [info attributes];
     for (NSNumber *i in [attr allKeys]) {
         id value = [self valueForFile:file attribute:[i intValue]];
         if (![[attr objectForKey:i] isEqual:value]) {
@@ -428,8 +444,8 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
         }
     }
     [self setAttributes:attr forFile:file];
-    if ([info objectForKey:@"art"]) {
-        [[db albumArtController] setCachedAlbumArt:[info objectForKey:@"art"] forFile:file];
+    if ([info art]) {
+        [[db albumArtController] setCachedAlbumArt:[info art] forFile:file];
     } else {
         [[db albumArtController] clearAlbumArtForFile:file];
     }

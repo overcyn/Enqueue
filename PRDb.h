@@ -2,7 +2,7 @@
 #include "sqlite3.h"
 
 @class PRHistory, PRLibrary, PRPlaylists, PRLibraryViewSource, PRNowPlayingViewSource, 
-PRAlbumArtController, PRPlaybackOrder, PRQueue, PRResult, PRStatement, PRReturnTypes, PRBindings;
+PRAlbumArtController, PRPlaybackOrder, PRQueue, PRStatement, PRCore;
 
 
 // ========================================
@@ -22,6 +22,8 @@ typedef enum {PRColumnInteger, PRColumnFloat, PRColumnString, PRColumnData} PRCo
 // PRDb
 // ========================================
 @interface PRDb : NSObject {
+    PRCore *_core;
+    
 	sqlite3 *sqlDb;
 	PRHistory *history;
 	PRLibrary *library;
@@ -50,6 +52,7 @@ typedef enum {PRColumnInteger, PRColumnFloat, PRColumnString, PRColumnData} PRCo
 // ========================================
 // Initialization
 
+- (id)initWithCore:(PRCore *)core;
 - (BOOL)open;
 - (void)create;
 - (BOOL)update;

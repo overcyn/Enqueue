@@ -28,12 +28,14 @@
 @property (readwrite) BOOL miniPlayer;
 @property (readwrite) NSRect miniPlayerFrame;
 @property (readwrite) NSRect playerFrame;
+@property (readwrite) float sidebarWidth;
 
 @property (readwrite) BOOL mediaKeys;
 @property (readwrite) BOOL postGrowlNotification;
 @property (readwrite, retain) NSString *lastFMUsername;
 @property (readwrite) BOOL showsArtwork;
 @property (readwrite) BOOL useAlbumArtist;
+@property (readwrite) BOOL useCompilation;
 @property (readwrite) BOOL nowPlayingCollapsible;
 @property (readwrite) BOOL folderArtwork;
 

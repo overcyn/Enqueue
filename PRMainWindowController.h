@@ -15,8 +15,9 @@ typedef enum {
 } PRMode;
 
 
-@interface PRMainWindowController : NSWindowController <NSWindowDelegate>
+@interface PRMainWindowController : NSWindowController <NSWindowDelegate, NSMenuDelegate, NSSplitViewDelegate>
 {
+    IBOutlet NSView *_windowSuperView;
     IBOutlet NSView *centerSuperview;
     IBOutlet NSView *controlsSuperview;
     IBOutlet NSView *nowPlayingSuperview;
@@ -25,23 +26,31 @@ typedef enum {
     IBOutlet NSButton *historyButton;
     IBOutlet NSButton *preferencesButton;
     IBOutlet NSSearchField *searchField;
-    
-    IBOutlet NSTextField *progressTextField;
-    IBOutlet NSButton *cancelButton;
-    
+    IBOutlet NSSplitView *_splitView;
+        
     IBOutlet NSButton *infoButton;
-    IBOutlet NSSegmentedControl *libraryModeButton;
+    IBOutlet NSPopUpButton *modeButton;
     
     IBOutlet PRGradientView *toolbarView;
-    IBOutlet PRGradientView *mainDivider;
-    IBOutlet PRGradientView *divider;
-    IBOutlet PRGradientView *divider5;
+    IBOutlet NSView *_toolbarSubview;
+    IBOutlet PRGradientView *_verticalDivider;
+    
+    IBOutlet NSButton *_clearPlaylistButton;
+    IBOutlet NSPopUpButton *_playlistPopupButton;
+    
+    IBOutlet NSPopUpButton *_libraryViewPopupButton;
     
     IBOutlet NSTextField *playlistTitle;
+    
+    NSMenu *_libraryViewMenu;
+    NSMenu *_playlistMenu;
         
-    PRMode currentMode;
+    PRMode _mode;
     int currentPlaylist;
     id currentViewController;
+    
+    BOOL _resizingSplitView;
+    BOOL _windowWillResize;
     
     // View controllers
     PRMainMenuController *mainMenuController;
@@ -81,16 +90,15 @@ typedef enum {
 @property (readwrite) BOOL showsArtwork;
 @property (readwrite) BOOL miniPlayer;
 
-- (void)setShowsArtwork_:(BOOL)showsArtwork;
-
-@property (readwrite) BOOL progressHidden;
-@property (readwrite, retain) NSString *progressTitle;
-
 // ========================================
 // UI
 
 - (void)toggleMiniPlayer;
+
+- (void)updateLayoutWithFrame:(NSRect)frame;
+- (void)updateSplitView;
 - (void)updateUI;
+- (void)updateWindowButtons;
 - (void)find;
 
 @end

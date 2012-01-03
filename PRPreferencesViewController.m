@@ -13,7 +13,7 @@
 #import "PRGradientView.h"
 #import "NSColor+Extensions.h"
 #import "PREQ.h"
-
+#import "PRTabButtonCell.h"
 
 @implementation PRPreferencesViewController
 
@@ -63,6 +63,9 @@
     
     [sortWithAlbumArtist setTarget:self];
     [sortWithAlbumArtist setAction:@selector(toggleUseAlbumArtist)];
+    
+    [_compilationsButton setTarget:self];
+    [_compilationsButton setAction:@selector(toggleCompilations)];
 
     [mediaKeys setTarget:self];
     [mediaKeys setAction:@selector(toggleMediaKeys)];
@@ -165,8 +168,8 @@
         [tab setTag:[i intValue]];
     }
     _prefMode = PRGeneralPrefMode;
-    [[_generalButton cell] setRounded:TRUE];
-    [[_shortcutsButton cell] setRounded:TRUE];
+    [(PRTabButtonCell *)[_generalButton cell] setRounded:TRUE];
+    [(PRTabButtonCell *)[_shortcutsButton cell] setRounded:TRUE];
     
     // EQ
     [EQButton setTarget:self];
@@ -194,7 +197,6 @@
     
     [_topBorder setTopBorder:[NSColor PRGridColor]];
     [_topBorder setBotBorder:[NSColor PRGridHighlightColor]];
-//    [_topBorder setColor:[NSColor redColor]];
 
     for (NSNumber *i in [[self EQSliders] allKeys]) {
         NSSlider *slider = [[self EQSliders] objectForKey:i];
@@ -283,6 +285,7 @@
     
     
     // Misc preferences
+    [_compilationsButton setState:[[PRUserDefaults userDefaults] useCompilation]];
     [sortWithAlbumArtist setState:[[PRUserDefaults userDefaults] useAlbumArtist]];
     [mediaKeys setState:[[PRUserDefaults userDefaults] mediaKeys]];
     [folderArtwork setState:[[PRUserDefaults userDefaults] folderArtwork]];
@@ -551,6 +554,13 @@
 {
     [[PRUserDefaults userDefaults] setUseAlbumArtist:![[PRUserDefaults userDefaults] useAlbumArtist]];
     [self updateUI];    
+    [[NSNotificationCenter defaultCenter] postUseAlbumArtistChanged];
+}
+
+- (void)toggleCompilations
+{
+    [[PRUserDefaults userDefaults] setUseCompilation:![[PRUserDefaults userDefaults] useCompilation]];
+    [self updateUI];
     [[NSNotificationCenter defaultCenter] postUseAlbumArtistChanged];
 }
 

@@ -25,6 +25,8 @@ typedef enum {
 	PRCommentsFileAttribute = 11,
 	PRAlbumArtistFileAttribute = 12,
 	PRGenreFileAttribute = 13,
+    PRCompilationFileAttribute = 29,
+    PRLyricsFileAttribute = 30,
 	
     // album art
     PRAlbumArtFileAttribute = 24,

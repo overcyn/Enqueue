@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 
-@class PRTaskManager, PRCore;
+@class PRCore;
 
 @interface PRTaskManagerViewController : NSWindowController 
 {
@@ -10,14 +10,13 @@
     
     bool sheetIsVisible;
     
-    PRCore *core;
-    PRTaskManager *taskManager;
+    PRCore *_core;
 }
 
 // ========================================
 // Initialization
 
-- (id)initWithTaskManager:(PRTaskManager *)taskManager core:(PRCore *)core_;
+- (id)initWithCore:(PRCore *)core;
 
 // ========================================
 // Update
