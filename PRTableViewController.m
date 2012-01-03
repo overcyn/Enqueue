@@ -1664,8 +1664,9 @@
 	for (NSMenuItem *i in [libraryMenu itemArray]) {
 		[libraryMenu removeItem:i];
 	}
+        
 	// populate context menu if clicked on row
-	if (clickedRow != -1) {
+	if (clickedRow != -1 && [[self dbRowIndexesForTableRowIndexes:selectedRows] count] != 0) {
 		// Play
 		[libraryMenu addItemWithTitle:@"Play" action:@selector(playSelected) keyEquivalent:@""];
 		[libraryMenu addItemWithTitle:@"Append" action:@selector(append) keyEquivalent:@""];

@@ -418,9 +418,7 @@
 {
 	if ([notification object] == libraryTableView) {
 		int index = 0;
-		NSMutableIndexSet *selectionIndexes = 
-          [[[NSMutableIndexSet alloc] initWithIndexSet:[libraryTableView selectedRowIndexes]] autorelease];
-		
+		NSMutableIndexSet *selectionIndexes = [[[NSMutableIndexSet alloc] initWithIndexSet:[libraryTableView selectedRowIndexes]] autorelease];
 		while ([selectionIndexes indexGreaterThanOrEqualToIndex:index] != NSNotFound) {
 			if ([self dbRowForTableRow:index] == -1) {
 				[selectionIndexes removeIndex:index];
