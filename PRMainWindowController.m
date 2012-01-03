@@ -484,25 +484,30 @@
         [_splitView setPosition:[[self window] frame].size.width-700 ofDividerAtIndex:0];
     }
     
-    // size of nowPlayingView
-    frame = [nowPlayingSuperview frame];
-    frame.size.height -= [nowPlayingSuperview frame].size.width;
-    if (frame.size.height < 220) {
-        frame.size.height = 220;
-    } 
-    if ([nowPlayingSuperview frame].size.height - frame.size.height > 500) {
-        frame.size.height = [nowPlayingSuperview frame].size.height - 500;
+    if ([[PRUserDefaults userDefaults] showsArtwork]) {
+        // size of nowPlayingView
+        frame = [nowPlayingSuperview frame];
+        frame.size.height -= [nowPlayingSuperview frame].size.width;
+        if (frame.size.height < 220) {
+            frame.size.height = 220;
+        } 
+        if ([nowPlayingSuperview frame].size.height - frame.size.height > 500) {
+            frame.size.height = [nowPlayingSuperview frame].size.height - 500;
+        }
+        frame.origin.y = [nowPlayingSuperview frame].size.height - frame.size.height;
+        [[nowPlayingViewController view] setFrame:frame];
+        
+        // size of albumArt
+        frame.origin.x = -1;
+        frame.origin.y = -2;
+        frame.size.width = [nowPlayingSuperview frame].size.width + 2;
+        frame.size.height = [nowPlayingSuperview frame].size.height - [[nowPlayingViewController view] frame].size.height + 2;
+        [[controlsViewController albumArtView] setFrame:frame];
+    } else {
+        frame = [nowPlayingSuperview frame];
+        [[nowPlayingViewController view] setFrame:frame];
     }
-    frame.origin.y = [nowPlayingSuperview frame].size.height - frame.size.height;
-    [[nowPlayingViewController view] setFrame:frame];
-    
-    // size of albumArt
-    frame.origin.x = 0;
-    frame.origin.y = 0;
-    frame.size.width = [nowPlayingSuperview frame].size.width;
-    frame.size.height = [nowPlayingSuperview frame].size.height - [[nowPlayingViewController view] frame].size.height;
-    [[controlsViewController albumArtView] setFrame:frame];
-    
+    [[controlsViewController albumArtView] setHidden:![[PRUserDefaults userDefaults] showsArtwork]];
 }
 
 - (void)updateUI
