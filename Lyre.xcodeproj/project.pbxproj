@@ -62,6 +62,7 @@
 		6739CBDC1252AD4100AB54A1 /* PRTimeFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6739CBDB1252AD4100AB54A1 /* PRTimeFormatter.m */; };
 		6739CCB01253107200AB54A1 /* PRPlaybackOrder.m in Sources */ = {isa = PBXBuildFile; fileRef = 6739CCAF1253107200AB54A1 /* PRPlaybackOrder.m */; };
 		6739CF01125569ED00AB54A1 /* PRNowPlayingCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6739CF00125569ED00AB54A1 /* PRNowPlayingCell.m */; };
+		673B011014B2C08F00407A36 /* PRSidebarImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 673B010F14B2C08E00407A36 /* PRSidebarImageView.m */; };
 		673C2B7D12EF973D0022B2A3 /* PRItunesImportOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 673C2B7C12EF973D0022B2A3 /* PRItunesImportOperation.m */; };
 		673C849213E148CA00C6DB4B /* PRNowPlayingHeaderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 673C849113E148CA00C6DB4B /* PRNowPlayingHeaderCell.m */; };
 		673C849513E1507800C6DB4B /* PROutlineView.m in Sources */ = {isa = PBXBuildFile; fileRef = 673C849413E1507800C6DB4B /* PROutlineView.m */; };
@@ -372,6 +373,8 @@
 		6739CCAF1253107200AB54A1 /* PRPlaybackOrder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PRPlaybackOrder.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		6739CEFF125569ED00AB54A1 /* PRNowPlayingCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRNowPlayingCell.h; sourceTree = "<group>"; };
 		6739CF00125569ED00AB54A1 /* PRNowPlayingCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRNowPlayingCell.m; sourceTree = "<group>"; };
+		673B010E14B2C08E00407A36 /* PRSidebarImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRSidebarImageView.h; sourceTree = "<group>"; };
+		673B010F14B2C08E00407A36 /* PRSidebarImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRSidebarImageView.m; sourceTree = "<group>"; };
 		673C2B7B12EF973D0022B2A3 /* PRItunesImportOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRItunesImportOperation.h; sourceTree = "<group>"; };
 		673C2B7C12EF973D0022B2A3 /* PRItunesImportOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRItunesImportOperation.m; sourceTree = "<group>"; };
 		673C849013E148CA00C6DB4B /* PRNowPlayingHeaderCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRNowPlayingHeaderCell.h; sourceTree = "<group>"; };
@@ -1053,6 +1056,8 @@
 				678FC8CF1414D49300A546B8 /* PRDropImageView.m */,
 				678FC8D1141559F000A546B8 /* PRDropImageCell.h */,
 				678FC8D2141559F000A546B8 /* PRDropImageCell.m */,
+				673B010E14B2C08E00407A36 /* PRSidebarImageView.h */,
+				673B010F14B2C08E00407A36 /* PRSidebarImageView.m */,
 			);
 			name = "Image Cell";
 			sourceTree = "<group>";
@@ -1889,6 +1894,7 @@
 				67D8CC0714969B3800B977CF /* PRFirstResponderGradientView.m in Sources */,
 				67D8CC0A14969BB700B977CF /* PRFirstResponderView.m in Sources */,
 				67F1491B149973B30028B7DD /* PRUpdate060Operation.m in Sources */,
+				673B011014B2C08F00407A36 /* PRSidebarImageView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

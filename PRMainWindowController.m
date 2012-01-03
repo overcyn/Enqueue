@@ -188,10 +188,9 @@
     }
     
     // artwork
-//    [[controlsViewController albumArtView] retain];
-//    [[controlsViewController albumArtView] removeFromSuperview];
-//    [nowPlayingSuperview addSubview:[controlsViewController albumArtView]];
-    
+    [[controlsViewController albumArtView] retain];
+    [[controlsViewController albumArtView] removeFromSuperview];
+    [nowPlayingSuperview addSubview:[controlsViewController albumArtView]];
     
     // SplitView
     [_splitView setDelegate:self];
@@ -291,6 +290,7 @@
 - (void)setShowsArtwork:(BOOL)showsArtwork
 {
     [[PRUserDefaults userDefaults] setShowsArtwork:showsArtwork];
+    [self updateSplitView];
 }
 
 - (BOOL)miniPlayer
@@ -484,11 +484,24 @@
         [_splitView setPosition:[[self window] frame].size.width-700 ofDividerAtIndex:0];
     }
     
-//    frame.origin.x = 0;
-//    frame.origin.y = 0;
-//    frame.size.width = [nowPlayingSuperview frame].size.width;
-//    frame.size.height = [nowPlayingSuperview frame].size.width;
-//    [[controlsViewController albumArtView] setFrame:frame];
+    // size of nowPlayingView
+    frame = [nowPlayingSuperview frame];
+    frame.size.height -= [nowPlayingSuperview frame].size.width;
+    if (frame.size.height < 220) {
+        frame.size.height = 220;
+    } 
+    if ([nowPlayingSuperview frame].size.height - frame.size.height > 500) {
+        frame.size.height = [nowPlayingSuperview frame].size.height - 500;
+    }
+    frame.origin.y = [nowPlayingSuperview frame].size.height - frame.size.height;
+    [[nowPlayingViewController view] setFrame:frame];
+    
+    // size of albumArt
+    frame.origin.x = 0;
+    frame.origin.y = 0;
+    frame.size.width = [nowPlayingSuperview frame].size.width;
+    frame.size.height = [nowPlayingSuperview frame].size.height - [[nowPlayingViewController view] frame].size.height;
+    [[controlsViewController albumArtView] setFrame:frame];
     
 }
 
@@ -821,8 +834,8 @@
 {
     if (proposedPosition < 185) {
         return 185;
-    } else if (proposedPosition > 600) {
-        return 600;
+    } else if (proposedPosition > 500) {
+        return 500;
     } else {
         return proposedPosition;
     }

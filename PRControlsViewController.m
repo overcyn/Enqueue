@@ -489,14 +489,12 @@
     [ratingControl setSelectedSegment:rating_];
     
     // AlbumArt
-    NSImage *albumArt;
-	if ([now currentIndex] == 0) {
-		albumArt = nil;
-	} else {
-        albumArt = [[db albumArtController] albumArtForFile:[now currentFile]];
+    NSImage *albumArt = nil;
+	if ([now currentIndex] != 0) {
+		albumArt = [[db albumArtController] albumArtForFile:[now currentFile]];
 	}
-	if (albumArt == nil) {
-		albumArt = [NSImage imageNamed:@"PRLightAlbumArt"];
+	if (!albumArt) {
+		albumArt = [NSImage imageNamed:@"PREmptyAlbumArt.png"];
 	}
     [albumArtView setImage:albumArt];
     

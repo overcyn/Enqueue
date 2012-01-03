@@ -92,7 +92,6 @@
     menuItem = [viewMenu itemWithTag:3];
     [menuItem setTarget:self];
     [menuItem setAction:@selector(toggleArtwork)];
-    [menuItem setHidden:TRUE];
     
     menuItem = [viewMenu itemWithTag:4];
     [menuItem setTarget:self];
