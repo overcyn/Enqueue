@@ -155,22 +155,16 @@ create:;
 {
     int e = [history initialize];
     if (!e) {return FALSE;}
-    
     e = [library initialize];
     if (!e) {return FALSE;}
-    NSLog(@"e");
     e = [playlists initialize];
     if (!e) {return FALSE;}
-    NSLog(@"2");
     e = [queue initialize];
     if (!e) {return FALSE;}
-    NSLog(@"3");
     e = [libraryViewSource initialize];
     if (!e) {return FALSE;}
-    NSLog(@"4");
     e = [nowPlayingViewSource initialize];
     if (!e) {return FALSE;}
-    NSLog(@"5");
     return TRUE;
 }
 
