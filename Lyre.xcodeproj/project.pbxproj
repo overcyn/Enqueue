@@ -219,6 +219,7 @@
 		67DF6127148C5FA30019DF24 /* PRHyperlinkButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DF6126148C5FA30019DF24 /* PRHyperlinkButton.m */; };
 		67E2366F148B028200106779 /* Trash.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E2366E148B028200106779 /* Trash.png */; };
 		67E38846147E541D00C094E5 /* PRTagger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 67E38845147E541D00C094E5 /* PRTagger.mm */; };
+		67E7B4F214B444F60060D1FE /* iTunesImport.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E7B4F114B444F60060D1FE /* iTunesImport.png */; };
 		67E94735126C528E00CAE943 /* PRCenteredTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */; };
 		67E94DDA14551E8900B88EA4 /* Cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E94DD914551E8900B88EA4 /* Cancel.png */; };
 		67EA12F6145A9A9600309876 /* Add.png in Resources */ = {isa = PBXBuildFile; fileRef = 67EA12F5145A9A9600309876 /* Add.png */; };
@@ -610,6 +611,7 @@
 		67E2366E148B028200106779 /* Trash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Trash.png; path = Icons/Trash.png; sourceTree = "<group>"; };
 		67E38844147E541D00C094E5 /* PRTagger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRTagger.h; sourceTree = "<group>"; };
 		67E38845147E541D00C094E5 /* PRTagger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PRTagger.mm; sourceTree = "<group>"; };
+		67E7B4F114B444F60060D1FE /* iTunesImport.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = iTunesImport.png; path = Icons/iTunesImport.png; sourceTree = "<group>"; };
 		67E94733126C528E00CAE943 /* PRCenteredTextFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRCenteredTextFieldCell.h; sourceTree = "<group>"; };
 		67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRCenteredTextFieldCell.m; sourceTree = "<group>"; };
 		67E94DD914551E8900B88EA4 /* Cancel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Cancel.png; path = Icons/Cancel.png; sourceTree = "<group>"; };
@@ -1483,6 +1485,7 @@
 		67C268841357FCB0008F55C0 /* Icons */ = {
 			isa = PBXGroup;
 			children = (
+				67E7B4F114B444F60060D1FE /* iTunesImport.png */,
 				67E2366E148B028200106779 /* Trash.png */,
 				67EA12F7145B346900309876 /* NowPlaying */,
 				6792646A13D7FC24004981A7 /* Playlists */,
@@ -1747,6 +1750,7 @@
 				675FE00F1487138100E76BD0 /* AlbumList.png in Resources */,
 				675FE0101487138100E76BD0 /* List.png in Resources */,
 				67E2366F148B028200106779 /* Trash.png in Resources */,
+				67E7B4F214B444F60060D1FE /* iTunesImport.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

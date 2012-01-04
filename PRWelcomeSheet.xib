@@ -65,8 +65,9 @@
 								<object class="NSBox" id="404464038">
 									<reference key="NSNextResponder" ref="457610416"/>
 									<int key="NSvFlags">12</int>
-									<string key="NSFrame">{{72, 258}, {322, 5}}</string>
+									<string key="NSFrame">{{49, 258}, {366, 5}}</string>
 									<reference key="NSSuperview" ref="457610416"/>
+									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="302574719"/>
 									<string key="NSOffsets">{0, 0}</string>
 									<object class="NSTextFieldCell" key="NSTitleCell">
@@ -102,6 +103,7 @@
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{185, 48}, {96, 32}}</string>
 									<reference key="NSSuperview" ref="457610416"/>
+									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="240749227">
@@ -123,6 +125,7 @@
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{83, 144}, {300, 50}}</string>
 									<reference key="NSSuperview" ref="457610416"/>
+									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="716651229"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="52924000">
@@ -152,6 +155,7 @@
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{83, 92}, {300, 50}}</string>
 									<reference key="NSSuperview" ref="457610416"/>
+									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="870862597"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="539602009">
@@ -177,6 +181,7 @@
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{83, 196}, {300, 50}}</string>
 									<reference key="NSSuperview" ref="457610416"/>
+									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="592668562"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSButtonCell" key="NSCell" id="1043065169">
@@ -189,7 +194,7 @@
 										<int key="NSButtonFlags2">130</int>
 										<object class="NSCustomResource" key="NSNormalImage">
 											<string key="NSClassName">NSImage</string>
-											<string key="NSResourceName">iTunes</string>
+											<string key="NSResourceName">iTunesImport</string>
 										</object>
 										<string key="NSAlternateContents"/>
 										<string key="NSKeyEquivalent"/>
@@ -214,6 +219,7 @@
 									</object>
 									<string key="NSFrame">{{183, 316}, {100, 100}}</string>
 									<reference key="NSSuperview" ref="457610416"/>
+									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="870580120"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSImageCell" key="NSCell" id="538636637">
@@ -240,6 +246,7 @@
 									<int key="NSvFlags">268</int>
 									<string key="NSFrame">{{31, 260}, {405, 51}}</string>
 									<reference key="NSSuperview" ref="457610416"/>
+									<reference key="NSWindow"/>
 									<reference key="NSNextKeyView" ref="404464038"/>
 									<bool key="NSEnabled">YES</bool>
 									<object class="NSTextFieldCell" key="NSCell" id="498088481">
@@ -270,12 +277,14 @@
 							</object>
 							<string key="NSFrame">{{0, -31}, {467, 435}}</string>
 							<reference key="NSSuperview" ref="200249004"/>
+							<reference key="NSWindow"/>
 							<reference key="NSNextKeyView" ref="949422580"/>
 							<string key="NSClassName">PRGradientView</string>
 						</object>
 					</object>
 					<string key="NSFrameSize">{467, 404}</string>
 					<reference key="NSSuperview"/>
+					<reference key="NSWindow"/>
 					<reference key="NSNextKeyView" ref="457610416"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1920, 1058}}</string>
@@ -559,7 +568,80 @@
 			<nil key="sourceID"/>
 			<int key="maxID">38</int>
 		</object>
-		<object class="IBClassDescriber" key="IBDocument.Classes"/>
+		<object class="IBClassDescriber" key="IBDocument.Classes">
+			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
+				<bool key="EncodedWithXMLCoder">YES</bool>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRGradientView</string>
+					<string key="superclassName">NSView</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRGradientView.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRWelcomeSheetController</string>
+					<string key="superclassName">NSWindowController</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>background</string>
+							<string>closeButton</string>
+							<string>importItunesButton</string>
+							<string>monitorFoldersButton</string>
+							<string>openFilesButton</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>PRGradientView</string>
+							<string>NSButton</string>
+							<string>NSButton</string>
+							<string>NSButton</string>
+							<string>NSButton</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>background</string>
+							<string>closeButton</string>
+							<string>importItunesButton</string>
+							<string>monitorFoldersButton</string>
+							<string>openFilesButton</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">background</string>
+								<string key="candidateClassName">PRGradientView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">closeButton</string>
+								<string key="candidateClassName">NSButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">importItunesButton</string>
+								<string key="candidateClassName">NSButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">monitorFoldersButton</string>
+								<string key="candidateClassName">NSButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">openFilesButton</string>
+								<string key="candidateClassName">NSButton</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRWelcomeSheetController.h</string>
+					</object>
+				</object>
+			</object>
+		</object>
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaFramework</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDevelopmentDependencies">
@@ -575,14 +657,14 @@
 				<string>FolderAddIcon</string>
 				<string>FolderMonitorIcon</string>
 				<string>PRAppIcon</string>
-				<string>iTunes</string>
+				<string>iTunesImport</string>
 			</object>
 			<object class="NSMutableArray" key="dict.values">
 				<bool key="EncodedWithXMLCoder">YES</bool>
 				<string>{128, 128}</string>
 				<string>{128, 128}</string>
 				<string>{512, 512}</string>
-				<string>{512, 512}</string>
+				<string>{128, 128}</string>
 			</object>
 		</object>
 	</data>
