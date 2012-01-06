@@ -492,10 +492,12 @@
     NSImage *albumArt = nil;
 	if ([now currentIndex] != 0) {
 		albumArt = [[db albumArtController] albumArtForFile:[now currentFile]];
-	}
-	if (!albumArt) {
-		albumArt = [NSImage imageNamed:@"PREmptyAlbumArt.png"];
-	}
+        if (!albumArt) {
+            albumArt = [NSImage imageNamed:@"PREmptyAlbumArt.png"];
+        }
+	} else {
+        albumArt = [NSImage imageNamed:@"PRNothingPlaying.png"];
+    }
     [albumArtView setImage:albumArt];
     
     [(PRSliderCell *)[controlSlider cell] setIndicator:([now currentIndex] != 0)];
