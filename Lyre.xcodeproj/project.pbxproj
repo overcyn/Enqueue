@@ -21,8 +21,6 @@
 		6709D7BA12476E0400963B11 /* PRImportOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6709D7B912476E0400963B11 /* PRImportOperation.m */; };
 		6709DA3E1248304A00963B11 /* PRDb.m in Sources */ = {isa = PBXBuildFile; fileRef = 6709DA3D1248304A00963B11 /* PRDb.m */; };
 		670EDD7B135FC9F200CAB2F1 /* PRBitRateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 670EDD7A135FC9F200CAB2F1 /* PRBitRateFormatter.m */; };
-		670EDD8D135FFBE300CAB2F1 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 670EDD8C135FFBE300CAB2F1 /* Sparkle.framework */; };
-		670EDD8E135FFBF900CAB2F1 /* Sparkle.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 670EDD8C135FFBE300CAB2F1 /* Sparkle.framework */; };
 		671334CC13206A7D00764174 /* PRApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 671334CB13206A7D00764174 /* PRApplication.m */; };
 		671334F01320704C00764174 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 671334EF1320704C00764174 /* Carbon.framework */; };
 		67133A641325EF9D00764174 /* PRGradientView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67133A631325EF9D00764174 /* PRGradientView.m */; };
@@ -180,6 +178,7 @@
 		67BBE75F1421752E003C438B /* NSURLConnection+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67BBE75E1421752E003C438B /* NSURLConnection+Extensions.m */; };
 		67BBE7621421AF5D003C438B /* PRLastfmFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 67BBE7611421AF5D003C438B /* PRLastfmFile.m */; };
 		67BC7269144D2D7A00CD6BD3 /* PRHistoryCell2.m in Sources */ = {isa = PBXBuildFile; fileRef = 67BC7268144D2D7A00CD6BD3 /* PRHistoryCell2.m */; };
+		67C0481A14B5703D00F8A9FF /* PRNothingPlaying.png in Resources */ = {isa = PBXBuildFile; fileRef = 67C0481914B5703D00F8A9FF /* PRNothingPlaying.png */; };
 		67C0BA1A13C7AE1E0088D2E7 /* NSString+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C0BA1913C7AE1E0088D2E7 /* NSString+Extensions.m */; };
 		67C0CE3E1458A67800CBCE24 /* SFBAudioEngine.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6727E46C1368F80200A21055 /* SFBAudioEngine.framework */; };
 		67C0CE451458A7A700CBCE24 /* mp4v2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67C0CE441458A7A700CBCE24 /* mp4v2.framework */; };
@@ -219,6 +218,10 @@
 		67DF6127148C5FA30019DF24 /* PRHyperlinkButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DF6126148C5FA30019DF24 /* PRHyperlinkButton.m */; };
 		67E2366F148B028200106779 /* Trash.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E2366E148B028200106779 /* Trash.png */; };
 		67E38846147E541D00C094E5 /* PRTagger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 67E38845147E541D00C094E5 /* PRTagger.mm */; };
+		67E5242014B641660056C1E0 /* PRRuleCompound.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E5241F14B641660056C1E0 /* PRRuleCompound.m */; };
+		67E5242C14B665460056C1E0 /* PRRuleStringIs.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E5242B14B665460056C1E0 /* PRRuleStringIs.m */; };
+		67E5242F14B665D10056C1E0 /* PRRuleStringIsNot.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E5242E14B665D10056C1E0 /* PRRuleStringIsNot.m */; };
+		67E63D1D14B6EE100029B3C4 /* PRRulePredicate.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E63D1C14B6EE0F0029B3C4 /* PRRulePredicate.m */; };
 		67E7B4F214B444F60060D1FE /* iTunesImport.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E7B4F114B444F60060D1FE /* iTunesImport.png */; };
 		67E94735126C528E00CAE943 /* PRCenteredTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */; };
 		67E94DDA14551E8900B88EA4 /* Cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E94DD914551E8900B88EA4 /* Cancel.png */; };
@@ -269,7 +272,6 @@
 			files = (
 				67C0CE461458A7B300CBCE24 /* mp4v2.framework in CopyFiles */,
 				673E4AB7138553FD00DD8260 /* Growl.framework in CopyFiles */,
-				670EDD8E135FFBF900CAB2F1 /* Sparkle.framework in CopyFiles */,
 				67EA414E1359536500F27195 /* SSCrypto.framework in CopyFiles */,
 				6727E4711368F92E00A21055 /* ShortcutRecorder.framework in CopyFiles */,
 				67EA4158135958D900F27195 /* taglib.framework in CopyFiles */,
@@ -548,6 +550,7 @@
 		67BBE7611421AF5D003C438B /* PRLastfmFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRLastfmFile.m; sourceTree = "<group>"; };
 		67BC7267144D2D7900CD6BD3 /* PRHistoryCell2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRHistoryCell2.h; sourceTree = "<group>"; };
 		67BC7268144D2D7A00CD6BD3 /* PRHistoryCell2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRHistoryCell2.m; sourceTree = "<group>"; };
+		67C0481914B5703D00F8A9FF /* PRNothingPlaying.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRNothingPlaying.png; path = Icons/PRNothingPlaying.png; sourceTree = "<group>"; };
 		67C0BA1813C7AE1E0088D2E7 /* NSString+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Extensions.h"; sourceTree = "<group>"; };
 		67C0BA1913C7AE1E0088D2E7 /* NSString+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Extensions.m"; sourceTree = "<group>"; };
 		67C0CE441458A7A700CBCE24 /* mp4v2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = mp4v2.framework; path = Frameworks/SFBAudioEngine.framework/Versions/A/Frameworks/mp4v2.framework; sourceTree = "<group>"; };
@@ -611,6 +614,14 @@
 		67E2366E148B028200106779 /* Trash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Trash.png; path = Icons/Trash.png; sourceTree = "<group>"; };
 		67E38844147E541D00C094E5 /* PRTagger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRTagger.h; sourceTree = "<group>"; };
 		67E38845147E541D00C094E5 /* PRTagger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PRTagger.mm; sourceTree = "<group>"; };
+		67E5241E14B641660056C1E0 /* PRRuleCompound.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleCompound.h; sourceTree = "<group>"; };
+		67E5241F14B641660056C1E0 /* PRRuleCompound.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleCompound.m; sourceTree = "<group>"; };
+		67E5242A14B665460056C1E0 /* PRRuleStringIs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleStringIs.h; sourceTree = "<group>"; };
+		67E5242B14B665460056C1E0 /* PRRuleStringIs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleStringIs.m; sourceTree = "<group>"; };
+		67E5242D14B665D00056C1E0 /* PRRuleStringIsNot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleStringIsNot.h; sourceTree = "<group>"; };
+		67E5242E14B665D10056C1E0 /* PRRuleStringIsNot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleStringIsNot.m; sourceTree = "<group>"; };
+		67E63D1B14B6EE0F0029B3C4 /* PRRulePredicate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRulePredicate.h; sourceTree = "<group>"; };
+		67E63D1C14B6EE0F0029B3C4 /* PRRulePredicate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRulePredicate.m; sourceTree = "<group>"; };
 		67E7B4F114B444F60060D1FE /* iTunesImport.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = iTunesImport.png; path = Icons/iTunesImport.png; sourceTree = "<group>"; };
 		67E94733126C528E00CAE943 /* PRCenteredTextFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRCenteredTextFieldCell.h; sourceTree = "<group>"; };
 		67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRCenteredTextFieldCell.m; sourceTree = "<group>"; };
@@ -682,7 +693,6 @@
 				6727A95C13C6522400B264A9 /* Security.framework in Frameworks */,
 				67C0CE451458A7A700CBCE24 /* mp4v2.framework in Frameworks */,
 				67EA4157135958CE00F27195 /* taglib.framework in Frameworks */,
-				670EDD8D135FFBE300CAB2F1 /* Sparkle.framework in Frameworks */,
 				6727E46D1368F80200A21055 /* SFBAudioEngine.framework in Frameworks */,
 				6727E4701368F91D00A21055 /* ShortcutRecorder.framework in Frameworks */,
 				673E4AB2138550D200DD8260 /* Growl.framework in Frameworks */,
@@ -1438,6 +1448,14 @@
 				67DC99A51266F9E1000C3942 /* PRRuleViewController.m */,
 				6774045C12739455007EA4F5 /* PRRule.h */,
 				6774045D12739455007EA4F5 /* PRRule.m */,
+				67E5241E14B641660056C1E0 /* PRRuleCompound.h */,
+				67E5241F14B641660056C1E0 /* PRRuleCompound.m */,
+				67E63D1B14B6EE0F0029B3C4 /* PRRulePredicate.h */,
+				67E63D1C14B6EE0F0029B3C4 /* PRRulePredicate.m */,
+				67E5242A14B665460056C1E0 /* PRRuleStringIs.h */,
+				67E5242B14B665460056C1E0 /* PRRuleStringIs.m */,
+				67E5242D14B665D00056C1E0 /* PRRuleStringIsNot.h */,
+				67E5242E14B665D10056C1E0 /* PRRuleStringIsNot.m */,
 			);
 			name = "Smart Playlist Editor";
 			sourceTree = "<group>";
@@ -1485,6 +1503,7 @@
 		67C268841357FCB0008F55C0 /* Icons */ = {
 			isa = PBXGroup;
 			children = (
+				67C0481914B5703D00F8A9FF /* PRNothingPlaying.png */,
 				67E7B4F114B444F60060D1FE /* iTunesImport.png */,
 				67E2366E148B028200106779 /* Trash.png */,
 				67EA12F7145B346900309876 /* NowPlaying */,
@@ -1751,6 +1770,7 @@
 				675FE0101487138100E76BD0 /* List.png in Resources */,
 				67E2366F148B028200106779 /* Trash.png in Resources */,
 				67E7B4F214B444F60060D1FE /* iTunesImport.png in Resources */,
+				67C0481A14B5703D00F8A9FF /* PRNothingPlaying.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1899,6 +1919,10 @@
 				67D8CC0A14969BB700B977CF /* PRFirstResponderView.m in Sources */,
 				67F1491B149973B30028B7DD /* PRUpdate060Operation.m in Sources */,
 				673B011014B2C08F00407A36 /* PRSidebarImageView.m in Sources */,
+				67E5242014B641660056C1E0 /* PRRuleCompound.m in Sources */,
+				67E5242C14B665460056C1E0 /* PRRuleStringIs.m in Sources */,
+				67E5242F14B665D10056C1E0 /* PRRuleStringIsNot.m in Sources */,
+				67E63D1D14B6EE100029B3C4 /* PRRulePredicate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1928,7 +1952,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1958,6 +1982,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				PRODUCT_NAME = Enqueue;
+				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 				VALID_ARCHS = "i386 x86_64";
@@ -1968,7 +1993,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1997,6 +2022,7 @@
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				PRODUCT_NAME = Enqueue;
+				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
 			};
@@ -2006,6 +2032,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
@@ -2013,6 +2040,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = NO;
+				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
 			};
 			name = Debug;
@@ -2021,12 +2049,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = NO;
+				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
 			};
 			name = Release;
