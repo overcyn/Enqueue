@@ -1,18 +1,21 @@
 #import "PRRuleViewController.h"
 #import "PRLibrary.h"
 #import "PRRule.h"
-
+#import "PRRulePredicate.h"
+#import "PRCore.h"
+#import "PRSmartPlaylistEditorViewController.h"
 
 @implementation PRRuleViewController
 
-// initialization
+// ========================================
+// Initialization
+// ========================================
 
-- (id)initWithLib:(PRLibrary *)lib_
+- (id)initWithCore:(PRCore *)core editor:(PRSmartPlaylistEditorViewController *)editor
 {
-    self = [super init];
-	if (self) {
-		lib = lib_;
-	}
+    if (!(self = [super init])) {return nil;}
+    _core = core;
+    _editor = editor;
 	return self;
 }
 
@@ -20,161 +23,78 @@
 {
 	id result = [super copyWithZone:zone];
 	[NSBundle loadNibNamed:@"PRRuleView" owner:result];
-	[result setLib:lib];
+	[result setCore:_core editor:_editor];
 	return result;
 }
 
-// accessors
-
-- (void)setLib:(PRLibrary *)newLib
+- (void)setCore:(PRCore *)core editor:(PRSmartPlaylistEditorViewController *)editor
 {
-	lib = newLib;
+    _core = core;
+    _editor = editor;
 }
+
+- (void)awakeFromNib
+{
+    [_tableView setDataSource:self];
+    [_addButton setTarget:self];
+    [_addButton setAction:@selector(add)];
+}
+
+// ========================================
+// Update
+// ========================================
 
 - (void)setRepresentedObject:(id)representedObject
 {
-	if (representedObject == nil) {
-		return;
-	}
-	
-	if (representedObject == [NSNumber numberWithInt:0]) {
-		[addButton setTarget:self];
-		[addButton setAction:@selector(add)];
-		[popUpButton setHidden:TRUE];
-		[closeButton setHidden:TRUE];
-		[textField setHidden:TRUE];
-		[box setContentView:addView];
-		return;
-	}
-	
-	[box setContentView:listView];
-	[super setRepresentedObject:representedObject];
-	array = [[NSArray alloc] init];
-
-	// delete button
-	[closeButton setTarget:self];
-	[closeButton setAction:@selector(delete)];
-	
-	// tableview
-	[tableView setDataSource:self];
-	
-	// popup button menu
-	menu = [popUpButton menu];
-	
-	NSMenuItem *menuItem;
-	SEL menuAction = @selector(menuAction:);
-	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Artist" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRArtistFileAttribute];
-	[menu addItem:menuItem];
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Album" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRAlbumFileAttribute];
-	[menu addItem:menuItem];
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"BPM" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRBPMFileAttribute];
-	[menu addItem:menuItem];
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Year" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRYearFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Track Number" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRTrackNumberFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Track Count" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRTrackCountFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Composer" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRComposerFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Disc Number" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRDiscNumberFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Disc Count" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRDiscCountFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Album Artist" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRAlbumArtistFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Genre" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRGenreFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Date Added" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRDateAddedFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Last Played" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRLastPlayedFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Play Count" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRPlayCountFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Rating" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRRatingFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Size" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRSizeFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Kind" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRKindFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Time" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRTimeFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Bitrate" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRBitrateFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Channels" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRChannelsFileAttribute];
-	[menu addItem:menuItem];	
-	menuItem = [[[NSMenuItem alloc] initWithTitle:@"Sample Rate" action:menuAction keyEquivalent:@""] autorelease];
-	[menuItem setTag:PRSampleRateFileAttribute];
-	[menu addItem:menuItem];	
-	
-	for (NSMenuItem *i in [menu itemArray]) {
-		[i setTarget:self];
-	}
-	
-	[popUpButton selectItemWithTag:[[self representedObject] fileAttribute]];
-	[self update];
+    [super setRepresentedObject:representedObject];
+    [self update];
 }
-
-// Update
 
 - (void)update
 {
-//	[lib arrayOfUniqueValues:&array forAttribute:[[self representedObject] fileAttribute] _error:nil];
-	[tableView reloadData];
+    
 }
 
+// ========================================
 // Action
+// ========================================
 
-- (void)menuAction:(id)sender
+- (void)attributeMenuAction:(id)sender
 {
-	[[self representedObject] setFileAttribute:[sender tag]];
-	[(PRRule *) [self representedObject] setSelectedObjects:[[[NSMutableArray alloc] init] autorelease]];
-	[self update];
-	
+    PRFileAttribute attribute;
+    int predicate;
+    PRRule *rule = [PRRulePredicate ruleWithAttribute:attribute predicate:predicate];
+    [_editor replaceRule:[self representedObject] withRule:rule];
 }
 
-- (void)delete
+- (void)predicateMenuAction:(id)sender
 {
-//	NSDictionary *userInfo;
-//	
-//	userInfo = [NSDictionary dictionaryWithObject:[self representedObject] forKey:@"rule"];
+    PRFileAttribute attribute;
+    int predicate;
+	PRRule *rule = [PRRulePredicate ruleWithAttribute:attribute predicate:predicate];
+    [_editor replaceRule:[self representedObject] withRule:rule];
 }
 
 - (void)add
 {
+    
 }
 
-// NSTableView Data Source
+- (void)deleteRow:(int)row
+{
+    
+}
+
+// ========================================
+// TableView Data Source
+// ========================================
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
-	return [array count];
+	return 0;
 }
 
-- (id)            tableView:(NSTableView *)tableView 
-  objectValueForTableColumn:(NSTableColumn *)tableColumn 
-			            row:(NSInteger)rowIndex
+- (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)rowIndex
 {
 	if ([[tableColumn identifier] isEqualToString:@"value"]) {
 		return [array objectAtIndex:rowIndex];
@@ -182,14 +102,9 @@
 		BOOL checkBoxState = [[[self representedObject] selectedObjects] containsObject:[array objectAtIndex:rowIndex]];
 		return [NSNumber numberWithBool:checkBoxState];
 	}
-
-	
 }
 
-- (void)tableView:(NSTableView *)tableView 
-   setObjectValue:(id)object_
-   forTableColumn:(NSTableColumn *)tableColumn 
-			  row:(NSInteger)rowIndex
+- (void)tableView:(NSTableView *)tableView setObjectValue:(id)object_ forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)rowIndex
 {
 	id object;
 	NSMutableArray *selectedObjects;

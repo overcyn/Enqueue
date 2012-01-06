@@ -22,19 +22,20 @@
 // ========================================
 // Initialization
 
-- (id)initWithCore:(PRCore *)core;
+- (id)initWithCore:(PRCore *)core playlist:(PRPlaylist)playlist;
 
 // ========================================
 // Update
 
 - (void)updateContent;
 
-@property (readwrite) PRPlaylist playlist;
-
 // ========================================
 // Action
 
 - (void)beginSheet;
 - (void)endSheet;
+
+- (void)replaceRule:(PRRule *)oldRule withRule:(PRRule *)newRule;
+- (void)deleteRule:(PRRule *)rule;
 
 @end

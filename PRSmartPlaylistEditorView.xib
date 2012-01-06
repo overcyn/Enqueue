@@ -536,7 +536,7 @@
 						<object class="NSButton" id="589435380">
 							<reference key="NSNextResponder" ref="578587389"/>
 							<int key="NSvFlags">265</int>
-							<string key="NSFrame">{{670, 446}, {96, 32}}</string>
+							<string key="NSFrame">{{641, 446}, {126, 32}}</string>
 							<reference key="NSSuperview" ref="578587389"/>
 							<reference key="NSNextKeyView" ref="117523306"/>
 							<string key="NSReuseIdentifierKey">_NS:161</string>
@@ -544,7 +544,7 @@
 							<object class="NSButtonCell" key="NSCell" id="896847338">
 								<int key="NSCellFlags">67239424</int>
 								<int key="NSCellFlags2">134217728</int>
-								<string key="NSContents">Add</string>
+								<string key="NSContents">Add Rule</string>
 								<reference key="NSSupport" ref="89534411"/>
 								<string key="NSCellIdentifier">_NS:161</string>
 								<reference key="NSControlView" ref="589435380"/>

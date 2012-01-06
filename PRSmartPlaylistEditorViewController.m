@@ -7,6 +7,7 @@
 #import "PRDb.h"
 #import "PRCore.h"
 #import "PRMainWindowController.h"
+#import "PRRuleCompound.h"
 
 @implementation PRSmartPlaylistEditorViewController
 
@@ -14,13 +15,18 @@
 // Initialization
 // ========================================
 
-- (id)initWithCore:(PRCore *)core
+- (id)initWithCore:(PRCore *)core playlist:(PRPlaylist)playlist
 {
 	if (!(self = [super initWithWindowNibName:@"PRSmartPlaylistEditorView"])) {return nil;}
     _core = core;
-    _playlist = 0;
+    _playlist = playlist;
     _datasource = [[NSMutableArray alloc] init];
 	return self;
+}
+
+- (void)dealloc
+{
+    [_datasource release];
 }
 
 - (void)awakeFromNib
@@ -31,23 +37,15 @@
     [_cancelButton setTarget:self];
     [_cancelButton setAction:@selector(endSheet)];
     
-	[matchCheckBox setTarget:self];
-	[matchCheckBox setAction:@selector(toggle)];
-//	[matchCheckBox bind:@"value" 
-//			   toObject:self 
-//			withKeyPath:@"currentRule.match" 
-//				options:nil];
-	
-	[limitCheckBox setTarget:self];
-	[limitCheckBox setAction:@selector(toggle)];
-//	[limitCheckBox bind:@"value" 
-//			   toObject:self 
-//			withKeyPath:@"currentRule.match" 
-//				options:nil];
+//	[matchCheckBox setTarget:self];
+//	[matchCheckBox setAction:@selector(toggle)];
+//	
+//	[limitCheckBox setTarget:self];
+//	[limitCheckBox setAction:@selector(toggle)];
 	
     [collectionView setContent:_datasource];
 	[collectionView setMaxNumberOfRows:1];
-	[collectionView setItemPrototype:[[[PRRuleViewController alloc] initWithLib:[[_core db] library]] autorelease]];
+	[collectionView setItemPrototype:[[[PRRuleViewController alloc] init] autorelease]];
     [self updateContent];
 }
 
@@ -57,21 +55,10 @@
 
 - (void)updateContent
 {
-    NSArray *rules = [NSArray arrayWithObject:[NSNumber numberWithInt:0]];
-    [collectionView setContent:rules];
-}
-
-@dynamic playlist;
-
-- (PRPlaylist)playlist
-{
-    return _playlist;
-}
-
-- (void)setPlaylist:(PRPlaylist)playlist
-{
-    _playlist = playlist;
-    [self updateContent];
+    NSData *data = [[[_core db] playlists] valueForPlaylist:_playlist attribute:PRRulesPlaylistAttribute];
+    NSDictionary *dictionary = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    PRRuleCompound *rule = [dictionary objectForKey:@"compound"];
+    [collectionView setContent:[rule subRules]];
 }
 
 // ========================================
@@ -91,6 +78,16 @@
 {
     [[self window] orderOut:nil];
     [NSApp endSheet:[self window]];
+}
+
+- (void)replaceRule:(PRRule *)oldRule withRule:(PRRule *)newRule
+{
+    
+}
+
+- (void)deleteRule:(PRRule *)rule
+{
+    
 }
 
 @end

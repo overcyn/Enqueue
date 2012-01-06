@@ -1,39 +1,37 @@
 #import <Cocoa/Cocoa.h>
 #import "PRLibrary.h"
+#import "PRRule.h"
 
-
-@class PRLibrary;
+@class PRCore, PRSmartPlaylistEditorViewController;
 
 @interface PRRuleViewController : NSCollectionViewItem <NSTableViewDataSource>
 {
-	IBOutlet NSView *listView;
-	IBOutlet NSView *rangeView;
-	IBOutlet NSView *addView;
-	IBOutlet NSTableView *tableView;
-	IBOutlet NSBox *box;
-	IBOutlet NSPopUpButton *popUpButton;
-	IBOutlet NSButton *addButton;
-	IBOutlet NSButton *closeButton;
-	IBOutlet NSTextField *textField;
-	NSMenu *menu;
+    IBOutlet NSTableView *_tableView;
+    IBOutlet NSButton *_addButton;
+    IBOutlet NSPopUpButton *_attributeButton;
+    IBOutlet NSPopUpButton *_predicateButton;
 	
-	NSArray *array; // datasource
-	
-	PRLibrary *lib;
+	PRCore *_core;
+    PRSmartPlaylistEditorViewController *_editor;
 }
 
-// init
-- (id)initWithLib:(PRLibrary *)lib_;
+// ========================================
+// Initializaiton
 
-// accessors
-- (void)setLib:(PRLibrary *)newLib;
+- (id)initWithCore:(PRCore *)core editor:(PRSmartPlaylistEditorViewController *)editor;
+- (void)setCore:(PRCore *)core editor:(PRSmartPlaylistEditorViewController *)editor;
 
-// update
+// ========================================
+// Update
+
 - (void)update;
 
-// action
-- (void)menuAction:(id)sender;
-- (void)delete;
+// ========================================
+// Action
+
+- (void)attributeMenuAction:(id)sender;
+- (void)predicateMenuAction:(id)sender;
+- (void)deleteRow:(int)row;
 - (void)add;
 
 @end
