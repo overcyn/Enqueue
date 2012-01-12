@@ -111,6 +111,41 @@
     FSEventStreamStart(stream);
 }
 
+- (void)monitor2
+{
+    // stop old event monitor
+    if (stream) {
+        FSEventStreamStop(stream);
+        FSEventStreamInvalidate(stream);
+        FSEventStreamRelease(stream);
+        stream = nil;
+    }
+    
+    // get new paths
+    if ([[self monitoredFolders] count] == 0) {
+        return;
+    }
+    NSMutableArray *paths = [NSMutableArray array];
+    for (NSURL *i in [self monitoredFolders]) {
+        [paths addObject:[i path]];
+    }
+    // if no event id. add URLs and re-monitor
+    if ([[PRUserDefaults userDefaults] lastEventStreamEventId] == 0) {
+        [[PRUserDefaults userDefaults] setLastEventStreamEventId:FSEventsGetCurrentEventId()];
+    }
+    // create and schedule new monitor
+    FSEventStreamContext context;
+    context.info = self;
+    context.version = 0;
+    context.retain = NULL;
+    context.release = NULL;
+    context.copyDescription = NULL;
+    stream = FSEventStreamCreate(NULL, &eventCallback, &context, (CFArrayRef)paths, 
+                                 [[PRUserDefaults userDefaults] lastEventStreamEventId], 5.0, kFSEventStreamCreateFlagNone);
+    FSEventStreamScheduleWithRunLoop(stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+    FSEventStreamStart(stream);
+}
+
 - (void)rescan
 {
     PRRescanOperation *op = [PRRescanOperation operationWithURLs:[self monitoredFolders] core:core];
@@ -128,7 +163,7 @@ void eventCallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, si
     PRCore *core = [folderMonitor core];
     NSFileManager *fm = [[[NSFileManager alloc] init] autorelease];
     char **paths = eventPaths;
-    
+    NSLog(@"-");
     NSMutableArray *URLs = [NSMutableArray array];
     for (int i = 0; i < numEvents; i++) {
         NSURL *URL = [NSURL fileURLWithPath:[NSString stringWithCString:paths[i] encoding:NSUTF8StringEncoding]];
