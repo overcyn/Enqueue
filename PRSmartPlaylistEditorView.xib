@@ -479,63 +479,63 @@
 								<int key="NSPeriodicInterval">25</int>
 							</object>
 						</object>
-						<object class="NSScrollView" id="478777600">
+						<object class="NSScrollView" id="162344858">
 							<reference key="NSNextResponder" ref="578587389"/>
 							<int key="NSvFlags">268</int>
 							<object class="NSMutableArray" key="NSSubviews">
 								<bool key="EncodedWithXMLCoder">YES</bool>
-								<object class="NSClipView" id="976472940">
-									<reference key="NSNextResponder" ref="478777600"/>
+								<object class="NSClipView" id="835145299">
+									<reference key="NSNextResponder" ref="162344858"/>
 									<int key="NSvFlags">2304</int>
 									<object class="NSMutableArray" key="NSSubviews">
 										<bool key="EncodedWithXMLCoder">YES</bool>
-										<object class="NSView" id="217763844">
-											<reference key="NSNextResponder" ref="976472940"/>
+										<object class="NSView" id="402333662">
+											<reference key="NSNextResponder" ref="835145299"/>
 											<int key="NSvFlags">274</int>
 											<string key="NSFrameSize">{484, 240}</string>
-											<reference key="NSSuperview" ref="976472940"/>
+											<reference key="NSSuperview" ref="835145299"/>
 											<string key="NSReuseIdentifierKey">_NS:404</string>
 										</object>
 									</object>
 									<string key="NSFrame">{{1, 1}, {499, 255}}</string>
-									<reference key="NSSuperview" ref="478777600"/>
-									<reference key="NSNextKeyView" ref="217763844"/>
+									<reference key="NSSuperview" ref="162344858"/>
+									<reference key="NSNextKeyView" ref="402333662"/>
 									<string key="NSReuseIdentifierKey">_NS:402</string>
-									<reference key="NSDocView" ref="217763844"/>
+									<reference key="NSDocView" ref="402333662"/>
 									<reference key="NSBGColor" ref="845027312"/>
 									<int key="NScvFlags">2</int>
 								</object>
-								<object class="NSScroller" id="852928405">
-									<reference key="NSNextResponder" ref="478777600"/>
+								<object class="NSScroller" id="1064489898">
+									<reference key="NSNextResponder" ref="162344858"/>
 									<int key="NSvFlags">-2147483392</int>
 									<string key="NSFrame">{{486, 0}, {15, 242}}</string>
-									<reference key="NSSuperview" ref="478777600"/>
+									<reference key="NSSuperview" ref="162344858"/>
 									<string key="NSReuseIdentifierKey">_NS:408</string>
-									<reference key="NSTarget" ref="478777600"/>
+									<reference key="NSTarget" ref="162344858"/>
 									<string key="NSAction">_doScroller:</string>
 									<double key="NSCurValue">1</double>
 									<double key="NSPercent">0.96363627910614014</double>
 								</object>
-								<object class="NSScroller" id="930868955">
-									<reference key="NSNextResponder" ref="478777600"/>
+								<object class="NSScroller" id="325419440">
+									<reference key="NSNextResponder" ref="162344858"/>
 									<int key="NSvFlags">-2147483392</int>
 									<string key="NSFrame">{{0, 242}, {486, 15}}</string>
-									<reference key="NSSuperview" ref="478777600"/>
+									<reference key="NSSuperview" ref="162344858"/>
 									<string key="NSReuseIdentifierKey">_NS:412</string>
 									<int key="NSsFlags">1</int>
-									<reference key="NSTarget" ref="478777600"/>
+									<reference key="NSTarget" ref="162344858"/>
 									<string key="NSAction">_doScroller:</string>
 									<double key="NSPercent">0.50602412223815918</double>
 								</object>
 							</object>
 							<string key="NSFrame">{{36, 92}, {501, 257}}</string>
 							<reference key="NSSuperview" ref="578587389"/>
-							<reference key="NSNextKeyView" ref="976472940"/>
+							<reference key="NSNextKeyView" ref="835145299"/>
 							<string key="NSReuseIdentifierKey">_NS:400</string>
 							<int key="NSsFlags">133681</int>
-							<reference key="NSVScroller" ref="852928405"/>
-							<reference key="NSHScroller" ref="930868955"/>
-							<reference key="NSContentView" ref="976472940"/>
+							<reference key="NSVScroller" ref="1064489898"/>
+							<reference key="NSHScroller" ref="325419440"/>
+							<reference key="NSContentView" ref="835145299"/>
 						</object>
 					</object>
 					<string key="NSFrameSize">{570, 400}</string>
@@ -659,7 +659,7 @@
 							<reference ref="589435380"/>
 							<reference ref="858218818"/>
 							<reference ref="82401403"/>
-							<reference ref="478777600"/>
+							<reference ref="162344858"/>
 						</object>
 						<reference key="parent" ref="690964902"/>
 					</object>
@@ -903,29 +903,29 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">61</int>
-						<reference key="object" ref="478777600"/>
+						<reference key="object" ref="162344858"/>
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="217763844"/>
-							<reference ref="930868955"/>
-							<reference ref="852928405"/>
+							<reference ref="402333662"/>
+							<reference ref="325419440"/>
+							<reference ref="1064489898"/>
 						</object>
 						<reference key="parent" ref="578587389"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">62</int>
-						<reference key="object" ref="217763844"/>
-						<reference key="parent" ref="478777600"/>
+						<reference key="object" ref="402333662"/>
+						<reference key="parent" ref="162344858"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">63</int>
-						<reference key="object" ref="930868955"/>
-						<reference key="parent" ref="478777600"/>
+						<reference key="object" ref="325419440"/>
+						<reference key="parent" ref="162344858"/>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">64</int>
-						<reference key="object" ref="852928405"/>
-						<reference key="parent" ref="478777600"/>
+						<reference key="object" ref="1064489898"/>
+						<reference key="parent" ref="162344858"/>
 					</object>
 				</object>
 			</object>

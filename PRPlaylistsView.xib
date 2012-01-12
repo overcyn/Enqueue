@@ -57,13 +57,11 @@
 								<int key="NSvFlags">18</int>
 								<string key="NSFrameSize">{319, 332}</string>
 								<reference key="NSSuperview" ref="571405277"/>
-								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="258137209"/>
 							</object>
 						</object>
 						<string key="NSFrameSize">{319, 332}</string>
 						<reference key="NSSuperview" ref="961204144"/>
-						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="967541715"/>
 						<reference key="NSDocView" ref="967541715"/>
 						<object class="NSColor" key="NSBGColor">
@@ -77,7 +75,6 @@
 						<int key="NSvFlags">256</int>
 						<string key="NSFrame">{{319, 0}, {15, 332}}</string>
 						<reference key="NSSuperview" ref="961204144"/>
-						<reference key="NSWindow"/>
 						<reference key="NSTarget" ref="961204144"/>
 						<string key="NSAction">_doScroller:</string>
 						<double key="NSCurValue">1</double>
@@ -88,7 +85,6 @@
 						<int key="NSvFlags">-2147483392</int>
 						<string key="NSFrame">{{-100, -100}, {839, 15}}</string>
 						<reference key="NSSuperview" ref="961204144"/>
-						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="571405277"/>
 						<int key="NSsFlags">1</int>
 						<reference key="NSTarget" ref="961204144"/>
@@ -98,7 +94,6 @@
 				</object>
 				<string key="NSFrameSize">{334, 332}</string>
 				<reference key="NSSuperview"/>
-				<reference key="NSWindow"/>
 				<reference key="NSNextKeyView" ref="571405277"/>
 				<int key="NSsFlags">133136</int>
 				<reference key="NSVScroller" ref="194895930"/>
@@ -121,7 +116,6 @@
 								<int key="NSvFlags">-2147483379</int>
 								<string key="NSFrame">{{400, 375}, {154, 29}}</string>
 								<reference key="NSSuperview" ref="323308799"/>
-								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="141565610"/>
 								<string key="NSReuseIdentifierKey">_NS:2510</string>
 								<bool key="NSEnabled">YES</bool>
@@ -149,7 +143,6 @@
 								<int key="NSvFlags">269</int>
 								<string key="NSFrame">{{570, 377}, {60, 27}}</string>
 								<reference key="NSSuperview" ref="323308799"/>
-								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="246571468"/>
 								<string key="NSReuseIdentifierKey">_NS:2510</string>
 								<bool key="NSEnabled">YES</bool>
@@ -173,7 +166,6 @@
 								<int key="NSvFlags">266</int>
 								<string key="NSFrame">{{1, 360}, {648, 2}}</string>
 								<reference key="NSSuperview" ref="323308799"/>
-								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="542311260"/>
 								<string key="NSReuseIdentifierKey">_NS:1192</string>
 								<string key="NSClassName">PRGradientView</string>
@@ -193,7 +185,6 @@
 												<int key="NSvFlags">4352</int>
 												<string key="NSFrameSize">{648, 314}</string>
 												<reference key="NSSuperview" ref="691852804"/>
-												<reference key="NSWindow"/>
 												<reference key="NSNextKeyView" ref="943345424"/>
 												<bool key="NSEnabled">YES</bool>
 												<object class="_NSCornerView" key="NSCornerView">
@@ -292,7 +283,6 @@
 										</object>
 										<string key="NSFrameSize">{648, 314}</string>
 										<reference key="NSSuperview" ref="542311260"/>
-										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="981109872"/>
 										<reference key="NSDocView" ref="981109872"/>
 										<reference key="NSBGColor" ref="1064110088"/>
@@ -302,7 +292,6 @@
 										<int key="NSvFlags">-2147483392</int>
 										<string key="NSFrame">{{516, 0}, {15, 721}}</string>
 										<reference key="NSSuperview" ref="542311260"/>
-										<reference key="NSWindow"/>
 										<reference key="NSTarget" ref="542311260"/>
 										<string key="NSAction">_doScroller:</string>
 										<double key="NSPercent">0.9971910112359551</double>
@@ -312,7 +301,6 @@
 										<int key="NSvFlags">-2147483392</int>
 										<string key="NSFrame">{{-100, -100}, {530, 15}}</string>
 										<reference key="NSSuperview" ref="542311260"/>
-										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="691852804"/>
 										<int key="NSsFlags">1</int>
 										<reference key="NSTarget" ref="542311260"/>
@@ -322,7 +310,6 @@
 								</object>
 								<string key="NSFrame">{{1, 47}, {648, 314}}</string>
 								<reference key="NSSuperview" ref="323308799"/>
-								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="691852804"/>
 								<int key="NSsFlags">133648</int>
 								<reference key="NSVScroller" ref="930821360"/>
@@ -333,14 +320,12 @@
 						</object>
 						<string key="NSFrameSize">{650, 420}</string>
 						<reference key="NSSuperview" ref="1068362994"/>
-						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="272914018"/>
 						<string key="NSClassName">PRBackgroundView</string>
 					</object>
 				</object>
 				<string key="NSFrameSize">{650, 420}</string>
 				<reference key="NSSuperview"/>
-				<reference key="NSWindow"/>
 				<reference key="NSNextKeyView" ref="323308799"/>
 				<string key="NSClassName">NSView</string>
 			</object>
@@ -646,150 +631,7 @@
 			<nil key="sourceID"/>
 			<int key="maxID">215</int>
 		</object>
-		<object class="IBClassDescriber" key="IBDocument.Classes">
-			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
-				<bool key="EncodedWithXMLCoder">YES</bool>
-				<object class="IBPartialClassDescription">
-					<string key="className">PRBackgroundView</string>
-					<string key="superclassName">NSView</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/PRBackgroundView.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">PRGradientView</string>
-					<string key="superclassName">NSView</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/PRGradientView.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">PRNonScrollingScrollView</string>
-					<string key="superclassName">NSScrollView</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/PRNonScrollingScrollView.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">PRPlaylistsCell</string>
-					<string key="superclassName">NSTextFieldCell</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/PRPlaylistsCell.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">PRPlaylistsViewController</string>
-					<string key="superclassName">NSViewController</string>
-					<object class="NSMutableDictionary" key="outlets">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>background</string>
-							<string>divider</string>
-							<string>divider2</string>
-							<string>newPlaylistButton</string>
-							<string>newSmartPlaylistButton</string>
-							<string>tabButton0</string>
-							<string>tableView</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSView</string>
-							<string>PRGradientView</string>
-							<string>PRGradientView</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>PRRolloverTableView</string>
-						</object>
-					</object>
-					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>background</string>
-							<string>divider</string>
-							<string>divider2</string>
-							<string>newPlaylistButton</string>
-							<string>newSmartPlaylistButton</string>
-							<string>tabButton0</string>
-							<string>tableView</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<object class="IBToOneOutletInfo">
-								<string key="name">background</string>
-								<string key="candidateClassName">NSView</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">divider</string>
-								<string key="candidateClassName">PRGradientView</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">divider2</string>
-								<string key="candidateClassName">PRGradientView</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">newPlaylistButton</string>
-								<string key="candidateClassName">NSButton</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">newSmartPlaylistButton</string>
-								<string key="candidateClassName">NSButton</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">tabButton0</string>
-								<string key="candidateClassName">NSButton</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">tableView</string>
-								<string key="candidateClassName">PRRolloverTableView</string>
-							</object>
-						</object>
-					</object>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/PRPlaylistsViewController.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">PRRolloverTableView</string>
-					<string key="superclassName">PRTableView2</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/PRRolloverTableView.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">PRScrollView</string>
-					<string key="superclassName">NSScrollView</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/PRScrollView.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">PRTabButtonCell2</string>
-					<string key="superclassName">NSButtonCell</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/PRTabButtonCell2.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">PRTableView2</string>
-					<string key="superclassName">NSTableView</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">./Classes/PRTableView2.h</string>
-					</object>
-				</object>
-			</object>
-		</object>
+		<object class="IBClassDescriber" key="IBDocument.Classes"/>
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaFramework</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDevelopmentDependencies">
