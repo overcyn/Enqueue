@@ -46,7 +46,7 @@
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
     [shadow setShadowOffset:NSMakeSize(0.0, -1.5)];
     [shadow setShadowBlurRadius:4];
-    [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.7]];	
+    [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.9]];	
     [shadow set];
     [[NSColor whiteColor] set];
     [NSBezierPath fillRect:borderRect];
