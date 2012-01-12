@@ -13,6 +13,15 @@
 
 @synthesize showDots = _showDots;
 
+- (void)setObjectValue:(id<NSCopying>)obj
+{
+    if (!obj) {
+        [super setObjectValue:[NSNumber numberWithInt:0]];
+        return;
+    }
+    [super setObjectValue:obj];
+}
+
 - (void)drawSegment:(NSInteger)segment inFrame:(NSRect)frame withView:(NSView *)controlView
 {
     if ([self objectValue] == nil) {
