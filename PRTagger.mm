@@ -425,11 +425,13 @@ using namespace TagLib;
             if (![tag isKindOfClass:[NSData class]]) {
                 return;
             }
-            NSImage *img = [[[NSImage alloc] initWithData:tag] autorelease];
-            if (![img isValid]) {
-                return;
+            if ([tag length] != 0) {
+                NSImage *img = [[[NSImage alloc] initWithData:tag] autorelease];
+                if (![img isValid]) {
+                    return;
+                }
+                tag = [NSBitmapImageRep representationOfImageRepsInArray:[img representations] usingType:NSPNGFileType properties:nil];
             }
-            tag = [NSBitmapImageRep representationOfImageRepsInArray:[img representations] usingType:NSPNGFileType properties:nil];
         }
             break;
         case PRCompilationFileAttribute:
