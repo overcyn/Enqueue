@@ -72,6 +72,7 @@ typedef enum {
 + (NSDictionary *)columnForAttribute;
 + (NSString *)columnNameForFileAttribute:(PRFileAttribute)attribute;
 + (PRFileAttribute)fileAttributeForName:(NSString *)name;
++ (NSString *)nameForFileAttribute:(PRFileAttribute)attribute;
 
 // ========================================
 // Accessors

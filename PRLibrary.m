@@ -307,6 +307,43 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     return 0;
 }
 
++ (NSString *)nameForFileAttribute:(PRFileAttribute)attribute
+{
+    NSDictionary *dict = [[NSDictionary dictionaryWithObjectsAndKeys:
+                           @"Path",				  [NSNumber numberWithInt:PRPathFileAttribute],
+                           @"Title",			  [NSNumber numberWithInt:PRTitleFileAttribute],
+                           @"Artist",			  [NSNumber numberWithInt:PRArtistFileAttribute],
+                           @"Album",			  [NSNumber numberWithInt:PRAlbumFileAttribute],
+                           @"BPM",				  [NSNumber numberWithInt:PRBPMFileAttribute],
+                           @"Year",				  [NSNumber numberWithInt:PRYearFileAttribute],
+                           @"Track Number",		  [NSNumber numberWithInt:PRTrackNumberFileAttribute],
+                           @"Track Count",		  [NSNumber numberWithInt:PRTrackCountFileAttribute],
+                           @"Composer",			  [NSNumber numberWithInt:PRComposerFileAttribute],
+                           @"Disc Number",		  [NSNumber numberWithInt:PRDiscNumberFileAttribute],
+                           @"Disc Count",		  [NSNumber numberWithInt:PRDiscCountFileAttribute], 
+                           @"Comments",			  [NSNumber numberWithInt:PRCommentsFileAttribute],
+                           @"Album Artist",		  [NSNumber numberWithInt:PRAlbumArtistFileAttribute],
+                           @"Genre",			  [NSNumber numberWithInt:PRGenreFileAttribute],
+                           @"Date Added",		  [NSNumber numberWithInt:PRDateAddedFileAttribute],
+                           @"Last Played",		  [NSNumber numberWithInt:PRLastPlayedFileAttribute],
+                           @"Play Count",		  [NSNumber numberWithInt:PRPlayCountFileAttribute],
+                           @"Rating",			  [NSNumber numberWithInt:PRRatingFileAttribute],
+                           @"Size",				  [NSNumber numberWithInt:PRSizeFileAttribute],
+                           @"Kind",				  [NSNumber numberWithInt:PRKindFileAttribute],
+                           @"Time",				  [NSNumber numberWithInt:PRTimeFileAttribute],
+                           @"Bitrate",			  [NSNumber numberWithInt:PRBitrateFileAttribute],
+                           @"Channels",			  [NSNumber numberWithInt:PRChannelsFileAttribute],
+                           @"Sample Rate", 		  [NSNumber numberWithInt:PRSampleRateFileAttribute],
+                           @"Album Art",          [NSNumber numberWithInt:PRAlbumArtFileAttribute],
+                           @"Check Sum",          [NSNumber numberWithInt:PRCheckSumFileAttribute],
+                           @"Artist/Album Artist",[NSNumber numberWithInt:PRArtistAlbumArtistFileAttribute],
+                           @"Last Modified",      [NSNumber numberWithInt:PRLastModifiedFileAttribute],
+                           @"Compilation",        [NSNumber numberWithInt:PRCompilationFileAttribute],
+                           @"Lyrics",             [NSNumber numberWithInt:PRLyricsFileAttribute],
+                           nil] retain];
+    return [dict objectForKey:[NSNumber numberWithInt:attribute]];
+}
+
 // ========================================
 // Acccesors
 // ========================================
