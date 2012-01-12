@@ -2,15 +2,14 @@
 #import "PRLibrary.h"
 #import "PRRule.h"
 
-@class PRCore, PRSmartPlaylistEditorViewController;
+@class PRCore, PRSmartPlaylistEditorViewController, PRGradientView;
 
-@interface PRRuleViewController : NSCollectionViewItem <NSTableViewDataSource>
+@interface PRRuleViewController : NSCollectionViewItem
 {
-    IBOutlet NSTableView *_tableView;
-    IBOutlet NSButton *_addButton;
-    IBOutlet NSPopUpButton *_attributeButton;
-    IBOutlet NSPopUpButton *_predicateButton;
-	
+    IBOutlet NSScrollView *_scrollView;
+	IBOutlet NSView *_contentView;
+    
+    NSMutableArray *_predicateViews;
 	PRCore *_core;
     PRSmartPlaylistEditorViewController *_editor;
 }
@@ -29,9 +28,15 @@
 // ========================================
 // Action
 
-- (void)attributeMenuAction:(id)sender;
-- (void)predicateMenuAction:(id)sender;
+- (void)addValue:(id)value;
 - (void)deleteRow:(int)row;
-- (void)add;
+- (void)setValue:(id)value forRow:(int)row;
+- (id)valueForRow:(int)row;
+- (NSString *)predicate;
+- (void)setPredicate:(NSString *)predicate;
+- (PRFileAttribute)attribute;
+- (void)setAttribute:(PRFileAttribute)attribute;
+
+- (float)height;
 
 @end

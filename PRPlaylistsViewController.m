@@ -21,14 +21,13 @@
 
 - (id)initWithCore:(PRCore *)core
 {
-	if ((self = [super initWithNibName:@"PRPlaylistsView" bundle:nil])) {
-        _core = core;
-		win = [core win];
-        db = [core db];
-        smartPlaylistEditorViewController = [[PRSmartPlaylistEditorViewController alloc] initWithCore:_core];
-        stringFormatter = [[PRStringFormatter alloc] init];
-        [stringFormatter setMaxLength:80];
-	}
+	if (!(self = [super initWithNibName:@"PRPlaylistsView" bundle:nil])) {return nil;}
+    _core = core;
+    win = [core win];
+    db = [core db];
+    smartPlaylistEditorViewController = nil;
+    stringFormatter = [[PRStringFormatter alloc] init];
+    [stringFormatter setMaxLength:80];
 	return self;
 }
 
@@ -118,9 +117,32 @@
 
 - (void)newSmartPlaylist
 {
-//	PRPlaylist playlist = [[db playlists] addSmartPlaylist];
-//	[[NSNotificationCenter defaultCenter] postPlaylistsChanged];
-//    [self renamePlaylist:playlist];
+	NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+    [alert addButtonWithTitle:@"Save"];
+    [alert addButtonWithTitle:@"Cancel"];
+    [alert setMessageText:@"New Smart Playlist Title:"];
+    [alert setInformativeText:@""];
+    [alert setAccessoryView:[[[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 400, 0)] autorelease]];
+    [(NSTextField *)[alert accessoryView] setStringValue:@"Untitled Playlist"];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    [alert layout];
+    NSRect frame2 = [[alert accessoryView] frame];
+    frame2.size.height = 24;
+    [[alert accessoryView] setFrame:frame2];
+    NSRect frame = [[[alert accessoryView] superview] frame];
+    frame.size.height = 24;
+    [[[alert accessoryView] superview] setFrame:frame];
+    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(newSmartPlaylistHandler:code:context:) contextInfo:NULL];
+}
+
+- (void)newSmartPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context
+{
+    if (code != NSAlertFirstButtonReturn) {
+        return;
+    }
+    PRPlaylist playlist = [[db playlists] addSmartPlaylist];
+    [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forPlaylist:playlist attribute:PRTitlePlaylistAttribute];
+    [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
 }
 
 - (void)duplicatePlaylist:(PRPlaylist)playlist
@@ -198,6 +220,8 @@
 
 - (void)editPlaylist:(PRPlaylist)playlist
 {
+    [smartPlaylistEditorViewController release];
+    smartPlaylistEditorViewController = [[PRSmartPlaylistEditorViewController alloc] initWithCore:_core playlist:playlist];
     [smartPlaylistEditorViewController beginSheet];
 }
 

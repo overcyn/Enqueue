@@ -13,6 +13,15 @@
 		67026EA312697810002E929F /* PRPreferencesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67026EA212697810002E929F /* PRPreferencesViewController.m */; };
 		67026EA512697833002E929F /* PRPreferencesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 67026EA412697833002E929F /* PRPreferencesView.xib */; };
 		6702717E126AFC6F002E929F /* PRSizeFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6702717D126AFC6F002E929F /* PRSizeFormatter.m */; };
+		6702E38C14BBF0E800A1338F /* PRRuleNumberIs.m in Sources */ = {isa = PBXBuildFile; fileRef = 6702E38B14BBF0E800A1338F /* PRRuleNumberIs.m */; };
+		6702E38F14BBF0F200A1338F /* PRRuleNumberIsNot.m in Sources */ = {isa = PBXBuildFile; fileRef = 6702E38E14BBF0F200A1338F /* PRRuleNumberIsNot.m */; };
+		6702E39214BBF0FC00A1338F /* PRRuleNumberInRange.m in Sources */ = {isa = PBXBuildFile; fileRef = 6702E39114BBF0FC00A1338F /* PRRuleNumberInRange.m */; };
+		6702E39514BBF10900A1338F /* PRRuleDateIs.m in Sources */ = {isa = PBXBuildFile; fileRef = 6702E39414BBF10900A1338F /* PRRuleDateIs.m */; };
+		6702E39814BBF11400A1338F /* PRRuleDateIsNot.m in Sources */ = {isa = PBXBuildFile; fileRef = 6702E39714BBF11400A1338F /* PRRuleDateIsNot.m */; };
+		6702E39B14BBF11F00A1338F /* PRRuleDateInRange.m in Sources */ = {isa = PBXBuildFile; fileRef = 6702E39A14BBF11F00A1338F /* PRRuleDateInRange.m */; };
+		6702E39E14BBF12D00A1338F /* PRRuleBoolIs.m in Sources */ = {isa = PBXBuildFile; fileRef = 6702E39D14BBF12C00A1338F /* PRRuleBoolIs.m */; };
+		6702E3A114BBF18C00A1338F /* PRRuleDateWithin.m in Sources */ = {isa = PBXBuildFile; fileRef = 6702E3A014BBF18C00A1338F /* PRRuleDateWithin.m */; };
+		6702E3A414BBF19600A1338F /* PRRuleDateNotWithin.m in Sources */ = {isa = PBXBuildFile; fileRef = 6702E3A314BBF19500A1338F /* PRRuleDateNotWithin.m */; };
 		6706FCC612B9A08200C9B075 /* NSFileManager+DirectoryLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FCC512B9A08200C9B075 /* NSFileManager+DirectoryLocations.m */; };
 		6706FCF812B9C7BF00C9B075 /* PRUserDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FCF712B9C7BF00C9B075 /* PRUserDefaults.m */; };
 		6706FDF712BB897B00C9B075 /* PRAlbumArtController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FDF612BB897B00C9B075 /* PRAlbumArtController.m */; };
@@ -68,6 +77,7 @@
 		673E4AB2138550D200DD8260 /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 673E4AB1138550D200DD8260 /* Growl.framework */; };
 		673E4AB61385512500DD8260 /* PRGrowl.m in Sources */ = {isa = PBXBuildFile; fileRef = 673E4AB51385512500DD8260 /* PRGrowl.m */; };
 		673E4AB7138553FD00DD8260 /* Growl.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 673E4AB1138550D200DD8260 /* Growl.framework */; };
+		673E66D414B91D3D0003A882 /* PRFlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 673E66D314B91D3D0003A882 /* PRFlippedView.m */; };
 		6740584B135A4903000ED697 /* Exclamation Point.png in Resources */ = {isa = PBXBuildFile; fileRef = 6740584A135A4903000ED697 /* Exclamation Point.png */; };
 		6740584D135A4CA4000ED697 /* TexturedSliderSpeakerLoudInverted.png in Resources */ = {isa = PBXBuildFile; fileRef = 6740584C135A4CA3000ED697 /* TexturedSliderSpeakerLoudInverted.png */; };
 		674415C2135AA86800A5B269 /* PRMainMenuController.m in Sources */ = {isa = PBXBuildFile; fileRef = 674415C1135AA86800A5B269 /* PRMainMenuController.m */; };
@@ -159,7 +169,7 @@
 		6795F54A143B1D5600AC8C91 /* sqlite_str.m in Sources */ = {isa = PBXBuildFile; fileRef = 6795F549143B1D5500AC8C91 /* sqlite_str.m */; };
 		6796AF63128933D900FEDE14 /* PRSynchronizedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6796AF62128933D900FEDE14 /* PRSynchronizedScrollView.m */; };
 		6796AFAE1289A3F600FEDE14 /* PRAlbumListViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6796AFAD1289A3F600FEDE14 /* PRAlbumListViewCell.m */; };
-		6799923C1434DC65002AAC5D /* RuleView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6799923B1434DC65002AAC5D /* RuleView.xib */; };
+		6799923C1434DC65002AAC5D /* PRRuleView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6799923B1434DC65002AAC5D /* PRRuleView.xib */; };
 		679AE5B21301F4940022F5BF /* NSData+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 679AE5B11301F4940022F5BF /* NSData+Base64.m */; };
 		679CE89C14307CE20090D6D1 /* NSNotificationCenter+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 679CE89B14307CE20090D6D1 /* NSNotificationCenter+Extensions.m */; };
 		679E3A0F12D28984006190C7 /* PRMoviePlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 679E3A0E12D28984006190C7 /* PRMoviePlayer.mm */; };
@@ -222,6 +232,11 @@
 		67E5242C14B665460056C1E0 /* PRRuleStringIs.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E5242B14B665460056C1E0 /* PRRuleStringIs.m */; };
 		67E5242F14B665D10056C1E0 /* PRRuleStringIsNot.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E5242E14B665D10056C1E0 /* PRRuleStringIsNot.m */; };
 		67E63D1D14B6EE100029B3C4 /* PRRulePredicate.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E63D1C14B6EE0F0029B3C4 /* PRRulePredicate.m */; };
+		67E63D2014B791370029B3C4 /* PRRuleLimit.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E63D1F14B791360029B3C4 /* PRRuleLimit.m */; };
+		67E63D2414B814920029B3C4 /* PRCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E63D2314B814920029B3C4 /* PRCollectionView.m */; };
+		67E63D2614B81F7E0029B3C4 /* PRRulePredicateViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 67E63D2514B81F7C0029B3C4 /* PRRulePredicateViewController.xib */; };
+		67E63D2914B81FC90029B3C4 /* PRRulePredicateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E63D2814B81FC80029B3C4 /* PRRulePredicateViewController.m */; };
+		67E63D2C14B85B8D0029B3C4 /* PRCollectionScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E63D2B14B85B8C0029B3C4 /* PRCollectionScrollView.m */; };
 		67E7B4F214B444F60060D1FE /* iTunesImport.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E7B4F114B444F60060D1FE /* iTunesImport.png */; };
 		67E94735126C528E00CAE943 /* PRCenteredTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */; };
 		67E94DDA14551E8900B88EA4 /* Cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E94DD914551E8900B88EA4 /* Cancel.png */; };
@@ -296,6 +311,24 @@
 		67026EA412697833002E929F /* PRPreferencesView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PRPreferencesView.xib; sourceTree = "<group>"; };
 		6702717C126AFC6F002E929F /* PRSizeFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRSizeFormatter.h; sourceTree = "<group>"; };
 		6702717D126AFC6F002E929F /* PRSizeFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRSizeFormatter.m; sourceTree = "<group>"; };
+		6702E38A14BBF0E700A1338F /* PRRuleNumberIs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleNumberIs.h; sourceTree = "<group>"; };
+		6702E38B14BBF0E800A1338F /* PRRuleNumberIs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleNumberIs.m; sourceTree = "<group>"; };
+		6702E38D14BBF0F200A1338F /* PRRuleNumberIsNot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleNumberIsNot.h; sourceTree = "<group>"; };
+		6702E38E14BBF0F200A1338F /* PRRuleNumberIsNot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleNumberIsNot.m; sourceTree = "<group>"; };
+		6702E39014BBF0FC00A1338F /* PRRuleNumberInRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleNumberInRange.h; sourceTree = "<group>"; };
+		6702E39114BBF0FC00A1338F /* PRRuleNumberInRange.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleNumberInRange.m; sourceTree = "<group>"; };
+		6702E39314BBF10900A1338F /* PRRuleDateIs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleDateIs.h; sourceTree = "<group>"; };
+		6702E39414BBF10900A1338F /* PRRuleDateIs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleDateIs.m; sourceTree = "<group>"; };
+		6702E39614BBF11400A1338F /* PRRuleDateIsNot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleDateIsNot.h; sourceTree = "<group>"; };
+		6702E39714BBF11400A1338F /* PRRuleDateIsNot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleDateIsNot.m; sourceTree = "<group>"; };
+		6702E39914BBF11E00A1338F /* PRRuleDateInRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleDateInRange.h; sourceTree = "<group>"; };
+		6702E39A14BBF11F00A1338F /* PRRuleDateInRange.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleDateInRange.m; sourceTree = "<group>"; };
+		6702E39C14BBF12C00A1338F /* PRRuleBoolIs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleBoolIs.h; sourceTree = "<group>"; };
+		6702E39D14BBF12C00A1338F /* PRRuleBoolIs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleBoolIs.m; sourceTree = "<group>"; };
+		6702E39F14BBF18C00A1338F /* PRRuleDateWithin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleDateWithin.h; sourceTree = "<group>"; };
+		6702E3A014BBF18C00A1338F /* PRRuleDateWithin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleDateWithin.m; sourceTree = "<group>"; };
+		6702E3A214BBF19500A1338F /* PRRuleDateNotWithin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleDateNotWithin.h; sourceTree = "<group>"; };
+		6702E3A314BBF19500A1338F /* PRRuleDateNotWithin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleDateNotWithin.m; sourceTree = "<group>"; };
 		6706FCC412B9A08200C9B075 /* NSFileManager+DirectoryLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+DirectoryLocations.h"; sourceTree = "<group>"; };
 		6706FCC512B9A08200C9B075 /* NSFileManager+DirectoryLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+DirectoryLocations.m"; sourceTree = "<group>"; };
 		6706FCF612B9C7BF00C9B075 /* PRUserDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRUserDefaults.h; sourceTree = "<group>"; };
@@ -388,6 +421,8 @@
 		673E4AB1138550D200DD8260 /* Growl.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Growl.framework; path = Frameworks/Growl.framework; sourceTree = "<group>"; };
 		673E4AB41385512500DD8260 /* PRGrowl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRGrowl.h; sourceTree = "<group>"; };
 		673E4AB51385512500DD8260 /* PRGrowl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRGrowl.m; sourceTree = "<group>"; };
+		673E66D214B91D3D0003A882 /* PRFlippedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRFlippedView.h; sourceTree = "<group>"; };
+		673E66D314B91D3D0003A882 /* PRFlippedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRFlippedView.m; sourceTree = "<group>"; };
 		6740584A135A4903000ED697 /* Exclamation Point.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Exclamation Point.png"; path = "Icons/Exclamation Point.png"; sourceTree = "<group>"; };
 		6740584C135A4CA3000ED697 /* TexturedSliderSpeakerLoudInverted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = TexturedSliderSpeakerLoudInverted.png; path = Icons/TexturedSliderSpeakerLoudInverted.png; sourceTree = "<group>"; };
 		674415C0135AA86800A5B269 /* PRMainMenuController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRMainMenuController.h; sourceTree = "<group>"; };
@@ -518,7 +553,7 @@
 		6796AF62128933D900FEDE14 /* PRSynchronizedScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRSynchronizedScrollView.m; sourceTree = "<group>"; };
 		6796AFAC1289A3F600FEDE14 /* PRAlbumListViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRAlbumListViewCell.h; sourceTree = "<group>"; };
 		6796AFAD1289A3F600FEDE14 /* PRAlbumListViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRAlbumListViewCell.m; sourceTree = "<group>"; };
-		6799923B1434DC65002AAC5D /* RuleView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RuleView.xib; sourceTree = "<group>"; };
+		6799923B1434DC65002AAC5D /* PRRuleView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRRuleView.xib; sourceTree = "<group>"; };
 		679AE5B01301F4940022F5BF /* NSData+Base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Base64.h"; sourceTree = "<group>"; };
 		679AE5B11301F4940022F5BF /* NSData+Base64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Base64.m"; sourceTree = "<group>"; };
 		679CE89A14307CE20090D6D1 /* NSNotificationCenter+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+Extensions.h"; sourceTree = "<group>"; };
@@ -622,6 +657,15 @@
 		67E5242E14B665D10056C1E0 /* PRRuleStringIsNot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleStringIsNot.m; sourceTree = "<group>"; };
 		67E63D1B14B6EE0F0029B3C4 /* PRRulePredicate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRulePredicate.h; sourceTree = "<group>"; };
 		67E63D1C14B6EE0F0029B3C4 /* PRRulePredicate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRulePredicate.m; sourceTree = "<group>"; };
+		67E63D1E14B791360029B3C4 /* PRRuleLimit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRuleLimit.h; sourceTree = "<group>"; };
+		67E63D1F14B791360029B3C4 /* PRRuleLimit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRuleLimit.m; sourceTree = "<group>"; };
+		67E63D2214B814920029B3C4 /* PRCollectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRCollectionView.h; sourceTree = "<group>"; };
+		67E63D2314B814920029B3C4 /* PRCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRCollectionView.m; sourceTree = "<group>"; };
+		67E63D2514B81F7C0029B3C4 /* PRRulePredicateViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRRulePredicateViewController.xib; sourceTree = "<group>"; };
+		67E63D2714B81FC70029B3C4 /* PRRulePredicateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRulePredicateViewController.h; sourceTree = "<group>"; };
+		67E63D2814B81FC80029B3C4 /* PRRulePredicateViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRulePredicateViewController.m; sourceTree = "<group>"; };
+		67E63D2A14B85B8C0029B3C4 /* PRCollectionScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRCollectionScrollView.h; sourceTree = "<group>"; };
+		67E63D2B14B85B8C0029B3C4 /* PRCollectionScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRCollectionScrollView.m; sourceTree = "<group>"; };
 		67E7B4F114B444F60060D1FE /* iTunesImport.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = iTunesImport.png; path = Icons/iTunesImport.png; sourceTree = "<group>"; };
 		67E94733126C528E00CAE943 /* PRCenteredTextFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRCenteredTextFieldCell.h; sourceTree = "<group>"; };
 		67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRCenteredTextFieldCell.m; sourceTree = "<group>"; };
@@ -1108,6 +1152,8 @@
 				67D8CC0614969B3800B977CF /* PRFirstResponderGradientView.m */,
 				67D8CC0814969BB600B977CF /* PRFirstResponderView.h */,
 				67D8CC0914969BB700B977CF /* PRFirstResponderView.m */,
+				673E66D214B91D3D0003A882 /* PRFlippedView.h */,
+				673E66D314B91D3D0003A882 /* PRFlippedView.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -1140,9 +1186,10 @@
 				67691F711338B5A300D27C01 /* View */,
 				67691F751338B72800D27C01 /* Slider */,
 				67691F701338B57300D27C01 /* Scroll View */,
+				67691F6C1338B51C00D27C01 /* Table View */,
+				67E63D2114B8142D0029B3C4 /* Collection View */,
 				67691F6F1338B56A00D27C01 /* Image Cell */,
 				67691F6E1338B55100D27C01 /* Text Field Cell */,
-				67691F6C1338B51C00D27C01 /* Table View */,
 				67691F6B1338B4FF00D27C01 /* Split View */,
 				67691F721338B60E00D27C01 /* Button */,
 			);
@@ -1287,7 +1334,7 @@
 				676978B913FDB42D004E0A08 /* Vacuum */,
 				677CB95713BC749F0090B4D0 /* Itunes Import */,
 				6739CCB3125313C500AB54A1 /* Import/Rescan */,
-				67F149151499733E0028B7DD /* New Group */,
+				67F149151499733E0028B7DD /* Full Rescan */,
 				67902A6F142FD9BC00ACF55F /* PRDirectoryEnumerator.h */,
 				67902A70142FD9BC00ACF55F /* PRDirectoryEnumerator.m */,
 			);
@@ -1443,11 +1490,16 @@
 				67A533E813DE52A000973422 /* PRSmartPlaylistEditorView.xib */,
 				67D744B9125DB8DA00A5AF3B /* PRSmartPlaylistEditorViewController.h */,
 				67D744BA125DB8DA00A5AF3B /* PRSmartPlaylistEditorViewController.m */,
-				6799923B1434DC65002AAC5D /* RuleView.xib */,
+				6799923B1434DC65002AAC5D /* PRRuleView.xib */,
 				67DC99A41266F9E1000C3942 /* PRRuleViewController.h */,
 				67DC99A51266F9E1000C3942 /* PRRuleViewController.m */,
+				67E63D2514B81F7C0029B3C4 /* PRRulePredicateViewController.xib */,
+				67E63D2714B81FC70029B3C4 /* PRRulePredicateViewController.h */,
+				67E63D2814B81FC80029B3C4 /* PRRulePredicateViewController.m */,
 				6774045C12739455007EA4F5 /* PRRule.h */,
 				6774045D12739455007EA4F5 /* PRRule.m */,
+				67E63D1E14B791360029B3C4 /* PRRuleLimit.h */,
+				67E63D1F14B791360029B3C4 /* PRRuleLimit.m */,
 				67E5241E14B641660056C1E0 /* PRRuleCompound.h */,
 				67E5241F14B641660056C1E0 /* PRRuleCompound.m */,
 				67E63D1B14B6EE0F0029B3C4 /* PRRulePredicate.h */,
@@ -1456,6 +1508,24 @@
 				67E5242B14B665460056C1E0 /* PRRuleStringIs.m */,
 				67E5242D14B665D00056C1E0 /* PRRuleStringIsNot.h */,
 				67E5242E14B665D10056C1E0 /* PRRuleStringIsNot.m */,
+				6702E38A14BBF0E700A1338F /* PRRuleNumberIs.h */,
+				6702E38B14BBF0E800A1338F /* PRRuleNumberIs.m */,
+				6702E38D14BBF0F200A1338F /* PRRuleNumberIsNot.h */,
+				6702E38E14BBF0F200A1338F /* PRRuleNumberIsNot.m */,
+				6702E39014BBF0FC00A1338F /* PRRuleNumberInRange.h */,
+				6702E39114BBF0FC00A1338F /* PRRuleNumberInRange.m */,
+				6702E39314BBF10900A1338F /* PRRuleDateIs.h */,
+				6702E39414BBF10900A1338F /* PRRuleDateIs.m */,
+				6702E39614BBF11400A1338F /* PRRuleDateIsNot.h */,
+				6702E39714BBF11400A1338F /* PRRuleDateIsNot.m */,
+				6702E39914BBF11E00A1338F /* PRRuleDateInRange.h */,
+				6702E39A14BBF11F00A1338F /* PRRuleDateInRange.m */,
+				6702E39F14BBF18C00A1338F /* PRRuleDateWithin.h */,
+				6702E3A014BBF18C00A1338F /* PRRuleDateWithin.m */,
+				6702E3A214BBF19500A1338F /* PRRuleDateNotWithin.h */,
+				6702E3A314BBF19500A1338F /* PRRuleDateNotWithin.m */,
+				6702E39C14BBF12C00A1338F /* PRRuleBoolIs.h */,
+				6702E39D14BBF12C00A1338F /* PRRuleBoolIs.m */,
 			);
 			name = "Smart Playlist Editor";
 			sourceTree = "<group>";
@@ -1581,6 +1651,17 @@
 			name = "Keyboard Shortcuts";
 			sourceTree = "<group>";
 		};
+		67E63D2114B8142D0029B3C4 /* Collection View */ = {
+			isa = PBXGroup;
+			children = (
+				67E63D2214B814920029B3C4 /* PRCollectionView.h */,
+				67E63D2314B814920029B3C4 /* PRCollectionView.m */,
+				67E63D2A14B85B8C0029B3C4 /* PRCollectionScrollView.h */,
+				67E63D2B14B85B8C0029B3C4 /* PRCollectionScrollView.m */,
+			);
+			name = "Collection View";
+			sourceTree = "<group>";
+		};
 		67EA12F7145B346900309876 /* NowPlaying */ = {
 			isa = PBXGroup;
 			children = (
@@ -1605,7 +1686,7 @@
 			name = "Welcome Sheet";
 			sourceTree = "<group>";
 		};
-		67F149151499733E0028B7DD /* New Group */ = {
+		67F149151499733E0028B7DD /* Full Rescan */ = {
 			isa = PBXGroup;
 			children = (
 				6765E43A148CDE5100B1ED91 /* PRFullRescanOperation.h */,
@@ -1613,7 +1694,7 @@
 				67F14919149973B30028B7DD /* PRUpdate060Operation.h */,
 				67F1491A149973B30028B7DD /* PRUpdate060Operation.m */,
 			);
-			name = "New Group";
+			name = "Full Rescan";
 			sourceTree = "<group>";
 		};
 		67FCEE0B133EA04800765EE1 /* Log */ = {
@@ -1754,7 +1835,7 @@
 				67669BCA13E57D590042A649 /* Disclosure.png in Resources */,
 				67669BCC13E580200042A649 /* DisclosureAlt.png in Resources */,
 				67D2F1A3141B76A700F7AB71 /* PRLightAlbumArt.png in Resources */,
-				6799923C1434DC65002AAC5D /* RuleView.xib in Resources */,
+				6799923C1434DC65002AAC5D /* PRRuleView.xib in Resources */,
 				67E94DDA14551E8900B88EA4 /* Cancel.png in Resources */,
 				67C0D1B31458DF7800CBCE24 /* Settings.png in Resources */,
 				67EA12F6145A9A9600309876 /* Add.png in Resources */,
@@ -1771,6 +1852,7 @@
 				67E2366F148B028200106779 /* Trash.png in Resources */,
 				67E7B4F214B444F60060D1FE /* iTunesImport.png in Resources */,
 				67C0481A14B5703D00F8A9FF /* PRNothingPlaying.png in Resources */,
+				67E63D2614B81F7E0029B3C4 /* PRRulePredicateViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1923,6 +2005,20 @@
 				67E5242C14B665460056C1E0 /* PRRuleStringIs.m in Sources */,
 				67E5242F14B665D10056C1E0 /* PRRuleStringIsNot.m in Sources */,
 				67E63D1D14B6EE100029B3C4 /* PRRulePredicate.m in Sources */,
+				67E63D2014B791370029B3C4 /* PRRuleLimit.m in Sources */,
+				67E63D2414B814920029B3C4 /* PRCollectionView.m in Sources */,
+				67E63D2914B81FC90029B3C4 /* PRRulePredicateViewController.m in Sources */,
+				67E63D2C14B85B8D0029B3C4 /* PRCollectionScrollView.m in Sources */,
+				673E66D414B91D3D0003A882 /* PRFlippedView.m in Sources */,
+				6702E38C14BBF0E800A1338F /* PRRuleNumberIs.m in Sources */,
+				6702E38F14BBF0F200A1338F /* PRRuleNumberIsNot.m in Sources */,
+				6702E39214BBF0FC00A1338F /* PRRuleNumberInRange.m in Sources */,
+				6702E39514BBF10900A1338F /* PRRuleDateIs.m in Sources */,
+				6702E39814BBF11400A1338F /* PRRuleDateIsNot.m in Sources */,
+				6702E39B14BBF11F00A1338F /* PRRuleDateInRange.m in Sources */,
+				6702E39E14BBF12D00A1338F /* PRRuleBoolIs.m in Sources */,
+				6702E3A114BBF18C00A1338F /* PRRuleDateWithin.m in Sources */,
+				6702E3A414BBF19600A1338F /* PRRuleDateNotWithin.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

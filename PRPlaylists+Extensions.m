@@ -1,4 +1,6 @@
 #import "PRPlaylists+Extensions.h"
+#import "PRRuleLimit.h"
+#import "PRRuleCompound.h"
 
 
 @implementation PRPlaylists (PRPlaylists_Extensions)
@@ -379,9 +381,25 @@
     [self setValue:[NSNumber numberWithInt:libraryViewMode] forPlaylist:playlist attribute:PRLibraryViewModePlaylistAttribute];
 }
 
-- (NSData *)ruleForPlaylist:(PRPlaylist)playlist
+- (NSDictionary *)ruleForPlaylist:(PRPlaylist)playlist
 {
-    return [self valueForPlaylist:playlist attribute:PRRulesPlaylistAttribute];
+    NSData *data = [self valueForPlaylist:playlist attribute:PRRulesPlaylistAttribute];
+    NSDictionary *dictionary;
+    @try {
+        dictionary = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    } @catch (NSException *exception) {
+        goto reset;
+    }
+    if (![dictionary isKindOfClass:[NSDictionary class]] || 
+        ![dictionary objectForKey:@"limit"] || ![[dictionary objectForKey:@"limit"] isKindOfClass:[PRRuleLimit class]] || 
+        ![dictionary objectForKey:@"compound"] || ![[dictionary objectForKey:@"compound"] isKindOfClass:[PRRuleCompound class]]) {
+        goto reset;
+    }
+    return dictionary;
+reset:;
+    return [NSDictionary dictionaryWithObjectsAndKeys:
+            [[[PRRuleLimit alloc] init] autorelease], @"limit", 
+            [[[PRRuleCompound alloc] init] autorelease], @"compound", nil];
 }
 
 - (void)setRule:(NSData *)rule forPlaylist:(PRPlaylist)playlist

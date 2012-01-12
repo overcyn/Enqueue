@@ -77,7 +77,7 @@
            didEndSelector:nil
               contextInfo:nil];
     }
-    [_opQueue addOperation:[[[PRVacuumOperation alloc] initWithCore:self] autorelease]];
+//    [_opQueue addOperation:[[[PRVacuumOperation alloc] initWithCore:self] autorelease]];
     [_opQueue setSuspended:FALSE];
 }
 

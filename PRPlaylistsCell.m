@@ -167,6 +167,12 @@
                                                 keyEquivalent:@""] autorelease];
     int playlist = [[[self objectValue] objectForKey:@"playlist"] intValue];
     [menu_ addItem:menuItem];
+    if ([[[self objectValue] objectForKey:@"type"] intValue] == PRSmartPlaylistType) {
+        menuItem = [[[NSMenuItem alloc] initWithTitle:@"Edit" 
+                                               action:@selector(editPlaylistMenuAction:) 
+                                        keyEquivalent:@""] autorelease];
+        [menu_ addItem:menuItem];
+    }
     if ([[[self objectValue] objectForKey:@"delete"] boolValue]) {
         menuItem = [[[NSMenuItem alloc] initWithTitle:@"Rename" 
                                                action:@selector(renamePlaylistMenuAction:) 
@@ -174,12 +180,6 @@
         [menu_ addItem:menuItem];
         menuItem = [[[NSMenuItem alloc] initWithTitle:@"Delete" 
                                                action:@selector(deletePlaylistMenuAction:) 
-                                        keyEquivalent:@""] autorelease];
-        [menu_ addItem:menuItem];
-    }
-    if ([[[self objectValue] objectForKey:@"type"] intValue] == PRSmartPlaylistType) {
-        menuItem = [[[NSMenuItem alloc] initWithTitle:@"Edit" 
-                                               action:@selector(editPlaylistMenuAction:) 
                                         keyEquivalent:@""] autorelease];
         [menu_ addItem:menuItem];
     }

@@ -13,6 +13,7 @@
 #import "PRNowPlayingController.h"
 #import "PRFileInfo.h"
 #import "PRTagger.h"
+#import "PRFolderMonitor.h"
 
 
 @implementation PRRescanOperation
@@ -102,7 +103,7 @@
     [[NSOperationQueue mainQueue] addBlockAndWait:^{
         [[PRUserDefaults userDefaults] setLastEventStreamEventId:_eventId];
         if (_monitor) {
-            [[_core folderMonitor] monitor];
+            [[_core folderMonitor] monitor2];
         }
     }];
 
