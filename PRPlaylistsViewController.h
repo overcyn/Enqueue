@@ -13,6 +13,7 @@ PRStringFormatter, PRSmartPlaylistEditorViewController;
 	IBOutlet NSButton *newPlaylistButton;
 	IBOutlet NSButton *newSmartPlaylistButton;
     IBOutlet NSButton *tabButton0;
+    IBOutlet NSImageView *_placeholder;
     
     PRStringFormatter *stringFormatter;
     NSArray *_datasource;

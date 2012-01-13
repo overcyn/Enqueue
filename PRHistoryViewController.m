@@ -182,6 +182,8 @@
         [divider2 setBotBorder:[NSColor clearColor]]; // no clue why you have to draw the top one but not the bottom.
     }
     [divider2 setNeedsDisplay:TRUE];
+    
+    [_placeholder setHidden:[dataSource count] != 0];
 }
 
 // ========================================

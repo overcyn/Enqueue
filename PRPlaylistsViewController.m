@@ -65,7 +65,7 @@
 	[newSmartPlaylistButton setAction:@selector(newSmartPlaylist)];
 	[newPlaylistButton setTarget:self];
 	[newPlaylistButton setAction:@selector(newStaticPlaylist)];
-    
+        
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(update)];
 	[[NSNotificationCenter defaultCenter] observePlaylistsChanged:self sel:@selector(update)];
     [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(update)];
@@ -262,6 +262,8 @@
     float height = 53 + 42 * rows + 50;
     [(PRScrollView *)[self view] setMinimumSize:NSMakeSize(650, height)];
     [tableView updateTrackingArea];
+    
+    [_placeholder setHidden:[_datasource count] != 0];
 }
 
 // ========================================

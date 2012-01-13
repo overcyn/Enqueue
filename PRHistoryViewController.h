@@ -24,6 +24,8 @@ typedef enum {
     IBOutlet NSButton *recentlyAddedButton;
     IBOutlet NSButton *recentlyPlayedButton;
     
+    IBOutlet NSImageView *_placeholder;
+    
     NSArray *dataSource;
     
     PRHistoryMode2 historyMode;

@@ -11,17 +11,19 @@
 			<string key="NS.object.0">1938</string>
 		</object>
 		<array key="IBDocument.IntegratedClassDependencies">
-			<string>NSView</string>
-			<string>NSCustomObject</string>
+			<string>NSScroller</string>
+			<string>NSButton</string>
 			<string>NSScrollView</string>
 			<string>NSTextFieldCell</string>
-			<string>NSTextField</string>
-			<string>NSCustomView</string>
 			<string>NSButtonCell</string>
-			<string>NSTableColumn</string>
-			<string>NSButton</string>
-			<string>NSScroller</string>
+			<string>NSImageView</string>
+			<string>NSImageCell</string>
 			<string>NSTableView</string>
+			<string>NSCustomObject</string>
+			<string>NSCustomView</string>
+			<string>NSView</string>
+			<string>NSTableColumn</string>
+			<string>NSTextField</string>
 		</array>
 		<array key="IBDocument.PluginDependencies">
 			<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -187,7 +189,7 @@
 												<string key="NSFrameSize">{648, 285}</string>
 												<reference key="NSSuperview" ref="527735596"/>
 												<reference key="NSWindow"/>
-												<reference key="NSNextKeyView"/>
+												<reference key="NSNextKeyView" ref="623306025"/>
 												<bool key="NSEnabled">YES</bool>
 												<object class="_NSCornerView" key="NSCornerView">
 													<nil key="NSNextResponder"/>
@@ -368,6 +370,38 @@
 									<int key="NSPeriodicInterval">75</int>
 								</object>
 							</object>
+							<object class="NSImageView" id="623306025">
+								<reference key="NSNextResponder" ref="757373700"/>
+								<int key="NSvFlags">269</int>
+								<set class="NSMutableSet" key="NSDragTypes">
+									<string>Apple PDF pasteboard type</string>
+									<string>Apple PICT pasteboard type</string>
+									<string>Apple PNG pasteboard type</string>
+									<string>NSFilenamesPboardType</string>
+									<string>NeXT Encapsulated PostScript v1.2 pasteboard type</string>
+									<string>NeXT TIFF v4.0 pasteboard type</string>
+								</set>
+								<string key="NSFrame">{{244, 253}, {162, 48}}</string>
+								<reference key="NSSuperview" ref="757373700"/>
+								<reference key="NSWindow"/>
+								<reference key="NSNextKeyView"/>
+								<string key="NSReuseIdentifierKey">_NS:2141</string>
+								<bool key="NSEnabled">YES</bool>
+								<object class="NSImageCell" key="NSCell" id="244110155">
+									<int key="NSCellFlags">130560</int>
+									<int key="NSCellFlags2">33554432</int>
+									<object class="NSCustomResource" key="NSContents">
+										<string key="NSClassName">NSImage</string>
+										<string key="NSResourceName">HistoryPlaceholder</string>
+									</object>
+									<string key="NSCellIdentifier">_NS:2141</string>
+									<int key="NSAlign">0</int>
+									<int key="NSScale">2</int>
+									<int key="NSStyle">0</int>
+									<bool key="NSAnimates">NO</bool>
+								</object>
+								<bool key="NSEditable">YES</bool>
+							</object>
 						</array>
 						<string key="NSFrameSize">{650, 369}</string>
 						<reference key="NSSuperview" ref="645776018"/>
@@ -476,6 +510,14 @@
 					</object>
 					<int key="connectionID">383</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">_placeholder</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="623306025"/>
+					</object>
+					<int key="connectionID">389</int>
+				</object>
 			</array>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<array key="orderedObjects">
@@ -547,6 +589,7 @@
 							<reference ref="800273965"/>
 							<reference ref="782719880"/>
 							<reference ref="736912263"/>
+							<reference ref="623306025"/>
 						</array>
 						<reference key="parent" ref="645776018"/>
 					</object>
@@ -661,6 +704,19 @@
 						<reference key="object" ref="31357733"/>
 						<reference key="parent" ref="694249888"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">387</int>
+						<reference key="object" ref="623306025"/>
+						<array class="NSMutableArray" key="children">
+							<reference ref="244110155"/>
+						</array>
+						<reference key="parent" ref="757373700"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">388</int>
+						<reference key="object" ref="244110155"/>
+						<reference key="parent" ref="623306025"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -676,7 +732,7 @@
 					</object>
 					<object class="IBUserGuide">
 						<reference key="view" ref="757373700"/>
-						<double key="location">333</double>
+						<double key="location">253</double>
 						<int key="affinity">1</int>
 					</object>
 				</array>
@@ -727,12 +783,14 @@
 				<string key="379.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="380.CustomClassName">PRTabButtonCell</string>
 				<string key="380.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="387.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="388.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">386</int>
+			<int key="maxID">389</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -764,6 +822,7 @@
 					<string key="className">PRHistoryViewController</string>
 					<string key="superclassName">NSViewController</string>
 					<dictionary class="NSMutableDictionary" key="outlets">
+						<string key="_placeholder">NSImageView</string>
 						<string key="background">NSView</string>
 						<string key="divider">PRGradientView</string>
 						<string key="divider2">PRGradientView</string>
@@ -774,6 +833,10 @@
 						<string key="topSongsButton">NSButton</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<object class="IBToOneOutletInfo" key="_placeholder">
+							<string key="name">_placeholder</string>
+							<string key="candidateClassName">NSImageView</string>
+						</object>
 						<object class="IBToOneOutletInfo" key="background">
 							<string key="name">background</string>
 							<string key="candidateClassName">NSView</string>
@@ -874,5 +937,9 @@
 		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaFramework</string>
 		<bool key="IBDocument.PluginDeclaredDependenciesTrackSystemTargetVersion">YES</bool>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
+		<object class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
+			<string key="NS.key.0">HistoryPlaceholder</string>
+			<string key="NS.object.0">{171, 38}</string>
+		</object>
 	</data>
 </archive>

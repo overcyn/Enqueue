@@ -12,16 +12,18 @@
 		</object>
 		<object class="NSArray" key="IBDocument.IntegratedClassDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<string>NSView</string>
-			<string>NSCustomObject</string>
+			<string>NSScroller</string>
+			<string>NSButton</string>
 			<string>NSScrollView</string>
 			<string>NSTextFieldCell</string>
-			<string>NSCustomView</string>
+			<string>NSImageView</string>
 			<string>NSButtonCell</string>
-			<string>NSTableColumn</string>
-			<string>NSButton</string>
-			<string>NSScroller</string>
+			<string>NSImageCell</string>
 			<string>NSTableView</string>
+			<string>NSCustomObject</string>
+			<string>NSCustomView</string>
+			<string>NSView</string>
+			<string>NSTableColumn</string>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -57,11 +59,13 @@
 								<int key="NSvFlags">18</int>
 								<string key="NSFrameSize">{319, 332}</string>
 								<reference key="NSSuperview" ref="571405277"/>
-								<reference key="NSNextKeyView" ref="258137209"/>
+								<reference key="NSWindow"/>
+								<reference key="NSNextKeyView" ref="194895930"/>
 							</object>
 						</object>
 						<string key="NSFrameSize">{319, 332}</string>
 						<reference key="NSSuperview" ref="961204144"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="967541715"/>
 						<reference key="NSDocView" ref="967541715"/>
 						<object class="NSColor" key="NSBGColor">
@@ -75,6 +79,8 @@
 						<int key="NSvFlags">256</int>
 						<string key="NSFrame">{{319, 0}, {15, 332}}</string>
 						<reference key="NSSuperview" ref="961204144"/>
+						<reference key="NSWindow"/>
+						<reference key="NSNextKeyView"/>
 						<reference key="NSTarget" ref="961204144"/>
 						<string key="NSAction">_doScroller:</string>
 						<double key="NSCurValue">1</double>
@@ -85,6 +91,7 @@
 						<int key="NSvFlags">-2147483392</int>
 						<string key="NSFrame">{{-100, -100}, {839, 15}}</string>
 						<reference key="NSSuperview" ref="961204144"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="571405277"/>
 						<int key="NSsFlags">1</int>
 						<reference key="NSTarget" ref="961204144"/>
@@ -94,7 +101,8 @@
 				</object>
 				<string key="NSFrameSize">{334, 332}</string>
 				<reference key="NSSuperview"/>
-				<reference key="NSNextKeyView" ref="571405277"/>
+				<reference key="NSWindow"/>
+				<reference key="NSNextKeyView" ref="258137209"/>
 				<int key="NSsFlags">133136</int>
 				<reference key="NSVScroller" ref="194895930"/>
 				<reference key="NSHScroller" ref="258137209"/>
@@ -111,11 +119,48 @@
 						<int key="NSvFlags">277</int>
 						<object class="NSMutableArray" key="NSSubviews">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="NSImageView" id="523589985">
+								<reference key="NSNextResponder" ref="323308799"/>
+								<int key="NSvFlags">269</int>
+								<object class="NSMutableSet" key="NSDragTypes">
+									<bool key="EncodedWithXMLCoder">YES</bool>
+									<object class="NSArray" key="set.sortedObjects">
+										<bool key="EncodedWithXMLCoder">YES</bool>
+										<string>Apple PDF pasteboard type</string>
+										<string>Apple PICT pasteboard type</string>
+										<string>Apple PNG pasteboard type</string>
+										<string>NSFilenamesPboardType</string>
+										<string>NeXT Encapsulated PostScript v1.2 pasteboard type</string>
+										<string>NeXT TIFF v4.0 pasteboard type</string>
+									</object>
+								</object>
+								<string key="NSFrame">{{244, 304}, {162, 48}}</string>
+								<reference key="NSSuperview" ref="323308799"/>
+								<reference key="NSWindow"/>
+								<reference key="NSNextKeyView"/>
+								<string key="NSReuseIdentifierKey">_NS:2141</string>
+								<bool key="NSEnabled">YES</bool>
+								<object class="NSImageCell" key="NSCell" id="915682399">
+									<int key="NSCellFlags">130560</int>
+									<int key="NSCellFlags2">33554432</int>
+									<object class="NSCustomResource" key="NSContents">
+										<string key="NSClassName">NSImage</string>
+										<string key="NSResourceName">PlaylistsPlaceholder</string>
+									</object>
+									<string key="NSCellIdentifier">_NS:2141</string>
+									<int key="NSAlign">0</int>
+									<int key="NSScale">2</int>
+									<int key="NSStyle">0</int>
+									<bool key="NSAnimates">NO</bool>
+								</object>
+								<bool key="NSEditable">YES</bool>
+							</object>
 							<object class="NSButton" id="272914018">
 								<reference key="NSNextResponder" ref="323308799"/>
 								<int key="NSvFlags">-2147483379</int>
 								<string key="NSFrame">{{400, 375}, {154, 29}}</string>
 								<reference key="NSSuperview" ref="323308799"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="141565610"/>
 								<string key="NSReuseIdentifierKey">_NS:2510</string>
 								<bool key="NSEnabled">YES</bool>
@@ -143,6 +188,7 @@
 								<int key="NSvFlags">269</int>
 								<string key="NSFrame">{{570, 377}, {60, 27}}</string>
 								<reference key="NSSuperview" ref="323308799"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="246571468"/>
 								<string key="NSReuseIdentifierKey">_NS:2510</string>
 								<bool key="NSEnabled">YES</bool>
@@ -166,6 +212,7 @@
 								<int key="NSvFlags">266</int>
 								<string key="NSFrame">{{1, 360}, {648, 2}}</string>
 								<reference key="NSSuperview" ref="323308799"/>
+								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="542311260"/>
 								<string key="NSReuseIdentifierKey">_NS:1192</string>
 								<string key="NSClassName">PRGradientView</string>
@@ -185,7 +232,8 @@
 												<int key="NSvFlags">4352</int>
 												<string key="NSFrameSize">{648, 314}</string>
 												<reference key="NSSuperview" ref="691852804"/>
-												<reference key="NSNextKeyView" ref="943345424"/>
+												<reference key="NSWindow"/>
+												<reference key="NSNextKeyView" ref="930821360"/>
 												<bool key="NSEnabled">YES</bool>
 												<object class="_NSCornerView" key="NSCornerView">
 													<nil key="NSNextResponder"/>
@@ -283,6 +331,7 @@
 										</object>
 										<string key="NSFrameSize">{648, 314}</string>
 										<reference key="NSSuperview" ref="542311260"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="981109872"/>
 										<reference key="NSDocView" ref="981109872"/>
 										<reference key="NSBGColor" ref="1064110088"/>
@@ -292,6 +341,8 @@
 										<int key="NSvFlags">-2147483392</int>
 										<string key="NSFrame">{{516, 0}, {15, 721}}</string>
 										<reference key="NSSuperview" ref="542311260"/>
+										<reference key="NSWindow"/>
+										<reference key="NSNextKeyView" ref="523589985"/>
 										<reference key="NSTarget" ref="542311260"/>
 										<string key="NSAction">_doScroller:</string>
 										<double key="NSPercent">0.9971910112359551</double>
@@ -301,6 +352,7 @@
 										<int key="NSvFlags">-2147483392</int>
 										<string key="NSFrame">{{-100, -100}, {530, 15}}</string>
 										<reference key="NSSuperview" ref="542311260"/>
+										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="691852804"/>
 										<int key="NSsFlags">1</int>
 										<reference key="NSTarget" ref="542311260"/>
@@ -310,7 +362,8 @@
 								</object>
 								<string key="NSFrame">{{1, 47}, {648, 314}}</string>
 								<reference key="NSSuperview" ref="323308799"/>
-								<reference key="NSNextKeyView" ref="691852804"/>
+								<reference key="NSWindow"/>
+								<reference key="NSNextKeyView" ref="943345424"/>
 								<int key="NSsFlags">133648</int>
 								<reference key="NSVScroller" ref="930821360"/>
 								<reference key="NSHScroller" ref="943345424"/>
@@ -320,12 +373,14 @@
 						</object>
 						<string key="NSFrameSize">{650, 420}</string>
 						<reference key="NSSuperview" ref="1068362994"/>
+						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="272914018"/>
 						<string key="NSClassName">PRBackgroundView</string>
 					</object>
 				</object>
 				<string key="NSFrameSize">{650, 420}</string>
 				<reference key="NSSuperview"/>
+				<reference key="NSWindow"/>
 				<reference key="NSNextKeyView" ref="323308799"/>
 				<string key="NSClassName">NSView</string>
 			</object>
@@ -380,6 +435,14 @@
 						<reference key="destination" ref="272914018"/>
 					</object>
 					<int key="connectionID">215</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">_placeholder</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="523589985"/>
+					</object>
+					<int key="connectionID">221</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -455,6 +518,7 @@
 							<reference ref="246571468"/>
 							<reference ref="141565610"/>
 							<reference ref="272914018"/>
+							<reference ref="523589985"/>
 						</object>
 						<reference key="parent" ref="1068362994"/>
 					</object>
@@ -535,6 +599,20 @@
 						<reference key="object" ref="1042485476"/>
 						<reference key="parent" ref="272914018"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">219</int>
+						<reference key="object" ref="523589985"/>
+						<object class="NSMutableArray" key="children">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<reference ref="915682399"/>
+						</object>
+						<reference key="parent" ref="323308799"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">220</int>
+						<reference key="object" ref="915682399"/>
+						<reference key="parent" ref="523589985"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -568,6 +646,8 @@
 					<string>213.IBPluginDependency</string>
 					<string>214.CustomClassName</string>
 					<string>214.IBPluginDependency</string>
+					<string>219.IBPluginDependency</string>
+					<string>220.IBPluginDependency</string>
 				</object>
 				<object class="NSMutableArray" key="dict.values">
 					<bool key="EncodedWithXMLCoder">YES</bool>
@@ -579,7 +659,7 @@
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="IBUserGuide">
 							<reference key="view" ref="323308799"/>
-							<double key="location">384</double>
+							<double key="location">304</double>
 							<int key="affinity">1</int>
 						</object>
 						<object class="IBUserGuide">
@@ -615,6 +695,8 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>PRTabButtonCell2</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="unlocalizedProperties">
@@ -629,9 +711,159 @@
 				<reference key="dict.values" ref="0"/>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">215</int>
+			<int key="maxID">221</int>
 		</object>
-		<object class="IBClassDescriber" key="IBDocument.Classes"/>
+		<object class="IBClassDescriber" key="IBDocument.Classes">
+			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
+				<bool key="EncodedWithXMLCoder">YES</bool>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRBackgroundView</string>
+					<string key="superclassName">NSView</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRBackgroundView.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRGradientView</string>
+					<string key="superclassName">NSView</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRGradientView.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRNonScrollingScrollView</string>
+					<string key="superclassName">NSScrollView</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRNonScrollingScrollView.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRPlaylistsCell</string>
+					<string key="superclassName">NSTextFieldCell</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRPlaylistsCell.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRPlaylistsViewController</string>
+					<string key="superclassName">NSViewController</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>_placeholder</string>
+							<string>background</string>
+							<string>divider</string>
+							<string>divider2</string>
+							<string>newPlaylistButton</string>
+							<string>newSmartPlaylistButton</string>
+							<string>tabButton0</string>
+							<string>tableView</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>NSImageView</string>
+							<string>NSView</string>
+							<string>PRGradientView</string>
+							<string>PRGradientView</string>
+							<string>NSButton</string>
+							<string>NSButton</string>
+							<string>NSButton</string>
+							<string>PRRolloverTableView</string>
+						</object>
+					</object>
+					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>_placeholder</string>
+							<string>background</string>
+							<string>divider</string>
+							<string>divider2</string>
+							<string>newPlaylistButton</string>
+							<string>newSmartPlaylistButton</string>
+							<string>tabButton0</string>
+							<string>tableView</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<object class="IBToOneOutletInfo">
+								<string key="name">_placeholder</string>
+								<string key="candidateClassName">NSImageView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">background</string>
+								<string key="candidateClassName">NSView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">divider</string>
+								<string key="candidateClassName">PRGradientView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">divider2</string>
+								<string key="candidateClassName">PRGradientView</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">newPlaylistButton</string>
+								<string key="candidateClassName">NSButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">newSmartPlaylistButton</string>
+								<string key="candidateClassName">NSButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">tabButton0</string>
+								<string key="candidateClassName">NSButton</string>
+							</object>
+							<object class="IBToOneOutletInfo">
+								<string key="name">tableView</string>
+								<string key="candidateClassName">PRRolloverTableView</string>
+							</object>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRPlaylistsViewController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRRolloverTableView</string>
+					<string key="superclassName">PRTableView2</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRRolloverTableView.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRScrollView</string>
+					<string key="superclassName">NSScrollView</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRScrollView.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRTabButtonCell2</string>
+					<string key="superclassName">NSButtonCell</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRTabButtonCell2.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PRTableView2</string>
+					<string key="superclassName">NSTableView</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">./Classes/PRTableView2.h</string>
+					</object>
+				</object>
+			</object>
+		</object>
 		<int key="IBDocument.localizationMode">0</int>
 		<string key="IBDocument.TargetRuntimeIdentifier">IBCocoaFramework</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginDeclaredDevelopmentDependencies">
@@ -640,5 +872,9 @@
 		</object>
 		<bool key="IBDocument.PluginDeclaredDependenciesTrackSystemTargetVersion">YES</bool>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
+		<object class="NSMutableDictionary" key="IBDocument.LastKnownImageSizes">
+			<string key="NS.key.0">PlaylistsPlaceholder</string>
+			<string key="NS.object.0">{171, 38}</string>
+		</object>
 	</data>
 </archive>
