@@ -11,6 +11,7 @@
 #import "PRFolderMonitor.h"
 #import "NSWindow+Extensions.h"
 #import "PRFullRescanOperation.h"
+#import "PRLibrary.h"
 
 @implementation PRMainMenuController
 
@@ -150,8 +151,28 @@
 {
     NSMenu *menu = [[[NSMenu alloc] initWithTitle:@"dockmenu"] autorelease];
     NSMenuItem *item;
-    
     NSString *title;
+    
+    if ([[core now] currentFile] != 0) {
+        title = [[[core db] library] valueForFile:[[core now] currentFile] attribute:PRTitleFileAttribute];
+        title = [NSString stringWithFormat:@"♫ %@",title];
+        item = [[[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""] autorelease];
+        [item setEnabled:FALSE];
+        [menu addItem:item];
+        
+        title = [[[core db] library] valueForFile:[[core now] currentFile] attribute:PRArtistFileAttribute];
+        item = [[[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""] autorelease];
+        [item setEnabled:FALSE];
+        [menu addItem:item];
+        
+        title = [[[core db] library] valueForFile:[[core now] currentFile] attribute:PRAlbumFileAttribute];
+        item = [[[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""] autorelease];
+        [item setEnabled:FALSE];
+        [menu addItem:item];
+        
+        [menu addItem:[NSMenuItem separatorItem]];
+    }
+    
     if ([[[core now] mov] isPlaying]) {
         title = @"Pause";
     } else {
@@ -216,7 +237,6 @@
     }
     [[viewMenu itemWithTag:7] setTitle:title];
 
-    
     NSMenu *browser = [[[[core win] libraryViewController] currentViewController] browserHeaderMenu];
     [browser setAutoenablesItems:FALSE];
     [[viewMenu itemWithTitle:@"Browser"] setSubmenu:browser];
