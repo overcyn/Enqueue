@@ -271,8 +271,6 @@
 		67F1AA4D12BDCCC8000A0D8F /* NSIndexSet+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F1AA4C12BDCCC8000A0D8F /* NSIndexSet+Extensions.m */; };
 		67F1BFCA127102460075C401 /* PRButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F1BFC9127102460075C401 /* PRButtonCell.m */; };
 		67F3895D134AF48A00E76D9E /* PRActionIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 67F3895C134AF48A00E76D9E /* PRActionIcon.png */; };
-		67FAE2B414BECAC600A0778B /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 670EDD8C135FFBE300CAB2F1 /* Sparkle.framework */; };
-		67FAE2B514BECACA00A0778B /* Sparkle.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 670EDD8C135FFBE300CAB2F1 /* Sparkle.framework */; };
 		67FAE2B714BEF65D00A0778B /* PlaylistsPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 67FAE2B614BEF65D00A0778B /* PlaylistsPlaceholder.png */; };
 		67FAE2B914BEF93E00A0778B /* HistoryPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 67FAE2B814BEF93E00A0778B /* HistoryPlaceholder.png */; };
 		67FCEE0E133EA07D00765EE1 /* PRLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 67FCEE0D133EA07D00765EE1 /* PRLog.m */; };
@@ -296,7 +294,6 @@
 				67EA4158135958D900F27195 /* taglib.framework in CopyFiles */,
 				67C0CE3E1458A67800CBCE24 /* SFBAudioEngine.framework in CopyFiles */,
 				67FF0774146AE90F009A5767 /* log4cxx.framework in CopyFiles */,
-				67FAE2B514BECACA00A0778B /* Sparkle.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -747,7 +744,6 @@
 				6727E46D1368F80200A21055 /* SFBAudioEngine.framework in Frameworks */,
 				6727E4701368F91D00A21055 /* ShortcutRecorder.framework in Frameworks */,
 				673E4AB2138550D200DD8260 /* Growl.framework in Frameworks */,
-				67FAE2B414BECAC600A0778B /* Sparkle.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
