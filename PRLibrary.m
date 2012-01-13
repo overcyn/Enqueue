@@ -309,7 +309,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
 + (NSString *)nameForFileAttribute:(PRFileAttribute)attribute
 {
-    NSDictionary *dict = [[NSDictionary dictionaryWithObjectsAndKeys:
+    NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:
                            @"Path",				  [NSNumber numberWithInt:PRPathFileAttribute],
                            @"Title",			  [NSNumber numberWithInt:PRTitleFileAttribute],
                            @"Artist",			  [NSNumber numberWithInt:PRArtistFileAttribute],
@@ -340,7 +340,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
                            @"Last Modified",      [NSNumber numberWithInt:PRLastModifiedFileAttribute],
                            @"Compilation",        [NSNumber numberWithInt:PRCompilationFileAttribute],
                            @"Lyrics",             [NSNumber numberWithInt:PRLyricsFileAttribute],
-                           nil] retain];
+                           nil];
     return [dict objectForKey:[NSNumber numberWithInt:attribute]];
 }
 
