@@ -3,8 +3,7 @@
 
 @implementation NSScrollView (Extensions)
 
-- (void)scrollToTop
-{
+- (void)scrollToTop {
     NSPoint newScrollOrigin;
     if ([[self documentView] isFlipped]) {
         newScrollOrigin = NSMakePoint(0.0, 0.0);
@@ -15,8 +14,7 @@
     
 }
 
-- (void)scrollToBottom
-{
+- (void)scrollToBottom {
     NSPoint newScrollOrigin;
     if ([[self documentView] isFlipped]) {
         newScrollOrigin = NSMakePoint(0.0, NSMaxY([[self documentView] frame]) - NSHeight([[self contentView] bounds]));

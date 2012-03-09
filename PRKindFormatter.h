@@ -1,8 +1,7 @@
 #import <Foundation/Foundation.h>
 
 
-@interface PRKindFormatter : NSNumberFormatter 
-{
+@interface PRKindFormatter : NSNumberFormatter {
     
 }
 

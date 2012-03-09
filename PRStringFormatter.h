@@ -1,8 +1,7 @@
 #import <Foundation/Foundation.h>
 
 
-@interface PRStringFormatter : NSFormatter 
-{
+@interface PRStringFormatter : NSFormatter {
     int _maxLength;
 }
 

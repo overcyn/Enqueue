@@ -2,8 +2,7 @@
 
 @implementation NSEnumerator (NSEnumerator_Extensions)
 
-- (NSArray *)nextXObjects:(int)x
-{
+- (NSArray *)nextXObjects:(int)x {
     id object;
     NSMutableArray *objects = [NSMutableArray array];
     while ((object = [self nextObject])) {

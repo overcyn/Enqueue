@@ -5,7 +5,6 @@
 #import "PRMoviePlayer.h"
 #import "PRRatingCell.h"
 #import "PRAlbumArtController.h"
-#import "NSImage+FlippedDrawing.h"
 #import "PRGradientView.h"
 #import "BWTexturedSlider.h"
 #import "PRSliderCell.h"

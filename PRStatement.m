@@ -11,7 +11,7 @@
 @implementation PRStatement
 
 // ========================================
-// - Initialization
+// Initialization
 
 - (id)initWithString:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns db:(PRDb *)db {
     if (!(self = [super init])) {return nil;}
@@ -62,7 +62,7 @@
 }
 
 // ========================================
-// - Accessors
+// Accessors
 
 @synthesize statement = _statement, bindings = _bindings, columns = _columns;
 
@@ -115,7 +115,7 @@
 }
 
 // ========================================
-// - Action
+// Action
 
 - (NSArray *)execute {
     return [self execute_:TRUE];
@@ -126,7 +126,7 @@
 }
 
 // ========================================
-// Action
+// action
 
 - (NSArray *)execute_:(BOOL)crash {
 //    if (![NSThread isMainThread]) {

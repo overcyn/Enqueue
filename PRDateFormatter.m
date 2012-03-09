@@ -3,27 +3,14 @@
 
 @implementation PRDateFormatter
 
-// ========================================
-// Initialization
-// ========================================
-
-- (id)init
-{
+- (id)init {
     if (!(self = [super init])) {return nil;}
-    _formatter = [[NSDateFormatter alloc] init];
-    [_formatter setDateStyle:NSDateFormatterShortStyle];
-    [_formatter setDateFormat:@"M/d/yyyy H:mm a"];
+    [self setDateStyle:NSDateFormatterShortStyle];
+    [self setDateFormat:@"M/d/yyyy H:mm a"];
     return self;
 }
 
-- (void)dealloc
-{
-    [_formatter release];
-    [super dealloc];
-}
-
-- (NSString *)stringForObjectValue:(id)object 
-{
+- (NSString *)stringForObjectValue:(id)object {
     if (![object isKindOfClass:[NSString class]]) {
         return @"Invalid Date";
     }
@@ -31,14 +18,11 @@
     if (!date) {
         return @"Invalid Date";
     }
-    return [_formatter stringForObjectValue:date];
+    return [self stringForObjectValue:date];
 }
 
-- (BOOL)getObjectValue:(id *)obj 
-			 forString:(NSString *)string
-	  errorDescription:(NSString **)error 
-{
-    return NO;
+- (BOOL)getObjectValue:(id *)obj forString:(NSString *)string errorDescription:(NSString **)error {
+    return FALSE;
 }
 
 @end

@@ -2,8 +2,7 @@
 
 @implementation NSWindow (Extensions)
 
-- (BOOL)isFullScreen
-{
+- (BOOL)isFullScreen {
     return (([self styleMask] & NSFullScreenWindowMask) == NSFullScreenWindowMask);
 }
 

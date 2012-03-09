@@ -4,8 +4,7 @@ static NSOperationQueue* cw_sharedOperationQueue = nil;
 
 @implementation NSOperationQueue (Extensions)
 
-+ (NSOperationQueue *)backgroundQueue
-{
++ (NSOperationQueue *)backgroundQueue {
     if (cw_sharedOperationQueue == nil) {
         cw_sharedOperationQueue = [[NSOperationQueue alloc] init];
         [cw_sharedOperationQueue setMaxConcurrentOperationCount:NSOperationQueueDefaultMaxConcurrentOperationCount];
@@ -13,13 +12,11 @@ static NSOperationQueue* cw_sharedOperationQueue = nil;
     return cw_sharedOperationQueue;
 }
 
-- (void)addBlock:(void (^)(void))block
-{
+- (void)addBlock:(void (^)(void))block {
     [self addOperationWithBlock:block];
 }
 
-- (void)addBlockAndWait:(void (^)(void))block
-{
+- (void)addBlockAndWait:(void (^)(void))block {
     NSArray *operations = [NSArray arrayWithObject:[NSBlockOperation blockOperationWithBlock:block]];
     [self addOperations:operations waitUntilFinished:TRUE];
 }

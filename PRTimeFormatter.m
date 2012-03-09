@@ -3,8 +3,7 @@
 
 @implementation PRTimeFormatter
 
-- (NSString *)stringForObjectValue:(id)object 
-{
+- (NSString *)stringForObjectValue:(id)object {
     if (![object isKindOfClass:[NSNumber class]]) {
         return @"0:00";
     }
@@ -19,11 +18,8 @@
 	}
 }
 
-- (BOOL)getObjectValue:(id *)obj 
-			 forString:(NSString *)string
-	  errorDescription:(NSString **)error 
-{
-    return NO;
+- (BOOL)getObjectValue:(id *)obj forString:(NSString *)string errorDescription:(NSString **)error {
+    return FALSE;
 }
 
 @end

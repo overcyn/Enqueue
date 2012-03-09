@@ -1,8 +1,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface PRTimeFormatter2 : NSFormatter 
-{
+@interface PRTimeFormatter2 : NSFormatter {
     
 }
 

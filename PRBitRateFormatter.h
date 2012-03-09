@@ -1,8 +1,7 @@
 #import <Foundation/Foundation.h>
 
 
-@interface PRBitRateFormatter : NSNumberFormatter 
-{
+@interface PRBitRateFormatter : NSNumberFormatter {
     
 }
 

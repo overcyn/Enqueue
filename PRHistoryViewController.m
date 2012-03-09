@@ -2,7 +2,6 @@
 #import "PRDb.h"
 #import "PRHistory.h"
 #import "PRLibrary.h"
-#import "NSButtonTextColor.h"
 #import "PRMainWindowController.h"
 #import "PRLibraryViewController.h"
 #import "PRAlbumArtController.h"

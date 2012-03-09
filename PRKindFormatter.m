@@ -4,12 +4,10 @@
 
 @implementation PRKindFormatter
 
-- (NSString *)stringForObjectValue:(id)object 
-{
+- (NSString *)stringForObjectValue:(id)object {
     if (![object isKindOfClass:[NSNumber class]]) {
         return @"Unknown File";
     }
-    
     switch ([object intValue]) {
         case PRFileTypeUnknown:
             return @"Unknown File";
@@ -59,11 +57,8 @@
     }
 }
 
-- (BOOL)getObjectValue:(id *)obj 
-			 forString:(NSString *)string
-	  errorDescription:(NSString **)error 
-{
-    return NO;
+- (BOOL)getObjectValue:(id *)obj forString:(NSString *)string errorDescription:(NSString **)error {
+    return FALSE;
 }
 
 @end

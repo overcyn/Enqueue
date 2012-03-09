@@ -59,7 +59,6 @@
 		672AE6B9127E5DC70034C641 /* PRHistory.m in Sources */ = {isa = PBXBuildFile; fileRef = 672AE6B8127E5DC70034C641 /* PRHistory.m */; };
 		672AE9B7127FD5E40034C641 /* PRHistoryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 672AE9B6127FD5E40034C641 /* PRHistoryCell.m */; };
 		672AEC0A1280BD1E0034C641 /* PRNonScrollingScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 672AEC091280BD1E0034C641 /* PRNonScrollingScrollView.m */; };
-		672AEC361280CB530034C641 /* NSButtonTextColor.m in Sources */ = {isa = PBXBuildFile; fileRef = 672AEC351280CB530034C641 /* NSButtonTextColor.m */; };
 		672AED8F128235260034C641 /* PRAlbumListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 672AED8E128235260034C641 /* PRAlbumListViewController.m */; };
 		672AED911282371E0034C641 /* PRAlbumListView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 672AED901282371E0034C641 /* PRAlbumListView.xib */; };
 		672AED99128239CD0034C641 /* PRTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 672AED98128239CD0034C641 /* PRTableViewController.m */; };
@@ -139,7 +138,6 @@
 		678252BC12926F8E00957CBC /* PRAlbumTableView2.m in Sources */ = {isa = PBXBuildFile; fileRef = 678252BB12926F8D00957CBC /* PRAlbumTableView2.m */; };
 		6782CF8112D5E1630003F1C9 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6782CF8012D5E1630003F1C9 /* CoreFoundation.framework */; };
 		6787C8E812F3059200D808AB /* PRTableHeaderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6787C8E712F3059200D808AB /* PRTableHeaderCell.m */; };
-		6787C9E712F31A8000D808AB /* NSImage+FlippedDrawing.m in Sources */ = {isa = PBXBuildFile; fileRef = 6787C9E612F31A8000D808AB /* NSImage+FlippedDrawing.m */; };
 		678BA9CA12F283600019E9D8 /* ScriptingBridge.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 678BA9C912F283600019E9D8 /* ScriptingBridge.framework */; };
 		678D5D7B138D519F00A55E5D /* YRKSpinningProgressIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 678D5D7A138D519F00A55E5D /* YRKSpinningProgressIndicator.m */; };
 		678E90BA1443F54A00B8B7C3 /* NSWindow+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 678E90B91443F54A00B8B7C3 /* NSWindow+Extensions.m */; };
@@ -400,8 +398,6 @@
 		672AE9B6127FD5E40034C641 /* PRHistoryCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRHistoryCell.m; sourceTree = "<group>"; };
 		672AEC081280BD1E0034C641 /* PRNonScrollingScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRNonScrollingScrollView.h; sourceTree = "<group>"; };
 		672AEC091280BD1E0034C641 /* PRNonScrollingScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRNonScrollingScrollView.m; sourceTree = "<group>"; };
-		672AEC341280CB530034C641 /* NSButtonTextColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSButtonTextColor.h; sourceTree = "<group>"; };
-		672AEC351280CB530034C641 /* NSButtonTextColor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSButtonTextColor.m; sourceTree = "<group>"; };
 		672AED8D128235260034C641 /* PRAlbumListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRAlbumListViewController.h; sourceTree = "<group>"; };
 		672AED8E128235260034C641 /* PRAlbumListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRAlbumListViewController.m; sourceTree = "<group>"; };
 		672AED901282371E0034C641 /* PRAlbumListView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PRAlbumListView.xib; sourceTree = "<group>"; };
@@ -517,8 +513,6 @@
 		6782CF8012D5E1630003F1C9 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		6787C8E612F3059200D808AB /* PRTableHeaderCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRTableHeaderCell.h; sourceTree = "<group>"; };
 		6787C8E712F3059200D808AB /* PRTableHeaderCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRTableHeaderCell.m; sourceTree = "<group>"; };
-		6787C9E612F31A8000D808AB /* NSImage+FlippedDrawing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSImage+FlippedDrawing.m"; sourceTree = "<group>"; };
-		6787C9E812F31A8700D808AB /* NSImage+FlippedDrawing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSImage+FlippedDrawing.h"; sourceTree = "<group>"; };
 		678BA9C912F283600019E9D8 /* ScriptingBridge.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ScriptingBridge.framework; path = System/Library/Frameworks/ScriptingBridge.framework; sourceTree = SDKROOT; };
 		678D5D79138D519F00A55E5D /* YRKSpinningProgressIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YRKSpinningProgressIndicator.h; sourceTree = "<group>"; };
 		678D5D7A138D519F00A55E5D /* YRKSpinningProgressIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = YRKSpinningProgressIndicator.m; sourceTree = "<group>"; };
@@ -973,24 +967,24 @@
 		6739CBD81252AD2B00AB54A1 /* Formatters */ = {
 			isa = PBXGroup;
 			children = (
-				6739CBDA1252AD4100AB54A1 /* PRTimeFormatter.h */,
-				6739CBDB1252AD4100AB54A1 /* PRTimeFormatter.m */,
-				6702717C126AFC6F002E929F /* PRSizeFormatter.h */,
-				6702717D126AFC6F002E929F /* PRSizeFormatter.m */,
-				67C58B541309F77B00E12F63 /* PRTimeFormatter2.h */,
-				67C58B551309F77B00E12F63 /* PRTimeFormatter2.m */,
-				67F0D5B712B1DAD6008E1458 /* PRNumberFormatter.h */,
-				67F0D5B812B1DAD6008E1458 /* PRNumberFormatter.m */,
 				670EDD79135FC9F200CAB2F1 /* PRBitRateFormatter.h */,
 				670EDD7A135FC9F200CAB2F1 /* PRBitRateFormatter.m */,
-				6714296B1366C7A5009A2DAB /* PRKindFormatter.h */,
-				6714296C1366C7A5009A2DAB /* PRKindFormatter.m */,
 				67AB53DE138BAA69000A329B /* PRDateFormatter.h */,
 				67AB53DF138BAA69000A329B /* PRDateFormatter.m */,
-				67723FDC1396BEB7006A6AAC /* PRStringFormatter.h */,
-				67723FDD1396BEB7006A6AAC /* PRStringFormatter.m */,
+				6714296B1366C7A5009A2DAB /* PRKindFormatter.h */,
+				6714296C1366C7A5009A2DAB /* PRKindFormatter.m */,
+				67F0D5B712B1DAD6008E1458 /* PRNumberFormatter.h */,
+				67F0D5B812B1DAD6008E1458 /* PRNumberFormatter.m */,
 				67DC10871489D12100A76236 /* PRPathFormatter.h */,
 				67DC10881489D12100A76236 /* PRPathFormatter.m */,
+				6702717C126AFC6F002E929F /* PRSizeFormatter.h */,
+				6702717D126AFC6F002E929F /* PRSizeFormatter.m */,
+				67723FDC1396BEB7006A6AAC /* PRStringFormatter.h */,
+				67723FDD1396BEB7006A6AAC /* PRStringFormatter.m */,
+				6739CBDA1252AD4100AB54A1 /* PRTimeFormatter.h */,
+				6739CBDB1252AD4100AB54A1 /* PRTimeFormatter.m */,
+				67C58B541309F77B00E12F63 /* PRTimeFormatter2.h */,
+				67C58B551309F77B00E12F63 /* PRTimeFormatter2.m */,
 			);
 			name = Formatters;
 			sourceTree = "<group>";
@@ -1227,22 +1221,24 @@
 		67691F741338B69700D27C01 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
-				67DDC70D14FA169B00E361B0 /* NSMenuItem+Extensions.h */,
-				67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */,
-				675116D0141FD42A00EBE02E /* NSImage+Extensions.h */,
-				675116D1141FD42B00EBE02E /* NSImage+Extensions.m */,
-				672AEC341280CB530034C641 /* NSButtonTextColor.h */,
-				672AEC351280CB530034C641 /* NSButtonTextColor.m */,
-				6787C9E812F31A8700D808AB /* NSImage+FlippedDrawing.h */,
-				6787C9E612F31A8000D808AB /* NSImage+FlippedDrawing.m */,
-				67F1AA4B12BDCCC8000A0D8F /* NSIndexSet+Extensions.h */,
-				67F1AA4C12BDCCC8000A0D8F /* NSIndexSet+Extensions.m */,
+				67EFE76D145EA97F00F05694 /* NSBezierPath+Extensions.h */,
+				67EFE76E145EA97F00F05694 /* NSBezierPath+Extensions.m */,
+				679AE5B01301F4940022F5BF /* NSData+Base64.h */,
+				679AE5B11301F4940022F5BF /* NSData+Base64.m */,
+				67902A69142FD7F900ACF55F /* NSEnumerator+Extensions.h */,
+				67902A6A142FD7F900ACF55F /* NSEnumerator+Extensions.m */,
 				6795B234143C34D4008D53CB /* NSFileManager+Extensions.h */,
 				6795B235143C34D4008D53CB /* NSFileManager+Extensions.m */,
 				6706FCC412B9A08200C9B075 /* NSFileManager+DirectoryLocations.h */,
 				6706FCC512B9A08200C9B075 /* NSFileManager+DirectoryLocations.m */,
-				679AE5B01301F4940022F5BF /* NSData+Base64.h */,
-				679AE5B11301F4940022F5BF /* NSData+Base64.m */,
+				675116D0141FD42A00EBE02E /* NSImage+Extensions.h */,
+				675116D1141FD42B00EBE02E /* NSImage+Extensions.m */,
+				67F1AA4B12BDCCC8000A0D8F /* NSIndexSet+Extensions.h */,
+				67F1AA4C12BDCCC8000A0D8F /* NSIndexSet+Extensions.m */,
+				67DDC70D14FA169B00E361B0 /* NSMenuItem+Extensions.h */,
+				67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */,
+				67CFB4471423FDB40045108D /* NSOperationQueue+Extensions.h */,
+				67CFB4481423FDB40045108D /* NSOperationQueue+Extensions.m */,
 				67C37B531373FAEF00004859 /* NSScrollView+Extensions.h */,
 				67C37B541373FAEF00004859 /* NSScrollView+Extensions.m */,
 				67C0BA1813C7AE1E0088D2E7 /* NSString+Extensions.h */,
@@ -1251,16 +1247,10 @@
 				671C91EA13A376B90007D069 /* NSString+LFExtensions.m */,
 				67BBE75D1421752E003C438B /* NSURLConnection+Extensions.h */,
 				67BBE75E1421752E003C438B /* NSURLConnection+Extensions.m */,
-				67CFB4471423FDB40045108D /* NSOperationQueue+Extensions.h */,
-				67CFB4481423FDB40045108D /* NSOperationQueue+Extensions.m */,
-				67902A69142FD7F900ACF55F /* NSEnumerator+Extensions.h */,
-				67902A6A142FD7F900ACF55F /* NSEnumerator+Extensions.m */,
-				6795F548143B1C5600AC8C91 /* sqlite_str.h */,
-				6795F549143B1D5500AC8C91 /* sqlite_str.m */,
 				678E90B81443F54A00B8B7C3 /* NSWindow+Extensions.h */,
 				678E90B91443F54A00B8B7C3 /* NSWindow+Extensions.m */,
-				67EFE76D145EA97F00F05694 /* NSBezierPath+Extensions.h */,
-				67EFE76E145EA97F00F05694 /* NSBezierPath+Extensions.m */,
+				6795F548143B1C5600AC8C91 /* sqlite_str.h */,
+				6795F549143B1D5500AC8C91 /* sqlite_str.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -1956,7 +1946,6 @@
 				672AE6B9127E5DC70034C641 /* PRHistory.m in Sources */,
 				672AE9B7127FD5E40034C641 /* PRHistoryCell.m in Sources */,
 				672AEC0A1280BD1E0034C641 /* PRNonScrollingScrollView.m in Sources */,
-				672AEC361280CB530034C641 /* NSButtonTextColor.m in Sources */,
 				672AED8F128235260034C641 /* PRAlbumListViewController.m in Sources */,
 				672AED99128239CD0034C641 /* PRTableViewController.m in Sources */,
 				6796AF63128933D900FEDE14 /* PRSynchronizedScrollView.m in Sources */,
@@ -1975,7 +1964,6 @@
 				679E3A0F12D28984006190C7 /* PRMoviePlayer.mm in Sources */,
 				673C2B7D12EF973D0022B2A3 /* PRItunesImportOperation.m in Sources */,
 				6787C8E812F3059200D808AB /* PRTableHeaderCell.m in Sources */,
-				6787C9E712F31A8000D808AB /* NSImage+FlippedDrawing.m in Sources */,
 				6795F0D512F64D68005A486E /* PRPaneSplitView.m in Sources */,
 				67B1D64112FE181F00FEF494 /* PRTexturedView.m in Sources */,
 				679AE5B21301F4940022F5BF /* NSData+Base64.m in Sources */,
