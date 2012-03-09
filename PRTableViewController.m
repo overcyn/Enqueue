@@ -1364,7 +1364,7 @@
 			attribute == PRGenreFileAttribute) {
             NSURL *URL = [[db library] URLForItem:[PRItem numberWithInt:file]];
             [PRTagger setTag:object forAttribute:attribute URL:URL];
-            [[db library] updateTagsForFile:file];
+            [[db library] updateTagsForItem:[NSNumber numberWithInt:file]];
 		} else if (attribute == PRRatingFileAttribute) {
             int rating = [object intValue] * 20;
             [[db library] setValue:[NSNumber numberWithInt:rating] forItem:[NSNumber numberWithInt:file] attr:PRItemAttrRating];

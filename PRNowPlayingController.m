@@ -207,7 +207,7 @@
     _currentListItem = [listItem retain];
     
     // update tags
-    BOOL updated = [[_db library] updateTagsForFile:[item intValue]];
+    BOOL updated = [[_db library] updateTagsForItem:item];
     if (updated) {
         [[NSNotificationCenter defaultCenter] postFilesChanged:[NSIndexSet indexSetWithIndex:[item intValue]]];
     }

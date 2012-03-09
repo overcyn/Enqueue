@@ -20,15 +20,12 @@
 
 // ========================================
 // Initialization
-// ========================================
 
-+ (id)operationWithURLs:(NSArray *)URLs core:(PRCore *)core
-{
++ (id)operationWithURLs:(NSArray *)URLs core:(PRCore *)core {
     return [[[PRRescanOperation alloc] initWithURLs:URLs core:core] autorelease];
 }
 
-- (id)initWithURLs:(NSArray *)URLs core:(PRCore *)core
-{
+- (id)initWithURLs:(NSArray *)URLs core:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
     _core = core;
     _db = [_core db];
@@ -38,25 +35,20 @@
 	return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [_URLs release];
     [super dealloc];
 }
 
 // ========================================
 // Accessors
-// ========================================
 
-@synthesize eventId = _eventId;
-@synthesize monitor = _monitor;
+@synthesize eventId = _eventId, monitor = _monitor;
 
 // ========================================
 // Action
-// ========================================
 
-- (void)main
-{
+- (void)main {
     NSLog(@"begin folderrescan");
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     PRTask *task = [PRTask task];
@@ -87,13 +79,13 @@
     
     // Remove files
     [task setPercent:95];
-    NSMutableIndexSet *toRemove = [NSMutableIndexSet indexSet];
+    NSMutableArray *toRemove = [NSMutableArray array];
     [[NSOperationQueue mainQueue] addBlockAndWait:^{
         NSArray *rlt = [_db execute:@"SELECT file_id FROM tmp_tbl_monitored_files WHERE exist = 0"
                            bindings:nil 
                             columns:[NSArray arrayWithObjects:PRColInteger, nil]];
         for (NSArray *i in rlt) {
-            [toRemove addIndex:[[i objectAtIndex:0] intValue]];
+            [toRemove addObject:[i objectAtIndex:0]];
         }
     }];
     [self removeFiles:toRemove];
@@ -113,8 +105,8 @@ end:;
     NSLog(@"end folderrescan");
 }
 
-- (void)filterURLs:(NSArray *)URLs // Array of dictionaries containing NSURL, size, lastmodified, caseSensitive
-{
+// Array of dictionaries containing NSURL, size, lastmodified, caseSensitive
+- (void)filterURLs:(NSArray *)URLs {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSMutableArray *toUpdate = [NSMutableArray array];
     NSMutableArray *toAdd = [NSMutableArray array];
@@ -124,20 +116,20 @@ end:;
             // Find similar (case insensitive compare) files to current URL and merge them.
             [self mergeSimilar:URL];
             // Find existing files. Add if none. Update if Size or LastModified changed.
-            NSInteger f = [[[_db library] filesWithValue:[URL absoluteString] forAttribute:PRPathFileAttribute] firstIndex];
-            PRItem *item = [PRItem numberWithInt:f];
-            if (f == NSNotFound) {
+            NSArray *array = [[_db library] itemsWithValue:[URL absoluteString] forAttr:PRItemAttrPath];
+            if ([array count] == 0) {
                 [toAdd addObject:URL];
             } else {
+                PRItem *item = [array objectAtIndex:0];
                 NSNumber *size = [i objectForKey:@"size"];
                 NSString *last = [[i objectForKey:@"lastModified"] description];
                 NSNumber *size2 = [[_db library] valueForItem:item attr:PRItemAttrSize];
                 NSString *last2 = [[_db library] valueForItem:item attr:PRItemAttrLastModified];
                 if ([size isEqualToNumber:size2] && [last isEqualToString:last2]) {
-                    [self setFileExists:f];
+                    [self setFileExists:[item intValue]];
                 } else {
                     [toUpdate addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                                         [NSNumber numberWithInt:f], @"file", 
+                                         item, @"file", 
                                          URL, @"URL", nil]];
                 }
             }
@@ -148,9 +140,8 @@ end:;
     [pool drain];
 }
 
-- (void)mergeSimilar:(NSURL *)URL
-{
-    NSArray *similar = [[_db library] filesWithSimilarURL:URL]; 
+- (void)mergeSimilar:(NSURL *)URL {
+    NSArray *similar = [[_db library] itemsWithSimilarURL:URL]; 
     NSMutableArray *toMerge = [NSMutableArray array];
     BOOL exact = FALSE;
     // Find all files at URL
@@ -172,8 +163,8 @@ end:;
     }
 }
 
-- (void)addURLs:(NSArray *)URLs // Array of NSURLs to add
-{
+// Array of NSURLs to add
+- (void)addURLs:(NSArray *)URLs {
     [[_db albumArtController] clearTempArt];
     // Get info for URLs
     NSMutableArray *infoArray = [NSMutableArray array];
@@ -208,7 +199,7 @@ end:;
             }
             // Add file if doesnt exist. Update path if it does
             if (moved == 0) {
-                PRFile file = [[_db library] addFileWithAttributes:[i attributes]];
+                PRFile file = [[[_db library] addItemWithAttrs:[i attributes]] intValue];
                 [i setFile:file];
             } else {
                 [[_db library] setValue:[[i attributes] objectForKey:[NSNumber numberWithInt:PRPathFileAttribute]] forItem:[NSNumber numberWithInt:moved] attr:PRItemAttrPath];
@@ -229,8 +220,8 @@ end:;
     }
 }
 
-- (void)updateFiles:(NSArray *)files // Array of NSDictionary with file (as NSNumber) and corresponding NSURL
-{
+// Array of NSDictionary with file (as NSNumber) and corresponding NSURL
+- (void)updateFiles:(NSArray *)files {
     [[_db albumArtController] clearTempArt];
     // get updated attributes
     NSMutableArray *infoArray = [NSMutableArray array];
@@ -274,14 +265,15 @@ end:;
     }
 }
 
-- (void)removeFiles:(NSIndexSet *)files
-{
-    if ([files count] == 0) {return;}
+- (void)removeFiles:(NSArray *)items {
+    if ([items count] == 0) {
+        return;
+    }
     [[NSOperationQueue mainQueue] addBlockAndWait:^{        
-        if ([files containsIndex:[[_core now] currentFile]]) {
+        if ([items containsObject:[[_core now] currentItem]]) {
             [[_core now] stop];
         }
-        [[_db library] removeFiles:files];
+        [[_db library] removeItems:items];
         [[NSNotificationCenter defaultCenter] postLibraryChanged];
         [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[[_core now] currentPlaylist]];
     }];
@@ -289,10 +281,9 @@ end:;
 
 // ========================================
 // Misc
-// ========================================
 
-- (void)setFileExists:(PRFile)file // Should only be called on the main thread
-{
+// Should only be called on the main thread
+- (void)setFileExists:(PRFile)file {
     [_db execute:@"UPDATE tmp_tbl_monitored_files SET exist = 1 WHERE file_id = ?1"
         bindings:[NSDictionary dictionaryWithObjectsAndKeys:
                   [NSNumber numberWithInt:file], [NSNumber numberWithInt:1], nil]

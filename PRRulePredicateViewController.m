@@ -53,9 +53,9 @@
         menu = [[[NSMenu alloc] init] autorelease];
         NSMutableArray *attributes = [NSMutableArray array];
         for (NSNumber *i in [PRRule attributes]) {
-            [attributes addObject:
-             [NSDictionary dictionaryWithObjectsAndKeys:
-              [PRLibrary nameForFileAttribute:[i intValue]], @"title", i, @"attribute", nil]];
+//            [attributes addObject:
+//             [NSDictionary dictionaryWithObjectsAndKeys:
+//              [PRLibrary nameForFileAttribute:[i intValue]], @"title", i, @"attribute", nil]];
         }
         [attributes sortUsingComparator:^(id obj1, id obj2) {
             return [(NSString *)[obj1 objectForKey:@"title"] compare:[obj2 objectForKey:@"title"]];

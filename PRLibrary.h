@@ -89,43 +89,8 @@ typedef enum {
 - (void)create;
 - (BOOL)initialize;
 
-// Misc
-+ (NSDictionary *)columnDict;
-+ (NSDictionary *)columnForAttribute;
-+ (NSString *)columnNameForFileAttribute:(PRFileAttribute)attribute;
-+ (PRFileAttribute)fileAttributeForName:(NSString *)name;
-+ (NSString *)nameForFileAttribute:(PRFileAttribute)attribute;
-
-- (PRFile)addFileWithAttributes:(NSDictionary *)attrs;
-- (void)removeFiles:(NSIndexSet *)files;
-
-// Accessors Tag
-- (BOOL)updateTagsForFile:(PRFile)file;
-
-// Accessors Misc
-- (NSURL *)URLforFile:(PRFile)file;
-- (NSString *)comparisonArtistForFile:(PRFile)file;
-- (NSArray *)filesWithSimilarURL:(NSURL *)URL;
-- (NSIndexSet *)filesWithValue:(id)value forAttribute:(PRFileAttribute)attribute;
-
 // Update
 - (BOOL)propagateItemDelete;
-
-// ========================================
-
-// Misc
-+ (NSArray *)itemAttrProperties;
-+ (NSArray *)itemAttrs;
-+ (NSDictionary *)itemAttrToColumnNameDictionary;
-+ (NSDictionary *)itemAttrToColumnTypeDictionary;
-+ (NSDictionary *)itemAttrToTitleDictionary;
-+ (NSDictionary *)itemAttrToInternalDictionary;
-
-+ (NSString *)columnNameForItemAttr:(PRItemAttr *)attr;
-+ (PRCol *)columnTypeForItemAttr:(PRItemAttr *)attr;
-+ (NSString *)titleForItemAttr:(PRItemAttr *)attr;
-+ (NSNumber *)internalForItemAttr:(PRItemAttr *)attr;
-+ (PRItemAttr *)itemAttrForInternal:(NSNumber *)internal;
 
 // Accessors
 - (BOOL)containsItem:(PRItem *)item;
@@ -135,11 +100,19 @@ typedef enum {
 - (void)setValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr;
 - (NSDictionary *)attrsForItem:(PRItem *)item;
 - (void)setAttrs:(NSDictionary *)attrs forItem:(PRItem *)item;
+- (BOOL)updateTagsForItem:(PRItem *)item;
 
-// Misc Accessors
 - (NSString *)artistValueForItem:(PRItem *)item;
 - (NSURL *)URLForItem:(PRItem *)item;
 - (NSArray *)itemsWithSimilarURL:(NSURL *)URL;
 - (NSArray *)itemsWithValue:(id)value forAttr:(PRItemAttr *)attr;
-- (BOOL)updateTagsForItem:(PRItem *)item;
+
+// Misc
++ (NSArray *)itemAttrProperties;
++ (NSArray *)itemAttrs;
++ (NSString *)columnNameForItemAttr:(PRItemAttr *)attr;
++ (PRCol *)columnTypeForItemAttr:(PRItemAttr *)attr;
++ (NSString *)titleForItemAttr:(PRItemAttr *)attr;
++ (NSNumber *)internalForItemAttr:(PRItemAttr *)attr;
++ (PRItemAttr *)itemAttrForInternal:(NSNumber *)internal;
 @end

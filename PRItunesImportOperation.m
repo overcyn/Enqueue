@@ -106,7 +106,7 @@ end:;
     void (^blk)(void) = ^{
         for (int i = 0; i < [tracks count]; i++) {
             NSURL *u = [NSURL URLWithString:[[tracks objectAtIndex:i] objectForKey:@"Location"]];
-            NSArray *similar = [[_db library] filesWithSimilarURL:u]; 
+            NSArray *similar = [[_db library] itemsWithSimilarURL:u]; 
             for (NSNumber *j in similar) {
                 // If similar file is equivalent to current URL, set them to be merged
                 NSString *uStr = [[_db library] valueForItem:j attr:PRItemAttrPath];
@@ -173,7 +173,7 @@ end:;
     blk = ^{
         [_db begin];
         for (PRFileInfo *i in infoArray) {
-            PRFile f = [[_db library] addFileWithAttributes:[i attributes]];
+            PRFile f = [[[_db library] addItemWithAttrs:[i attributes]] intValue];
             [i setFile:f];
             NSNumber *trackId = [NSNumber numberWithInt:[i trackid]];
             [_fileTrackIdDictionary setObject:[NSNumber numberWithInt:f] forKey:trackId];

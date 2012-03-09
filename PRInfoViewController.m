@@ -373,8 +373,8 @@
     }
     
     for (NSNumber *i in selection) {
-        [PRTagger setTag:value forAttribute:attribute URL:[[db library] URLforFile:[i intValue]]];
-        [[db library] updateTagsForFile:[i intValue]];
+        [PRTagger setTag:value forAttribute:attribute URL:[[db library] URLForItem:i]];
+        [[db library] updateTagsForItem:i];
     }
     
     NSIndexSet *selectionIndexes = [NSIndexSet indexSetWithArray:selection];
