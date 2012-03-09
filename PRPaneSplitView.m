@@ -3,13 +3,11 @@
 
 @implementation PRPaneSplitView
 
-- (CGFloat)dividerThickness
-{
+- (CGFloat)dividerThickness {
     return 10.0;
 }
 
-- (void)drawDividerInRect:(NSRect)rect
-{
+- (void)drawDividerInRect:(NSRect)rect {
     if ([self dividerStyle] == NSSplitViewDividerStyleThick) {
         rect.size.width += 2;
         rect.origin.x -= 1;
@@ -21,7 +19,6 @@
     } else {
         [super drawDividerInRect:rect];
     }
-
 }
 
 @end

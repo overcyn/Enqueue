@@ -1,9 +1,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface PRZeroSplitView : NSSplitView 
-{
+@interface PRZeroSplitView : NSSplitView {
 
 }
-
 @end

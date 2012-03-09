@@ -3,8 +3,7 @@
 
 @implementation PRZeroSplitView
 
-- (CGFloat)dividerThickness
-{
+- (CGFloat)dividerThickness {
 	return 0;
 }
 
