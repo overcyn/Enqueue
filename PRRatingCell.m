@@ -3,8 +3,7 @@
 
 @implementation PRRatingCell
 
-- (id)init
-{
+- (id)init {
 	if (!(self = [super init])) {return nil;}
     _showDots = FALSE;
     _editing = FALSE;
@@ -13,8 +12,7 @@
 
 @synthesize showDots = _showDots;
 
-- (void)setObjectValue:(id<NSCopying>)obj
-{
+- (void)setObjectValue:(id<NSCopying>)obj {
     if (!obj) {
         [super setObjectValue:[NSNumber numberWithInt:0]];
         return;
@@ -22,8 +20,7 @@
     [super setObjectValue:obj];
 }
 
-- (void)drawSegment:(NSInteger)segment inFrame:(NSRect)frame withView:(NSView *)controlView
-{
+- (void)drawSegment:(NSInteger)segment inFrame:(NSRect)frame withView:(NSView *)controlView {
     if ([self objectValue] == nil) {
         return;
     }
@@ -51,8 +48,7 @@
 	[icon drawInRect:frame fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
 }
 
-- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
-{
+- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
     if ([self objectValue] == nil) {
         return;
     }
@@ -64,14 +60,12 @@
 	}
 }
 
-- (BOOL)trackMouse:(NSEvent *)event_ inRect:(NSRect)cellFrame ofView:(NSView *)controlView untilMouseUp:(BOOL)untilMouseUp
-{
+- (BOOL)trackMouse:(NSEvent *)event_ inRect:(NSRect)cellFrame ofView:(NSView *)controlView untilMouseUp:(BOOL)untilMouseUp {
     _cellFrame = cellFrame;
 	return [super trackMouse:event_ inRect:cellFrame ofView:controlView untilMouseUp:untilMouseUp];
 }
 
-- (BOOL)startTrackingAt:(NSPoint)startPoint inView:(NSView *)controlView
-{    
+- (BOOL)startTrackingAt:(NSPoint)startPoint inView:(NSView *)controlView {    
 	_editing = TRUE;
 	for (int i = 0; i < [self segmentCount]; i++) {
 		if (NSPointInRect(startPoint, [self frameForSegment:i])) {
@@ -81,8 +75,7 @@
 	return [super startTrackingAt:startPoint inView:controlView];
 }
 
-- (BOOL)continueTracking:(NSPoint)lastPoint at:(NSPoint)currentPoint inView:(NSView *)controlView
-{
+- (BOOL)continueTracking:(NSPoint)lastPoint at:(NSPoint)currentPoint inView:(NSView *)controlView {
     currentPoint.y = [self frameForSegment:0].origin.y + 5;
     if (currentPoint.x <= [self frameForSegment:0].origin.x) {
         currentPoint.x = [self frameForSegment:0].origin.x + 1;
@@ -100,8 +93,7 @@
 	return [super continueTracking:lastPoint at:currentPoint inView:controlView];
 }
 
-- (void)stopTracking:(NSPoint)lastPoint at:(NSPoint)currentPoint inView:(NSView *)controlView mouseIsUp:(BOOL)flag
-{
+- (void)stopTracking:(NSPoint)lastPoint at:(NSPoint)currentPoint inView:(NSView *)controlView mouseIsUp:(BOOL)flag {
     currentPoint.y = [self frameForSegment:0].origin.y + 5;
     if (currentPoint.x <= [self frameForSegment:0].origin.x) {
         currentPoint.x = [self frameForSegment:0].origin.x + 1;
@@ -120,8 +112,7 @@
 	[super stopTracking:lastPoint at:currentPoint inView:controlView mouseIsUp:flag];
 }
 
-- (NSRect)frameForSegment:(BOOL)segment
-{
+- (NSRect)frameForSegment:(BOOL)segment {
 	NSRect frame = NSMakeRect(_cellFrame.origin.x + 2, _cellFrame.origin.y + 1, 0, 15);
 	for (int i = 0; i < [self segmentCount]; i++) {
 		frame.size.width = [self widthForSegment:i] + 2;

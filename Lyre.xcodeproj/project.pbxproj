@@ -116,7 +116,6 @@
 		67669BCA13E57D590042A649 /* Disclosure.png in Resources */ = {isa = PBXBuildFile; fileRef = 67669BC913E57D590042A649 /* Disclosure.png */; };
 		67669BCC13E580200042A649 /* DisclosureAlt.png in Resources */ = {isa = PBXBuildFile; fileRef = 67669BCB13E580200042A649 /* DisclosureAlt.png */; };
 		6768E61513BBBF7C00FA7474 /* InfoTemplate.png in Resources */ = {isa = PBXBuildFile; fileRef = 6768E61413BBBF7C00FA7474 /* InfoTemplate.png */; };
-		6768E61813BBCEA600FA7474 /* PRSegmentedCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6768E61713BBCEA600FA7474 /* PRSegmentedCell.m */; };
 		67691F7A1338B80300D27C01 /* BWTexturedSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 67691F771338B80300D27C01 /* BWTexturedSlider.m */; };
 		67691F7B1338B80300D27C01 /* BWTexturedSliderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67691F791338B80300D27C01 /* BWTexturedSliderCell.m */; };
 		67691F901338C8F300D27C01 /* PRSliderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67691F8F1338C8F000D27C01 /* PRSliderCell.m */; };
@@ -274,7 +273,6 @@
 		67F0D5B912B1DAD6008E1458 /* PRNumberFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F0D5B812B1DAD6008E1458 /* PRNumberFormatter.m */; };
 		67F1491B149973B30028B7DD /* PRUpdate060Operation.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F1491A149973B30028B7DD /* PRUpdate060Operation.m */; };
 		67F1AA4D12BDCCC8000A0D8F /* NSIndexSet+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F1AA4C12BDCCC8000A0D8F /* NSIndexSet+Extensions.m */; };
-		67F1BFCA127102460075C401 /* PRButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F1BFC9127102460075C401 /* PRButtonCell.m */; };
 		67F3895D134AF48A00E76D9E /* PRActionIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 67F3895C134AF48A00E76D9E /* PRActionIcon.png */; };
 		67FAE2B714BEF65D00A0778B /* PlaylistsPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 67FAE2B614BEF65D00A0778B /* PlaylistsPlaceholder.png */; };
 		67FAE2B914BEF93E00A0778B /* HistoryPlaceholder.png in Resources */ = {isa = PBXBuildFile; fileRef = 67FAE2B814BEF93E00A0778B /* HistoryPlaceholder.png */; };
@@ -475,8 +473,6 @@
 		67669BC913E57D590042A649 /* Disclosure.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Disclosure.png; path = Icons/Disclosure.png; sourceTree = "<group>"; };
 		67669BCB13E580200042A649 /* DisclosureAlt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = DisclosureAlt.png; path = Icons/DisclosureAlt.png; sourceTree = "<group>"; };
 		6768E61413BBBF7C00FA7474 /* InfoTemplate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = InfoTemplate.png; path = Icons/InfoTemplate.png; sourceTree = "<group>"; };
-		6768E61613BBCEA600FA7474 /* PRSegmentedCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRSegmentedCell.h; sourceTree = "<group>"; };
-		6768E61713BBCEA600FA7474 /* PRSegmentedCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRSegmentedCell.m; sourceTree = "<group>"; };
 		67691F761338B80300D27C01 /* BWTexturedSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BWTexturedSlider.h; sourceTree = "<group>"; };
 		67691F771338B80300D27C01 /* BWTexturedSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BWTexturedSlider.m; sourceTree = "<group>"; };
 		67691F781338B80300D27C01 /* BWTexturedSliderCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BWTexturedSliderCell.h; sourceTree = "<group>"; };
@@ -729,8 +725,6 @@
 		67F1491A149973B30028B7DD /* PRUpdate060Operation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRUpdate060Operation.m; sourceTree = "<group>"; };
 		67F1AA4B12BDCCC8000A0D8F /* NSIndexSet+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSIndexSet+Extensions.h"; sourceTree = "<group>"; };
 		67F1AA4C12BDCCC8000A0D8F /* NSIndexSet+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexSet+Extensions.m"; sourceTree = "<group>"; };
-		67F1BFC8127102460075C401 /* PRButtonCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRButtonCell.h; sourceTree = "<group>"; };
-		67F1BFC9127102460075C401 /* PRButtonCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRButtonCell.m; sourceTree = "<group>"; };
 		67F3895C134AF48A00E76D9E /* PRActionIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRActionIcon.png; path = Icons/PRActionIcon.png; sourceTree = "<group>"; };
 		67FAE2B614BEF65D00A0778B /* PlaylistsPlaceholder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PlaylistsPlaceholder.png; path = Icons/PlaylistsPlaceholder.png; sourceTree = "<group>"; };
 		67FAE2B814BEF93E00A0778B /* HistoryPlaceholder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = HistoryPlaceholder.png; path = Icons/HistoryPlaceholder.png; sourceTree = "<group>"; };
@@ -1183,10 +1177,6 @@
 		67691F721338B60E00D27C01 /* Button */ = {
 			isa = PBXGroup;
 			children = (
-				67F1BFC8127102460075C401 /* PRButtonCell.h */,
-				67F1BFC9127102460075C401 /* PRButtonCell.m */,
-				6768E61613BBCEA600FA7474 /* PRSegmentedCell.h */,
-				6768E61713BBCEA600FA7474 /* PRSegmentedCell.m */,
 				67A5F63212A5E261003837CA /* PRRatingCell.h */,
 				67A5F63312A5E261003837CA /* PRRatingCell.m */,
 				67EFE770145F07DB00F05694 /* PRTabButton.h */,
@@ -1939,7 +1929,6 @@
 				6702717E126AFC6F002E929F /* PRSizeFormatter.m in Sources */,
 				67E94735126C528E00CAE943 /* PRCenteredTextFieldCell.m in Sources */,
 				675C678B126E5965008336B9 /* PRTableView.m in Sources */,
-				67F1BFCA127102460075C401 /* PRButtonCell.m in Sources */,
 				6774045E12739455007EA4F5 /* PRRule.m in Sources */,
 				6771E787127974F9007A34F2 /* PRPlaylistsViewController.m in Sources */,
 				6771E90F127A47E3007A34F2 /* PRHistoryViewController.m in Sources */,
@@ -1999,7 +1988,6 @@
 				671C91EB13A376B90007D069 /* NSString+LFExtensions.m in Sources */,
 				67091AD013AB3D6400C4D298 /* PRQueue.m in Sources */,
 				671D55E713B9834A00DAD414 /* PRRoundedGradientView.m in Sources */,
-				6768E61813BBCEA600FA7474 /* PRSegmentedCell.m in Sources */,
 				677CB95A13BC74B60090B4D0 /* PRRescanOperation.m in Sources */,
 				67C0BA1A13C7AE1E0088D2E7 /* NSString+Extensions.m in Sources */,
 				6749A8DE13D0B85D002EE61A /* PRTitleBarGradientView.m in Sources */,

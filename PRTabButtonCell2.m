@@ -4,8 +4,7 @@
 
 @implementation PRTabButtonCell2
 
-- (void)drawWithFrame:(NSRect)frame inView:(NSView *)view
-{    
+- (void)drawWithFrame:(NSRect)frame inView:(NSView *)view {    
     NSRect frame2 = frame;
     frame2.origin.y += 0.5;
     frame2.size.height -= 1;
@@ -38,12 +37,10 @@
         gradient = [[[NSGradient alloc] initWithColorsAndLocations:
                      [NSColor colorWithCalibratedWhite:0.99 alpha:1.0],0.0,
                      [NSColor colorWithCalibratedWhite:0.99 alpha:1.0],0.2,
-//                     [NSColor colorWithCalibratedWhite:0.92 alpha:1.0],0.8,
                      [NSColor colorWithCalibratedWhite:0.92 alpha:1.0], 0.8, 
                      nil] autorelease];
     }
     [gradient drawInBezierPath:path angle:90.0];
-    
     [NSGraphicsContext restoreGraphicsState];
     
     // Draw border
@@ -54,8 +51,7 @@
     [self drawInteriorWithFrame:frame inView:view];
 }
 
-- (void)drawInteriorWithFrame:(NSRect)frame inView:(NSView *)view
-{
+- (void)drawInteriorWithFrame:(NSRect)frame inView:(NSView *)view {
     frame.origin.y -= 2;
     NSAttributedString *attrTitle;
     NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
