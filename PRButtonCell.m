@@ -4,8 +4,7 @@
 
 @implementation PRButtonCell
 
-- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
-{
+- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
     cellFrame.size.height = 20;
     cellFrame.origin.y += .5;
     cellFrame.size.height -= 1;
@@ -62,8 +61,7 @@
     [self drawInteriorWithFrame:cellFrame inView:controlView];    
 }
 
-- (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
-{
+- (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
     NSImage *image = [self image];
     NSRect drawRect = NSMakeRect(round(cellFrame.origin.x + (cellFrame.size.width - [image size].width) / 2), 
                                  round(cellFrame.origin.y + (cellFrame.size.height - [image size].height) / 2), 

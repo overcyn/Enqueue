@@ -1,8 +1,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface PRButtonCell : NSButtonCell 
-{
+@interface PRButtonCell : NSButtonCell {
 
 }
 
