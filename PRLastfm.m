@@ -17,37 +17,27 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 
 @interface PRLastfm ()
 
-// ========================================
 // Update
-
 - (void)playingChanged:(NSNotification *)note;
 - (void)playingFileChanged:(NSNotification *)note;
 
-// ========================================
 // Accessors
-
 - (void)setLastfmState:(PRLastfmState)state;
 - (void)setUsername:(NSString *)username;
 - (NSString *)sessionKey;
 - (void)setSessionKey:(NSString *)sessionKey;
 
-// ========================================
 // Scrobbling
-
 - (void)scrobble:(PRLastfmFile *)lastfmFile;
 - (void)nowPlaying:(PRLastfmFile *)lastfmFile;
 - (void)fileScrobbled:(NSData *)data;
 
-// ========================================
 // Authorization
-
 - (void)tokenGotten:(NSData *)data request:(NSURLRequest *)request;
 - (void)getSession:(NSDictionary *)info;
 - (void)sessionGotten:(NSData *)data request:(NSURLRequest *)request;
 
-// ========================================
 // Misc
-
 - (NSURLRequest *)requestForParameters:(NSDictionary *)parameters;
 - (NSString *)signatureForParameters:(NSDictionary *)parameters;
 
@@ -64,6 +54,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 {
     if (!(self = [super init])) {return nil;}
     _core = core;
+    _db = [core db];
     _file = nil;
     // Get cached session key if exists
     BOOL connected = FALSE;
@@ -163,13 +154,14 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     }
 }
 
-- (void)nowPlaying:(PRLastfmFile *)file_
+- (void)nowPlaying:(PRLastfmFile *)lastfmFile
 {
-    PRFile file = [file_ file];
-    NSString *title = [[[_core db] library] valueForFile:file attribute:PRTitleFileAttribute];
-    NSString *artist = [[[_core db] library] valueForFile:file attribute:PRArtistFileAttribute];
-    NSString *album = [[[_core db] library] valueForFile:file attribute:PRAlbumFileAttribute];
-    NSNumber *time = [[[_core db] library] valueForFile:file attribute:PRTimeFileAttribute];
+    PRFile file = [lastfmFile file];
+    PRItem *item = [PRItem numberWithInt:file];
+    NSString *title = [[_db library] valueForItem:item attr:PRItemAttrTitle];
+    NSString *artist = [[_db library] artistValueForItem:item];
+    NSString *album = [[_db library] valueForItem:item attr:PRItemAttrAlbum];
+    NSNumber *time = [[[_core db] library] valueForItem:item attr:PRItemAttrTime];
     
     if ([title length] == 0 || [artist length] == 0 || 
         [[self username] length] == 0 || [[self sessionKey] length] == 0) {
@@ -199,10 +191,11 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 - (void)scrobble:(PRLastfmFile *)lastfmFile
 {
     PRFile file = [lastfmFile file];
-    NSString *title = [[[_core db] library] valueForFile:file attribute:PRTitleFileAttribute];
-    NSString *artist = [[[_core db] library] valueForFile:file attribute:PRArtistFileAttribute];
-    NSString *album = [[[_core db] library] valueForFile:file attribute:PRAlbumFileAttribute];
-    NSNumber *time = [[[_core db] library] valueForFile:file attribute:PRTimeFileAttribute];
+    PRItem *item = [PRItem numberWithInt:file];
+    NSString *title = [[_db library] valueForItem:item attr:PRItemAttrTitle];
+    NSString *artist = [[_db library] artistValueForItem:item];
+    NSString *album = [[_db library] valueForItem:item attr:PRItemAttrAlbum];
+    NSNumber *time = [[[_core db] library] valueForItem:item attr:PRItemAttrTime];
     
     if (!([lastfmFile playTime] > [time intValue]/2000 || [lastfmFile playTime] > 240) ||
         [title length] == 0 || [artist length] == 0 || [time intValue]/1000 < 30 || 

@@ -76,24 +76,15 @@ typedef enum {
 	PRDb *db;
 }
 
-// ========================================
 // Initialization
-// ========================================
-
 - (id)initWithCore:(PRCore *)core_;
 
-// ========================================
 // Tab Control
-// ========================================
-
 - (void)updateTabControl;
 - (NSDictionary *)tabs;
 - (void)tabAction:(id)sender;
 
-// ========================================
 // Accessors
-// ========================================
-
 - (void)update;
 
 - (id)valueForAttribute:(PRFileAttribute)attribute;

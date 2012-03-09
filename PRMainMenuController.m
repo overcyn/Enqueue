@@ -13,14 +13,12 @@
 #import "PRFullRescanOperation.h"
 #import "PRLibrary.h"
 
+
 @implementation PRMainMenuController
 
-// ========================================
-// Initialization
-// ========================================
+// == Initialization =============================
 
-- (id)initWithCore:(PRCore *)core_
-{
+- (id)initWithCore:(PRCore *)core_ {
     if (!(self = [super init])) {return nil;}
     core = core_;
     
@@ -142,30 +140,30 @@
     return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [super dealloc];
 }
 
-- (NSMenu *)dockMenu
-{
+// == Accessors ==================================
+
+- (NSMenu *)dockMenu {
     NSMenu *menu = [[[NSMenu alloc] initWithTitle:@"dockmenu"] autorelease];
     NSMenuItem *item;
     NSString *title;
     
-    if ([[core now] currentFile] != 0) {
-        title = [[[core db] library] valueForFile:[[core now] currentFile] attribute:PRTitleFileAttribute];
+    if ([[core now] currentItem]) {
+        title = [[[core db] library] valueForItem:[[core now] currentItem] attr:PRItemAttrTitle];
         title = [NSString stringWithFormat:@"♫ %@",title];
         item = [[[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""] autorelease];
         [item setEnabled:FALSE];
         [menu addItem:item];
         
-        title = [[[core db] library] valueForFile:[[core now] currentFile] attribute:PRArtistFileAttribute];
+        title = [[[core db] library] artistValueForItem:[[core now] currentItem]];
         item = [[[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""] autorelease];
         [item setEnabled:FALSE];
         [menu addItem:item];
         
-        title = [[[core db] library] valueForFile:[[core now] currentFile] attribute:PRAlbumFileAttribute];
+        title = [[[core db] library] valueForItem:[[core now] currentItem] attr:PRItemAttrAlbum];
         item = [[[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""] autorelease];
         [item setEnabled:FALSE];
         [menu addItem:item];
@@ -205,12 +203,77 @@
     return menu;
 }
 
-// ========================================
-// Update
-// ========================================
+// == Action =====================================
 
-- (void)menuNeedsUpdate:(NSMenu *)menu
-{
+- (void)showPreferences {
+    [[core win] setCurrentMode:PRPreferencesMode];
+}
+         
+- (void)newPlaylist {
+    [[core win] setCurrentMode:PRPlaylistsMode];
+    [[[core win] playlistsViewController] newStaticPlaylist];
+}
+
+- (void)newSmartPlaylist {
+    [[core win] setCurrentMode:PRPlaylistsMode];
+    [[[core win] playlistsViewController] newSmartPlaylist];
+}
+
+- (void)open {
+    [core showOpenPanel:nil];
+}
+
+- (void)itunesImport {
+    [core itunesImport:nil];
+}
+
+- (void)rescanLibrary {
+    [[core folderMonitor] rescan];
+}
+
+- (void)rescanFullLibrary {
+    [[core opQueue] addOperation:[PRFullRescanOperation operationWithCore:core]];
+}
+
+- (void)duplicateFiles {
+    
+}
+
+- (void)missingFiles {
+    
+}
+
+- (void)find {
+    [[core win] find];
+}
+
+- (void)viewAsList {
+    [[[core win] libraryViewController] setLibraryViewMode:PRListMode];
+}
+
+- (void)viewAsAlbumList {
+    [[[core win] libraryViewController] setLibraryViewMode:PRAlbumListMode];
+}
+
+- (void)toggleMiniPlayer {
+    [[core win] toggleMiniPlayer];
+}
+
+- (void)toggleArtwork {
+    [[core win] setShowsArtwork:![[core win] showsArtwork]];
+}
+
+- (void)showInfo {
+    [[[core win] libraryViewController] infoViewToggle];
+}
+
+- (void)showCurrentSong {
+    [[[core win] controlsViewController] showInLibrary];
+}
+
+// == Menu Delegate ==============================
+
+- (void)menuNeedsUpdate:(NSMenu *)menu {
     NSString *title;
     if (![[[core now] mov] isPlaying]) {
         title = @"Play";
@@ -236,15 +299,14 @@
         title = @"Switch to Mini Player";
     }
     [[viewMenu itemWithTag:7] setTitle:title];
-
+    
     NSMenu *browser = [[[[core win] libraryViewController] currentViewController] browserHeaderMenu];
     [browser setAutoenablesItems:FALSE];
     [[viewMenu itemWithTitle:@"Browser"] setSubmenu:browser];
     [[viewMenu itemWithTitle:@"Browser"] setEnabled:([[core win] currentMode] == PRLibraryMode && ![[core win] miniPlayer])];
 }
 
-- (BOOL)validateMenuItem:(NSMenuItem *)menuItem
-{
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     NSArray *items = [NSArray arrayWithObjects:
                       [viewMenu itemWithTag:1],
                       [viewMenu itemWithTag:2],
@@ -273,92 +335,6 @@
         return ![[[core win] window] isFullScreen];
     }
     return TRUE;
-}
-
-// ========================================
-// Action
-// ========================================
-
-- (void)showPreferences
-{
-    [[core win] setCurrentMode:PRPreferencesMode];
-}
-         
-- (void)newPlaylist
-{
-    [[core win] setCurrentMode:PRPlaylistsMode];
-    [[[core win] playlistsViewController] newStaticPlaylist];
-}
-
-- (void)newSmartPlaylist
-{
-    [[core win] setCurrentMode:PRPlaylistsMode];
-    [[[core win] playlistsViewController] newSmartPlaylist];
-}
-
-- (void)open
-{
-    [core showOpenPanel:nil];
-}
-
-- (void)itunesImport
-{
-    [core itunesImport:nil];
-}
-
-- (void)rescanLibrary
-{
-    [[core folderMonitor] rescan];
-}
-
-- (void)rescanFullLibrary
-{
-    [[core opQueue] addOperation:[PRFullRescanOperation operationWithCore:core]];
-}
-
-- (void)duplicateFiles
-{
-    
-}
-
-- (void)missingFiles
-{
-    
-}
-
-- (void)find
-{
-    [[core win] find];
-}
-
-- (void)viewAsList
-{
-    [[[core win] libraryViewController] setListMode];
-}
-
-- (void)viewAsAlbumList
-{
-    [[[core win] libraryViewController] setAlbumListMode];
-}
-
-- (void)toggleMiniPlayer
-{
-    [[core win] toggleMiniPlayer];
-}
-
-- (void)toggleArtwork
-{
-    [[core win] setShowsArtwork:![[core win] showsArtwork]];
-}
-
-- (void)showInfo
-{
-    [[[core win] libraryViewController] infoViewToggle];
-}
-
-- (void)showCurrentSong
-{
-    [[[core win] controlsViewController] showInLibrary];
 }
 
 @end

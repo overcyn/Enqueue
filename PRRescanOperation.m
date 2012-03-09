@@ -125,13 +125,14 @@ end:;
             [self mergeSimilar:URL];
             // Find existing files. Add if none. Update if Size or LastModified changed.
             NSInteger f = [[[_db library] filesWithValue:[URL absoluteString] forAttribute:PRPathFileAttribute] firstIndex];
+            PRItem *item = [PRItem numberWithInt:f];
             if (f == NSNotFound) {
                 [toAdd addObject:URL];
             } else {
                 NSNumber *size = [i objectForKey:@"size"];
                 NSString *last = [[i objectForKey:@"lastModified"] description];
-                NSNumber *size2 = [[_db library] valueForFile:f attribute:PRSizeFileAttribute];
-                NSString *last2 = [[_db library] valueForFile:f attribute:PRLastModifiedFileAttribute];
+                NSNumber *size2 = [[_db library] valueForItem:item attr:PRItemAttrSize];
+                NSString *last2 = [[_db library] valueForItem:item attr:PRItemAttrLastModified];
                 if ([size isEqualToNumber:size2] && [last isEqualToString:last2]) {
                     [self setFileExists:f];
                 } else {
@@ -154,7 +155,7 @@ end:;
     BOOL exact = FALSE;
     // Find all files at URL
     for (NSNumber *i in similar) {
-        NSString *URLString = [[_db library] valueForFile:[i intValue] attribute:PRPathFileAttribute];
+        NSString *URLString = [[_db library] valueForItem:i attr:PRItemAttrPath];
         if ([URLString isEqualToString:[URL absoluteString]]) {
             exact = TRUE;
             [toMerge insertObject:i atIndex:0];
@@ -167,7 +168,7 @@ end:;
     }
     if ([toMerge count] >= 1 && !exact) {
         // If no exact match update with new path.
-        [[_db library] setValue:[URL absoluteString] forFile:[[toMerge objectAtIndex:0] intValue] attribute:PRPathFileAttribute];
+        [[_db library] setValue:[URL absoluteString] forItem:[toMerge objectAtIndex:0] attr:PRItemAttrPath];
     }
 }
 
@@ -210,9 +211,7 @@ end:;
                 PRFile file = [[_db library] addFileWithAttributes:[i attributes]];
                 [i setFile:file];
             } else {
-                [[_db library] setValue:[[i attributes] objectForKey:[NSNumber numberWithInt:PRPathFileAttribute]] 
-                                forFile:moved 
-                              attribute:PRPathFileAttribute];
+                [[_db library] setValue:[[i attributes] objectForKey:[NSNumber numberWithInt:PRPathFileAttribute]] forItem:[NSNumber numberWithInt:moved] attr:PRItemAttrPath];
                 [self setFileExists:moved];
             }
         }
@@ -254,7 +253,7 @@ end:;
         // set updated attributes
         NSMutableIndexSet *updated = [NSMutableIndexSet indexSet];
         for (PRFileInfo *i in infoArray) {
-            [[_db library] setAttributes:[i attributes] forFile:[i file]];
+            [[_db library] setAttrs:[i attributes] forItem:[NSNumber numberWithInt:[i file]]];
             [self setFileExists:[i file]];
             [updated addIndex:[i file]];
         }

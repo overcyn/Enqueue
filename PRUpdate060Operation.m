@@ -95,8 +95,8 @@ end:;
         // set updated attributes
         NSMutableIndexSet *updated = [NSMutableIndexSet indexSet];
         for (NSDictionary *i in infoArray) {
-            [[[_core db] library] setValue:[i objectForKey:@"lyrics"] forFile:[[i objectForKey:@"file"] intValue] attribute:PRLyricsFileAttribute];
-            [[[_core db] library] setValue:[i objectForKey:@"compilation"] forFile:[[i objectForKey:@"file"] intValue] attribute:PRCompilationFileAttribute];
+            [[[_core db] library] setValue:[i objectForKey:@"lyrics"] forItem:[i objectForKey:@"file"] attr:PRItemAttrLyrics];
+            [[[_core db] library] setValue:[i objectForKey:@"compilation"] forItem:[i objectForKey:@"file"] attr:PRItemAttrCompilation];
         }
         [[_core db] commit];
         // post notifications

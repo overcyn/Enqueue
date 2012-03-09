@@ -1,17 +1,12 @@
 #import <Cocoa/Cocoa.h>
-#import "PRLibrary.h"
-#import "PRPlaylists.h"
-#import "PRLibraryViewController.h"
+@class PRDb, PRItem, PRItemAttr, PRList;
 
-@class PRDb;
-
-// ========================================
-// Constants
 
 extern NSString * const libraryViewSource;
 extern NSString * const browser1ViewSource;
 extern NSString * const browser2ViewSource;
 extern NSString * const browser3ViewSource;
+extern NSString * const compilationString;
 
 typedef enum {
     PRLibraryView = 1 << 0,
@@ -20,14 +15,11 @@ typedef enum {
     PRBrowser3View = 1 << 3,
 } PRBrowser;
 
-// ========================================
-// PRLibraryViewSource
-// ========================================
-@interface PRLibraryViewSource : NSObject 
-{
-	PRDb *db;
+
+@interface PRLibraryViewSource : NSObject {
+	__weak PRDb *_db;
 	
-    PRPlaylist _playlist;
+    PRList *_list;
     NSCache *_cachedValues;
     BOOL _compilation;
     
@@ -47,48 +39,26 @@ typedef enum {
     NSString *_cachedBrowser3Statement;
     BOOL _cachedCompilation;
 }
-
-// ========================================
 // Initialization
-
 - (id)initWithDb:(PRDb *)sqlDb;
 - (void)create;
 - (BOOL)initialize;
 
-// =======================================
 // Update
+- (int)refreshWithList:(PRList *)list force:(BOOL)force;
 
-- (int)refreshWithPlaylist:(PRPlaylist)playlist force:(BOOL)force;
-- (BOOL)updateSortIndex;
-- (BOOL)populateSource;
-- (BOOL)populateBrowser:(int)browser;
-
-// ========================================
 // Library Accessors
-
 - (int)count;
-- (PRFile)fileForRow:(int)row;
-- (int)rowForFile:(PRFile)file;
-- (id)valueForRow:(int)row attribute:(PRFileAttribute)attribute andCacheAttributes:(NSArray *)attributes;
+- (PRItem *)itemForRow:(int)row;
+- (int)rowForItem:(PRItem *)item;
+- (id)valueForRow:(int)row attribute:(PRItemAttr *)attribute andCacheAttributes:(NSArray *(^)(void))attributes;
 
+- (int)firstRowWithValue:(id)value forAttr:(PRItemAttr *)attr;
 - (NSDictionary *)info;
 - (NSArray *)albumCounts;
 
-// ========================================
-// Browser Accessors
-
+// Browser Accessor
 - (int)countForBrowser:(int)browser;
 - (NSString *)valueForRow:(int)row browser:(int)browser;
 - (NSIndexSet *)selectionForBrowser:(int)browser;
-
-- (BOOL)compilation;
-
-// ========================================
-// Misc
-
-- (BOOL)compilationForBrowser:(int)browser;
-- (int)firstRowWithValue:(id)value forAttribute:(PRFileAttribute)attribute;
-- (NSString *)tableNameForBrowser:(int)browser;
-- (NSString *)groupingStringForPlaylist:(PRPlaylist)playlist browser:(int)browser;
-
 @end

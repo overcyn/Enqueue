@@ -837,7 +837,7 @@
     if (rating < 0 || rating > 100 || [now currentFile] == 0) {
         return;
     }
-    [[db library] setValue:[NSNumber numberWithInt:rating] forFile:[now currentFile] attribute:PRRatingFileAttribute];
+    [[db library] setValue:[NSNumber numberWithInt:rating] forItem:[now currentItem] attr:PRItemAttrRating];
     [[NSNotificationCenter defaultCenter] postFilesChanged:[NSIndexSet indexSetWithIndex:[now currentFile]]];
 }
 

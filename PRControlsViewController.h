@@ -1,11 +1,8 @@
 #import <Cocoa/Cocoa.h>
+@class PRDb, PRLibrary, PRNowPlayingController, PRGradientView, PRLibraryViewController, PRCore, PRTimeFormatter, PRHeaderBox, PRHyperlinkButton;
 
 
-@class PRDb, PRLibrary, PRNowPlayingController, PRGradientView, PRLibraryViewController, PRCore,
-PRTimeFormatter, PRHeaderBox, PRHyperlinkButton;
-
-@interface PRControlsViewController : NSViewController 
-{	
+@interface PRControlsViewController : NSViewController {
 	IBOutlet NSButton *playPause;
 	IBOutlet NSButton *next;
 	IBOutlet NSButton *previous;
@@ -39,35 +36,25 @@ PRTimeFormatter, PRHeaderBox, PRHyperlinkButton;
     
     PRTimeFormatter *timeFormatter;
     
-    PRCore *core;
-    PRDb *db;
-	PRLibrary *lib;
-    PRLibraryViewController *libraryViewController;
-	PRNowPlayingController *now;
+    __weak PRCore *core;
+    __weak PRDb *db;
+	__weak PRLibrary *lib;
+    __weak PRLibraryViewController *libraryViewController;
+	__weak PRNowPlayingController *now;
 }
-
-// ========================================
 // Initialization
-
 - (id)initWithCore:(PRCore *)core_;
 
-// ========================================
 // Accessors
-
 - (NSImageView *)albumArtView;
 
-// ========================================
 // Update
-
 - (void)updateLayout;
 - (void)updateControls;
 - (void)updatePlayButton;
-
 - (void)volumeChanged:(NSNotification *)notification;
 
-// ========================================
 // Action
-
 - (BOOL)progressHidden;
 - (void)setProgressHidden:(BOOL)progressHidden;
 - (void)setProgressTitle:(NSString *)progressTitle;
@@ -75,5 +62,4 @@ PRTimeFormatter, PRHeaderBox, PRHyperlinkButton;
 
 - (void)showInLibrary;
 - (void)mute;
-
 @end

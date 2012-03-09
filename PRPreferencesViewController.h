@@ -123,9 +123,7 @@ typedef enum {
 // Update
 
 - (void)updateUI;
-- (void)importSheetDidEnd:(NSOpenPanel*)openPanel 
-			   returnCode:(NSInteger)returnCode 
-				  context:(void*)context;
+- (void)importSheetDidEnd:(NSOpenPanel*)openPanel returnCode:(NSInteger)returnCode context:(void*)context;
 
 // ========================================
 // Equalizer

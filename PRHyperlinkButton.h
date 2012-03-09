@@ -1,7 +1,7 @@
 #import <AppKit/AppKit.h>
 
-@interface PRHyperlinkButton : NSButton
-{
+
+@interface PRHyperlinkButton : NSButton {
     NSAttributedString *_attrString;
     NSAttributedString *_altAttrString;
     NSTrackingArea *_trackingArea;

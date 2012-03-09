@@ -1,6 +1,5 @@
 #import "PRHistory.h"
 #import "PRDb.h"
-#import "PRAlbumArtController.h"
 #import "PRUserDefaults.h"
 
 
@@ -9,32 +8,26 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 "date TEXT NOT NULL, "
 "FOREIGN KEY(file_id) REFERENCES library(file_id) ON UPDATE CASCADE ON DELETE CASCADE)";
 
+
 @implementation PRHistory
 
 // ========================================
 // Initialization
-// ========================================
 
-- (id)initWithDb:(PRDb *)db_
-{
-    self = [super init];
-	if (self) {
-		db = db_;
-	}
+- (id)initWithDb:(PRDb *)db {
+	if (!(self = [super init])) {return nil;}
+    _db = db;
 	return self;
 }
 
-- (void)create;
-{
-    NSString *string = PR_TBL_HISTORY_SQL;
-    [db execute:string];
+- (void)create {
+    [_db execute:PR_TBL_HISTORY_SQL];
 }
 
-- (BOOL)initialize
-{
-    NSString *string = @"SELECT sql FROM sqlite_master WHERE name = 'history'";
-    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnString], nil];
-    NSArray *result = [db execute:string bindings:nil columns:columns];
+- (BOOL)initialize {
+    NSArray *result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'history'" 
+                          bindings:nil 
+                           columns:[NSArray arrayWithObjects:PRColString, nil]];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_HISTORY_SQL]) {
         return FALSE;
     }
@@ -43,24 +36,20 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 
 // ========================================
 // Accessors
-// ========================================
  
-- (void)addFile:(PRFile)file withDate:(NSDate *)date
-{
-    NSString *string = @"INSERT INTO history (file_id, date) VALUES (?1, ?2)";
-    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSNumber numberWithInt:file], [NSNumber numberWithInt:1],
-                              [[NSDate date] description], [NSNumber numberWithInt:2], nil];
-    [db execute:string bindings:bindings columns:nil];
+- (void)addItem:(PRItem *)item withDate:(NSDate *)date {
+    [_db execute:@"INSERT INTO history (file_id, date) VALUES (?1, ?2)"
+       bindings:[NSDictionary dictionaryWithObjectsAndKeys:
+                 item, [NSNumber numberWithInt:1],
+                 [[NSDate date] description], [NSNumber numberWithInt:2], nil]
+        columns:nil];
 }
 
-- (void)clear
-{
-    [db execute:@"DELETE FROM history"];
+- (void)clear {
+    [_db execute:@"DELETE FROM history"];
 }
 
-- (NSArray *)topSongs
-{
+- (NSArray *)topSongs {
     NSString *stm;
     if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
         stm = @"SELECT file_id, playCount, title, artistAlbumArtist FROM library "
@@ -69,9 +58,8 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         stm = @"SELECT file_id, playCount, title, artist FROM library "
         "WHERE playCount > 0 ORDER BY playCount DESC LIMIT 250";
     }
-    NSArray *col = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], [NSNumber numberWithInt:PRColumnInteger], 
-                    [NSNumber numberWithInt:PRColumnString], [NSNumber numberWithInt:PRColumnString], nil];
-    NSArray *rlt = [db execute:stm bindings:nil columns:col];
+    NSArray *col = [NSArray arrayWithObjects:PRColInteger, PRColInteger, PRColString, PRColString, nil];
+    NSArray *rlt = [_db execute:stm bindings:nil columns:col];
     NSMutableArray *topSongs = [NSMutableArray array];
     
     for (NSArray *i in rlt) {
@@ -86,8 +74,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
     return topSongs;
 }
 
-- (NSArray *)topArtists
-{
+- (NSArray *)topArtists {
     NSString *stm;
     if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
         stm = @"SELECT file_id, sum(playCount), artistAlbumArtist FROM library "
@@ -98,11 +85,8 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         "GROUP BY artist COLLATE NOCASE2 HAVING sum(playCount) > 0 AND artist COLLATE NOCASE2 != '' "
         "ORDER BY 2 DESC, 3 DESC LIMIT 250";
     }
-    NSArray *col = [NSArray arrayWithObjects:
-                    [NSNumber numberWithInt:PRColumnInteger], 
-                    [NSNumber numberWithInt:PRColumnInteger], 
-                    [NSNumber numberWithInt:PRColumnString], nil];
-    NSArray *results = [db execute:stm bindings:nil columns:col];
+    NSArray *col = [NSArray arrayWithObjects:PRColInteger, PRColInteger, PRColString, nil];
+    NSArray *results = [_db execute:stm bindings:nil columns:col];
     NSMutableArray *topArtists = [NSMutableArray array];
     
     for (NSArray *i in results) {
@@ -116,8 +100,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
     return topArtists;
 }
 
-- (NSArray *)recentlyAdded
-{
+- (NSArray *)recentlyAdded {
     NSString *stm;
     if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
         stm = @"SELECT file_id, dateAdded, count(album), artistAlbumArtist, album FROM library "
@@ -127,9 +110,9 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         "GROUP BY artistAlbumArtist COLLATE NOCASE2, album COLLATE NOCASE2 ORDER BY 2 DESC LIMIT 250";
     }
     NSArray *col = [NSArray arrayWithObjects:
-                    [NSNumber numberWithInt:PRColumnInteger], [NSNumber numberWithInt:PRColumnString], [NSNumber numberWithInt:PRColumnInteger], 
-                    [NSNumber numberWithInt:PRColumnString], [NSNumber numberWithInt:PRColumnString], nil];
-    NSArray *rlt = [db execute:stm bindings:nil columns:col];
+                    PRColInteger, PRColString, PRColInteger, 
+                    PRColString, PRColString, nil];
+    NSArray *rlt = [_db execute:stm bindings:nil columns:col];
     
     NSMutableArray *recentlyAdded = [NSMutableArray array];
     for (NSArray *i in rlt) {
@@ -148,8 +131,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
     return recentlyAdded;
 }
 
-- (NSArray *)recentlyPlayed
-{
+- (NSArray *)recentlyPlayed {
     NSString *stm;
     if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
         stm = @"SELECT library.file_id, date, title, artistAlbumArtist FROM history "
@@ -158,9 +140,8 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         stm = @"SELECT library.file_id, date, title, artist FROM history "
         "JOIN library ON history.file_id = library.file_id ORDER BY date DESC LIMIT 250";
     }
-    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], [NSNumber numberWithInt:PRColumnString], 
-                        [NSNumber numberWithInt:PRColumnString], [NSNumber numberWithInt:PRColumnString],nil];
-    NSArray *results = [db execute:stm bindings:nil columns:columns];
+    NSArray *columns = [NSArray arrayWithObjects:PRColInteger, PRColString, PRColString, PRColString,nil];
+    NSArray *results = [_db execute:stm bindings:nil columns:columns];
     NSMutableArray *recentlyPlayed = [NSMutableArray array];
     for (NSArray *i in results) {
         NSDate *date = [NSDate dateWithString:[i objectAtIndex:1]];
@@ -171,18 +152,15 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
                                    [i objectAtIndex:0], @"file", 
                                    [i objectAtIndex:2], @"title",
                                    [i objectAtIndex:3], @"artist", 
-                                   date, @"date", 
-                                   nil]];
+                                   date, @"date", nil]];
     }
     return recentlyPlayed;
 }
 
 // ========================================
 // Update
-// ========================================
 
-- (BOOL)confirmFileDelete_error:(NSError **)error
-{
+- (BOOL)confirmFileDelete_error:(NSError **)error {
     return TRUE;
 }
 

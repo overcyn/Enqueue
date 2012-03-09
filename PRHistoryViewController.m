@@ -201,13 +201,13 @@
 		return;
 	}
     [mainWindowController setCurrentMode:PRLibraryMode];
-    [mainWindowController setCurrentPlaylist:[[db playlists] libraryPlaylist]];
+    [mainWindowController setCurrentPlaylist:[[[db playlists] libraryList] intValue]];
     if (historyMode == PRTopArtistsHistoryMode) {
         NSString *artist = [[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"artist"];
         [(PRTableViewController *)[[mainWindowController libraryViewController] currentViewController] highlightArtist:artist];
     } else {
         PRFile file = [[[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"file"] intValue];
-        [[mainWindowController libraryViewController] highlightFile:file];
+        [[[mainWindowController libraryViewController] currentViewController] highlightFile:file];
     }
 }
 

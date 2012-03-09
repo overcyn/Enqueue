@@ -3,8 +3,7 @@
 
 @class PRSynchronizedScrollView, PRAlbumTableView2;
 
-@interface PRAlbumListViewController : PRTableViewController
-{
+@interface PRAlbumListViewController : PRTableViewController {
 	IBOutlet PRSynchronizedScrollView *albumScrollView;
 	IBOutlet PRAlbumTableView2 *albumTableView;
 	
@@ -13,8 +12,7 @@
 	NSArray *albumCountArray; // array of album counts
 	NSMutableArray *albumSumCountArray; // array of sum of album counts
     
-    // cached album art
-    NSCache *cachedArtwork;
+    NSCache *_cachedArtwork;
 }
 
 // action

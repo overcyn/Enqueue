@@ -194,7 +194,7 @@
        }
        int rating = [ratingControl selectedSegment] * 20;
        for (NSNumber *i in selection) {
-           [[db library] setValue:[NSNumber numberWithInt:rating] forFile:[i intValue] attribute:PRRatingFileAttribute];
+           [[db library] setValue:[NSNumber numberWithInt:rating] forItem:i attr:PRItemAttrRating];
        }
        [[NSNotificationCenter defaultCenter] postFilesChanged:[NSIndexSet indexSetWithArray:selection]];
    } else if (object == albumArtView && [keyPath isEqualToString:@"objectValue"]) {
@@ -389,9 +389,9 @@
 		return NSNoSelectionMarker;
 	}
     
-    id firstResult = [[db library] valueForFile:[[selection objectAtIndex:0] intValue] attribute:attribute];
+    id firstResult = [[db library] valueForItem:[selection objectAtIndex:0] attr:[PRLibrary itemAttrForInternal:[NSNumber numberWithInt:attribute]]];
     for (NSNumber *i in selection) {
-        id result = [[db library] valueForFile:[i intValue] attribute:attribute];
+        id result = [[db library] valueForItem:i attr:[PRLibrary itemAttrForInternal:[NSNumber numberWithInt:attribute]]];
         if (![firstResult isEqual:result]) {
             return NSMultipleValuesMarker;
         }

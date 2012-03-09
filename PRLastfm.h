@@ -24,7 +24,8 @@ typedef enum {
     // Authorization
     NSURLRequest *_currentRequest;
 
-    PRCore *_core;
+    __weak PRCore *_core;
+    __weak PRDb *_db;
 }
 
 // ========================================

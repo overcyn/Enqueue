@@ -1,9 +1,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface PRPaneSplitView : NSSplitView
-{
+@interface PRPaneSplitView : NSSplitView {
 
 }
-
 @end

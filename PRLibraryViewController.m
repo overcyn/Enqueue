@@ -5,61 +5,51 @@
 #import "PRDb.h"
 #import "PRLibrary.h"
 #import "PRPlaylists.h"
-#import "PRPlaylists+Extensions.h"
 #import "PRNowPlayingController.h"
 #import "PRLibraryViewSource.h"
 #import "PRTimeFormatter2.h"
 #import "PRSizeFormatter.h"
 #import "PRCore.h"
 
+@interface PRLibraryViewController ()
+// Setup
+- (void)updateLayout;
+@end
+
 
 @implementation PRLibraryViewController
 
 // ========================================
 // Initialization
-// ========================================
 
-- (id)initWithCore:(PRCore *)core_
-{
+- (id)initWithCore:(PRCore *)core {
     if (!(self = [super initWithNibName:@"PRLibraryView" bundle:nil])) {return nil;}
-    core = [core_ retain];
-    db = [[core db] retain];
-    now = [[core now] retain];
+    _core = core;
+    _db = [_core db];
+    _now = [_core now];
     infoViewController = [[PRInfoViewController alloc] initWithCore:core];
-    
-    playlist = -1;
+    _currentList = nil;
     return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [infoViewController release];
     [listViewController release];
     [albumListViewController release];
-    [db release];
-    [now release];
     [super dealloc];
 }
 
-- (void)awakeFromNib
-{	
+- (void)awakeFromNib {	
     [paneSuperview retain];
     [centerSuperview retain];
     
-	// Panes. Toggle on init to set initial frame
 	currentPaneViewController = infoViewController;
     _edit = TRUE;
     [self updateLayout];
     [self infoViewToggle];
     
-	// ListView
-	listViewController = [[PRListViewController alloc] initWithDb:db 
-                                             nowPlayingController:now
-                                            libraryViewController:self];
-	// AlbumListView
-	albumListViewController = [[PRAlbumListViewController alloc] initWithDb:db
-                                                       nowPlayingController:now
-                                                      libraryViewController:self];
+    listViewController = [[PRListViewController alloc] initWithCore:_core];
+    albumListViewController = [[PRAlbumListViewController alloc] initWithCore:_core];
 	
 	[[listViewController view] setFrame:[centerSuperview bounds]];
 	[centerSuperview addSubview:[listViewController view]];
@@ -71,35 +61,36 @@
 
 // ========================================
 // Accessors
-// ========================================
 
 @synthesize currentViewController;
+@dynamic libraryViewMode, currentList;
 
-- (void)setPlaylist:(PRPlaylist)newPlaylist;
-{
-	if (playlist == newPlaylist) {
-		return;
-	}
-	playlist = newPlaylist;
-	[self setLibraryViewMode:[self libraryViewMode]];
+- (PRList *)currentList {
+    return _currentList;
 }
 
-- (PRLibraryViewMode)libraryViewMode
-{
-    if (playlist == -1) {
+- (void)setCurrentList:(NSNumber *)list {
+    if ([list isEqual:_currentList]) {
+        return;
+    }
+    [list retain];
+    [_currentList release];
+    _currentList = list;
+    [self setLibraryViewMode:[self libraryViewMode]];
+}
+
+- (PRLibraryViewMode)libraryViewMode {
+    if (!_currentList) {
         return -1;
     }
-	return [[db playlists] libraryViewModeForPlaylist:playlist];
+	return [[_db playlists] viewModeForList:_currentList];
 }
 
-- (void)setLibraryViewMode:(PRLibraryViewMode)libraryViewMode
-{   
-	[listViewController setCurrentPlaylist:-1];
-	[albumListViewController setCurrentPlaylist:-1];
+- (void)setLibraryViewMode:(PRLibraryViewMode)libraryViewMode {   
+	[listViewController setCurrentList:nil];
+	[albumListViewController setCurrentList:nil];
     
-    [[db playlists] setValue:[NSNumber numberWithInt:libraryViewMode] 
-                 forPlaylist:playlist 
-                   attribute:PRLibraryViewModePlaylistAttribute];
+    [[_db playlists] setViewMode:libraryViewMode forList:_currentList];
     
 	id oldViewController = currentViewController;
 	if (libraryViewMode == PRListMode) {
@@ -110,35 +101,40 @@
 	
 	[[currentViewController view] setFrame:[centerSuperview bounds]];
 	[centerSuperview replaceSubview:[oldViewController view] with:[currentViewController view]];    
-	[currentViewController setCurrentPlaylist:playlist];    
+	[currentViewController setCurrentList:_currentList];    
     
-    [[NSNotificationCenter defaultCenter] postPlaylistChanged:playlist];
+    [[NSNotificationCenter defaultCenter] postPlaylistChanged:[_currentList intValue]];
     [[NSNotificationCenter defaultCenter] postLibraryViewSelectionChanged];
 }
 
-- (void)setLibraryViewModeAction:(id)sender
-{
+- (void)setLibraryViewModeAction:(id)sender {
     [self setLibraryViewMode:[sender tag]];
 }
 
-- (void)setListMode
-{
+- (void)setListMode {
     [self setLibraryViewMode:PRListMode];
 }
 
-- (void)setAlbumListMode
-{
+- (void)setAlbumListMode {
     [self setLibraryViewMode:PRAlbumListMode];
 }
 
-// ========================================
-// UI
-// ========================================
+- (void)infoViewToggle {
+    _edit = !_edit;
+    [self updateLayout];
+    [[NSNotificationCenter defaultCenter] postInfoViewVisibleChanged];
+}
 
-- (void)updateLayout
-{
+- (BOOL)infoViewVisible {
+    return _edit;
+}
+
+// ========================================
+// Setup
+
+- (void)updateLayout {
     if (_edit) {
-        // PANE
+        // pane
         NSRect frame;
         frame.origin.x = 0;
         frame.origin.y = 0;
@@ -148,17 +144,17 @@
         [[self view] addSubview:paneSuperview];
         [paneSuperview setFrame:frame];
         
-        // CENTER
+        // center
         frame.origin.x = 0;
         frame.origin.y = [paneSuperview frame].size.height;
         frame.size.width = [[self view] frame].size.width;
         frame.size.height = [[self view] frame].size.height - [paneSuperview frame].size.height;
         [centerSuperview setFrame:frame];
     } else {
-        // PANE
+        // pane
         [paneSuperview removeFromSuperview];
         
-        // CENTER
+        // center
         NSRect frame;
         frame.origin.x = 0;
         frame.origin.y = 0;
@@ -168,31 +164,23 @@
     }
 }
 
-- (void)infoViewToggle
-{
-    _edit = !_edit;
-    [self updateLayout];
-    [[NSNotificationCenter defaultCenter] postInfoViewVisibleChanged];
-}
+// ========================================
+// Action
 
-- (BOOL)infoViewVisible
-{
-    return _edit;
-}
-
-- (void)highlightFile:(PRFile)file
-{
+- (void)highlightFile:(PRFile)file {
 	[currentViewController highlightFile:file];
 }
 
-- (NSMenu *)libraryViewMenu
-{
+// ========================================
+// Menu
+
+- (NSMenu *)libraryViewMenu {
     NSMenu *menu = [[[NSMenu alloc] init] autorelease];
     NSMenuItem *item = [[[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""] autorelease];
     NSImage *image;
     if ([self libraryViewMode] == PRListMode) {
         image = [NSImage imageNamed:@"List.png"];
-    } else { // Album List
+    } else {
         image = [NSImage imageNamed:@"AlbumList.png"];
     }
     [item setImage:image];

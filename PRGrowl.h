@@ -6,6 +6,7 @@
 @interface PRGrowl : NSObject  <GrowlApplicationBridgeDelegate> 
 {
     PRCore *core;
+    __weak PRDb *_db;
 }
 
 

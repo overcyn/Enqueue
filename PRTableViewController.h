@@ -1,27 +1,24 @@
 #import <Cocoa/Cocoa.h>
 #import "PRAlbumTableView.h"
 #import "PRLibrary.h"
+#import "PRLibraryViewController.h"
+@class PRDb, PRLibrary, PRPlaylists, PRNowPlayingController, PRLibraryViewSource, PRLibraryViewController, PRNumberFormatter, PRSizeFormatter, PRTimeFormatter, PRBitRateFormatter, PRKindFormatter, PRDateFormatter, PRStringFormatter;
 
 
-@class PRDb, PRLibrary, PRPlaylists, PRNowPlayingController, PRLibraryViewSource, PRLibraryViewController,
-PRNumberFormatter, PRSizeFormatter, PRTimeFormatter, PRBitRateFormatter, PRKindFormatter, PRDateFormatter,
-PRStringFormatter;
-
-@interface PRTableViewController : NSViewController <NSSplitViewDelegate, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate>
-{
-	IBOutlet NSTableView *libraryTableView;
+@interface PRTableViewController : NSViewController <NSSplitViewDelegate, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate, PRTableViewDelegate> {
+	IBOutlet PRTableView *libraryTableView;
     IBOutlet NSView *libraryScrollView;
     IBOutlet NSScrollView *libraryScrollView2;
     
     IBOutlet NSSplitView *horizontalBrowserSplitView;
     IBOutlet NSSplitView *horizontalBrowserSubSplitview;
-    IBOutlet NSTableView *horizontalBrowser1TableView;
-    IBOutlet NSTableView *horizontalBrowser2TableView;
-    IBOutlet NSTableView *horizontalBrowser3TableView;
+    IBOutlet PRTableView *horizontalBrowser1TableView;
+    IBOutlet PRTableView *horizontalBrowser2TableView;
+    IBOutlet PRTableView *horizontalBrowser3TableView;
     IBOutlet NSView *horizontalBrowserLibrarySuperview;
     
     IBOutlet NSSplitView *verticalBrowserSplitView;
-    IBOutlet NSTableView *verticalBrowser1TableView;
+    IBOutlet PRTableView *verticalBrowser1TableView;
     IBOutlet NSView *verticalBrowserLibrarySuperview;
 	
     NSTableView *browser1TableView;
@@ -35,111 +32,36 @@ PRStringFormatter;
     PRBitRateFormatter *bitRateFormatter;
     PRKindFormatter *kindFormatter;
     PRDateFormatter *dateFormatter;
+    
+    PRList *_currentList;
 	
-	// Default -1
-	int currentPlaylist;
-	
-	// True when updating so that tableViewSelectionDidChange doesnt get triggered
-    BOOL monitorSelection;
+    BOOL _updatingTableViewSelection; // True during reloadData: so tableViewSelectionDidChange doesn't trigger
 	BOOL refreshing;
 	
 	NSMenu *libraryMenu;
 	NSMenu *headerMenu;
 	NSMenu *browserHeaderMenu;
-	// selection for context menu
-	NSIndexSet *selectedRows;
 	
-	PRDb *db;
-	PRNowPlayingController *now;
-	PRLibraryViewController *libraryViewController; // weak
+    __weak PRCore *_core;
+	__weak PRDb *db;
+	__weak PRNowPlayingController *now;
 }
 
-// ========================================
 // Initialization
+- (id)initWithCore:(PRCore *)core;
 
-- (id)       initWithDb:(PRDb *)db_ 
-   nowPlayingController:(PRNowPlayingController *)now_
-  libraryViewController:(PRLibraryViewController *)libraryViewController_;
-
-// ========================================
 // Accessors
+@property (nonatomic, assign) PRList *currentList;
+@property (readonly) NSDictionary *info;
+@property (readonly) NSArray *selection;
 
-- (int)sortColumn;
-- (void)setSortColumn:(int)sortColumn;
-- (BOOL)ascending;
-- (void)setAscending:(BOOL)ascending;
-
-- (NSDictionary *)info;
-- (NSArray *)selection;
-
-- (void)setCurrentPlaylist:(int)newPlaylist;
-
-// ========================================
-// Update
-
-- (void)playingFileChanged:(NSNotification *)note;
-- (void)libraryDidChange:(NSNotification *)notification;
-- (void)playlistDidChange:(NSNotification *)notification;
-- (void)playlistFilesChanged:(NSNotification *)note;
-- (void)tagsDidChange:(NSNotification *)notification;
-- (void)ruleDidChange:(NSNotification *)notification;
-
-// ========================================
 // Action
-
-- (void)play;
-- (void)playBrowser:(id)sender;
-- (void)playSelected;
-- (void)append;
-- (void)addToPlaylist:(id)sender;
-- (void)playNext;
-- (void)getInfo;
-- (void)reveal;
-- (void)delete;
-
-- (IBAction)delete:(id)sender;
-
-// ========================================
-// UI Update
-
-- (void)reloadData:(BOOL)force;
-
-- (void)loadBrowser;
-- (void)saveBrowser;
-- (void)loadTableColumns;
-- (void)saveTableColumns;
-
-- (void)highlightTableColumn:(NSTableColumn *)tableColumn ascending:(BOOL)ascending;
-
-- (NSMenu *)browserHeaderMenu;
-- (void)updateHeaderMenu;
-- (void)updateLibraryMenu;
-- (void)updateBrowserHeaderMenu;
-
-// ========================================
-// UI Action
-
-- (void)toggleColumn:(id)sender;
-- (void)toggleBrowser:(id)sender;
-
-- (void)browseToArtist:(NSString *)artist;
 - (void)highlightFile:(PRFile)file;
 - (void)highlightFiles:(NSIndexSet *)indexSet;
 - (void)highlightArtist:(NSString *)artist;
+- (void)browseToArtist:(NSString *)artist;
 
-// ========================================
-// UI Misc
-
-- (int)browserForTableView:(NSTableView *)tableView;
-
-- (NSArray *)columnInfo;
-- (void)setColumnInfo:(NSArray *)columnInfo;
-
-- (NSTableColumn *)tableColumnForAttribute:(int)attribute;
-
-- (int)dbRowForTableRow:(int)tableRow;
-- (NSIndexSet *)dbRowIndexesForTableRowIndexes:(NSIndexSet *)tableRowIndexes;
-- (int)tableRowForDbRow:(int)dbRow;
-- (NSIndexSet *)tableRowIndexesForDbRowIndexes:(NSIndexSet *)indexSet;
+// Menu
+- (NSMenu *)browserHeaderMenu;
 
 @end

@@ -8,7 +8,7 @@
 	NSButton *minButton, *maxButton;
 }
 
-@property int indicatorIndex;
+@property (nonatomic) int indicatorIndex;
 @property (retain) NSButton *minButton;
 @property (retain) NSButton *maxButton;
 

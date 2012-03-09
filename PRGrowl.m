@@ -15,6 +15,7 @@
 {
     if (!(self = [super init])) {return nil;}
     core = core_;
+    _db = [core db];
     [GrowlApplicationBridge setGrowlDelegate:self];
     [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(currentFileDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(playingChanged:)];
@@ -23,29 +24,24 @@
 
 - (void)playingChanged:(NSNotification *)notification
 {
-    BOOL isPlaying = [[[core now] mov] isPlaying];
-    PRFile file = [[core now] currentFile];
-    if (![[PRUserDefaults userDefaults] postGrowlNotification] || file == 0 || !isPlaying) {
+    PRItem *item = [[core now] currentItem];
+    if (![[PRUserDefaults userDefaults] postGrowlNotification] || !item || ![[[core now] mov] isPlaying]) {
         return;
     }
-    NSString *title = [[[core db] library] valueForFile:file attribute:PRTitleFileAttribute];
-    NSString *artist = [[[core db] library] valueForFile:file attribute:PRArtistFileAttribute];
-    NSString *album = [[[core db] library] valueForFile:file attribute:PRAlbumFileAttribute];
-    NSNumber *time = [[[core db] library] valueForFile:file attribute:PRTimeFileAttribute];
+    NSString *title = [[_db library] valueForItem:item attr:PRItemAttrTitle];
+    NSString *artist = [[_db library] artistValueForItem:item];
+    NSString *album = [[_db library] valueForItem:item attr:PRItemAttrAlbum];
+    NSNumber *time = [[_db library] valueForItem:item attr:PRItemAttrTime];
     NSString *formattedTime = [[[[PRTimeFormatter alloc] init] autorelease] stringForObjectValue:time];
-    NSImage *albumArt = [[[core db] albumArtController] albumArtForFile:file];
-    
-    NSData *iconData = nil;
-    if (albumArt) {
-        iconData = [albumArt TIFFRepresentation];
-    } else {
-        iconData = [[NSImage imageNamed:@"PRLightAlbumArt.png"] TIFFRepresentation];
+    NSData *artwork = [[[[core db] albumArtController] artworkForItem:item] TIFFRepresentation];
+    if (!artwork) {
+        artwork = [[NSImage imageNamed:@"PRLightAlbumArt.png"] TIFFRepresentation];
     }
     
     [GrowlApplicationBridge notifyWithTitle:title
                                 description:[NSString stringWithFormat:@"%@\n%@\n%@", formattedTime, artist, album]
                            notificationName:@"Playing Song"
-                                   iconData:iconData
+                                   iconData:artwork
                                    priority:0
                                    isSticky:FALSE
                                clickContext:nil];
@@ -53,29 +49,25 @@
 
 - (void)currentFileDidChange:(NSNotification *)notification
 {
-    PRFile file = [[core now] currentFile];
-    if (![[PRUserDefaults userDefaults] postGrowlNotification] || file == 0) {
+    PRItem *item = [[core now] currentItem];
+    if (![[PRUserDefaults userDefaults] postGrowlNotification] || !item) {
         return;
     }
     
-    NSString *title = [[[core db] library] valueForFile:file attribute:PRTitleFileAttribute];
-    NSString *artist = [[[core db] library] valueForFile:file attribute:PRArtistFileAttribute];
-    NSString *album = [[[core db] library] valueForFile:file attribute:PRAlbumFileAttribute];
-    NSNumber *time = [[[core db] library] valueForFile:file attribute:PRTimeFileAttribute];
+    NSString *title = [[_db library] valueForItem:item attr:PRItemAttrTitle];
+    NSString *artist = [[_db library] artistValueForItem:item];
+    NSString *album = [[_db library] valueForItem:item attr:PRItemAttrAlbum];
+    NSNumber *time = [[_db library] valueForItem:item attr:PRItemAttrTime];
     NSString *formattedTime = [[[[PRTimeFormatter alloc] init] autorelease] stringForObjectValue:time];
-    NSImage *albumArt = [[[core db] albumArtController] albumArtForFile:file];
-    
-    NSData *iconData = nil;
-    if (albumArt) {
-        iconData = [albumArt TIFFRepresentation];
-    } else {
-        iconData = [[NSImage imageNamed:@"PRLightAlbumArt.png"] TIFFRepresentation];
+    NSData *artwork = [[[[core db] albumArtController] artworkForItem:item] TIFFRepresentation];
+    if (!artwork) {
+        artwork = [[NSImage imageNamed:@"PRLightAlbumArt.png"] TIFFRepresentation];
     }
     
     [GrowlApplicationBridge notifyWithTitle:title
                                 description:[NSString stringWithFormat:@"%@\n%@\n%@", formattedTime, artist, album]
                            notificationName:@"Playing Song"
-                                   iconData:iconData
+                                   iconData:artwork
                                    priority:0
                                    isSticky:FALSE
                                clickContext:nil];

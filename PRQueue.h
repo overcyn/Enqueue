@@ -1,30 +1,18 @@
 #import <Foundation/Foundation.h>
-#import "PRPlaylists.h"
-
-@class PRDb;
+@class PRDb, PRListItem;
 
 
-@interface PRQueue : NSObject 
-{
-    PRDb *db;
+@interface PRQueue : NSObject {
+    __weak PRDb *_db;
 }
-
-// ========================================
 // Initialization
-// ========================================
-
-- (id)initWithDb:(PRDb *)db_;
-
+- (id)initWithDb:(PRDb *)db;
 - (void)create;
 - (BOOL)initialize;
 
-// ========================================
 // Accessors
-// ========================================
-
 - (NSArray *)queueArray;
-- (void)removePlaylistItem:(PRPlaylistItem)playlistItem;
-- (void)appendPlaylistItem:(PRPlaylistItem)playlistItem;
+- (void)removeListItem:(PRListItem *)listItem;
+- (void)appendListItem:(PRListItem *)listItem;
 - (void)clear;
-
 @end

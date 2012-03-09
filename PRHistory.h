@@ -1,35 +1,23 @@
 #import <Cocoa/Cocoa.h>
-#import "PRLibrary.h"
+@class PRDb, PRItem;
 
-@class PRDb;
 
-@interface PRHistory : NSObject 
-{    
-    PRDb *db;
+@interface PRHistory : NSObject {   
+    __weak PRDb *_db;
 }
-
-// ========================================
 // Initialization
-
-- (id)initWithDb:(PRDb *)sqlDb_;
-
+- (id)initWithDb:(PRDb *)db;
 - (void)create;
 - (BOOL)initialize;
 
-// ========================================
 // Accessors
-
-- (void)addFile:(PRFile)file withDate:(NSDate *)date;
+- (void)addItem:(PRItem *)item withDate:(NSDate *)date;
 - (void)clear;
-
 - (NSArray *)topArtists;
 - (NSArray *)topSongs;
 - (NSArray *)recentlyAdded;
 - (NSArray *)recentlyPlayed;
 
-// ========================================
 // Update
-
 - (BOOL)confirmFileDelete_error:(NSError **)error;
-
 @end

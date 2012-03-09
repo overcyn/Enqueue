@@ -5,10 +5,8 @@
 
 // ========================================
 // Initialization
-// ========================================
 
-- (void)awakeFromNib
-{
+- (void)awakeFromNib {
 	[[self window] setAcceptsMouseMovedEvents:YES];
     trackingArea = [[NSTrackingArea alloc] initWithRect:[self frame] 
                                                 options:NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInActiveApp | NSTrackingEnabledDuringMouseDrag
@@ -19,8 +17,7 @@
     trackMouseWithinCell = FALSE;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
 	[self removeTrackingArea:trackingArea];
     [trackingArea release];
 	[super dealloc];
@@ -28,7 +25,6 @@
 
 // ========================================
 // Accessors
-// ========================================
 
 @synthesize trackMouseWithinCell;
 @synthesize pointInCell;
@@ -36,15 +32,12 @@
 
 // ========================================
 // Update
-// ========================================
 
-- (void)mouseEntered:(NSEvent *)theEvent
-{
+- (void)mouseEntered:(NSEvent *)theEvent {
 	
 }
 
-- (void)mouseMoved:(NSEvent *)theEvent
-{
+- (void)mouseMoved:(NSEvent *)theEvent {
 	id myDelegate = [self delegate];
 	if (!myDelegate)
 		return; // No delegate, no need to track the mouse.
@@ -70,14 +63,12 @@
     }
 }
 
-- (void)mouseExited:(NSEvent *)theEvent
-{
+- (void)mouseExited:(NSEvent *)theEvent {
 	[self setNeedsDisplayInRect:[self rectOfRow:mouseOverRow]];
 	mouseOverRow = -1;
 }
 
-- (void)updateTrackingArea
-{
+- (void)updateTrackingArea {
     [self removeTrackingArea:trackingArea];
     trackingArea = [[NSTrackingArea alloc] initWithRect:[self frame] 
                                                 options:NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInKeyWindow
@@ -86,20 +77,17 @@
     [self addTrackingArea:trackingArea];
 }
 
-- (void)viewDidEndLiveResize
-{
+- (void)viewDidEndLiveResize {
     [super viewDidEndLiveResize];
     [self updateTrackingArea];
 }
 
-- (void)resetCursorRects
-{
+- (void)resetCursorRects {
     [super resetCursorRects];
     [self mouseMoved:nil];
 }
 
-- (void)mouseDown:(NSEvent *)theEvent
-{
+- (void)mouseDown:(NSEvent *)theEvent {
     [super mouseDown:theEvent];
     
     if ([[self window] isKeyWindow]) {
@@ -114,17 +102,14 @@
 
 // ========================================
 // Drawing
-// ========================================
 
 // Disable default highlight color
-- (id)_highlightColorForCell:(NSCell *)cell
-{
+- (id)_highlightColorForCell:(NSCell *)cell {
     return nil;
 }
 
 // Draw custom higlights
-- (void)highlightSelectionInClipRect:(NSRect)theClipRect
-{	
+- (void)highlightSelectionInClipRect:(NSRect)theClipRect {	
 	
 }
 

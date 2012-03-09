@@ -16,6 +16,7 @@
 #import "PRMainMenuController.h"
 #import "PRKeyboardShortcuts.h"
 #import "PRFullRescanOperation.h"
+#import "PRTrialSheetController.h"
 
 @implementation PRCore
 
@@ -68,6 +69,18 @@
 - (void)awakeFromNib
 {
     [_win showWindow:nil];
+    
+//    NSLog(@"window:%@",[_win window]);
+//    _trialSheet = [[PRTrialSheetController alloc] initWithCore:self];
+//    
+//    [_trialSheet beginSheetForWindow:[_win window]];
+//    [NSApp beginSheet:[_trialSheet window] 
+//       modalForWindow:[_win window]
+//        modalDelegate:_trialSheet
+//       didEndSelector:nil
+//          contextInfo:nil];
+
+    
     if ([[PRUserDefaults userDefaults] showWelcomeSheet]) {
         [[PRUserDefaults userDefaults] setShowWelcomeSheet:FALSE];
         _welcomeSheet = [[PRWelcomeSheetController alloc] initWithCore:self];
@@ -77,12 +90,12 @@
            didEndSelector:nil
               contextInfo:nil];
     }
-//    [_opQueue addOperation:[[[PRVacuumOperation alloc] initWithCore:self] autorelease]];
+    [_opQueue addOperation:[[[PRVacuumOperation alloc] initWithCore:self] autorelease]];
     [_opQueue setSuspended:FALSE];
 }
 
 // ========================================
-// Properties
+// Accessors
 // ========================================
 
 @synthesize db = _db;
@@ -96,7 +109,7 @@
 @synthesize keys = _keys;
 
 // ========================================
-// Importing
+// Action
 // ========================================
 
 - (IBAction)itunesImport:(id)sender

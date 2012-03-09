@@ -11,16 +11,15 @@
 {	
 	NSDictionary *dict = [self objectValue];
 	PRDb *db = [dict objectForKey:@"db"];
-	PRFile file = [[dict objectForKey:@"file"] intValue];
+    PRItem *item = [dict objectForKey:@"file"];
     NSImage *icon = [dict objectForKey:@"icon"];
-	
     if (!icon || ![icon isValid]) {
         icon = [NSImage imageNamed:@"PRLightAlbumArt"];
     }
     
-    NSString *artist = [[db library] valueForFile:file attribute:PRAlbumFileAttribute];
-	NSString *album = [[db library] comparisonArtistForFile:file];
-	NSNumber *year = [[db library] valueForFile:file attribute:PRYearFileAttribute];
+    NSString *artist = [[db library] artistValueForItem:item];
+	NSString *album = [[db library] valueForItem:item attr:PRItemAttrAlbum];
+	NSNumber *year = [[db library] valueForItem:item attr:PRItemAttrYear];
     
 	// Inset the cell frame to give everything a little horizontal padding
 	NSRect insetRect = NSInsetRect(theCellFrame, 10, 9);
@@ -46,8 +45,8 @@
         nil] autorelease];
 	
 	// Make a Title string
-	NSString *title = album;
-    NSString *subtitle = artist;
+	NSString *title = artist;
+    NSString *subtitle = album;
 	NSString *subSubtitle = [year stringValue];
     
     if ([title isEqualToString:@""]) {

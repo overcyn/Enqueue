@@ -1,11 +1,6 @@
 #import <Foundation/Foundation.h>
 
 
-@interface PRSliderCell : NSSliderCell 
-{
-    BOOL indicator;
+@interface PRSliderCell : NSSliderCell {
 }
-
-@property (readwrite) BOOL indicator;
-
 @end

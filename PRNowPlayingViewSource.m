@@ -2,83 +2,68 @@
 #import "PRDb.h"
 #import "PRUserDefaults.h"
 
+
 @implementation PRNowPlayingViewSource
 
 // ========================================
 // Initialization
-// ========================================
 
-- (id)initWithDb:(PRDb *)db_
-{
+- (id)initWithDb:(PRDb *)db_ {
     self = [super init];
 	if (self) {
-		db = db_;
+		_db = db_;
 	}
 	return self;
 }
 
-- (void)create
-{
+- (void)create {
 
 }
 
-- (BOOL)initialize
-{	
+- (BOOL)initialize {	
     NSString *string = @"CREATE TEMP TABLE now_playing_view_source ("
     "row INTEGER NOT NULL PRIMARY KEY, "
     "file_id INTEGER NOT NULL "
     ")";
-    [db execute:string];
+    [_db execute:string];
     return TRUE;
 }
 
 // ========================================
 // Update
-// ========================================
 
-- (BOOL)refreshWithPlaylist:(PRPlaylist)playlist 
-{
-    NSString *string = @"DELETE FROM now_playing_view_source";
-    [db execute:string];
-    
-    string = @"INSERT INTO now_playing_view_source (file_id) "
-    "SELECT file_id FROM playlist_items WHERE playlist_id = ?1 ORDER BY playlist_index";
-    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSNumber numberWithInt:playlist], [NSNumber numberWithInt:1], nil];
-    [db execute:string bindings:bindings columns:nil];
-    return TRUE;
+- (void)refresh {
+    [_db execute:@"DELETE FROM now_playing_view_source"];
+    [_db execute:@"INSERT INTO now_playing_view_source (file_id) "
+     "SELECT file_id FROM playlist_items WHERE playlist_id = ?1 ORDER BY playlist_index"
+       bindings:[NSDictionary dictionaryWithObjectsAndKeys:[[_db playlists] nowPlayingList], [NSNumber numberWithInt:1], nil]
+        columns:nil];
 }
 
 // ========================================
 // Accessors
-// ========================================
 
-- (int)count
-{
+- (int)count {
     NSString *string = @"SELECT COUNT(*) FROM now_playing_view_source";
-    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *result = [db execute:string bindings:nil columns:columns];
+    NSArray *columns = [NSArray arrayWithObjects:PRColInteger, nil];
+    NSArray *result = [_db execute:string bindings:nil columns:columns];
     if ([result count] != 1) {
         [PRException raise:PRDbInconsistencyException format:@""];
     }
     return [[result objectAtIndex:0] intValue];
 }
 
-- (PRFile)fileForRow:(int)row
-{
-    NSString *string = @"SELECT file_id FROM now_playing_view_source WHERE row = ?1";
-    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil];
-    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *results = [db execute:string bindings:bindings columns:columns];
-    if ([results count] != 1) {
+- (PRItem *)itemForRow:(int)row {
+    NSArray *rlt = [_db execute:@"SELECT file_id FROM now_playing_view_source WHERE row = ?1"
+                      bindings:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil]
+                       columns:[NSArray arrayWithObjects:PRColInteger, nil]];
+    if ([rlt count] != 1) {
         [PRException raise:PRDbInconsistencyException format:@""];
     }
-    return [[[results objectAtIndex:0] objectAtIndex:0] intValue];
+    return [[rlt objectAtIndex:0] objectAtIndex:0];
 }
 
-- (NSArray *)albumCounts
-{
+- (NSArray *)albumCounts {
     NSString *string;
     if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
         string = @"SELECT library.album, library.artistAlbumArtist "
@@ -89,10 +74,8 @@
         "FROM now_playing_view_source "
         "JOIN library ON now_playing_view_source.file_id = library.file_id";
     }
-    NSArray *columns = [NSArray arrayWithObjects:
-                        [NSNumber numberWithInt:PRColumnString], 
-                        [NSNumber numberWithInt:PRColumnString], nil];
-    NSArray *results = [db execute:string bindings:nil columns:columns];
+    NSArray *columns = [NSArray arrayWithObjects:PRColString, PRColString, nil];
+    NSArray *results = [_db execute:string bindings:nil columns:columns];
     
     if ([results count] == 0) {
         return [NSArray array];

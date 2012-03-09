@@ -9,7 +9,7 @@
 @property (readwrite) PRFileAttribute fileAttribute;
 @property (readwrite, assign) NSMutableArray *values;
 
-- (void)add;
+//- (void)add;
 
 + (NSString *)predicate;
 

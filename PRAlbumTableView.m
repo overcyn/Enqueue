@@ -1,10 +1,10 @@
 #import "PRAlbumTableView.h"
 #import "PRAlbumListViewController.h"
+#import "PRTableViewController+Private.h"
 
 @implementation PRAlbumTableView
 
-- (void)drawGridInClipRect:(NSRect)rect
-{
+- (void)drawGridInClipRect:(NSRect)rect {
 	NSRange columnRange = [self rowsInRect:rect];
 	[[NSColor gridColor] set];
 	[NSBezierPath setDefaultLineWidth:0];
@@ -18,8 +18,7 @@
 	}
 }
 
-- (void)highlightSelectionInClipRect:(NSRect)theClipRect
-{
+- (void)highlightSelectionInClipRect:(NSRect)theClipRect {
 	NSRange	visibleRowIndexes = [self rowsInRect:theClipRect];
 	NSIndexSet *selectedRowIndexes = [self selectedRowIndexes];
 	

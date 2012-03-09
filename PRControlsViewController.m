@@ -17,33 +17,28 @@
 #import "PRHeaderBox.h"
 #import "PRHyperlinkButton.h"
 #import "PRNowPlayingViewController.h"
+#import "PRTableViewController.h"
+
 
 @implementation PRControlsViewController
 
-// ========================================
-// Initialization
-// ========================================
+// == Initialization =======================================
 
-- (id)initWithCore:(PRCore *)core_;
-{
+- (id)initWithCore:(PRCore *)core_; {
     if (!(self = [super initWithNibName:@"PRControlsView" bundle:nil])) {return nil;}
     core = core_;
-    db = [[core_ db] retain];
-    now = [[core_ now] retain];
-    libraryViewController = [[[core_ win] libraryViewController] retain];
+    db = [core_ db];
+    now = [core_ now];
+    libraryViewController = [[core_ win] libraryViewController];
 	return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [timeFormatter release];
-    [db release];
-    [now release];
     [super dealloc];
 }
 
-- (void)awakeFromNib 
-{
+- (void)awakeFromNib  {
 	// bind time and volume sliders
     [controlSlider setCell:[[[PRSliderCell alloc] init] autorelease]];
 	[controlSlider setMinValue:0.0];
@@ -106,21 +101,15 @@
     [self updateLayout];
 }
 
-// ========================================
-// Artwork
-// ========================================
+// == Artwork ==============================================
 
-- (NSImageView *)albumArtView
-{
+- (NSImageView *)albumArtView {
     return albumArtView;
 }
 
-// ========================================
-// Update
-// ========================================
+// == Update ===============================================
 
-- (void)updateLayout
-{
+- (void)updateLayout {
     [_volumeButton setHidden:[[core win] miniPlayer]];
     [_artistAlbumField setHidden:![[core win] miniPlayer]];
     if (![[core win] miniPlayer]) {
@@ -370,8 +359,7 @@
     [self updateControls];
 }
 
-- (void)updateControls
-{
+- (void)updateControls {
     if ([now currentIndex] == 0) {
         [duration setHidden:TRUE];
         [currentTime setHidden:TRUE];
@@ -415,7 +403,7 @@
                                                 shadow, NSShadowAttributeName, nil];
         NSMutableDictionary *albumAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                 [NSFont fontWithName:@"LucidaGrande" size:11], NSFontAttributeName,
-                                                [NSColor colorWithDeviceWhite:0.2 alpha:1.0], NSForegroundColorAttributeName,
+                                                [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
                                                 align, NSParagraphStyleAttributeName,
                                                 shadow, NSShadowAttributeName, nil];
         NSMutableDictionary *separatorAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -426,19 +414,22 @@
         NSMutableDictionary *altTitleAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                    [NSFont fontWithName:@"LucidaGrande-Bold" size:11], NSFontAttributeName,
                                                    [NSColor colorWithDeviceWhite:0.1 alpha:1.0], NSForegroundColorAttributeName,
-                                                   [NSNumber numberWithInt:NSUnderlineStyleSingle], NSUnderlineStyleAttributeName,
                                                    align, NSParagraphStyleAttributeName,
                                                    shadow, NSShadowAttributeName, nil];
         NSMutableDictionary *altAlbumAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                    [NSFont fontWithName:@"LucidaGrande" size:11], NSFontAttributeName,
-                                                   [NSColor colorWithDeviceWhite:0.2 alpha:1.0], NSForegroundColorAttributeName,
-                                                   [NSNumber numberWithInt:NSUnderlineStyleSingle], NSUnderlineStyleAttributeName,
+                                                   [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
                                                    align, NSParagraphStyleAttributeName,
                                                    shadow, NSShadowAttributeName, nil];        
         
-        NSString *title = [[db library] valueForFile:[now currentFile] attribute:PRTitleFileAttribute];
-        NSString *artist = [[db library] comparisonArtistForFile:[now currentFile]];
-        NSString *album = [[db library] valueForFile:[now currentFile] attribute:PRAlbumFileAttribute];
+        NSString *title = [[db library] valueForItem:[now currentItem] attr:PRItemAttrTitle];
+        NSString *artist;
+        if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
+            artist = [[db library] valueForItem:[now currentItem] attr:PRItemAttrAlbumArtist];
+        } else {
+            artist = [[db library] valueForItem:[now currentItem] attr:PRItemAttrArtist];
+        }
+        NSString *album = [[db library] valueForItem:[now currentItem] attr:PRItemAttrAlbum];
         if ([artist isEqualToString:@""]) {
             artist = @"Unknown Artist";
         }
@@ -483,7 +474,7 @@
 	if ([now currentIndex] == 0) {
 		rating_ = 0;
 	} else {
-        rating_ = [[[db library] valueForFile:[now currentFile] attribute:PRRatingFileAttribute] intValue];
+        rating_ = [[[db library] valueForItem:[now currentItem] attr:PRItemAttrRating] intValue];
         rating_ = floor(rating_ / 20.0);
 	}
     [ratingControl setSelectedSegment:rating_];
@@ -491,7 +482,7 @@
     // AlbumArt
     NSImage *albumArt = nil;
 	if ([now currentIndex] != 0) {
-		albumArt = [[db albumArtController] albumArtForFile:[now currentFile]];
+		albumArt = [[db albumArtController] artworkForItem:[now currentItem]];
         if (!albumArt) {
             albumArt = [NSImage imageNamed:@"PREmptyAlbumArt.png"];
         }
@@ -499,14 +490,10 @@
         albumArt = [NSImage imageNamed:@"PRNothingPlaying.png"];
     }
     [albumArtView setImage:albumArt];
-    
-    [(PRSliderCell *)[controlSlider cell] setIndicator:([now currentIndex] != 0)];
-    
     [self updatePlayButton];
 }
 
-- (void)updatePlayButton
-{
+- (void)updatePlayButton {
     // Play button
     if ([[now mov] isPlaying]) {
 		[playPause setImage:[NSImage imageNamed:@"PauseButton"]];
@@ -519,22 +506,22 @@
 	[shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
     NSMutableParagraphStyle *rightAlign = [[[NSMutableParagraphStyle alloc] init] autorelease];
     [rightAlign setAlignment:NSRightTextAlignment];
-    NSMutableDictionary *attributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                       [NSFont fontWithName:@"LucidaGrande" size:10], NSFontAttributeName,
-                                       [NSColor colorWithDeviceWhite:0.25 alpha:1.0], NSForegroundColorAttributeName,
-                                       rightAlign, NSParagraphStyleAttributeName,
-                                       shadow, NSShadowAttributeName, nil];
+    NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                [NSFont fontWithName:@"LucidaGrande" size:10], NSFontAttributeName,
+                                [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
+                                rightAlign, NSParagraphStyleAttributeName,
+                                shadow, NSShadowAttributeName, nil];
     NSString *currentTime_ = [timeFormatter stringForObjectValue:[NSNumber numberWithLong:[[now mov] currentTime]]];
     NSAttributedString *timeAttrString = [[[NSAttributedString alloc] initWithString:currentTime_ attributes:attributes] autorelease];
     [currentTime setAttributedStringValue:timeAttrString];
     
     NSMutableParagraphStyle *leftAlign = [[[NSMutableParagraphStyle alloc] init] autorelease];
     [leftAlign setAlignment:NSLeftTextAlignment];
-    NSMutableDictionary *attributes2 = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                  [NSFont fontWithName:@"LucidaGrande" size:10], NSFontAttributeName,
-                  [NSColor colorWithDeviceWhite:0.25 alpha:1.0], NSForegroundColorAttributeName,
-                  leftAlign, NSParagraphStyleAttributeName,
-                  shadow, NSShadowAttributeName, nil];
+    NSDictionary *attributes2 = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [NSFont fontWithName:@"LucidaGrande" size:10], NSFontAttributeName,
+                                 [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
+                                 leftAlign, NSParagraphStyleAttributeName,
+                                 shadow, NSShadowAttributeName, nil];
     NSString *duration_ = [timeFormatter stringForObjectValue:[NSNumber numberWithLong:[[now mov] duration]]];
     timeAttrString = [[[NSAttributedString alloc] initWithString:duration_ attributes:attributes2] autorelease];
     [duration setAttributedStringValue:timeAttrString];
@@ -546,8 +533,7 @@
     }
 }
 
-- (void)volumeChanged:(NSNotification *)notification
-{
+- (void)volumeChanged:(NSNotification *)notification {
     float volume = [[now mov] volume];
     NSImage *image = nil;
     if (volume == 0) {
@@ -562,12 +548,9 @@
     [_volumeButton setImage:image];
 }
 
-// ========================================
-// Action
-// ========================================
+// == Action ===============================================
 
-- (void)setProgressHidden:(BOOL)progressHidden
-{
+- (void)setProgressHidden:(BOOL)progressHidden {
     BOOL update = (_progressHidden != progressHidden);
     _progressHidden = progressHidden;
     if (update) {
@@ -575,13 +558,11 @@
     }
 }
 
-- (BOOL)progressHidden
-{
+- (BOOL)progressHidden {
     return _progressHidden;
 }
 
-- (void)setProgressTitle:(NSString *)progressTitle
-{
+- (void)setProgressTitle:(NSString *)progressTitle {
     NSShadow *shadow2 = [[[NSShadow alloc] init] autorelease];
 	[shadow2 setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.5]];
 	[shadow2 setShadowOffset:NSMakeSize(1.1, -1.3)];
@@ -598,8 +579,7 @@
 	[_progressTextField setAttributedStringValue:attributedString];
 }
 
-- (void)setProgressPercent:(int)progressPercent
-{
+- (void)setProgressPercent:(int)progressPercent {
 //    if (progressPercent == 0) {
 //        [_progressPercentTextField setAttributedStringValue:nil];
 //        return;
@@ -620,21 +600,19 @@
 	[_progressPercentTextField setAttributedStringValue:attributedString];
 }
 
-- (void)showInLibrary
-{
-    if ([now currentFile] == 0) {
+- (void)showInLibrary {
+    if (![now currentItem]) {
         return;
     }
     if (![[core win] miniPlayer]) {
         [[core win] setCurrentMode:PRLibraryMode];
-        [[core win] setCurrentPlaylist:[[db playlists] libraryPlaylist]];
-        [libraryViewController highlightFile:[now currentFile]];
+        [[core win] setCurrentPlaylist:[[[db playlists] libraryList] intValue]];
+        [[libraryViewController currentViewController] highlightFile:[[now currentItem] intValue]];
     } 
     [[[core win] nowPlayingViewController] higlightPlayingFile];
 }
 
-- (void)mute
-{
+- (void)mute {
     [[now mov] setVolume:0];
 }
 

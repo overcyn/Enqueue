@@ -1,14 +1,11 @@
 #import "PRLibraryViewSource.h"
 #import "PRDb.h"
+#import "PRLibraryViewController.h"
 #import "PRLibrary.h"
 #import "PRPlaylists.h"
-#import "PRRule.h"
+#import "PRStatement.h"
 #import "PRUserDefaults.h"
-#import "PRPlaylists+Extensions.h"
 
-// ========================================
-// Constants
-// ========================================
 
 NSString * const libraryViewSource = @"libraryViewSource";
 NSString * const browser1ViewSource = @"browser1ViewSource";
@@ -16,17 +13,28 @@ NSString * const browser2ViewSource = @"browser2ViewSource";
 NSString * const browser3ViewSource = @"browser3ViewSource";
 NSString * const compilationString = @"Compilations  ";
 
+
+@interface PRLibraryViewSource ()
+// update
+- (BOOL)updateSortIndex;
+- (BOOL)populateSource;
+- (BOOL)populateBrowser:(int)browser;
+
+// misc
+- (BOOL)compilationForBrowser:(int)browser;
+- (NSString *)tableNameForBrowser:(int)browser;
+- (NSString *)groupingStringForList:(PRList *)list browser:(int)browser;
+@end
+
+
 @implementation PRLibraryViewSource
 
 // ========================================
 // Initialization
-// ========================================
 
-- (id)initWithDb:(PRDb *)db_
-{
+- (id)initWithDb:(PRDb *)db {
 	if (!(self = [super init])) {return nil;}
-    db = db_;
-    
+    _db = db;
     _compilation = TRUE;
     _prevSourceString = @"";
     _prevSourceBindings = [[NSDictionary alloc] init];
@@ -42,65 +50,62 @@ NSString * const compilationString = @"Compilations  ";
 	return self;
 }
 
-- (void)create
-{
+- (void)create {
     
 }
 
-- (BOOL)initialize
-{
+- (BOOL)initialize {
     NSString *string;
     string = @"CREATE TEMP TABLE libraryViewSource "
     "(row INTEGER NOT NULL PRIMARY KEY, "
     "file_id INTEGER NOT NULL)";
-    [db execute:string];
+    [_db execute:string];
     
     string = @"CREATE TEMP TABLE browser1ViewSource "
     "(row INTEGER NOT NULL PRIMARY KEY, "
     "value TEXT NOT NULL)";
-    [db execute:string];
+    [_db execute:string];
     
     string = @"CREATE TEMP TABLE browser2ViewSource "
     "(row INTEGER NOT NULL PRIMARY KEY, "
     "value TEXT NOT NULL)";
-    [db execute:string];
+    [_db execute:string];
     
     string = @"CREATE TEMP TABLE browser3ViewSource "
     "(row INTEGER NOT NULL PRIMARY KEY, "
     "value TEXT NOT NULL)";
-    [db execute:string];
+    [_db execute:string];
     
     string = @"CREATE TEMP TABLE browserTempViewSource "
     "(row INTEGER NOT NULL PRIMARY KEY, "
     "value TEXT NOT NULL,"
     "compilation INTEGER NOT NULL)";
-    [db execute:string];
+    [_db execute:string];
     
     string = @"CREATE TEMP TABLE browser1Cache "
     "(row INTEGER NOT NULL PRIMARY KEY, "
     "value TEXT NOT NULL)";
-    [db execute:string];    
+    [_db execute:string];    
     
     string = @"CREATE TEMP TABLE browser2Cache "
     "(row INTEGER NOT NULL PRIMARY KEY, "
     "value TEXT NOT NULL)";
-    [db execute:string];
+    [_db execute:string];
     
     string = @"CREATE TEMP TABLE browser3Cache "
     "(row INTEGER NOT NULL PRIMARY KEY, "
     "value TEXT NOT NULL)";
-    [db execute:string];
+    [_db execute:string];
     return TRUE;
 }
 
 // ========================================
 // Update
-// ========================================
 
-- (int)refreshWithPlaylist:(PRPlaylist)playlist force:(BOOL)force
-{
+- (int)refreshWithList:(PRList *)list force:(BOOL)force {
     [_cachedValues removeAllObjects];
-    _playlist = playlist;
+    [_list release];
+    _list = [list retain];
     _force = force;
     
     int tables = 0;
@@ -120,36 +125,38 @@ NSString * const compilationString = @"Compilations  ";
 	return tables;
 }
 
-- (BOOL)updateSortIndex
-{
-    if (_playlist != [[db playlists] libraryPlaylist] ) {
+// ========================================
+// update
+
+- (BOOL)updateSortIndex {
+    if (![_list isEqual:[[_db playlists] libraryList]]) {
         return TRUE;
     }
     
     // Library view mode
-	int libraryViewMode = [[db playlists] libraryViewModeForPlaylist:_playlist];
-    int sortColumn;
+	int libraryViewMode = [[_db playlists] viewModeForList:_list];
+    PRListSort *listSort;
 	if (libraryViewMode == PRListMode) {
-		sortColumn = [[db playlists] listViewSortColumnForPlaylist:_playlist];
+		listSort = [[_db playlists] listViewSortAttrForList:_list];
 	} else {
-        sortColumn = [[db playlists] albumListViewSortColumnForPlaylist:_playlist];
+        listSort = [[_db playlists] albumListViewSortAttrForList:_list];
 	}
 	
     // Sort column
     NSString *sortColumnName;
-    if (sortColumn == PRPlaylistIndexSort) {
-        [PRException raise:NSInternalInconsistencyException format:@"Invalid Sort Column"];return FALSE;
-    } else if ([[PRUserDefaults userDefaults] useAlbumArtist] && sortColumn == PRArtistFileAttribute) {
+    if ([listSort isEqual:PRListSortIndex]) {
+        @throw NSInvalidArgumentException;
+    } else if ([[PRUserDefaults userDefaults] useAlbumArtist] && [listSort isEqual:PRItemAttrArtist]) {
         sortColumnName = @"artistAlbumArtist";
     } else {
-        if (sortColumn == PRArtistAlbumSort) {
+        if ([listSort isEqual:PRListSortArtistAlbum]) {
             if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
-                sortColumn = PRArtistAlbumArtistFileAttribute;
+                listSort = PRItemAttrArtistAlbumArtist;
             } else {
-                sortColumn = PRArtistFileAttribute;
+                listSort = PRItemAttrArtist;
             }
         }
-        sortColumnName = [PRLibrary columnNameForFileAttribute:sortColumn];
+        sortColumnName = [PRLibrary columnNameForItemAttr:listSort];
     }
     
     // Sort
@@ -157,15 +164,14 @@ NSString * const compilationString = @"Compilations  ";
                         "(%@ COLLATE NOCASE2, album COLLATE NOCASE2, discNumber COLLATE NOCASE2, trackNumber COLLATE NOCASE2, path COLLATE NOCASE2)", 
                         sortColumnName];
     if (![string isEqualToString:_cachedSortIndexStatement]) {
-        [db execute:@"DROP INDEX IF EXISTS index_librarySort"];
-        [db execute:string];
-//        [db execute:@"ANALYZE"];
+        [_db execute:@"DROP INDEX IF EXISTS index_librarySort"];
+        [_db execute:string];
         [_cachedSortIndexStatement release];
         _cachedSortIndexStatement = [string retain];
     }
     
     // Cache browser 1
-    NSString *grouping = [self groupingStringForPlaylist:_playlist browser:1];
+    NSString *grouping = [self groupingStringForList:_list browser:1];
     NSMutableString *stm = [NSMutableString stringWithFormat:@"INSERT INTO browser1Cache (value) "
                             "SELECT %@ FROM library WHERE %@ != '' COLLATE NOCASE2 ", grouping, grouping];
     if ([self compilationForBrowser:1]) {
@@ -173,14 +179,14 @@ NSString * const compilationString = @"Compilations  ";
     }
     [stm appendFormat:@"GROUP BY %@ COLLATE NOCASE2 ORDER BY %@ COLLATE NOCASE2 ASC ", grouping, grouping];
     if ([grouping length] > 0 && (![stm isEqualToString:_cachedBrowser1Statement] || _force)) {
-        [db execute:@"DELETE FROM browser1Cache"];
-        [db execute:stm];
+        [_db execute:@"DELETE FROM browser1Cache"];
+        [_db execute:stm];
         [_cachedBrowser1Statement release];
         _cachedBrowser1Statement = [stm retain];
     }
     
     // Cache browser 2
-    grouping = [self groupingStringForPlaylist:_playlist browser:2];
+    grouping = [self groupingStringForList:_list browser:2];
     stm = [NSMutableString stringWithFormat:@"INSERT INTO browser2Cache (value) "
            "SELECT %@ FROM library WHERE %@ != '' COLLATE NOCASE2 ", grouping, grouping];
     if ([self compilationForBrowser:2]) {
@@ -188,14 +194,14 @@ NSString * const compilationString = @"Compilations  ";
     }
     [stm appendFormat:@"GROUP BY %@ COLLATE NOCASE2 ORDER BY %@ COLLATE NOCASE2 ASC ", grouping, grouping];
     if ([grouping length] > 0 && (![stm isEqualToString:_cachedBrowser2Statement] || _force)) {
-        [db execute:@"DELETE FROM browser2Cache"];
-        [db execute:stm];
+        [_db execute:@"DELETE FROM browser2Cache"];
+        [_db execute:stm];
         [_cachedBrowser2Statement release];
         _cachedBrowser2Statement = [stm retain];
     }
     
     // Cache browser 3
-    grouping = [self groupingStringForPlaylist:_playlist browser:3];
+    grouping = [self groupingStringForList:_list browser:3];
     stm = [NSMutableString stringWithFormat:@"INSERT INTO browser3Cache (value) "
            "SELECT %@ FROM library WHERE %@ != '' COLLATE NOCASE2 ", grouping, grouping];
     if ([self compilationForBrowser:3]) {
@@ -203,30 +209,27 @@ NSString * const compilationString = @"Compilations  ";
     }
     [stm appendFormat:@"GROUP BY %@ COLLATE NOCASE2 ORDER BY %@ COLLATE NOCASE2 ASC ", grouping, grouping];
     if ([grouping length] > 0 && (![stm isEqualToString:_cachedBrowser3Statement] || _force)) {
-        [db execute:@"DELETE FROM browser3Cache"];
-        [db execute:stm];
+        [_db execute:@"DELETE FROM browser3Cache"];
+        [_db execute:stm];
         [_cachedBrowser3Statement release];
         _cachedBrowser3Statement = [stm retain];
     }
     
     // Cache Compilation
-    NSArray *rlt = [db execute:@"SELECT file_id FROM library WHERE compilation != 0 LIMIT 1" bindings:nil columns:[NSArray arrayWithObject:PRColInteger]];
+    NSArray *rlt = [_db execute:@"SELECT file_id FROM library WHERE compilation != 0 LIMIT 1" bindings:nil columns:[NSArray arrayWithObject:PRColInteger]];
     _cachedCompilation = ([rlt count] != 0);
     return TRUE;
 }
 
-- (BOOL)populateSource
-{
+- (BOOL)populateSource {
     BOOL whereTerm = FALSE;
 	int bindingIndex = 1;
 	NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
     NSMutableString *string;
-	if (_playlist == [[db playlists] libraryPlaylist]) {
+	if ([_list isEqual:[[_db playlists] libraryList]]) {
 		string = [NSMutableString stringWithFormat:
                   @"INSERT INTO libraryViewSource (file_id) "
-                  "SELECT file_id "
-                  "FROM library "
-                  "WHERE "];
+                  "SELECT file_id FROM library WHERE "];
 	} else {
 		string = [NSMutableString stringWithFormat:
                   @"INSERT INTO libraryViewSource (file_id) "
@@ -234,7 +237,7 @@ NSString * const compilationString = @"Compilations  ";
                   "FROM playlist_items JOIN library ON playlist_items.file_id = library.file_id "
                   "WHERE playlist_items.playlist_id = ?%d AND ",
                   bindingIndex];
-		[bindings setObject:[NSNumber numberWithInt:_playlist] forKey:[NSNumber numberWithInt:bindingIndex]];
+		[bindings setObject:_list forKey:[NSNumber numberWithInt:bindingIndex]];
 		bindingIndex++;
         whereTerm = TRUE;
 	}
@@ -272,8 +275,8 @@ NSString * const compilationString = @"Compilations  ";
 	
     // Filter for Column Browser
     for (int i = 1; i <= 3; i++) {
-        NSString *grouping = [self groupingStringForPlaylist:_playlist browser:i];
-        NSArray *selection = [[db playlists] selectionForBrowser:i playlist:_playlist];
+        NSString *grouping = [self groupingStringForList:_list browser:i];
+        NSArray *selection = [[_db playlists] selectionForBrowser:i list:_list];
         
         if ([selection count] != 0 && [grouping length] != 0) {
             whereTerm = TRUE;
@@ -300,7 +303,7 @@ NSString * const compilationString = @"Compilations  ";
     }
     
 	// Search
-	NSString *search = [[db playlists] searchForPlaylist:_playlist];
+	NSString *search = [[_db playlists] searchForList:_list];
 	if (search && [search length] != 0) {
         whereTerm = TRUE;
 		[string appendString:@"(1 = 1 "];
@@ -328,32 +331,32 @@ NSString * const compilationString = @"Compilations  ";
     }
     
     // Library view mode
-	int libraryViewMode = [[db playlists] libraryViewModeForPlaylist:_playlist];
-    int sortColumn;
+	int libraryViewMode = [[_db playlists] viewModeForList:_list];
+    PRListSort *sort;
     int asc;
 	if (libraryViewMode == PRListMode) {
-        sortColumn = [[db playlists] listViewSortColumnForPlaylist:_playlist];
-        asc = [[db playlists] listViewAscendingForPlaylist:_playlist];
+        sort = [[_db playlists] listViewSortAttrForList:_list];
+        asc = [[_db playlists] listViewAscendingForList:_list];
 	} else {
-        sortColumn = [[db playlists] albumListViewSortColumnForPlaylist:_playlist];
-        asc = [[db playlists] albumListViewAscendingForPlaylist:_playlist];
+        sort = [[_db playlists] albumListViewSortAttrForList:_list];
+        asc = [[_db playlists] albumListViewAscendingForList:_list];
 	}
 	
     // Sort column
     NSString *sortColumnName;
-    if (sortColumn == PRPlaylistIndexSort) {
+    if ([sort isEqual:PRListSortIndex]) {
         sortColumnName = @"playlist_items.playlist_index";
-    } else if ([[PRUserDefaults userDefaults] useAlbumArtist] && sortColumn == PRArtistFileAttribute) {
+    } else if ([[PRUserDefaults userDefaults] useAlbumArtist] && [sort isEqual:PRItemAttrArtist]) {
         sortColumnName = @"artistAlbumArtist";
     } else {
-        if (sortColumn == PRArtistAlbumSort) {
+        if ([sort isEqual:PRListSortArtistAlbum]) {
             if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
-                sortColumn = PRArtistAlbumArtistFileAttribute;
+                sort = PRItemAttrArtistAlbumArtist;
             } else {
-                sortColumn = PRArtistFileAttribute;
+                sort = PRItemAttrArtist;
             }
         }
-        sortColumnName = [PRLibrary columnNameForFileAttribute:sortColumn];
+        sortColumnName = [PRLibrary columnNameForItemAttr:sort];
     }
     
     // Sort
@@ -377,15 +380,14 @@ NSString * const compilationString = @"Compilations  ";
     _prevSourceBindings = [bindings retain];
     
     // Delete all items from library1ViewSource
-    [db execute:@"DELETE FROM libraryViewSource"];
+    [_db execute:@"DELETE FROM libraryViewSource"];
     
 	// Execute
-    [db execute:string bindings:bindings columns:nil];
+    [_db execute:string bindings:bindings columns:nil];
     return TRUE;
 }
 
-- (BOOL)populateBrowser:(int)browser
-{
+- (BOOL)populateBrowser:(int)browser {
     NSString *cacheTableName;
 	NSString *destinationTableName;
     NSString **prevBrowserStatement;
@@ -406,16 +408,16 @@ NSString * const compilationString = @"Compilations  ";
         prevBrowserStatement = &prevBrowser3Statement;
         prevBrowserBindings = &prevBrowser3Bindings;
 	} else {
-        return FALSE;
+        @throw NSInvalidArgumentException;
     }
     
     // Do nothing if no grouping
-    NSString *grouping = [self groupingStringForPlaylist:_playlist browser:browser];
+    NSString *grouping = [self groupingStringForList:_list browser:browser];
 	if ([grouping length] == 0) {
         [*prevBrowserStatement release];
         [*prevBrowserBindings release];
         *prevBrowserStatement = [@"" retain];
-        *prevBrowserBindings = [[NSDictionary dictionary] retain];
+        *prevBrowserBindings = [[NSDictionary alloc] init];
 		return TRUE;
 	}
     
@@ -424,7 +426,7 @@ NSString * const compilationString = @"Compilations  ";
     int bindingIndex = 1;
 	NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
     NSMutableString *statement;
-	if (_playlist == [[db playlists] libraryPlaylist]) {
+	if ([_list isEqual:[[_db playlists] libraryList]]) {
 		statement = [NSMutableString stringWithFormat:
                      @"INSERT INTO browserTempViewSource (value, compilation) SELECT %@, compilation FROM library WHERE ",
                      grouping];
@@ -434,14 +436,14 @@ NSString * const compilationString = @"Compilations  ";
                      "FROM playlist_items JOIN library ON playlist_items.file_id = library.file_id "
                      "WHERE playlist_items.playlist_id = ?%d AND ",
                      grouping, bindingIndex];
-		[bindings setObject:[NSNumber numberWithInt:_playlist] forKey:[NSNumber numberWithInt:bindingIndex]];
+		[bindings setObject:_list forKey:[NSNumber numberWithInt:bindingIndex]];
 		bindingIndex++;
 	}
     
     // Filter for other browsers
     for (int i = 1; i < browser; i++) {
-        NSString *grouping = [self groupingStringForPlaylist:_playlist browser:i];
-        NSArray *selection = [[db playlists] selectionForBrowser:i playlist:_playlist];
+        NSString *grouping = [self groupingStringForList:_list browser:i];
+        NSArray *selection = [[_db playlists] selectionForBrowser:i list:_list];
         
         if ([selection count] != 0 && [grouping length] != 0) {
             // copy rows from library_view_source into temp table that match selection
@@ -468,7 +470,7 @@ NSString * const compilationString = @"Compilations  ";
     }
     
 	// Filter for search
-	NSString *search = [[db playlists] searchForPlaylist:_playlist];
+	NSString *search = [[_db playlists] searchForList:_list];
 	if (search && [search length] != 0) {
 		[statement appendString:@"(1 = 1 "];
 		NSArray *searchTerms = [search componentsSeparatedByString:@" "];
@@ -492,13 +494,12 @@ NSString * const compilationString = @"Compilations  ";
     // Filter for empty
     [statement appendFormat:@"%@ != '' COLLATE NOCASE2 ", grouping];
     
-    // Sort
+    // Group and Sort
     if ([self compilationForBrowser:browser]) {
         [statement appendFormat:@"GROUP BY compilation, %@ COLLATE NOCASE2 ORDER BY %@ COLLATE NOCASE2 ASC ", grouping, grouping];
     } else {
         [statement appendFormat:@"GROUP BY %@ COLLATE NOCASE2 ORDER BY %@ COLLATE NOCASE2 ASC ", grouping, grouping];
     }
-    
     
     if (!_force &&
         [statement isEqualToString:*prevBrowserStatement] &&
@@ -511,73 +512,74 @@ NSString * const compilationString = @"Compilations  ";
     *prevBrowserBindings = [bindings retain];
     
 	// Execute
-    if (useCache && _playlist == [[db playlists] libraryPlaylist]) {
-        [db execute:[NSString stringWithFormat:@"DELETE FROM %@", destinationTableName]];
-        [db execute:[NSString stringWithFormat:@"INSERT INTO %@ (value) SELECT value FROM %@ ORDER BY row", destinationTableName, cacheTableName]];
+    if (useCache && [_list isEqual:[[_db playlists] libraryList]] && FALSE) {
+        [_db execute:[NSString stringWithFormat:@"DELETE FROM %@", destinationTableName]];
+        [_db execute:[NSString stringWithFormat:@"INSERT INTO %@ (value) SELECT value FROM %@ ORDER BY row", destinationTableName, cacheTableName]];
         _compilation = _cachedCompilation;
     } else {
-        [db execute:@"DELETE FROM browserTempViewSource"];
-        [db execute:statement bindings:bindings columns:nil];
-        [db execute:[NSString stringWithFormat:@"DELETE FROM %@", destinationTableName]];
+        [_db execute:@"DELETE FROM browserTempViewSource"];
+        [_db execute:statement bindings:bindings columns:nil];
+        [_db execute:[NSString stringWithFormat:@"DELETE FROM %@", destinationTableName]];
         if ([self compilationForBrowser:browser]) {
-            [db execute:[NSString stringWithFormat:@"INSERT INTO %@ (value) SELECT value FROM browserTempViewSource WHERE compilation = 0 ORDER BY row", destinationTableName]];
-        } else {
-            [db execute:[NSString stringWithFormat:@"INSERT INTO %@ (value) SELECT value FROM browserTempViewSource ORDER BY row", destinationTableName]];
-        }
-        
-        if ([self compilationForBrowser:browser]) {
-            NSArray *rlt = [db execute:@"SELECT compilation FROM browserTempViewSource WHERE compilation != 0 LIMIT 1" 
+            [_db execute:[NSString stringWithFormat:@"INSERT INTO %@ (value) SELECT value FROM browserTempViewSource WHERE compilation = 0 ORDER BY row", destinationTableName]];
+            NSArray *rlt = [_db execute:@"SELECT compilation FROM browserTempViewSource WHERE compilation != 0 LIMIT 1" 
                               bindings:nil 
                                columns:[NSArray arrayWithObject:PRColInteger]];
             _compilation = ([rlt count] != 0);
+        } else {
+            [_db execute:[NSString stringWithFormat:@"INSERT INTO %@ (value) SELECT value FROM browserTempViewSource ORDER BY row", destinationTableName]];
         }
     }
     
     // Reset if nothing
-    NSMutableArray *selection = [NSMutableArray arrayWithArray:[[db playlists] selectionForBrowser:browser playlist:_playlist]];
+    NSMutableArray *selection = [NSMutableArray arrayWithArray:[[_db playlists] selectionForBrowser:browser list:_list]];
     NSMutableIndexSet *indexesToRemove = [NSMutableIndexSet indexSet];
     for (int i = 0; i < [selection count]; i++) {
-        NSArray *results = [db execute:[NSString stringWithFormat:@"SELECT COUNT(*) FROM %@ WHERE value COLLATE NOCASE2 = ?1", destinationTableName]
-                              bindings:[NSDictionary dictionaryWithObjectsAndKeys:[selection objectAtIndex:i], [NSNumber numberWithInt:1], nil]
-                               columns:[NSArray arrayWithObject:PRColInteger]];
-        if ([[[results objectAtIndex:0] objectAtIndex:0] intValue] == 0) {
-            [indexesToRemove addIndex:i];
+        if ([[selection objectAtIndex:i] isEqualToString:compilationString]) {
+            if (![self compilationForBrowser:browser] || !_compilation) {
+                [indexesToRemove addIndex:i];
+            }
+        } else {
+            NSArray *results = [_db execute:[NSString stringWithFormat:@"SELECT COUNT(*) FROM %@ WHERE value COLLATE NOCASE2 = ?1", destinationTableName]
+                                  bindings:[NSDictionary dictionaryWithObjectsAndKeys:[selection objectAtIndex:i], [NSNumber numberWithInt:1], nil]
+                                   columns:[NSArray arrayWithObject:PRColInteger]];
+            if ([[[results objectAtIndex:0] objectAtIndex:0] intValue] == 0) {
+                [indexesToRemove addIndex:i];
+            }
         }
     }
     if ([indexesToRemove count] > 0) {
         [selection removeObjectsAtIndexes:indexesToRemove];
-        [[db playlists] setSelection:[NSArray arrayWithArray:selection] forBrowser:browser playlist:_playlist];
+        [[_db playlists] setSelection:[NSArray arrayWithArray:selection] forBrowser:browser list:_list];
     }
 	return TRUE;
 }
 
 // ========================================
 // Library Accessors
-// ========================================
 
-- (int)count
-{
-    NSArray *rlt = [db execute:@"SELECT COUNT(*) FROM libraryViewSource"
+- (int)count {
+    NSArray *rlt = [_db execute:@"SELECT COUNT(*) FROM libraryViewSource"
                       bindings:nil 
                        columns:[NSArray arrayWithObject:PRColInteger]];
     if ([rlt count] != 1) {[PRException raise:PRDbInconsistencyException format:@""];}
     return [[[rlt objectAtIndex:0] objectAtIndex:0] intValue];
 }
 
-- (PRFile)fileForRow:(int)row
-{
-    NSArray *rlt = [db execute:@"SELECT file_id FROM libraryViewSource WHERE row = ?1"
+- (PRItem *)itemForRow:(int)row {
+    NSArray *rlt = [_db execute:@"SELECT file_id FROM libraryViewSource WHERE row = ?1"
                       bindings:[NSDictionary dictionaryWithObjectsAndKeys:
                                 [NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil] 
                        columns:[NSArray arrayWithObject:PRColInteger]];
-    if ([rlt count] != 1) {[PRException raise:PRDbInconsistencyException format:@""];}
-    return [[[rlt objectAtIndex:0] objectAtIndex:0] intValue];
+    if ([rlt count] != 1) {
+        [PRException raise:PRDbInconsistencyException format:@""];
+    }
+    return [[rlt objectAtIndex:0] objectAtIndex:0];
 }
 
-- (int)rowForFile:(PRFile)file
-{
-    NSArray *rlt = [db execute:@"SELECT row FROM libraryViewSource WHERE file_id = ?1"
-                      bindings:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:file], [NSNumber numberWithInt:1], nil] 
+- (int)rowForItem:(PRItem *)item {
+    NSArray *rlt = [_db execute:@"SELECT row FROM libraryViewSource WHERE file_id = ?1"
+                      bindings:[NSDictionary dictionaryWithObjectsAndKeys:item, [NSNumber numberWithInt:1], nil] 
                        columns:[NSArray arrayWithObjects:PRColInteger, nil]];
     if ([rlt count] > 1) {
         [PRException raise:PRDbInconsistencyException format:@""];
@@ -587,39 +589,56 @@ NSString * const compilationString = @"Compilations  ";
     return [[[rlt objectAtIndex:0] objectAtIndex:0] intValue];
 }
 
-- (id)valueForRow:(int)row attribute:(PRFileAttribute)attribute andCacheAttributes:(NSArray *)attributes
-{
-    id cachedValue = [[_cachedValues objectForKey:[NSNumber numberWithInt:row]] objectForKey:[NSNumber numberWithInt:attribute]];
-    if (cachedValue) {
-        return cachedValue;
+- (id)valueForRow:(int)row attribute:(PRItemAttr *)attr andCacheAttributes:(NSArray *(^)(void))attributes {
+    static PRStatement *_stmt = nil;
+    static NSArray *_attrs = nil;
+    static NSArray *_cachedRow = nil;
+    static int _row = -1;
+    if (_cachedRow && _row == row && _attrs && [_attrs indexOfObject:attr] != NSNotFound) {
+        return [_cachedRow objectAtIndex:[_attrs indexOfObject:attr]];
     }
-    NSMutableString *string = [NSMutableString stringWithString:@"SELECT "];
-    for (NSNumber *i in attributes) {
-        [string appendFormat:@"library.%@, ", [[PRLibrary class] columnNameForFileAttribute:[i intValue]]];
+    if (!_stmt || ![_attrs containsObject:attr]) {
+        NSArray *temp = attributes();
+        if (![temp containsObject:attr]) {
+            temp = [temp arrayByAddingObject:attr];
+        }
+        [_attrs release];
+        _attrs = [temp retain];
+        NSMutableString *string = [NSMutableString stringWithString:@"SELECT "];
+        NSMutableArray *columns = [NSMutableArray array];
+        for (PRItemAttr *i in _attrs) {
+            [string appendFormat:@"library.%@, ", [[PRLibrary class] columnNameForItemAttr:i]];
+            [columns addObject:[PRLibrary columnTypeForItemAttr:i]];
+        }
+        [string deleteCharactersInRange:NSMakeRange([string length] - 2, 2)];
+        [string appendString:@" FROM libraryViewSource JOIN library ON libraryViewSource.file_id = library.file_id WHERE row = ?1"];
+        [_stmt release];
+        _stmt = [[PRStatement alloc] initWithString:string bindings:nil columns:columns db:_db];
     }
-    [string deleteCharactersInRange:NSMakeRange([string length] - 2, 2)];
-    [string appendString:@" FROM libraryViewSource "
-     "JOIN library ON libraryViewSource.file_id = library.file_id WHERE row = ?1"];
-    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil];
-    NSMutableArray *columns = [NSMutableArray array];
-    for (NSNumber *i in attributes) {
-        [columns addObject:[[PRLibrary columnForAttribute] objectForKey:i]];
-    }
-    NSArray *result = [db execute:string bindings:bindings columns:columns];
-    
-    NSMutableDictionary *valuesToCache = [NSMutableDictionary dictionary];
-    for (int i = 0; i < [attributes count]; i++) {
-        [valuesToCache setObject:[[result objectAtIndex:0] objectAtIndex:i] 
-                          forKey:[attributes objectAtIndex:i]];
-    }
-    [_cachedValues setObject:valuesToCache forKey:[NSNumber numberWithInt:row]];
-    return [valuesToCache objectForKey:[NSNumber numberWithInt:attribute]];
+    [_stmt setBindings:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil]];
+    NSArray *result = [[_stmt execute] objectAtIndex:0];
+    _row = row;
+    [_cachedRow release];
+    _cachedRow = [result retain];
+    return [result objectAtIndex:[_attrs indexOfObject:attr]];
 }
 
-- (NSDictionary *)info
-{
-    NSArray *rlt = [db execute:@"SELECT SUM(time), SUM(size), count(libraryViewSource.file_id) "
+- (int)firstRowWithValue:(id)value forAttr:(PRItemAttr *)attr {
+    NSString *stm = [NSString stringWithFormat:@"SELECT row FROM libraryViewSource "
+                     "JOIN library ON libraryViewSource.file_id = library.file_id WHERE %@ = ?1 COLLATE NOCASE2 "
+                     "ORDER BY row LIMIT 1", 
+                     [PRLibrary columnNameForItemAttr:attr]];
+    NSArray *rlt = [_db execute:stm 
+                       bindings:[NSDictionary dictionaryWithObjectsAndKeys:value, [NSNumber numberWithInt:1], nil]
+                        columns:[NSArray arrayWithObject:PRColInteger]];
+    if ([rlt count] == 0) {
+        return -1;
+    }
+    return [[[rlt objectAtIndex:0] objectAtIndex:0] intValue];
+}
+
+- (NSDictionary *)info {
+    NSArray *rlt = [_db execute:@"SELECT SUM(time), SUM(size), count(libraryViewSource.file_id) "
                     "FROM libraryViewSource JOIN library ON libraryViewSource.file_id = library.file_id"
                       bindings:nil
                        columns:[NSArray arrayWithObjects:PRColInteger, PRColInteger, PRColInteger, nil]];
@@ -630,12 +649,10 @@ NSString * const compilationString = @"Compilations  ";
     return info;
 }
 
-- (NSArray *)albumCounts
-{
-    NSArray *results = [db execute:@"SELECT library.album FROM libraryViewSource JOIN library ON libraryViewSource.file_id = library.file_id" 
+- (NSArray *)albumCounts {
+    NSArray *results = [_db execute:@"SELECT library.album FROM libraryViewSource JOIN library ON libraryViewSource.file_id = library.file_id" 
                           bindings:nil 
                            columns:[NSArray arrayWithObject:PRColString]];
-    
     if ([results count] == 0) {
         return [NSArray array];
     } else if ([results count] == 1) {
@@ -661,15 +678,12 @@ NSString * const compilationString = @"Compilations  ";
 
 // ========================================
 // Browser Accessors
-// ========================================
 
-- (int)countForBrowser:(int)browser
-{
-    if ([[db playlists] attributeForBrowser:browser playlist:_playlist] == 0) {
+- (int)countForBrowser:(int)browser {
+    if (![[_db playlists] attrForBrowser:browser list:_list]) {
         return 0;
     }
-    
-    NSArray *rlt = [db execute:[NSString stringWithFormat:@"SELECT COUNT(*) FROM %@", [self tableNameForBrowser:browser]]
+    NSArray *rlt = [_db execute:[NSString stringWithFormat:@"SELECT COUNT(*) FROM %@", [self tableNameForBrowser:browser]]
                       bindings:nil 
                        columns:[NSArray arrayWithObject:PRColInteger]];
     if ([rlt count] != 1) {[PRException raise:PRDbInconsistencyException format:@""];}
@@ -681,31 +695,27 @@ NSString * const compilationString = @"Compilations  ";
     return count;
 }
 
-- (NSString *)valueForRow:(int)row browser:(int)browser
-{
+- (NSString *)valueForRow:(int)row browser:(int)browser {
     if ([self compilationForBrowser:browser] && _compilation) {
         if (row == 1) {
             return compilationString;
         }
         row -= 1;
     }
-    
-    NSArray *rlt = [db execute:[NSString stringWithFormat:@"SELECT value FROM %@ WHERE row = ?1", [self tableNameForBrowser:browser]]
+    NSArray *rlt = [_db execute:[NSString stringWithFormat:@"SELECT value FROM %@ WHERE row = ?1", [self tableNameForBrowser:browser]]
                       bindings:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil]
                        columns:[NSArray arrayWithObjects:PRColString, nil]];
     if ([rlt count] != 1) {[PRException raise:PRDbInconsistencyException format:@"row:%d browser:%d",row, browser];}
     return [[rlt objectAtIndex:0] objectAtIndex:0];
 }
 
-- (NSIndexSet *)selectionForBrowser:(int)browser
-{
-    NSArray *selectionArray = [[db playlists] selectionForBrowser:browser playlist:_playlist];
+- (NSIndexSet *)selectionForBrowser:(int)browser {
+    NSArray *selectionArray = [[_db playlists] selectionForBrowser:browser list:_list];
     if ([selectionArray count] == 0) {
         return [NSIndexSet indexSetWithIndex:0];
 	}
-    
     NSString *browserTableName = [self tableNameForBrowser:browser];
-	NSMutableString *string = [NSMutableString stringWithFormat:@"SELECT row FROM %@ WHERE value IN (", browserTableName];
+	NSMutableString *string = [NSMutableString stringWithFormat:@"SELECT row FROM %@ WHERE value COLLATE NOCASE2 IN (", browserTableName];
 	for (NSString *i in selectionArray) {
 		[string appendString:@"?, "];
 	}
@@ -716,9 +726,7 @@ NSString * const compilationString = @"Compilations  ";
     for (int i = 0; i < [selectionArray count]; i++) {
         [bnd setObject:[selectionArray objectAtIndex:i] forKey:[NSNumber numberWithInt:i + 1]];
     }
-    NSArray *rlt = [db execute:string 
-                      bindings:bnd 
-                       columns:[NSArray arrayWithObjects:PRColInteger, nil]];
+    NSArray *rlt = [_db execute:string bindings:bnd columns:[NSArray arrayWithObject:PRColInteger]];
     
     NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
     for (NSArray *i in rlt) {
@@ -728,65 +736,45 @@ NSString * const compilationString = @"Compilations  ";
         }
         [indexSet addIndex:index];
     }
+    if ([self compilationForBrowser:browser] && _compilation && [selectionArray containsObject:compilationString]) {
+        [indexSet addIndex:1];
+    }
     if ([indexSet count] == 0) {
         [indexSet addIndex:0];
     }
     return indexSet;
 }
 
-- (BOOL)compilation
-{
-    return _compilation;
-}
-
 // ========================================
-// Misc
-// ========================================
+// misc
 
-- (int)firstRowWithValue:(id)value forAttribute:(PRFileAttribute)attribute
-{
-    NSString *stm = [NSString stringWithFormat:@"SELECT row FROM libraryViewSource "
-                     "JOIN library ON libraryViewSource.file_id = library.file_id WHERE %@ = ?1 COLLATE NOCASE2 "
-                     "ORDER BY row LIMIT 1", 
-                     [PRLibrary columnNameForFileAttribute:attribute]];
-    NSDictionary *bnd = [NSDictionary dictionaryWithObjectsAndKeys:value, [NSNumber numberWithInt:1], nil];
-    NSArray *col = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
-    NSArray *rlt = [db execute:stm bindings:bnd columns:col];
-    if ([rlt count] == 0) {
-        return -1;
-    }
-    return [[[rlt objectAtIndex:0] objectAtIndex:0] intValue];
+- (BOOL)compilationForBrowser:(int)browser {
+    return ([[[_db playlists] attrForBrowser:browser list:_list] isEqual:PRItemAttrArtist] && [[PRUserDefaults userDefaults] useCompilation]);
 }
 
-- (BOOL)compilationForBrowser:(int)browser
-{
-    return ([[db playlists] attributeForBrowser:browser playlist:_playlist] == PRArtistFileAttribute && [[PRUserDefaults userDefaults] useCompilation]);
-}
-
-- (NSString *)tableNameForBrowser:(int)browser
-{
+- (NSString *)tableNameForBrowser:(int)browser {
 	if (browser == 1) {
 		return browser1ViewSource;
 	} else if (browser == 2) {
 		return browser2ViewSource;
 	} else if (browser == 3) {
 		return browser3ViewSource;
-	} else {
-		NSLog(@"PRLibraryViewSource refreshBrowser:withPlaylist:_error: Unknown Browser");
-		return @"";
-	}
+	} 
+    @throw NSInvalidArgumentException;
 }
 
-- (NSString *)groupingStringForPlaylist:(PRPlaylist)playlist browser:(int)browser
-{
-    int grouping = [[db playlists] attributeForBrowser:browser playlist:playlist];
-    if (grouping == 0) {
-        return @"";
+- (NSString *)groupingStringForList:(PRList *)list browser:(int)browser {
+    if (browser != 1 && browser != 2 && browser != 3) {
+        @throw NSInvalidArgumentException;
     }
-    if ([[PRUserDefaults userDefaults] useAlbumArtist] && grouping == PRArtistFileAttribute) {
-		return @"artistAlbumArtist";
-	}
-    return [[PRLibrary columnDict] objectForKey:[NSNumber numberWithInt:grouping]];
+    PRItemAttr *attr = [[_db playlists] attrForBrowser:browser list:list];
+    if (!attr) {
+       return @"";
+    }
+    if ([[PRUserDefaults userDefaults] useAlbumArtist] && [attr isEqual:PRItemAttrArtist]) {
+        return @"artistAlbumArtist";
+    }
+    return [PRLibrary columnNameForItemAttr:attr];
 }
 
 @end

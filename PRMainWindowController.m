@@ -10,46 +10,32 @@
 #import "PRPlaylistsViewController.h"
 #import "PRHistoryViewController.h"
 #import "PRCore.h"
-#import "PRPlaylists+Extensions.h"
 #import "PRTaskManager.h"
-#import "PRGradientView.h"
-#import "PRWelcomeSheetController.h"
 #import "PRMainMenuController.h"
 #import "PRUserDefaults.h"
-#import "PRTimeFormatter2.h"
-#import "PRSizeFormatter.h"
-#import "YRKSpinningProgressIndicator.h"
 #import "PRTableViewController.h"
 #import "PRStringFormatter.h"
 #import <Quartz/Quartz.h>
 #import "NSWindow+Extensions.h"
 #import "NSOperationQueue+Extensions.h"
+#import "PRGradientView.h"
 
 
 @interface NSWindow (hush)
 - (void)setBottomCornerRounded:(BOOL)rounded;
 @end
 
+
 @interface PRMainWindowController ()
 
-// ========================================
 // Update
-
-// Updates searchField
-- (void)playlistDidChange:(NSNotification *)notification;
-
-// update subBar
-- (void)libraryViewDidChange:(NSNotification *)notification;
-
+- (void)playlistDidChange:(NSNotification *)notification; // Updates searchField
+- (void)libraryViewDidChange:(NSNotification *)notification; // update subBar
 - (void)playlistsDidChange:(NSNotification *)notification;
-
 - (void)windowWillEnterFullScreen:(NSNotification *)notification;
 - (void)windowWillExitFullScreen:(NSNotification *)notification;
 
-// ========================================
 // Accessors
-
-// Accessors for search field and segmented control bindings
 - (NSString *)search;
 - (void)setSearch:(NSString *)newSearch;
 - (int)libraryViewMode;
@@ -57,26 +43,24 @@
 
 @end
 
+
 @implementation PRMainWindowController
 
 // ========================================
 // Initialization
-// ========================================
 
-- (id)initWithCore:(PRCore *)core
-{
+- (id)initWithCore:(PRCore *)core {
 	if (!(self = [super initWithWindowNibName:@"PRMainWindow"])) {return nil;}
     _core = core;
     _db = [core db];
     _mode = PRLibraryMode;
-    currentPlaylist = 0;
+    _currentList = nil;
     _playlistMenu = [[NSMenu alloc] init];
     _libraryViewMenu = [[NSMenu alloc] init];
 	return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
      
     [_playlistMenu release];
@@ -92,8 +76,7 @@
     [super dealloc];
 }
 
-- (void)awakeFromNib
-{
+- (void)awakeFromNib {
     [centerSuperview retain];
     [controlsSuperview retain];
     [_splitView retain];
@@ -129,7 +112,7 @@
     historyViewController = [[PRHistoryViewController alloc] initWithDb:_db mainWindowController:self];
     taskManagerViewController = [[PRTaskManagerViewController alloc] initWithCore:(PRCore *)_core];
     
-    nowPlayingViewController = [[PRNowPlayingViewController alloc] initWithDb:_db nowPlayingController:[_core now] mainWindowController:self];
+    nowPlayingViewController = [[PRNowPlayingViewController alloc] initWithCore:_core];
     [[nowPlayingViewController view] setFrame:[nowPlayingSuperview bounds]];
     [nowPlayingSuperview addSubview:[nowPlayingViewController view]];
 	
@@ -141,7 +124,7 @@
     [[libraryViewController view] setFrame:[centerSuperview bounds]];
     [centerSuperview addSubview:[libraryViewController view]];
     currentViewController = libraryViewController;
-    [self setCurrentPlaylist:[[_db playlists] libraryPlaylist]];
+    [self setCurrentList:[[_db playlists] libraryList]];
     [self setCurrentMode:PRLibraryMode];
 		    
     // Info button
@@ -215,7 +198,6 @@
 
 // ========================================
 // Accessors
-// ========================================
 
 @synthesize mainMenuController;
 @synthesize taskManagerViewController;
@@ -226,18 +208,34 @@
 @synthesize nowPlayingViewController;
 @synthesize controlsViewController;
 
+@dynamic currentList;
+
+- (PRList *)currentList {
+    return _currentList;
+}
+
+- (void)setCurrentList:(PRList *)currentList {
+    [currentList retain];
+    [_currentList release];
+    _currentList = currentList;
+    
+    [libraryViewController setCurrentList:_currentList];
+    [self updateUI];
+    
+	[self willChangeValueForKey:@"search"];
+	[self didChangeValueForKey:@"search"];
+}
+
 @dynamic currentMode;
 @dynamic currentPlaylist;
 @dynamic showsArtwork;
 @dynamic miniPlayer;
 
-- (PRMode)currentMode
-{
+- (PRMode)currentMode {
     return _mode;
 }
 
-- (void)setCurrentMode:(PRMode)mode
-{
+- (void)setCurrentMode:(PRMode)mode {
     _mode = mode;
     id newViewController;
 	switch (_mode) {
@@ -266,40 +264,28 @@
 	[self didChangeValueForKey:@"search"];
 }
 
-- (PRPlaylist)currentPlaylist
-{
-    return currentPlaylist;
+- (PRPlaylist)currentPlaylist {
+    return [_currentList intValue];
 }
 
-- (void)setCurrentPlaylist:(PRPlaylist)playlist_
-{
-    currentPlaylist = playlist_;
-    [libraryViewController setPlaylist:currentPlaylist];
-    
-    [self updateUI];
-    
-	[self willChangeValueForKey:@"search"];
-	[self didChangeValueForKey:@"search"];
+- (void)setCurrentPlaylist:(PRPlaylist)playlist {
+    [self setCurrentList:[NSNumber numberWithInt:playlist]];
 }
 
-- (BOOL)showsArtwork
-{
+- (BOOL)showsArtwork {
     return [[PRUserDefaults userDefaults] showsArtwork];
 }
 
-- (void)setShowsArtwork:(BOOL)showsArtwork
-{
+- (void)setShowsArtwork:(BOOL)showsArtwork {
     [[PRUserDefaults userDefaults] setShowsArtwork:showsArtwork];
     [self updateSplitView];
 }
 
-- (BOOL)miniPlayer
-{
+- (BOOL)miniPlayer {
     return [[PRUserDefaults userDefaults] miniPlayer];
 }
 
-- (void)setMiniPlayer:(BOOL)miniPlayer
-{
+- (void)setMiniPlayer:(BOOL)miniPlayer {
     [[PRUserDefaults userDefaults] setMiniPlayer:miniPlayer];
     
     NSRect winFrame;
@@ -332,17 +318,14 @@
     [self updateLayoutWithFrame:winFrame];
 }
 
-- (void)toggleMiniPlayer
-{
+- (void)toggleMiniPlayer {
     [self setMiniPlayer:![self miniPlayer]];
 }
 
 // ========================================
 // UI
-// ========================================
 
-- (void)updateLayoutWithFrame:(NSRect)winFrame
-{
+- (void)updateLayoutWithFrame:(NSRect)winFrame {
     [[self window] setDelegate:nil];
     [_splitView setDelegate:nil];
         
@@ -472,8 +455,7 @@
     [_splitView setDelegate:self];
 }
 
-- (void)updateSplitView
-{
+- (void)updateSplitView {
     NSRect frame;
     frame = [_toolbarSubview frame];
     frame.origin.x = [nowPlayingSuperview frame].size.width - 54;
@@ -519,13 +501,12 @@
     
 }
 
-- (void)updateUI
-{
+- (void)updateUI {
     // Header buttons
     NSButton *button;
     switch (_mode) {
 		case PRLibraryMode:
-            if ([self currentPlaylist] == [[_db playlists] libraryPlaylist]) {
+            if ([[self currentList] isEqual:[[_db playlists] libraryList]]) {
                 button = libraryButton;
             } else {
                 button = playlistsButton;
@@ -562,57 +543,9 @@
     } else {
         [infoButton setImage:[NSImage imageNamed:@"Info"]];
     }
-    
-    // Playlist title
-    [playlistTitle setHidden:!(_mode == PRLibraryMode)];
-    if (_mode != PRLibraryMode) {
-        NSString *title;
-        PRPlaylistType type = [[_db playlists] typeForPlaylist:currentPlaylist];
-        if (type == PRLibraryPlaylistType) {
-            title = @" ";
-        } else {
-            title = [[_db playlists] titleForPlaylist:currentPlaylist];
-        }
-        
-        NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
-        [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.5]];
-        [shadow setShadowOffset:NSMakeSize(1.1, -1.3)];
-        NSMutableParagraphStyle *centerAlign = [[[NSMutableParagraphStyle alloc] init] autorelease];
-        [centerAlign setAlignment:NSLeftTextAlignment];
-        [centerAlign setLineBreakMode:NSLineBreakByTruncatingTail];
-        NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
-                                    [NSFont systemFontOfSize:12], NSFontAttributeName,
-                                    [NSColor colorWithDeviceWhite:0.4 alpha:1.0], NSForegroundColorAttributeName,
-                                    centerAlign, NSParagraphStyleAttributeName,
-                                    shadow, NSShadowAttributeName,
-                                    nil];
-        NSMutableAttributedString *attributedString = [[[NSMutableAttributedString alloc] initWithString:title attributes:attributes] autorelease];
-        
-        // other
-        PRTimeFormatter2 *timeFormatter2 = [[[PRTimeFormatter2 alloc] init] autorelease];
-        PRSizeFormatter *sizeFormatter = [[[PRSizeFormatter alloc] init] autorelease];
-        NSDictionary *userInfo = [(PRTableViewController *)[libraryViewController currentViewController] info];
-        NSString *formattedString = [NSString stringWithFormat:@"%@ songs, %@, %@", 
-                                     [userInfo valueForKey:@"count"], 
-                                     [timeFormatter2 stringForObjectValue:[userInfo valueForKey:@"time"]], 
-                                     [sizeFormatter stringForObjectValue:[userInfo valueForKey:@"size"]]];
-        
-        NSMutableDictionary *attributes2 = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                             [NSFont systemFontOfSize:11], NSFontAttributeName,
-                                             [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-                                             shadow, NSShadowAttributeName,
-                                             centerAlign, NSParagraphStyleAttributeName,				  
-                                             nil] autorelease];
-        [attributedString appendAttributedString:[[[NSAttributedString alloc] initWithString:formattedString attributes:attributes2] autorelease]];
-        [attributedString addAttributes:[NSDictionary dictionaryWithObject:centerAlign forKey:NSParagraphStyleAttributeName]
-                                  range:NSMakeRange(0, [attributedString length])];
-        
-        [playlistTitle setAttributedStringValue:attributedString];
-    }
 }
 
-- (void)updateWindowButtons
-{
+- (void)updateWindowButtons {
     // Window Buttons
     if ([self miniPlayer] && [[self window] frame].size.height == 140) {
         
@@ -638,56 +571,46 @@
     }
 }
 
-- (void)find
-{
+- (void)find {
     [[searchField window] makeFirstResponder:searchField];
 }
 
 // ========================================
-// Update
-// ========================================
+// Update Priv
 
-// Private Methods
-
-- (void)playlistDidChange:(NSNotification *)notification
-{
+- (void)playlistDidChange:(NSNotification *)notification {
 	[self willChangeValueForKey:@"search"];
 	[self didChangeValueForKey:@"search"];
     [self updateUI];
 }
 
-- (void)libraryViewDidChange:(NSNotification *)notification
-{
+- (void)libraryViewDidChange:(NSNotification *)notification {
     [self updateUI];
 }
 
-- (void)playlistsDidChange:(NSNotification *)notification
-{
+- (void)playlistsDidChange:(NSNotification *)notification {
     [self updateUI];
 }
 
-- (NSString *)search
-{
+- (NSString *)search {
 	if (_mode != PRLibraryMode) {
 		return nil;
 	}
-	return [[_db playlists] searchForPlaylist:currentPlaylist];
+	return [[_db playlists] searchForList:_currentList];
 }
 
-- (void)setSearch:(NSString *)search
-{	
+- (void)setSearch:(NSString *)search {	
 	if (_mode != PRLibraryMode) {
 		return;
 	}
 	if (!search) {
 		search = @"";
 	}
-	[[_db playlists] setValue:search forPlaylist:currentPlaylist attribute:PRSearchPlaylistAttribute];
-    [[NSNotificationCenter defaultCenter] postPlaylistChanged:currentPlaylist];
+    [[_db playlists] setValue:search forList:_currentList attr:PRListAttrSearch];
+    [[NSNotificationCenter defaultCenter] postPlaylistChanged:[_currentList intValue]];
 }
 
-- (int)libraryViewMode
-{
+- (int)libraryViewMode {
 	if (_mode != PRLibraryMode) {
 		return -1;
 	} else {
@@ -695,35 +618,30 @@
 	}
 }
 
-- (void)setLibraryViewMode:(int)libraryViewMode
-{
+- (void)setLibraryViewMode:(int)libraryViewMode {
 	if (_mode != PRLibraryMode) {
 		return;
 	}
 	[libraryViewController setLibraryViewMode:libraryViewMode];
 }
 
-- (void)headerButtonAction:(id)sender
-{
+- (void)headerButtonAction:(id)sender {
     if ([sender tag] == PRLibraryMode) {
-        [self setCurrentPlaylist:[[_db playlists] libraryPlaylist]];
+        [self setCurrentList:[[_db playlists] libraryList]];
     }
     [self setCurrentMode:[sender tag]];
 }
 
 // ========================================
 // Window Delegate
-// ========================================
 
-- (void)windowWillEnterFullScreen:(NSNotification *)notification
-{
+- (void)windowWillEnterFullScreen:(NSNotification *)notification {
     NSRect frame = [_splitView frame];
     frame.size.height = [[self window] frame].size.height - 30 - 54 - 22;
     [_splitView setFrame:frame];
 }
 
-- (void)windowWillExitFullScreen:(NSNotification *)notification
-{
+- (void)windowWillExitFullScreen:(NSNotification *)notification {
     _resizingSplitView = TRUE;
 //    [_splitView setDelegate:nil];
     NSRect frame = [_splitView frame];
@@ -735,8 +653,7 @@
     }
 }
 
-- (void)windowDidExitFullScreen:(NSNotification *)notification
-{
+- (void)windowDidExitFullScreen:(NSNotification *)notification {
     if ([self window].frame.size.width - [nowPlayingSuperview frame].size.width < 700) {
         [_splitView setPosition:[self window].frame.size.width-700 ofDividerAtIndex:0];
     } else if ([nowPlayingSuperview frame].size.width < 185) {
@@ -747,8 +664,7 @@
     _resizingSplitView = FALSE;
 }
 
-- (BOOL)windowShouldClose:(id)sender
-{
+- (BOOL)windowShouldClose:(id)sender {
     if (sender == [self window]) {
         [[self window] orderOut:self];
         [NSApp addWindowsItem:[self window] title:@"Enqueue" filename:FALSE];
@@ -757,14 +673,12 @@
     return TRUE;
 }
 
-- (NSRect)window:(NSWindow *)window willPositionSheet:(NSWindow *)sheet usingRect:(NSRect)rect
-{
+- (NSRect)window:(NSWindow *)window willPositionSheet:(NSWindow *)sheet usingRect:(NSRect)rect {
     rect.origin.y -= 8;
     return rect;
 }
 
-- (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize
-{
+- (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize {
     if (![self miniPlayer] && (frameSize.width - [nowPlayingSuperview frame].size.width < 700)) {
         [_splitView setPosition:frameSize.width-700 ofDividerAtIndex:0];
     } else if ([self miniPlayer]) {
@@ -783,8 +697,7 @@
     return frameSize;
 }
 
-- (void)windowDidResize:(NSNotification *)notification
-{
+- (void)windowDidResize:(NSNotification *)notification {
     if (_windowWillResize) {
         [self updateLayoutWithFrame:[[self window] frame]];
         _windowWillResize = FALSE;
@@ -801,8 +714,7 @@
     }
 }
 
-- (void)windowDidMove:(NSNotification *)notification
-{
+- (void)windowDidMove:(NSNotification *)notification {
     if ([[self window] styleMask] & NSFullScreenWindowMask) {
         return;
     }
@@ -815,11 +727,36 @@
 }
 
 // ========================================
-// SplitView Delegate
-// ========================================
+// PRWindow Delegate
 
-- (void)splitViewDidResizeSubviews:(NSNotification *)note
-{
+- (BOOL)window:(NSWindow *)window keyDown:(NSEvent *)event {
+    if ([[event characters] length] != 1) {
+        return FALSE;
+    }
+    BOOL didHandle = FALSE;
+    NSUInteger flags = [NSEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
+    UniChar c = [[event characters] characterAtIndex:0];
+    if (flags == 0) {
+        if (c == 0x20) {
+            [[_core now] playPause];
+            didHandle = TRUE;
+        }
+    } else if (flags == (NSNumericPadKeyMask | NSFunctionKeyMask)) {
+        if (c == 0xf703) {
+            [[_core now] playNext];
+            didHandle = TRUE;
+        } else if (c == 0xf702) {
+            [[_core now] playPrevious];
+            didHandle = TRUE;
+        }
+    }
+    return didHandle;
+}
+
+// ========================================
+// SplitView Delegate
+
+- (void)splitViewDidResizeSubviews:(NSNotification *)note {
     if (_resizingSplitView) {
         return;
     }
@@ -836,16 +773,14 @@
     [[PRUserDefaults userDefaults] setSidebarWidth:[nowPlayingSuperview frame].size.width];
 }
 
-- (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview
-{
+- (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {
     if (subview == nowPlayingSuperview) {
         return FALSE;
     }
     return TRUE;
 }
 
-- (CGFloat)splitView:(NSSplitView *)splitView constrainSplitPosition:(CGFloat)proposedPosition ofSubviewAt:(NSInteger)dividerIndex
-{
+- (CGFloat)splitView:(NSSplitView *)splitView constrainSplitPosition:(CGFloat)proposedPosition ofSubviewAt:(NSInteger)dividerIndex {
     if (proposedPosition < 185) {
         return 185;
     } else if (proposedPosition > 500) {
@@ -857,10 +792,8 @@
 
 // ========================================
 // Menu Delegate
-// ========================================
 
-- (void)menuNeedsUpdate:(NSMenu *)menu
-{
+- (void)menuNeedsUpdate:(NSMenu *)menu {
     if (menu == _playlistMenu) {
         [_playlistMenu removeAllItems];
         NSMenu *menu = [nowPlayingViewController playlistMenu];

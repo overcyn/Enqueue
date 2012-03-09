@@ -1,7 +1,6 @@
 #import "PRPlaylistsViewController.h"
 #import "PRDb.h"
 #import "PRPlaylists.h"
-#import "PRPlaylists+Extensions.h"
 #import "PRMainWindowController.h"
 #import "PRGradientView.h"
 #import "PRScrollView.h"
@@ -17,10 +16,8 @@
 
 // ========================================
 // Initialization
-// ========================================
 
-- (id)initWithCore:(PRCore *)core
-{
+- (id)initWithCore:(PRCore *)core {
 	if (!(self = [super initWithNibName:@"PRPlaylistsView" bundle:nil])) {return nil;}
     _core = core;
     win = [core win];
@@ -31,15 +28,13 @@
 	return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [stringFormatter release];
     [super dealloc];
 }
 
-- (void)awakeFromNib
-{
+- (void)awakeFromNib {
     [(PRScrollView *)[self view] setMinimumSize:NSMakeSize(650, 795)];
     [(NSScrollView *)[self view] setDocumentView:[background superview]];
     [(NSScrollView *)[self view] scrollToTop];
@@ -74,10 +69,8 @@
 
 // ========================================
 // Action
-// ========================================
 
-- (void)tableViewAction
-{
+- (void)tableViewAction {
     int idx = [tableView clickedRow];
     if (idx >= [_datasource count]) {return;}
     int playlist = [[[_datasource objectAtIndex:idx] objectForKey:@"playlist"] intValue];
@@ -85,8 +78,7 @@
     [win setCurrentMode:PRLibraryMode];
 }
 
-- (void)newStaticPlaylist
-{
+- (void)newStaticPlaylist {
     NSAlert *alert = [[[NSAlert alloc] init] autorelease];
     [alert addButtonWithTitle:@"Save"];
     [alert addButtonWithTitle:@"Cancel"];
@@ -105,18 +97,16 @@
     [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(newPlaylistHandler:code:context:) contextInfo:NULL];
 }
 
-- (void)newPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context
-{
+- (void)newPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context {
     if (code != NSAlertFirstButtonReturn) {
         return;
     }
-    PRPlaylist playlist = [[db playlists] addStaticPlaylist];
-    [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forPlaylist:playlist attribute:PRTitlePlaylistAttribute];
+    PRList *list = [[db playlists] addStaticList];
+    [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:list attr:PRListAttrTitle];
     [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
 }
 
-- (void)newSmartPlaylist
-{
+- (void)newSmartPlaylist {
 	NSAlert *alert = [[[NSAlert alloc] init] autorelease];
     [alert addButtonWithTitle:@"Save"];
     [alert addButtonWithTitle:@"Cancel"];
@@ -135,19 +125,16 @@
     [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(newSmartPlaylistHandler:code:context:) contextInfo:NULL];
 }
 
-- (void)newSmartPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context
-{
+- (void)newSmartPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context {
     if (code != NSAlertFirstButtonReturn) {
         return;
     }
-    PRPlaylist playlist = [[db playlists] addSmartPlaylist];
-    [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forPlaylist:playlist attribute:PRTitlePlaylistAttribute];
+    PRList *list = [[db playlists] addSmartList];
+    [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:list attr:PRListAttrTitle];
     [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
 }
 
-- (void)duplicatePlaylist:(PRPlaylist)playlist
-{
-    PRPlaylistType type = [[db playlists] typeForPlaylist:playlist];
+- (void)duplicatePlaylist:(PRPlaylist)playlist {
     NSAlert *alert = [[[NSAlert alloc] init] autorelease];
     [alert addButtonWithTitle:@"Save"];
     [alert addButtonWithTitle:@"Cancel"];
@@ -155,9 +142,10 @@
     [alert setInformativeText:@""];
     [alert setAccessoryView:[[[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 400, 0)] autorelease]];
     NSString *title = @"";
-    if (type == PRStaticPlaylistType) {
-        title = [[[db playlists] titleForPlaylist:playlist] stringByAppendingString:@" Copy"];
-    } else if (type == PRNowPlayingPlaylistType) {
+    PRListType *type = [[db playlists] typeForList:[PRList numberWithInt:playlist]];
+    if ([type isEqual:PRListTypeStatic]) {
+        title = [[[db playlists] titleForList:[NSNumber numberWithInt:playlist]] stringByAppendingString:@" Copy"];
+    } else if ([type isEqual:PRListTypeNowPlaying]) {
         title = @"Untitled Playlist";
     }
     [(NSTextField *)[alert accessoryView] setStringValue:title];   
@@ -172,85 +160,74 @@
     [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(duplicateHandler:code:context:) contextInfo:[[NSNumber alloc] initWithInt:playlist]];
 }
 
-- (void)duplicateHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context 
-{
+- (void)duplicateHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context  {
     if (code != NSAlertFirstButtonReturn) {
         [(NSNumber *)context release];
         return;
     }
-    PRPlaylist playlist = [[db playlists] addStaticPlaylist];
-    [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forPlaylist:playlist attribute:PRTitlePlaylistAttribute];
-    [[db playlists] copyFilesFromPlaylist:[(NSNumber *)context intValue] toPlaylist:playlist];
+    PRList *list = [[db playlists] addStaticList];
+    [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:list attr:PRListAttrTitle];
+    [[db playlists] copyItemsFromList:(NSNumber *)context toList:list];
     [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:playlist];
+    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[list intValue]];
     [(NSNumber *)context release];
 }
 
-- (void)deletePlaylist:(PRPlaylist)playlist
-{
+- (void)deletePlaylist:(PRPlaylist)playlist {
     NSAlert *alert = [[[NSAlert alloc] init] autorelease];
     [alert addButtonWithTitle:@"Delete"];
     [alert addButtonWithTitle:@"Cancel"];
-    [alert setMessageText:[NSString stringWithFormat:@"Delete playlist '%@'?",[[db playlists] valueForPlaylist:playlist attribute:PRTitlePlaylistAttribute]]];
+    [alert setMessageText:[NSString stringWithFormat:@"Delete playlist '%@'?", [[db playlists] valueForList:[NSNumber numberWithInt:playlist] attr:PRListAttrTitle]]];
     [alert setInformativeText:@"This action cannot be undone."];
     [alert setAlertStyle:NSWarningAlertStyle];
     [alert layout];
     [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(deleteHandler:code:context:) contextInfo:[[NSNumber alloc] initWithInt:playlist]];
 }
 
-- (void)deleteHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context 
-{
+- (void)deleteHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context  {
     if (code != NSAlertFirstButtonReturn) {
         [(NSNumber *)context release];
         return;
     }
-    [[_core win] setCurrentPlaylist:[[[_core db] playlists] libraryPlaylist]];
-    [[db playlists] removePlaylist:[(NSNumber *)context intValue]];
+    [[_core win] setCurrentPlaylist:[[[[_core db] playlists] libraryList] intValue]];
+    [[db playlists] removeList:(NSNumber *)context];
     [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
     [(NSNumber *)context release];
 }
 
-- (void)renamePlaylist:(PRPlaylist)playlist
-{
+- (void)renamePlaylist:(PRPlaylist)playlist {
     int row = [self rowForPlaylist:playlist];
     if (row != -1) {
         [tableView editColumn:0 row:row withEvent:nil select:TRUE];
     }
 }
 
-- (void)editPlaylist:(PRPlaylist)playlist
-{
+- (void)editPlaylist:(PRPlaylist)playlist {
     [smartPlaylistEditorViewController release];
     smartPlaylistEditorViewController = [[PRSmartPlaylistEditorViewController alloc] initWithCore:_core playlist:playlist];
     [smartPlaylistEditorViewController beginSheet];
 }
 
-- (void)duplicatePlaylistMenuAction:(NSMenuItem *)menuItem
-{
+- (void)duplicatePlaylistMenuAction:(NSMenuItem *)menuItem {
     [self duplicatePlaylist:[menuItem tag]];
 }
 
-- (void)renamePlaylistMenuAction:(NSMenuItem *)menuItem
-{
+- (void)renamePlaylistMenuAction:(NSMenuItem *)menuItem {
     [self renamePlaylist:[menuItem tag]];
 }
 
-- (void)deletePlaylistMenuAction:(NSMenuItem *)menuItem
-{
+- (void)deletePlaylistMenuAction:(NSMenuItem *)menuItem {
     [self deletePlaylist:[menuItem tag]];
 }
 
-- (void)editPlaylistMenuAction:(NSMenuItem *)menuItem
-{
+- (void)editPlaylistMenuAction:(NSMenuItem *)menuItem {
     [self editPlaylist:[menuItem tag]];
 }
 
 // ========================================
 // Update
-// ========================================
 
-- (void)update
-{
+- (void)update {
     [newPlaylistButton setState:NSOffState];
     [_datasource release];
     _datasource = [[[db playlists] playlistsViewSource] retain];
@@ -268,20 +245,15 @@
 
 // ========================================
 // NSTableView DataSource
-// ========================================
 
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView_
-{
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView_ {
     if (tableView_ != tableView) {
         return 0;
     }
     return [_datasource count];
 }
 
-- (id)            tableView:(NSTableView *)tableView_
-  objectValueForTableColumn:(NSTableColumn *)tableColumn 
-						row:(NSInteger)row
-{
+- (id)tableView:(NSTableView *)tableView_ objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     if (tableView_ != tableView) {
         return nil;
     }
@@ -290,7 +262,7 @@
     }
 
     int playlist = [[[_datasource objectAtIndex:row] objectForKey:@"playlist"] intValue];
-    int count = [[db playlists] countForPlaylist:playlist];
+    int count = [[db playlists] countForList:[NSNumber numberWithInt:playlist]];
     NSString *subtitle = [NSString stringWithFormat:@"%d songs", count];
     NSImage *icon;
     switch ([[[_datasource objectAtIndex:row] objectForKey:@"type"] intValue]) {
@@ -319,32 +291,25 @@
     return dictionary;
 }
 
-- (void)tableView:(NSTableView *)aTableView 
-   setObjectValue:(id)object 
-   forTableColumn:(NSTableColumn *)tableColumn 
-              row:(NSInteger)row
-{
+- (void)tableView:(NSTableView *)aTableView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     if ([object isKindOfClass:[NSString class]]) {
         int playlist = [self playlistForRow:row];
         if (playlist == -1) {
             return;
         }
-        [[db playlists] setValue:object forPlaylist:playlist attribute:PRTitlePlaylistAttribute];
+        [[db playlists] setTitle:object forList:[NSNumber numberWithInt:playlist]];
         [[NSNotificationCenter defaultCenter] postPlaylistChanged:playlist];
     }
 }
 
 // ========================================
 // NSTableView Delegate
-// ========================================
 
-- (NSIndexSet *)tableView:(NSTableView *)tableView selectionIndexesForProposedSelection:(NSIndexSet *)proposedSelectionIndexes
-{
+- (NSIndexSet *)tableView:(NSTableView *)tableView selectionIndexesForProposedSelection:(NSIndexSet *)proposedSelectionIndexes {
 	return [NSIndexSet indexSet];
 }
 
-- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
-{
+- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
     if ([[aCell objectValue] isKindOfClass:[NSString class]]) {
         return;
     }
@@ -362,27 +327,22 @@
     [aCell setTarget:self];
 }
 
-- (BOOL)tableView:(NSTableView *)tableView shouldShowCellExpansionForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
-{
+- (BOOL)tableView:(NSTableView *)tableView shouldShowCellExpansionForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     return FALSE;
 }
 
-- (BOOL)tableView:(NSTableView *)tableView shouldTrackCell:(NSCell *)cell forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
-{
+- (BOOL)tableView:(NSTableView *)tableView shouldTrackCell:(NSCell *)cell forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     return TRUE;
 }
 
 // ========================================
 // Misc
-// ========================================
 
-- (int)playlistForRow:(int)row
-{
+- (int)playlistForRow:(int)row {
     return [[[_datasource objectAtIndex:row] objectForKey:@"playlist"] intValue];
 }
 
-- (int)rowForPlaylist:(PRPlaylist)playlist
-{
+- (int)rowForPlaylist:(PRPlaylist)playlist {
     for (int i = 0; i < [_datasource count]; i++) {
         if ([[[_datasource objectAtIndex:i] objectForKey:@"playlist"] intValue] == playlist) {
             return i;

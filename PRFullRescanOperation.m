@@ -100,7 +100,7 @@ end:;
         // set updated attributes
         NSMutableIndexSet *updated = [NSMutableIndexSet indexSet];
         for (PRFileInfo *i in infoArray) {
-            [[[_core db] library] setAttributes:[i attributes] forFile:[i file]];
+            [[[_core db] library] setAttrs:[i attributes] forItem:[NSNumber numberWithInt:[i file]]];
             [updated addIndex:[i file]];
         }
         [[_core db] commit];

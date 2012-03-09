@@ -1,4 +1,4 @@
-/*	Copyright © 2007 Apple Inc. All Rights Reserved.
+/*	Copyright ï¿½ 2007 Apple Inc. All Rights Reserved.
 	
 	Disclaimer: IMPORTANT:  This Apple software is supplied to you by 
 			Apple Inc. ("Apple") in consideration of your agreement to the
@@ -180,6 +180,9 @@ private:
 
 };
 
+CFStringRef CreateLocalizedStringForParameterValue(double inParameterValue, const CAAUParameter *inParameter, UInt32 inDigits, UInt32 minDigits);
+CFStringRef CreateLocalizedStringForParameterValue(double inParameterValue, const CAAUParameter *inParameter, UInt32 inDigits);
+double ValueForLocalizedParameterString(CFStringRef string, const CAAUParameter *inParameter);
 
 
 #endif // __CAAUParameter_h__

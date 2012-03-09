@@ -99,23 +99,16 @@
     return TRUE;
 }
 
-- (void)keyDown:(NSEvent *)event
-{
-	PRNowPlayingController *now = [(PRCore *)[NSApp delegate] now];
-    if ([[event characters] length] != 1) {
-        [super keyDown:event];
-        return;
+- (void)keyDown:(NSEvent *)event{
+    BOOL didHandle = FALSE;
+    if ([self delegate] && 
+        [[self delegate] conformsToProtocol:@protocol(PRWindowDelegate)] && 
+        [[self delegate] respondsToSelector:@selector(window:keyDown:)]) {
+        didHandle = [(id<PRWindowDelegate>)[self delegate] window:self keyDown:event];
     }
-	if ([[event characters] characterAtIndex:0] == 0xf703) {
-		[now playNext];
-	} else if ([[event characters] characterAtIndex:0] == 0xf702) {
-		[now playPrevious];
-	} else if ([[event characters] characterAtIndex:0] == 0x20) {
-		[now playPause];
-    } else {
-		[super keyDown:event];
-	}
+    if (!didHandle) {
+        [super keyDown:event];
+    }
 }
-
 
 @end

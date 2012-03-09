@@ -96,7 +96,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     [self setVolume:[self volume]];
     [self setQueueState:PRMovieQueueEmpty];
     
-    PLAYER->SetRingBufferCapacity(32768);
+    PLAYER->SetRingBufferCapacity(32768*4);
     PLAYER->SetRingBufferWriteChunkSize(4096);
     
 	return self;

@@ -1,10 +1,9 @@
 #import <Cocoa/Cocoa.h>
 #import "PRPlaylists.h"
-
 @class PRCore, PRDb, PRPlaylists, PRNowPlayingController, PRFolderMonitor, PRTaskManagerViewController,
 PRNowPlayingViewController, PRControlsViewController, PRLibraryViewController, PRPreferencesViewController, 
-PRPlaylistsViewController, PRHistoryViewController, PRGradientView, 
-MAAttachedWindow, PRMainMenuController, YRKSpinningProgressIndicator, PRStringFormatter;
+PRPlaylistsViewController, PRHistoryViewController, PRGradientView, PRMainMenuController;
+
 
 typedef enum {
     PRLibraryMode,
@@ -15,8 +14,7 @@ typedef enum {
 } PRMode;
 
 
-@interface PRMainWindowController : NSWindowController <NSWindowDelegate, NSMenuDelegate, NSSplitViewDelegate>
-{
+@interface PRMainWindowController : NSWindowController <NSWindowDelegate, NSMenuDelegate, NSSplitViewDelegate> {
     IBOutlet NSView *_windowSuperView;
     IBOutlet NSView *centerSuperview;
     IBOutlet NSView *controlsSuperview;
@@ -46,6 +44,7 @@ typedef enum {
     NSMenu *_playlistMenu;
         
     PRMode _mode;
+    PRList *_currentList;
     int currentPlaylist;
     id currentViewController;
     
@@ -62,19 +61,13 @@ typedef enum {
     PRNowPlayingViewController *nowPlayingViewController;
     PRControlsViewController *controlsViewController;
 	
-    // weak
-    PRCore *_core;
-    PRDb *_db;
+    __weak PRCore *_core;
+    __weak PRDb *_db;
 }
+// Initialization
+- (id)initWithCore:(PRCore *)core;
 
-// ========================================
-// Initializer
-
-- (id)initWithCore:(PRCore *)core_;
-
-// ========================================
 // Accessors
-
 @property (readonly) PRMainMenuController *mainMenuController;
 @property (readonly) PRLibraryViewController *libraryViewController;
 @property (readonly) PRHistoryViewController *historyViewController;
@@ -87,12 +80,11 @@ typedef enum {
 // Sets the current mode and playlist. Propogates changes to view controllers.
 @property (readwrite) PRMode currentMode;
 @property (readwrite) PRPlaylist currentPlaylist;
+@property (readwrite, retain) PRList *currentList;
 @property (readwrite) BOOL showsArtwork;
 @property (readwrite) BOOL miniPlayer;
 
-// ========================================
 // UI
-
 - (void)toggleMiniPlayer;
 
 - (void)updateLayoutWithFrame:(NSRect)frame;
@@ -100,5 +92,4 @@ typedef enum {
 - (void)updateUI;
 - (void)updateWindowButtons;
 - (void)find;
-
 @end

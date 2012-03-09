@@ -2,30 +2,25 @@
 #import "PRStatement.h"
 #import "PRDb.h"
 
+
+@interface PRStatement ()
+- (NSArray *)execute_:(BOOL)crash;
+@end
+
+
 @implementation PRStatement
 
-- (NSString *)description
-{
-    return [NSString stringWithFormat:@"statement:%@ bindings:%@ columns:%@", _statement, _bindings, _columns];
-}
-
 // ========================================
-// Initialization
-// ========================================
+// - Initialization
 
-- (id)initWithString:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns db:(PRDb *)db
-{
+- (id)initWithString:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns db:(PRDb *)db {
     if (!(self = [super init])) {return nil;}
-    _statement = [string copy];
-    _bindings = [bindings copy];
-    _columns = [columns copy];
     _sqlite3 = [db sqlDb];
-    
-    if (!_bindings) {
-        _bindings = [[NSDictionary dictionary] retain];
-    }
-    if (_columns == nil) {
-        _columns = [[NSArray array] retain];
+    _statement = [string retain];
+    if (!columns) {
+        _columns = [[NSArray alloc] init];
+    } else {
+        _columns = [columns retain];
     }
     
     // Prepare statement
@@ -45,8 +40,43 @@
                 break;
         }
     }
+    // Set Bindings
+    [self setBindings:bindings];
+    return self;
+}
+
++ (PRStatement *)statement:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns db:(PRDb *)db {
+    return [[[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:db] autorelease];
+}
+
+- (void)dealloc {
+    sqlite3_finalize(_stmt);
+    [_bindings release];
+    [_statement release];
+    [_columns release];
+    [super dealloc];
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"statement:%@ bindings:%@ columns:%@", _statement, _bindings, _columns];
+}
+
+// ========================================
+// - Accessors
+
+@synthesize statement = _statement, bindings = _bindings, columns = _columns;
+
+- (void)setBindings:(NSDictionary *)bindings {
+    if (!bindings) {
+        bindings = [[NSDictionary alloc] init];
+    } else {
+        bindings = [bindings retain];
+    }
+    [_bindings release];
+    _bindings = bindings;
     
-    // Bind values
+    sqlite3_reset(_stmt);
+    
     for (NSNumber *key in [_bindings allKeys]) {
         BOOL l = TRUE;
         while (l) {
@@ -82,39 +112,23 @@
             }
         }
     }
-    return self;
 }
 
-+ (PRStatement *)statement:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns db:(PRDb *)db
-{
-    return [[[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:db] autorelease];
+// ========================================
+// - Action
+
+- (NSArray *)execute {
+    return [self execute_:TRUE];
 }
 
-- (void)dealloc
-{
-    sqlite3_finalize(_stmt);
-    [_bindings release];
-    [_statement release];
-    [_columns release];
-    [super dealloc];
+- (NSArray *)attempt {
+    return [self execute_:FALSE];
 }
 
 // ========================================
 // Action
-// ========================================
 
-- (NSArray *)execute
-{
-    return [self execute_:TRUE];
-}
-
-- (NSArray *)attempt
-{
-    return [self execute_:FALSE];
-}
-
-- (NSArray *)execute_:(BOOL)crash
-{
+- (NSArray *)execute_:(BOOL)crash {
 //    if (![NSThread isMainThread]) {
 //        [PRException raise:PRDbInconsistencyException format:@"Not on main thread!", self];
 //        return nil;
@@ -130,28 +144,20 @@
                     if (!crash) {return nil;}
                     [PRException raise:PRDbInconsistencyException format:@"Mismatch column count - self:%@", self];
                 }
-                NSMutableArray *column = [NSMutableArray array];
+                NSMutableArray *column = [[NSMutableArray alloc] init];
                 for (int i = 0; i < [_columns count]; i++) {
                     id value;
                     
                     
                     id col = [_columns objectAtIndex:i];
-                    if ([col isKindOfClass:[NSNumber class]]) {
-                        NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:
-                                              PRColInteger, [NSNumber numberWithInt:PRColumnInteger],
-                                              PRColFloat, [NSNumber numberWithInt:PRColumnFloat],
-                                              PRColString, [NSNumber numberWithInt:PRColumnString],
-                                              PRColData, [NSNumber numberWithInt:PRColumnData], nil];
-                        col = [dict objectForKey:col];
-                    }
                     if (col == PRColInteger) {
-                        value = [NSNumber numberWithLongLong:sqlite3_column_int64(_stmt, i)];
-                    } else if (col == PRColFloat) {
-                        value = [NSNumber numberWithDouble:sqlite3_column_double(_stmt, i)];
+                        value = [[NSNumber alloc] initWithLongLong:sqlite3_column_int64(_stmt, i)];
+                    } else if (col == PRColInteger) {
+                        value = [[NSNumber alloc] initWithDouble:sqlite3_column_double(_stmt, i)];
                     } else if (col == PRColString) {
-                        value = [NSString stringWithUTF8String:(const char *)sqlite3_column_text(_stmt, i)];
+                        value = [[NSString alloc] initWithUTF8String:(const char *)sqlite3_column_text(_stmt, i)];
                     } else if (col == PRColData) {
-                        value = [NSData dataWithBytes:sqlite3_column_blob(_stmt, i) length:sqlite3_column_bytes(_stmt, i)];
+                        value = [[NSData alloc] initWithBytes:sqlite3_column_blob(_stmt, i) length:sqlite3_column_bytes(_stmt, i)];
                     } else {
                         if (!crash) {return nil;}
                         [PRException raise:PRDbInconsistencyException 
@@ -159,8 +165,10 @@
                         return nil;
                     }
                     [column addObject:value];
+                    [value release];
                 }
                 [result addObject:column];
+                [column release];
                 break;
             case SQLITE_BUSY:
                 usleep(50);

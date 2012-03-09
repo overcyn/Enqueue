@@ -1,12 +1,8 @@
 #import <Foundation/Foundation.h>
-
 @class PRDb;
 
-// ========================================
-// PRStatement
-// ========================================
-@interface PRStatement : NSObject 
-{
+
+@interface PRStatement : NSObject {
     NSString *_statement;
     NSDictionary *_bindings;
     NSArray *_columns;
@@ -14,13 +10,16 @@
     sqlite3 *_sqlite3;
     sqlite3_stmt *_stmt;
 }
-
+// Initialization
 - (id)initWithString:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns db:(PRDb *)db;
 + (PRStatement *)statement:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns db:(PRDb *)db;
 
+// Accessors 
+@property (readonly) NSString *statement;
+@property (nonatomic, retain) NSDictionary *bindings;
+@property (readonly) NSArray *columns;
+
+// Action
 - (NSArray *)execute;
 - (NSArray *)attempt;
-
-- (NSArray *)execute_:(BOOL)crash;
-
 @end

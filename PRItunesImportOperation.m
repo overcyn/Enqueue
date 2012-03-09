@@ -109,7 +109,7 @@ end:;
             NSArray *similar = [[_db library] filesWithSimilarURL:u]; 
             for (NSNumber *j in similar) {
                 // If similar file is equivalent to current URL, set them to be merged
-                NSString *uStr = [[_db library] valueForFile:[j intValue] attribute:PRPathFileAttribute];
+                NSString *uStr = [[_db library] valueForItem:j attr:PRItemAttrPath];
                 if ([uStr isEqualToString:[u absoluteString]] || [[NSFileManager defaultManager] itemAtURL:u equalsItemAtURL:[NSURL URLWithString:uStr]]) {
                     [_fileTrackIdDictionary setValue:j forKey:[[tracks objectAtIndex:i] objectForKey:@"Track ID"]];
                     [toRemove addIndex:i];
@@ -205,16 +205,16 @@ end:;
     // Add playlist items
     void (^blk)(void) = ^{
         [_db begin];
-        int newPlaylist = [[_db playlists] addStaticPlaylist];
+        PRList *list = [[_db playlists] addStaticList];
         if ([playlist objectForKey:@"Name"]) {
-            [[_db playlists] setValue:[playlist objectForKey:@"Name"] forPlaylist:newPlaylist attribute:PRTitlePlaylistAttribute];
+            [[_db playlists] setValue:[playlist objectForKey:@"Name"] forList:list attr:PRListAttrTitle];
         }
         for (NSDictionary *i in playlistItems) {
             NSNumber *track = [i objectForKey:@"Track ID"];
             if (!track) {continue;}
             NSNumber *file = [_fileTrackIdDictionary objectForKey:track];
-            if (!file || ![[_db library] containsFile:[file intValue]]) {continue;}
-            [[_db playlists] appendFile:[file intValue] toPlaylist:newPlaylist];
+            if (!file || ![[_db library] containsItem:file]) {continue;}
+            [[_db playlists] appendItem:file toList:list];
         }
         [_db commit];
         [[NSNotificationCenter defaultCenter] postPlaylistsChanged];

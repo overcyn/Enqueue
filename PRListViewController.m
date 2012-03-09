@@ -2,22 +2,19 @@
 #import "PRTableViewController.h"
 #import "PRPlaylists.h"
 #import "PRDb.h"
+#import "PRCore.h"
 
 
 @implementation PRListViewController
 
-- (id)       initWithDb:(PRDb *)db_ 
-   nowPlayingController:(PRNowPlayingController *)now_
-  libraryViewController:(PRLibraryViewController *)libraryViewController_
-{
-    
+- (id)initWithCore:(PRCore *)core {
 	if (!(self = [super initWithNibName:@"PRListView" bundle:nil])) {return nil;}
-    now = now_;
-    libraryViewController = libraryViewController_;
-    db = db_;
+    _core = core;
+    now = [core now];
+    db = [core db];
     refreshing = FALSE;
-    monitorSelection = TRUE;
-    currentPlaylist = -1;
+    _updatingTableViewSelection = TRUE;
+    _currentList = nil;
 	return self;
 }
 

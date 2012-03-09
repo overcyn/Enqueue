@@ -3,7 +3,6 @@
 #import "PRLibrary.h"
 #import "PRRule.h"
 #import "PRPlaylists.h"
-#import "PRPlaylists+Extensions.h"
 #import "PRDb.h"
 #import "PRCore.h"
 #import "PRMainWindowController.h"
@@ -21,7 +20,7 @@
 	if (!(self = [super initWithWindowNibName:@"PRSmartPlaylistEditorView"])) {return nil;}
     _core = core;
     _playlist = playlist;
-    _datasource = [[[[_core db] playlists] ruleForPlaylist:_playlist] retain];
+//    _datasource = [[[[_core db] playlists] ruleForPlaylist:_playlist] retain];
 	return self;
 }
 

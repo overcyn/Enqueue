@@ -5,8 +5,7 @@
 @dynamic attrString;
 @dynamic altAttrString;
 
-- (void)setAttrString:(NSAttributedString *)attrString
-{
+- (void)setAttrString:(NSAttributedString *)attrString {
     if (attrString == _attrString) {
         return;
     }
@@ -18,13 +17,11 @@
     [self updateTrackingAreas];
 }
 
-- (NSAttributedString *)attrString
-{
+- (NSAttributedString *)attrString {
     return _attrString;
 }
 
-- (void)setAltAttrString:(NSAttributedString *)altAttrString
-{
+- (void)setAltAttrString:(NSAttributedString *)altAttrString {
     if (altAttrString == _altAttrString) {
         return;
     }
@@ -36,18 +33,15 @@
     [self updateTrackingAreas];
 }
 
-- (NSAttributedString *)altAttrString
-{
+- (NSAttributedString *)altAttrString {
     return _altAttrString;
 }
 
-- (void)awakeFromNib
-{
+- (void)awakeFromNib {
     [self updateTrackingAreas];
 }
 
-- (void)updateTrackingAreas
-{
+- (void)updateTrackingAreas {
     if (_trackingArea) {
         [self removeTrackingArea:_trackingArea];
         [_trackingArea release];
@@ -67,32 +61,27 @@
     }
 }
 
-- (void)resetCursorRects
-{
+- (void)resetCursorRects {
     NSRect rect = [self titleRect];
     [self addCursorRect:rect cursor:[NSCursor pointingHandCursor]];
 }
 
-- (void)mouseEntered:(NSEvent *)theEvent
-{
+- (void)mouseEntered:(NSEvent *)theEvent {
     [self setAttributedTitle:_altAttrString];
 }
 
-- (void)mouseExited:(NSEvent *)theEvent
-{
+- (void)mouseExited:(NSEvent *)theEvent {
     [self setAttributedTitle:_attrString];
 }
 
-- (void)mouseDown:(NSEvent *)theEvent
-{
+- (void)mouseDown:(NSEvent *)theEvent {
     NSRect rect = [self titleRect];
     if (NSPointInRect([self convertPointFromBase:[[self window] convertScreenToBase:[NSEvent mouseLocation]]], rect)) {
         [super mouseDown:theEvent];
     }
 }
 
-- (NSRect)titleRect
-{
+- (NSRect)titleRect {
     NSRect rect = [[self attributedTitle] boundingRectWithSize:[self bounds].size options:0];
     rect.size.height = [self bounds].size.height;
     rect.origin.y = 0;

@@ -1,5 +1,6 @@
 #import "PRAlbumListViewController.h"
 #import "PRTableViewController.h"
+#import "PRTableViewController+Private.h"
 #import "PRLibraryViewSource.h"
 #import "PRSynchronizedScrollView.h"
 #import "PRNowPlayingController.h"
@@ -7,42 +8,36 @@
 #import "PRAlbumArtController.h"
 #import "PRAlbumTableView2.h"
 #import "NSIndexSet+Extensions.h"
-#import "PRPlaylists+Extensions.h"
+#import "PRCore.h"
 
 @implementation PRAlbumListViewController
 
 // ========================================
 // Initialization
-// ========================================
 
-- (id)       initWithDb:(PRDb *)db_ 
-   nowPlayingController:(PRNowPlayingController *)now_
-  libraryViewController:(PRLibraryViewController *)libraryViewController_
-{
+- (id)initWithCore:(PRCore *)core {
 	if (!(self = [super initWithNibName:@"PRAlbumListView" bundle:nil])) {return nil;}
-    db = db_;
-    now = now_;
-    libraryViewController = libraryViewController_;
+    _core = core;
+    db = [core db];
+    now = [core now];
     refreshing = FALSE;
-    monitorSelection = TRUE;
-    currentPlaylist = -1;
+    _updatingTableViewSelection = TRUE;
+    _currentList = nil;
     
-    cachedArtwork = [[NSCache alloc] init];
-    [cachedArtwork setCountLimit:50];
+    _cachedArtwork = [[NSCache alloc] init];
+    [_cachedArtwork setCountLimit:50];
 	return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [tableIndexes release];
     [albumCountArray release];
     [albumSumCountArray release];
-    [cachedArtwork release];
+    [_cachedArtwork release];
     [super dealloc];
 }
 
-- (void)awakeFromNib
-{
+- (void)awakeFromNib {
 	[super awakeFromNib];
 	
     [albumTableView setBackgroundColor:[NSColor colorWithCalibratedWhite:0.93 alpha:1.0]];
@@ -60,38 +55,31 @@
 
 // ========================================
 // Accessors
-// ========================================
 
-- (int)sortColumn
-{
-    return [[db playlists] albumListViewSortColumnForPlaylist:currentPlaylist];
+- (PRItemAttr *)sortAttr {
+    return [[db playlists] albumListViewSortAttrForList:_currentList];
 }
 
-- (void)setSortColumn:(int)sortColumn
-{
-    [[db playlists] setAlbumListViewSortColumn:sortColumn forPlaylist:currentPlaylist];
+- (void)setSortAttr:(NSString *)attr {
+    [[db playlists] setAlbumListViewSortAttr:attr forList:_currentList];
 }
 
-- (BOOL)ascending
-{
-    return [[db playlists] albumListViewAscendingForPlaylist:currentPlaylist];
+- (BOOL)ascending {
+    return [[db playlists] albumListViewAscendingForList:_currentList];
 }
 
-- (void)setAscending:(BOOL)ascending
-{
-    [[db playlists] setAlbumListViewAscending:ascending forPlaylist:currentPlaylist];
+- (void)setAscending:(BOOL)ascending {
+    [[db playlists] setAlbumListViewAscending:ascending forList:_currentList];
 }
 
 // ========================================
 // Update
-// ========================================
 
-- (void)reloadData:(BOOL)force
-{	
+- (void)reloadData:(BOOL)force {	
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
 	// update libSrc
-    int tables = [[db libraryViewSource] refreshWithPlaylist:currentPlaylist force:force];
+    int tables = [[db libraryViewSource] refreshWithList:_currentList force:force];
 	
     // update albumCountArray, tableIndexes & libraryCount
 	libraryCount = 0;
@@ -119,7 +107,7 @@
     
 	// reload tables
     refreshing = TRUE;
-    monitorSelection = FALSE;
+    _updatingTableViewSelection = FALSE;
     NSIndexSet *indexSet;
     if ((tables & PRLibraryView) == PRLibraryView) {
         [libraryTableView reloadData];
@@ -147,10 +135,10 @@
         }
     }	
 	refreshing = FALSE;
-    monitorSelection = TRUE;
+    _updatingTableViewSelection = TRUE;
 	
     // update cachedArt
-    [cachedArtwork removeAllObjects];
+    [_cachedArtwork removeAllObjects];
     
 	// post notification
 	[[NSNotificationCenter defaultCenter] postLibraryViewChanged];
@@ -161,10 +149,8 @@
 
 // ========================================
 // Action
-// ========================================
 
-- (void)selectAlbum
-{	
+- (void)selectAlbum {	
 	if ([albumTableView clickedRow] == -1) {
 		[libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
 		return;
@@ -177,13 +163,12 @@
 	[libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:rowAtPoint] byExtendingSelection:FALSE];
 }
 
-- (void)playAlbum
-{
+- (void)playAlbum {
 	if ([albumTableView clickedRow] == -1) {
 		return;
 	}
     [now stop];
-	[[db playlists] clearPlaylist:[now currentPlaylist]];
+    [[db playlists] clearList:[now currentList]];
 	
 	int currentIndex;
 	int row = [albumTableView clickedRow];
@@ -195,8 +180,8 @@
 	int maxIndex = currentIndex + [[albumCountArray objectAtIndex:row] intValue];
     
 	for (; currentIndex < maxIndex; currentIndex++) {
-        PRFile file = [[db libraryViewSource] fileForRow:currentIndex + 1];
-        [[db playlists] appendFile:file toPlaylist:[now currentPlaylist]];
+        PRItem *item = [[db libraryViewSource] itemForRow:currentIndex + 1];
+        [[db playlists] appendItem:item toList:[now currentList]];
 	}
 	
     [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
@@ -205,29 +190,24 @@
 
 // ========================================
 // UI Misc
-// ========================================
 
-- (NSArray *)columnInfo
-{
-    return [[db playlists] albumListViewColumnInfoForPlaylist:currentPlaylist];
+- (NSArray *)columnInfo {
+    return [[db playlists] albumListViewInfoForList:_currentList];
 }
 
-- (void)setColumnInfo:(NSArray *)columnInfo
-{
-    [[db playlists] setAlbumListViewColumnInfo:columnInfo forPlaylist:currentPlaylist];
+- (void)setColumnInfo:(NSArray *)columnInfo {
+    [[db playlists] setAlbumListViewInfo:columnInfo forList:_currentList];
 }
 
-- (NSTableColumn *)tableColumnForAttribute:(int)attribute
-{
-    if (attribute == PRArtistAlbumSort) {
+- (NSTableColumn *)tableColumnForAttr:(NSString *)attr {
+    if ([attr isEqual:PRListSortArtistAlbum]) {
         return [albumTableView tableColumnWithIdentifier:@"0"];
     } else {
-        return [super tableColumnForAttribute:attribute];
+        return [super tableColumnForAttr:attr];
     }
 }
 
-- (void)highlightTableColumn:(NSTableColumn *)tableColumn ascending:(BOOL)ascending
-{
+- (void)highlightTableColumn:(NSTableColumn *)tableColumn ascending:(BOOL)ascending {
 	// clear indicator and higlighted column image
 	for (NSTableColumn *i in [libraryTableView tableColumns]) {
 		[libraryTableView setIndicatorImage:nil inTableColumn:i];
@@ -254,10 +234,8 @@
 
 // ========================================
 // TableView DataSource
-// ========================================
 
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
-{	
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {	
 	if (tableView == libraryTableView) {
 		return libraryCount;
 	} else if (tableView == albumTableView) {
@@ -267,13 +245,10 @@
 	}
 }
 
-- (id)            tableView:(NSTableView *)tableView 
-  objectValueForTableColumn:(NSTableColumn *)tableColumn 
-      			        row:(NSInteger)tableRow
-{
+- (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)tableRow {
 	if (tableView == albumTableView) {
 		int dbRow = [[albumSumCountArray objectAtIndex:tableRow] intValue];
-		PRFile file = [[db libraryViewSource] fileForRow:dbRow];
+		PRFile file = [[[db libraryViewSource] itemForRow:dbRow] intValue];
         
 		NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 		[dict setObject:db forKey:@"db"];
@@ -281,13 +256,13 @@
         [dict setObject:[NSImage imageNamed:@"PRLightAlbumArt"] forKey:@"icon"];
                 
         // asynchronous drawing
-        NSImage *icon = [cachedArtwork objectForKey:[NSNumber numberWithInt:file]];
+        NSImage *icon = [_cachedArtwork objectForKey:[NSNumber numberWithInt:file]];
 		if (icon) {
             [dict setObject:icon forKey:@"icon"];
         } else {
             NSMutableIndexSet *mfiles = [[[NSMutableIndexSet alloc] init] autorelease];
             for (int i = dbRow - [[albumCountArray objectAtIndex:tableRow] intValue] + 1; i < dbRow + 1; i++) {
-                int guessedFile = [[db libraryViewSource] fileForRow:i];
+                int guessedFile = [[[db libraryViewSource] itemForRow:i] intValue];
                 [mfiles addIndex:guessedFile];
             }
             NSDictionary *artworkInfo = [[db albumArtController] artworkInfoForFiles:mfiles];
@@ -300,14 +275,13 @@
 	}
 }
 
-- (void)cacheAlbumArtForFile:(int)file artworkInfo:(NSDictionary *)artworkInfo dirtyRect:(NSRect)dirtyRect
-{
+- (void)cacheAlbumArtForFile:(int)file artworkInfo:(NSDictionary *)artworkInfo dirtyRect:(NSRect)dirtyRect {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSImage *icon = [[db albumArtController] artworkForArtworkInfo:artworkInfo];;    
     if (!icon) {
         icon = [NSImage imageNamed:@"PRLightAlbumArt"];
     }
-    [cachedArtwork setObject:icon forKey:[NSNumber numberWithInt:file]];
+    [_cachedArtwork setObject:icon forKey:[NSNumber numberWithInt:file]];
     
     [[NSOperationQueue mainQueue] addBlock:^{[albumTableView setNeedsDisplayInRect:dirtyRect];}];
     [pool drain];
@@ -315,12 +289,8 @@
 
 // ========================================
 // TableView DragAndDrop
-// ========================================
 
-- (BOOL)     tableView:(NSTableView *)tableView
-  writeRowsWithIndexes:(NSIndexSet *)rowIndexes
-		  toPasteboard:(NSPasteboard*)pboard
-{
+- (BOOL)tableView:(NSTableView *)tableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard*)pboard {
 	NSInteger currentIndex = 0;
 	NSMutableArray *files = [NSMutableArray array];
 	if (tableView == albumTableView) {
@@ -333,7 +303,7 @@
 		int maxIndex = currentIndex + [[albumCountArray objectAtIndex:row] intValue];
 		
 		for (; currentIndex < maxIndex; currentIndex++) {
-			PRFile file = [[db libraryViewSource] fileForRow:currentIndex + 1];
+			PRFile file = [[[db libraryViewSource] itemForRow:currentIndex + 1] intValue];
 			NSNumber *fileNumber = [NSNumber numberWithInt:file];
 			[files addObject:fileNumber];
 		}
@@ -355,17 +325,12 @@
 	return [super tableView:tableView writeRowsWithIndexes:rowIndexes toPasteboard:pboard];
 }
 
-- (NSDragOperation)tableView:(NSTableView*)tableView
-				validateDrop:(id <NSDraggingInfo>)info
-				 proposedRow:(NSInteger)row
-	   proposedDropOperation:(NSTableViewDropOperation)op
-{
+- (NSDragOperation)tableView:(NSTableView*)tableView validateDrop:(id <NSDraggingInfo>)info proposedRow:(NSInteger)row proposedDropOperation:(NSTableViewDropOperation)op {
 	return NSDragOperationNone;
 }
 
 // ========================================
 // TableView Delegate
-// ========================================
 
 //- (NSCell *)   tableView:(NSTableView *)tableView 
 //  dataCellForTableColumn:(NSTableColumn *)tableColumn 
@@ -379,20 +344,14 @@
 //	}
 //}
 
-- (void)tableView:(NSTableView *)tableView didClickTableColumn:(NSTableColumn *)tableColumn
-{
+- (void)tableView:(NSTableView *)tableView didClickTableColumn:(NSTableColumn *)tableColumn {
 	if (tableView == albumTableView) {
-		int sortColumn = [self sortColumn];
-		int ascending = [self ascending];
-
-        if (sortColumn == PRArtistAlbumSort) {
-            ascending = !ascending;
+        if ([[self sortAttr] isEqual:PRListSortArtistAlbum]) {
+            [self setAscending:[self ascending]];
         } else {
-            ascending = TRUE;
+            [self setAscending:TRUE];
         }
-        
-        [self setSortColumn:PRArtistAlbumSort];
-        [self setAscending:ascending];
+        [self setSortAttr:PRListSortArtistAlbum];
         [self loadTableColumns];
         [self reloadData:FALSE];
         [tableView selectColumnIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
@@ -401,8 +360,7 @@
 	[super tableView:tableView didClickTableColumn:tableColumn];
 }
 
-- (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row
-{
+- (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row {
 	if (tableView == albumTableView) {
 		if ([[albumCountArray objectAtIndex:row] intValue] < 10) {
 			return (19 * 11) - 2; 
@@ -414,8 +372,7 @@
 	}
 }
 
-- (void)tableViewSelectionDidChange:(NSNotification *)notification
-{
+- (void)tableViewSelectionDidChange:(NSNotification *)notification {
 	if ([notification object] == libraryTableView) {
 		int index = 0;
 		NSMutableIndexSet *selectionIndexes = [[[NSMutableIndexSet alloc] initWithIndexSet:[libraryTableView selectedRowIndexes]] autorelease];
@@ -430,26 +387,21 @@
 	[super tableViewSelectionDidChange:notification];
 }
 
-- (NSIndexSet *)             tableView:(NSTableView *)tableView
-  selectionIndexesForProposedSelection:(NSIndexSet *)proposedSelectionIndexes
-{
-	NSIndexSet *selectionIndexes = proposedSelectionIndexes;
+- (NSIndexSet *)tableView:(NSTableView *)tableView selectionIndexesForProposedSelection:(NSIndexSet *)indexes {
 	if (tableView == albumTableView) {
-		selectionIndexes = [NSIndexSet indexSet];
+		return [NSIndexSet indexSet];
 	}
-	return [super tableView:tableView selectionIndexesForProposedSelection:selectionIndexes];
+	return [super tableView:tableView selectionIndexesForProposedSelection:indexes];
 }
 
-- (int)dbRowForTableRow:(int)tableRow
-{
+- (int)dbRowForTableRow:(int)tableRow {
 	if (![tableIndexes containsIndex:tableRow]) {
 		return -1;
 	}
     return [tableIndexes countOfIndexesInRange:NSMakeRange(0, tableRow + 1)];
 }
 
-- (int)tableRowForDbRow:(int)dbRow
-{
+- (int)tableRowForDbRow:(int)dbRow {
 	NSInteger tableRow = [tableIndexes indexAtPosition:dbRow];
 	if (tableRow == NSNotFound) {
 		return -1;
@@ -457,8 +409,7 @@
     return tableRow;
 }
 
-- (BOOL)shouldDrawGridForRow:(int)row tableView:(NSTableView *)tableView
-{
+- (BOOL)shouldDrawGridForRow:(int)row tableView:(NSTableView *)tableView {
 	if (tableView == libraryTableView) {
 		return ([self dbRowForTableRow:row + 1] != -1 && [self dbRowForTableRow:row] == -1);
 	} else if (tableView == albumTableView) {

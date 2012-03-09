@@ -17,46 +17,30 @@
 #import "sqlite_str.h"
 
 
-// ========================================
-// Constants
-// ========================================
-
 NSString * const PRFilePboardType = @"PRFilePboardType";
 NSString * const PRIndexesPboardType = @"PRIndexesPboardType";
 
-NSString * const PRColInteger = @"PRColInteger";
 NSString * const PRColFloat = @"PRColFloat";
+NSString * const PRColInteger = @"PRColInteger";
 NSString * const PRColString = @"PRColString";
 NSString * const PRColData = @"PRColData";
 
 
+@interface PRDb ()
+// === initialization ===
+- (BOOL)open;
+- (void)create;
+- (BOOL)update;
+- (BOOL)initialize;
+- (BOOL)move:(NSError **)err;
+@end
+
+
 @implementation PRDb
 
-// ========================================
-// Properties
-// ========================================
+// === Initialization ===
 
-@dynamic sqlDb;
-@synthesize history;
-@synthesize library;
-@synthesize playlists;
-@synthesize queue;
-@synthesize libraryViewSource;
-@synthesize nowPlayingViewSource;
-@synthesize albumArtController;
-@synthesize playbackOrder;
-
-- (sqlite3 *)sqlDb
-{
-    return sqlDb;
-}
-
-// ========================================
-// Initialization
-// ========================================
-
-- (id)initWithCore:(PRCore *)core
-{
+- (id)initWithCore:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
     _core = core;
     
@@ -69,6 +53,7 @@ NSString * const PRColData = @"PRColData";
     playbackOrder = [[PRPlaybackOrder alloc] initWithDb:self];
     albumArtController = [[PRAlbumArtController alloc] initWithDb:self];
     transaction = 0;
+    _cachedStatements = [[NSMutableDictionary alloc] init];
     
     NSString *libraryPath = [[PRUserDefaults userDefaults] libraryPath];
     int e = [[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:libraryPath isDirectory:nil];
@@ -109,8 +94,7 @@ create:;
     return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [history release];
     [library release];
     [playlists release];
@@ -121,8 +105,9 @@ create:;
     [super dealloc];
 }
 
-- (BOOL)open
-{
+// === initialization ===
+
+- (BOOL)open {
 	int e = sqlite3_initialize();
 	if (e != SQLITE_OK) {
 		return FALSE;
@@ -151,8 +136,7 @@ create:;
     return TRUE;
 }
 
-- (BOOL)initialize
-{
+- (BOOL)initialize {
     int e = [history initialize];
     if (!e) {return FALSE;}
     e = [library initialize];
@@ -168,10 +152,9 @@ create:;
     return TRUE;
 }
 
-- (BOOL)update
-{
+- (BOOL)update {
     NSString *string = @"SELECT version FROM schema_version";
-    NSArray *columns = [NSArray arrayWithObjects:[NSNumber numberWithInt:PRColumnInteger], nil];
+    NSArray *columns = [NSArray arrayWithObjects:PRColInteger, nil];
     NSArray *result = [self attempt:string bindings:nil columns:columns];
     if (!result || [result count] != 1) {
         return FALSE;
@@ -180,47 +163,38 @@ create:;
     int version = [[[result objectAtIndex:0] objectAtIndex:0] intValue];
     if (version == 1) {
         [self begin];
-        string = @"DROP TABLE IF EXISTS now_playing_view_source";
-        e = [self attempt:string];
+        e = [self attempt:@"DROP TABLE IF EXISTS now_playing_view_source"];
         if (!e) {return FALSE;}
         
-        string = @"DROP TABLE IF EXISTS playback_order";
-        e = [self attempt:string];
+        e = [self attempt:@"DROP TABLE IF EXISTS playback_order"];
         if (!e) {return FALSE;}
         
-        string = @"ALTER TABLE library ADD COLUMN lastModified TEXT NOT NULL DEFAULT '' ";
-        e = [self attempt:string];
+        e = [self attempt:@"ALTER TABLE library ADD COLUMN lastModified TEXT NOT NULL DEFAULT '' "];
         if (!e) {return FALSE;}
         
-        string = @"CREATE INDEX IF NOT EXISTS index_path ON library (path COLLATE NOCASE)";
-        e = [self attempt:string];
+        e = [self attempt:@"CREATE INDEX IF NOT EXISTS index_path ON library (path COLLATE NOCASE)"];
         if (!e) {return FALSE;}
         
-        string = @"DELETE FROM library WHERE file_id NOT IN ("
-        "SELECT min(file_id) FROM library GROUP BY path COLLATE NOCASE)";
-        e = [self attempt:string];
+        e = [self attempt:@"DELETE FROM library WHERE file_id NOT IN ("
+             "SELECT min(file_id) FROM library GROUP BY path COLLATE NOCASE)"];
         if (!e) {return FALSE;}
         
-        string = @"DROP TABLE IF EXISTS history";
-        e = [self attempt:string];
+        e = [self attempt:@"DROP TABLE IF EXISTS history"];
         if (!e) {return FALSE;}
         
-        string = @"CREATE TABLE IF NOT EXISTS history ("
-        "file_id INTEGER NOT NULL, "
-        "date TEXT NOT NULL, "
-        "FOREIGN KEY(file_id) REFERENCES library(file_id) ON UPDATE CASCADE ON DELETE CASCADE)";
-        e = [self attempt:string];
+        e = [self attempt:@"CREATE TABLE IF NOT EXISTS history ("
+             "file_id INTEGER NOT NULL, "
+             "date TEXT NOT NULL, "
+             "FOREIGN KEY(file_id) REFERENCES library(file_id) ON UPDATE CASCADE ON DELETE CASCADE)"];
         if (!e) {return FALSE;}
         
-        string = @"CREATE TABLE IF NOT EXISTS queue ("
-        "queue_index INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
-        "playlist_item_id INTEGER NOT NULL UNIQUE, "
-        "FOREIGN KEY(playlist_item_id) REFERENCES playlist_items(playlist_item_id) ON UPDATE CASCADE ON DELETE CASCADE)";
-        e = [self attempt:string];
+        e = [self attempt:@"CREATE TABLE IF NOT EXISTS queue ("
+             "queue_index INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
+             "playlist_item_id INTEGER NOT NULL UNIQUE, "
+             "FOREIGN KEY(playlist_item_id) REFERENCES playlist_items(playlist_item_id) ON UPDATE CASCADE ON DELETE CASCADE)"];
         if (!e) {return FALSE;}
         
-        string = @"UPDATE schema_version SET version = 2";
-        e = [self attempt:string];
+        e = [self attempt:@"UPDATE schema_version SET version = 2"];
         if (!e) {return FALSE;}
         
         [self commit];
@@ -228,16 +202,14 @@ create:;
     }
     if (version == 2) {
         [self begin];
-        string = @"CREATE TABLE playback_order ("
-        "index_ INTEGER PRIMARY KEY, "
-        "playlist_item_id INTEGER NOT NULL, "
-        "CHECK (index_ > 0), "
-        "FOREIGN KEY(playlist_item_id) REFERENCES playlist_items(playlist_item_id) ON UPDATE RESTRICT ON DELETE CASCADE)";
-        e = [self attempt:string];
+        e = [self attempt:@"CREATE TABLE playback_order ("
+             "index_ INTEGER PRIMARY KEY, "
+             "playlist_item_id INTEGER NOT NULL, "
+             "CHECK (index_ > 0), "
+             "FOREIGN KEY(playlist_item_id) REFERENCES playlist_items(playlist_item_id) ON UPDATE RESTRICT ON DELETE CASCADE)"];
         if (!e) {return FALSE;}
         
-        string = @"UPDATE schema_version SET version = 3";
-        e = [self attempt:string];
+        e = [self attempt:@"UPDATE schema_version SET version = 3"];
         if (!e) {return FALSE;}
         
         [self commit];
@@ -245,12 +217,10 @@ create:;
     }
     if (version == 3) {
         [self begin];
-        string = @"UPDATE playlists SET browserInfo = x'', listViewSortColumn = -2, albumListViewSortColumn = -2 WHERE type = 1 OR type = 2 OR type = 3";
-        e = [self attempt:string];
+        e = [self attempt:@"UPDATE playlists SET browserInfo = x'', listViewSortColumn = -2, albumListViewSortColumn = -2 WHERE type = 1 OR type = 2 OR type = 3"];
         if (!e) {return FALSE;}
         
-        string = @"UPDATE schema_version SET version = 4";
-        e = [self attempt:string];
+        e = [self attempt:@"UPDATE schema_version SET version = 4"];
         if (!e) {return FALSE;}
         
         [self commit];
@@ -258,16 +228,13 @@ create:;
     }
     if (version == 4) {
         [self begin];
-        string = @"DROP INDEX IF EXISTS index_path";
-        e = [self attempt:string];
+        e = [self attempt:@"DROP INDEX IF EXISTS index_path"];
         if (!e) {return FALSE;}
         
-        string = @"CREATE INDEX index_path ON library (path COLLATE hfs_compare)";
-        e = [self attempt:string];
+        e = [self attempt:@"CREATE INDEX index_path ON library (path COLLATE hfs_compare)"];
         if (!e) {return FALSE;}
         
-        string = @"UPDATE schema_version SET version = 5";
-        e = [self attempt:string];
+        e = [self attempt:@"UPDATE schema_version SET version = 5"];
         if (!e) {return FALSE;}
         
         [self commit];
@@ -275,20 +242,16 @@ create:;
     }
     if (version == 5) {
         [self begin];
-        string = @"ALTER TABLE library ADD COLUMN lyrics TEXT NOT NULL DEFAULT '' ";
-        e = [self attempt:string];
+        e = [self attempt:@"ALTER TABLE library ADD COLUMN lyrics TEXT NOT NULL DEFAULT '' "];
         if (!e) {return FALSE;}
         
-        string = @"ALTER TABLE library ADD COLUMN compilation INT NOT NULL DEFAULT 0 ";
-        e = [self attempt:string];
+        e = [self attempt:@"ALTER TABLE library ADD COLUMN compilation INT NOT NULL DEFAULT 0 "];
         if (!e) {return FALSE;}
         
-        string = @"CREATE INDEX index_compilation ON library (compilation)";
-        e = [self attempt:string];
+        e = [self attempt:@"CREATE INDEX index_compilation ON library (compilation)"];
         if (!e) {return FALSE;}
         
-        string = @"UPDATE schema_version SET version = 6";
-        e = [self attempt:string];
+        e = [self attempt:@"UPDATE schema_version SET version = 6"];
         if (!e) {return FALSE;}
         
         [[_core opQueue] addOperation:[PRUpdate060Operation operationWithCore:_core]];
@@ -299,8 +262,7 @@ create:;
     return TRUE;
 }
 
-- (void)create
-{
+- (void)create {
     NSString *string = @"CREATE TABLE schema_version (version INTEGER NOT NULL)";
     [self execute:string];
     string = @"INSERT INTO schema_version (version) VALUES (6)";
@@ -315,8 +277,7 @@ create:;
     [playbackOrder create];
 }
 
-- (BOOL)move:(NSError **)err
-{
+- (BOOL)move:(NSError **)err {
     NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
     BOOL libraryExists = [fileManager fileExistsAtPath:[[PRUserDefaults userDefaults] libraryPath]];
     BOOL artExists = [fileManager fileExistsAtPath:[[PRUserDefaults userDefaults] cachedAlbumArtPath]];
@@ -376,66 +337,76 @@ create:;
     return TRUE;
 }
 
-// ========================================
-// Action
-// ========================================
+// === Accessors ===
 
-- (void)begin
-{
+@synthesize sqlDb, history, library, playlists, queue, libraryViewSource, nowPlayingViewSource, albumArtController, playbackOrder;
+
+// === Action ===
+
+- (void)begin {
     if (transaction == 0) {
-        [self execute:@"BEGIN EXCLUSIVE"];
+        [self executeCached:@"BEGIN EXCLUSIVE"];
     }
     transaction += 1;
 }
 
-- (void)rollback
-{
-    [self execute:@"ROLLBACK"];
+- (void)rollback {
+    [self executeCached:@"ROLLBACK"];
 }
 
-- (void)commit
-{
+- (void)commit {
     if (transaction < 1) {
         [PRException raise:NSInternalInconsistencyException format:@"Commit index > 1"];
     } else if (transaction == 1) {
-        [self execute:@"COMMIT"];
+        [self executeCached:@"COMMIT"];
         transaction = 0;
     } else {
         transaction -= 1;
     }
 }
 
-- (NSArray *)execute:(NSString *)string
-{
-    return [[PRStatement statement:string bindings:nil columns:nil db:self] execute];
+- (NSArray *)execute:(NSString *)string {
+    return [self execute:string bindings:nil columns:nil];
 }
 
-- (NSArray *)execute:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns
-{
-    return [[PRStatement statement:string bindings:bindings columns:columns db:self] execute];
+- (NSArray *)execute:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns {
+    PRStatement *stmt = [[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:self];
+    id rlt = [stmt execute];
+    [stmt release];
+    return rlt;
 }
 
-- (NSArray *)attempt:(NSString *)string
-{
-    return [[PRStatement statement:string bindings:nil columns:nil db:self] attempt];
+- (NSArray *)executeCached:(NSString *)string {
+    return [self executeCached:string bindings:nil columns:nil];
 }
 
-- (NSArray *)attempt:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns
-{
-    return [[PRStatement statement:string bindings:bindings columns:columns db:self] attempt];
+- (NSArray *)executeCached:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns {
+    PRStatement *statement = [_cachedStatements objectForKey:string];
+    if (!statement || ![[statement columns] isEqual:columns]) {
+        statement = [PRStatement statement:string bindings:bindings columns:columns db:self];
+        [_cachedStatements setObject:statement forKey:string];
+    }
+    return [statement execute];
 }
 
-- (long)lastInsertRowid
-{
+- (NSArray *)attempt:(NSString *)string {
+    return [self attempt:string bindings:nil columns:nil];
+}
+
+- (NSArray *)attempt:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns {
+    PRStatement *stmt = [[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:self];
+    id rlt = [stmt attempt];
+    [stmt release];
+    return rlt;
+}
+
+- (long)lastInsertRowid {
     return sqlite3_last_insert_rowid(sqlDb);
 }
 
-// ========================================
-// Error
-// ========================================
+// === Error ===
 
-- (NSError *)databaseWasMovedError:(NSString *)newPath
-{
+- (NSError *)databaseWasMovedError:(NSString *)newPath {
     NSString *description = @"The Enqueue library file does not appear to be valid.";
     NSString *recovery = [NSString stringWithFormat:@"A new library has been created and the previous library has been moved to:%@", newPath];
     NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -445,8 +416,7 @@ create:;
     return [NSError errorWithDomain:PREnqueueErrorDomain code:0 userInfo:userInfo];
 }
 
-- (NSError *)databaseCouldNotBeMovedError
-{
+- (NSError *)databaseCouldNotBeMovedError {
     NSString *description = @"The Enqueue database does not appear to be valid.";
     NSString *recovery = @"Enqueue could not move the existing database and must close. "
     "If this problem persists please contact support.";
@@ -457,8 +427,7 @@ create:;
     return [NSError errorWithDomain:PREnqueueErrorDomain code:0 userInfo:userInfo];
 }
 
-- (NSError *)databaseCouldNotBeInitializedError
-{
+- (NSError *)databaseCouldNotBeInitializedError {
     NSString *description = @"Enqueue could not initialize the database and must close.";
     NSString *recovery = @"If this problem persists please contact support.";
     NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -469,5 +438,3 @@ create:;
 }
 
 @end
-
-

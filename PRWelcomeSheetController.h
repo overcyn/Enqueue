@@ -15,6 +15,7 @@
 }
 
 // ========================================
+// Initialization
 
 - (id)initWithCore:(PRCore *)core_;
 

@@ -1,32 +1,22 @@
 #import <Cocoa/Cocoa.h>
 #import "PRLibrary.h"
 #import "PRPlaylists.h"
-
 @class PRDb;
 
-@interface PRNowPlayingViewSource : NSObject 
-{
-	PRDb *db;
+
+@interface PRNowPlayingViewSource : NSObject {
+	__weak PRDb *_db;
 }
-
-// ========================================
 // Initialization
-
 - (id)initWithDb:(PRDb *)db_;
-
 - (void)create;
 - (BOOL)initialize;
 
-// ========================================
 // Update
+- (void)refresh;
 
-- (BOOL)refreshWithPlaylist:(PRPlaylist)playlist;
-
-// ========================================
 // Accessors
-
 - (int)count;
-- (PRFile)fileForRow:(int)row;
+- (PRItem *)itemForRow:(int)row;
 - (NSArray *)albumCounts;
-
 @end

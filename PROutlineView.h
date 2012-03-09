@@ -1,11 +1,23 @@
 #import <Foundation/Foundation.h>
+@protocol PROutlineViewDelegate;
 
-@interface PROutlineView : NSOutlineView
-{
+
+@interface PROutlineView : NSOutlineView {
     int _hoverRow;
     NSTimer *autoexpand_timer;
 }
 
+// Action
 - (void)reloadVisibleItems;
+
+@end
+
+// ========================================
+// ========================================
+
+@protocol PROutlineViewDelegate <NSObject>
+
+@optional
+- (BOOL)outlineView:(PROutlineView *)outlineView keyDown:(NSEvent *)event;
 
 @end

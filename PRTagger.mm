@@ -1225,10 +1225,10 @@ using namespace TagLib;
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
     TagLib::Ogg::FieldListMap tagMap = tag->fieldListMap();
     
-//    TagLib::Ogg::FieldListMap::ConstIterator it = tagMap.begin();
-//    for(; it != tagMap.end(); it++) {
-//        NSLog(@"key:%s field:%s",(*it).first.toCString(TRUE),(*it).second.toString().toCString(TRUE));
-//    }
+    TagLib::Ogg::FieldListMap::ConstIterator it = tagMap.begin();
+    for(; it != tagMap.end(); it++) {
+        NSLog(@"key:%s field:%s",(*it).first.toCString(TRUE),(*it).second.toString().toCString(TRUE));
+    }
     
     // String
     void (^readAttr)(PRFileAttribute attr, const char *field);

@@ -10,25 +10,17 @@
 
 @implementation PROutlineView
 
-- (void)awakeFromNib
-{
-    [super awakeFromNib];
-}
-
 // ========================================
 // Responder
-// ========================================
 
-- (NSMenu *)menuForEvent:(NSEvent *)theEvent
-{
+- (NSMenu *)menuForEvent:(NSEvent *)theEvent {
 	if ([[self selectedRowIndexes] count] == 0) {
 		return nil;
 	}
 	return [super menuForEvent:theEvent];
 }
 
-- (void)rightMouseDown:(NSEvent *)event
-{
+- (void)rightMouseDown:(NSEvent *)event {
     [[self window] makeFirstResponder:self];
 	NSPoint p = [self convertPoint:[event locationInWindow] fromView:nil];
 	int row = [self rowAtPoint:p];
@@ -39,8 +31,7 @@
 	[super rightMouseDown:event];
 }
 
-- (void)mouseDown:(NSEvent *)event
-{
+- (void)mouseDown:(NSEvent *)event {
     if (![[self window] isKeyWindow]) {
         [super mouseDown:event];
         return;
@@ -79,57 +70,33 @@
 	[super mouseDown:event];
 }
 
-- (void)keyDown:(NSEvent *)event
-{
-	PRNowPlayingController *now = [(PRCore *)[NSApp delegate] now];
-    
-    if ([[event characters] length] != 1) {
+- (void)keyDown:(NSEvent *)event {
+    BOOL didHandle = FALSE;
+    if ([self delegate] && 
+        [[self delegate] conformsToProtocol:@protocol(PROutlineViewDelegate)] && 
+        [[self delegate] respondsToSelector:@selector(outlineView:keyDown:)]) {
+        didHandle = [(id<PROutlineViewDelegate>)[self delegate] outlineView:self keyDown:event];
+    }
+    if (!didHandle) {
         [super keyDown:event];
-        return;
     }
-	
-    if ([[event characters] characterAtIndex:0] == 0x20) {
-		[now playPause];
-    } else if ([[event characters] characterAtIndex:0] == 0xf703) {
-        [now playNext];
-    } else if ([[event characters] characterAtIndex:0] == 0xf702) {
-        [now playPrevious];
-	} else if ([[event characters] characterAtIndex:0] == 0x7F) {
-        [(PRNowPlayingViewController *)[self delegate] delete:nil];
-        //		[[NSApplication sharedApplication] sendAction:@selector(delete:) to:nil from:self];
-	} else if ([[event characters] characterAtIndex:0] == 0xf728) {
-        [(PRNowPlayingViewController *)[self delegate] delete:nil];
-        //		[[NSApplication sharedApplication] sendAction:@selector(delete:) to:nil from:self];
-    }
-    else {
-		[super keyDown:event];
-	}
 }
 
-- (void)draggedImage:(NSImage *)image endedAt:(NSPoint)point operation:(NSDragOperation)operation
-{
+- (void)draggedImage:(NSImage *)image endedAt:(NSPoint)point operation:(NSDragOperation)operation {
     if ([self dataSource] && [[self dataSource] respondsToSelector:@selector(draggedImage:endedAt:operation:)]) {
         [(PRNowPlayingViewController *)[self dataSource] draggedImage:image endedAt:point operation:operation];
     }
     [super draggedImage:image endedAt:point operation:operation];
 }
 
-- (void)draggedImage:(NSImage *)image movedTo:(NSPoint)point
-{
+- (void)draggedImage:(NSImage *)image movedTo:(NSPoint)point {
     if ([self dataSource] && [[self dataSource] respondsToSelector:@selector(draggedImage:movedTo:)]) {
         [(PRNowPlayingViewController *)[self dataSource] draggedImage:image movedTo:point];
     }
     [super draggedImage:image movedTo:point];
 }
 
-- (void)dragImage:(NSImage *)anImage 
-               at:(NSPoint)imageLoc 
-           offset:(NSSize)mouseOffset
-            event:(NSEvent *)theEvent 
-       pasteboard:(NSPasteboard *)pboard 
-           source:(id)sourceObject
-        slideBack:(BOOL)slideBack
-{
+- (void)dragImage:(NSImage *)anImage at:(NSPoint)imageLoc offset:(NSSize)mouseOffset event:(NSEvent *)theEvent pasteboard:(NSPasteboard *)pboard source:(id)sourceObject slideBack:(BOOL)slideBack {
     [super dragImage:anImage 
                   at:imageLoc 
               offset:mouseOffset 
@@ -140,8 +107,7 @@
 }
 
 // Auto Expand Delay: Cyberduck outline view
-- (void)_scheduleAutoExpandTimerForItem:(id)object
-{
+- (void)_scheduleAutoExpandTimerForItem:(id)object {
     int mouseoverRow = [self rowAtPoint:[self convertPoint:[[NSApp currentEvent] locationInWindow] fromView:nil]];
     if ([[[NSApplication sharedApplication] currentEvent] type] == NSLeftMouseDragged
         && NSPointInRect([self convertPoint:[[NSApp currentEvent] locationInWindow] fromView:nil], NSInsetRect([self rectOfRow:mouseoverRow], 0, 5))) {
@@ -158,8 +124,7 @@
     }
 }
 
-- (void)_scheduleAutoExpandTimerForItemDelayed:(NSTimer *)sender
-{
+- (void)_scheduleAutoExpandTimerForItemDelayed:(NSTimer *)sender {
     int mouseoverRow = [self rowAtPoint:[self convertPoint:[[NSApp currentEvent] locationInWindow] fromView:nil]];
     if ([[[NSApplication sharedApplication] currentEvent] type] == NSLeftMouseDragged) {
         if (_hoverRow == mouseoverRow) {
@@ -172,10 +137,8 @@
 
 // ========================================
 // Selection
-// ========================================
 
-- (void)selectRowIndexes:(NSIndexSet *)indexes byExtendingSelection:(BOOL)extend
-{
+- (void)selectRowIndexes:(NSIndexSet *)indexes byExtendingSelection:(BOOL)extend {
     if ([[self delegate] respondsToSelector:@selector(outlineView:selectionIndexesForProposedSelection:)]) {
         indexes = [[self delegate] outlineView:self selectionIndexesForProposedSelection:indexes];
     }
@@ -184,17 +147,14 @@
 
 // ========================================
 // Drawing
-// ========================================
 
 // Disable default highlight color
-- (id)_highlightColorForCell:(NSCell *)cell
-{
+- (id)_highlightColorForCell:(NSCell *)cell {
     return nil;
 }
 
 // Draw custom highlights
-- (void)highlightSelectionInClipRect:(NSRect)theClipRect
-{
+- (void)highlightSelectionInClipRect:(NSRect)theClipRect {
 	// this method is asking us to draw the hightlights for 
 	// all of the selected rows that are visible inside theClipRect
 	NSRange	visibleRowIndexes = [self rowsInRect:theClipRect];
@@ -226,8 +186,7 @@
 }
 
 // Draw custom context menu highlight
-- (void)_drawContextMenuHighlightForIndexes:(id)arg1 clipRect:(struct CGRect)arg2
-{
+- (void)_drawContextMenuHighlightForIndexes:(id)arg1 clipRect:(struct CGRect)arg2 {
     [self highlightSelectionInClipRect:NSRectFromCGRect(arg2)];
     NSIndexSet *selectedRowIndexes = [self selectedRowIndexes];
     NSInteger i = [selectedRowIndexes firstIndex];
@@ -242,11 +201,7 @@
 }
 
 // Draw custom drop highlights
-- (void)_drawDropHighlightBetweenUpperRow:(int)theUpperRowIndex 
-							  andLowerRow:(int)theLowerRowIndex 
-									onRow:(int)theRow 
-								 atOffset:(float)theOffset
-{
+- (void)_drawDropHighlightBetweenUpperRow:(int)theUpperRowIndex andLowerRow:(int)theLowerRowIndex onRow:(int)theRow atOffset:(float)theOffset {
 	NSRect aHighlightRect;
 	float aYPosition = 0;
 	
@@ -295,35 +250,29 @@
 }
 
 // Disable round highlight on highlighted parent row during drag and drop
-- (BOOL)_shouldHighlightParentRows
-{
+- (BOOL)_shouldHighlightParentRows {
     return FALSE;
 }
 
 // ========================================
 // Layout
-// ========================================
 
-- (NSRect)frameOfOutlineCellAtRow:(NSInteger)row
-{
+- (NSRect)frameOfOutlineCellAtRow:(NSInteger)row {
     NSRect rect = [super frameOfOutlineCellAtRow:row];
     rect.origin.x = -3;
     rect.size.width = 27;
     return rect;
 }
 
-- (NSRect)frameOfCellAtColumn:(NSInteger)column row:(NSInteger)row 
-{
+- (NSRect)frameOfCellAtColumn:(NSInteger)column row:(NSInteger)row {
     NSRect superFrame = [super frameOfCellAtColumn:column row:row];
     return NSMakeRect(0, superFrame.origin.y, [self bounds].size.width, superFrame.size.height);
 }
 
 // ========================================
 // Misc
-// ========================================
 
-- (void)reloadVisibleItems
-{
+- (void)reloadVisibleItems {
     NSRange range = [self rowsInRect:[self visibleRect]];
     NSIndexSet *columns = [self columnIndexesInRect:[self visibleRect]];
     [self reloadDataForRowIndexes:[NSIndexSet indexSetWithIndexesInRange:range] columnIndexes:columns];

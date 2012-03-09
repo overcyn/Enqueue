@@ -1,13 +1,14 @@
 #import <Cocoa/Cocoa.h>
 
 @class PRDb, PRNowPlayingController, PRMainWindowController, PRFolderMonitor, PRTaskManager,
-PRWelcomeSheetController, PRGrowl, PRLastfm, PRKeyboardShortcuts;
+PRWelcomeSheetController, PRGrowl, PRLastfm, PRKeyboardShortcuts, PRTrialSheetController;
 
 @interface PRCore : NSObject <NSApplicationDelegate>
 {
     IBOutlet NSMenu *_mainMenu;
     
     PRWelcomeSheetController *_welcomeSheet;
+    PRTrialSheetController *_trialSheet;
     NSConnection *_connection;
     
 	PRDb *_db;
@@ -22,7 +23,7 @@ PRWelcomeSheetController, PRGrowl, PRLastfm, PRKeyboardShortcuts;
 }
 
 // ========================================
-// Properties
+// Accessors
 
 @property (readonly) PRDb *db;
 @property (readonly) PRMainWindowController *win;

@@ -1,12 +1,10 @@
 #import <Cocoa/Cocoa.h>
+#import "PROutlineView.h"
+@class PRDb, PRLibrary, PRPlaylists, PRNowPlayingController, PRNowPlayingViewSource, PRGradientView, PRMainWindowController, PRNowPlayingCell, PRNowPlayingHeaderCell, PROutlineView, PRCore;
 
 
-@class PRDb, PRLibrary, PRPlaylists, PRNowPlayingController, PRNowPlayingViewSource,
-PRGradientView, PRMainWindowController, PRNowPlayingCell, PRNowPlayingHeaderCell;
-
-@interface PRNowPlayingViewController : NSViewController <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, NSTextFieldDelegate>
-{
-	IBOutlet NSOutlineView *nowPlayingTableView;
+@interface PRNowPlayingViewController : NSViewController <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, NSTextFieldDelegate, PROutlineViewDelegate> {
+	IBOutlet PROutlineView *nowPlayingTableView;
     IBOutlet PRGradientView *backgroundGradient;
     IBOutlet NSScrollView *scrollview;
     
@@ -26,62 +24,18 @@ PRGradientView, PRMainWindowController, PRNowPlayingCell, PRNowPlayingHeaderCell
     
     NSPoint dropPoint;
 	
-    PRMainWindowController *win;
-	PRDb *db;
-	PRNowPlayingController *now;
+    __weak PRCore *_core;
+    __weak PRMainWindowController *win;
+	__weak PRDb *db;
+	__weak PRNowPlayingController *now;
 }
+// Initialization
+- (id)initWithCore:(PRCore *)core;
 
-- (id)      initWithDb:(PRDb *)db_ 
-  nowPlayingController:(PRNowPlayingController *)now_ 
-  mainWindowController:(PRMainWindowController *)mainWindowController_;
-
-@end
-
-@interface PRNowPlayingViewController ()
-
+// Action
 - (void)higlightPlayingFile;
+- (void)addItems:(NSArray *)items atIndex:(int)index;
 
-// ========================================
-// TableView Actions
-
-- (void)playItem:(id)item;
-- (void)playSelected;
-- (void)removeSelected;
-- (void)addSelectedToQueue;
-- (void)removeSelectedFromQueue;
-- (void)addToPlaylist:(id)sender;
-- (IBAction)delete:(id)sender;
-- (void)showInLibrary;
-- (void)revealInFinder;
-
-// ========================================
-// PlaylistMenu Actions
-
-- (void)clearPlaylist;
-- (void)saveAsPlaylist:(id)sender;
-- (void)newPlaylist:(id)sender;
-
-// ========================================
-// Update
-
-- (void)updateTableView;
-- (void)playlistDidChange:(NSNotification *)notification;
-- (void)currentFileDidChange:(NSNotification *)notification;
-
-// ========================================
 // Menu
-
 - (NSMenu *)playlistMenu;
-- (void)contextMenuNeedsUpdate;
-
-// ========================================
-// Misc
-
-- (int)dbRowCount;
-- (NSRange)dbRangeForParentItem:(id)item;
-- (int)dbRowForItem:(id)item;
-- (id)itemForDbRow:(int)row;
-- (id)itemForItem:(id)item;
-- (NSIndexSet *)selectedDbRows;
-
 @end

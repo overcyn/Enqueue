@@ -1,4 +1,5 @@
 #import "PRTableViewController.h"
+#import "PRTableViewController+Private.h"
 #import "PRDb.h"
 #import "PRLibrary.h"
 #import "PRPlaylists.h"
@@ -18,28 +19,26 @@
 #import "PRUserDefaults.h"
 #import "PRStringFormatter.h"
 #import "PRQueue.h"
-#import "PRPlaylists+Extensions.h"
 #import "NSString+Extensions.h"
 #import "sqlite_str.h"
 #import "PRTagger.h"
+#import "PRCore.h"
+#import "PRMainWindowController.h"
+#import "MAZeroingWeakRef.h"
+#import "NSMenuItem+Extensions.h"
+#import "PRMainWindowController.h"
+#import "PRNowPlayingViewController.h"
 
 
 @implementation PRTableViewController
 
-// ========================================
-// Initialization
-// ========================================
+// == Initialization =======================================
 
-- (id)       initWithDb:(PRDb *)db_ 
-   nowPlayingController:(PRNowPlayingController *)now_
-  libraryViewController:(PRLibraryViewController *)libraryViewController_
-{
-    // implemented in subclasses
-	return nil;
+- (id)initWithCore:(PRCore *)core {
+    return nil;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [sizeFormatter release];
     [timeFormatter release];
     [numberFormatter release];
@@ -47,13 +46,11 @@
     [headerMenu release];
     [browserHeaderMenu release];
     [db release];
-    [now release];
-    
+    [now release];   
     [super dealloc];
 }
 
-- (void)awakeFromNib
-{
+- (void)awakeFromNib {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
 	// BrowserSplitView
@@ -83,7 +80,7 @@
     dateFormatter = [[PRDateFormatter alloc] init];
     
     // Playlist Index
-    tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRPlaylistIndexSort]] autorelease];
+    tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRListSortIndex] autorelease];
     [tableColumn setWidth:40];
     [tableColumn setMinWidth:40];
     [tableColumn setMaxWidth:40];
@@ -96,7 +93,7 @@
     [tableColumns addObject:tableColumn];
     
 	// Path
-    tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRPathFileAttribute]] autorelease];
+    tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrPath] autorelease];
     [tableColumn setWidth:200];
     [tableColumn setMinWidth:50];
     [tableColumn setMaxWidth:1000];
@@ -107,7 +104,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// Title
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRTitleFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrTitle] autorelease];
 	[tableColumn setWidth:300];
 	[tableColumn setMinWidth:50];
 	[tableColumn setMaxWidth:1000];
@@ -119,7 +116,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// Artist
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRArtistFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrArtist] autorelease];
 	[tableColumn setWidth:200];
 	[tableColumn setMinWidth:50];
 	[tableColumn setMaxWidth:1000];
@@ -131,7 +128,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// Album
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRAlbumFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrAlbum] autorelease];
 	[tableColumn setWidth:200];
 	[tableColumn setMinWidth:50];
 	[tableColumn setMaxWidth:1000];
@@ -143,7 +140,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// AlbumArtist
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRAlbumArtistFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrAlbumArtist] autorelease];
 	[tableColumn setWidth:200];
 	[tableColumn setMinWidth:50];
 	[tableColumn setMaxWidth:1000];
@@ -155,7 +152,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// Composer
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRComposerFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrComposer] autorelease];
 	[tableColumn setWidth:200];
 	[tableColumn setMinWidth:50];
 	[tableColumn setMaxWidth:1000];
@@ -167,7 +164,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// Genre
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRGenreFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrGenre] autorelease];
 	[tableColumn setWidth:200];
 	[tableColumn setMinWidth:50];
 	[tableColumn setMaxWidth:1000];
@@ -179,7 +176,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// Year
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRYearFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrYear] autorelease];
 	[tableColumn setWidth:40];
 	[tableColumn setMinWidth:40];
 	[tableColumn setMaxWidth:1000];
@@ -193,7 +190,7 @@
 	[tableColumns addObject:tableColumn];
 	
     // Comments
-    tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRCommentsFileAttribute]] autorelease];
+    tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrComments] autorelease];
 	[tableColumn setWidth:200];
 	[tableColumn setMinWidth:50];
 	[tableColumn setMaxWidth:1000];
@@ -205,7 +202,7 @@
 	[tableColumns addObject:tableColumn];
     
 	// BPM
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRBPMFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrBPM] autorelease];
 	[tableColumn setWidth:40];
 	[tableColumn setMinWidth:40];
 	[tableColumn setMaxWidth:1000];
@@ -218,8 +215,8 @@
 	[tableColumn setEditable:TRUE];
 	[tableColumns addObject:tableColumn];
 	
-	// Track
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRTrackNumberFileAttribute]] autorelease];
+    // Track
+    tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrTrackNumber] autorelease];
 	[tableColumn setWidth:40];
 	[tableColumn setMinWidth:40];
 	[tableColumn setMaxWidth:1000];
@@ -233,7 +230,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// Disc
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRDiscNumberFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrDiscNumber] autorelease];
 	[tableColumn setWidth:40];
 	[tableColumn setMinWidth:40];
 	[tableColumn setMaxWidth:1000];
@@ -247,7 +244,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// PlayCount
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRPlayCountFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrPlayCount] autorelease];
 	[tableColumn setWidth:40];
 	[tableColumn setMinWidth:40];
 	[tableColumn setMaxWidth:1000];
@@ -261,7 +258,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// DateAdded
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRDateAddedFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrDateAdded] autorelease];
 	[tableColumn setWidth:200];
 	[tableColumn setMinWidth:40];
 	[tableColumn setMaxWidth:1000];
@@ -275,7 +272,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// LastPlayed
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRLastPlayedFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrLastPlayed] autorelease];
 	[tableColumn setWidth:200];
 	[tableColumn setMinWidth:40];
 	[tableColumn setMaxWidth:1000];
@@ -289,7 +286,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// Size
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRSizeFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrSize] autorelease];
 	[tableColumn setWidth:100];
 	[tableColumn setMinWidth:40];
 	[tableColumn setMaxWidth:1000];
@@ -303,7 +300,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// Kind
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRKindFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrKind] autorelease];
 	[tableColumn setWidth:200];
 	[tableColumn setMinWidth:40];
 	[tableColumn setMaxWidth:1000];
@@ -317,7 +314,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// Time
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRTimeFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrTime] autorelease];
 	[tableColumn setWidth:40];
 	[tableColumn setMinWidth:40];
 	[tableColumn setMaxWidth:1000];
@@ -331,7 +328,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// Bitrate
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRBitrateFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrBitrate] autorelease];
 	[tableColumn setWidth:40];
 	[tableColumn setMinWidth:40];
 	[tableColumn setMaxWidth:1000];
@@ -345,7 +342,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// Channels
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRChannelsFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrChannels] autorelease];
 	[tableColumn setWidth:40];
 	[tableColumn setMinWidth:40];
 	[tableColumn setMaxWidth:1000];
@@ -358,7 +355,7 @@
 	[tableColumns addObject:tableColumn];
 	
 	// SampleRate
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRSampleRateFileAttribute]] autorelease];
+	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrSampleRate] autorelease];
 	[tableColumn setWidth:40];
 	[tableColumn setMinWidth:40];
 	[tableColumn setMaxWidth:1000];
@@ -371,7 +368,7 @@
 	[tableColumns addObject:tableColumn];
     
     // Rating
-    tableColumn = [[[NSTableColumn alloc] initWithIdentifier:[NSString stringWithInt:PRRatingFileAttribute]] autorelease];
+    tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrRating] autorelease];
     [tableColumn setWidth:75];
     [tableColumn setMinWidth:75];
     [tableColumn setMaxWidth:75];
@@ -457,53 +454,20 @@
     [pool drain];
 }
 
-// ========================================
-// Accessors
-// ========================================
+// == Accessors ============================================
 
-- (int)sortColumn
-{
-    return [[db playlists] listViewSortColumnForPlaylist:currentPlaylist];
+@dynamic currentList, info, selection;
+
+- (PRList *)list {
+    return _currentList;
 }
 
-- (void)setSortColumn:(int)sortColumn
-{
-    [[db playlists] setListViewSortColumn:sortColumn forPlaylist:currentPlaylist];
-}
-
-- (BOOL)ascending
-{
-    return [[db playlists] listViewAscendingForPlaylist:currentPlaylist];
-}
-
-- (void)setAscending:(BOOL)ascending
-{
-    [[db playlists] setListViewAscending:ascending forPlaylist:currentPlaylist];
-}
-
-- (NSDictionary *)info
-{
-	return [[db libraryViewSource] info];
-}
-
-- (NSArray *)selection
-{
-	NSMutableArray *selectionArray = [NSMutableArray array];
-	NSIndexSet *selectionIndexes = [self dbRowIndexesForTableRowIndexes:[libraryTableView selectedRowIndexes]];
-	NSInteger index = 0;
-	while ((index = [selectionIndexes indexGreaterThanOrEqualToIndex:index]) != NSNotFound) {
-        PRFile file = [[db libraryViewSource] fileForRow:index];
-		[selectionArray addObject:[NSNumber numberWithInt:file]];
-		index++;
-	}
-	
-	return [NSArray arrayWithArray:selectionArray];
-}
-
-- (void)setCurrentPlaylist:(int)newPlaylist
-{	
-	currentPlaylist = newPlaylist;
-	if (currentPlaylist != -1) {        
+- (void)setCurrentList:(PRList *)list {
+    [list retain];
+    [_currentList release];
+    _currentList = list;
+    
+	if (list) {        
 		[self loadTableColumns];
         [self loadBrowser];
         [self reloadData:TRUE];
@@ -516,248 +480,264 @@
 	}
 }
 
-// ========================================
-// Update
-// ========================================
-
-- (void)playingFileChanged:(NSNotification *)note
-{
-    NSIndexSet *rows = [NSIndexSet indexSetWithIndexesInRange:[libraryTableView rowsInRect:[libraryTableView visibleRect]]];
-    NSIndexSet *columns = [NSIndexSet indexSetWithIndex:[libraryTableView columnWithIdentifier:[NSString stringWithInt:PRTrackNumberFileAttribute]]];
-    [libraryTableView reloadDataForRowIndexes:rows columnIndexes:columns];
+- (NSDictionary *)info {
+	return [[db libraryViewSource] info];
 }
 
-- (void)libraryDidChange:(NSNotification *)notification
-{
-    if (currentPlaylist != -1) {
-        [self reloadData:TRUE];
+- (NSArray *)selection {
+	NSMutableArray *selectionArray = [NSMutableArray array];
+    [[self dbRowIndexesForTableRowIndexes:[libraryTableView selectedRowIndexes]] enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop){
+        [selectionArray addObject:[[db libraryViewSource] itemForRow:idx]];
+    }];
+	return selectionArray;
+}
+
+// == Action ===============================================
+
+- (void)highlightFile:(PRFile)file {
+    PRItem *item = [PRItem numberWithInt:file];
+    [[db playlists] setSearch:@"" forList:_currentList];
+    for (int i = 1; i <= 3; i++) {
+        NSArray *selection = [NSArray array];
+        if ([[[db playlists] attrForBrowser:i list:_currentList] isEqual:PRItemAttrArtist]) {
+            if ([[PRUserDefaults userDefaults] useCompilation] && [[[db library] valueForItem:item attr:PRItemAttrCompilation] boolValue]) {
+                selection = [NSArray arrayWithObject:compilationString];
+            } else {
+                selection = [NSArray arrayWithObject:[[db library] artistValueForItem:item]];
+            }
+        }
+        [[db playlists] setSelection:selection forBrowser:i list:_currentList];
+    }
+    [[NSNotificationCenter defaultCenter] postPlaylistChanged:[_currentList intValue]];
+    
+	int dbRow = [[db libraryViewSource] rowForItem:[NSNumber numberWithInt:file]];
+	if (dbRow != -1) {
+		int tableRow = [self tableRowForDbRow:dbRow];
+		[libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:tableRow] byExtendingSelection:FALSE];
+		[libraryTableView scrollRowToVisible:[self numberOfRowsInTableView:libraryTableView] - 1];
+        [libraryTableView scrollRowToVisible:tableRow - 5];
+		[libraryTableView scrollRowToVisible:tableRow];
+	}
+}
+
+- (void)highlightFiles:(NSIndexSet *)files {
+    if ([files count] == 0) {
+        return;
+    }
+    
+    BOOL clearBrowserAndSearch = FALSE;
+    NSMutableIndexSet *dbRows = [NSMutableIndexSet indexSet];
+    NSUInteger index = [files firstIndex];
+    while (index != NSNotFound) {
+        int dbRow = [[db libraryViewSource] rowForItem:[NSNumber numberWithInt:index]];
+        if (dbRow == -1) {
+            clearBrowserAndSearch = TRUE;
+            [dbRows removeAllIndexes];
+            break;
+        }
+        [dbRows addIndex:dbRow];
+        index = [files indexGreaterThanIndex:index];
+    }
+    
+    if (clearBrowserAndSearch) {
+        [[db playlists] setSearch:@"" forList:_currentList];
+        [[db playlists] setSelection:[NSArray array] forBrowser:1 list:_currentList];
+        [[db playlists] setSelection:[NSArray array] forBrowser:2 list:_currentList];
+        [[db playlists] setSelection:[NSArray array] forBrowser:3 list:_currentList];
+        [[NSNotificationCenter defaultCenter] postPlaylistChanged:[_currentList intValue]];
+        
+        index = [files firstIndex];
+        while (index != NSNotFound) {
+            int dbRow = [[db libraryViewSource] rowForItem:[NSNumber numberWithInt:index]];
+            if (dbRow == -1) {
+                [dbRows removeAllIndexes];
+                break;
+            }
+            [dbRows addIndex:dbRow];
+            index = [files indexGreaterThanIndex:index];
+        }
+    }
+    if ([dbRows count] > 0) {
+        NSIndexSet *tableRows = [self tableRowIndexesForDbRowIndexes:dbRows];
+        [libraryTableView selectRowIndexes:tableRows byExtendingSelection:FALSE];
+        [libraryTableView scrollRowToVisible:[tableRows firstIndex]];
+        [[libraryTableView window] makeFirstResponder:libraryTableView];
     }
 }
 
-- (void)tagsDidChange:(NSNotification *)notification
-{
-    if (currentPlaylist != -1) {
-		[self reloadData:TRUE];
-	}
-}
-
-- (void)playlistDidChange:(NSNotification *)notification
-{
-	if (currentPlaylist == -1 || [[[notification userInfo] valueForKey:@"playlist"] intValue] != currentPlaylist) {
-        return;
-	}
-    [self reloadData:TRUE];
-    [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
-    [libraryTableView scrollPoint:NSMakePoint(0, 0)];
-    [browser1TableView scrollRowToVisible:[browser1TableView selectedRow]];
-    [browser2TableView scrollRowToVisible:[browser2TableView selectedRow]];
-    [browser3TableView scrollRowToVisible:[browser3TableView selectedRow]];
-}
-
-- (void)playlistFilesChanged:(NSNotification *)note
-{
-    if (currentPlaylist == -1 || [[[note userInfo] valueForKey:@"playlist"] intValue] != currentPlaylist) {
-        return;
-	}
-    [self reloadData:TRUE];
-    [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
-    [libraryTableView scrollPoint:NSMakePoint(0, 0)];
-    [browser1TableView scrollRowToVisible:[browser1TableView selectedRow]];
-    [browser2TableView scrollRowToVisible:[browser2TableView selectedRow]];
-    [browser3TableView scrollRowToVisible:[browser3TableView selectedRow]];
-}
-
-- (void)ruleDidChange:(NSNotification *)notification
-{
-	if (currentPlaylist != -1) {
-		[self reloadData:TRUE];
-	}
-}
-
-// ========================================
-// Action
-// ========================================
-
-- (void)play
-{
-	if ([self dbRowForTableRow:[libraryTableView clickedRow]] <= 0) {
-        return;
-	}
-    if ([[libraryTableView selectedRowIndexes] count] > 1) {
-        [selectedRows release];
-        selectedRows = [[libraryTableView selectedRowIndexes] retain];
-        [self playSelected];
+- (void)highlightArtist:(NSString *)artist {
+    [self browseToArtist:artist];
+    PRItemAttr *attr;
+    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
+        attr = PRItemAttrArtistAlbumArtist;
+    } else {
+        attr = PRItemAttrArtist;
+    }
+    int row = [[db libraryViewSource] firstRowWithValue:artist forAttr:attr]; 
+    if (row == -1 || row == 1) {
         return;
     }
-    [now stop];
-    [[db playlists] clearPlaylist:[now currentPlaylist]];
-    [[db playlists] appendFilesFromLibraryViewSourceToPlaylist:[now currentPlaylist]];
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
-    [now playItemAtIndex:[self dbRowForTableRow:[libraryTableView clickedRow]]];
+    row--;
+    [libraryTableView scrollRowToVisible:[self numberOfRowsInTableView:libraryTableView] - 1];
+    [libraryTableView scrollRowToVisible:row - 5];
+    [libraryTableView scrollRowToVisible:row];
+    [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:FALSE];
 }
 
-- (void)playBrowser:(id)sender
-{
-    if ([sender clickedRow] == -1) {
-        return;
-	}
+- (void)browseToArtist:(NSString *)artist {
+    [[db playlists] setSearch:@"" forList:_currentList];
+    for (int i = 1; i <= 3; i++) {
+        NSArray *selection = [NSArray array];
+        if ([[[db playlists] attrForBrowser:i list:_currentList] isEqual:PRItemAttrArtist]) {
+            selection = [NSArray arrayWithObject:artist];
+        }
+        [[db playlists] setSelection:selection forBrowser:i list:_currentList];
+    }
+    [[NSNotificationCenter defaultCenter] postPlaylistChanged:[_currentList intValue]];
+    [[libraryTableView window] makeFirstResponder:libraryTableView];
+}
+
+// == action ===============================================
+
+- (void)playIndexes:(NSIndexSet *)indexes {
     [now stop];
-    [[db playlists] clearPlaylist:[now currentPlaylist]];
-    [[db playlists] appendFilesFromLibraryViewSourceToPlaylist:[now currentPlaylist]];
+    [[db playlists] clearList:[now currentList]];
+    [indexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+        PRItem *item = [[db libraryViewSource] itemForRow:[self dbRowForTableRow:idx]];
+        [[db playlists] appendItem:item toList:[now currentList]];
+    }];
     [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
-    if ([[db playlists] countForPlaylist:[now currentPlaylist]] > 0) {
+    if ([[db playlists] countForList:[now currentList]] > 0) {
         [now playItemAtIndex:1];
     }
 }
 
-- (void)playSelected
-{
-    [now stop];
-    [[db playlists] clearPlaylist:[now currentPlaylist]];
-	NSInteger currentIndex = [selectedRows firstIndex];
-	while (currentIndex != NSNotFound) {
-        PRFile file_ = [[db libraryViewSource] fileForRow:[self dbRowForTableRow:currentIndex]];
-        [[db playlists] appendFile:file_ toPlaylist:[now currentPlaylist]];
-        currentIndex = [selectedRows indexGreaterThanIndex:currentIndex];
-	}
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
-	[now playItemAtIndex:1];
+- (void)appendIndexes:(NSIndexSet *)indexes {
+    NSMutableArray *items = [NSMutableArray array];
+    [indexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+        [items addObject:[[db libraryViewSource] itemForRow:[self dbRowForTableRow:idx]]];    
+    }];
+    [[[_core win] nowPlayingViewController] addItems:items atIndex:[[db playlists] countForList:[now currentList]]+1];
 }
 
-- (void)append
-{
-	NSInteger currentIndex = [selectedRows firstIndex];
-	while (currentIndex != NSNotFound) {
-        PRFile file_ = [[db libraryViewSource] fileForRow:[self dbRowForTableRow:currentIndex]];
-        [[db playlists] appendFile:file_ toPlaylist:[now currentPlaylist]];
-		currentIndex = [selectedRows indexGreaterThanIndex:currentIndex];
-	}
-	[[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
+- (void)appendNextIndexes:(NSIndexSet *)indexes {
+    NSMutableArray *items = [NSMutableArray array];
+    [indexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+        [items addObject:[[db libraryViewSource] itemForRow:[self dbRowForTableRow:idx]]];
+    }];
+    [[[_core win] nowPlayingViewController] addItems:items atIndex:[now currentIndex]+1];
 }
 
-- (void)playNext
-{
-	NSInteger currentIndex = [selectedRows firstIndex];
-	while (currentIndex != NSNotFound) {
-        PRFile file_ = [[db libraryViewSource] fileForRow:[self dbRowForTableRow:currentIndex]];
-        [[db playlists] appendFile:file_ toPlaylist:[now currentPlaylist]];
-		currentIndex = [selectedRows indexGreaterThanIndex:currentIndex];
-	}
-    
-    // Add to queue
-    int count = [[db playlists] countForPlaylist:[now currentPlaylist]];
-    for (int i = count - [selectedRows count]; i < count; i++) {
-        PRPlaylistItem item = [[db playlists] playlistItemAtIndex:i+1 inPlaylist:[now currentPlaylist]];
-        [[db queue] appendPlaylistItem:item];
-    }
-	[[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
-}
-
-- (void)addToPlaylist:(id)sender
-{
-	NSInteger currentIndex = 0;
-	while ((currentIndex = [selectedRows indexGreaterThanOrEqualToIndex:currentIndex]) != NSNotFound) {
-        PRFile file_ = [[db libraryViewSource] fileForRow:[self dbRowForTableRow:currentIndex]];
-        [[db playlists] appendFile:file_ toPlaylist:[[sender representedObject] intValue]];
-        currentIndex++;
-    }
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[[sender representedObject] intValue]];
-}
-
-- (void)getInfo
-{
-	[libraryViewController infoViewToggle];
-}
-
-- (void)reveal
-{
-	int row = [selectedRows indexGreaterThanOrEqualToIndex:0];
-    PRFile file_ = [[db libraryViewSource] fileForRow:[self dbRowForTableRow:row]];
-    NSString *URLString = [[db library] valueForFile:file_ attribute:PRPathFileAttribute];
-	[[NSWorkspace sharedWorkspace] selectFile:[[NSURL URLWithString:URLString] path] inFileViewerRootedAtPath:nil];
-}
-
-- (void)delete
-{
-    if ([selectedRows count] == 0) {
+- (void)deleteIndexes:(NSIndexSet *)indexes {
+    if ([indexes count] == 0) {
         return;
     }
-    
-    if (currentPlaylist != [[db playlists] libraryPlaylist]) {
+    if (![_currentList isEqual:[[db playlists] libraryList]]) {
         NSMutableIndexSet *indexesToDelete = [NSMutableIndexSet indexSet];
-        NSUInteger index = [selectedRows firstIndex];
         NSTableColumn *tableColumn = [libraryTableView tableColumnWithIdentifier:[NSString stringWithInt:PRPlaylistIndexSort]];
-        while (index != NSNotFound) {
-            NSNumber *playlistIndex = [self tableView:libraryTableView objectValueForTableColumn:tableColumn row:index];
-            [indexesToDelete addIndex:[playlistIndex intValue]];
-            index = [selectedRows indexGreaterThanIndex:index];
-        }
-        [[db playlists] removeFilesAtIndexes:indexesToDelete fromPlaylist:currentPlaylist];
+        [indexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+            [indexesToDelete addIndex:[[self tableView:libraryTableView objectValueForTableColumn:tableColumn row:idx] intValue]];
+        }];
+        [[db playlists] removeItemsAtIndexes:indexesToDelete fromList:_currentList];
         
-        [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:currentPlaylist];
+        [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[_currentList intValue]];
         [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
+    } else {
+        NSString *message = @"Do you want to remove the selected song from your library?";
+        if ([indexes count] != 1) {
+            message = [NSString stringWithFormat:@"Do you want to remove the %d selected songs from your library?", [indexes count]];
+        }
+        NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+        [alert addButtonWithTitle:@"Remove"];
+        [alert addButtonWithTitle:@"Cancel"];
+        [alert setMessageText:message];
+        [alert setInformativeText:@"These files will not be deleted from your computer"];
+        [alert setAlertStyle:NSWarningAlertStyle];
+        [alert beginSheetModalForWindow:[[self view] window] 
+                          modalDelegate:self 
+                         didEndSelector:@selector(deleteAlertDidEnd:returnCode:contextInfo:) 
+                            contextInfo:[indexes retain]];
+    }
+}
+
+- (void)appendIndexes:(NSIndexSet *)indexes toList:(PRList *)list {
+    [indexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+        PRItem *item = [[db libraryViewSource] itemForRow:[self dbRowForTableRow:idx]];
+        [[db playlists] appendItem:item toList:list];
+    }];
+    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[list intValue]];
+}
+
+- (void)revealIndexes:(NSIndexSet *)indexes {
+    int row = [indexes indexGreaterThanOrEqualToIndex:0];
+    PRItem *item = [[db libraryViewSource] itemForRow:[self dbRowForTableRow:row]];
+	[[NSWorkspace sharedWorkspace] selectFile:[[[db library] URLForItem:item] path] inFileViewerRootedAtPath:nil];
+}
+
+- (void)deleteAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
+    if (returnCode != NSAlertFirstButtonReturn) {
         return;
     }
-    
-    NSString *message;
-    if ([selectedRows count] == 1) {
-        message = @"Do you want to remove the selected song from your library?";
-    } else {
-        message = [NSString stringWithFormat:@"Do you want to remove the %d selected songs from your library?", [selectedRows count]];
+    NSIndexSet *indexes = [(NSIndexSet *)contextInfo autorelease];
+    NSMutableArray *items = [NSMutableArray array];
+    [indexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+        [items addObject:[[db libraryViewSource] itemForRow:[self dbRowForTableRow:idx]]];
+    }];
+    if ([items containsObject:[now currentItem]]) {
+        [now stop];
     }
-    NSAlert *alert = [[[NSAlert alloc] init] autorelease];
-    [alert addButtonWithTitle:@"Remove"];
-    [alert addButtonWithTitle:@"Cancel"];
-    [alert setMessageText:message];
-    [alert setInformativeText:@"These files will not be deleted from your computer"];
-    [alert setAlertStyle:NSWarningAlertStyle];
-    [alert beginSheetModalForWindow:[[self view] window] 
-                      modalDelegate:self 
-                     didEndSelector:@selector(deleteAlertDidEnd:returnCode:contextInfo:) 
-                        contextInfo:nil];    
+    [[db library] removeItems:items];
+    [[NSNotificationCenter defaultCenter] postLibraryChanged];
+    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
+    [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:FALSE];    
 }
 
-- (void)deleteAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo 
-{
-    if (returnCode == NSAlertFirstButtonReturn) {
-        NSInteger row = [selectedRows firstIndex];
-        NSMutableIndexSet *selectedFiles = [[[NSMutableIndexSet alloc] init] autorelease];
-        while (row != NSNotFound) {
-            PRFile file = [[db libraryViewSource] fileForRow:[self dbRowForTableRow:row]];
-            [selectedFiles addIndex:file];
-            
-            // stop if currentFile
-            if (file == [now currentFile]) {
-                [now stop];
-            }
-            row = [selectedRows indexGreaterThanIndex:row];
-        }
-        
-        [[db library] removeFiles:selectedFiles];
-        [[NSNotificationCenter defaultCenter] postLibraryChanged];
+- (void)appendAll {
+    [self appendIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [self numberOfRowsInTableView:libraryTableView])]];
+}
+
+- (void)appendNextAll {
+    [self appendNextIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [self numberOfRowsInTableView:libraryTableView])]];
+}
+
+// == action mouse =========================================
+
+- (void)play {
+	if ([self dbRowForTableRow:[libraryTableView clickedRow]] < 1) {
+        return;
+	}
+    if ([[libraryTableView selectedRowIndexes] count] > 1) {
+        [self playIndexes:[libraryTableView selectedRowIndexes]];
+    } else {
+        [now stop];
+        [[db playlists] clearList:[now currentList]];
+        [[db playlists] appendItemsFromLibraryViewSourceToList:[now currentList]];
         [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
-        [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:FALSE];
-    }    
+        [now playItemAtIndex:[self dbRowForTableRow:[libraryTableView clickedRow]]];
+    }
 }
 
-- (IBAction)delete:(id)sender
-{
-    [selectedRows release];
-    selectedRows = [[libraryTableView selectedRowIndexes] retain];
-    [self delete];
+- (void)playBrowser:(id)sender {
+    if ([sender clickedRow] == -1) {
+        return;
+	}
+    [now stop];
+    [[db playlists] clearList:[now currentList]];
+    [[db playlists] appendItemsFromLibraryViewSourceToList:[now currentList]];
+    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
+    if ([[db playlists] countForList:[now currentList]] > 0) {
+        [now playItemAtIndex:1];
+    }
 }
 
-// ========================================
-// UI Update
-// ========================================
+// == setup ================================================
 
-- (void)reloadData:(BOOL)force
-{
+- (void)reloadData:(BOOL)force {
 	// update libSrc & reload tables
-    int tables = [[db libraryViewSource] refreshWithPlaylist:currentPlaylist force:force];
+    int tables = [[db libraryViewSource] refreshWithList:_currentList force:force];
 	
 	// reload tables
-    monitorSelection = FALSE;
+    _updatingTableViewSelection = FALSE;
     NSIndexSet *indexSet;
     if ((tables & PRLibraryView) == PRLibraryView) {
         [libraryTableView reloadData];
@@ -783,20 +763,177 @@
             [browser3TableView selectRowIndexes:indexSet byExtendingSelection:FALSE];
         }
     }
-    monitorSelection = TRUE;
+    _updatingTableViewSelection = TRUE;
 	
     [[NSNotificationCenter defaultCenter] postLibraryViewChanged];
     [[NSNotificationCenter defaultCenter] postLibraryViewSelectionChanged];
 }
 
-- (void)loadBrowser
-{
+// == update ===============================================
+
+- (void)playingFileChanged:(NSNotification *)note {
+    NSIndexSet *rows = [NSIndexSet indexSetWithIndexesInRange:[libraryTableView rowsInRect:[libraryTableView visibleRect]]];
+    NSIndexSet *columns = [NSIndexSet indexSetWithIndex:[libraryTableView columnWithIdentifier:PRItemAttrTrackNumber]];
+    [libraryTableView reloadDataForRowIndexes:rows columnIndexes:columns];
+}
+
+- (void)libraryDidChange:(NSNotification *)notification {
+    if (_currentList) {
+        [self reloadData:TRUE];
+    }
+}
+
+- (void)tagsDidChange:(NSNotification *)notification {
+    if (_currentList) {
+		[self reloadData:TRUE];
+	}
+}
+
+- (void)playlistDidChange:(NSNotification *)notification {
+	if (!_currentList || ![[[notification userInfo] valueForKey:@"playlist"] isEqual:_currentList]) {
+        return;
+	}
+    [self reloadData:TRUE];
+    [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
+    [libraryTableView scrollPoint:NSMakePoint(0, 0)];
+    [browser1TableView scrollRowToVisible:[browser1TableView selectedRow]];
+    [browser2TableView scrollRowToVisible:[browser2TableView selectedRow]];
+    [browser3TableView scrollRowToVisible:[browser3TableView selectedRow]];
+}
+
+- (void)playlistFilesChanged:(NSNotification *)note {
+    if (_currentList || [[[note userInfo] valueForKey:@"playlist"] isEqual:_currentList]) {
+        return;
+	}
+    [self reloadData:TRUE];
+    [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
+    [libraryTableView scrollPoint:NSMakePoint(0, 0)];
+    [browser1TableView scrollRowToVisible:[browser1TableView selectedRow]];
+    [browser2TableView scrollRowToVisible:[browser2TableView selectedRow]];
+    [browser3TableView scrollRowToVisible:[browser3TableView selectedRow]];
+}
+
+- (void)ruleDidChange:(NSNotification *)notification {
+	if (_currentList) {
+		[self reloadData:TRUE];
+	}
+}
+
+// == ui ===================================================
+
+@dynamic ascending, sortAttr, columnInfo;
+
+- (BOOL)ascending {
+    return [[db playlists] listViewAscendingForList:_currentList];
+}
+
+- (void)setAscending:(BOOL)ascending {
+    [[db playlists] setListViewAscending:ascending forList:_currentList];
+}
+
+- (PRItemAttr *)sortAttr {
+    return [[db playlists] listViewSortAttrForList:_currentList];
+}
+
+- (void)setSortAttr:(PRItemAttr *)attr {
+    [[db playlists] setListViewSortAttr:attr forList:_currentList];
+}
+
+- (NSArray *)columnInfo {
+    return [[db playlists] listViewInfoForList:_currentList];
+}
+
+- (void)setColumnInfo:(NSArray *)info {
+    [[db playlists] setListViewInfo:info forList:_currentList];
+}
+
+- (void)toggleColumn:(NSTableColumn *)column {
+	[column setHidden:![column isHidden]];
+	[self saveTableColumns];
+}
+
+- (void)toggleBrowser:(PRItemAttr *)attr {
+    if ([[db playlists] verticalForList:_currentList]) {
+        [[db playlists] setAttr:nil forBrowser:1 list:_currentList];
+        [[db playlists] setAttr:nil forBrowser:2 list:_currentList];
+        [[db playlists] setAttr:attr forBrowser:3 list:_currentList];
+    } else {
+        NSMutableSet *set = [NSMutableSet set];
+        for (int i = 1; i < 4; i++) {
+            if ([[db playlists] attrForBrowser:i list:_currentList]) {
+                [set addObject:[[db playlists] attrForBrowser:i list:_currentList]];
+            }
+        }
+        
+        if ([set containsObject:attr]) { // if removing browser
+            [set removeObject:attr];
+            if ([set count] == 0) {
+                [set addObject:PRItemAttrArtist];
+            }
+        } else { // if adding browser
+            [set addObject:attr];
+            if ([set count] > 3) {
+                if ([attr isEqual:PRItemAttrComposer]) {
+                    [set removeObject:PRItemAttrGenre];
+                } else {
+                    [set removeObject:PRItemAttrComposer];
+                }
+            }
+        }
+        
+        NSMutableArray *attrs = [NSMutableArray array];
+        for (PRItemAttr *i in [NSArray arrayWithObjects:PRItemAttrAlbum, PRItemAttrArtist, PRItemAttrComposer, PRItemAttrGenre, nil]) {
+            if ([set containsObject:i]) {
+                [attrs addObject:i];
+            }
+        }
+        [attrs addObject:[NSNull null]];
+        [attrs addObject:[NSNull null]];
+        [attrs addObject:[NSNull null]];
+        
+        // save
+        for (int i = 0; i < 3; i++) {
+            if ([attrs objectAtIndex:i] == [NSNull null]) {
+                [[db playlists] setAttr:nil forBrowser:3-i list:_currentList];
+            } else {
+                [[db playlists] setAttr:[attrs objectAtIndex:i] forBrowser:3-i list:_currentList];
+            }
+        }
+        [[db playlists] setSelection:[NSArray array] forBrowser:1 list:_currentList];
+        [[db playlists] setSelection:[NSArray array] forBrowser:2 list:_currentList];
+        [[db playlists] setSelection:[NSArray array] forBrowser:3 list:_currentList];
+    }
+	[self loadBrowser];
+    [self reloadData:FALSE];
+}
+
+- (void)setBrowserPosition:(PRBrowserPosition)position {
+    if (position == PRBrowserPositionHorizontal) {
+        [[db playlists] setVertical:PRBrowserPositionHorizontal forList:_currentList];
+        [[db playlists] setAttr:PRItemAttrGenre forBrowser:1 list:_currentList];
+        [[db playlists] setAttr:PRItemAttrArtist forBrowser:2 list:_currentList];
+        [[db playlists] setAttr:PRItemAttrAlbum forBrowser:3 list:_currentList];
+    } else if (position == PRBrowserPositionVertical) {
+        [[db playlists] setVertical:PRBrowserPositionVertical forList:_currentList];
+        [[db playlists] setAttr:nil forBrowser:1 list:_currentList];
+        [[db playlists] setAttr:nil forBrowser:2 list:_currentList];
+        [[db playlists] setAttr:PRItemAttrArtist forBrowser:3 list:_currentList];
+    } else if (position == PRBrowserPositionHidden) {
+        [[db playlists] setVertical:PRBrowserPositionHidden forList:_currentList];
+        [[db playlists] setAttr:nil forBrowser:1 list:_currentList];
+        [[db playlists] setAttr:nil forBrowser:2 list:_currentList];
+        [[db playlists] setAttr:nil forBrowser:3 list:_currentList];
+    }
+    [self loadBrowser];
+    [self reloadData:TRUE];
+}
+
+- (void)loadBrowser {
     refreshing = TRUE;
-    // Get Browser Info
     [verticalBrowserSplitView removeFromSuperview];
     [horizontalBrowserSplitView removeFromSuperview];
     [libraryScrollView removeFromSuperview];
-    int browserPosition = [[db playlists] isVerticalForPlaylist:currentPlaylist];
+    int browserPosition = [[db playlists] verticalForList:_currentList];
 	if (browserPosition == PRBrowserPositionVertical) {
         [[self view] addSubview:verticalBrowserSplitView];
         NSRect bounds = [[self view] bounds];
@@ -807,7 +944,7 @@
         browser1TableView = nil;
         browser2TableView = nil;
         browser3TableView = verticalBrowser1TableView;
-        [verticalBrowserSplitView setPosition:[[db playlists] verticalBrowser3WidthForPlaylist:currentPlaylist] ofDividerAtIndex:0];
+        [verticalBrowserSplitView setPosition:[[db playlists] verticalBrowserWidthForList:_currentList] ofDividerAtIndex:0];
     } else if (browserPosition == PRBrowserPositionHorizontal) {
         [[self view] addSubview:horizontalBrowserSplitView];
         NSRect bounds = [[self view] bounds];
@@ -821,10 +958,9 @@
         [[[horizontalBrowser1TableView superview] superview] removeFromSuperview];
         [[[horizontalBrowser2TableView superview] superview] removeFromSuperview];
         [[[horizontalBrowser3TableView superview] superview] removeFromSuperview];
-        
-        if ([[db playlists] browser2AttributeForPlaylist:currentPlaylist] == 0) {
+        if (![[db playlists] attrForBrowser:2 list:_currentList]) {
             [horizontalBrowserSubSplitview addSubview:[[horizontalBrowser3TableView superview] superview]];
-        } else if ([[db playlists] browser1AttributeForPlaylist:currentPlaylist] == 0) {
+        } else if (![[db playlists] attrForBrowser:1 list:_currentList]) {
             [horizontalBrowserSubSplitview addSubview:[[horizontalBrowser2TableView superview] superview]];
             [horizontalBrowserSubSplitview addSubview:[[horizontalBrowser3TableView superview] superview]];
             [horizontalBrowserSubSplitview setPosition:[horizontalBrowserSubSplitview frame].size.width*1/5 ofDividerAtIndex:0];
@@ -839,7 +975,7 @@
         browser1TableView = horizontalBrowser1TableView;
         browser2TableView = horizontalBrowser2TableView;
         browser3TableView = horizontalBrowser3TableView;
-        [horizontalBrowserSplitView setPosition:[[db playlists] horizontalBrowserHeightForPlaylist:currentPlaylist] ofDividerAtIndex:0];
+        [horizontalBrowserSplitView setPosition:[[db playlists] horizontalBrowserHeightForList:_currentList] ofDividerAtIndex:0];
     } else if (browserPosition == PRBrowserPositionHidden){
         [[self view] addSubview:libraryScrollView];
         NSRect bounds = [[self view] bounds];
@@ -849,479 +985,370 @@
         browser2TableView = nil;
         browser3TableView = nil;
     }
-    
-	int browser1Grouping = [[db playlists] browser1AttributeForPlaylist:currentPlaylist];
-	int browser2Grouping = [[db playlists] browser2AttributeForPlaylist:currentPlaylist];
-	int browser3Grouping = [[db playlists] browser3AttributeForPlaylist:currentPlaylist];
-    NSString *browser1Title = [[PRLibrary columnNameForFileAttribute:browser1Grouping] capitalizedString];
-	[[[[browser1TableView tableColumns] objectAtIndex:0] headerCell] setStringValue:browser1Title];
-    NSString *browser2Title = [[PRLibrary columnNameForFileAttribute:browser2Grouping] capitalizedString];
-	[[[[browser2TableView tableColumns] objectAtIndex:0] headerCell] setStringValue:browser2Title];
-    NSString *browser3Title = [[PRLibrary columnNameForFileAttribute:browser3Grouping] capitalizedString];
-	[[[[browser3TableView tableColumns] objectAtIndex:0] headerCell] setStringValue:browser3Title];
+    for (int i = 1; i < 4; i++) {
+        PRItemAttr *attr = [[db playlists] attrForBrowser:i list:_currentList];
+        NSString *title = @"";
+        if (attr) {
+            title = [PRLibrary titleForItemAttr:attr];
+        }
+        [[[[[self tableViewForBrowser:i] tableColumns] objectAtIndex:0] headerCell] setStringValue:title];
+    }
     refreshing = FALSE;
 }
 
-- (void)saveBrowser
-{
-    if (currentPlaylist == -1) {
+- (void)saveBrowser {
+    if (!_currentList) {
         return;
     }
-    int browserPosition = [[db playlists] isVerticalForPlaylist:currentPlaylist];
+    int browserPosition = [[db playlists] verticalForList:_currentList];
     if (browserPosition == PRBrowserPositionVertical) {
         float width = [[[browser3TableView superview] superview] bounds].size.width;
-        [[db playlists] setVerticalBrowser3Width:width forPlaylist:currentPlaylist];
+        [[db playlists] setVerticalBrowserWidth:width forList:_currentList];
     } else if (browserPosition == PRBrowserPositionHorizontal) {
         float height = [horizontalBrowserSubSplitview frame].size.height;
-        [[db playlists] setHorizontalBrowserHeight:height forPlaylist:currentPlaylist];
+        [[db playlists] setHorizontalBrowserHeight:height forList:_currentList];
     }
 }
 
-- (void)loadTableColumns
-{
+- (void)loadTableColumns {
     refreshing = TRUE;
 	// set column attributes
     NSArray *columnsInfo = [self columnInfo];
 	for (int i = 0; i < [columnsInfo count]; i++) {
         NSDictionary *columnInfo = [columnsInfo objectAtIndex:i];
-        NSTableColumn *tableColumn = [libraryTableView tableColumnWithIdentifier:[NSString stringWithNumber:[columnInfo valueForKey:@"identifier"]]];
+        NSTableColumn *tableColumn = [libraryTableView tableColumnWithIdentifier:[PRPlaylists sortAttrForInternal:[columnInfo valueForKey:@"identifier"]]];
         [tableColumn setWidth:[[columnInfo valueForKey:@"width"] intValue]];
         [tableColumn setHidden:[[columnInfo valueForKey:@"hidden"] boolValue]];
         [libraryTableView moveColumn:[[libraryTableView tableColumns] indexOfObject:tableColumn] toColumn:i];
     }
     
     // playlist column
-    NSTableColumn *tableColumn = [libraryTableView tableColumnWithIdentifier:[NSString stringWithInt:PRPlaylistIndexSort]];
+    NSTableColumn *tableColumn = [libraryTableView tableColumnWithIdentifier:PRListSortIndex];
     [libraryTableView moveColumn:[[libraryTableView tableColumns] indexOfObject:tableColumn] toColumn:0];
-    [[[libraryTableView tableColumns] objectAtIndex:0] setHidden:(currentPlaylist == [[db playlists] libraryPlaylist])];
+    [[[libraryTableView tableColumns] objectAtIndex:0] setHidden:([_currentList isEqual:[[db playlists] libraryList]])];
 	
 	// highlight sort table column
-    [self highlightTableColumn:[self tableColumnForAttribute:[self sortColumn]] 
-                     ascending:[self ascending]];
+    [self highlightTableColumn:[self tableColumnForAttr:[self sortAttr]] ascending:[self ascending]];
     refreshing = FALSE;
 }
 
-- (void)saveTableColumns
-{	
+- (void)saveTableColumns {	
 	NSArray *columns = [libraryTableView tableColumns];
 	NSMutableArray *columnsInfo = [NSMutableArray array];
 	for (NSTableColumn *i in columns) {
         if ([[i identifier] intValue] == PRPlaylistIndexSort) {
             continue;
         }
-		NSDictionary *columnInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                                    [NSNumber numberWithInt:[[i identifier] intValue]], @"identifier",
-                                    [NSNumber numberWithBool:[i isHidden]], @"hidden",
-                                    [NSNumber numberWithFloat:[i width]], @"width",
-                                    nil];
-		[columnsInfo addObject:columnInfo];
+		[columnsInfo addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+                                [PRPlaylists internalForSortAttr:[i identifier]], @"identifier",
+                                [NSNumber numberWithBool:[i isHidden]], @"hidden",
+                                [NSNumber numberWithFloat:[i width]], @"width", nil]];
 	}
     [self setColumnInfo:columnsInfo];
 }
 
-- (void)highlightTableColumn:(NSTableColumn *)tableColumn ascending:(BOOL)ascending
-{
+// == ui misc ==============================================
+
+- (void)highlightTableColumn:(NSTableColumn *)tableColumn ascending:(BOOL)ascending {
     for (NSTableColumn *i in [libraryTableView tableColumns]) {
         if (i != tableColumn) {
             [[i tableView] setIndicatorImage:nil inTableColumn:i];	
-            continue;
         }
-        NSImage *indicatorImage;
-        if (ascending) {
-            indicatorImage = [NSImage imageNamed:@"NSAscendingSortIndicator"];
-        } else {
-            indicatorImage = [NSImage imageNamed:@"NSDescendingSortIndicator"];
-        }
-        [[i tableView] setIndicatorImage:indicatorImage inTableColumn:i];	
 	}
+    NSImage *indicatorImage;
+    if (ascending) {
+        indicatorImage = [NSImage imageNamed:@"NSAscendingSortIndicator"];
+    } else {
+        indicatorImage = [NSImage imageNamed:@"NSDescendingSortIndicator"];
+    }
+    [[tableColumn tableView] setIndicatorImage:indicatorImage inTableColumn:tableColumn];	
 	[[tableColumn tableView] setHighlightedTableColumn:tableColumn];
 }
 
-// ========================================
-// UI Action
-// ========================================
-
-- (void)toggleColumn:(id)sender
-{
-	NSTableColumn *column = [sender representedObject];
-	[column setHidden:![column isHidden]];
-	[self saveTableColumns];
+- (NSTableColumn *)tableColumnForAttr:(PRItemAttr *)attr {
+    return [libraryTableView tableColumnWithIdentifier:attr];
 }
 
-- (void)toggleBrowser:(id)sender
-{
-	int browserGrouping = [[sender representedObject] intValue];
-	
-    // if On Top or On Left
-    if (browserGrouping == -1) {
-        [[db playlists] setVertical:PRBrowserPositionHorizontal forPlaylist:currentPlaylist];
-        [[db playlists] setBrowser1Attribute:PRGenreFileAttribute forPlaylist:currentPlaylist];
-        [[db playlists] setBrowser2Attribute:PRArtistFileAttribute forPlaylist:currentPlaylist];
-        [[db playlists] setBrowser3Attribute:PRAlbumFileAttribute forPlaylist:currentPlaylist];
-        [self loadBrowser];
-        [self reloadData:TRUE];
-        return;
-    } else if (browserGrouping == -2) {
-        [[db playlists] setVertical:PRBrowserPositionVertical forPlaylist:currentPlaylist];
-        [[db playlists] setBrowser1Attribute:0 forPlaylist:currentPlaylist];
-        [[db playlists] setBrowser2Attribute:0 forPlaylist:currentPlaylist];
-        [[db playlists] setBrowser3Attribute:PRArtistFileAttribute forPlaylist:currentPlaylist];
-        [self loadBrowser];
-        [self reloadData:TRUE];
-        return;
-    } else if (browserGrouping == -3) {
-        [[db playlists] setVertical:PRBrowserPositionHidden forPlaylist:currentPlaylist];
-        [[db playlists] setBrowser1Attribute:0 forPlaylist:currentPlaylist];
-        [[db playlists] setBrowser2Attribute:0 forPlaylist:currentPlaylist];
-        [[db playlists] setBrowser3Attribute:0 forPlaylist:currentPlaylist];
-        [self loadBrowser];
-        [self reloadData:TRUE];
-        return;
+// == Menu =================================================
+
+- (NSMenu *)browserHeaderMenu {
+    int browserPosition = [[db playlists] verticalForList:_currentList];
+    MAZeroingWeakRef *selfRef = [MAZeroingWeakRef refWithTarget:self];
+    
+    NSMenu *menu = [[[NSMenu alloc] init] autorelease];
+    NSMenuItem *item = [[[NSMenuItem alloc] init] autorelease];
+    [item setTitle:@"Hidden"];
+    [item setActionBlock:^{[[selfRef target] setBrowserPosition:PRBrowserPositionHidden];}];
+    if (browserPosition == PRBrowserPositionHidden) {
+        [item setState:NSOnState];
     }
+    [menu addItem:item];
+    
+    item = [[[NSMenuItem alloc] init] autorelease];
+    [item setTitle:@"On Top"];
+    [item setActionBlock:^{[[selfRef target] setBrowserPosition:PRBrowserPositionHorizontal];}];
+    if (browserPosition == PRBrowserPositionHorizontal) {
+        [item setState:NSOnState];
+    }
+    [menu addItem:item];
+    
+    item = [[[NSMenuItem alloc] init] autorelease];
+    [item setTitle:@"On Left"];
+    [item setActionBlock:^{[[selfRef target] setBrowserPosition:PRBrowserPositionVertical];}];
+    if (browserPosition == PRBrowserPositionVertical) {
+        [item setState:NSOnState];
+    }
+    [menu addItem:item];
+    
+    if (browserPosition != PRBrowserPositionHidden) {
+        [menu addItem:[NSMenuItem separatorItem]];
         
-    // if is Vertical
-    if ([[db playlists] isVerticalForPlaylist:currentPlaylist]) {
-        [[db playlists] setBrowser1Attribute:0 forPlaylist:currentPlaylist];
-        [[db playlists] setBrowser2Attribute:0 forPlaylist:currentPlaylist];
-        [[db playlists] setBrowser3Attribute:browserGrouping forPlaylist:currentPlaylist];
-        [self loadBrowser];
-        [self reloadData:TRUE];
-        return;
-    }
-    
-	int browser1Grouping = [[db playlists] browser1AttributeForPlaylist:currentPlaylist];
-	int browser2Grouping = [[db playlists] browser2AttributeForPlaylist:currentPlaylist];
-	int browser3Grouping = [[db playlists] browser3AttributeForPlaylist:currentPlaylist];
-	
-	// filter for duplicates
-	NSMutableIndexSet *indexSet = [[[NSMutableIndexSet alloc] init] autorelease];
-	[indexSet addIndex:browser1Grouping];
-	[indexSet addIndex:browser2Grouping];
-	[indexSet addIndex:browser3Grouping];
-    if ([indexSet containsIndex:browserGrouping]) {
-        [indexSet removeIndex:browserGrouping];
-    } else {
-        [indexSet addIndex:browserGrouping];
-    }
-    
-    [indexSet removeIndex:0];
-    if ([indexSet count] == 0) {
-        [indexSet addIndex:PRArtistFileAttribute];
-    }
-    if ([indexSet count] > 3) {
-        [indexSet removeIndex:PRComposerFileAttribute];
-    }
-	
-	// sort
-	// 3,2,8,13,0,0,0
-	NSMutableArray *array = [NSMutableArray array];
-	if ([indexSet containsIndex:3]) {
-		[array addObject:[NSNumber numberWithInt:3]];
-	}
-	if ([indexSet containsIndex:2]) {
-		[array addObject:[NSNumber numberWithInt:2]];
-	}
-	if ([indexSet containsIndex:8]) {
-		[array addObject:[NSNumber numberWithInt:8]];
-	}
-	if ([indexSet containsIndex:13]) {
-		[array addObject:[NSNumber numberWithInt:13]];
-	}
-	[array addObject:[NSNumber numberWithInt:0]];
-	[array addObject:[NSNumber numberWithInt:0]];
-	[array addObject:[NSNumber numberWithInt:0]];
-    
-	browser1Grouping = [[array objectAtIndex:2] intValue];
-	browser2Grouping = [[array objectAtIndex:1] intValue];
-	browser3Grouping = [[array objectAtIndex:0] intValue];
-	
-	// save
-    [[db playlists] setBrowser1Attribute:browser1Grouping forPlaylist:currentPlaylist];
-    [[db playlists] setBrowser2Attribute:browser2Grouping forPlaylist:currentPlaylist];
-    [[db playlists] setBrowser3Attribute:browser3Grouping forPlaylist:currentPlaylist];
-	[self loadBrowser];
-    [self reloadData:FALSE];
-}
-
-- (void)highlightFile:(PRFile)file
-{
-    NSString *artist;
-    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
-        artist = [[db library] valueForFile:file attribute:PRArtistFileAttribute];
-    } else {
-        artist = [[db library] valueForFile:file attribute:PRArtistAlbumArtistFileAttribute];
-    }
-    [self browseToArtist:artist];
-	int dbRow = [[db libraryViewSource] rowForFile:file];
-	if (dbRow == -1) {
-        [[db playlists] setValue:@"" forPlaylist:currentPlaylist attribute:PRSearchPlaylistAttribute];
-        [[db playlists] setSelection:[NSArray array] forBrowser:1 playlist:currentPlaylist];
-        [[db playlists] setSelection:[NSArray array] forBrowser:2 playlist:currentPlaylist];
-        [[db playlists] setSelection:[NSArray array] forBrowser:3 playlist:currentPlaylist];
-        [[NSNotificationCenter defaultCenter] postPlaylistChanged:currentPlaylist];
-		dbRow = [[db libraryViewSource] rowForFile:file];
-	}
-	if (dbRow != -1) {
-		int tableRow = [self tableRowForDbRow:dbRow];
-		[libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:tableRow] byExtendingSelection:FALSE];
-		[libraryTableView scrollRowToVisible:[self numberOfRowsInTableView:libraryTableView] - 1];
-        [libraryTableView scrollRowToVisible:tableRow - 5];
-		[libraryTableView scrollRowToVisible:tableRow];
-		[[libraryTableView window] makeFirstResponder:libraryTableView];
-	}
-}
-
-- (void)highlightFiles:(NSIndexSet *)files
-{
-    if ([files count] == 0) {
-        return;
-    }
-    
-    BOOL clearBrowserAndSearch = FALSE;
-    NSMutableIndexSet *dbRows = [NSMutableIndexSet indexSet];
-    NSUInteger index = [files firstIndex];
-    while (index != NSNotFound) {
-        int dbRow = [[db libraryViewSource] rowForFile:index];
-        if (dbRow == -1) {
-            clearBrowserAndSearch = TRUE;
-            [dbRows removeAllIndexes];
-            break;
-        }
-        [dbRows addIndex:dbRow];
-        index = [files indexGreaterThanIndex:index];
-    }
-    
-    if (clearBrowserAndSearch) {
-        [[db playlists] setValue:@"" forPlaylist:currentPlaylist attribute:PRSearchPlaylistAttribute];
-        [[db playlists] setValue:[NSKeyedArchiver archivedDataWithRootObject:[NSArray array]] forPlaylist:currentPlaylist attribute:PRBrowser1SelectionPlaylistAttribute];
-        [[db playlists] setValue:[NSKeyedArchiver archivedDataWithRootObject:[NSArray array]] forPlaylist:currentPlaylist attribute:PRBrowser2SelectionPlaylistAttribute];
-        [[db playlists] setValue:[NSKeyedArchiver archivedDataWithRootObject:[NSArray array]] forPlaylist:currentPlaylist attribute:PRBrowser3SelectionPlaylistAttribute];
-        [[NSNotificationCenter defaultCenter] postPlaylistChanged:currentPlaylist];
-        
-        index = [files firstIndex];
-        while (index != NSNotFound) {
-            int dbRow = [[db libraryViewSource] rowForFile:index];
-            if (dbRow == -1) {
-                [dbRows removeAllIndexes];
-                break;
+        PRItemAttr *attr1 = [[db playlists] attrForBrowser:1 list:_currentList];
+        PRItemAttr *attr2 = [[db playlists] attrForBrowser:2 list:_currentList];
+        PRItemAttr *attr3 = [[db playlists] attrForBrowser:3 list:_currentList];
+        for (PRItemAttr *i in [NSArray arrayWithObjects:PRItemAttrGenre, PRItemAttrComposer, PRItemAttrArtist, PRItemAttrAlbum, nil]) {
+            item = [[[NSMenuItem alloc] init] autorelease];
+            [item setTitle:[PRLibrary titleForItemAttr:i]];
+            [item setActionBlock:^{[[selfRef target] toggleBrowser:i];}];
+            if ([attr1 isEqual:i] || [attr2 isEqual:i] || [attr3 isEqual:i]) {
+                [item setState:NSOnState];
             }
-            [dbRows addIndex:dbRow];
-            index = [files indexGreaterThanIndex:index];
+            [menu addItem:item];
         }
     }
-    if ([dbRows count] > 0) {
-        NSIndexSet *tableRows = [self tableRowIndexesForDbRowIndexes:dbRows];
-        [libraryTableView selectRowIndexes:tableRows byExtendingSelection:FALSE];
-        [libraryTableView scrollRowToVisible:[tableRows firstIndex]];
-        [[libraryTableView window] makeFirstResponder:libraryTableView];
-    }
+    return menu;
 }
 
-- (void)highlightArtist:(NSString *)artist
-{
-    [self browseToArtist:artist];
-    PRFileAttribute attribute;
-    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
-        attribute = PRArtistAlbumArtistFileAttribute;
-    } else {
-        attribute = PRArtistFileAttribute;
-    }
-    int row = [[db libraryViewSource] firstRowWithValue:artist forAttribute:attribute]; 
-    if (row == -1 || row == 1) {
+// == menu =================================================
+
+- (void)updateLibraryMenu {
+    if ([libraryTableView clickedRow] == -1) {
         return;
     }
-    row--;
-    [libraryTableView scrollRowToVisible:[self numberOfRowsInTableView:libraryTableView] - 1];
-    [libraryTableView scrollRowToVisible:row - 5];
-    [libraryTableView scrollRowToVisible:row];
-    [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:FALSE];
-}
-
-- (void)browseToArtist:(NSString *)artist
-{
-    [[db playlists] setValue:@"" forPlaylist:currentPlaylist attribute:PRSearchPlaylistAttribute];
-    [[db playlists] setSelection:[NSArray array] forBrowser:1 playlist:currentPlaylist];
-    [[db playlists] setSelection:[NSArray array] forBrowser:2 playlist:currentPlaylist];
-    [[db playlists] setSelection:[NSArray array] forBrowser:3 playlist:currentPlaylist];
-    [[NSNotificationCenter defaultCenter] postPlaylistChanged:currentPlaylist];
+    for (NSMenuItem *i in [libraryMenu itemArray]) {
+		[libraryMenu removeItem:i];
+	}
+    NSIndexSet *selection = [libraryTableView selectedRowIndexes];
+    MAZeroingWeakRef *selfRef = [MAZeroingWeakRef refWithTarget:self];
+    unichar c[1] = {NSCarriageReturnCharacter};
     
-    for (int i = 1; i <= 3; i++) {
-        if ([[db playlists] attributeForBrowser:i playlist:currentPlaylist] != PRArtistFileAttribute) {
+    // Play
+    NSMenuItem *item = [[[NSMenuItem alloc] init] autorelease];
+    [item setTitle:@"Play"];
+    [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
+    [item setKeyEquivalentModifierMask:0];
+    [item setActionBlock:^{[[selfRef target] playIndexes:selection];}];
+    [libraryMenu addItem:item];
+    
+    item = [[[NSMenuItem alloc] init] autorelease];
+    [item setTitle:@"Play Next"];
+    [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
+    [item setKeyEquivalentModifierMask:NSAlternateKeyMask];
+    [item setActionBlock:^{[[selfRef target] appendNextIndexes:selection];}];
+    [libraryMenu addItem:item];
+    
+    item = [[[NSMenuItem alloc] init] autorelease];
+    [item setTitle:@"Append"];
+    [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
+    [item setKeyEquivalentModifierMask:NSShiftKeyMask];
+    [item setActionBlock:^{[[selfRef target] appendIndexes:selection];}];
+    [libraryMenu addItem:item];    
+    [libraryMenu addItem:[NSMenuItem separatorItem]];
+    
+    // Add to Playlist
+    NSMenu *playlistMenu = [[[NSMenu alloc] init] autorelease];
+    for (PRList *i in [[db playlists] lists]) {
+        if (![[[db playlists] typeForList:i] isEqual:PRListTypeStatic]) {
             continue;
         }
-        int count = [[db libraryViewSource] countForBrowser:i];
-        for (int j = 1; j < count + 1; j++) {
-            if ([artist noCaseCompare:[[db libraryViewSource] valueForRow:j browser:i]] == NSOrderedSame) {
-                [[db playlists] setSelection:[NSArray arrayWithObject:[[db libraryViewSource] valueForRow:j browser:i]] forBrowser:i playlist:currentPlaylist];
-                break;
-            }
-        }
+        item = [[[NSMenuItem alloc] init] autorelease];
+        [item setTitle:[NSString stringWithFormat:@" %@",[[db playlists] titleForList:i]]];
+        [item setImage:[NSImage imageNamed:@"ListViewTemplate"]];
+        [item setActionBlock:^{[[selfRef target] appendIndexes:selection toList:i];}];
+        [playlistMenu addItem:item];
     }
-    [[NSNotificationCenter defaultCenter] postPlaylistChanged:currentPlaylist];
-    [[libraryTableView window] makeFirstResponder:libraryTableView];
+    NSMenuItem *playlistMenuItem = [[[NSMenuItem alloc] init] autorelease];
+    [playlistMenuItem setTitle:@"Add to Playlist"];
+    [playlistMenuItem setSubmenu:playlistMenu];
+    [libraryMenu addItem:playlistMenuItem];
+    [libraryMenu addItem:[NSMenuItem separatorItem]];
+    
+    // Misc
+    item = [[NSMenuItem alloc] init];
+    [item setTitle:@"Reveal in Finder"];
+    [item setActionBlock:^{[[selfRef target] revealIndexes:selection];}];
+    [libraryMenu addItem:item];
+    [libraryMenu addItem:[NSMenuItem separatorItem]];
+    
+    // Delete
+    c[0] = NSDeleteCharacter;
+    item = [[[NSMenuItem alloc] init] autorelease];
+    [item setTitle:@"Delete"];
+    if (![[[db playlists] typeForList:_currentList] isEqual:PRListTypeLibrary]) {
+        [item setTitle:@"Remove"];
+    }
+    [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
+    [item setKeyEquivalentModifierMask:0];
+    [item setActionBlock:^{[[selfRef target] deleteIndexes:selection];}];
+    [libraryMenu addItem:item];
 }
 
-// ========================================
-// UI Misc
-// ========================================
+- (void)updateHeaderMenu {
+	for (NSMenuItem *i in [headerMenu itemArray]) {
+		[headerMenu removeItem:i];
+	}
+	MAZeroingWeakRef *selfRef = [MAZeroingWeakRef refWithTarget:self];
+    
+    NSMenuItem *menuItem = [[[NSMenuItem alloc] init] autorelease];
+	[menuItem setTitle:@"Browser"];
+    [menuItem setSubmenu:[self browserHeaderMenu]];
+	[headerMenu addItem:menuItem];
+    [headerMenu addItem:[NSMenuItem separatorItem]];
+	
+	// Columns	
+	NSSortDescriptor *sortDescriptor = [[[NSSortDescriptor alloc] initWithKey:@"headerCell.stringValue" ascending:TRUE] autorelease];
+	NSArray *sortedTableColumns = [[libraryTableView tableColumns] sortedArrayUsingDescriptors:[NSArray arrayWithObject:sortDescriptor]];
+	for (NSTableColumn *i in sortedTableColumns) {
+        if ([[i identifier] isEqual:PRListSortIndex]) {
+            continue;
+        }
+		menuItem = [[[NSMenuItem alloc] init] autorelease];
+		[menuItem setTitle:[[i headerCell] stringValue]];
+		if (![i isHidden]) {
+			[menuItem setState:NSOnState];
+		}
+		[menuItem setActionBlock:^{[[selfRef target] toggleColumn:i];}];
+		[headerMenu addItem:menuItem];
+	}
+}
 
-- (int)browserForTableView:(NSTableView *)tableView;
-{
+- (void)updateBrowserHeaderMenu {
+    [browserHeaderMenu removeAllItems];
+    NSMenu *menu = [self browserHeaderMenu];
+    for (NSMenuItem *i in [menu itemArray]) {
+        [menu removeItem:i];
+        [browserHeaderMenu addItem:i];
+    }
+}
+
+- (void)executeMenu:(id)sender {
+    ((void (^)())[sender representedObject])();
+}
+
+// == misc =================================================
+
+- (NSTableView *)tableViewForBrowser:(int)browser {
+    if (browser == 1) {
+        return browser1TableView;
+    } else if (browser == 2) {
+        return browser2TableView;
+    } else if (browser == 3) {
+        return browser3TableView;
+    }
+    @throw NSInvalidArgumentException;
+}
+
+- (int)browserForTableView:(NSTableView *)tableView {
 	if (tableView == browser1TableView) {
 		return 1;
 	} else if (tableView == browser2TableView) {
 		return 2;
 	} else if (tableView == browser3TableView) {
 		return 3;
-	} else {
-		NSLog(@"browserForTableView: Unknown TableView");
-		return 0;
 	}
+    @throw NSInvalidArgumentException;
 }
 
-- (NSArray *)columnInfo
-{
-    return [[db playlists] listViewColumnInfoForPlaylist:currentPlaylist];
-}
-
-- (void)setColumnInfo:(NSArray *)columnInfo
-{
-    [[db playlists] setListViewColumnInfo:columnInfo forPlaylist:currentPlaylist];
-}
-
-- (NSTableColumn *)tableColumnForAttribute:(int)attribute
-{
-	return [libraryTableView tableColumnWithIdentifier:[NSString stringWithInt:attribute]];
-}
-
-- (int)dbRowForTableRow:(int)tableRow
-{
+- (int)dbRowForTableRow:(int)tableRow {
 	return tableRow + 1;
 }
 
-- (NSIndexSet *)dbRowIndexesForTableRowIndexes:(NSIndexSet *)tableRowIndexes
-{
-	NSInteger index = 0;
-	NSMutableIndexSet *rowIndexes = [NSMutableIndexSet indexSet];
-	while ((index = [tableRowIndexes indexGreaterThanOrEqualToIndex:index]) != NSNotFound) {
-		if ([self dbRowForTableRow:index] != -1) {
-			[rowIndexes addIndex:[self dbRowForTableRow:index]];
+- (NSIndexSet *)dbRowIndexesForTableRowIndexes:(NSIndexSet *)tableRows {
+	NSMutableIndexSet *dbRows = [NSMutableIndexSet indexSet];
+    [tableRows enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+        if ([self dbRowForTableRow:idx] != -1) {
+			[dbRows addIndex:[self dbRowForTableRow:idx]];
 		}
-		index++;
-	}
-	return [[[NSIndexSet alloc] initWithIndexSet:rowIndexes] autorelease];
+    }];
+    return dbRows;
 }
 
-- (int)tableRowForDbRow:(int)dbRow
-{
+- (int)tableRowForDbRow:(int)dbRow {
 	return dbRow - 1;
 }
 
-- (NSIndexSet *)tableRowIndexesForDbRowIndexes:(NSIndexSet *)indexSet
-{
-    NSMutableIndexSet *tableRowIndexes = [NSMutableIndexSet indexSet];
-    NSUInteger dbRow = [indexSet firstIndex];
-    while (dbRow != NSNotFound) {
-        [tableRowIndexes addIndex:[self tableRowForDbRow:dbRow]];
-        dbRow = [indexSet indexGreaterThanIndex:dbRow];
-    }
-    return tableRowIndexes;
+- (NSIndexSet *)tableRowIndexesForDbRowIndexes:(NSIndexSet *)dbRows {
+    NSMutableIndexSet *tableRows = [NSMutableIndexSet indexSet];
+    [dbRows enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+        [tableRows addIndex:[self tableRowForDbRow:idx]];
+    }];
+    return tableRows;
 }
 
-// ========================================
-// TableView DataSource
-// ========================================
+// == tableview datasource =================================
 
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
-{
-	int count;
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
 	if (tableView == libraryTableView) {
-		count = [[db libraryViewSource] count];
+		return [[db libraryViewSource] count];
 	} else if (tableView == browser1TableView) {
-        count = [[db libraryViewSource] countForBrowser:1] + 1;
+        return [[db libraryViewSource] countForBrowser:1] + 1;
 	} else if (tableView == browser2TableView) {
-		count = [[db libraryViewSource] countForBrowser:2] + 1;
+		return [[db libraryViewSource] countForBrowser:2] + 1;
 	} else if (tableView == browser3TableView) {
-		count = [[db libraryViewSource] countForBrowser:3] + 1;
-	} else {
-        count = 0;
-    }
-	return count;
+		return [[db libraryViewSource] countForBrowser:3] + 1;
+	}
+	return 0;
 }
 
-- (id)            tableView:(NSTableView *)tableView 
-  objectValueForTableColumn:(NSTableColumn *)tableColumn 
-      			        row:(NSInteger)rowIndex
-{
+- (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)rowIndex {
 	if (tableView == libraryTableView) {
 		rowIndex = [self dbRowForTableRow:rowIndex];
         if (rowIndex == -1) {
             return nil;
         }
         
-        PRFileAttribute attr = [[tableColumn identifier] intValue];
-		if (attr == PRPlaylistIndexSort) {
-            PRFile file_ = [[db libraryViewSource] fileForRow:rowIndex];
-            int sortAttribute = [self sortColumn];
-            int ascending = [self ascending];
-            if (sortAttribute == PRPlaylistIndexSort && ascending) {
-                return [NSNumber numberWithInt:rowIndex];
-            } else if (sortAttribute == PRPlaylistIndexSort && !ascending) {
-                int blah = [self numberOfRowsInTableView:libraryTableView] - rowIndex + 1;
-                return [NSNumber numberWithInt:blah];
+        PRItemAttr *attr = [tableColumn identifier];
+		if ([attr isEqual:PRListSortIndex]) {
+            PRFile file_ = [[[db libraryViewSource] itemForRow:rowIndex] intValue];
+            if ([[self sortAttr] isEqual:PRListSortIndex]) {
+                if ([self ascending]) {
+                    return [NSNumber numberWithInt:rowIndex];
+                } else {
+                    return [NSNumber numberWithInt:[self numberOfRowsInTableView:libraryTableView] - rowIndex + 1];
+                } 
             } else {
-                NSIndexSet *rows;
-                [[db playlists] playlistIndexes:&rows forPlaylist:currentPlaylist file:file_ _error:nil];
+                NSIndexSet *rows = [[db playlists] indexesOfItem:[NSNumber numberWithInt:file_] inList:_currentList];
                 return [NSNumber numberWithInt:[rows firstIndex]];
             }
 		} else {
-            NSMutableArray *cachedAttributes = [NSMutableArray array];
-            for (NSTableColumn *i in [libraryTableView tableColumns]) {
-                if (![i isHidden] && [[i identifier] intValue] != PRPlaylistIndexSort) {
-                    [cachedAttributes addObject:[NSNumber numberWithInt:[[i identifier] intValue]]];
-                }
-            }
-            if (![cachedAttributes containsObject:[NSNumber numberWithInt:attr]]) {
-                [cachedAttributes addObject:[NSNumber numberWithInt:attr]];
-            }
-            id value = [[db libraryViewSource] valueForRow:rowIndex attribute:attr andCacheAttributes:cachedAttributes];
-            if (attr == PRRatingFileAttribute) {
+            id value = [[db libraryViewSource] valueForRow:rowIndex attribute:attr andCacheAttributes:^{return [self attributesToCache];}];
+            if ([attr isEqual:PRItemAttrRating]) {
                 value = [NSNumber numberWithInt:floor([value intValue] / 20)];
-            } else if (attr == PRPathFileAttribute) {
+            } else if ([attr isEqual:PRItemAttrPath]) {
                 value = [[NSURL URLWithString:value] path];
-            } else if (attr == PRTrackNumberFileAttribute) {
-                PRFile file_ = [[db libraryViewSource] fileForRow:rowIndex];
-                if (file_ == [now currentFile]) {
-                    value = [NSString stringWithFormat:@"◈"]; // @"◈◉«⁕»❯❮●◆ ";
+            } else if ([attr isEqual:PRItemAttrTrackNumber]) {
+                PRFile file = [[[db libraryViewSource] itemForRow:rowIndex] intValue];
+                if (file == [now currentFile]) {
+                    value = [NSString stringWithFormat:@"◈"];
                 }
             }
             return value;
 		}
-	} else if (tableView == browser1TableView ||
-			   tableView == browser2TableView ||
-			   tableView == browser3TableView) {		
+	} else if (tableView == browser1TableView || tableView == browser2TableView || tableView == browser3TableView) {		
 		int browser = [self browserForTableView:tableView];
 		if (rowIndex == 0) {
-            int grouping = [[db playlists] attributeForBrowser:browser playlist:currentPlaylist];
-			int count = [[db libraryViewSource] countForBrowser:browser];
-			return [NSString stringWithFormat:@"All (%d %@s)", count, [PRLibrary columnNameForFileAttribute:grouping]];
-		} else {
-            return [[db libraryViewSource] valueForRow:rowIndex browser:browser];
+            PRItemAttr *attr = [[db playlists] attrForBrowser:browser list:_currentList];
+			return [NSString stringWithFormat:@"All (%d %@s)", [[db libraryViewSource] countForBrowser:browser], [PRLibrary titleForItemAttr:attr]];
 		}
+        return [[db libraryViewSource] valueForRow:rowIndex browser:browser];
 	}
     return nil;
 }
 
-- (void)tableView:(NSTableView *)tableView 
-   setObjectValue:(id)object
-   forTableColumn:(NSTableColumn *)tableColumn 
-			  row:(NSInteger)rowIndex
-{
-	int row = [self dbRowForTableRow:rowIndex];
+- (void)tableView:(NSTableView *)tableView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)rowIndex {
 	PRFileAttribute attribute = [[tableColumn identifier] intValue];
-	
-	if (row != -1) {
-        PRFile file = [[db libraryViewSource] fileForRow:[self dbRowForTableRow:rowIndex]];
+	if ([self dbRowForTableRow:rowIndex] != -1) {
+        PRFile file = [[[db libraryViewSource] itemForRow:[self dbRowForTableRow:rowIndex]] intValue];
 		if (attribute == PRTitleFileAttribute ||
 			attribute == PRArtistFileAttribute ||
 			attribute == PRAlbumFileAttribute ||
@@ -1335,25 +1362,32 @@
 			attribute == PRDiscCountFileAttribute ||
 			attribute == PRCommentsFileAttribute ||
 			attribute == PRGenreFileAttribute) {
-            NSURL *URL = [NSURL URLWithString:[[db library] valueForFile:file attribute:PRPathFileAttribute]];
+            NSURL *URL = [[db library] URLForItem:[PRItem numberWithInt:file]];
             [PRTagger setTag:object forAttribute:attribute URL:URL];
             [[db library] updateTagsForFile:file];
 		} else if (attribute == PRRatingFileAttribute) {
             int rating = [object intValue] * 20;
-            [[db library] setValue:[NSNumber numberWithInt:rating] forFile:file attribute:PRRatingFileAttribute];
+            [[db library] setValue:[NSNumber numberWithInt:rating] forItem:[NSNumber numberWithInt:file] attr:PRItemAttrRating];
 		}
         [[NSNotificationCenter defaultCenter] postFilesChanged:[NSIndexSet indexSetWithIndex:file]];
 	}
 }
 
-// ========================================
-// TableView DragAndDrop
-// ========================================
+// == tableview datasource misc ============================
 
-- (BOOL)     tableView:(NSTableView *)tableView
-  writeRowsWithIndexes:(NSIndexSet *)rowIndexes
-		  toPasteboard:(NSPasteboard*)pboard
-{
+- (NSArray *)attributesToCache {
+    NSMutableArray *cachedAttributes = [NSMutableArray array];
+    for (NSTableColumn *i in [libraryTableView tableColumns]) {
+        if (![i isHidden] && ![[i identifier] isEqual:PRListSortIndex]) {
+            [cachedAttributes addObject:[i identifier]];
+        }
+    }
+    return cachedAttributes;
+}
+
+// == tableview draganddrop ================================
+
+- (BOOL)tableView:(NSTableView *)tableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard*)pboard {
     [pboard declareTypes:[NSArray arrayWithObjects:PRFilePboardType, PRIndexesPboardType, nil] owner:self];
     
     // PRFilePboardType
@@ -1365,7 +1399,7 @@
 		// If dragging from browser, get all files
 		while (currentIndex < [self numberOfRowsInTableView:libraryTableView]) {
 			if ([self dbRowForTableRow:currentIndex] != -1) {
-				PRFile file = [[db libraryViewSource] fileForRow:[self dbRowForTableRow:currentIndex]];
+				PRFile file = [[[db libraryViewSource] itemForRow:[self dbRowForTableRow:currentIndex]] intValue];
 				[files addObject:[NSNumber numberWithInt:file]];
 			}
 			currentIndex++;
@@ -1374,7 +1408,7 @@
 		// If dragging from library, get selected files
 		while ((currentIndex = [rowIndexes indexGreaterThanOrEqualToIndex:currentIndex]) != NSNotFound) {
 			if ([self dbRowForTableRow:currentIndex] != -1) {
-				PRFile file = [[db libraryViewSource] fileForRow:[self dbRowForTableRow:currentIndex]];
+				PRFile file = [[[db libraryViewSource] itemForRow:[self dbRowForTableRow:currentIndex]] intValue];
 				[files addObject:[NSNumber numberWithInt:file]];
 			}
 			currentIndex++;
@@ -1385,7 +1419,7 @@
     
     // PRIndexesPboardType
     NSIndexSet *indexes = [NSIndexSet indexSet];
-    if (tableView == libraryTableView && [self sortColumn] == PRPlaylistIndexSort) {
+    if (tableView == libraryTableView && [[self sortAttr] isEqual:PRListSortIndex]) {
         indexes = [[[NSIndexSet alloc] initWithIndexSet:[self dbRowIndexesForTableRowIndexes:rowIndexes]] autorelease];
     }
     
@@ -1397,11 +1431,7 @@
 	return TRUE;
 }
 
-- (NSDragOperation)tableView:(NSTableView*)tableView
-				validateDrop:(id <NSDraggingInfo>)info
-				 proposedRow:(NSInteger)row
-	   proposedDropOperation:(NSTableViewDropOperation)op
-{
+- (NSDragOperation)tableView:(NSTableView*)tableView validateDrop:(id <NSDraggingInfo>)info proposedRow:(NSInteger)row proposedDropOperation:(NSTableViewDropOperation)op {
     NSPasteboard *pasteboard = [info draggingPasteboard];
     NSData *indexesData = [pasteboard dataForType:PRIndexesPboardType];
     NSIndexSet *indexes;
@@ -1417,7 +1447,7 @@
     
     if (tableView == libraryTableView && 
         op == NSTableViewDropAbove && 
-        currentPlaylist != 0 && 
+        ![[[db playlists] typeForList:_currentList] isEqual:PRListTypeLibrary] && 
         [indexes count] != 0 && 
         [indexSet1 firstIndex] == 0 &&
         [indexSet2 firstIndex] == 0 &&
@@ -1427,11 +1457,7 @@
 	return NSDragOperationNone;
 }
 
-- (BOOL)tableView:(NSTableView *)tableView 
-	   acceptDrop:(id <NSDraggingInfo>)info
-			  row:(NSInteger)row 
-	dropOperation:(NSTableViewDropOperation)operation
-{
+- (BOOL)tableView:(NSTableView *)tableView acceptDrop:(id <NSDraggingInfo>)info row:(NSInteger)row dropOperation:(NSTableViewDropOperation)operation {
     NSPasteboard *pboard = [info draggingPasteboard];    
     if ([info draggingSource] != libraryTableView) {
         return FALSE;
@@ -1439,55 +1465,49 @@
     NSIndexSet *indexes = [NSKeyedUnarchiver unarchiveObjectWithData:[pboard dataForType:PRIndexesPboardType]];
     
     // get move row
-    PRPlaylistItem playlistItem = [[db playlists] playlistItemAtIndex:[indexes firstIndex] inPlaylist:currentPlaylist];
+    PRListItem *listItem = [[db playlists] listItemAtIndex:[indexes firstIndex] inList:_currentList];
                    
     int row2 = [self dbRowForTableRow:row];
-    [[db playlists] moveItemsAtIndexes:indexes toIndex:row2 inPlaylist:currentPlaylist];
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:currentPlaylist];
+    [[db playlists] moveItemsAtIndexes:indexes toIndex:row2 inList:_currentList];
+    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[_currentList intValue]];
     
     // select
-    int index = [[db playlists] indexForPlaylistItem:playlistItem];
+    int index = [[db playlists] indexForListItem:listItem];
     NSIndexSet *indexesToSelect = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange([self tableRowForDbRow:index], [indexes count])];
     [libraryTableView selectRowIndexes:indexesToSelect byExtendingSelection:FALSE];
     return TRUE;
 }
 
-// ========================================
-// TableView Delegate
-// ========================================
+// == tableview delegate ===================================
 
-- (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)row
-{
+- (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)column row:(NSInteger)row {
     [cell setHighlighted:[[tableView selectedRowIndexes] containsIndex:row]];
 }
 
-- (void)tableView:(NSTableView *)tableView mouseDownInHeaderOfTableColumn:(NSTableColumn *)tableColumn
-{
-    if (tableView == libraryTableView && [[tableColumn identifier] intValue] == PRPlaylistIndexSort) {
+- (void)tableView:(NSTableView *)tableView mouseDownInHeaderOfTableColumn:(NSTableColumn *)column{
+    if (tableView == libraryTableView && [[column identifier] intValue] == PRPlaylistIndexSort) {
         [tableView setAllowsColumnReordering:NO];
     } else {
         [tableView setAllowsColumnReordering:YES];
     }
 }
 
-- (BOOL)tableView:(NSTableView *)tableView shouldReorderColumn:(NSInteger)columnIndex toColumn:(NSInteger)newColumnIndex
-{
-    if (tableView == libraryTableView && currentPlaylist > 0 && newColumnIndex == 0) {
+- (BOOL)tableView:(NSTableView *)tableView shouldReorderColumn:(NSInteger)columnIndex toColumn:(NSInteger)newColumnIndex {
+    if (tableView == libraryTableView && [[[db playlists] typeForList:_currentList] isEqual:PRListTypeStatic] && newColumnIndex == 0) {
         return FALSE;
     } else {
         return TRUE;
     }
 }
 
-- (void)tableView:(NSTableView *)tableView didClickTableColumn:(NSTableColumn *)tableColumn
-{
+- (void)tableView:(NSTableView *)tableView didClickTableColumn:(NSTableColumn *)tableColumn {
 	if (tableView != libraryTableView) {
 		return;
 	}
-    if ([[tableColumn identifier] intValue] == [self sortColumn]) {
+    if ([[tableColumn identifier] isEqual:[self sortAttr]]) {
 		[self setAscending:![self ascending]];
 	} else {
-        [self setSortColumn:[[tableColumn identifier] intValue]];
+        [self setSortAttr:[tableColumn identifier]];
         [self setAscending:TRUE];
     }
 	[self loadTableColumns];
@@ -1495,24 +1515,22 @@
     [tableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
 }
 
-- (void)tableViewSelectionDidChange:(NSNotification *)notification
-{
+- (void)tableViewSelectionDidChange:(NSNotification *)notification {
 	id object = [notification object];
 	if (object == libraryTableView) {
         [[NSNotificationCenter defaultCenter] postLibraryViewSelectionChanged];
-	} else if (currentPlaylist != -1 && (object == browser1TableView || object == browser2TableView || object == browser3TableView)) {
-        if (!monitorSelection) {
+	} else if (_currentList && (object == browser1TableView || object == browser2TableView || object == browser3TableView)) {
+        if (!_updatingTableViewSelection) {
             return;
         }
         BOOL browser = [self browserForTableView:object];
 		NSMutableArray *selection = [NSMutableArray array];
         [[object selectedRowIndexes] enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop){
-            if (idx == 0) {
-            } else {
+            if (idx != 0) {
                 [selection addObject:[self tableView:object objectValueForTableColumn:nil row:idx]];
             }
         }];
-        [[db playlists] setSelection:selection forBrowser:browser playlist:currentPlaylist];
+        [[db playlists] setSelection:selection forBrowser:browser list:_currentList];
 		
 		// update tableviews
 		[libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
@@ -1524,54 +1542,102 @@
 	}
 }
 
-- (NSIndexSet *)             tableView:(NSTableView *)tableView
-  selectionIndexesForProposedSelection:(NSIndexSet *)proposedSelectionIndexes
-{
-	NSIndexSet *selectionIndexes = proposedSelectionIndexes;
-	if (tableView == browser1TableView || tableView == browser2TableView || tableView == browser3TableView) {
-		if ([selectionIndexes containsIndex:0]) {
-			selectionIndexes = [NSIndexSet indexSetWithIndex:0];
-		}
+- (NSIndexSet *)tableView:(NSTableView *)tableView selectionIndexesForProposedSelection:(NSIndexSet *)indexes {
+	if ((tableView == browser1TableView || tableView == browser2TableView || tableView == browser3TableView) && [indexes containsIndex:0]) {
+        return [NSIndexSet indexSetWithIndex:0];
 	}
-	return selectionIndexes;
+	return indexes;
 }
 
-- (void)tableViewColumnDidMove:(NSNotification *)notification
-{
+- (void)tableViewColumnDidMove:(NSNotification *)notification {
 	if (!refreshing) {
 		[self saveTableColumns];
 	}
 }
 
-- (void)tableViewColumnDidResize:(NSNotification *)notification
-{
+- (void)tableViewColumnDidResize:(NSNotification *)notification {
 	if (!refreshing && [notification object] == libraryTableView) {
 		[self saveTableColumns];
 	}
 }
 
-// ========================================
-// Split View Delegate
-// ========================================
+// == tableview prdelegate =================================
 
-- (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview
-{
+- (BOOL)tableView:(PRTableView *)tableView keyDown:(NSEvent *)event {
+    if ([[event characters] length] != 1) {
+        return FALSE;
+    }
+    BOOL didHandle = FALSE;
+    NSUInteger flags = [NSEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
+    UniChar c = [[event characters] characterAtIndex:0];
+    if (flags == 0) {
+        if (c == 0x20) {
+            [now playPause];
+            didHandle = TRUE;
+        } else if (c == 0x7F || c == 0xf728) {
+            if (tableView == libraryTableView) {
+                [self deleteIndexes:[libraryTableView selectedRowIndexes]];
+            }
+            didHandle = TRUE;
+        } else if (c == 0xd) {
+            if (tableView == libraryTableView) {
+                [self playIndexes:[libraryTableView selectedRowIndexes]];
+            } else {
+                [self playBrowser:nil];
+            }
+            didHandle = TRUE;
+        }
+    } else if (flags == NSShiftKeyMask) {
+        if (c == 0xd) {
+            if (tableView == libraryTableView) {
+                [self appendIndexes:[libraryTableView selectedRowIndexes]];
+            } else {
+                [self appendAll];
+            }
+            didHandle = TRUE;
+        }
+    } else if (flags == NSAlternateKeyMask) {
+        if (c == 0xd) {
+            if (tableView == libraryTableView) {
+                [self appendNextIndexes:[libraryTableView selectedRowIndexes]];
+            } else {
+                [self appendNextAll];
+            }
+            didHandle = TRUE;
+        }
+    } else if (flags == (NSNumericPadKeyMask | NSFunctionKeyMask)) {
+        if (c == 0xf703) {
+            [now playNext];
+            didHandle = TRUE;
+        } else if (c == 0xf702) {
+            [now playPrevious];
+            didHandle = TRUE;
+        }
+    }
+    return didHandle;
+}
+
+// == splitview delegate ===================================
+
+- (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {
     if (splitView == horizontalBrowserSplitView) {
         return subview != horizontalBrowserSubSplitview;
     } else if (splitView == verticalBrowserSplitView) {
         return subview == verticalBrowserLibrarySuperview;
+    } else if (splitView == horizontalBrowserSubSplitview) {
+        return FALSE;
     }
-    return TRUE;
+    @throw NSInvalidArgumentException;
 }
 
-- (BOOL)splitView:(NSSplitView *)splitView shouldHideDividerAtIndex:(NSInteger)dividerIndex
-{
+- (BOOL)splitView:(NSSplitView *)splitView shouldHideDividerAtIndex:(NSInteger)dividerIndex {
 	return TRUE;
 }
 
-- (void)splitViewDidResizeSubviews:(NSNotification *)notification
-{
-    if (refreshing) {return;}
+- (void)splitViewDidResizeSubviews:(NSNotification *)notification {
+    if (refreshing) {
+        return;
+    }
     if ([notification object] == horizontalBrowserSplitView) {
         if ([horizontalBrowserSubSplitview frame].size.height < 120) {
             NSRect frame = [horizontalBrowserSubSplitview frame];
@@ -1586,10 +1652,7 @@
     [self saveBrowser];
 }
 
-- (CGFloat)    splitView:(NSSplitView *)splitView 
-  constrainSplitPosition:(CGFloat)proposedPosition 
-		     ofSubviewAt:(NSInteger)dividerIndex
-{	
+- (CGFloat)splitView:(NSSplitView *)splitView constrainSplitPosition:(CGFloat)proposedPosition ofSubviewAt:(NSInteger)idx {	
 	if (splitView == verticalBrowserSplitView) {
 		if (proposedPosition > 400) {
 			return 400;
@@ -1599,9 +1662,9 @@
 	} else if (splitView == horizontalBrowserSubSplitview) {
         if ([[horizontalBrowserSubSplitview subviews] count] == 3) {
             float width = ([horizontalBrowserSubSplitview frame].size.width - 2) / 3;
-            if (dividerIndex == 0) {
+            if (idx == 0) {
                 return width;
-            } else if (dividerIndex == 1) {
+            } else if (idx == 1) {
                 return width * 2 + 1;
             }
         } else if ([[horizontalBrowserSubSplitview subviews] count] == 2)  {
@@ -1617,238 +1680,27 @@
             return [horizontalBrowserSplitView frame].size.height - 120;
         }
     }
-	
 	return proposedPosition;
 }
 
-- (NSRect)splitView:(NSSplitView *)splitView 
-      effectiveRect:(NSRect)proposedEffectiveRect 
-       forDrawnRect:(NSRect)drawnRect 
-   ofDividerAtIndex:(NSInteger)dividerIndex
-{
+- (NSRect)splitView:(NSSplitView *)splitView effectiveRect:(NSRect)proposedRect forDrawnRect:(NSRect)rect ofDividerAtIndex:(NSInteger)idx {
     if (splitView == horizontalBrowserSubSplitview) {
         return NSZeroRect;
     }
-    
-    return proposedEffectiveRect;
+    return proposedRect;
 }
 
-// ========================================
-// Menu Delegate
-// ========================================
+// == menu delegate ========================================
 
-- (void)menuNeedsUpdate:(NSMenu *)menu
-{
+- (void)menuNeedsUpdate:(NSMenu *)menu {
 	if (menu == libraryMenu) {
 		[self updateLibraryMenu];
 	} else if (menu == headerMenu) {
 		[self updateHeaderMenu];
 	} else if (menu == browserHeaderMenu) {
 		[self updateBrowserHeaderMenu];
-	}
-}
-
-- (void)updateLibraryMenu
-{
-	NSInteger clickedRow = [libraryTableView clickedRow];
-	// save selected rows to be used by context menu actions
-    [selectedRows release];
-	if (clickedRow == -1) {
-		selectedRows = [[NSIndexSet indexSet] retain];
-	} else if ([libraryTableView isRowSelected:clickedRow]) {
-		selectedRows = [[libraryTableView selectedRowIndexes] retain];
 	} else {
-		selectedRows = [[NSIndexSet indexSetWithIndex:clickedRow] retain];
-	}
-	// clear menu
-	for (NSMenuItem *i in [libraryMenu itemArray]) {
-		[libraryMenu removeItem:i];
-	}
-        
-	// populate context menu if clicked on row
-	if (clickedRow != -1 && [[self dbRowIndexesForTableRowIndexes:selectedRows] count] != 0) {
-		// Play
-		[libraryMenu addItemWithTitle:@"Play" action:@selector(playSelected) keyEquivalent:@""];
-		[libraryMenu addItemWithTitle:@"Append" action:@selector(append) keyEquivalent:@""];
-        [libraryMenu addItem:[NSMenuItem separatorItem]];
-        
-		// Add to Playlist
-        NSMenu *playlistMenu = [[[NSMenu alloc] init] autorelease];
-		NSMenuItem *playlistMenuItem = [[[NSMenuItem alloc] initWithTitle:@"Add to Playlist" action:nil keyEquivalent:@""] autorelease];
-		[libraryMenu addItem:playlistMenuItem];
-		[playlistMenuItem setSubmenu:playlistMenu];
-        
-        NSArray *playlistArray = [[db playlists] playlists];
-		for (NSNumber *i in playlistArray) {
-            int playlistType = [[db playlists] typeForPlaylist:[i intValue]];
-            if (playlistType != PRStaticPlaylistType) {
-                continue;
-            }
-            NSString *playlistTitle = [NSString stringWithFormat:@" %@",[[db playlists] titleForPlaylist:[i intValue]]];
-			NSMenuItem *tempMenuItem = [[[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(addToPlaylist:) keyEquivalent:@""] autorelease];
-            [tempMenuItem setImage:[NSImage imageNamed:@"ListViewTemplate"]];
-			[tempMenuItem setRepresentedObject:i];
-			[tempMenuItem setTarget:self];
-			[playlistMenu addItem:tempMenuItem];
-        }
-        [libraryMenu addItem:[NSMenuItem separatorItem]];
-		
-		// Misc
-        if ([libraryViewController infoViewVisible]) {
-            [libraryMenu addItemWithTitle:@"Hide Info Pane" action:@selector(getInfo) keyEquivalent:@""];
-        } else {
-            [libraryMenu addItemWithTitle:@"Show Info Pane" action:@selector(getInfo) keyEquivalent:@""];
-        }
-        [libraryMenu addItemWithTitle:@"Reveal in Finder" action:@selector(reveal) keyEquivalent:@""];        
-        [libraryMenu addItem:[NSMenuItem separatorItem]];
-        
-        // Delete
-        if ([[db playlists] libraryPlaylist]) {
-            [libraryMenu addItemWithTitle:@"Delete" action:@selector(delete) keyEquivalent:@""];
-        } else {
-            [libraryMenu addItemWithTitle:@"Remove" action:@selector(delete) keyEquivalent:@""];
-        }
-	}
-	// set target for menu items.
-	for (NSMenuItem *i in [libraryMenu itemArray]) {
-		[i setTarget:self];
-	}
-}
-
-- (void)updateHeaderMenu
-{
-	for (NSMenuItem *i in [headerMenu itemArray]) {
-		[headerMenu removeItem:i];
-	}
-	
-    NSMenuItem *menuItem = [[[NSMenuItem alloc] init] autorelease];
-	[menuItem setTitle:@"Browser"];
-    [menuItem setSubmenu:[self browserHeaderMenu]];
-	[headerMenu addItem:menuItem];
-    
-    [headerMenu addItem:[NSMenuItem separatorItem]];
-	
-	// Columns	
-	NSSortDescriptor *sortDescriptor = 
-    [[[NSSortDescriptor alloc] initWithKey:@"headerCell.stringValue" ascending:TRUE] autorelease];
-	NSArray *sortedTableColumns = 
-    [[libraryTableView tableColumns] sortedArrayUsingDescriptors:[NSArray arrayWithObject:sortDescriptor]];
-	
-	for (NSTableColumn *i in sortedTableColumns) {
-        if ([[i identifier] intValue] == PRPlaylistIndexSort) {
-            continue;
-        }
-        
-		menuItem = [[[NSMenuItem alloc] init] autorelease];
-		[menuItem setTitle:[[i headerCell] stringValue]];
-		[menuItem setAction:@selector(toggleColumn:)];
-		if (![i isHidden]) {
-			[menuItem setState:NSOnState];
-		}
-		[menuItem setRepresentedObject:i];
-		[headerMenu addItem:menuItem];
-	}
-	
-	for (NSMenuItem *i in [headerMenu itemArray]) {
-		[i setTarget:self];
-	}
-}
-
-- (NSMenu *)browserHeaderMenu
-{
-    NSMenu *menu = [[[NSMenu alloc] init] autorelease];
-    
-    // Browser position
-    int browserPosition = [[db playlists] isVerticalForPlaylist:currentPlaylist];
-    
-    NSMenuItem *item = [[[NSMenuItem alloc] init] autorelease];
-    [item setTitle:@"Hidden"];
-    [item setRepresentedObject:[NSNumber numberWithInt:-3]];
-    if (browserPosition == PRBrowserPositionHidden) {
-        [item setState:NSOnState];
-    }
-    [menu addItem:item];
-    
-    item = [[[NSMenuItem alloc] init] autorelease];
-    [item setTitle:@"On Top"];
-    [item setRepresentedObject:[NSNumber numberWithInt:-1]];
-    if (browserPosition == PRBrowserPositionHorizontal) {
-        [item setState:NSOnState];
-    }
-    [menu addItem:item];
-    
-    item = [[[NSMenuItem alloc] init] autorelease];
-    [item setTitle:@"On Left"];
-    [item setRepresentedObject:[NSNumber numberWithInt:-2]];
-    if (browserPosition == PRBrowserPositionVertical) {
-        [item setState:NSOnState];
-    }
-    [menu addItem:item];
-    
-    if (browserPosition != PRBrowserPositionHidden) {
-        [menu addItem:[NSMenuItem separatorItem]];
-        
-        // Get browser groupings
-        int browser1Grouping = [[db playlists] browser1AttributeForPlaylist:currentPlaylist];
-        int browser2Grouping = [[db playlists] browser2AttributeForPlaylist:currentPlaylist];
-        int browser3Grouping = [[db playlists] browser3AttributeForPlaylist:currentPlaylist];
-        
-        // Genre
-        item = [[[NSMenuItem alloc] init] autorelease];
-        [item setTitle:@"Genre"];
-        [item setRepresentedObject:[NSNumber numberWithInt:-2]];
-        [item setRepresentedObject:[NSNumber numberWithInt:13]];
-        if (browser1Grouping == 13 || browser2Grouping == 13 || browser3Grouping == 13) {
-            [item setState:NSOnState];
-        }
-        [menu addItem:item];
-        
-        // Composer
-        item = [[[NSMenuItem alloc] init] autorelease];
-        [item setTitle:@"Composer"];
-        [item setRepresentedObject:[NSNumber numberWithInt:8]];
-        if (browser1Grouping == 8 || browser2Grouping == 8 || browser3Grouping == 8) {
-            [item setState:NSOnState];
-        }
-        [menu addItem:item];
-        
-        // Artist
-        item = [[[NSMenuItem alloc] init] autorelease];
-        [item setTitle:@"Artist"];
-        [item setRepresentedObject:[NSNumber numberWithInt:2]];	
-        if (browser1Grouping == 2 || browser2Grouping == 2 || browser3Grouping == 2) {
-            [item setState:NSOnState];
-        }
-        [menu addItem:item];
-        
-        // Album
-        item = [[[NSMenuItem alloc] init] autorelease];
-        [item setTitle:@"Album"];
-        [item setRepresentedObject:[NSNumber numberWithInt:3]];	
-        if (browser1Grouping == 3 || browser2Grouping == 3 || browser3Grouping == 3) {
-            [item setState:NSOnState];
-        }
-        [menu addItem:item];
-    }
-	
-	for (NSMenuItem *i in [menu itemArray]) {
-		[i setTarget:self];
-		[i setAction:@selector(toggleBrowser:)];
-	}
-    
-    return menu;
-}
-
-- (void)updateBrowserHeaderMenu
-{
-	// Clear menu
-    [browserHeaderMenu removeAllItems];
-	
-    NSMenu *menu = [self browserHeaderMenu];
-    NSArray *items = [menu itemArray];
-    [menu removeAllItems];
-    for (NSMenuItem *i in items) {
-        [browserHeaderMenu addItem:i];
+        @throw NSInvalidArgumentException;
     }
 }
 
