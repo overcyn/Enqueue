@@ -93,6 +93,10 @@
     [super selectRowIndexes:indexes byExtendingSelection:extend];
 }
 
+- (void)scrollRowToVisible:(NSInteger)row {
+    [super scrollRowToVisible:row];
+}
+
 // ========================================
 // Drawing
 
