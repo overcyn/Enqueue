@@ -44,7 +44,7 @@
 }
 
 - (BOOL)_usesCustomTrackImage {
-	return NO;
+	return YES;
 }
 
 @end

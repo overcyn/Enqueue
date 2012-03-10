@@ -45,7 +45,6 @@
 		671C91EB13A376B90007D069 /* NSString+LFExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 671C91EA13A376B90007D069 /* NSString+LFExtensions.m */; };
 		671D31E21401699200B9FAA4 /* PRException.m in Sources */ = {isa = PBXBuildFile; fileRef = 671D31E11401699200B9FAA4 /* PRException.m */; };
 		671D31E61401A9D800B9FAA4 /* PRStatement.m in Sources */ = {isa = PBXBuildFile; fileRef = 671D31E51401A9D800B9FAA4 /* PRStatement.m */; };
-		671D55E713B9834A00DAD414 /* PRRoundedGradientView.m in Sources */ = {isa = PBXBuildFile; fileRef = 671D55E613B9834900DAD414 /* PRRoundedGradientView.m */; };
 		672157F5126663060050A982 /* PRInfoView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 672157F4126663060050A982 /* PRInfoView.xib */; };
 		672157FB1266636E0050A982 /* PRInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 672157FA1266636E0050A982 /* PRInfoViewController.m */; };
 		6721582E126682B10050A982 /* PRLibraryView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6721582D126682B10050A982 /* PRLibraryView.xib */; };
@@ -368,8 +367,6 @@
 		671D31E11401699200B9FAA4 /* PRException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRException.m; sourceTree = "<group>"; };
 		671D31E41401A9D800B9FAA4 /* PRStatement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRStatement.h; sourceTree = "<group>"; };
 		671D31E51401A9D800B9FAA4 /* PRStatement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PRStatement.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		671D55E513B9834900DAD414 /* PRRoundedGradientView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRoundedGradientView.h; sourceTree = "<group>"; };
-		671D55E613B9834900DAD414 /* PRRoundedGradientView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRoundedGradientView.m; sourceTree = "<group>"; };
 		672157F4126663060050A982 /* PRInfoView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PRInfoView.xib; sourceTree = "<group>"; };
 		672157F91266636E0050A982 /* PRInfoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRInfoViewController.h; sourceTree = "<group>"; };
 		672157FA1266636E0050A982 /* PRInfoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRInfoViewController.m; sourceTree = "<group>"; };
@@ -1130,8 +1127,6 @@
 				67133A631325EF9D00764174 /* PRGradientView.m */,
 				67EB42431339B843009167BA /* PRBackgroundView.h */,
 				67EB42441339B843009167BA /* PRBackgroundView.m */,
-				671D55E513B9834900DAD414 /* PRRoundedGradientView.h */,
-				671D55E613B9834900DAD414 /* PRRoundedGradientView.m */,
 				67DF08431483159700D2C9B5 /* PRHeaderBox.h */,
 				67DF08441483159800D2C9B5 /* PRHeaderBox.m */,
 			);
@@ -1935,7 +1930,6 @@
 				6715CF8313989885001BC89B /* sha2.c in Sources */,
 				671C91EB13A376B90007D069 /* NSString+LFExtensions.m in Sources */,
 				67091AD013AB3D6400C4D298 /* PRQueue.m in Sources */,
-				671D55E713B9834A00DAD414 /* PRRoundedGradientView.m in Sources */,
 				677CB95A13BC74B60090B4D0 /* PRRescanOperation.m in Sources */,
 				67C0BA1A13C7AE1E0088D2E7 /* NSString+Extensions.m in Sources */,
 				673C849213E148CA00C6DB4B /* PRNowPlayingHeaderCell.m in Sources */,

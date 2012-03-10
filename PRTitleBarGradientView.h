@@ -3,5 +3,4 @@
 
 
 @interface PRTitleBarGradientView : PRGradientView
-
 @end
