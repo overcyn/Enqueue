@@ -5,6 +5,7 @@
 @implementation PRSliderCell
 
 - (void)drawBarInside:(NSRect)cellFrame flipped:(BOOL)flipped {
+    _cellFrame = cellFrame;
     NSRect frame = cellFrame;
     frame.size.height -= 15;
     frame.origin.y += 7;
@@ -37,10 +38,19 @@
     // border
     [[NSColor colorWithCalibratedWhite:0.0 alpha:0.80] set];
     [path stroke];
+    [[self controlView] setNeedsDisplay:TRUE];
+}
+
+- (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView*)controlView {
+    cellFrame = [self drawingRectForBounds:cellFrame];
+    [controlView lockFocus];
+    [self drawBarInside:cellFrame flipped:[controlView isFlipped]];
+    [self drawKnob];
+    [controlView unlockFocus];
 }
 
 - (void)drawKnob:(NSRect)rect {
-    
+    [self drawBarInside:_cellFrame flipped:FALSE];
 }
 
 - (BOOL)_usesCustomTrackImage {
