@@ -56,27 +56,6 @@ typedef enum {
 } PRPlaylistType;
 
 typedef enum {
-	PRTitlePlaylistAttribute,
-	PRTypePlaylistAttribute,
-	PRRulesPlaylistAttribute,
-	PRListViewColumnInfoPlaylistAttribute,
-	PRListViewSortColumnPlaylistAttribute,
-	PRListViewAscendingPlaylistAttribute,
-	PRAlbumListViewColumnInfoPlaylistAttribute,
-	PRAlbumListViewSortColumnPlaylistAttribute,
-	PRAlbumListViewAscendingPlaylistAttribute,
-	PRSearchPlaylistAttribute,
-	PRBrowser1AttributePlaylistAttribute,
-	PRBrowser2AttributePlaylistAttribute,
-	PRBrowser3AttributePlaylistAttribute,
-	PRBrowser1SelectionPlaylistAttribute,
-	PRBrowser2SelectionPlaylistAttribute,
-	PRBrowser3SelectionPlaylistAttribute,
-	PRBrowserInfoPlaylistAttribute,
-	PRLibraryViewModePlaylistAttribute,
-} PRPlaylistAttribute;
-
-typedef enum {
 	PRArtistAlbumSort = -1,
 	PRPlaylistIndexSort = -2,
 } PRSort;

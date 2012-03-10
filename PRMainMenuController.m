@@ -16,7 +16,8 @@
 
 @implementation PRMainMenuController
 
-// == Initialization =============================
+// ========================================
+// Inialization
 
 - (id)initWithCore:(PRCore *)core_ {
     if (!(self = [super init])) {return nil;}
@@ -144,7 +145,8 @@
     [super dealloc];
 }
 
-// == Accessors ==================================
+// ========================================
+// Accessors
 
 - (NSMenu *)dockMenu {
     NSMenu *menu = [[[NSMenu alloc] initWithTitle:@"dockmenu"] autorelease];
@@ -203,7 +205,8 @@
     return menu;
 }
 
-// == Action =====================================
+// ========================================
+// Action
 
 - (void)showPreferences {
     [[core win] setCurrentMode:PRPreferencesMode];
@@ -271,7 +274,8 @@
     [[[core win] controlsViewController] showInLibrary];
 }
 
-// == Menu Delegate ==============================
+// ========================================
+// menu delegate
 
 - (void)menuNeedsUpdate:(NSMenu *)menu {
     NSString *title;

@@ -6,10 +6,8 @@
 
 // ========================================
 // Initialization
-// ========================================
 
-- (void)dealloc
-{
+- (void)dealloc {
     [_color release];
     [_horizontalGradient release];
     [_verticalGradient release];
@@ -36,7 +34,6 @@
 
 // ========================================
 // Properties
-// ========================================
 
 @synthesize color = _color;
 @synthesize horizontalGradient = _horizontalGradient;
@@ -63,10 +60,8 @@
 
 // ========================================
 // Drawing
-// ========================================
 
-- (void)drawRect:(NSRect)rect
-{   
+- (void)drawRect:(NSRect)rect {   
     NSRect bounds = [self bounds];
         
     NSColor *tempColor = _color;

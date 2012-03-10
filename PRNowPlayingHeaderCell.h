@@ -1,8 +1,7 @@
 #import <Foundation/Foundation.h>
 
-@interface PRNowPlayingHeaderCell : NSActionCell
 
+@interface PRNowPlayingHeaderCell : NSActionCell
 - (NSRect)disclosureImageRectForCellFrame:(NSRect)cellFrame;
 - (NSRect)disclosureRectForCellFrame:(NSRect)cellFrame;
-
 @end

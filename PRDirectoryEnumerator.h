@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 
-@interface PRDirectoryEnumerator : NSDirectoryEnumerator
-{
+
+@interface PRDirectoryEnumerator : NSDirectoryEnumerator {
     // progress
     int _subDirsSeen;
     NSMutableArray *_subDirs;
@@ -10,11 +10,11 @@
     NSDirectoryEnumerator *_dirEnumerator;
     NSFileManager *_fileManager;
 }
-
+// Initialization
 - (id)initWithURLs:(NSArray *)URLs;
 + (PRDirectoryEnumerator *)enumeratorWithURLs:(NSArray *)URLs;
 
+// Accessors
 - (id)nextObject;
 - (float)progress;
-
 @end

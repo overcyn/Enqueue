@@ -2,39 +2,42 @@
 
 @implementation PRDropImageView
 
-- (id)init
-{
+// ========================================
+// Initialization
+
+- (id)init {
     if (!(self = [super init])) {return nil;}
     focusRing = FALSE;
     return self;
 }
 
-- (void)awakeFromNib
-{
+- (void)awakeFromNib {
     [super awakeFromNib];
     [self registerForDraggedTypes:[NSArray arrayWithObjects:NSTIFFPboardType, NSFilenamesPboardType, nil]];
 }
 
+// ========================================
+// Accessors
+
 @synthesize focusRing;
 
-- (void)mouseDown:(NSEvent *)theEvent
-{
+// ========================================
+// Subclassing
+
+- (void)mouseDown:(NSEvent *)theEvent {
     [[self window] makeFirstResponder:self];
 }
 
-- (BOOL)acceptsFirstResponder
-{
+- (BOOL)acceptsFirstResponder {
     return TRUE;
 }
 
-- (BOOL)becomeFirstResponder
-{
+- (BOOL)becomeFirstResponder {
     [self setNeedsDisplay:TRUE];
     return TRUE;
 }
 
-- (void)keyDown:(NSEvent *)event
-{
+- (void)keyDown:(NSEvent *)event {
     if ([[event characters] length] != 1) {
         [super keyDown:event];
         return;
@@ -48,8 +51,7 @@
 	}
 }
 
-- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender
-{
+- (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
     focusRing = TRUE;
     [self setNeedsDisplay:focusRing];
     [[NSCursor dragCopyCursor] set];
@@ -61,15 +63,13 @@
     }
 }
 
-- (void)draggingExited:(id <NSDraggingInfo>)sender
-{
+- (void)draggingExited:(id <NSDraggingInfo>)sender {
     focusRing = FALSE;
     [self setNeedsDisplay:TRUE];
     [[NSCursor arrowCursor] set];
 }
 
-- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender
-{
+- (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
     focusRing = FALSE;
     [[NSCursor arrowCursor] set];
     

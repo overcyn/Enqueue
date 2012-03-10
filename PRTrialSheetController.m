@@ -1,19 +1,26 @@
 #import "PRTrialSheetController.h"
 
+
+@interface PRTrialSheetController ()
+// action
+- (void)ignore;
+- (void)purchase;
+@end
+
+
 @implementation PRTrialSheetController
 
-- (id)initWithCore:(PRCore *)core;
-{
-    self = [super initWithWindowNibName:@"PRTrialSheet"];
-    if (self) {
-        _core = core;
-        _date = [[NSDate dateWithString:@"2012-02-20 01:00:00 +0000"] retain];
-    }
+// ========================================
+// Initialization
+
+- (id)initWithCore:(PRCore *)core {
+    if (!(self = [super initWithWindowNibName:@"PRTrialSheet"])) {return nil;}
+    _core = core;
+    _date = [[NSDate dateWithString:@"2012-02-20 01:00:00 +0000"] retain];
     return self;
 }
 
-- (void)awakeFromNib
-{
+- (void)awakeFromNib {
     NSDictionary *regularAttr = [NSDictionary dictionary];
     NSDictionary *boldAttr = [NSDictionary dictionaryWithObjectsAndKeys:
                               [NSFont boldSystemFontOfSize:13], NSFontAttributeName, 
@@ -43,22 +50,25 @@
     [super awakeFromNib];
 }
 
-- (void)purchase
-{
+// ========================================
+// action
+
+- (void)purchase {
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://itunes.apple.com/us/app/enqueue/id493119959?ls=1&mt=12"]];
     [self endSheet];
 }
 
-- (void)ignore
-{
+- (void)ignore {
     if ([_date timeIntervalSinceNow] < 0) {
         [NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0];
     }
     [self endSheet];
 }
 
-- (void)beginSheetForWindow:(NSWindow *)window
-{
+// ========================================
+// Sheet
+
+- (void)beginSheetForWindow:(NSWindow *)window {
     [NSApp beginSheet:[self window] 
        modalForWindow:window 
         modalDelegate:self 
@@ -66,8 +76,7 @@
           contextInfo:nil];
 }
 
-- (void)endSheet
-{
+- (void)endSheet{
     [[self window] orderOut:nil];
     [NSApp endSheet:[self window]];
 }

@@ -1,27 +1,28 @@
 #import "PRControlsViewController.h"
-#import "PRDb.h"
-#import "PRLibrary.h"
-#import "PRNowPlayingController.h"
-#import "PRMoviePlayer.h"
-#import "PRRatingCell.h"
-#import "PRAlbumArtController.h"
-#import "PRGradientView.h"
 #import "BWTexturedSlider.h"
-#import "PRSliderCell.h"
-#import "PRLibraryViewController.h"
+#import "PRAlbumArtController.h"
 #import "PRCore.h"
-#import "PRMainWindowController.h"
-#import "PRTimeFormatter.h"
-#import "PRUserDefaults.h"
+#import "PRDb.h"
+#import "PRGradientView.h"
 #import "PRHeaderBox.h"
 #import "PRHyperlinkButton.h"
+#import "PRLibrary.h"
+#import "PRLibraryViewController.h"
+#import "PRMainWindowController.h"
+#import "PRMoviePlayer.h"
+#import "PRNowPlayingController.h"
 #import "PRNowPlayingViewController.h"
+#import "PRRatingCell.h"
+#import "PRSliderCell.h"
 #import "PRTableViewController.h"
+#import "PRTimeFormatter.h"
+#import "PRUserDefaults.h"
 
 
 @implementation PRControlsViewController
 
-// == Initialization =======================================
+// ========================================
+// Initialization
 
 - (id)initWithCore:(PRCore *)core_; {
     if (!(self = [super initWithNibName:@"PRControlsView" bundle:nil])) {return nil;}
@@ -100,13 +101,15 @@
     [self updateLayout];
 }
 
-// == Artwork ==============================================
+// ========================================
+// Artwork
 
 - (NSImageView *)albumArtView {
     return albumArtView;
 }
 
-// == Update ===============================================
+// ========================================
+// Update
 
 - (void)updateLayout {
     [_volumeButton setHidden:[[core win] miniPlayer]];
@@ -547,7 +550,8 @@
     [_volumeButton setImage:image];
 }
 
-// == Action ===============================================
+// ========================================
+// Action
 
 - (void)setProgressHidden:(BOOL)progressHidden {
     BOOL update = (_progressHidden != progressHidden);

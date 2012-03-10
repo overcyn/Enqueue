@@ -2,5 +2,4 @@
 
 
 @interface PRDropImageCell : NSImageCell
-
 @end

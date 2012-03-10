@@ -1,10 +1,10 @@
 #import "PRNowPlayingCell.h"
 #import "PRNowPlayingViewController.h"
 
+
 @implementation PRNowPlayingCell
 
-- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)theControlView
-{
+- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)theControlView {
 	NSDictionary *dict = [self objectValue];
 	NSString *title = [dict objectForKey:@"title"];
     NSNumber *badge = [dict objectForKey:@"badge"];

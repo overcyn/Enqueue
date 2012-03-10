@@ -2,16 +2,15 @@
 #import "PRLibrary.h"
 @class PRDb, PRLibrary;
 
+
 @interface PRAlbumArtController : NSObject {
     int _tempIndex;
     NSFileManager *_fileManager;
     
-	PRLibrary *lib;
-	PRDb *db;
+	__weak PRDb *_db;
 }
-
 // Initialization
-- (id)initWithDb:(PRDb *)db_;
+- (id)initWithDb:(PRDb *)db;
 
 // Accessors
 - (NSDictionary *)artworkInfoForFile:(PRFile)file;
@@ -41,7 +40,6 @@
 - (void)clearTempArt;
 
 // Temp Misc
-
 - (int)nextTempValue;
 - (NSString *)tempArtPathForTempValue:(int)temp;
 
@@ -50,7 +48,7 @@
 - (NSDictionary *)artworkInfoForItem:(PRItem *)item;
 - (NSDictionary *)artworkInfoForItems:(NSArray *)items;
 //- (NSDictionary *)artworkInfoForArtist:(NSString *)artist; // duplicate of above
-//- (NSImage *)artworkForArtworkInfo:(NSDictionary *)info; // dupliacet
+//- (NSImage *)artworkForArtworkInfo:(NSDictionary *)info; // dupliacate
 
 - (NSImage *)artworkForItem:(PRItem *)item;
 - (NSImage *)artworkForItems:(NSArray *)items;
@@ -62,7 +60,6 @@
 
 - (NSString *)cachedArtworkPathForItem:(PRItem *)item;
 
-- (void)setTempArtwork:(int)temp forItem:(PRItem *)item; // updates
+- (void)setTempArtwork:(int)temp forItem:(PRItem *)item; // no updates
 - (void)clearArtworkForItemNoUpdate:(NSNumber *)item;
-
 @end

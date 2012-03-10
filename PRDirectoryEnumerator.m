@@ -1,10 +1,13 @@
 #import "PRDirectoryEnumerator.h"
 #import "NSFileManager+Extensions.h"
 
+
 @implementation PRDirectoryEnumerator
 
-- (id)initWithURLs:(NSArray *)URLs
-{
+// ========================================
+// Initialization
+
+- (id)initWithURLs:(NSArray *)URLs {
     if (!(self = [super init])) {return nil;}
     // remove all subfolders
     NSMutableArray *topDirs = [NSMutableArray array];
@@ -45,13 +48,11 @@
     return self;
 }
 
-+ (PRDirectoryEnumerator *)enumeratorWithURLs:(NSArray *)URLs
-{
++ (PRDirectoryEnumerator *)enumeratorWithURLs:(NSArray *)URLs {
     return [[[PRDirectoryEnumerator alloc] initWithURLs:URLs] autorelease];
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [_subDirs release];
     [_URLEnumerator release];
     [_dirEnumerator release];
@@ -59,8 +60,10 @@
     [super dealloc];
 }
 
-- (id)nextObject
-{
+// ========================================
+// Action
+
+- (id)nextObject {
     // if directory enumerator return next file that isnt a directory
     if (_dirEnumerator) {
         NSURL *URL;
@@ -133,8 +136,7 @@
     return nil;
 }
 
-- (float)progress
-{
+- (float)progress {
     float progress = (float)_subDirsSeen / (float)[_subDirs count];
     if (progress < 0) {
         return 0;

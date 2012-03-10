@@ -4,8 +4,7 @@
 
 @implementation PRDropImageCell
 
-- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView 
-{
+- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
     [super drawWithFrame:cellFrame inView:controlView];
     if ([(PRDropImageView *)[self controlView] focusRing] || 
         [self controlView] == [[[self controlView] window] firstResponder]) {

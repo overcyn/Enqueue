@@ -4,8 +4,7 @@
 
 @implementation PRBackgroundView
 
-- (void)drawRect:(NSRect)dirtyRect
-{       
+- (void)drawRect:(NSRect)dirtyRect {
     [[NSBezierPath bezierPathWithRect:dirtyRect] addClip];
     NSRect bounds = [self bounds];
     bounds.size.width -= 1;

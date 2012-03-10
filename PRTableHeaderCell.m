@@ -1,5 +1,6 @@
 #import "PRTableHeaderCell.h"
 
+
 @implementation PRTableHeaderCell
 
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {

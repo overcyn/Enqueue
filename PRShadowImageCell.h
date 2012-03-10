@@ -2,8 +2,4 @@
 
 
 @interface PRShadowImageCell : NSImageCell
-{
-
-}
-
 @end

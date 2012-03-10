@@ -1,24 +1,24 @@
 #import "PRMainWindowController.h"
-#import "PRDb.h"
-#import "PRNowPlayingController.h"
-#import "PRControlsViewController.h"
-#import "PRPlaylists.h"
-#import "PRTaskManagerViewController.h"
-#import "PRNowPlayingViewController.h"
-#import "PRLibraryViewController.h"
-#import "PRPreferencesViewController.h"
-#import "PRPlaylistsViewController.h"
-#import "PRHistoryViewController.h"
+#import <Quartz/Quartz.h>
 #import "PRCore.h"
+#import "PRControlsViewController.h"
+#import "PRDb.h"
+#import "PRGradientView.h"
+#import "PRLibraryViewController.h"
+#import "PRNowPlayingController.h"
+#import "PRNowPlayingViewController.h"
+#import "PRPlaylists.h"
+#import "PRPlaylistsViewController.h"
+#import "PRPreferencesViewController.h"
+#import "PRTaskManagerViewController.h"
+#import "PRHistoryViewController.h"
+#import "PRTableViewController.h"
 #import "PRTaskManager.h"
 #import "PRMainMenuController.h"
 #import "PRUserDefaults.h"
-#import "PRTableViewController.h"
 #import "PRStringFormatter.h"
-#import <Quartz/Quartz.h>
 #import "NSWindow+Extensions.h"
 #import "NSOperationQueue+Extensions.h"
-#import "PRGradientView.h"
 
 
 @interface NSWindow (hush)
@@ -27,7 +27,6 @@
 
 
 @interface PRMainWindowController ()
-
 // Update
 - (void)playlistDidChange:(NSNotification *)notification; // Updates searchField
 - (void)libraryViewDidChange:(NSNotification *)notification; // update subBar
@@ -40,7 +39,6 @@
 - (void)setSearch:(NSString *)newSearch;
 - (int)libraryViewMode;
 - (void)setLibraryViewMode:(int)libraryViewMode;
-
 @end
 
 
@@ -207,7 +205,6 @@
 @synthesize preferencesViewController;
 @synthesize nowPlayingViewController;
 @synthesize controlsViewController;
-
 @dynamic currentList;
 
 - (PRList *)currentList {

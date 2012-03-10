@@ -1,8 +1,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface PRGradientView : NSView
-{
+@interface PRGradientView : NSView {
     NSColor *_color;
     NSGradient *_horizontalGradient;
     NSGradient *_verticalGradient;
@@ -26,7 +25,7 @@
     NSColor *_topBorder2;
     NSColor *_botBorder2;
 }
-
+// Accessors
 @property (readwrite, copy) NSColor *color;
 @property (readwrite, copy) NSGradient *horizontalGradient;
 @property (readwrite, copy) NSGradient *verticalGradient;
@@ -49,5 +48,4 @@
 @property (readwrite, copy) NSColor *rightBorder;
 @property (readwrite, copy) NSColor *topBorder2;
 @property (readwrite, copy) NSColor *botBorder2;
-
 @end

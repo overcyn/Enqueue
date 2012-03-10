@@ -1,5 +1,5 @@
 #import <AppKit/AppKit.h>
 
-@interface PRSidebarImageView : NSImageView
 
+@interface PRSidebarImageView : NSImageView
 @end

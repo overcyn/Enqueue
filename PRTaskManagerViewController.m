@@ -10,33 +10,27 @@
 
 // ========================================
 // Initialization
-// ========================================
 
-- (id)initWithCore:(PRCore *)core
-{
+- (id)initWithCore:(PRCore *)core {
     if (!(self = [super initWithWindowNibName:@"PRTaskManagerView"])) {return nil;}
     _core = core;
     [[_core taskManager] addObserver:self forKeyPath:@"tasks" options:0 context:nil];
     return self;
 }
 
-- (void)awakeFromNib
-{
+- (void)awakeFromNib {
     [cancelButton setTarget:self];
     [cancelButton setAction:@selector(cancelTask)];
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [super dealloc];
 }
 
 // ========================================
 // Update
-// ========================================
 
-- (void)update
-{
+- (void)update {
 	if ([[[_core taskManager] tasks] count] > 0) {
         PRTask *task = [[[_core taskManager] tasks] objectAtIndex:0];
         if ([task background]) {
@@ -59,11 +53,7 @@
     }
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath 
-                      ofObject:(id)object 
-                        change:(NSDictionary *)change 
-                       context:(void *)context
-{
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     
     if (object == [_core taskManager] && [keyPath isEqualToString:@"tasks"]) {
         [self update];
@@ -72,10 +62,8 @@
 
 // ========================================
 // Action
-// ========================================
 
-- (void)beginSheet
-{
+- (void)beginSheet {
 	[NSApp beginSheet:[self window] 
 	   modalForWindow:[[_core win] window]
         modalDelegate:self 
@@ -88,19 +76,16 @@
 	[[self window] makeKeyAndOrderFront:nil];
 }
 
-- (void)endSheet
-{
+- (void)endSheet {
     [NSApp endSheet:[self window]];
 	[[self window] orderOut:nil];
 }
 
-- (void)setTitle:(NSString *)title
-{
+- (void)setTitle:(NSString *)title {
 	[titleTextField setStringValue:title];
 }
 
-- (void)cancelTask
-{
+- (void)cancelTask {
     PRTask *task = [[[_core taskManager] tasks] objectAtIndex:0];
     [task setShouldCancel:TRUE];
 }

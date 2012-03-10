@@ -4,8 +4,7 @@
 
 @implementation PRShadowImageCell
 
-- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
-{    
+- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {    
 	NSImage *image = [self objectValue];
     NSRect inRect2 = NSInsetRect(cellFrame, 9, 9);
 	NSRect inRect = NSMakeRect(inRect2.origin.x + 2, 
@@ -55,6 +54,5 @@
     // draw image
     [image drawInRect:drawnRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
 }
-
 
 @end

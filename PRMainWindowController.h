@@ -86,7 +86,6 @@ typedef enum {
 
 // UI
 - (void)toggleMiniPlayer;
-
 - (void)updateLayoutWithFrame:(NSRect)frame;
 - (void)updateSplitView;
 - (void)updateUI;

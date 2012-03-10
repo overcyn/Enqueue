@@ -1,22 +1,19 @@
 #import <Cocoa/Cocoa.h>
 
-@interface PRTrialSheetController : NSWindowController
-{
+
+@interface PRTrialSheetController : NSWindowController {
     IBOutlet NSTextField *label;
     IBOutlet NSButton *purchase;
     IBOutlet NSButton *ignore;
     
     NSDate *_date;
     
-    PRCore *_core;
+    __weak PRCore *_core;
 }
-
+// Initialization
 - (id)initWithCore:(PRCore *)core_;
 
-- (void)ignore;
-- (void)purchase;
-
+// Sheet
 - (void)beginSheetForWindow:(NSWindow *)window;
 - (void)endSheet;
-
 @end

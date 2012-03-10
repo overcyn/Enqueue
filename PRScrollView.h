@@ -1,13 +1,8 @@
 #import <Foundation/Foundation.h>
 
 
-@interface PRScrollView : NSScrollView 
-{
-    NSSize minimumSize;
+@interface PRScrollView : NSScrollView {
+    NSSize _minimumSize;
 }
-
 @property (readwrite) NSSize minimumSize;
-
-- (void)viewFrameDidChange:(NSNotification *)notification;
-
 @end

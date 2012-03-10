@@ -2,8 +2,4 @@
 
 
 @interface PRNowPlayingCell : NSCell 
-{
-
-}
-
 @end

@@ -3,8 +3,7 @@
 
 @implementation PRSynchronizedScrollView
 
-- (void)setSynchronizedScrollView:(NSScrollView*)scrollview
-{
+- (void)setSynchronizedScrollView:(NSScrollView*)scrollview {
     NSView *synchronizedContentView;
     
     // stop an existing scroll view synchronizing
@@ -29,8 +28,7 @@
                                                object:synchronizedContentView];
 }
 
-- (void)synchronizedViewContentBoundsDidChange:(NSNotification *)notification
-{
+- (void)synchronizedViewContentBoundsDidChange:(NSNotification *)notification {
     // get the changed content view from the notification
     NSClipView *changedContentView=[notification object];
     
@@ -59,8 +57,7 @@
     }
 }
 
-- (void)stopSynchronizing
-{
+- (void)stopSynchronizing {
     if (synchronizedScrollView != nil) {
         NSView* synchronizedContentView = [synchronizedScrollView contentView];
         

@@ -62,7 +62,7 @@
 @implementation PRNowPlayingViewController
 
 // ========================================
-// - Initialization
+// Initialization
 
 - (id)initWithCore:(PRCore *)core {
     if (!(self = [super initWithNibName:@"PRNowPlayingView" bundle:nil])) {return nil;}
@@ -129,7 +129,7 @@
 }
 
 // ========================================
-// - Action
+// Action
 
 - (void)higlightPlayingFile {
     if ([now currentFile] == 0) {
@@ -219,7 +219,7 @@
 }
 
 // ========================================
-// Action
+// action
 
 - (void)play {
     if ([nowPlayingTableView clickedRow] == -1) {
@@ -282,7 +282,7 @@
 }
 
 // ========================================
-// Menu Action
+// menu Action
 
 - (void)playSelected {
     if ([[self selectedDbRows] count] == 0) {
@@ -394,7 +394,7 @@
 }
 
 // ========================================
-// Update
+// update
 
 - (void)updateTableView {
     // refresh nowPlayingViewSource
@@ -447,7 +447,7 @@
 }
 
 // ========================================
-// - Menu
+// Menu
 
 - (NSMenu *)playlistMenu {
     NSMenu *menu = [[[NSMenu alloc] init] autorelease];
@@ -484,7 +484,7 @@
 }
 
 // ========================================
-// Menu
+// menu
 
 - (void)contextMenuNeedsUpdate {
     for (NSMenuItem *i in [_contextMenu itemArray]) {
@@ -566,7 +566,7 @@
 }
 
 // ========================================
-// Misc
+// misc
 
 - (int)dbRowCount {
     return [_albumIndexes lastIndex] - 1;

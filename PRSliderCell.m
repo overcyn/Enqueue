@@ -40,11 +40,11 @@
 }
 
 - (void)drawKnob:(NSRect)rect {
-
+    
 }
 
 - (BOOL)_usesCustomTrackImage {
-	return YES;
+	return NO;
 }
 
 @end

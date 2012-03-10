@@ -7,18 +7,23 @@
 #import "PRLibrary.h"
 #import "PRUserDefaults.h"
 
+
 @implementation PRAlbumArtController
 
 // ========================================
 // Initialization
 
-- (id)initWithDb:(PRDb *)db_ {
+- (id)initWithDb:(PRDb *)db {
     if (!(self = [super init])){return nil;}
     _tempIndex = 0; 
     _fileManager = [[NSFileManager alloc] init];
-    db = db_;
-    lib	= [db library];
+    _db = db;
 	return self;
+}
+
+- (void)dealloc {
+    [_fileManager release];
+    [super dealloc];
 }
 
 // ========================================
@@ -37,7 +42,7 @@
     }
     [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
     [string appendString:@") AND albumArt = 1"];
-    NSArray *results = [db execute:string bindings:nil columns:[NSArray arrayWithObject:PRColInteger]];
+    NSArray *results = [_db execute:string bindings:nil columns:[NSArray arrayWithObject:PRColInteger]];
     
     NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
     for (NSArray *i in results) {
@@ -57,7 +62,7 @@
     }
     [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
     [string appendString:@")"];
-    results = [db execute:string bindings:nil columns:[NSArray arrayWithObject:PRColString]];
+    results = [_db execute:string bindings:nil columns:[NSArray arrayWithObject:PRColString]];
     
     NSMutableArray *paths = [NSMutableArray array];
     for (NSArray *i in results) {
@@ -77,7 +82,7 @@
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               artist, [NSNumber numberWithInt:1], nil];
     NSArray *columns = [NSArray arrayWithObjects:PRColInteger, nil];
-    NSArray *results = [db execute:string bindings:bindings columns:columns];
+    NSArray *results = [_db execute:string bindings:bindings columns:columns];
     NSMutableIndexSet *files = [NSMutableIndexSet indexSet];
     for (NSArray *i in results) {
         [files addIndex:[[i objectAtIndex:0] intValue]];
@@ -150,7 +155,7 @@
     [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
     [string appendString:@") AND albumArt = 1"];
     NSArray *columns = [NSArray arrayWithObjects:PRColInteger, nil];
-    NSArray *results = [db execute:string bindings:nil columns:columns];
+    NSArray *results = [_db execute:string bindings:nil columns:columns];
     NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
     for (NSArray *i in results) {
         PRFile file = [[i objectAtIndex:0] intValue];
@@ -160,7 +165,7 @@
             NSImage *albumArt = [[[NSImage alloc] initWithContentsOfFile:[self cachedAlbumArtPathForFile:file]] autorelease];
             if (!albumArt || ![albumArt isValid]) {
                 [fileManager removeItemAtPath:[self cachedAlbumArtPathForFile:file] error:nil];
-                [[db library] setValue:[NSNumber numberWithBool:FALSE] forItem:[NSNumber numberWithInt:file] attr:PRItemAttrArtwork];
+                [[_db library] setValue:[NSNumber numberWithBool:FALSE] forItem:[NSNumber numberWithInt:file] attr:PRItemAttrArtwork];
             } else {
                 return albumArt;
             }
@@ -181,7 +186,7 @@
     [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
     [string appendString:@")"];
     columns = [NSArray arrayWithObjects:PRColString, nil];
-    results = [db execute:string bindings:nil columns:columns];
+    results = [_db execute:string bindings:nil columns:columns];
     NSMutableSet *paths = [NSMutableSet set];
     for (NSArray *i in results) {
         NSURL *URL = [NSURL URLWithString:[i objectAtIndex:0]];
@@ -224,7 +229,7 @@
     NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
                               artist, [NSNumber numberWithInt:1], nil];
     NSArray *columns = [NSArray arrayWithObjects:PRColInteger, nil];
-    NSArray *results = [db execute:string bindings:bindings columns:columns];
+    NSArray *results = [_db execute:string bindings:bindings columns:columns];
     NSMutableIndexSet *files = [NSMutableIndexSet indexSet];
     for (NSArray *i in results) {
         [files addIndex:[[i objectAtIndex:0] intValue]];
@@ -244,7 +249,7 @@
     [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
     [string appendString:@") AND albumArt = 1"];
     NSArray *columns = [NSArray arrayWithObjects:PRColInteger, nil];
-    NSArray *results = [db execute:string bindings:nil columns:columns];
+    NSArray *results = [_db execute:string bindings:nil columns:columns];
     NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
     for (NSArray *i in results) {
         PRFile file = [[i objectAtIndex:0] intValue];
@@ -254,7 +259,7 @@
             NSImage *albumArt = [[[NSImage alloc] initWithContentsOfFile:[self cachedAlbumArtPathForFile:file]] autorelease];
             if (!albumArt || ![albumArt isValid]) {
                 [fileManager removeItemAtPath:[self cachedAlbumArtPathForFile:file] error:nil];
-                [[db library] setValue:[NSNumber numberWithBool:FALSE] forItem:[NSNumber numberWithInt:file] attr:PRItemAttrArtwork];
+                [[_db library] setValue:[NSNumber numberWithBool:FALSE] forItem:[NSNumber numberWithInt:file] attr:PRItemAttrArtwork];
             } else {
                 return albumArt;
             }
@@ -280,7 +285,7 @@
         [self clearAlbumArtForFile:file];
 		return;
 	}
-    [[db library] setValue:[NSNumber numberWithBool:TRUE] forItem:[NSNumber numberWithInt:file] attr:PRItemAttrArtwork];
+    [[_db library] setValue:[NSNumber numberWithBool:TRUE] forItem:[NSNumber numberWithInt:file] attr:PRItemAttrArtwork];
 	return;
 }
 
@@ -326,7 +331,7 @@
     NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
     [fileManager removeItemAtPath:[self cachedAlbumArtPathForFile:file] error:nil];
     [fileManager removeItemAtPath:[self downloadedAlbumArtPathForFile:file] error:nil];
-    [[db library] setValue:[NSNumber numberWithInt:0] forItem:[NSNumber numberWithInt:file] attr:PRItemAttrArtwork];
+    [[_db library] setValue:[NSNumber numberWithInt:0] forItem:[NSNumber numberWithInt:file] attr:PRItemAttrArtwork];
 }
 
 - (void)clearAlbumArtForFile2:(PRFile)file {
@@ -336,7 +341,7 @@
 }
 
 - (BOOL)fileHasAlbumArt:(PRFile)file {
-    return [[[db library] valueForItem:[NSNumber numberWithInt:file] attr:PRItemAttrArtwork] intValue];
+    return [[[_db library] valueForItem:[NSNumber numberWithInt:file] attr:PRItemAttrArtwork] intValue];
 }
 
 // ========================================

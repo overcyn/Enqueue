@@ -4,16 +4,17 @@
 #import "PRCore.h"
 #import "PRNowPlayingController.h"
 
+
 @interface PRWindow(hush)
 - (float)roundedCornerRadius;
 - (void)drawRectOriginal:(NSRect)rect;
 - (NSWindow*)window;
 @end
 
+
 @implementation PRWindow
 
-- (void)awakeFromNib
-{
+- (void)awakeFromNib {
     [PRFrameView swizzle];
     
     // Get window's frame view class 
@@ -30,8 +31,7 @@
     [super awakeFromNib];
 }
 
-- (void)themeDrawRect:(NSRect)rect
-{
+- (void)themeDrawRect:(NSRect)rect {
 	[self drawRectOriginal:rect];
 
     // Clip corner
@@ -59,8 +59,7 @@
     }
 }
 
-- (void)updateTrackingArea
-{
+- (void)updateTrackingArea {
     if (_trackingArea) {
         [[[[self window] contentView] superview] removeTrackingArea:_trackingArea];
         [_trackingArea release];

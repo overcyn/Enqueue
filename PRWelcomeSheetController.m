@@ -9,10 +9,8 @@
 
 // ========================================
 // Initialization
-// ========================================
 
-- (id)initWithCore:(PRCore *)core_;
-{
+- (id)initWithCore:(PRCore *)core_ {
     self = [super initWithWindowNibName:@"PRWelcomeSheet"];
     if (self) {
         core = core_;
@@ -20,13 +18,7 @@
     return self;
 }
 
-- (void)dealloc
-{
-    [super dealloc];
-}
-
-- (void)awakeFromNib
-{
+- (void)awakeFromNib {
     [super awakeFromNib];
     [background setTopGradient:[NSColor colorWithDeviceWhite:1.0 alpha:1.0]];
     [background setBotGradient:[NSColor colorWithDeviceWhite:0.95 alpha:1.0]];
@@ -46,38 +38,28 @@
 
 // ========================================
 // Action
-// ========================================
 
-- (void)beginSheetForWindow:(NSWindow *)window
-{
-    [NSApp beginSheet:[self window] 
-       modalForWindow:window 
-        modalDelegate:self 
-       didEndSelector:NULL
-          contextInfo:nil];
+- (void)beginSheetForWindow:(NSWindow *)window {
+    [NSApp beginSheet:[self window] modalForWindow:window modalDelegate:self didEndSelector:NULL contextInfo:nil];
 }
 
-- (void)importItunes
-{
+- (void)importItunes {
     [self endSheet];
     [core itunesImport:nil];
 }
 
-- (void)openFiles
-{
+- (void)openFiles {
     [self endSheet];
     [core showOpenPanel:nil];
 }
 
-- (void)monitorFolders
-{
+- (void)monitorFolders {
     [self endSheet];
     [[core win] setCurrentMode:PRPreferencesMode];
     [[[core win] preferencesViewController] addFolder];
 }
 
-- (void)endSheet
-{
+- (void)endSheet {
     [[self window] orderOut:nil];
     [NSApp endSheet:[self window]];
 }

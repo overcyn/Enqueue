@@ -1,10 +1,10 @@
 #import "PRNowPlayingHeaderCell.h"
 #import "PRNowPlayingViewController.h"
 
+
 @implementation PRNowPlayingHeaderCell
 
-- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
-{
+- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
     NSOutlineView *outlineView = (NSOutlineView *)controlView;
 	NSString *title = [[self objectValue] objectForKey:@"title"];
 	NSString *subtitle = [[self objectValue] objectForKey:@"subtitle"];
@@ -100,16 +100,14 @@
     [subtitle drawInRect:subtitleBox withAttributes:subtitleAttributes];
 }
 
-- (NSRect)disclosureImageRectForCellFrame:(NSRect)cellFrame
-{
+- (NSRect)disclosureImageRectForCellFrame:(NSRect)cellFrame {
     NSRect disclosureRect = NSMakeRect(0, 0, 15, 15);
     disclosureRect.origin.y = cellFrame.origin.y + cellFrame.size.height/2 - 7;
     disclosureRect.origin.x = cellFrame.origin.x + 3;
     return disclosureRect;
 }
 
-- (NSRect)disclosureRectForCellFrame:(NSRect)cellFrame
-{
+- (NSRect)disclosureRectForCellFrame:(NSRect)cellFrame {
     NSRect disclosureRect = cellFrame;
     disclosureRect.size.width = 21;
     return disclosureRect;

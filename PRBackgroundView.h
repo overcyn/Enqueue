@@ -2,8 +2,4 @@
 
 
 @interface PRBackgroundView : NSView 
-{
-    
-}
-
 @end
