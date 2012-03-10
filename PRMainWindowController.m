@@ -135,7 +135,10 @@
     [stringFormatter setMaxLength:80];
 	[searchField bind:@"value" toObject:self withKeyPath:@"search" options:options];
     [searchField setFormatter:stringFormatter];
-    	    
+    if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_6) {
+        [searchField setFocusRingType:NSFocusRingTypeNone];
+    }
+    
     // miniplayer
     [centerSuperview retain];
     BOOL mini = [self miniPlayer];
