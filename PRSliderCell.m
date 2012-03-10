@@ -14,7 +14,7 @@
     NSGradient *fillGradient = [[[NSGradient alloc] initWithColorsAndLocations:
                                  [color blendedColorWithFraction:0.1 ofColor:[NSColor blackColor]], 0.0,
                                  [color blendedColorWithFraction:0.3 ofColor:[NSColor blackColor]], 0.5, 
-                                 [color blendedColorWithFraction:0.35 ofColor:[NSColor blackColor]], 1.0, 
+                                 [color blendedColorWithFraction:0.25 ofColor:[NSColor blackColor]], 1.0, 
                                  nil] autorelease];
     NSGradient *backGradient = [[[NSGradient alloc] initWithColorsAndLocations:
                                  [color blendedColorWithFraction:0.1 ofColor:[NSColor blackColor]], 0.0,
