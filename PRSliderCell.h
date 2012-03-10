@@ -1,7 +1,5 @@
 #import <Foundation/Foundation.h>
 
 
-@interface PRSliderCell : NSSliderCell {
-    NSRect _cellFrame;
-}
+@interface PRSliderCell : NSSliderCell
 @end
