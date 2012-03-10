@@ -45,8 +45,6 @@ NSString * const compilationString = @"Compilations  ";
     _cachedBrowser1Statement = @"";
     _cachedBrowser2Statement = @"";
     _cachedBrowser3Statement = @"";
-    _cachedValues = [[NSCache alloc] init];
-    [_cachedValues setCountLimit:300];
 	return self;
 }
 
@@ -99,11 +97,32 @@ NSString * const compilationString = @"Compilations  ";
     return TRUE;
 }
 
+- (void)dealloc {
+    [_list release];
+    [_prevSourceString release];
+    [_prevSourceBindings release];
+    [prevBrowser1Statement release];
+    [prevBrowser1Bindings release];
+    [prevBrowser2Statement release];
+    [prevBrowser2Bindings release];
+    [prevBrowser3Statement release];
+    [prevBrowser3Bindings release];
+    [_cachedSortIndexStatement release];
+    [_cachedBrowser1Statement release];
+    [_cachedBrowser2Statement release];
+    [_cachedBrowser3Statement release];
+    [_cachedAttrs release];
+    [_cachedAttrValues release];
+    [_cachedStatement release];
+    [super dealloc];
+}
+
 // ========================================
 // Update
 
 - (int)refreshWithList:(PRList *)list force:(BOOL)force {
-    [_cachedValues removeAllObjects];
+    [_cachedAttrValues release];
+    _cachedAttrValues = nil;
     [_list release];
     _list = [list retain];
     _force = force;
@@ -590,37 +609,33 @@ NSString * const compilationString = @"Compilations  ";
 }
 
 - (id)valueForRow:(int)row attribute:(PRItemAttr *)attr andCacheAttributes:(NSArray *(^)(void))attributes {
-    static PRStatement *_stmt = nil;
-    static NSArray *_attrs = nil;
-    static NSArray *_cachedRow = nil;
-    static int _row = -1;
-    if (_cachedRow && _row == row && _attrs && [_attrs indexOfObject:attr] != NSNotFound) {
-        return [_cachedRow objectAtIndex:[_attrs indexOfObject:attr]];
+    if (_cachedAttrValues && _cachedRow == row && _cachedAttrs && [_cachedAttrs indexOfObject:attr] != NSNotFound) {
+        return [_cachedAttrValues objectAtIndex:[_cachedAttrs indexOfObject:attr]];
     }
-    if (!_stmt || ![_attrs containsObject:attr]) {
+    if (!_cachedStatement || ![_cachedAttrs containsObject:attr]) {
         NSArray *temp = attributes();
         if (![temp containsObject:attr]) {
             temp = [temp arrayByAddingObject:attr];
         }
-        [_attrs release];
-        _attrs = [temp retain];
+        [_cachedAttrs release];
+        _cachedAttrs = [temp retain];
         NSMutableString *string = [NSMutableString stringWithString:@"SELECT "];
         NSMutableArray *columns = [NSMutableArray array];
-        for (PRItemAttr *i in _attrs) {
+        for (PRItemAttr *i in _cachedAttrs) {
             [string appendFormat:@"library.%@, ", [[PRLibrary class] columnNameForItemAttr:i]];
             [columns addObject:[PRLibrary columnTypeForItemAttr:i]];
         }
         [string deleteCharactersInRange:NSMakeRange([string length] - 2, 2)];
         [string appendString:@" FROM libraryViewSource JOIN library ON libraryViewSource.file_id = library.file_id WHERE row = ?1"];
-        [_stmt release];
-        _stmt = [[PRStatement alloc] initWithString:string bindings:nil columns:columns db:_db];
+        [_cachedStatement release];
+        _cachedStatement = [[PRStatement alloc] initWithString:string bindings:nil columns:columns db:_db];
     }
-    [_stmt setBindings:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil]];
-    NSArray *result = [[_stmt execute] objectAtIndex:0];
-    _row = row;
-    [_cachedRow release];
-    _cachedRow = [result retain];
-    return [result objectAtIndex:[_attrs indexOfObject:attr]];
+    [_cachedStatement setBindings:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil]];
+    NSArray *result = [[_cachedStatement execute] objectAtIndex:0];
+    _cachedRow = row;
+    [_cachedAttrValues release];
+    _cachedAttrValues = [result retain];
+    return [result objectAtIndex:[_cachedAttrs indexOfObject:attr]];
 }
 
 - (int)firstRowWithValue:(id)value forAttr:(PRItemAttr *)attr {

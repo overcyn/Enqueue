@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-@class PRDb, PRItem, PRItemAttr, PRList;
+@class PRDb, PRItem, PRItemAttr, PRList, PRStatement;
 
 
 extern NSString * const libraryViewSource;
@@ -17,10 +17,7 @@ typedef enum {
 
 
 @interface PRLibraryViewSource : NSObject {
-	__weak PRDb *_db;
-	
     PRList *_list;
-    NSCache *_cachedValues;
     BOOL _compilation;
     
     BOOL _force;
@@ -38,6 +35,13 @@ typedef enum {
     NSString *_cachedBrowser2Statement;
     NSString *_cachedBrowser3Statement;
     BOOL _cachedCompilation;
+    
+    int _cachedRow;
+    NSArray *_cachedAttrs;
+    NSArray *_cachedAttrValues;
+    PRStatement *_cachedStatement;
+    
+    __weak PRDb *_db;
 }
 // Initialization
 - (id)initWithDb:(PRDb *)sqlDb;
