@@ -21,6 +21,7 @@
 #import "PRCore.h"
 #import "PRTableViewController.h"
 #import "NSMenuItem+Extensions.h"
+#import "NSTableView+Extensions.h"
 #import "MAZeroingWeakRef.h"
 
 
@@ -141,7 +142,7 @@
         [nowPlayingTableView collapseItem:nil];
     }
     [nowPlayingTableView expandItem:parentItem];
-    [nowPlayingTableView scrollRowToVisible:[nowPlayingTableView rowForItem:currentItem]];
+    [nowPlayingTableView scrollRowToVisiblePretty:[nowPlayingTableView rowForItem:currentItem]];
 }
 
 - (void)addItems:(NSArray *)items atIndex:(int)index {
@@ -441,7 +442,7 @@
             [nowPlayingTableView collapseItem:nil];
         }
         [nowPlayingTableView expandItem:parentItem];
-        [nowPlayingTableView scrollRowToVisible:[nowPlayingTableView rowForItem:currentItem]];
+        [nowPlayingTableView scrollRowToVisiblePretty:[nowPlayingTableView rowForItem:currentItem]];
     }
 }
 
