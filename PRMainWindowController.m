@@ -27,14 +27,12 @@
 
 
 @interface PRMainWindowController ()
-// Update
-- (void)playlistDidChange:(NSNotification *)notification; // Updates searchField
-- (void)libraryViewDidChange:(NSNotification *)notification; // update subBar
-- (void)playlistsDidChange:(NSNotification *)notification;
+/* Update */
+- (void)playlistDidChange:(NSNotification *)notification;
 - (void)windowWillEnterFullScreen:(NSNotification *)notification;
 - (void)windowWillExitFullScreen:(NSNotification *)notification;
 
-// Accessors
+/* Accessors */
 - (NSString *)search;
 - (void)setSearch:(NSString *)newSearch;
 - (int)libraryViewMode;
@@ -51,7 +49,7 @@
 	if (!(self = [super initWithWindowNibName:@"PRMainWindow"])) {return nil;}
     _core = core;
     _db = [core db];
-    _mode = PRLibraryMode;
+    _currentMode = PRLibraryMode;
     _currentList = nil;
     _playlistMenu = [[NSMenu alloc] init];
     _libraryViewMenu = [[NSMenu alloc] init];
@@ -121,7 +119,7 @@
     // Initialize currentViewController
     [[libraryViewController view] setFrame:[centerSuperview bounds]];
     [centerSuperview addSubview:[libraryViewController view]];
-    currentViewController = libraryViewController;
+    _currentViewController = libraryViewController;
     [self setCurrentList:[[_db playlists] libraryList]];
     [self setCurrentMode:PRLibraryMode];
 		    
@@ -181,8 +179,6 @@
     
 	// Update
     [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(playlistDidChange:)];
-    [[NSNotificationCenter defaultCenter] observePlaylistsChanged:self sel:@selector(playlistsDidChange:)];
-    [[NSNotificationCenter defaultCenter] observeLibraryViewChanged:self sel:@selector(libraryViewDidChange:)];
     [[NSNotificationCenter defaultCenter] observeInfoViewVisibleChanged:self sel:@selector(updateUI)];
     
     if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
@@ -232,13 +228,13 @@
 @dynamic miniPlayer;
 
 - (PRMode)currentMode {
-    return _mode;
+    return _currentMode;
 }
 
 - (void)setCurrentMode:(PRMode)mode {
-    _mode = mode;
+    _currentMode = mode;
     id newViewController;
-	switch (_mode) {
+	switch (_currentMode) {
 		case PRLibraryMode:
 			newViewController = libraryViewController;
 			break;
@@ -257,8 +253,8 @@
 			break;
 	}
     [[newViewController view] setFrame:[centerSuperview bounds]];
-	[centerSuperview replaceSubview:[currentViewController view] with:[newViewController view]];
-	currentViewController = newViewController;
+	[centerSuperview replaceSubview:[_currentViewController view] with:[newViewController view]];
+	_currentViewController = newViewController;
     [self updateUI];
 	[self willChangeValueForKey:@"search"];
 	[self didChangeValueForKey:@"search"];
@@ -504,7 +500,7 @@
 - (void)updateUI {
     // Header buttons
     NSButton *button;
-    switch (_mode) {
+    switch (_currentMode) {
 		case PRLibraryMode:
             if ([[self currentList] isEqual:[[_db playlists] libraryList]]) {
                 button = libraryButton;
@@ -532,9 +528,9 @@
     
     // Library view mode buttons
     if (![self miniPlayer]) {
-        [searchField setHidden:(_mode != PRLibraryMode)];
-        [infoButton setHidden:(_mode != PRLibraryMode)];
-        [_libraryViewPopupButton setHidden:(_mode != PRLibraryMode)];
+        [searchField setHidden:(_currentMode != PRLibraryMode)];
+        [infoButton setHidden:(_currentMode != PRLibraryMode)];
+        [_libraryViewPopupButton setHidden:(_currentMode != PRLibraryMode)];
     }
     [self menuNeedsUpdate:_libraryViewMenu];
     
@@ -583,23 +579,15 @@
 	[self didChangeValueForKey:@"search"];
 }
 
-- (void)libraryViewDidChange:(NSNotification *)notification {
-    [self updateUI];
-}
-
-- (void)playlistsDidChange:(NSNotification *)notification {
-    [self updateUI];
-}
-
 - (NSString *)search {
-	if (_mode != PRLibraryMode) {
+	if (_currentMode != PRLibraryMode) {
 		return nil;
 	}
 	return [[_db playlists] searchForList:_currentList];
 }
 
 - (void)setSearch:(NSString *)search {	
-	if (_mode != PRLibraryMode) {
+	if (_currentMode != PRLibraryMode) {
 		return;
 	}
 	if (!search) {
@@ -610,7 +598,7 @@
 }
 
 - (int)libraryViewMode {
-	if (_mode != PRLibraryMode) {
+	if (_currentMode != PRLibraryMode) {
 		return -1;
 	} else {
 		return [libraryViewController libraryViewMode];
@@ -618,7 +606,7 @@
 }
 
 - (void)setLibraryViewMode:(int)libraryViewMode {
-	if (_mode != PRLibraryMode) {
+	if (_currentMode != PRLibraryMode) {
 		return;
 	}
 	[libraryViewController setLibraryViewMode:libraryViewMode];

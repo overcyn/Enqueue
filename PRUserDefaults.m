@@ -6,32 +6,27 @@
 
 // ========================================
 // Initialization
-// ========================================
 
-- (id)init
-{
+- (id)init {
     if (!(self = [super init])) {return nil;}
     defaults = [NSUserDefaults standardUserDefaults];
     [defaults setBool:TRUE forKey:@"NSDisabledCharacterPaletteMenuItem"];
     return self;
 }
 
-+ (id)userDefaults
-{
++ (id)userDefaults {
     return [[[PRUserDefaults alloc] init] autorelease];
 }
 
 // ========================================
 // Accessors
-// ========================================
 
 @dynamic volume;
 @dynamic repeat;
 @dynamic shuffle;
 @dynamic preGain;
 
-- (float)volume
-{
+- (float)volume {
 	NSNumber *object = [defaults objectForKey:@"volume"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object floatValue];
@@ -40,13 +35,11 @@
     }
 }
 
-- (void)setVolume:(float)volume
-{
+- (void)setVolume:(float)volume {
     [defaults setObject:[NSNumber numberWithFloat:volume] forKey:@"volume"];
 }
 
-- (BOOL)repeat
-{
+- (BOOL)repeat {
     NSNumber *object = [defaults objectForKey:@"repeat"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object boolValue];
@@ -55,13 +48,11 @@
     }
 }
 
-- (void)setRepeat:(BOOL)repeat
-{
+- (void)setRepeat:(BOOL)repeat {
     [defaults setObject:[NSNumber numberWithBool:repeat] forKey:@"repeat"];
 }
 
-- (BOOL)shuffle
-{
+- (BOOL)shuffle {
     NSNumber *object = [defaults objectForKey:@"shuffle"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object boolValue];
@@ -70,13 +61,11 @@
     }
 }
 
-- (void)setShuffle:(BOOL)shuffle
-{
+- (void)setShuffle:(BOOL)shuffle {
     [defaults setObject:[NSNumber numberWithBool:shuffle] forKey:@"shuffle"];
 }
 
-- (float)preGain
-{
+- (float)preGain {
     return 0;
     NSNumber *object = [defaults objectForKey:@"preGain"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
@@ -86,8 +75,7 @@
     }
 }
 
-- (void)setPreGain:(float)preGain
-{
+- (void)setPreGain:(float)preGain {
     [defaults setObject:[NSNumber numberWithFloat:preGain] forKey:@"preGain"];
 }
 
@@ -96,8 +84,7 @@
 @dynamic EQIndex;
 @dynamic EQIsEnabled;
 
-- (NSArray *)customEQs
-{
+- (NSArray *)customEQs {
     PREQ *defaultEQ = [PREQ flat];
     [defaultEQ setTitle:@"Custom"];
     NSArray *defaultEQArray = [NSArray arrayWithObjects:defaultEQ, nil];
@@ -124,14 +111,12 @@
     return EQArray;
 }
 
-- (void)setCustomEQs:(NSArray *)customEQs
-{
+- (void)setCustomEQs:(NSArray *)customEQs {
     NSData *object = [NSKeyedArchiver archivedDataWithRootObject:customEQs];
     [defaults setObject:object forKey:@"CustomEQs"];
 }
 
-- (BOOL)isCustomEQ
-{
+- (BOOL)isCustomEQ {
     NSNumber *object = [defaults objectForKey:@"isCustomEQ"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object boolValue];
@@ -140,13 +125,11 @@
     }
 }
 
-- (void)setIsCustomEQ:(BOOL)isCustomEQ
-{
+- (void)setIsCustomEQ:(BOOL)isCustomEQ {
     [defaults setObject:[NSNumber numberWithBool:isCustomEQ] forKey:@"isCustomEQ"];
 }
 
-- (int)EQIndex
-{
+- (int)EQIndex {
     int EQIndex;
     NSNumber *object = [defaults objectForKey:@"EQIndex"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
@@ -167,13 +150,11 @@
     return EQIndex;
 }
 
-- (void)setEQIndex:(int)EQIndex
-{
+- (void)setEQIndex:(int)EQIndex {
     [defaults setObject:[NSNumber numberWithInt:EQIndex] forKey:@"EQIndex"];
 }
 
-- (BOOL)EQIsEnabled
-{
+- (BOOL)EQIsEnabled {
     NSNumber *object = [defaults objectForKey:@"EQIsEnabled"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object boolValue];
@@ -182,8 +163,7 @@
     }
 }
 
-- (void)setEQIsEnabled:(BOOL)EQisEnabled
-{
+- (void)setEQIsEnabled:(BOOL)EQisEnabled {
     [defaults setObject:[NSNumber numberWithBool:EQisEnabled] forKey:@"EQIsEnabled"];
 }
 
@@ -193,8 +173,7 @@
 @dynamic playerFrame;
 @dynamic sidebarWidth;
 
-- (BOOL)showWelcomeSheet
-{
+- (BOOL)showWelcomeSheet {
     NSNumber *object = [defaults objectForKey:@"showsWelcomeSheet"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object boolValue];
@@ -203,13 +182,11 @@
     }
 }
 
-- (void)setShowWelcomeSheet:(BOOL)showsWelcomeSheet
-{
+- (void)setShowWelcomeSheet:(BOOL)showsWelcomeSheet {
     [defaults setObject:[NSNumber numberWithBool:showsWelcomeSheet] forKey:@"showsWelcomeSheet"];
 }
 
-- (BOOL)miniPlayer
-{
+- (BOOL)miniPlayer {
     NSNumber *object = [defaults objectForKey:@"miniPlayer"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object boolValue];
@@ -218,13 +195,11 @@
     }
 }
 
-- (void)setMiniPlayer:(BOOL)miniPlayer
-{
+- (void)setMiniPlayer:(BOOL)miniPlayer {
     [defaults setObject:[NSNumber numberWithBool:miniPlayer] forKey:@"miniPlayer"];
 }
 
-- (NSRect)miniPlayerFrame
-{
+- (NSRect)miniPlayerFrame {
     NSString *object = [defaults objectForKey:@"miniPlayerFrame"];
     if (object && [object isKindOfClass:[NSString class]]) {
         return NSRectFromString(object);
@@ -233,13 +208,11 @@
     }
 }
 
-- (void)setMiniPlayerFrame:(NSRect)miniPlayerFrame
-{
+- (void)setMiniPlayerFrame:(NSRect)miniPlayerFrame {
     [defaults setObject:NSStringFromRect(miniPlayerFrame) forKey:@"miniPlayerFrame"];
 }
 
-- (NSRect)playerFrame
-{
+- (NSRect)playerFrame {
     NSString *object = [defaults objectForKey:@"playerFrame"];
     if (object && [object isKindOfClass:[NSString class]]) {
         return NSRectFromString(object);
@@ -248,13 +221,11 @@
     }
 }
 
-- (void)setPlayerFrame:(NSRect)playerFrame
-{
+- (void)setPlayerFrame:(NSRect)playerFrame {
     [defaults setObject:NSStringFromRect(playerFrame) forKey:@"playerFrame"];
 }
 
-- (float)sidebarWidth
-{
+- (float)sidebarWidth {
     NSNumber *object = [defaults objectForKey:@"sidebarWidth"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object floatValue];
@@ -263,8 +234,7 @@
     }
 }
 
-- (void)setSidebarWidth:(float)sidebarWidth
-{
+- (void)setSidebarWidth:(float)sidebarWidth {
     [defaults setObject:[NSNumber numberWithFloat:sidebarWidth] forKey:@"sidebarWidth"];
 }
 
@@ -277,8 +247,7 @@
 @dynamic nowPlayingCollapsible;
 @dynamic folderArtwork;
 
-- (BOOL)mediaKeys
-{
+- (BOOL)mediaKeys {
     NSNumber *object = [defaults objectForKey:@"mediaKeys"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object boolValue];
@@ -287,13 +256,11 @@
     }
 }
 
-- (void)setMediaKeys:(BOOL)mediaKeys
-{
+- (void)setMediaKeys:(BOOL)mediaKeys {
     [defaults setObject:[NSNumber numberWithBool:mediaKeys] forKey:@"mediaKeys"];
 }
 
-- (BOOL)postGrowlNotification
-{
+- (BOOL)postGrowlNotification {
     NSNumber *object = [defaults objectForKey:@"postGrowlNotification"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object boolValue];
@@ -302,13 +269,11 @@
     }
 }
 
-- (void)setPostGrowlNotification:(BOOL)postGrowlNotification
-{
+- (void)setPostGrowlNotification:(BOOL)postGrowlNotification {
     [defaults setObject:[NSNumber numberWithBool:postGrowlNotification] forKey:@"postGrowlNotification"];
 }
 
-- (NSString *)lastFMUsername
-{
+- (NSString *)lastFMUsername {
     NSString *object = [defaults objectForKey:@"lastFMUsername"];
     if (object && [object isKindOfClass:[NSString class]]) {
         return object;
@@ -317,13 +282,11 @@
     }
 }
 
-- (void)setLastFMUsername:(NSString *)lastFMUsername
-{
+- (void)setLastFMUsername:(NSString *)lastFMUsername {
     [defaults setObject:lastFMUsername forKey:@"lastFMUsername"];
 }
 
-- (BOOL)showsArtwork
-{
+- (BOOL)showsArtwork {
     NSNumber *object = [defaults objectForKey:@"showsArtwork"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object boolValue];
@@ -332,13 +295,11 @@
     }
 }
 
-- (void)setShowsArtwork:(BOOL)showsArtwork
-{
+- (void)setShowsArtwork:(BOOL)showsArtwork {
     [defaults setObject:[NSNumber numberWithBool:showsArtwork] forKey:@"showsArtwork"];
 }
 
-- (BOOL)useAlbumArtist
-{
+- (BOOL)useAlbumArtist {
     NSNumber *object = [defaults objectForKey:@"usesAlbumArt"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object boolValue];
@@ -347,13 +308,11 @@
     }
 }
 
-- (void)setUseAlbumArtist:(BOOL)usesAlbumArt
-{
+- (void)setUseAlbumArtist:(BOOL)usesAlbumArt {
     [defaults setObject:[NSNumber numberWithBool:usesAlbumArt] forKey:@"usesAlbumArt"];
 }
 
-- (BOOL)useCompilation
-{
+- (BOOL)useCompilation {
     NSNumber *object = [defaults objectForKey:@"useCompilation"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object boolValue];
@@ -362,13 +321,11 @@
     }
 }
 
-- (void)setUseCompilation:(BOOL)useCompilation
-{
+- (void)setUseCompilation:(BOOL)useCompilation {
     [defaults setObject:[NSNumber numberWithBool:useCompilation] forKey:@"useCompilation"];
 }
 
-- (BOOL)nowPlayingCollapsible
-{
+- (BOOL)nowPlayingCollapsible {
     NSNumber *object = [defaults objectForKey:@"nowPlayingCollapsible"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object boolValue];
@@ -377,13 +334,11 @@
     }
 }
 
-- (void)setNowPlayingCollapsible:(BOOL)nowPlayingCollapsible
-{
+- (void)setNowPlayingCollapsible:(BOOL)nowPlayingCollapsible {
     [defaults setObject:[NSNumber numberWithBool:nowPlayingCollapsible] forKey:@"nowPlayingCollapsible"];
 }
 
-- (BOOL)folderArtwork
-{
+- (BOOL)folderArtwork {
     NSNumber *object = [defaults objectForKey:@"folderArtwork"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object boolValue];
@@ -392,16 +347,14 @@
     }
 }
 
-- (void)setFolderArtwork:(BOOL)folderArtwork
-{
+- (void)setFolderArtwork:(BOOL)folderArtwork {
     [defaults setObject:[NSNumber numberWithBool:folderArtwork] forKey:@"folderArtwork"];
 }
 
 @dynamic monitoredFolders;
 @dynamic lastEventStreamEventId;
 
-- (NSArray *)monitoredFolders
-{
+- (NSArray *)monitoredFolders {
     id object = [defaults objectForKey:@"monitoredFolders"];
     if (!object || ![object isKindOfClass:[NSData class]]) {
         return [NSArray array];
@@ -420,14 +373,12 @@
     return monitoredFolders;
 }
 
-- (void)setMonitoredFolders:(NSArray *)monitoredFolders
-{
+- (void)setMonitoredFolders:(NSArray *)monitoredFolders {
     NSData *object = [NSKeyedArchiver archivedDataWithRootObject:monitoredFolders];
     [defaults setObject:object forKey:@"monitoredFolders"];
 }
 
-- (FSEventStreamEventId)lastEventStreamEventId
-{
+- (FSEventStreamEventId)lastEventStreamEventId {
     NSNumber *object = [defaults objectForKey:@"lastEventStreamEventIdea"];
     if (object && [object isKindOfClass:[NSNumber class]]) {
         return [object unsignedLongLongValue];
@@ -436,8 +387,7 @@
     }
 }
 
-- (void)setLastEventStreamEventId:(FSEventStreamEventId)lastEventStreamEventId
-{
+- (void)setLastEventStreamEventId:(FSEventStreamEventId)lastEventStreamEventId {
     [defaults setObject:[NSNumber numberWithUnsignedLongLong:lastEventStreamEventId] 
                  forKey:@"lastEventStreamEventIdea"];
 }
@@ -449,8 +399,7 @@
 @dynamic downloadedAlbumArtPath;
 @dynamic tempArtPath;
 
-- (NSString *)applicationSupportPath
-{
+- (NSString *)applicationSupportPath {
     NSString *executableName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleExecutable"];
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES);
     NSString *path = [paths objectAtIndex:0];
@@ -458,32 +407,27 @@
     return path;
 }
 
-- (NSString *)libraryPath
-{
+- (NSString *)libraryPath {
     NSString *path = [[self applicationSupportPath] stringByAppendingPathComponent:@"Enqueue.db"];
     return path;
 }
 
-- (NSString *)backupPath
-{
+- (NSString *)backupPath {
     NSString *path = [[self applicationSupportPath] stringByAppendingPathComponent:@"Backup"];
     return path;
 }
 
-- (NSString *)cachedAlbumArtPath
-{
+- (NSString *)cachedAlbumArtPath {
 	NSString *albumArtPath = [[self libraryPath] stringByDeletingLastPathComponent];
 	return [albumArtPath stringByAppendingPathComponent:@"Cached Album Art"];
 }
 
-- (NSString *)downloadedAlbumArtPath
-{
+- (NSString *)downloadedAlbumArtPath {
 	NSString *albumArtPath = [[self libraryPath] stringByDeletingLastPathComponent];
 	return [albumArtPath stringByAppendingPathComponent:@"Downloaded Album Art"];
 }
 
-- (NSString *)tempArtPath
-{
+- (NSString *)tempArtPath {
     return [[self cachedAlbumArtPath] stringByAppendingPathComponent:@"Temporary Art"];
 }
 

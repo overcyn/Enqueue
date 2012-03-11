@@ -7,7 +7,6 @@ NSString * const PRPlaylistDidChangeNotification = @"PRPlaylistDidChangeNotifica
 NSString * const PRPlaylistsDidChangeNotification = @"PRPlaylistsDidChangeNotification";
 NSString * const PRPlaylistFilesChangedNote = @"PRPlaylistFilesChangedNote";
 
-NSString * const PRLibraryViewDidChangeNotification = @"PRLibraryViewDidChangeNotification";
 NSString * const PRLibraryViewSelectionDidChangeNotification = @"PRLibraryViewSelectionDidChangeNotification";
 NSString * const PRInfoViewVisibleChangedNote = @"PRInfoViewVisibleChangedNote";
 
@@ -79,20 +78,12 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
 
 // Library View
 
-- (void)postLibraryViewChanged {
-    [self postNotificationName:PRLibraryViewDidChangeNotification object:nil];
-}
-
 - (void)postLibraryViewSelectionChanged {
     [self postNotificationName:PRLibraryViewSelectionDidChangeNotification object:nil];
 }
 
 - (void)postInfoViewVisibleChanged {
     [self postNotificationName:PRInfoViewVisibleChangedNote object:nil];
-}
-
-- (void)observeLibraryViewChanged:(id)obs sel:(SEL)sel {
-    [self addObserver:obs selector:sel name:PRLibraryViewDidChangeNotification object:nil];
 }
 
 - (void)observeLibraryViewSelectionChanged:(id)obs sel:(SEL)sel {

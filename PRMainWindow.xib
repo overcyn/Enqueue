@@ -12,14 +12,12 @@
 		</object>
 		<object class="NSArray" key="IBDocument.IntegratedClassDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<string>NSTextField</string>
 			<string>NSPopUpButton</string>
 			<string>NSSplitView</string>
 			<string>NSButton</string>
 			<string>NSMenu</string>
 			<string>NSButtonCell</string>
 			<string>NSMenuItem</string>
-			<string>NSTextFieldCell</string>
 			<string>NSSearchField</string>
 			<string>NSSearchFieldCell</string>
 			<string>NSCustomView</string>
@@ -68,10 +66,9 @@
 						<object class="NSCustomView" id="74504878">
 							<reference key="NSNextResponder" ref="1006"/>
 							<int key="NSvFlags">4386</int>
-							<string key="NSFrame">{{0, 20}, {950, 57}}</string>
+							<string key="NSFrameSize">{950, 57}</string>
 							<reference key="NSSuperview" ref="1006"/>
 							<reference key="NSWindow"/>
-							<reference key="NSNextKeyView"/>
 							<int key="NSViewLayerContentsRedrawPolicy">2</int>
 							<string key="NSClassName">NSView</string>
 						</object>
@@ -441,7 +438,6 @@
 								<string key="NSFrame">{{705, 6}, {146, 19}}</string>
 								<reference key="NSSuperview" ref="550271899"/>
 								<reference key="NSWindow"/>
-								<reference key="NSNextKeyView"/>
 								<bool key="NSEnabled">YES</bool>
 								<object class="NSSearchFieldCell" key="NSCell" id="17549276">
 									<int key="NSCellFlags">343014976</int>
@@ -465,7 +461,7 @@
 											<bytes key="NSWhite">MQA</bytes>
 										</object>
 									</object>
-									<object class="NSColor" key="NSTextColor" id="822541142">
+									<object class="NSColor" key="NSTextColor">
 										<int key="NSColorSpace">3</int>
 										<bytes key="NSWhite">MAA</bytes>
 									</object>
@@ -538,42 +534,6 @@
 				<reference key="NSWindow"/>
 				<reference key="NSNextKeyView" ref="550271899"/>
 				<string key="NSClassName">PRTitleBarGradientView</string>
-			</object>
-			<object class="NSTextField" id="970739863">
-				<reference key="NSNextResponder"/>
-				<int key="NSvFlags">-2147483382</int>
-				<string key="NSFrameSize">{267, 17}</string>
-				<reference key="NSSuperview"/>
-				<reference key="NSWindow"/>
-				<reference key="NSNextKeyView"/>
-				<bool key="NSEnabled">YES</bool>
-				<object class="NSTextFieldCell" key="NSCell" id="702065938">
-					<int key="NSCellFlags">67239488</int>
-					<int key="NSCellFlags2">4196352</int>
-					<string key="NSContents">10380 songs, 27.8 days, 57.68 GB</string>
-					<object class="NSFont" key="NSSupport">
-						<string key="NSName">HelveticaNeue-Italic</string>
-						<double key="NSSize">13</double>
-						<int key="NSfFlags">16</int>
-					</object>
-					<reference key="NSControlView" ref="970739863"/>
-					<bool key="NSDrawsBackground">YES</bool>
-					<object class="NSColor" key="NSBackgroundColor">
-						<int key="NSColorSpace">6</int>
-						<string key="NSCatalogName">System</string>
-						<string key="NSColorName">controlColor</string>
-						<object class="NSColor" key="NSColor">
-							<int key="NSColorSpace">3</int>
-							<bytes key="NSWhite">MC42NjY2NjY2NjY3AA</bytes>
-						</object>
-					</object>
-					<object class="NSColor" key="NSTextColor">
-						<int key="NSColorSpace">6</int>
-						<string key="NSCatalogName">System</string>
-						<string key="NSColorName">controlDarkShadowColor</string>
-						<reference key="NSColor" ref="822541142"/>
-					</object>
-				</object>
 			</object>
 		</object>
 		<object class="IBObjectContainer" key="IBDocument.Objects">
@@ -714,14 +674,6 @@
 						<reference key="destination" ref="491675417"/>
 					</object>
 					<int key="connectionID">369</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">playlistTitle</string>
-						<reference key="source" ref="1001"/>
-						<reference key="destination" ref="970739863"/>
-					</object>
-					<int key="connectionID">295</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -1022,20 +974,6 @@
 						<reference key="object" ref="359714292"/>
 						<reference key="parent" ref="491675417"/>
 					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">291</int>
-						<reference key="object" ref="970739863"/>
-						<object class="NSMutableArray" key="children">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="702065938"/>
-						</object>
-						<reference key="parent" ref="0"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">292</int>
-						<reference key="object" ref="702065938"/>
-						<reference key="parent" ref="970739863"/>
-					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -1060,8 +998,6 @@
 					<string>243.IBUserGuides</string>
 					<string>267.IBPluginDependency</string>
 					<string>268.IBPluginDependency</string>
-					<string>291.IBPluginDependency</string>
-					<string>292.IBPluginDependency</string>
 					<string>314.IBPluginDependency</string>
 					<string>315.IBPluginDependency</string>
 					<string>334.IBPluginDependency</string>
@@ -1133,8 +1069,6 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="unlocalizedProperties">
@@ -1175,15 +1109,12 @@
 							<string>_splitView</string>
 							<string>_toolbarSubview</string>
 							<string>_verticalDivider</string>
-							<string>_windowSuperView</string>
 							<string>centerSuperview</string>
 							<string>controlsSuperview</string>
 							<string>historyButton</string>
 							<string>infoButton</string>
 							<string>libraryButton</string>
-							<string>modeButton</string>
 							<string>nowPlayingSuperview</string>
-							<string>playlistTitle</string>
 							<string>playlistsButton</string>
 							<string>preferencesButton</string>
 							<string>searchField</string>
@@ -1199,13 +1130,10 @@
 							<string>PRGradientView</string>
 							<string>NSView</string>
 							<string>NSView</string>
+							<string>NSButton</string>
+							<string>NSButton</string>
+							<string>NSButton</string>
 							<string>NSView</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSView</string>
-							<string>NSTextField</string>
 							<string>NSButton</string>
 							<string>NSButton</string>
 							<string>NSSearchField</string>
@@ -1222,15 +1150,12 @@
 							<string>_splitView</string>
 							<string>_toolbarSubview</string>
 							<string>_verticalDivider</string>
-							<string>_windowSuperView</string>
 							<string>centerSuperview</string>
 							<string>controlsSuperview</string>
 							<string>historyButton</string>
 							<string>infoButton</string>
 							<string>libraryButton</string>
-							<string>modeButton</string>
 							<string>nowPlayingSuperview</string>
-							<string>playlistTitle</string>
 							<string>playlistsButton</string>
 							<string>preferencesButton</string>
 							<string>searchField</string>
@@ -1263,10 +1188,6 @@
 								<string key="candidateClassName">PRGradientView</string>
 							</object>
 							<object class="IBToOneOutletInfo">
-								<string key="name">_windowSuperView</string>
-								<string key="candidateClassName">NSView</string>
-							</object>
-							<object class="IBToOneOutletInfo">
 								<string key="name">centerSuperview</string>
 								<string key="candidateClassName">NSView</string>
 							</object>
@@ -1287,16 +1208,8 @@
 								<string key="candidateClassName">NSButton</string>
 							</object>
 							<object class="IBToOneOutletInfo">
-								<string key="name">modeButton</string>
-								<string key="candidateClassName">NSPopUpButton</string>
-							</object>
-							<object class="IBToOneOutletInfo">
 								<string key="name">nowPlayingSuperview</string>
 								<string key="candidateClassName">NSView</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">playlistTitle</string>
-								<string key="candidateClassName">NSTextField</string>
 							</object>
 							<object class="IBToOneOutletInfo">
 								<string key="name">playlistsButton</string>

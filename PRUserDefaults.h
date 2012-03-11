@@ -1,19 +1,13 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface PRUserDefaults : NSObject 
-{
+@interface PRUserDefaults : NSObject {
 	NSUserDefaults *defaults;
 }
-
-// ========================================
 // Initialization
-
 + (PRUserDefaults *)userDefaults;
 
-// ========================================
 // Accessors
-
 @property (readwrite) float volume;
 @property (readwrite) BOOL repeat;
 @property (readwrite) BOOL shuffle;
@@ -48,5 +42,4 @@
 @property (readonly) NSString *cachedAlbumArtPath;
 @property (readonly) NSString *downloadedAlbumArtPath;
 @property (readonly) NSString *tempArtPath;
-
 @end

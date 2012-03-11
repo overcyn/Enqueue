@@ -12,7 +12,7 @@
 #import "PRCore.h"
 
 @interface PRLibraryViewController ()
-// Setup
+/* Setup */
 - (void)updateLayout;
 @end
 
@@ -57,12 +57,20 @@
     
     [[infoViewController view] setFrame:[paneSuperview bounds]];
     [paneSuperview addSubview:[infoViewController view]];
+    
+    _headerView = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 50, 30)];
+    _infoButton = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 25, 27)];
+    [_headerView addSubview:_infoButton];
+    _libraryPopUpButton = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(0, 0, 35, 26)];
+    [_headerView addSubview:_libraryPopUpButton];
+    _searchField = [[NSSearchField alloc] initWithFrame:NSMakeRect(0, 0, 145, 19)];
+    [_headerView addSubview:_searchField];
 }
 
 // ========================================
 // Accessors
 
-@synthesize currentViewController;
+@synthesize currentViewController, headerView = _headerView;
 @dynamic libraryViewMode, currentList;
 
 - (PRList *)currentList {

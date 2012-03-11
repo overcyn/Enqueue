@@ -15,7 +15,6 @@ typedef enum {
 
 
 @interface PRMainWindowController : NSWindowController <NSWindowDelegate, NSMenuDelegate, NSSplitViewDelegate> {
-    IBOutlet NSView *_windowSuperView;
     IBOutlet NSView *centerSuperview;
     IBOutlet NSView *controlsSuperview;
     IBOutlet NSView *nowPlayingSuperview;
@@ -27,7 +26,7 @@ typedef enum {
     IBOutlet NSSplitView *_splitView;
         
     IBOutlet NSButton *infoButton;
-    IBOutlet NSPopUpButton *modeButton;
+    IBOutlet NSPopUpButton *_libraryViewPopupButton;
     
     IBOutlet PRGradientView *toolbarView;
     IBOutlet NSView *_toolbarSubview;
@@ -36,17 +35,13 @@ typedef enum {
     IBOutlet NSButton *_clearPlaylistButton;
     IBOutlet NSPopUpButton *_playlistPopupButton;
     
-    IBOutlet NSPopUpButton *_libraryViewPopupButton;
-    
-    IBOutlet NSTextField *playlistTitle;
-    
     NSMenu *_libraryViewMenu;
     NSMenu *_playlistMenu;
         
-    PRMode _mode;
+    PRMode _currentMode;
     PRList *_currentList;
     int currentPlaylist;
-    id currentViewController;
+    id _currentViewController;
     
     BOOL _resizingSplitView;
     BOOL _windowWillResize;
@@ -64,10 +59,10 @@ typedef enum {
     __weak PRCore *_core;
     __weak PRDb *_db;
 }
-// Initialization
+/* Initialization */
 - (id)initWithCore:(PRCore *)core;
 
-// Accessors
+/* Accessors */
 @property (readonly) PRMainMenuController *mainMenuController;
 @property (readonly) PRLibraryViewController *libraryViewController;
 @property (readonly) PRHistoryViewController *historyViewController;
@@ -77,14 +72,13 @@ typedef enum {
 @property (readonly) PRControlsViewController *controlsViewController;
 @property (readonly) PRTaskManagerViewController *taskManagerViewController;
 
-// Sets the current mode and playlist. Propogates changes to view controllers.
 @property (readwrite) PRMode currentMode;
 @property (readwrite) PRPlaylist currentPlaylist;
 @property (readwrite, retain) PRList *currentList;
 @property (readwrite) BOOL showsArtwork;
 @property (readwrite) BOOL miniPlayer;
 
-// UI
+/* UI */
 - (void)toggleMiniPlayer;
 - (void)updateLayoutWithFrame:(NSRect)frame;
 - (void)updateSplitView;

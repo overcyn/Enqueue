@@ -3,7 +3,6 @@
 
 
 @interface NSNotificationCenter (Extensions)
-
 // Db
 - (void)postLibraryChanged;
 - (void)postFilesChanged:(NSIndexSet *)files;
@@ -18,11 +17,9 @@
 - (void)observePlaylistFilesChanged:(id)obs sel:(SEL)sel;
 
 // Library view
-- (void)postLibraryViewChanged;
 - (void)postLibraryViewSelectionChanged;
 - (void)postInfoViewVisibleChanged;
 
-- (void)observeLibraryViewChanged:(id)obs sel:(SEL)sel;
 - (void)observeLibraryViewSelectionChanged:(id)obs sel:(SEL)sel;
 - (void)observeInfoViewVisibleChanged:(id)obs sel:(SEL)sel;
 
@@ -58,5 +55,4 @@
 - (void)observeShuffleChanged:(id)obs sel:(SEL)sel;
 - (void)observeRepeatChanged:(id)obs sel:(SEL)sel;
 - (void)observeVolumeChanged:(id)obs sel:(SEL)sel;
-
 @end

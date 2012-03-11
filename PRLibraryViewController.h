@@ -13,6 +13,11 @@ typedef enum {
 @interface PRLibraryViewController : NSViewController {
 	IBOutlet NSView *centerSuperview;
 	IBOutlet NSView *paneSuperview;
+    
+    NSView *_headerView;
+    NSButton *_infoButton;
+    NSPopUpButton *_libraryPopUpButton;
+    NSSearchField *_searchField;
 	
 	PRInfoViewController *infoViewController;
 	PRListViewController *listViewController;
@@ -28,17 +33,17 @@ typedef enum {
 	__weak PRDb *_db;
 	__weak PRNowPlayingController *_now;
 }
-
-// Initialization
+/* Initialization */
 - (id)initWithCore:(PRCore *)core;
 
-// Accessors
+/* Accessors */
+@property (readonly) NSView *headerView;
 @property (readonly) PRTableViewController *currentViewController;
 @property (readwrite, retain) PRList *currentList;
 @property (readwrite) PRLibraryViewMode libraryViewMode; // -1 if invalid playlist
 - (void)infoViewToggle;
 - (BOOL)infoViewVisible;
 
-// Menu
+/* Menu */
 - (NSMenu *)libraryViewMenu;
 @end

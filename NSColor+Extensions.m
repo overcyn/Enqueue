@@ -2,58 +2,47 @@
 
 @implementation NSColor (Extensions)
 
-+ (NSColor *)PRGridColor
-{
++ (NSColor *)PRGridColor {
     return [NSColor colorWithCalibratedWhite:0.85 alpha:1.0];
 }
 
-+ (NSColor *)PRGridHighlightColor
-{
++ (NSColor *)PRGridHighlightColor {
     return [NSColor colorWithCalibratedWhite:1.0 alpha:1.0];
 }
 
-+ (NSColor *)PRTabBorderColor
-{
++ (NSColor *)PRTabBorderColor {
     return [NSColor colorWithCalibratedWhite:0.70 alpha:1.0];
 }
 
-+ (NSColor *)PRTabBorderHighlightColor
-{
++ (NSColor *)PRTabBorderHighlightColor {
     return [NSColor colorWithCalibratedWhite:0.99 alpha:1.0];
 }
 
-+ (NSColor *)PRAltTabColor
-{
++ (NSColor *)PRAltTabColor {
     return [NSColor colorWithCalibratedWhite:0.89 alpha:1.0];
 }
 
-+ (NSColor *)PRAltTabDepressedColor
-{
++ (NSColor *)PRAltTabDepressedColor {
     return [NSColor colorWithCalibratedWhite:0.8 alpha:1.0];
 }
 
-+ (NSColor *)PRAltTabBorderHighlightColor;
-{
++ (NSColor *)PRAltTabBorderHighlightColor; {
     return [NSColor colorWithCalibratedWhite:0.95 alpha:1.0];
 }
 
-+ (NSColor *)PRTabBackgroundColor
-{
++ (NSColor *)PRTabBackgroundColor {
     return [NSColor colorWithCalibratedWhite:0.92 alpha:1.0];
 }
 
-+ (NSColor *)PRBackgroundColor
-{
++ (NSColor *)PRBackgroundColor {
     return [NSColor colorWithCalibratedWhite:0.89 alpha:1.0];
 }
 
-+ (NSColor *)PRForegroundColor
-{
++ (NSColor *)PRForegroundColor {
     return [NSColor colorWithCalibratedWhite:0.97 alpha:1.0];
 }
 
-+ (NSColor *)PRForegroundBorderColor
-{
++ (NSColor *)PRForegroundBorderColor {
     return [NSColor colorWithCalibratedWhite:0.75 alpha:1.0];
 }
 

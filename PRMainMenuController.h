@@ -15,13 +15,13 @@
     
     __weak PRCore *core;
 }
-// Initialization
-- (id)initWithCore:(PRCore *)core_;
+/* Initialization */
+- (id)initWithCore:(PRCore *)core;
 
-// Accessors
+/* Accessors */
 - (NSMenu *)dockMenu;
 
-// Action
+/* Action */
 - (void)showPreferences;
 
 - (void)newPlaylist;

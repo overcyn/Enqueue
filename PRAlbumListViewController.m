@@ -141,7 +141,6 @@
     [_cachedArtwork removeAllObjects];
     
 	// post notification
-	[[NSNotificationCenter defaultCenter] postLibraryViewChanged];
     [[NSNotificationCenter defaultCenter] postLibraryViewSelectionChanged];
     
     [pool drain];
