@@ -2,8 +2,6 @@
 
 
 @interface NSScrollView (Extensions) 
-
 - (void)scrollToTop;
 - (void)scrollToBottom;
-
 @end

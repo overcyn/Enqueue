@@ -576,7 +576,9 @@
         [[db playlists] setSelection:selection forBrowser:i list:_currentList];
     }
     [[NSNotificationCenter defaultCenter] postPlaylistChanged:[_currentList intValue]];
-    [[libraryTableView window] makeFirstResponder:libraryTableView];
+    [browser1TableView scrollRowToVisiblePretty:[browser1TableView selectedRow]];
+    [browser2TableView scrollRowToVisiblePretty:[browser2TableView selectedRow]];
+    [browser3TableView scrollRowToVisiblePretty:[browser3TableView selectedRow]];
 }
 
 // == action ===============================================
@@ -715,36 +717,24 @@
 // == setup ================================================
 
 - (void)reloadData:(BOOL)force {
-	// update libSrc & reload tables
     int tables = [[db libraryViewSource] refreshWithList:_currentList force:force];
 	
-	// reload tables
     _updatingTableViewSelection = FALSE;
-    NSIndexSet *indexSet;
     if ((tables & PRLibraryView) == PRLibraryView) {
         [libraryTableView reloadData];
     }
     if ((tables & PRBrowser1View) == PRBrowser1View) {
         [browser1TableView reloadData];
-        indexSet = [[db libraryViewSource] selectionForBrowser:1];
-        if (![indexSet isEqualToIndexSet:[browser1TableView selectedRowIndexes]]) {
-            [browser1TableView selectRowIndexes:indexSet byExtendingSelection:FALSE];
-        }
     }
-    if ((tables & PRBrowser2View) == PRBrowser2View) {
+    if ((tables & PRBrowser2View) == PRBrowser2View) {    
         [browser2TableView reloadData];
-        indexSet = [[db libraryViewSource] selectionForBrowser:2];
-        if (![indexSet isEqualToIndexSet:[browser2TableView selectedRowIndexes]]) {
-            [browser2TableView selectRowIndexes:indexSet byExtendingSelection:FALSE];
-        }
     }
     if ((tables & PRBrowser3View) == PRBrowser3View) {
         [browser3TableView reloadData];
-        indexSet = [[db libraryViewSource] selectionForBrowser:3];
-        if (![indexSet isEqualToIndexSet:[browser3TableView selectedRowIndexes]]) {
-            [browser3TableView selectRowIndexes:indexSet byExtendingSelection:FALSE];
-        }
     }
+    [browser1TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:1] byExtendingSelection:FALSE];
+    [browser2TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:2] byExtendingSelection:FALSE];
+    [browser3TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:3] byExtendingSelection:FALSE];
     _updatingTableViewSelection = TRUE;
 	
     [[NSNotificationCenter defaultCenter] postLibraryViewChanged];
@@ -1501,9 +1491,6 @@
             }
         }];
         [[db playlists] setSelection:selection forBrowser:browser list:_currentList];
-		
-		// update tableviews
-		[libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
         [[NSNotificationCenter defaultCenter] postPlaylistChanged:[_currentList intValue]];
 	}
 }
