@@ -26,7 +26,6 @@
 - (void)playlistDidChange:(NSNotification *)notification;
 - (void)playlistFilesChanged:(NSNotification *)note;
 - (void)tagsDidChange:(NSNotification *)notification;
-- (void)ruleDidChange:(NSNotification *)notification;
 
 // UI
 @property (nonatomic) BOOL ascending;
