@@ -31,218 +31,176 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
 @implementation NSNotificationCenter (Extensions)
 
 // Db notifications
-- (void)postLibraryChanged
-{
+- (void)postLibraryChanged {
     [self postNotificationName:PRLibraryDidChangeNotification object:nil];
 }
 
-- (void)postFilesChanged:(NSIndexSet *)files
-{
+- (void)postFilesChanged:(NSIndexSet *)files {
     NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
                           files, @"files", nil];
     [self postNotificationName:PRTagsDidChangeNotification object:nil userInfo:info];
 }
 
-- (void)postPlaylistsChanged
-{
+- (void)postPlaylistsChanged {
     [self postNotificationName:PRPlaylistsDidChangeNotification object:nil];
 }
 
-- (void)postPlaylistChanged:(PRPlaylist)playlist
-{
+- (void)postPlaylistChanged:(PRPlaylist)playlist {
     NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
                           [NSNumber numberWithInt:playlist], @"playlist", nil];
     [self postNotificationName:PRPlaylistDidChangeNotification object:nil userInfo:info];
 }
 
-- (void)postPlaylistFilesChanged:(PRPlaylist)playlist
-{
+- (void)postPlaylistFilesChanged:(PRPlaylist)playlist {
     NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
                           [NSNumber numberWithInt:playlist], @"playlist", nil];
     [self postNotificationName:PRPlaylistFilesChangedNote object:nil userInfo:info];
 }
 
-- (void)observeLibraryChanged:(id)obs sel:(SEL)sel
-{
+- (void)observeLibraryChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRLibraryDidChangeNotification object:nil];
 }
 
-- (void)observeFilesChanged:(id)obs sel:(SEL)sel
-{
+- (void)observeFilesChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRTagsDidChangeNotification object:nil];
 }
 
-- (void)observePlaylistsChanged:(id)obs sel:(SEL)sel
-{
+- (void)observePlaylistsChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRPlaylistsDidChangeNotification object:nil];
 }
 
-- (void)observePlaylistChanged:(id)obs sel:(SEL)sel
-{
+- (void)observePlaylistChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRPlaylistDidChangeNotification object:nil];
 }
 
-- (void)observePlaylistFilesChanged:(id)obs sel:(SEL)sel
-{
+- (void)observePlaylistFilesChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRPlaylistFilesChangedNote object:nil];
 }
 
 // Library View
 
-- (void)postLibraryViewChanged
-{
+- (void)postLibraryViewChanged {
     [self postNotificationName:PRLibraryViewDidChangeNotification object:nil];
 }
 
-- (void)postLibraryViewSelectionChanged
-{
+- (void)postLibraryViewSelectionChanged {
     [self postNotificationName:PRLibraryViewSelectionDidChangeNotification object:nil];
 }
 
-- (void)postInfoViewVisibleChanged
-{
+- (void)postInfoViewVisibleChanged {
     [self postNotificationName:PRInfoViewVisibleChangedNote object:nil];
 }
 
-- (void)observeLibraryViewChanged:(id)obs sel:(SEL)sel
-{
+- (void)observeLibraryViewChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRLibraryViewDidChangeNotification object:nil];
 }
 
-- (void)observeLibraryViewSelectionChanged:(id)obs sel:(SEL)sel
-{
+- (void)observeLibraryViewSelectionChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRLibraryViewSelectionDidChangeNotification object:nil];
 }
 
-- (void)observeInfoViewVisibleChanged:(id)obs sel:(SEL)sel
-{
+- (void)observeInfoViewVisibleChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRInfoViewVisibleChangedNote object:nil];
 }
 
 // Preferences 
-- (void)postPreGainChanged
-{
+- (void)postPreGainChanged {
     [self postNotificationName:PRPreGainDidChangeNotification object:nil];
 }
 
-- (void)postUseAlbumArtistChanged
-{
+- (void)postUseAlbumArtistChanged {
     [self postNotificationName:PRUseAlbumArtistDidChangeNotification object:nil];
 }
 
-- (void)postEQChanged
-{
+- (void)postEQChanged {
     [self postNotificationName:PREQChangedNote object:nil];
 }
 
-- (void)observePreGainChanged:(id)obs sel:(SEL)sel
-{
+- (void)observePreGainChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRPreGainDidChangeNotification object:nil];
 }
 
-- (void)observeUseAlbumArtistChanged:(id)obs sel:(SEL)sel
-{
+- (void)observeUseAlbumArtistChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRUseAlbumArtistDidChangeNotification object:nil];
 }
 
-- (void)observeEQChanged:(id)obs sel:(SEL)sel
-{
+- (void)observeEQChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PREQChangedNote object:nil];
 }
 
 // Lastfm
-- (void)postLastfmStateChanged
-{
+- (void)postLastfmStateChanged {
     [self postNotificationName:PRLastfmStateChangedNote object:nil];
 }
 
-- (void)observeLastfmStateChanged:(id)obs sel:(SEL)sel
-{
+- (void)observeLastfmStateChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRLastfmStateChangedNote object:nil];
 }
 
 // Playing 
 
-- (void)postTimeChanged
-{
+- (void)postTimeChanged {
     [self postNotificationName:PRTimeChangedNote object:nil];
 }
 
-- (void)postPlayingChanged
-{
+- (void)postPlayingChanged {
     [self postNotificationName:PRIsPlayingDidChangeNotification object:nil];
 }
 
-- (void)postMovieFinished
-{
+- (void)postMovieFinished {
     [self postNotificationName:PRMovieDidFinishNotification object:nil];
 }
 
-- (void)postMovieAlmostFinished
-{
+- (void)postMovieAlmostFinished {
     [self postNotificationName:PRMovieAlmostFinishedNote object:nil];
 }
 
-- (void)postPlayingFileChanged
-{
+- (void)postPlayingFileChanged {
     [self postNotificationName:PRCurrentFileDidChangeNotification object:nil];
 }
 
-- (void)postShuffleChanged
-{
+- (void)postShuffleChanged {
     [self postNotificationName:PRShuffleDidChangeNotification object:nil];
 }
 
-- (void)postRepeatChanged
-{
+- (void)postRepeatChanged {
     [self postNotificationName:PRRepeatDidChangeNotification object:nil];
 }
 
-- (void)postVolumeChanged
-{
+- (void)postVolumeChanged {
     [self postNotificationName:PRVolumeChangedNote object:nil];
 }
 
-- (void)observeTimeChanged:(id)obs sel:(SEL)sel
-{
+- (void)observeTimeChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRTimeChangedNote object:nil];
 }
 
-- (void)observePlayingChanged:(id)obs sel:(SEL)sel
-{
+- (void)observePlayingChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRIsPlayingDidChangeNotification object:nil];
 }
 
-- (void)observeMovieFinished:(id)obs sel:(SEL)sel
-{
+- (void)observeMovieFinished:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRMovieDidFinishNotification object:nil];
 }
 
-- (void)observeMovieAlmostFinished:(id)obs sel:(SEL)sel
-{
+- (void)observeMovieAlmostFinished:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRMovieAlmostFinishedNote object:nil];
 }
 
-- (void)observePlayingFileChanged:(id)obs sel:(SEL)sel
-{
+- (void)observePlayingFileChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRCurrentFileDidChangeNotification object:nil];
 }
 
-- (void)observeShuffleChanged:(id)obs sel:(SEL)sel
-{
+- (void)observeShuffleChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRShuffleDidChangeNotification object:nil];
 }
 
-- (void)observeRepeatChanged:(id)obs sel:(SEL)sel
-{
+- (void)observeRepeatChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRRepeatDidChangeNotification object:nil];
 }
 
-- (void)observeVolumeChanged:(id)obs sel:(SEL)sel
-{
+- (void)observeVolumeChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRVolumeChangedNote object:nil];
 }
-
-
 
 @end
