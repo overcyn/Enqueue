@@ -11,11 +11,6 @@
 - (void)postPlaylistChanged:(PRPlaylist)playlist;
 - (void)postPlaylistFilesChanged:(PRPlaylist)playlist;
 
-//- (void)postItemsChanged:(NSIndexSet *)items;
-//- (void)postListsChanged;
-//- (void)postListAttrChanged:(PRList *)list;
-//- (void)postListItemsChanged:(PRList *)list;
-
 - (void)observeLibraryChanged:(id)obs sel:(SEL)sel;
 - (void)observeFilesChanged:(id)obs sel:(SEL)sel;
 - (void)observePlaylistsChanged:(id)obs sel:(SEL)sel;
