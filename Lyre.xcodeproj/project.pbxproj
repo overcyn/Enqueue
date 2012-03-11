@@ -173,6 +173,7 @@
 		67A7A2BF150BDC68005E91C0 /* PRTitleBarGradientView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A7A2BE150BDC67005E91C0 /* PRTitleBarGradientView.m */; };
 		67A7A2C5150C5A2B005E91C0 /* PRNonScrollingScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A7A2C4150C5A2A005E91C0 /* PRNonScrollingScrollView.m */; };
 		67A7A2CB150C5AB9005E91C0 /* PRBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A7A2CA150C5AB8005E91C0 /* PRBox.m */; };
+		67A7A2D4150C909F005E91C0 /* NSTableView+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A7A2D3150C909F005E91C0 /* NSTableView+Extensions.m */; };
 		67AB53E0138BAA69000A329B /* PRDateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 67AB53DF138BAA69000A329B /* PRDateFormatter.m */; };
 		67AD280C136CA77C00DF48EE /* PRPlaylistsCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67AD280B136CA77B00DF48EE /* PRPlaylistsCell.m */; };
 		67AD280E136FB0CD00DF48EE /* PRActionIcon2.png in Resources */ = {isa = PBXBuildFile; fileRef = 67AD280D136FB0CC00DF48EE /* PRActionIcon2.png */; };
@@ -556,6 +557,8 @@
 		67A7A2C4150C5A2A005E91C0 /* PRNonScrollingScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRNonScrollingScrollView.m; sourceTree = "<group>"; };
 		67A7A2C9150C5AB7005E91C0 /* PRBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBox.h; sourceTree = "<group>"; };
 		67A7A2CA150C5AB8005E91C0 /* PRBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRBox.m; sourceTree = "<group>"; };
+		67A7A2D2150C909F005E91C0 /* NSTableView+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSTableView+Extensions.h"; sourceTree = "<group>"; };
+		67A7A2D3150C909F005E91C0 /* NSTableView+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSTableView+Extensions.m"; sourceTree = "<group>"; };
 		67AB52E614F96ACA00A0E935 /* PRTableViewController+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PRTableViewController+Private.h"; sourceTree = "<group>"; };
 		67AB53DE138BAA69000A329B /* PRDateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRDateFormatter.h; sourceTree = "<group>"; };
 		67AB53DF138BAA69000A329B /* PRDateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRDateFormatter.m; sourceTree = "<group>"; };
@@ -1197,6 +1200,8 @@
 				67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */,
 				67CFB4471423FDB40045108D /* NSOperationQueue+Extensions.h */,
 				67CFB4481423FDB40045108D /* NSOperationQueue+Extensions.m */,
+				67A7A2D2150C909F005E91C0 /* NSTableView+Extensions.h */,
+				67A7A2D3150C909F005E91C0 /* NSTableView+Extensions.m */,
 				67C37B531373FAEF00004859 /* NSScrollView+Extensions.h */,
 				67C37B541373FAEF00004859 /* NSScrollView+Extensions.m */,
 				67C0BA1813C7AE1E0088D2E7 /* NSString+Extensions.h */,
@@ -2013,6 +2018,7 @@
 				67A7A2BF150BDC68005E91C0 /* PRTitleBarGradientView.m in Sources */,
 				67A7A2C5150C5A2B005E91C0 /* PRNonScrollingScrollView.m in Sources */,
 				67A7A2CB150C5AB9005E91C0 /* PRBox.m in Sources */,
+				67A7A2D4150C909F005E91C0 /* NSTableView+Extensions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
