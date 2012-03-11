@@ -20,10 +20,10 @@
 #import "PRBitRateFormatter.h"
 #import "PRTagger.h"
 
+
 @implementation PRInfoViewController
 
-- (id)initWithCore:(PRCore *)core_
-{
+- (id)initWithCore:(PRCore *)core_ {
 	if (!(self = [super initWithNibName:@"PRInfoView" bundle:nil])) {return nil;}
     core = [core_ retain];
     db = [[core db] retain];
@@ -42,8 +42,7 @@
 	return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [numberFormatter release];
     [stringFormatter release];
@@ -53,8 +52,7 @@
     [super dealloc];
 }
 
-- (void)awakeFromNib
-{	
+- (void)awakeFromNib {	
 	NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:
                              @"-", NSNoSelectionPlaceholderBindingOption,
                              @"None", NSNullPlaceholderBindingOption,
@@ -183,11 +181,7 @@
     [self updateTabControl];
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath 
-                      ofObject:(id)object 
-                        change:(NSDictionary *)change 
-                       context:(void *)context
-{
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
    if (object == [ratingControl cell] && [keyPath isEqualToString:@"objectValue"]) {
        if ([selection count] == 0) {
            return;
@@ -202,8 +196,7 @@
    }
 }
 
-- (void)toggleCompilation
-{
+- (void)toggleCompilation {
     NSNumber *compilation = [self compilation];
     if (compilation == NSMultipleValuesMarker || [compilation intValue] == 1) {
         [self setCompilation:[NSNumber numberWithInt:0]];
@@ -212,8 +205,7 @@
     }
 }
 
-- (void)update
-{
+- (void)update {
     [selection release];
 	selection = [[[[[core win] libraryViewController] currentViewController] selection] retain];
     
@@ -304,8 +296,7 @@
 // Tab Control
 // ========================================
 
-- (NSDictionary *)tabs
-{
+- (NSDictionary *)tabs {
     return [NSArray arrayWithObjects:
             [NSDictionary dictionaryWithObjectsAndKeys:
              [NSNumber numberWithInt:PRInfoModeTags], @"mode", 
@@ -326,8 +317,7 @@
             nil];
 }
 
-- (void)updateTabControl
-{    
+- (void)updateTabControl {    
     for (NSDictionary *i in [self tabs]) {
         BOOL isMode = ([[i objectForKey:@"mode"] intValue] == _mode);
         NSButton *button = [i objectForKey:@"button"];
@@ -345,8 +335,7 @@
     }
 }
 
-- (void)tabAction:(id)sender
-{
+- (void)tabAction:(id)sender {
     _mode = [sender tag];
     [self updateTabControl];
 }
@@ -355,13 +344,11 @@
 // Accessors
 // ========================================
 
-- (BOOL)enabled
-{
+- (BOOL)enabled {
 	return [selection count] != 0;
 }
 
-- (void)setValue:(id)value forAttribute:(PRFileAttribute)attribute
-{
+- (void)setValue:(id)value forAttribute:(PRFileAttribute)attribute {
     if ([selection count] == 0) {
 		return;
 	}
@@ -383,8 +370,7 @@
     [[NSOperationQueue mainQueue] addBlock:^{[self update];}];
 }
 
-- (id)valueForAttribute:(PRFileAttribute)attribute
-{	
+- (id)valueForAttribute:(PRFileAttribute)attribute {	
 	if ([selection count] == 0) {
 		return NSNoSelectionMarker;
 	}
@@ -405,177 +391,150 @@
 	return firstResult;
 }
 
-- (void)setTitle:(NSString *)value
-{
+- (void)setTitle:(NSString *)value {
     if (!value) {
         value = @"";
     }
     [self setValue:value forAttribute:PRTitleFileAttribute];
 }
 
-- (NSString *)title
-{
+- (NSString *)title {
 	return [self valueForAttribute:PRTitleFileAttribute];
 }
 
-- (void)setArtist:(NSString *)value
-{
+- (void)setArtist:(NSString *)value {
     if (!value) {
         value = @"";
     }
     [self setValue:value forAttribute:PRArtistFileAttribute];
 }
 
-- (NSString *)artist
-{
+- (NSString *)artist {
 	return [self valueForAttribute:PRArtistFileAttribute];
 }
 
-- (void)setAlbumArtist:(NSString *)value
-{
+- (void)setAlbumArtist:(NSString *)value {
     if (!value) {
         value = @"";
     }
     [self setValue:value forAttribute:PRAlbumArtistFileAttribute];
 }
 
-- (NSString *)albumArtist
-{
+- (NSString *)albumArtist {
 	return [self valueForAttribute:PRAlbumArtistFileAttribute];
 }
 
-- (void)setAlbum:(NSString *)value
-{
+- (void)setAlbum:(NSString *)value {
     if (!value) {
         value = @"";
     }
     [self setValue:value forAttribute:PRAlbumFileAttribute];
 }
 
-- (NSString *)album
-{
+- (NSString *)album {
 	return [self valueForAttribute:PRAlbumFileAttribute];
 }
 
-- (void)setYear:(NSNumber *)value
-{
+- (void)setYear:(NSNumber *)value {
     if (!value) {
         value = [NSNumber numberWithInt:0];
     }
     [self setValue:value forAttribute:PRYearFileAttribute];
 }
 
-- (NSNumber *)year
-{
+- (NSNumber *)year {
 	return [self valueForAttribute:PRYearFileAttribute];
 }
 
-- (void)setBpm:(NSNumber *)value
-{
+- (void)setBpm:(NSNumber *)value {
     if (!value) {
         value = [NSNumber numberWithInt:0];
     }
     [self setValue:value forAttribute:PRBPMFileAttribute];
 }
 
-- (NSNumber *)bpm
-{
+- (NSNumber *)bpm {
 	return [self valueForAttribute:PRBPMFileAttribute];
 }
 
-- (void)setTrack:(NSNumber *)value
-{
+- (void)setTrack:(NSNumber *)value {
     if (!value) {
         value = [NSNumber numberWithInt:0];
     }
     [self setValue:value forAttribute:PRTrackNumberFileAttribute];
 }
 
-- (NSNumber *)track
-{
+- (NSNumber *)track {
 	return [self valueForAttribute:PRTrackNumberFileAttribute];
 }
 
-- (void)setTrackCount:(NSNumber *)value
-{
+- (void)setTrackCount:(NSNumber *)value {
     if (!value) {
         value = [NSNumber numberWithInt:0];
     }
     [self setValue:value forAttribute:PRTrackCountFileAttribute];
 }
 
-- (NSNumber *)trackCount
-{
+- (NSNumber *)trackCount {
 	return [self valueForAttribute:PRTrackCountFileAttribute];
 }
 
-- (void)setDisc:(NSNumber *)value
-{
+- (void)setDisc:(NSNumber *)value {
     if (!value) {
         value = [NSNumber numberWithInt:0];
     }
     [self setValue:value forAttribute:PRDiscNumberFileAttribute];
 }
 
-- (NSNumber *)disc
-{
+- (NSNumber *)disc {
 	return [self valueForAttribute:PRDiscNumberFileAttribute];
 }
 
-- (void)setDiscCount:(NSNumber *)value
-{
+- (void)setDiscCount:(NSNumber *)value {
     if (!value) {
         value = [NSNumber numberWithInt:0];
     }
     [self setValue:value forAttribute:PRDiscCountFileAttribute];
 }
 
-- (NSNumber *)discCount
-{
+- (NSNumber *)discCount {
 	return [self valueForAttribute:PRDiscCountFileAttribute];
 }
 
-- (void)setComposer:(NSString *)value
-{
+- (void)setComposer:(NSString *)value {
     if (!value) {
         value = @"";
     }
     [self setValue:value forAttribute:PRComposerFileAttribute];
 }
 
-- (NSString *)composer
-{
+- (NSString *)composer {
 	return [self valueForAttribute:PRComposerFileAttribute];
 }
 
-- (void)setComments:(NSString *)value
-{
+- (void)setComments:(NSString *)value {
     if (!value) {
         value = @"";
     }
     [self setValue:value forAttribute:PRCommentsFileAttribute];
 }
 
-- (NSString *)comments
-{
+- (NSString *)comments {
 	return [self valueForAttribute:PRCommentsFileAttribute];
 }
 
-- (void)setGenre:(NSString *)value
-{
+- (void)setGenre:(NSString *)value {
     if (!value) {
         value = @"";
     }
     [self setValue:value forAttribute:PRGenreFileAttribute];
 }
 
-- (NSString *)genre
-{
+- (NSString *)genre {
 	return [self valueForAttribute:PRGenreFileAttribute];
 }
 
-- (void)setAlbumArt:(NSImage *)value
-{
+- (void)setAlbumArt:(NSImage *)value {
     NSData *data = [value TIFFRepresentation];
     if (!value) {
         data = [NSData data];
@@ -583,8 +542,7 @@
     [self setValue:data forAttribute:PRAlbumArtFileAttribute];
 }
 
-- (NSImage *)albumArt
-{
+- (NSImage *)albumArt {
     if ([selection count] == 0) {
         return nil;
     }
@@ -594,84 +552,69 @@
     return albumArt;
 }
 
-- (void)setCompilation:(NSNumber *)value
-{
+- (void)setCompilation:(NSNumber *)value {
     if (!value) {
         value = [NSNumber numberWithInt:0];
     }
     [self setValue:value forAttribute:PRCompilationFileAttribute];
 }
 
-- (NSNumber *)compilation
-{
+- (NSNumber *)compilation {
     return [self valueForAttribute:PRCompilationFileAttribute];
 }
 
-- (void)setLyrics:(NSString *)value
-{
+- (void)setLyrics:(NSString *)value {
     if (!value) {
         value = @"";
     }
     [self setValue:value forAttribute:PRLyricsFileAttribute];
 }
 
-- (NSString *)lyrics
-{
+- (NSString *)lyrics {
     return [self valueForAttribute:PRLyricsFileAttribute];
 }
 
-- (NSString *)path
-{
+- (NSString *)path {
     return [self valueForAttribute:PRPathFileAttribute];
 }
 
-- (NSNumber *)kind
-{
+- (NSNumber *)kind {
     return [self valueForAttribute:PRKindFileAttribute];
 }
 
-- (NSNumber *)size
-{
+- (NSNumber *)size {
     return [self valueForAttribute:PRSizeFileAttribute];
 }
 
-- (NSNumber *)lastModified
-{
+- (NSNumber *)lastModified {
     return [self valueForAttribute:PRLastModifiedFileAttribute];
 }
 
-- (NSNumber *)dateAdded
-{
+- (NSNumber *)dateAdded {
     return [self valueForAttribute:PRDateAddedFileAttribute];
 }
 
-- (NSNumber *)length
-{
+- (NSNumber *)length {
     return [self valueForAttribute:PRTimeFileAttribute];
 }
 
-- (NSNumber *)bitrate
-{
+- (NSNumber *)bitrate {
     return [self valueForAttribute:PRBitrateFileAttribute];
 }
 
-- (NSNumber *)channels
-{
+- (NSNumber *)channels {
     return [self valueForAttribute:PRChannelsFileAttribute];
 }
 
-- (NSNumber *)sampleRate
-{
+- (NSNumber *)sampleRate {
     return [self valueForAttribute:PRSampleRateFileAttribute];
 }
 
-- (NSNumber *)playCount
-{
+- (NSNumber *)playCount {
     return [self valueForAttribute:PRPlayCountFileAttribute];
 }
 
-- (NSNumber *)lastPlayed
-{
+- (NSNumber *)lastPlayed {
     return [self valueForAttribute:PRLastPlayedFileAttribute];
 }
 
