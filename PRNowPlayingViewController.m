@@ -142,7 +142,6 @@
     }
     [nowPlayingTableView expandItem:parentItem];
     [nowPlayingTableView scrollRowToVisible:[nowPlayingTableView rowForItem:currentItem]];
-    //    [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:[nowPlayingTableView rowForItem:currentItem]] byExtendingSelection:FALSE];
 }
 
 - (void)addItems:(NSArray *)items atIndex:(int)index {
