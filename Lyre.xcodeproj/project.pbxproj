@@ -171,6 +171,8 @@
 		67A7A2BB150BDC56005E91C0 /* PRFirstResponderGradientView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A7A2B8150BDC53005E91C0 /* PRFirstResponderGradientView.m */; };
 		67A7A2BC150BDC56005E91C0 /* PRFirstResponderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A7A2BA150BDC55005E91C0 /* PRFirstResponderView.m */; };
 		67A7A2BF150BDC68005E91C0 /* PRTitleBarGradientView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A7A2BE150BDC67005E91C0 /* PRTitleBarGradientView.m */; };
+		67A7A2C5150C5A2B005E91C0 /* PRNonScrollingScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A7A2C4150C5A2A005E91C0 /* PRNonScrollingScrollView.m */; };
+		67A7A2CB150C5AB9005E91C0 /* PRBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A7A2CA150C5AB8005E91C0 /* PRBox.m */; };
 		67AB53E0138BAA69000A329B /* PRDateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 67AB53DF138BAA69000A329B /* PRDateFormatter.m */; };
 		67AD280C136CA77C00DF48EE /* PRPlaylistsCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67AD280B136CA77B00DF48EE /* PRPlaylistsCell.m */; };
 		67AD280E136FB0CD00DF48EE /* PRActionIcon2.png in Resources */ = {isa = PBXBuildFile; fileRef = 67AD280D136FB0CC00DF48EE /* PRActionIcon2.png */; };
@@ -550,6 +552,10 @@
 		67A7A2BA150BDC55005E91C0 /* PRFirstResponderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRFirstResponderView.m; sourceTree = "<group>"; };
 		67A7A2BD150BDC66005E91C0 /* PRTitleBarGradientView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRTitleBarGradientView.h; sourceTree = "<group>"; };
 		67A7A2BE150BDC67005E91C0 /* PRTitleBarGradientView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRTitleBarGradientView.m; sourceTree = "<group>"; };
+		67A7A2C3150C5A2A005E91C0 /* PRNonScrollingScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRNonScrollingScrollView.h; sourceTree = "<group>"; };
+		67A7A2C4150C5A2A005E91C0 /* PRNonScrollingScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRNonScrollingScrollView.m; sourceTree = "<group>"; };
+		67A7A2C9150C5AB7005E91C0 /* PRBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBox.h; sourceTree = "<group>"; };
+		67A7A2CA150C5AB8005E91C0 /* PRBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRBox.m; sourceTree = "<group>"; };
 		67AB52E614F96ACA00A0E935 /* PRTableViewController+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PRTableViewController+Private.h"; sourceTree = "<group>"; };
 		67AB53DE138BAA69000A329B /* PRDateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRDateFormatter.h; sourceTree = "<group>"; };
 		67AB53DF138BAA69000A329B /* PRDateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRDateFormatter.m; sourceTree = "<group>"; };
@@ -1077,7 +1083,7 @@
 			name = "Table View";
 			sourceTree = "<group>";
 		};
-		67691F6E1338B55100D27C01 /* Text Field Cell */ = {
+		67691F6E1338B55100D27C01 /* Text Field */ = {
 			isa = PBXGroup;
 			children = (
 				67E94733126C528E00CAE943 /* PRCenteredTextFieldCell.h */,
@@ -1085,7 +1091,7 @@
 				67D27AB3129C692A00845FEB /* PRBorderlessTextField.h */,
 				67D27AB4129C692A00845FEB /* PRBorderlessTextField.m */,
 			);
-			name = "Text Field Cell";
+			name = "Text Field";
 			sourceTree = "<group>";
 		};
 		67691F6F1338B56A00D27C01 /* Image Cell */ = {
@@ -1106,6 +1112,8 @@
 		67691F701338B57300D27C01 /* Scroll View */ = {
 			isa = PBXGroup;
 			children = (
+				67A7A2C3150C5A2A005E91C0 /* PRNonScrollingScrollView.h */,
+				67A7A2C4150C5A2A005E91C0 /* PRNonScrollingScrollView.m */,
 				67D732A4132FBB4700AB2D14 /* PRScrollView.h */,
 				67D732A5132FBB4700AB2D14 /* PRScrollView.m */,
 				6796AF61128933D900FEDE14 /* PRSynchronizedScrollView.h */,
@@ -1117,6 +1125,8 @@
 		67691F711338B5A300D27C01 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				67A7A2C9150C5AB7005E91C0 /* PRBox.h */,
+				67A7A2CA150C5AB8005E91C0 /* PRBox.m */,
 				67A7A2BD150BDC66005E91C0 /* PRTitleBarGradientView.h */,
 				67A7A2BE150BDC67005E91C0 /* PRTitleBarGradientView.m */,
 				67A7A2B7150BDC52005E91C0 /* PRFirstResponderGradientView.h */,
@@ -1159,7 +1169,7 @@
 				67691F701338B57300D27C01 /* Scroll View */,
 				67691F6C1338B51C00D27C01 /* Table View */,
 				67691F6F1338B56A00D27C01 /* Image Cell */,
-				67691F6E1338B55100D27C01 /* Text Field Cell */,
+				67691F6E1338B55100D27C01 /* Text Field */,
 				67691F6B1338B4FF00D27C01 /* Split View */,
 				67691F721338B60E00D27C01 /* Button */,
 			);
@@ -2001,6 +2011,8 @@
 				67A7A2BB150BDC56005E91C0 /* PRFirstResponderGradientView.m in Sources */,
 				67A7A2BC150BDC56005E91C0 /* PRFirstResponderView.m in Sources */,
 				67A7A2BF150BDC68005E91C0 /* PRTitleBarGradientView.m in Sources */,
+				67A7A2C5150C5A2B005E91C0 /* PRNonScrollingScrollView.m in Sources */,
+				67A7A2CB150C5AB9005E91C0 /* PRBox.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

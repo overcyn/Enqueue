@@ -496,19 +496,13 @@
 
 - (void)highlightFile:(PRFile)file {
     PRItem *item = [PRItem numberWithInt:file];
-    [[db playlists] setSearch:@"" forList:_currentList];
-    for (int i = 1; i <= 3; i++) {
-        NSArray *selection = [NSArray array];
-        if ([[[db playlists] attrForBrowser:i list:_currentList] isEqual:PRItemAttrArtist]) {
-            if ([[PRUserDefaults userDefaults] useCompilation] && [[[db library] valueForItem:item attr:PRItemAttrCompilation] boolValue]) {
-                selection = [NSArray arrayWithObject:compilationString];
-            } else {
-                selection = [NSArray arrayWithObject:[[db library] artistValueForItem:item]];
-            }
-        }
-        [[db playlists] setSelection:selection forBrowser:i list:_currentList];
+    NSString *artist;
+    if ([[PRUserDefaults userDefaults] useCompilation] && [[[db library] valueForItem:item attr:PRItemAttrCompilation] boolValue]) {
+        artist = compilationString;
+    } else {
+        artist = [[db library] artistValueForItem:item];
     }
-    [[NSNotificationCenter defaultCenter] postPlaylistChanged:[_currentList intValue]];
+    [self browseToArtist:artist];
     
 	int dbRow = [[db libraryViewSource] rowForItem:[NSNumber numberWithInt:file]];
 	if (dbRow != -1) {
@@ -532,7 +526,6 @@
         }
         [dbRows addIndex:dbRow];
     }];
-    
     if ([dbRows count] == 0) {
         [[db playlists] setSearch:@"" forList:_currentList];
         [[db playlists] setSelection:[NSArray array] forBrowser:1 list:_currentList];
@@ -566,11 +559,10 @@
     } else {
         attr = PRItemAttrArtist;
     }
-    int row = [[db libraryViewSource] firstRowWithValue:artist forAttr:attr]; 
-    if (row == -1 || row == 1) {
+    int row = [self tableRowForDbRow:[[db libraryViewSource] firstRowWithValue:artist forAttr:attr]]; 
+    if (row == -1 || row == 0) {
         return;
     }
-    row--;
     [libraryTableView scrollRowToVisible:row];
     [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:FALSE];
 }
