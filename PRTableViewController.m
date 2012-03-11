@@ -28,6 +28,7 @@
 #import "NSMenuItem+Extensions.h"
 #import "PRMainWindowController.h"
 #import "PRNowPlayingViewController.h"
+#import "NSTableView+Extensions.h"
 
 
 @implementation PRTableViewController
@@ -472,11 +473,10 @@
         [self loadBrowser];
         [self reloadData:TRUE];
         [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
-        
-        [libraryTableView scrollPoint:NSMakePoint(0, 0)];
-        [browser1TableView scrollRowToVisible:[browser1TableView selectedRow]];
-        [browser2TableView scrollRowToVisible:[browser2TableView selectedRow]];
-        [browser3TableView scrollRowToVisible:[browser3TableView selectedRow]];
+        [libraryTableView scrollRowToVisiblePretty:0];
+        [browser1TableView scrollRowToVisiblePretty:[browser1TableView selectedRow]];
+        [browser2TableView scrollRowToVisiblePretty:[browser2TableView selectedRow]];
+        [browser3TableView scrollRowToVisiblePretty:[browser3TableView selectedRow]];
 	}
 }
 
@@ -508,7 +508,7 @@
 	if (dbRow != -1) {
 		int tableRow = [self tableRowForDbRow:dbRow];
 		[libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:tableRow] byExtendingSelection:FALSE];
-		[libraryTableView scrollRowToVisible:tableRow];
+		[libraryTableView scrollRowToVisiblePretty:tableRow];
 	}
 }
 
@@ -546,8 +546,7 @@
     if ([dbRows count] > 0) {
         NSIndexSet *tableRows = [self tableRowIndexesForDbRowIndexes:dbRows];
         [libraryTableView selectRowIndexes:tableRows byExtendingSelection:FALSE];
-        [libraryTableView scrollRowToVisible:[tableRows firstIndex]];
-        [[libraryTableView window] makeFirstResponder:libraryTableView];
+        [libraryTableView scrollRowToVisiblePretty:[tableRows firstIndex]];
     }
 }
 
@@ -563,8 +562,8 @@
     if (row == -1 || row == 0) {
         return;
     }
-    [libraryTableView scrollRowToVisible:row];
     [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:FALSE];
+    [libraryTableView scrollRowToVisiblePretty:row];
 }
 
 - (void)browseToArtist:(NSString *)artist {
@@ -617,7 +616,7 @@
     }
     if (![_currentList isEqual:[[db playlists] libraryList]]) {
         NSMutableIndexSet *indexesToDelete = [NSMutableIndexSet indexSet];
-        NSTableColumn *tableColumn = [libraryTableView tableColumnWithIdentifier:[NSString stringWithInt:PRPlaylistIndexSort]];
+        NSTableColumn *tableColumn = [libraryTableView tableColumnWithIdentifier:PRListSortIndex];
         [indexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
             [indexesToDelete addIndex:[[self tableView:libraryTableView objectValueForTableColumn:tableColumn row:idx] intValue]];
         }];
@@ -785,20 +784,8 @@
 }
 
 - (void)playlistFilesChanged:(NSNotification *)note {
-    if (_currentList || [[[note userInfo] valueForKey:@"playlist"] isEqual:_currentList]) {
-        return;
-	}
-    [self reloadData:TRUE];
-    [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
-    [libraryTableView scrollPoint:NSMakePoint(0, 0)];
-    [browser1TableView scrollRowToVisible:[browser1TableView selectedRow]];
-    [browser2TableView scrollRowToVisible:[browser2TableView selectedRow]];
-    [browser3TableView scrollRowToVisible:[browser3TableView selectedRow]];
-}
-
-- (void)ruleDidChange:(NSNotification *)notification {
-	if (_currentList) {
-		[self reloadData:TRUE];
+    if (_currentList && [[[note userInfo] valueForKey:@"playlist"] isEqual:_currentList]) {
+        [self reloadData:TRUE];
 	}
 }
 
