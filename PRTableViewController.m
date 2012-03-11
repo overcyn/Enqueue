@@ -514,8 +514,6 @@
 	if (dbRow != -1) {
 		int tableRow = [self tableRowForDbRow:dbRow];
 		[libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:tableRow] byExtendingSelection:FALSE];
-		[libraryTableView scrollRowToVisible:[self numberOfRowsInTableView:libraryTableView] - 1];
-        [libraryTableView scrollRowToVisible:tableRow - 5];
 		[libraryTableView scrollRowToVisible:tableRow];
 	}
 }
@@ -525,38 +523,33 @@
         return;
     }
     
-    BOOL clearBrowserAndSearch = FALSE;
     NSMutableIndexSet *dbRows = [NSMutableIndexSet indexSet];
-    NSUInteger index = [files firstIndex];
-    while (index != NSNotFound) {
-        int dbRow = [[db libraryViewSource] rowForItem:[NSNumber numberWithInt:index]];
+    [files enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop){
+        int dbRow = [[db libraryViewSource] rowForItem:[NSNumber numberWithInt:idx]];
         if (dbRow == -1) {
-            clearBrowserAndSearch = TRUE;
             [dbRows removeAllIndexes];
-            break;
+            *stop = TRUE;
         }
         [dbRows addIndex:dbRow];
-        index = [files indexGreaterThanIndex:index];
-    }
+    }];
     
-    if (clearBrowserAndSearch) {
+    if ([dbRows count] == 0) {
         [[db playlists] setSearch:@"" forList:_currentList];
         [[db playlists] setSelection:[NSArray array] forBrowser:1 list:_currentList];
         [[db playlists] setSelection:[NSArray array] forBrowser:2 list:_currentList];
         [[db playlists] setSelection:[NSArray array] forBrowser:3 list:_currentList];
         [[NSNotificationCenter defaultCenter] postPlaylistChanged:[_currentList intValue]];
         
-        index = [files firstIndex];
-        while (index != NSNotFound) {
-            int dbRow = [[db libraryViewSource] rowForItem:[NSNumber numberWithInt:index]];
+        [files enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop){
+            int dbRow = [[db libraryViewSource] rowForItem:[NSNumber numberWithInt:idx]];
             if (dbRow == -1) {
                 [dbRows removeAllIndexes];
-                break;
+                *stop = TRUE;
             }
             [dbRows addIndex:dbRow];
-            index = [files indexGreaterThanIndex:index];
-        }
+        }];
     }
+    
     if ([dbRows count] > 0) {
         NSIndexSet *tableRows = [self tableRowIndexesForDbRowIndexes:dbRows];
         [libraryTableView selectRowIndexes:tableRows byExtendingSelection:FALSE];
@@ -578,8 +571,6 @@
         return;
     }
     row--;
-    [libraryTableView scrollRowToVisible:[self numberOfRowsInTableView:libraryTableView] - 1];
-    [libraryTableView scrollRowToVisible:row - 5];
     [libraryTableView scrollRowToVisible:row];
     [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:FALSE];
 }
