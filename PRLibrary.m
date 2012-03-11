@@ -301,9 +301,9 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
 - (NSString *)artistValueForItem:(PRItem *)item {
     if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
-        return [self valueForItem:item attr:PRItemAttrArtist];
-    } else {
         return [self valueForItem:item attr:PRItemAttrArtistAlbumArtist];
+    } else {
+        return [self valueForItem:item attr:PRItemAttrArtist];
     }
 }
 
