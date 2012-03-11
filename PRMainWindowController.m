@@ -581,7 +581,6 @@
 - (void)playlistDidChange:(NSNotification *)notification {
 	[self willChangeValueForKey:@"search"];
 	[self didChangeValueForKey:@"search"];
-    [self updateUI];
 }
 
 - (void)libraryViewDidChange:(NSNotification *)notification {
