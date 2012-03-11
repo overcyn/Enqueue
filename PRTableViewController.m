@@ -776,9 +776,9 @@
 	if (!_currentList || ![[[notification userInfo] valueForKey:@"playlist"] isEqual:_currentList]) {
         return;
 	}
-    [self reloadData:TRUE];
+    [self reloadData:FALSE];
     [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
-    [libraryTableView scrollPoint:NSMakePoint(0, 0)];
+    [libraryTableView scrollRowToVisible:[libraryTableView selectedRow]];
     [browser1TableView scrollRowToVisible:[browser1TableView selectedRow]];
     [browser2TableView scrollRowToVisible:[browser2TableView selectedRow]];
     [browser3TableView scrollRowToVisible:[browser3TableView selectedRow]];
@@ -1517,11 +1517,7 @@
 		
 		// update tableviews
 		[libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
-        [self reloadData:FALSE];
-        [libraryTableView scrollPoint:NSMakePoint(0, 0)];
-        [browser1TableView scrollRowToVisible:[browser1TableView selectedRow]];
-        [browser2TableView scrollRowToVisible:[browser2TableView selectedRow]];
-        [browser3TableView scrollRowToVisible:[browser3TableView selectedRow]];
+        [[NSNotificationCenter defaultCenter] postPlaylistChanged:[_currentList intValue]];
 	}
 }
 
