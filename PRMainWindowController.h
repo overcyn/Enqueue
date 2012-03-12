@@ -22,11 +22,12 @@ typedef enum {
     IBOutlet NSButton *playlistsButton; 
     IBOutlet NSButton *historyButton;
     IBOutlet NSButton *preferencesButton;
-    IBOutlet NSSearchField *searchField;
     IBOutlet NSSplitView *_splitView;
-        
+    
+    IBOutlet NSSearchField *searchField;
     IBOutlet NSButton *infoButton;
     IBOutlet NSPopUpButton *_libraryViewPopupButton;
+    IBOutlet NSView *_headerView;
     
     IBOutlet PRGradientView *toolbarView;
     IBOutlet NSView *_toolbarSubview;

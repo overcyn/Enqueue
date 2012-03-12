@@ -18,10 +18,8 @@
 
 // Library view
 - (void)postLibraryViewSelectionChanged;
-- (void)postInfoViewVisibleChanged;
 
 - (void)observeLibraryViewSelectionChanged:(id)obs sel:(SEL)sel;
-- (void)observeInfoViewVisibleChanged:(id)obs sel:(SEL)sel;
 
 // Preferences
 - (void)postPreGainChanged;

@@ -2,10 +2,10 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.10">
 	<data>
 		<int key="IBDocument.SystemTarget">1070</int>
-		<string key="IBDocument.SystemVersion">11B26</string>
+		<string key="IBDocument.SystemVersion">11D50b</string>
 		<string key="IBDocument.InterfaceBuilderVersion">1938</string>
-		<string key="IBDocument.AppKitVersion">1138</string>
-		<string key="IBDocument.HIToolboxVersion">566.00</string>
+		<string key="IBDocument.AppKitVersion">1138.32</string>
+		<string key="IBDocument.HIToolboxVersion">568.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			<string key="NS.object.0">1938</string>
@@ -42,14 +42,15 @@
 					<object class="NSCustomView" id="992038767">
 						<reference key="NSNextResponder" ref="505144209"/>
 						<int key="NSvFlags">290</int>
-						<string key="NSFrameSize">{853, 184}</string>
+						<string key="NSFrameSize">{853, 140}</string>
 						<reference key="NSSuperview" ref="505144209"/>
+						<reference key="NSNextKeyView"/>
 						<string key="NSClassName">NSView</string>
 					</object>
 					<object class="NSCustomView" id="919823810">
 						<reference key="NSNextResponder" ref="505144209"/>
 						<int key="NSvFlags">274</int>
-						<string key="NSFrame">{{0, 184}, {853, 293}}</string>
+						<string key="NSFrame">{{0, 165}, {853, 312}}</string>
 						<reference key="NSSuperview" ref="505144209"/>
 						<reference key="NSNextKeyView" ref="992038767"/>
 						<string key="NSClassName">NSView</string>
@@ -57,6 +58,7 @@
 				</object>
 				<string key="NSFrameSize">{853, 477}</string>
 				<reference key="NSSuperview"/>
+				<reference key="NSNextKeyView" ref="919823810"/>
 				<string key="NSReuseIdentifierKey">_NS:1192</string>
 				<string key="NSClassName">NSView</string>
 			</object>

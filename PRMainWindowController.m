@@ -122,6 +122,7 @@
     _currentViewController = libraryViewController;
     [self setCurrentList:[[_db playlists] libraryList]];
     [self setCurrentMode:PRLibraryMode];
+    [_headerView addSubview:[libraryViewController headerView]];
 		    
     // Info button
     [infoButton setTarget:libraryViewController];
@@ -179,7 +180,6 @@
     
 	// Update
     [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(playlistDidChange:)];
-    [[NSNotificationCenter defaultCenter] observeInfoViewVisibleChanged:self sel:@selector(updateUI)];
     
     if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
         [[NSNotificationCenter defaultCenter] addObserver:self 
@@ -791,7 +791,7 @@
         }
     } else if (menu == _libraryViewMenu) {
         [_libraryViewMenu removeAllItems];
-        NSMenu *menu = [libraryViewController libraryViewMenu];
+        NSMenu *menu = nil;
         NSArray *items = [menu itemArray];
         [menu removeAllItems];
         for (NSMenuItem *i in items) {

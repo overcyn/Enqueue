@@ -6,32 +6,30 @@
 typedef enum {
 	PRListMode,
 	PRAlbumListMode,
-    PRGridMode
 } PRLibraryViewMode;
 
 
-@interface PRLibraryViewController : NSViewController {
-	IBOutlet NSView *centerSuperview;
-	IBOutlet NSView *paneSuperview;
+@interface PRLibraryViewController : NSViewController <NSMenuDelegate, NSTextFieldDelegate> {
+    __weak PRCore *_core;
+	__weak PRDb *_db;
+	__weak PRNowPlayingController *_now;
     
+	NSView *_centerSuperview;
+	NSView *_paneSuperview;
     NSView *_headerView;
     NSButton *_infoButton;
     NSPopUpButton *_libraryPopUpButton;
     NSSearchField *_searchField;
 	
+    NSMenu *_libraryPopUpButtonMenu;
+    
 	PRInfoViewController *infoViewController;
 	PRListViewController *listViewController;
 	PRAlbumListViewController *albumListViewController;
 	
-	BOOL _edit; // pane is collapsed
+	BOOL _paneIsVisible;
     PRList *_currentList;
-    
-    __weak id currentPaneViewController;
-	__weak PRTableViewController *currentViewController;
-	
-    __weak PRCore *_core;
-	__weak PRDb *_db;
-	__weak PRNowPlayingController *_now;
+    __weak PRTableViewController *_currentViewController;
 }
 /* Initialization */
 - (id)initWithCore:(PRCore *)core;
@@ -39,11 +37,8 @@ typedef enum {
 /* Accessors */
 @property (readonly) NSView *headerView;
 @property (readonly) PRTableViewController *currentViewController;
-@property (readwrite, retain) PRList *currentList;
-@property (readwrite) PRLibraryViewMode libraryViewMode; // -1 if invalid playlist
-- (void)infoViewToggle;
-- (BOOL)infoViewVisible;
-
-/* Menu */
-- (NSMenu *)libraryViewMenu;
+@property (retain) PRList *currentList;
+@property PRLibraryViewMode libraryViewMode;
+@property BOOL infoViewVisible;
+- (void)toggleInfoViewVisible;
 @end

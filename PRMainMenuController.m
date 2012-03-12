@@ -267,7 +267,7 @@
 }
 
 - (void)showInfo {
-    [[[core win] libraryViewController] infoViewToggle];
+    [[[core win] libraryViewController] toggleInfoViewVisible];
 }
 
 - (void)showCurrentSong {
