@@ -90,7 +90,7 @@
     [self setCurrentList:[[_db playlists] libraryList]];
     
     // Update
-    [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(toggleInfoViewVisible)];
+    [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(updateSearch)];
 }
 
 // ========================================
