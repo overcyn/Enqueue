@@ -420,12 +420,7 @@
                                                    shadow, NSShadowAttributeName, nil];        
         
         NSString *title = [[db library] valueForItem:[now currentItem] attr:PRItemAttrTitle];
-        NSString *artist;
-        if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
-            artist = [[db library] valueForItem:[now currentItem] attr:PRItemAttrAlbumArtist];
-        } else {
-            artist = [[db library] valueForItem:[now currentItem] attr:PRItemAttrArtist];
-        }
+        NSString *artist = [[db library] artistValueForItem:[now currentItem]];
         NSString *album = [[db library] valueForItem:[now currentItem] attr:PRItemAttrAlbum];
         if ([artist isEqualToString:@""]) {
             artist = @"Unknown Artist";
