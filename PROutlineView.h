@@ -6,18 +6,11 @@
     int _hoverRow;
     NSTimer *autoexpand_timer;
 }
-
-// Action
 - (void)reloadVisibleItems;
-
 @end
 
-// ========================================
-// ========================================
 
 @protocol PROutlineViewDelegate <NSObject>
-
 @optional
 - (BOOL)outlineView:(PROutlineView *)outlineView keyDown:(NSEvent *)event;
-
 @end

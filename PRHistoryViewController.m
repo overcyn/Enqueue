@@ -200,7 +200,7 @@
 		return;
 	}
     [mainWindowController setCurrentMode:PRLibraryMode];
-    [mainWindowController setCurrentPlaylist:[[[db playlists] libraryList] intValue]];
+    [[mainWindowController libraryViewController] setCurrentList:[[db playlists] libraryList]];
     if (historyMode == PRTopArtistsHistoryMode) {
         NSString *artist = [[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"artist"];
         [(PRTableViewController *)[[mainWindowController libraryViewController] currentViewController] highlightArtist:artist];

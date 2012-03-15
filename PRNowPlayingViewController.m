@@ -22,6 +22,7 @@
 #import "PRTableViewController.h"
 #import "NSMenuItem+Extensions.h"
 #import "NSTableView+Extensions.h"
+#import "NSColor+Extensions.h"
 #import "MAZeroingWeakRef.h"
 
 
@@ -48,6 +49,7 @@
 - (void)currentFileDidChange:(NSNotification *)notification;
 
 // Menu
+- (void)playlistMenuNeedsUpdate;
 - (void)contextMenuNeedsUpdate;
 
 // Misc
@@ -66,7 +68,7 @@
 // Initialization
 
 - (id)initWithCore:(PRCore *)core {
-    if (!(self = [super initWithNibName:@"PRNowPlayingView" bundle:nil])) {return nil;}
+    if (!(self = [super init])) {return nil;}
     _parentItems = [[NSMutableDictionary alloc] init];
     _childItems = [[NSMutableDictionary alloc] init];
     _core = core;
@@ -76,26 +78,27 @@
     return self;
 }
 
-- (void)dealloc {
-    [now removeObserver:self forKeyPath:@"shuffle"];
-    [now removeObserver:self forKeyPath:@"repeat"];
-    [now removeObserver:self forKeyPath:@"currentPlaylist"];
-    [now removeObserver:self forKeyPath:@"currentIndex"];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [db release];
-    [now release];
-    [win release];
-    [super dealloc];
-}
-
-- (void)awakeFromNib {
-    // background    
-    [backgroundGradient setTopGradient:[NSColor colorWithDeviceRed:218./255. green:223./255. blue:230./255. alpha:1.0]];
-    [backgroundGradient setBotGradient:[NSColor colorWithDeviceRed:218./255. green:223./255. blue:230./255. alpha:1.0]];
-    [backgroundGradient setAltTopGradient:[NSColor colorWithDeviceWhite:0.92 alpha:1.0]];
-    [backgroundGradient setAltBotGradient:[NSColor colorWithDeviceWhite:0.92 alpha:1.0]];
-        
-    // LibraryTableView
+- (void)loadView {
+    PRGradientView *background = [[[PRGradientView alloc] initWithFrame:NSMakeRect(0, 0, 210, 500)] autorelease];
+    [background setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+    [background setColor:[NSColor PRSidebarBackgroundColor]];
+    [background setAltColor:[NSColor colorWithDeviceWhite:0.92 alpha:1.0]];
+    [self setView:background];
+    
+    scrollview = [[NSScrollView alloc] initWithFrame:NSMakeRect(0, 0, 210, 501)];
+    [scrollview setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+    [scrollview setFocusRingType:NSFocusRingTypeNone];
+    [scrollview setDrawsBackground:FALSE];
+    [scrollview setBorderType:NSNoBorder];
+    [scrollview setAutohidesScrollers:TRUE];
+    [[self view] addSubview:scrollview];
+    
+    NSTableColumn *column = [[[NSTableColumn alloc] initWithIdentifier:@"column"] autorelease];
+    nowPlayingTableView = [[PROutlineView alloc] initWithFrame:NSMakeRect(0, 0, 210, 500)];
+    [nowPlayingTableView setFocusRingType:NSFocusRingTypeNone];
+    [nowPlayingTableView setBackgroundColor:[NSColor transparent]];
+    [nowPlayingTableView setHeaderView:nil];
+    [nowPlayingTableView setAllowsMultipleSelection:TRUE];
     [nowPlayingTableView setDoubleAction:@selector(play)];
     [nowPlayingTableView setIntercellSpacing:NSMakeSize(0, 0)];
     [nowPlayingTableView setTarget:self];
@@ -104,30 +107,52 @@
     [nowPlayingTableView registerForDraggedTypes:[NSArray arrayWithObject:PRFilePboardType]];
     [nowPlayingTableView setVerticalMotionCanBeginDrag:FALSE];
     [nowPlayingTableView setAutoresizesOutlineColumn:FALSE];
-//    [nowPlayingTableView setDraggingSourceOperationMask:NSDragOperationCopy forLocal:TRUE];
-//    [nowPlayingTableView setDraggingSourceOperationMask:NSDragOperationCopy forLocal:FALSE];
-//    [nowPlayingTableView setSlideback:FALSE];
-//    [nowPlayingTableView setHighlightColor:[NSColor alternateSelectedControlColor]];
-//    [nowPlayingTableView setSecondaryHighlightColor:[NSColor colorWithCalibratedRed:134./255 green:151./255 blue:185./255 alpha:0.7]];
-        
+    [nowPlayingTableView addTableColumn:column];
+    [nowPlayingTableView setOutlineTableColumn:column];
+    [scrollview setDocumentView:nowPlayingTableView];
+    
+    // header view
+    _headerView = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 50, 30)];
+    
+    _playlistMenu = [[NSMenu alloc] init];
+    [_playlistMenu setAutoenablesItems:FALSE];
+    [_playlistMenu setDelegate:self];
+    _menuButton = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(18, 3, 25, 25)];
+    [[_menuButton cell] setArrowPosition:NSPopUpNoArrow];
+    [_menuButton setMenu:_playlistMenu];
+    [_menuButton setPullsDown:TRUE];
+    [_menuButton setBordered:FALSE];
+    [_headerView addSubview:_menuButton];
+    
+    _clearButton = [[NSButton alloc] initWithFrame:NSMakeRect(1, 3, 25, 25)];
+    [_clearButton setImage:[NSImage imageNamed:@"Trash"]];
+    [_clearButton setBordered:FALSE];
+    [_clearButton setTarget:self];
+    [_clearButton setAction:@selector(clearPlaylist)];
+    [_clearButton setButtonType:NSMomentaryChangeButton];
+    [_headerView addSubview:_clearButton];
+    
     // context menu
     _contextMenu = [[NSMenu alloc] init];
     [_contextMenu setDelegate:self];
     [nowPlayingTableView setMenu:_contextMenu];
         
-    _nowPlayingCell = [[PRNowPlayingCell alloc] initTextCell:@""];
-    _nowPlayingHeaderCell = [[PRNowPlayingHeaderCell alloc] initTextCell:@""];
-        
     // playlist and current file obs
     [[NSNotificationCenter defaultCenter] observeFilesChanged:self sel:@selector(updateTableView)];
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(currentFileDidChange:)];
-        
+    
+    [self playlistMenuNeedsUpdate];
     [self updateTableView];
     [nowPlayingTableView collapseItem:nil];
     NSArray *parentItem = [self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:0]]];
     [nowPlayingTableView expandItem:parentItem];
 }
+
+// ========================================
+// Accessors
+
+@synthesize headerView = _headerView;
 
 // ========================================
 // Action
@@ -344,7 +369,7 @@
     }
     PRItem *item = [[db playlists] itemAtIndex:[dbRows firstIndex] forList:[now currentList]];
     [win setCurrentMode:PRLibraryMode];
-    [win setCurrentPlaylist:[[[db playlists] libraryList] intValue]];
+    [[win libraryViewController] setCurrentList:[[db playlists] libraryList]];
     [[[win libraryViewController] currentViewController] highlightFile:[item intValue]];
 }
 
@@ -447,10 +472,13 @@
 }
 
 // ========================================
-// Menu
+// menu
 
-- (NSMenu *)playlistMenu {
-    NSMenu *menu = [[[NSMenu alloc] init] autorelease];
+- (void)playlistMenuNeedsUpdate {
+    NSMenu *menu = _playlistMenu;
+    for (NSMenuItem *i in [menu itemArray]) {
+        [menu removeItem:i];
+    }
     // Title of the popup button
     NSMenuItem *menuItem = [[[NSMenuItem alloc] init] autorelease];
     [menuItem setImage:[NSImage imageNamed:@"Settings"]];
@@ -480,11 +508,7 @@
     for (NSMenuItem *i in [menu itemArray]) {
         [i setTarget:self];
     }
-    return menu;
 }
-
-// ========================================
-// menu
 
 - (void)contextMenuNeedsUpdate {
     for (NSMenuItem *i in [_contextMenu itemArray]) {
@@ -670,10 +694,16 @@
 }
 
 - (NSCell *)outlineView:(NSOutlineView *)outlineView dataCellForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
-    if ([(NSArray *)item count] == 1) {
-        return _nowPlayingHeaderCell;
+    static NSCell *nowPlayingCell = nil;
+    static NSCell *nowPlayingHeaderCell = nil;
+    if (!nowPlayingCell || ! nowPlayingHeaderCell) {
+        nowPlayingCell = [[PRNowPlayingCell alloc] initTextCell:@""];
+        nowPlayingHeaderCell = [[PRNowPlayingHeaderCell alloc] initTextCell:@""];
     }
-    return _nowPlayingCell;
+    if ([(NSArray *)item count] == 1) {
+        return nowPlayingHeaderCell;
+    }
+    return nowPlayingCell;
 }
 
 // ========================================
@@ -1032,6 +1062,8 @@
 - (void)menuNeedsUpdate:(NSMenu *)menu {
     if (menu == _contextMenu) {
         [self contextMenuNeedsUpdate];
+    } else {
+        [self playlistMenuNeedsUpdate];
     }
 }
 

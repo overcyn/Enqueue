@@ -1,12 +1,12 @@
 #import "PREQ.h"
 
+
 @implementation PREQ
 
 // ========================================
 // Initialization
 
-- (id)init
-{
+- (id)init {
     if (!(self = [super init])) {return nil;}
     _title = @"";
     _amplitudes = [[NSArray arrayWithObjects:
@@ -19,21 +19,18 @@
     return self;
 }
 
-+ (PREQ *)EQ
-{
++ (PREQ *)EQ {
     return [[[PREQ alloc] init] autorelease];
 }
 
-+ (PREQ *)EQWithEQ:(PREQ *)EQ_
-{
++ (PREQ *)EQWithEQ:(PREQ *)EQ_ {
     PREQ *EQ = [PREQ EQ];
     [EQ setTitle:[EQ_ title]];
     [EQ setAmplitudes:[EQ_ amplitudes]];
     return EQ;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [_title release];
     [_amplitudes release];
     [super dealloc];
@@ -42,44 +39,37 @@
 // ========================================
 // Accessors
 
-@synthesize title = _title;
-@synthesize amplitudes = _amplitudes;
+@synthesize title = _title, amplitudes = _amplitudes;
 
-- (void)setAmp:(float)amp forFreq:(PREQFreq)freq
-{
+- (void)setAmp:(float)amp forFreq:(PREQFreq)freq {
     NSMutableArray *a = [NSMutableArray arrayWithArray:_amplitudes];
     [a replaceObjectAtIndex:freq withObject:[NSNumber numberWithFloat:amp]];
     [_amplitudes release];
     _amplitudes = [[NSArray arrayWithArray:a] retain];
 }
 
-- (float)ampForFreq:(PREQFreq)freq
-{
+- (float)ampForFreq:(PREQFreq)freq {
     return [[_amplitudes objectAtIndex:freq] floatValue];
 }
 
-- (NSString *)description
-{
+- (NSString *)description {
     return [NSString stringWithFormat:@"PREQ:%@ %@",_title,[_amplitudes class]];
 }
 
 // ========================================
 // DefaultEQs
 
-+ (NSArray *)defaultEQs
-{
++ (NSArray *)defaultEQs {
     return [NSArray arrayWithObjects:[PREQ flat],[PREQ stairs], [PREQ triangle], nil];
 }
 
-+ (PREQ *)flat
-{
++ (PREQ *)flat {
     PREQ *flat = [PREQ EQ];
     [flat setTitle:@"Flat"];
     return flat;
 }
 
-+ (PREQ *)stairs
-{
++ (PREQ *)stairs {
     PREQ *stairs = [PREQ EQ];
     [stairs setTitle:@"Stairs"];
     [stairs setAmplitudes:[NSArray arrayWithObjects:
@@ -92,8 +82,7 @@
     return stairs;
 }
 
-+ (PREQ *)triangle
-{
++ (PREQ *)triangle {
     PREQ *stairs = [PREQ EQ];
     [stairs setTitle:@"Triangle"];
     [stairs setAmplitudes:[NSArray arrayWithObjects:
@@ -109,14 +98,12 @@
 // ========================================
 // NSCoder
 
-- (void)encodeWithCoder:(NSCoder *)coder
-{
+- (void)encodeWithCoder:(NSCoder *)coder {
     [coder encodeObject:_title forKey:@"title"];
     [coder encodeObject:_amplitudes forKey:@"amplitudes"];
 }
 
-- (id)initWithCoder:(NSCoder *)coder
-{
+- (id)initWithCoder:(NSCoder *)coder {
     if (!(self = [super init])) {return nil;}
     id title = [coder decodeObjectForKey:@"title"];
     if (!title || ![title isKindOfClass:[NSString class]]) {

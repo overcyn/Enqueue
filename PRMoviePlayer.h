@@ -1,26 +1,20 @@
 #import <Cocoa/Cocoa.h>
 #import <AudioUnit/AudioUnit.h>
-
 @class PRMovie;
 
-// ========================================
-// Constants
 
 enum {
     PRNeitherTransitionState,
     PRPlayingTransitionState,
     PRPausingTransitionState,
 };
-
 typedef enum {
     PRMovieQueueEmpty,
     PRMovieQueueWaiting,
     PRMovieQueuePlayed,
 } PRMovieQueueState;
 
-// ========================================
-// PRMoviePlayer
-// ========================================
+
 @interface PRMoviePlayer : NSObject {
     AudioUnit _au;
     
@@ -34,9 +28,7 @@ typedef enum {
     PRMovieQueueState _queueState; // should only be accessed through accessor
 }
 
-// ========================================
-// Playback
-
+/* Playback */
 - (BOOL)play:(NSString *)file;
 - (BOOL)queue:(NSString *)file;
 - (BOOL)playIfNotQueued:(NSString *)file;
@@ -47,9 +39,7 @@ typedef enum {
 - (void)seekForward;
 - (void)seekBackward;
 
-// ========================================
-// Accessors
-
+/* Accessors */
 - (BOOL)isPlaying;
 - (float)volume;
 - (void)setVolume:(float)newVolume;

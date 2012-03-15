@@ -7,6 +7,7 @@ NSString * const PRPlaylistDidChangeNotification = @"PRPlaylistDidChangeNotifica
 NSString * const PRPlaylistsDidChangeNotification = @"PRPlaylistsDidChangeNotification";
 NSString * const PRPlaylistFilesChangedNote = @"PRPlaylistFilesChangedNote";
 
+NSString * const PRCurrentListDidChangeNotification = @"PRCurrentListDidChangeNotification";
 NSString * const PRLibraryViewSelectionDidChangeNotification = @"PRLibraryViewSelectionDidChangeNotification";
 
 NSString * const PRPreGainDidChangeNotification = @"PRPreGainDidChangeNotification";

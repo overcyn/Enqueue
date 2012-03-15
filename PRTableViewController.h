@@ -6,6 +6,10 @@
 
 
 @interface PRTableViewController : NSViewController <NSSplitViewDelegate, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate, PRTableViewDelegate> {
+    __weak PRCore *_core;
+	__weak PRDb *db;
+	__weak PRNowPlayingController *now;
+    
 	IBOutlet PRTableView *libraryTableView;
     IBOutlet NSView *libraryScrollView;
     IBOutlet NSScrollView *libraryScrollView2;
@@ -21,6 +25,10 @@
     IBOutlet PRTableView *verticalBrowser1TableView;
     IBOutlet NSView *verticalBrowserLibrarySuperview;
 	
+    NSMenu *libraryMenu;
+	NSMenu *headerMenu;
+	NSMenu *browserHeaderMenu;
+    
     NSTableView *browser1TableView;
     NSTableView *browser2TableView;
     NSTableView *browser3TableView;
@@ -34,17 +42,8 @@
     PRDateFormatter *dateFormatter;
     
     PRList *_currentList;
-	
     BOOL _updatingTableViewSelection; // True during reloadData: so tableViewSelectionDidChange doesn't trigger
 	BOOL refreshing;
-	
-	NSMenu *libraryMenu;
-	NSMenu *headerMenu;
-	NSMenu *browserHeaderMenu;
-	
-    __weak PRCore *_core;
-	__weak PRDb *db;
-	__weak PRNowPlayingController *now;
 }
 
 // Initialization

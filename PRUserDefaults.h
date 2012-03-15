@@ -4,10 +4,10 @@
 @interface PRUserDefaults : NSObject {
 	NSUserDefaults *defaults;
 }
-// Initialization
+/* Initialization */
 + (PRUserDefaults *)userDefaults;
 
-// Accessors
+/* Accessors */
 @property (readwrite) float volume;
 @property (readwrite) BOOL repeat;
 @property (readwrite) BOOL shuffle;

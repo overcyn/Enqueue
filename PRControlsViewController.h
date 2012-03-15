@@ -1,8 +1,12 @@
 #import <Cocoa/Cocoa.h>
-@class PRDb, PRLibrary, PRNowPlayingController, PRGradientView, PRLibraryViewController, PRCore, PRTimeFormatter, PRHeaderBox, PRHyperlinkButton;
+@class PRDb, PRNowPlayingController, PRGradientView, PRLibraryViewController, PRCore, PRTimeFormatter, PRHeaderBox, PRHyperlinkButton;
 
 
 @interface PRControlsViewController : NSViewController {
+    __weak PRCore *core;
+    __weak PRDb *db;
+	__weak PRNowPlayingController *now;
+    
 	IBOutlet NSButton *playPause;
 	IBOutlet NSButton *next;
 	IBOutlet NSButton *previous;
@@ -12,14 +16,12 @@
     IBOutlet PRHeaderBox *_box;
     IBOutlet PRHyperlinkButton *titleButton;
     IBOutlet NSTextField *_artistAlbumField;
-	IBOutlet NSSegmentedControl *ratingControl;
     
     IBOutlet NSSlider *controlSlider;
 	IBOutlet NSTextField *currentTime;
 	IBOutlet NSTextField *duration;
 	
 	IBOutlet NSImageView *albumArtView;
-	IBOutlet NSImageView *icon;
     
     IBOutlet NSButton *_volumeButton;
     IBOutlet NSSlider *_volumeSlider;
@@ -32,15 +34,9 @@
     IBOutlet NSTextField *_progressPercentTextField;
     IBOutlet NSButton *_progressButton;
     
-    BOOL _progressHidden;
-    
     PRTimeFormatter *timeFormatter;
     
-    __weak PRCore *core;
-    __weak PRDb *db;
-	__weak PRLibrary *lib;
-    __weak PRLibraryViewController *libraryViewController;
-	__weak PRNowPlayingController *now;
+    BOOL _progressHidden;
 }
 // Initialization
 - (id)initWithCore:(PRCore *)core_;

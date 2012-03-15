@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import "PRPlaylists.h"
-@class PRInfoViewController, PRTableViewController, PRListViewController, PRDb, PRNowPlayingController, PRSmartPlaylistEditorViewController, PRStaticPlaylistEditorViewController, PRAlbumListViewController, PRGradientView, PRCore;
+@class PRInfoViewController, PRTableViewController, PRListViewController, PRDb, PRSmartPlaylistEditorViewController, PRStaticPlaylistEditorViewController, PRAlbumListViewController, PRGradientView, PRCore;
 
 
 typedef enum {
@@ -12,7 +12,6 @@ typedef enum {
 @interface PRLibraryViewController : NSViewController <NSMenuDelegate, NSTextFieldDelegate> {
     __weak PRCore *_core;
 	__weak PRDb *_db;
-	__weak PRNowPlayingController *_now;
     
 	NSView *_centerSuperview;
 	NSView *_paneSuperview;
@@ -27,7 +26,7 @@ typedef enum {
 	PRListViewController *listViewController;
 	PRAlbumListViewController *albumListViewController;
 	
-	BOOL _paneIsVisible;
+	BOOL _infoViewVisible;
     PRList *_currentList;
     __weak PRTableViewController *_currentViewController;
 }
@@ -41,4 +40,7 @@ typedef enum {
 @property PRLibraryViewMode libraryViewMode;
 @property BOOL infoViewVisible;
 - (void)toggleInfoViewVisible;
+
+/* Action */
+- (void)find;
 @end

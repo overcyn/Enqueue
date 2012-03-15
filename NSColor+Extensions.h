@@ -16,4 +16,8 @@
 + (NSColor *)PRForegroundColor;
 + (NSColor *)PRForegroundBorderColor;
 
++ (NSColor *)PRSidebarBackgroundColor;
+
++ (NSColor *)transparent;
+
 @end

@@ -4,15 +4,20 @@
 
 
 @interface PRNowPlayingViewController : NSViewController <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, NSTextFieldDelegate, PROutlineViewDelegate> {
+    __weak PRCore *_core;
+    __weak PRMainWindowController *win;
+	__weak PRDb *db;
+	__weak PRNowPlayingController *now;
+    
 	IBOutlet PROutlineView *nowPlayingTableView;
-    IBOutlet PRGradientView *backgroundGradient;
     IBOutlet NSScrollView *scrollview;
     
-    NSMenu *_contextMenu;
+    NSView *_headerView;
+    NSButton *_clearButton;
+    NSPopUpButton *_menuButton;
     
-    // tableview delegate
-    PRNowPlayingCell *_nowPlayingCell;
-    PRNowPlayingHeaderCell *_nowPlayingHeaderCell;
+    NSMenu *_playlistMenu;
+    NSMenu *_contextMenu;
     
     // tableview datasource
     NSArray *_albumCounts;
@@ -23,19 +28,14 @@
     NSMutableDictionary *_childItems;
     
     NSPoint dropPoint;
-	
-    __weak PRCore *_core;
-    __weak PRMainWindowController *win;
-	__weak PRDb *db;
-	__weak PRNowPlayingController *now;
 }
-// Initialization
+/* Initialization */
 - (id)initWithCore:(PRCore *)core;
 
-// Action
+/* Action */
 - (void)higlightPlayingFile;
 - (void)addItems:(NSArray *)items atIndex:(int)index;
 
-// Menu
-- (NSMenu *)playlistMenu;
+/* Accessors */
+@property (readonly) NSView *headerView;
 @end

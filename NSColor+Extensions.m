@@ -46,4 +46,12 @@
     return [NSColor colorWithCalibratedWhite:0.75 alpha:1.0];
 }
 
++ (NSColor *)PRSidebarBackgroundColor {
+    return [NSColor colorWithDeviceRed:218./255. green:223./255. blue:230./255. alpha:1.0];
+}
+
++ (NSColor *)transparent {
+    return [NSColor colorWithCalibratedWhite:0 alpha:0.0];
+}
+
 @end

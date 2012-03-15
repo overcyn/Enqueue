@@ -247,7 +247,7 @@
 }
 
 - (void)find {
-    [[core win] find];
+    [[[core win] libraryViewController] find];
 }
 
 - (void)viewAsList {

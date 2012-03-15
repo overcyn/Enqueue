@@ -10,6 +10,7 @@
 #import "PRSmartPlaylistEditorViewController.h"
 #import "PRCore.h"
 #import "NSColor+Extensions.h"
+#import "PRLibraryViewController.h"
 
 
 @implementation PRPlaylistsViewController
@@ -73,8 +74,8 @@
 - (void)tableViewAction {
     int idx = [tableView clickedRow];
     if (idx >= [_datasource count]) {return;}
-    int playlist = [[[_datasource objectAtIndex:idx] objectForKey:@"playlist"] intValue];
-    [win setCurrentPlaylist:playlist];
+    PRList *list = [[_datasource objectAtIndex:idx] objectForKey:@"playlist"];
+    [[win libraryViewController] setCurrentList:list];
     [win setCurrentMode:PRLibraryMode];
 }
 
@@ -189,7 +190,7 @@
         [(NSNumber *)context release];
         return;
     }
-    [[_core win] setCurrentPlaylist:[[[[_core db] playlists] libraryList] intValue]];
+    [[[_core win] libraryViewController] setCurrentList:[[[_core db] playlists] libraryList]];
     [[db playlists] removeList:(NSNumber *)context];
     [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
     [(NSNumber *)context release];

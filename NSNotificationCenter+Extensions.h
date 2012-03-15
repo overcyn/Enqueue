@@ -2,6 +2,9 @@
 #import "PRPlaylists.h"
 
 
+extern NSString * const PRCurrentListDidChangeNotification;
+
+
 @interface NSNotificationCenter (Extensions)
 // Db
 - (void)postLibraryChanged;

@@ -10,31 +10,20 @@
 #import "PRPlaylists.h"
 #import "PRPlaylistsViewController.h"
 #import "PRPreferencesViewController.h"
-#import "PRTaskManagerViewController.h"
 #import "PRHistoryViewController.h"
 #import "PRTableViewController.h"
 #import "PRTaskManager.h"
 #import "PRMainMenuController.h"
 #import "PRUserDefaults.h"
-#import "PRStringFormatter.h"
 #import "NSWindow+Extensions.h"
-#import "NSOperationQueue+Extensions.h"
-
-
-@interface NSWindow (hush)
-- (void)setBottomCornerRounded:(BOOL)rounded;
-@end
 
 
 @interface PRMainWindowController ()
 /* Update */
-- (void)playlistDidChange:(NSNotification *)notification;
 - (void)windowWillEnterFullScreen:(NSNotification *)notification;
 - (void)windowWillExitFullScreen:(NSNotification *)notification;
 
 /* Accessors */
-- (NSString *)search;
-- (void)setSearch:(NSString *)newSearch;
 - (int)libraryViewMode;
 - (void)setLibraryViewMode:(int)libraryViewMode;
 @end
@@ -50,17 +39,11 @@
     _core = core;
     _db = [core db];
     _currentMode = PRLibraryMode;
-    _currentList = nil;
-    _playlistMenu = [[NSMenu alloc] init];
-    _libraryViewMenu = [[NSMenu alloc] init];
 	return self;
 }
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-     
-    [_playlistMenu release];
-    [_libraryViewMenu release];
     
     [mainMenuController release];
     [libraryViewController release];
@@ -85,32 +68,35 @@
     [[self window] setDelegate:self];
     
     // Toolbar View
-    float temp = 0;//185
+    float temp = 0;
     [toolbarView setTopBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.6]];
     [toolbarView setBotBorder:[NSColor colorWithCalibratedWhite:0.5 alpha:1.0]];
-    [toolbarView setFrame:NSMakeRect(temp, [[self window] frame].size.height - [toolbarView frame].size.height, 
-                                     [[self window] frame].size.width - temp, [toolbarView frame].size.height)];    
+    [toolbarView setFrame:NSMakeRect(temp, [[self window] frame].size.height - [toolbarView frame].size.height, [[self window] frame].size.width - temp, [toolbarView frame].size.height)];    
 
     // Window Buttons
     if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
         [[self window] setCollectionBehavior:[[self window] collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
+    } else {
+        NSRect frame = [_headerView frame];
+        frame.origin.x += 26;
+        [_headerView setFrame:frame];
     }
         
     [[[[self window] contentView] superview] addSubview:toolbarView];
     
     [_verticalDivider setColor:[NSColor colorWithCalibratedWhite:0.0 alpha:0.2]];
     [_verticalDivider setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.8]];
-    	
+    
     // ViewControllers
     libraryViewController = [[PRLibraryViewController alloc] initWithCore:_core];
     preferencesViewController = [[PRPreferencesViewController alloc] initWithCore:_core];
 	playlistsViewController = [[PRPlaylistsViewController alloc] initWithCore:_core];
     historyViewController = [[PRHistoryViewController alloc] initWithDb:_db mainWindowController:self];
-    taskManagerViewController = [[PRTaskManagerViewController alloc] initWithCore:(PRCore *)_core];
     
     nowPlayingViewController = [[PRNowPlayingViewController alloc] initWithCore:_core];
     [[nowPlayingViewController view] setFrame:[nowPlayingSuperview bounds]];
     [nowPlayingSuperview addSubview:[nowPlayingViewController view]];
+    [_sidebarHeaderView addSubview:[nowPlayingViewController headerView]];
 	
     controlsViewController = [[PRControlsViewController alloc] initWithCore:_core];
     [[controlsViewController view] setFrame:[controlsSuperview bounds]];
@@ -120,42 +106,16 @@
     [[libraryViewController view] setFrame:[centerSuperview bounds]];
     [centerSuperview addSubview:[libraryViewController view]];
     _currentViewController = libraryViewController;
-    [self setCurrentList:[[_db playlists] libraryList]];
+    [libraryViewController setCurrentList:[[_db playlists] libraryList]];
     [self setCurrentMode:PRLibraryMode];
     [_headerView addSubview:[libraryViewController headerView]];
-		    
-    // Info button
-    [infoButton setTarget:libraryViewController];
-    [infoButton setAction:@selector(infoViewToggle)];
-    
-	// Search Field
-    NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:@"", NSNullPlaceholderBindingOption, nil];
-    PRStringFormatter *stringFormatter = [[[PRStringFormatter alloc] init] autorelease];
-    [stringFormatter setMaxLength:80];
-	[searchField bind:@"value" toObject:self withKeyPath:@"search" options:options];
-    [searchField setFormatter:stringFormatter];
-    if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_6) {
-        [searchField setFocusRingType:NSFocusRingTypeNone];
-    }
     
     // miniplayer
     [centerSuperview retain];
     BOOL mini = [self miniPlayer];
     [self setMiniPlayer:FALSE];
     [self setMiniPlayer:mini];
-    
-    // Playlist Buttons
-    [_clearPlaylistButton setTarget:nowPlayingViewController];
-    [_clearPlaylistButton setAction:@selector(clearPlaylist)];
-    [_playlistPopupButton setMenu:_playlistMenu];
-    [_playlistMenu setDelegate:self];
-    [_playlistMenu setAutoenablesItems:FALSE];
-    
-    // LibraryView Button
-    [_libraryViewPopupButton setMenu:_libraryViewMenu];
-    [_libraryViewMenu setDelegate:self];
-    [_libraryViewMenu setAutoenablesItems:FALSE];
-    
+        
 	// Buttons
     for (NSDictionary *i in [NSArray arrayWithObjects:
                              [NSDictionary dictionaryWithObjectsAndKeys:libraryButton, @"button", [NSNumber numberWithInt:PRLibraryMode], @"tag", nil], 
@@ -179,8 +139,7 @@
     [_splitView setDelegate:self];
     
 	// Update
-    [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(playlistDidChange:)];
-    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUI) name:PRCurrentListDidChangeNotification object:nil];
     if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
         [[NSNotificationCenter defaultCenter] addObserver:self 
                                                  selector:@selector(windowWillEnterFullScreen:) 
@@ -196,36 +155,9 @@
 // ========================================
 // Accessors
 
-@synthesize mainMenuController;
-@synthesize taskManagerViewController;
-@synthesize libraryViewController;
-@synthesize historyViewController;
-@synthesize playlistsViewController;
-@synthesize preferencesViewController;
-@synthesize nowPlayingViewController;
-@synthesize controlsViewController;
-@dynamic currentList;
-
-- (PRList *)currentList {
-    return _currentList;
-}
-
-- (void)setCurrentList:(PRList *)currentList {
-    [currentList retain];
-    [_currentList release];
-    _currentList = currentList;
-    
-    [libraryViewController setCurrentList:_currentList];
-    [self updateUI];
-    
-	[self willChangeValueForKey:@"search"];
-	[self didChangeValueForKey:@"search"];
-}
-
-@dynamic currentMode;
-@dynamic currentPlaylist;
-@dynamic showsArtwork;
-@dynamic miniPlayer;
+@synthesize mainMenuController, libraryViewController, historyViewController, playlistsViewController, 
+preferencesViewController, nowPlayingViewController, controlsViewController;
+@dynamic currentMode, showsArtwork, miniPlayer;
 
 - (PRMode)currentMode {
     return _currentMode;
@@ -256,16 +188,6 @@
 	[centerSuperview replaceSubview:[_currentViewController view] with:[newViewController view]];
 	_currentViewController = newViewController;
     [self updateUI];
-	[self willChangeValueForKey:@"search"];
-	[self didChangeValueForKey:@"search"];
-}
-
-- (PRPlaylist)currentPlaylist {
-    return [_currentList intValue];
-}
-
-- (void)setCurrentPlaylist:(PRPlaylist)playlist {
-    [self setCurrentList:[NSNumber numberWithInt:playlist]];
 }
 
 - (BOOL)showsArtwork {
@@ -325,7 +247,7 @@
     [[self window] setDelegate:nil];
     [_splitView setDelegate:nil];
         
-    for (id i in [NSArray arrayWithObjects:_verticalDivider,libraryButton,playlistsButton, historyButton, preferencesButton, infoButton, _libraryViewPopupButton, searchField, nil]) {
+    for (id i in [NSArray arrayWithObjects:_verticalDivider,libraryButton,playlistsButton, historyButton, preferencesButton, nil]) {
         [i setHidden:[self miniPlayer]];
     }
     [toolbarView setHidden:([self miniPlayer] && winFrame.size.height == 140)];
@@ -502,7 +424,7 @@
     NSButton *button;
     switch (_currentMode) {
 		case PRLibraryMode:
-            if ([[self currentList] isEqual:[[_db playlists] libraryList]]) {
+            if ([[libraryViewController currentList] isEqual:[[_db playlists] libraryList]]) {
                 button = libraryButton;
             } else {
                 button = playlistsButton;
@@ -527,18 +449,7 @@
     [button setState:NSOnState];
     
     // Library view mode buttons
-    if (![self miniPlayer]) {
-        [searchField setHidden:(_currentMode != PRLibraryMode)];
-        [infoButton setHidden:(_currentMode != PRLibraryMode)];
-        [_libraryViewPopupButton setHidden:(_currentMode != PRLibraryMode)];
-    }
-    [self menuNeedsUpdate:_libraryViewMenu];
-    
-    if ([libraryViewController infoViewVisible]) {
-        [infoButton setImage:[NSImage imageNamed:@"InfoAlt"]];
-    } else {
-        [infoButton setImage:[NSImage imageNamed:@"Info"]];
-    }
+    [_headerView setHidden:!(![self miniPlayer] && _currentMode == PRLibraryMode)];
 }
 
 - (void)updateWindowButtons {
@@ -567,35 +478,8 @@
     }
 }
 
-- (void)find {
-    [[searchField window] makeFirstResponder:searchField];
-}
-
 // ========================================
 // Update Priv
-
-- (void)playlistDidChange:(NSNotification *)notification {
-	[self willChangeValueForKey:@"search"];
-	[self didChangeValueForKey:@"search"];
-}
-
-- (NSString *)search {
-	if (_currentMode != PRLibraryMode) {
-		return nil;
-	}
-	return [[_db playlists] searchForList:_currentList];
-}
-
-- (void)setSearch:(NSString *)search {	
-	if (_currentMode != PRLibraryMode) {
-		return;
-	}
-	if (!search) {
-		search = @"";
-	}
-    [[_db playlists] setValue:search forList:_currentList attr:PRListAttrSearch];
-    [[NSNotificationCenter defaultCenter] postPlaylistChanged:[_currentList intValue]];
-}
 
 - (int)libraryViewMode {
 	if (_currentMode != PRLibraryMode) {
@@ -614,7 +498,7 @@
 
 - (void)headerButtonAction:(id)sender {
     if ([sender tag] == PRLibraryMode) {
-        [self setCurrentList:[[_db playlists] libraryList]];
+        [[self libraryViewController] setCurrentList:[[_db playlists] libraryList]];
     }
     [self setCurrentMode:[sender tag]];
 }
@@ -781,23 +665,6 @@
 // Menu Delegate
 
 - (void)menuNeedsUpdate:(NSMenu *)menu {
-    if (menu == _playlistMenu) {
-        [_playlistMenu removeAllItems];
-        NSMenu *menu = [nowPlayingViewController playlistMenu];
-        NSArray *items = [menu itemArray];
-        [menu removeAllItems];
-        for (NSMenuItem *i in items) {
-            [_playlistMenu addItem:i];
-        }
-    } else if (menu == _libraryViewMenu) {
-        [_libraryViewMenu removeAllItems];
-        NSMenu *menu = nil;
-        NSArray *items = [menu itemArray];
-        [menu removeAllItems];
-        for (NSMenuItem *i in items) {
-            [_libraryViewMenu addItem:i];
-        }
-    }
 }
 
 @end

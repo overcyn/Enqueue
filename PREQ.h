@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 
+
 typedef enum {
     PREQFreqPreamp = 0,
     PREQFreq32,
@@ -14,33 +15,24 @@ typedef enum {
     PREQFreq16k,
 } PREQFreq;
 
-@interface PREQ : NSObject <NSCoding>
-{
+
+@interface PREQ : NSObject <NSCoding> {
     NSString *_title;
     NSArray *_amplitudes;
 }
-
-// ========================================
-// Initialization
-
+/* Initialization */
 + (PREQ *)EQ;
 + (PREQ *)EQWithEQ:(PREQ *)EQ;
 
-// ========================================
-// Accessors
-
+/* Accessors */
 @property (readwrite, copy) NSString *title;
 @property (readwrite, copy) NSArray *amplitudes;
-
 - (void)setAmp:(float)amp forFreq:(PREQFreq)freq;
 - (float)ampForFreq:(PREQFreq)freq;
 
-// ========================================
-// DefaultEQs
-
+/* DefaultEQs */
 + (NSArray *)defaultEQs;
 + (PREQ *)flat;
 + (PREQ *)stairs;
 + (PREQ *)triangle;
-
 @end

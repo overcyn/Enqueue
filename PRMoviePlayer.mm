@@ -16,26 +16,18 @@
 volatile static uint32_t sPlayerFlags = 0;
 
 @interface PRMoviePlayer ()
-
-// ========================================
-// Playback
-
+/* Playback */
 - (void)transitionCallback:(NSTimer *)timer_;
 
-// ========================================
-// Accessors
-
+/* Accessors */
 @property (readwrite, retain) NSTimer *transitionTimer;
 @property (readwrite) PRMovieQueueState queueState;
 @property (readonly) void *player;
 
-// ========================================
-// Update
-
+/* Update */
 - (void)preGainDidChange:(NSNotification *)notification;
 - (void)EQChanged:(NSNotification *)note;
 - (void)update;
-
 @end
 
 static void decodingStarted(void *context, const AudioDecoder *decoder);
@@ -50,8 +42,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 // Initialization
 // ========================================
 
-- (id)init
-{
+- (id)init {
     if (!(self = [super init])) {return nil;}
     player = new AudioPlayer();
     
@@ -102,8 +93,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 	return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [super dealloc];
 }
 
@@ -111,8 +101,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 // Playback
 // ========================================
 
-- (BOOL)play:(NSString *)file
-{
+- (BOOL)play:(NSString *)file {
     // clear queue & stop
     [self setQueueState:PRMovieQueueEmpty];
     PLAYER->Pause();
@@ -144,8 +133,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     return TRUE;
 }
 
-- (BOOL)queue:(NSString *)file
-{
+- (BOOL)queue:(NSString *)file {
     if ([self queueState] == PRMovieQueueWaiting || [self queueState] == PRMovieQueuePlayed) {
         return FALSE;
     }
@@ -169,8 +157,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     return TRUE;
 }
 
-- (BOOL)playIfNotQueued:(NSString *)file
-{
+- (BOOL)playIfNotQueued:(NSString *)file {
     BOOL success = FALSE;
     int queueState = [self queueState];
     [self setQueueState:PRMovieQueueEmpty];
@@ -187,13 +174,11 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     return success;
 }
 
-- (void)stop
-{
+- (void)stop {
     PLAYER->Stop();
 }
 
-- (void)pause
-{
+- (void)pause {
     if ([self isPlaying]) {
         if (self.transitionTimer && [self.transitionTimer isValid]) {
             [self.transitionTimer invalidate];
@@ -214,8 +199,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     [[NSNotificationCenter defaultCenter] postPlayingChanged];
 }
 
-- (void)unpause
-{
+- (void)unpause {
     if (![self isPlaying]) {
         if (self.transitionTimer && [self.transitionTimer isValid]) {
             [self.transitionTimer invalidate];
@@ -237,13 +221,11 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     [[NSNotificationCenter defaultCenter] postPlayingChanged];
 }
 
-- (void)seekForward
-{
+- (void)seekForward {
 	PLAYER->SeekForward();
 }
 
-- (void)seekBackward
-{
+- (void)seekBackward {
 	PLAYER->SeekBackward();
 }
 
@@ -251,8 +233,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 // Playback Private
 // ========================================
 
-- (void)transitionCallback:(NSTimer *)timer_
-{
+- (void)transitionCallback:(NSTimer *)timer_ {
     switch (transitionState) {
         case PRNeitherTransitionState:
             break;
@@ -294,8 +275,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 // Accessors
 // ========================================
 
-- (BOOL)isPlaying
-{
+- (BOOL)isPlaying {
     if (transitionState == PRPausingTransitionState) {
         return FALSE;
     } else if (transitionState == PRPlayingTransitionState) {
@@ -304,20 +284,17 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     return PLAYER->IsPlaying();
 }
 
-- (float)volume
-{
+- (float)volume {
     return [[PRUserDefaults userDefaults] volume];
 }
 
-- (void)setVolume:(float)volume
-{
+- (void)setVolume:(float)volume {
     [[PRUserDefaults userDefaults] setVolume:volume];
     PLAYER->SetVolume(volume);
     [[NSNotificationCenter defaultCenter] postVolumeChanged];
 }
 
-- (void)increaseVolume
-{
+- (void)increaseVolume {
     float volume = [self volume] + 0.1;
     if (volume > 1.0) {
         volume = 1.0;
@@ -325,8 +302,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     [self setVolume:volume];
 }
 
-- (void)decreaseVolume
-{
+- (void)decreaseVolume {
     float volume = [self volume] - 0.1;
     if (volume < 0.0) {
         volume = 0.0;
@@ -334,20 +310,17 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     [self setVolume:volume];
 }
 
-- (long)currentTime
-{
+- (long)currentTime {
     CFTimeInterval timeInterval;
     PLAYER->GetCurrentTime(timeInterval);
     return timeInterval * 1000;
 }
 
-- (void)setCurrentTime:(long)currentTime
-{
+- (void)setCurrentTime:(long)currentTime {
     PLAYER->SeekToTime(currentTime / 1000);
 }
 
-- (long)duration
-{
+- (long)duration {
     CFTimeInterval duration;
     PLAYER->GetTotalTime(duration);
     return duration * 1000;
@@ -361,8 +334,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 @dynamic queueState;
 @synthesize player = player;
 
-- (PRMovieQueueState)queueState
-{
+- (PRMovieQueueState)queueState {
     if ((1 << 0) & sPlayerFlags) {
         return PRMovieQueueEmpty;
     } else if ((1 << 1) & sPlayerFlags) {
@@ -373,8 +345,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     return PRMovieQueueEmpty;
 }
 
-- (void)setQueueState:(PRMovieQueueState)queueState
-{
+- (void)setQueueState:(PRMovieQueueState)queueState {
     if (queueState == PRMovieQueueEmpty) {
         OSAtomicTestAndSetBarrier(7, &sPlayerFlags);
         OSAtomicTestAndClearBarrier(6, &sPlayerFlags);
@@ -394,8 +365,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 // Update Private
 // ========================================
 
-- (void)update
-{
+- (void)update {
     [[NSNotificationCenter defaultCenter] postTimeChanged];
     [self willChangeValueForKey:@"duration"];
     [self didChangeValueForKey:@"duration"];
@@ -408,14 +378,12 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     }
 }
 
-- (void)preGainDidChange:(NSNotification *)note
-{
+- (void)preGainDidChange:(NSNotification *)note {
 //    float preGain = [[PRUserDefaults userDefaults] preGain];
     PLAYER->SetPreGain(1.0);
 }
 
-- (void)EQChanged:(NSNotification *)note
-{
+- (void)EQChanged:(NSNotification *)note {
     PREQ *EQ;
     if (![[PRUserDefaults userDefaults] EQIsEnabled]) {
         EQ = [PREQ flat];
@@ -441,8 +409,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 @end
 
-static void decodingStarted(void *context, const AudioDecoder *decoder)
-{
+static void decodingStarted(void *context, const AudioDecoder *decoder) {
 //    NSLog(@"decodingStarted");
 //    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
     NSAutoreleasePool *p = [[NSAutoreleasePool alloc] init];
@@ -454,20 +421,17 @@ static void decodingStarted(void *context, const AudioDecoder *decoder)
     [p drain];
 }
 
-static void renderingStarted(void *context, const AudioDecoder *decoder)
-{
+static void renderingStarted(void *context, const AudioDecoder *decoder) {
 //    NSLog(@"renderingStarted");
 //    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
 }
 
-static void decodingFinished(void *context, const AudioDecoder *decoder)
-{
+static void decodingFinished(void *context, const AudioDecoder *decoder) {
 //    NSLog(@"decodingFinished");
 //    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
 }
 
-static void renderingFinished(void *context, const AudioDecoder *decoder)
-{
+static void renderingFinished(void *context, const AudioDecoder *decoder) {
 //    NSLog(@"renderingFinished");
 //    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
     NSAutoreleasePool *p = [[NSAutoreleasePool alloc] init];

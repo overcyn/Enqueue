@@ -12,7 +12,6 @@
 #import "PRMoviePlayer.h"
 #import "PRNowPlayingController.h"
 #import "PRNowPlayingViewController.h"
-#import "PRRatingCell.h"
 #import "PRSliderCell.h"
 #import "PRTableViewController.h"
 #import "PRTimeFormatter.h"
@@ -29,7 +28,6 @@
     core = core_;
     db = [core_ db];
     now = [core_ now];
-    libraryViewController = [[core_ win] libraryViewController];
 	return self;
 }
 
@@ -92,8 +90,8 @@
     // Task Manager
     [_progressDivider setColor:[NSColor colorWithCalibratedWhite:0.0 alpha:0.3]];
     [_progressDivider setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.8]];
-    [_progressButton setTarget:[[core win] taskManagerViewController]];
-    [_progressButton setAction:@selector(cancelTask)];
+    [_progressButton setTarget:[core taskManager]];
+    [_progressButton setAction:@selector(cancel)];
     [self setProgressHidden:TRUE];
     [self setProgressTitle:@"Scanning for Updates..."];
     
@@ -371,10 +369,7 @@
         [currentTime setHidden:FALSE];
         [titleButton setHidden:FALSE];
     }
-
-	[icon setHidden:([now currentIndex] != 0)];
     [controlSlider setHidden:([now currentIndex] == 0)];
-	[ratingControl setHidden:([now currentIndex] == 0)];
 	
     if (![now shuffle]) {
         [shuffle setImage:[NSImage imageNamed:@"Shuffle"]];
@@ -469,18 +464,7 @@
     } else {
         [_artistAlbumField setStringValue:@""];
     }
-    
         
-    // Rating
-    int rating_;
-	if ([now currentIndex] == 0) {
-		rating_ = 0;
-	} else {
-        rating_ = [[[db library] valueForItem:[now currentItem] attr:PRItemAttrRating] intValue];
-        rating_ = floor(rating_ / 20.0);
-	}
-    [ratingControl setSelectedSegment:rating_];
-    
     // AlbumArt
     NSImage *albumArt = nil;
 	if ([now currentIndex] != 0) {
@@ -609,8 +593,8 @@
     }
     if (![[core win] miniPlayer]) {
         [[core win] setCurrentMode:PRLibraryMode];
-        [[core win] setCurrentPlaylist:[[[db playlists] libraryList] intValue]];
-        [[libraryViewController currentViewController] highlightFile:[[now currentItem] intValue]];
+        [[[core win] libraryViewController] setCurrentList:[[db playlists] libraryList]];
+        [[[[core win] libraryViewController] currentViewController] highlightFile:[[now currentItem] intValue]];
     } 
     [[[core win] nowPlayingViewController] higlightPlayingFile];
 }

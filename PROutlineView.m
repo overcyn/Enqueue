@@ -3,10 +3,12 @@
 #import "PRNowPlayingController.h"
 #import "PRNowPlayingViewController.h"
 
+
 @interface NSOutlineView (private)
 - (void)_scheduleAutoExpandTimerForItem:(id)object;
 - (void)_drawContentsAtRow:(NSInteger)row column:(NSInteger)col withCellFrame:(NSRect)frame;
 @end
+
 
 @implementation PROutlineView
 

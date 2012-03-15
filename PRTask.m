@@ -5,10 +5,8 @@
 
 // ========================================
 // Initialization
-// ========================================
 
-- (id)init
-{
+- (id)init {
     if (!(self = [super init])) {return nil;}
     shouldCancel = FALSE;
     background = TRUE;
@@ -16,24 +14,18 @@
     return self;
 }
 
-+ (PRTask *)task
-{
++ (PRTask *)task {
     return [[[PRTask alloc] init] autorelease];
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [title release];
     [super dealloc];
 }
 
 // ========================================
 // Accessors
-// ========================================
 
-@synthesize title;
-@synthesize percent;
-@synthesize shouldCancel;
-@synthesize background;
+@synthesize title, percent, shouldCancel, background;
 
 @end

@@ -9,6 +9,7 @@
 #import "PRLibraryViewSource.h"
 #import "PRTimeFormatter2.h"
 #import "PRSizeFormatter.h"
+#import "PRStringFormatter.h"
 #import "PRCore.h"
 
 @interface PRLibraryViewController ()
@@ -29,7 +30,6 @@
     if (!(self = [super init])) {return nil;}
     _core = core;
     _db = [_core db];
-    _now = [_core now];
     _currentList = [[_db playlists] libraryList];
     return self;
 }
@@ -54,7 +54,7 @@
     // Pane view
     _paneSuperview = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 500, 140)];
     [_paneSuperview setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-    _paneIsVisible = FALSE;
+    _infoViewVisible = FALSE;
     
     infoViewController = [[PRInfoViewController alloc] initWithCore:_core];
     [[infoViewController view] setFrame:[_paneSuperview bounds]];
@@ -65,11 +65,12 @@
     [_libraryPopUpButtonMenu setDelegate:self];
     [_libraryPopUpButtonMenu setAutoenablesItems:FALSE];
     
-    _headerView = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 300, 30)];
+    _headerView = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 250, 30)];
     _infoButton = [[NSButton alloc] initWithFrame:NSMakeRect(0, 3, 25, 27)];
     [_infoButton setBordered:FALSE];
     [_infoButton setTarget:self];
-    [_infoButton setAction:@selector(infoViewToggle)];
+    [_infoButton setAction:@selector(toggleInfoViewVisible)];
+    [_infoButton setButtonType:NSMomentaryChangeButton];
     [_headerView addSubview:_infoButton];
     
     _libraryPopUpButton = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(24, 4, 35, 26)];
@@ -81,7 +82,13 @@
     
     _searchField = [[NSSearchField alloc] initWithFrame:NSMakeRect(66, 6, 145, 19)];
     [_searchField setDelegate:self];
+    if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_6) {
+        [_searchField setFocusRingType:NSFocusRingTypeNone];
+    }
     [[_searchField cell] setControlSize:NSSmallControlSize];
+    PRStringFormatter *stringFormatter = [[[PRStringFormatter alloc] init] autorelease];
+    [stringFormatter setMaxLength:80];
+    [_searchField setFormatter:stringFormatter];
     [_headerView addSubview:_searchField];
     
     // Initialization
@@ -113,6 +120,7 @@
     [self setLibraryViewMode:[[_db playlists] viewModeForList:_currentList]];
     [self updateSearch];
     [self menuNeedsUpdate:_libraryPopUpButtonMenu];
+    [[NSNotificationCenter defaultCenter] postNotificationName:PRCurrentListDidChangeNotification object:self];
 }
 
 - (PRLibraryViewMode)libraryViewMode {
@@ -146,19 +154,27 @@
 }
 
 - (BOOL)infoViewVisible {
-    return _paneIsVisible;
+    return _infoViewVisible;
 }
 
 - (void)setInfoViewVisible:(BOOL)visible {
-    if (_paneIsVisible == visible) {
+    if (_infoViewVisible == visible) {
         return;
     }
-    _paneIsVisible = visible;
+    _infoViewVisible = visible;
     [self updateLayout];
 }
 
 - (void)toggleInfoViewVisible {
     [self setInfoViewVisible:![self infoViewVisible]];
+}
+
+// ========================================
+// Action
+
+- (void)find {
+    [[_searchField window] makeFirstResponder:_searchField];
+    NSLog(@"find:%@",[[_searchField window] firstResponder]);
 }
 
 // ========================================
@@ -172,7 +188,7 @@
 // update
 
 - (void)updateLayout {
-    if (_paneIsVisible) {
+    if (_infoViewVisible) {
         // pane
         NSRect frame;
         frame.origin.x = 0;
@@ -208,13 +224,6 @@
 - (void)updateSearch {
     NSString *search = [[_db playlists] valueForList:_currentList attr:PRListAttrSearch];
     [_searchField setStringValue:search];
-}
-
-// ========================================
-// Action
-
-- (void)highlightFile:(PRFile)file {
-	[_currentViewController highlightFile:file];
 }
 
 // ========================================
