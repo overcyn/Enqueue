@@ -242,16 +242,16 @@ end:;
     [[NSOperationQueue mainQueue] addBlockAndWait:^{
         [_db begin];
         // set updated attributes
-        NSMutableIndexSet *updated = [NSMutableIndexSet indexSet];
+        NSMutableArray *updated = [NSMutableArray array];
         for (PRFileInfo *i in infoArray) {
             [[_db library] setAttrs:[i attributes] forItem:[NSNumber numberWithInt:[i file]]];
             [self setFileExists:[i file]];
-            [updated addIndex:[i file]];
+            [updated addObject:[PRItem numberWithInt:[i file]]];
         }
         [_db commit];
         // post notifications
         if ([infoArray count] > 0) {
-            [[NSNotificationCenter defaultCenter] postFilesChanged:updated];
+            [[NSNotificationCenter defaultCenter] postItemsChanged:updated];
         }
     }];
     // set art
@@ -275,7 +275,7 @@ end:;
         }
         [[_db library] removeItems:items];
         [[NSNotificationCenter defaultCenter] postLibraryChanged];
-        [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[[_core now] currentPlaylist]];
+        [[NSNotificationCenter defaultCenter] postListItemsDidChange:[[_core now] currentList]];
     }];
 }
 

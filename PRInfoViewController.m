@@ -38,7 +38,7 @@
     _mode = PRInfoModeTags;
     
     [[NSNotificationCenter defaultCenter] observeLibraryViewSelectionChanged:self sel:@selector(update)];
-    [[NSNotificationCenter defaultCenter] observeFilesChanged:self sel:@selector(update)];
+    [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(update)];
 	return self;
 }
 
@@ -190,7 +190,7 @@
        for (NSNumber *i in selection) {
            [[db library] setValue:[NSNumber numberWithInt:rating] forItem:i attr:PRItemAttrRating];
        }
-       [[NSNotificationCenter defaultCenter] postFilesChanged:[NSIndexSet indexSetWithArray:selection]];
+       [[NSNotificationCenter defaultCenter] postItemsChanged:selection];
    } else if (object == albumArtView && [keyPath isEqualToString:@"objectValue"]) {
        [self setAlbumArt:[object objectValue]];
    }
@@ -362,9 +362,8 @@
         [[db library] updateTagsForItem:i];
     }
     
-    NSIndexSet *selectionIndexes = [NSIndexSet indexSetWithArray:selection];
-    [[NSNotificationCenter defaultCenter] postFilesChanged:selectionIndexes];
-    [[[[core win] libraryViewController] currentViewController] highlightFiles:selectionIndexes];
+    [[NSNotificationCenter defaultCenter] postItemsChanged:selection];
+    [[[[core win] libraryViewController] currentViewController] highlightFiles:selection];
     [[NSOperationQueue mainQueue] addBlock:^{[self update];}];
 }
 

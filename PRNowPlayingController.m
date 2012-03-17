@@ -63,12 +63,8 @@
 // ========================================
 // Accessors
 
-@synthesize invalidItems = _invalidItems;
-@synthesize mov = _mov;
-
-@dynamic currentList;
-@dynamic currentListItem;
-@dynamic currentItem;
+@synthesize invalidItems = _invalidItems, mov = _mov;
+@dynamic currentList, currentListItem, currentItem, currentIndex;
 
 - (PRList *)currentList {
     return [[_db playlists] nowPlayingList];
@@ -79,23 +75,10 @@
 }
 
 - (PRItem *)currentItem {
-    if ([self currentFile] != 0) {
-        return [NSNumber numberWithInt:[self currentFile]];
-    }
-    return nil;
-}
-
-@dynamic currentPlaylist;
-@dynamic currentPlaylistItem;
-@dynamic currentIndex;
-@dynamic currentFile;
-
-- (PRPlaylist)currentPlaylist {
-	return [[[_db playlists] nowPlayingList] intValue];
-}
-
-- (PRPlaylistItem)currentPlaylistItem {
-    return [[self currentListItem] intValue];
+    if ([self currentIndex] == 0) {
+		return nil;
+	} 
+    return [[_db playlists] itemAtIndex:[self currentIndex] forList:[self currentList]];
 }
 
 - (int)currentIndex {
@@ -103,13 +86,6 @@
         return 0;
 	}
 	return [[_db playlists] indexForListItem:[self currentListItem]];
-}
-
-- (PRFile)currentFile {
-	if ([self currentIndex] == 0) {
-		return 0;
-	} 
-    return [[[_db playlists] itemAtIndex:[self currentIndex] forList:[self currentList]] intValue];
 }
 
 @dynamic shuffle;
@@ -209,7 +185,7 @@
     // update tags
     BOOL updated = [[_db library] updateTagsForItem:item];
     if (updated) {
-        [[NSNotificationCenter defaultCenter] postFilesChanged:[NSIndexSet indexSetWithIndex:[item intValue]]];
+        [[NSNotificationCenter defaultCenter] postItemsChanged:[NSArray arrayWithObject:item]];
     }
     
     NSString *path = [[_db library] valueForItem:item attr:PRItemAttrPath];
@@ -386,7 +362,7 @@
 }
 
 - (void)playlistDidChange:(NSNotification *)notification {
-    if ([[[notification userInfo] objectForKey:@"playlist"] intValue] == [self currentPlaylist]) {
+    if ([[[notification userInfo] objectForKey:@"playlist"] isEqual:[self currentList]]) {
         [_invalidItems removeAllObjects];
         [self setPosition:[[_db playbackOrder] count]];
         [self setMarker:[[_db playbackOrder] count]];

@@ -155,8 +155,7 @@
 // ========================================
 // Accessors
 
-@synthesize mainMenuController, libraryViewController, historyViewController, playlistsViewController, 
-preferencesViewController, nowPlayingViewController, controlsViewController;
+@synthesize mainMenuController, libraryViewController, historyViewController, playlistsViewController, preferencesViewController, nowPlayingViewController, controlsViewController;
 @dynamic currentMode, showsArtwork, miniPlayer;
 
 - (PRMode)currentMode {

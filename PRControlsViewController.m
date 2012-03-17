@@ -62,7 +62,7 @@
     [self volumeChanged:nil];
     
 	// register for observers
-    [[NSNotificationCenter defaultCenter] observeFilesChanged:self sel:@selector(updateControls)];
+    [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(updateControls)];
     [[NSNotificationCenter defaultCenter] observeShuffleChanged:self sel:@selector(updateControls)];
     [[NSNotificationCenter defaultCenter] observeRepeatChanged:self sel:@selector(updateControls)];
     [[NSNotificationCenter defaultCenter] observeTimeChanged:self sel:@selector(updatePlayButton)];

@@ -135,10 +135,11 @@
     // context menu
     _contextMenu = [[NSMenu alloc] init];
     [_contextMenu setDelegate:self];
+    [_contextMenu setAutoenablesItems:FALSE];
     [nowPlayingTableView setMenu:_contextMenu];
         
     // playlist and current file obs
-    [[NSNotificationCenter defaultCenter] observeFilesChanged:self sel:@selector(updateTableView)];
+    [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(updateTableView)];
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(currentFileDidChange:)];
     
@@ -158,7 +159,7 @@
 // Action
 
 - (void)higlightPlayingFile {
-    if ([now currentFile] == 0) {
+    if (![now currentItem]) {
         return;
     }
     id currentItem = [self itemForDbRow:[now currentIndex]];
@@ -215,7 +216,7 @@
     }
     
     [[db playlists] addItems:files atIndex:dbRow toList:[now currentList]];
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
     [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
     [nowPlayingTableView collapseItem:nil];
     
@@ -271,7 +272,7 @@
         // otherwise delete all previous songs
         [[db playlists] clearList:[now currentList] exceptIndex:[now currentIndex]];
     }
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
     [nowPlayingTableView expandItem:nil];
 }
 
@@ -299,11 +300,11 @@
     PRList *list = context;
     [[db playlists] clearList:list];
     [[db playlists] copyItemsFromList:[now currentList] toList:list];
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[list intValue]];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
 }
 
 - (void)newPlaylist:(id)sender {
-    [[win playlistsViewController] duplicatePlaylist:[now currentPlaylist]];
+    [[win playlistsViewController] duplicatePlaylist:[[now currentList] intValue]];
 }
 
 // ========================================
@@ -349,7 +350,7 @@
         [[db playlists] appendItem:[[db playlists] itemAtIndex:dbRow forList:[now currentList]] toList:list];
         dbRow = [dbRows indexGreaterThanIndex:dbRow];
     }
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[[sender representedObject] intValue]];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
 }
 
 - (void)revealInFinder {
@@ -406,7 +407,7 @@
         [now stop];
     }
     [[db playlists] removeItemsAtIndexes:dbRows fromList:[now currentList]];
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
     [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
     
     for (int i = 0; i < [array count]; i++) {
@@ -448,7 +449,7 @@
 }
 
 - (void)playlistDidChange:(NSNotification *)notification {
-    if ([[[notification userInfo] valueForKey:@"playlist"] intValue] == [now currentPlaylist]) {
+    if ([[[notification userInfo] valueForKey:@"playlist"] isEqual:[now currentList]]) {
         [self updateTableView];
         [nowPlayingTableView collapseItem:nil];
         if ([now currentIndex] != 0) {
@@ -544,13 +545,19 @@
         dbRow = [dbRows indexGreaterThanIndex:dbRow];
     }
     if (addToQueue) {
-        [_contextMenu addItemWithTitle:@"Add to Queue" action:@selector(addSelectedToQueue) keyEquivalent:@""];
+        NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Add to Queue" action:@selector(addSelectedToQueue) keyEquivalent:@""];
+        [menuItem setTarget:self];
+        [_contextMenu addItem:menuItem];
     }
     if (removeFromQueue) {
-        [_contextMenu addItemWithTitle:@"Remove From Queue" action:@selector(removeSelectedFromQueue) keyEquivalent:@""];
+        NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Remove From Queue" action:@selector(removeSelectedFromQueue) keyEquivalent:@""];
+        [menuItem setTarget:self];
+        [_contextMenu addItem:menuItem];
     }
     if ([queue count] != 0) {
-        [_contextMenu addItemWithTitle:@"Clear Queue" action:@selector(clearQueue) keyEquivalent:@""];
+        NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Clear Queue" action:@selector(clearQueue) keyEquivalent:@""];
+        [menuItem setTarget:self];
+        [_contextMenu addItem:menuItem];
     }
     [_contextMenu addItem:[NSMenuItem separatorItem]];
     
@@ -575,18 +582,19 @@
     [_contextMenu addItem:[NSMenuItem separatorItem]];
     
     // Other
-    [_contextMenu addItemWithTitle:@"Show in Library" action:@selector(showInLibrary) keyEquivalent:@""];
-    [_contextMenu addItemWithTitle:@"Reveal in Finder" action:@selector(revealInFinder) keyEquivalent:@""];
+    NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Show in Library" action:@selector(showInLibrary) keyEquivalent:@""];
+    [menuItem setTarget:self];
+    [_contextMenu addItem:menuItem];
+    menuItem = [[NSMenuItem alloc] initWithTitle:@"Reveal in Finder" action:@selector(revealInFinder) keyEquivalent:@""];
+    [menuItem setTarget:self];
+    [_contextMenu addItem:menuItem];
     [_contextMenu addItem:[NSMenuItem separatorItem]];
     
     c[0] = NSDeleteCharacter;;
     item = [[[NSMenuItem alloc] initWithTitle:@"Remove" action:@selector(removeSelected) keyEquivalent:[NSString stringWithCharacters:c length:1]] autorelease];
+    [item setTarget:self];
     [item setKeyEquivalentModifierMask:0];
     [_contextMenu addItem:item];
-    
-    for (NSMenuItem *i in [_contextMenu itemArray]) {
-        [i setTarget:self];
-    }
 }
 
 // ========================================
@@ -819,7 +827,7 @@
         
         // Move dbIndexesToMove to dbIndexToInsert
         [[db playlists] moveItemsAtIndexes:dbIndexesToMove toIndex:dbIndexToInsert inList:[now currentList]];
-        [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
+        [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
         [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
         [nowPlayingTableView collapseItem:nil];
         
@@ -893,7 +901,7 @@
         }
         
         [[db playlists] addItems:files atIndex:dbRow toList:[now currentList]];
-        [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
+        [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
         [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
         [nowPlayingTableView collapseItem:nil];
         

@@ -5,33 +5,26 @@
 #import "PRDb.h"
 #import "PRTagger.h"
 
+
 @implementation PRUpdate060Operation
 
 // ========================================
 // Initialization
 
-+ (id)operationWithCore:(PRCore *)core
-{
++ (id)operationWithCore:(PRCore *)core {
     return [[[PRUpdate060Operation alloc] initWithCore:core] autorelease];
 }
 
-- (id)initWithCore:(PRCore *)core
-{
+- (id)initWithCore:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
     _core = core;
 	return self;
 }
 
-- (void)dealloc
-{
-    [super dealloc];
-}
-
 // ========================================
 // Action
 
-- (void)main
-{
+- (void)main {
     NSLog(@"begin update060");
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     PRTask *task = [PRTask task];
@@ -73,8 +66,7 @@ end:;
     NSLog(@"end update060");
 }
 
-- (void)updateFiles:(NSArray *)array
-{
+- (void)updateFiles:(NSArray *)array {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSMutableArray *infoArray = [NSMutableArray array];
     for (NSArray *i in array) {
@@ -93,15 +85,16 @@ end:;
     [[NSOperationQueue mainQueue] addBlockAndWait:^{
         [[_core db] begin];
         // set updated attributes
-        NSMutableIndexSet *updated = [NSMutableIndexSet indexSet];
+        NSMutableArray *items = [NSMutableArray array];
         for (NSDictionary *i in infoArray) {
             [[[_core db] library] setValue:[i objectForKey:@"lyrics"] forItem:[i objectForKey:@"file"] attr:PRItemAttrLyrics];
             [[[_core db] library] setValue:[i objectForKey:@"compilation"] forItem:[i objectForKey:@"file"] attr:PRItemAttrCompilation];
+            [items addObject:[i objectForKey:@"file"]];
         }
         [[_core db] commit];
         // post notifications
         if ([infoArray count] > 0) {
-            [[NSNotificationCenter defaultCenter] postFilesChanged:updated];
+            [[NSNotificationCenter defaultCenter] postItemsChanged:items];
         }
     }];
     [pool drain];

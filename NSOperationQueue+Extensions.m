@@ -21,4 +21,10 @@ static NSOperationQueue* cw_sharedOperationQueue = nil;
     [self addOperations:operations waitUntilFinished:TRUE];
 }
 
+- (void)addBlock:(void (^)(void))block afterDelay:(NSTimeInterval)delay {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC*delay),dispatch_get_current_queue(), ^{
+        [self addBlock:block];
+    });
+}
+
 @end

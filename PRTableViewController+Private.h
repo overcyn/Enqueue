@@ -31,6 +31,7 @@
 @property (nonatomic) BOOL ascending;
 @property (nonatomic, assign) PRItemAttr *sortAttr;
 @property (nonatomic, assign) NSArray *columnInfo;
+@property (nonatomic, readonly) NSIndexSet *selectedIndexes;
 
 - (void)toggleColumn:(NSTableColumn *)column;
 - (void)toggleBrowser:(PRItemAttr *)attr;
@@ -49,7 +50,6 @@
 - (void)updateHeaderMenu;
 - (void)updateLibraryMenu;
 - (void)updateBrowserHeaderMenu;
-- (void)executeMenu:(id)sender;
 
 // Misc
 - (int)dbRowForTableRow:(int)tableRow;

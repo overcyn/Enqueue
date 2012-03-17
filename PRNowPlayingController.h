@@ -46,9 +46,6 @@
 @property (readonly) PRList *currentList;
 @property (readonly) PRListItem *currentListItem;
 @property (readonly) PRItem *currentItem;
-@property (readonly) PRPlaylist currentPlaylist;
-@property (readonly) PRPlaylistItem currentPlaylistItem;
-@property (readonly) PRFile currentFile;
 @property (readonly) int currentIndex;
 
 @property (readwrite) BOOL shuffle;

@@ -26,6 +26,8 @@ typedef enum {
 	PRListViewController *listViewController;
 	PRAlbumListViewController *albumListViewController;
 	
+    NSDate *_searchFieldLastEdit;
+    
 	BOOL _infoViewVisible;
     PRList *_currentList;
     __weak PRTableViewController *_currentViewController;

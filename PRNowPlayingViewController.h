@@ -9,8 +9,8 @@
 	__weak PRDb *db;
 	__weak PRNowPlayingController *now;
     
-	IBOutlet PROutlineView *nowPlayingTableView;
-    IBOutlet NSScrollView *scrollview;
+    PROutlineView *nowPlayingTableView;
+    NSScrollView *scrollview;
     
     NSView *_headerView;
     NSButton *_clearButton;

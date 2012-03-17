@@ -41,9 +41,6 @@
 }
 
 - (void)dealloc {
-    [sizeFormatter release];
-    [timeFormatter release];
-    [numberFormatter release];
     [libraryMenu release];
     [headerMenu release];
     [browserHeaderMenu release];
@@ -73,13 +70,13 @@
 	// LibraryTableView TableColumns
     NSTableColumn *tableColumn;
     NSMutableArray *tableColumns = [NSMutableArray array];
-    stringFormatter = [[PRStringFormatter alloc] init];
-    numberFormatter = [[PRNumberFormatter alloc] init];
-    sizeFormatter = [[PRSizeFormatter alloc] init];
-    timeFormatter = [[PRTimeFormatter alloc] init];
-    bitRateFormatter = [[PRBitRateFormatter alloc] init];
-    kindFormatter = [[PRKindFormatter alloc] init];
-    dateFormatter = [[PRDateFormatter alloc] init];
+    PRStringFormatter *stringFormatter = [[PRStringFormatter alloc] init];
+    PRNumberFormatter *numberFormatter = [[PRNumberFormatter alloc] init];
+    PRSizeFormatter *sizeFormatter = [[PRSizeFormatter alloc] init];
+    PRTimeFormatter *timeFormatter = [[PRTimeFormatter alloc] init];
+    PRBitRateFormatter *bitRateFormatter = [[PRBitRateFormatter alloc] init];
+    PRKindFormatter *kindFormatter = [[PRKindFormatter alloc] init];
+    PRDateFormatter *dateFormatter = [[PRDateFormatter alloc] init];
     
     // Playlist Index
     tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRListSortIndex] autorelease];
@@ -448,7 +445,7 @@
 	// Update
     [[NSNotificationCenter defaultCenter] observeLibraryChanged:self sel:@selector(libraryDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(playlistDidChange:)];
-    [[NSNotificationCenter defaultCenter] observeFilesChanged:self sel:@selector(tagsDidChange:)];
+    [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(tagsDidChange:)];
     [[NSNotificationCenter defaultCenter] observeUseAlbumArtistChanged:self sel:@selector(libraryDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistFilesChanged:)];
     [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(playingFileChanged:)];
@@ -459,7 +456,7 @@
 // ========================================
 // Accessors
 
-@dynamic currentList, info, selection;
+@dynamic currentList, info, selection, selectedIndexes;
 
 - (PRList *)list {
     return _currentList;
@@ -495,6 +492,13 @@
 }
 
 // ========================================
+// accessors
+
+- (NSIndexSet *)selectedIndexes {
+    return [libraryTableView selectedRowIndexes];
+}
+
+// ========================================
 // Action
 
 - (void)highlightFile:(PRFile)file {
@@ -515,37 +519,35 @@
 	}
 }
 
-- (void)highlightFiles:(NSIndexSet *)files {
-    if ([files count] == 0) {
+- (void)highlightFiles:(NSArray *)items {
+    if ([items count] == 0) {
         return;
     }
-    
     NSMutableIndexSet *dbRows = [NSMutableIndexSet indexSet];
-    [files enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop){
-        int dbRow = [[db libraryViewSource] rowForItem:[NSNumber numberWithInt:idx]];
+    for (NSNumber *i in items) {
+        int dbRow = [[db libraryViewSource] rowForItem:i];
         if (dbRow == -1) {
             [dbRows removeAllIndexes];
-            *stop = TRUE;
+            break;
         }
         [dbRows addIndex:dbRow];
-    }];
+    }
     if ([dbRows count] == 0) {
         [[db playlists] setSearch:@"" forList:_currentList];
         [[db playlists] setSelection:[NSArray array] forBrowser:1 list:_currentList];
         [[db playlists] setSelection:[NSArray array] forBrowser:2 list:_currentList];
         [[db playlists] setSelection:[NSArray array] forBrowser:3 list:_currentList];
-        [[NSNotificationCenter defaultCenter] postPlaylistChanged:[_currentList intValue]];
+        [[NSNotificationCenter defaultCenter] postListDidChange:_currentList];
         
-        [files enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop){
-            int dbRow = [[db libraryViewSource] rowForItem:[NSNumber numberWithInt:idx]];
+        for (NSNumber *i in items) {
+            int dbRow = [[db libraryViewSource] rowForItem:i];
             if (dbRow == -1) {
                 [dbRows removeAllIndexes];
-                *stop = TRUE;
+                break;
             }
             [dbRows addIndex:dbRow];
-        }];
+        }
     }
-    
     if ([dbRows count] > 0) {
         NSIndexSet *tableRows = [self tableRowIndexesForDbRowIndexes:dbRows];
         [libraryTableView selectRowIndexes:tableRows byExtendingSelection:FALSE];
@@ -578,7 +580,7 @@
         }
         [[db playlists] setSelection:selection forBrowser:i list:_currentList];
     }
-    [[NSNotificationCenter defaultCenter] postPlaylistChanged:[_currentList intValue]];
+    [[NSNotificationCenter defaultCenter] postListDidChange:_currentList];
     [browser1TableView scrollRowToVisiblePretty:[browser1TableView selectedRow]];
     [browser2TableView scrollRowToVisiblePretty:[browser2TableView selectedRow]];
     [browser3TableView scrollRowToVisiblePretty:[browser3TableView selectedRow]];
@@ -594,7 +596,7 @@
         PRItem *item = [[db libraryViewSource] itemForRow:[self dbRowForTableRow:idx]];
         [[db playlists] appendItem:item toList:[now currentList]];
     }];
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
     if ([[db playlists] countForList:[now currentList]] > 0) {
         [now playItemAtIndex:1];
     }
@@ -628,7 +630,7 @@
         }];
         [[db playlists] removeItemsAtIndexes:indexesToDelete fromList:_currentList];
         
-        [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[_currentList intValue]];
+        [[NSNotificationCenter defaultCenter] postListItemsDidChange:_currentList];
         [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
     } else {
         NSString *message = @"Do you want to remove the selected song from your library?";
@@ -653,7 +655,7 @@
         PRItem *item = [[db libraryViewSource] itemForRow:[self dbRowForTableRow:idx]];
         [[db playlists] appendItem:item toList:list];
     }];
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[list intValue]];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
 }
 
 - (void)revealIndexes:(NSIndexSet *)indexes {
@@ -676,7 +678,7 @@
     }
     [[db library] removeItems:items];
     [[NSNotificationCenter defaultCenter] postLibraryChanged];
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
     [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:FALSE];    
 }
 
@@ -701,7 +703,7 @@
         [now stop];
         [[db playlists] clearList:[now currentList]];
         [[db playlists] appendItemsFromLibraryViewSourceToList:[now currentList]];
-        [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
+        [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
         [now playItemAtIndex:[self dbRowForTableRow:[libraryTableView clickedRow]]];
     }
 }
@@ -713,7 +715,7 @@
     [now stop];
     [[db playlists] clearList:[now currentList]];
     [[db playlists] appendItemsFromLibraryViewSourceToList:[now currentList]];
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
     if ([[db playlists] countForList:[now currentList]] > 0) {
         [now playItemAtIndex:1];
     }
@@ -755,20 +757,20 @@
     [libraryTableView reloadDataForRowIndexes:rows columnIndexes:columns];
 }
 
-- (void)libraryDidChange:(NSNotification *)notification {
+- (void)libraryDidChange:(NSNotification *)note {
     if (_currentList) {
         [self reloadData:TRUE];
     }
 }
 
-- (void)tagsDidChange:(NSNotification *)notification {
+- (void)tagsDidChange:(NSNotification *)note {
     if (_currentList) {
 		[self reloadData:TRUE];
 	}
 }
 
-- (void)playlistDidChange:(NSNotification *)notification {
-	if (!_currentList || ![[[notification userInfo] valueForKey:@"playlist"] isEqual:_currentList]) {
+- (void)playlistDidChange:(NSNotification *)note {
+	if (!_currentList || ![[[note userInfo] valueForKey:@"playlist"] isEqual:_currentList]) {
         return;
 	}
     [self reloadData:FALSE];
@@ -1098,7 +1100,6 @@
     for (NSMenuItem *i in [libraryMenu itemArray]) {
 		[libraryMenu removeItem:i];
 	}
-    NSIndexSet *selection = [libraryTableView selectedRowIndexes];
     MAZeroingWeakRef *selfRef = [MAZeroingWeakRef refWithTarget:self];
     unichar c[1] = {NSCarriageReturnCharacter};
     
@@ -1107,21 +1108,21 @@
     [item setTitle:@"Play"];
     [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
     [item setKeyEquivalentModifierMask:0];
-    [item setActionBlock:^{[[selfRef target] playIndexes:selection];}];
+    [item setActionBlock:^{[[selfRef target] playIndexes:[[selfRef target] selectedIndexes]];}];
     [libraryMenu addItem:item];
     
     item = [[[NSMenuItem alloc] init] autorelease];
     [item setTitle:@"Play Next"];
     [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
     [item setKeyEquivalentModifierMask:NSAlternateKeyMask];
-    [item setActionBlock:^{[[selfRef target] appendNextIndexes:selection];}];
+    [item setActionBlock:^{[[selfRef target] appendNextIndexes:[[selfRef target] selectedIndexes]];}];
     [libraryMenu addItem:item];
     
     item = [[[NSMenuItem alloc] init] autorelease];
     [item setTitle:@"Append"];
     [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
     [item setKeyEquivalentModifierMask:NSShiftKeyMask];
-    [item setActionBlock:^{[[selfRef target] appendIndexes:selection];}];
+    [item setActionBlock:^{[[selfRef target] appendIndexes:[[selfRef target] selectedIndexes]];}];
     [libraryMenu addItem:item];    
     [libraryMenu addItem:[NSMenuItem separatorItem]];
     
@@ -1134,7 +1135,7 @@
         item = [[[NSMenuItem alloc] init] autorelease];
         [item setTitle:[NSString stringWithFormat:@" %@",[[db playlists] titleForList:i]]];
         [item setImage:[NSImage imageNamed:@"ListViewTemplate"]];
-        [item setActionBlock:^{[[selfRef target] appendIndexes:selection toList:i];}];
+        [item setActionBlock:^{[[selfRef target] appendIndexes:[[selfRef target] selectedIndexes] toList:i];}];
         [playlistMenu addItem:item];
     }
     NSMenuItem *playlistMenuItem = [[[NSMenuItem alloc] init] autorelease];
@@ -1146,7 +1147,7 @@
     // Misc
     item = [[NSMenuItem alloc] init];
     [item setTitle:@"Reveal in Finder"];
-    [item setActionBlock:^{[[selfRef target] revealIndexes:selection];}];
+    [item setActionBlock:^{[[selfRef target] revealIndexes:[[selfRef target] selectedIndexes]];}];
     [libraryMenu addItem:item];
     [libraryMenu addItem:[NSMenuItem separatorItem]];
     
@@ -1159,7 +1160,7 @@
     }
     [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
     [item setKeyEquivalentModifierMask:0];
-    [item setActionBlock:^{[[selfRef target] deleteIndexes:selection];}];
+    [item setActionBlock:^{[[selfRef target] deleteIndexes:[[selfRef target] selectedIndexes]];}];
     [libraryMenu addItem:item];
 }
 
@@ -1199,10 +1200,6 @@
         [menu removeItem:i];
         [browserHeaderMenu addItem:i];
     }
-}
-
-- (void)executeMenu:(id)sender {
-    ((void (^)())[sender representedObject])();
 }
 
 // ========================================
@@ -1299,8 +1296,7 @@
             } else if ([attr isEqual:PRItemAttrPath]) {
                 value = [[NSURL URLWithString:value] path];
             } else if ([attr isEqual:PRItemAttrTrackNumber]) {
-                PRFile file = [[[db libraryViewSource] itemForRow:rowIndex] intValue];
-                if (file == [now currentFile]) {
+                if ([[[db libraryViewSource] itemForRow:rowIndex] isEqual:[now currentItem]]) {
                     value = [NSString stringWithFormat:@"◈"];
                 }
             }
@@ -1321,6 +1317,7 @@
 	PRFileAttribute attribute = [[tableColumn identifier] intValue];
 	if ([self dbRowForTableRow:rowIndex] != -1) {
         PRFile file = [[[db libraryViewSource] itemForRow:[self dbRowForTableRow:rowIndex]] intValue];
+        PRItem *item = [PRItem numberWithInt:file];
 		if (attribute == PRTitleFileAttribute ||
 			attribute == PRArtistFileAttribute ||
 			attribute == PRAlbumFileAttribute ||
@@ -1341,7 +1338,7 @@
             int rating = [object intValue] * 20;
             [[db library] setValue:[NSNumber numberWithInt:rating] forItem:[NSNumber numberWithInt:file] attr:PRItemAttrRating];
 		}
-        [[NSNotificationCenter defaultCenter] postFilesChanged:[NSIndexSet indexSetWithIndex:file]];
+        [[NSNotificationCenter defaultCenter] postItemsChanged:[NSArray arrayWithObject:item]];
 	}
 }
 
@@ -1443,7 +1440,7 @@
                    
     int row2 = [self dbRowForTableRow:row];
     [[db playlists] moveItemsAtIndexes:indexes toIndex:row2 inList:_currentList];
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[_currentList intValue]];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:_currentList];
     
     // select
     int index = [[db playlists] indexForListItem:listItem];
@@ -1506,7 +1503,7 @@
             }
         }];
         [[db playlists] setSelection:selection forBrowser:browser list:_currentList];
-        [[NSNotificationCenter defaultCenter] postPlaylistChanged:[_currentList intValue]];
+        [[NSNotificationCenter defaultCenter] postListDidChange:_currentList];
 	}
 }
 

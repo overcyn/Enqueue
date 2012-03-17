@@ -834,11 +834,11 @@
 
 - (void)rateCurrentSong:(int)rating
 {
-    if (rating < 0 || rating > 100 || [now currentFile] == 0) {
+    if (rating < 0 || rating > 100 || ![now currentItem]) {
         return;
     }
     [[db library] setValue:[NSNumber numberWithInt:rating] forItem:[now currentItem] attr:PRItemAttrRating];
-    [[NSNotificationCenter defaultCenter] postFilesChanged:[NSIndexSet indexSetWithIndex:[now currentFile]]];
+    [[NSNotificationCenter defaultCenter] postItemsChanged:[NSArray arrayWithObject:[now currentItem]]];
 }
 
 @end

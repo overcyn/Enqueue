@@ -183,7 +183,7 @@
         [[db playlists] appendItem:item toList:[now currentList]];
 	}
 	
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[now currentPlaylist]];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
 	[now playItemAtIndex:1];
 }
 

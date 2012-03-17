@@ -22,10 +22,8 @@
 
 // ========================================
 // Initialization
-// ========================================
 
-- (id)init
-{
+- (id)init {
     if (!(self = [super init])) {return nil;}
     // Register a connection. Prevents multiple instances of application
     _connection = [[NSConnection connectionWithReceivePort:[NSPort port] sendPort:[NSPort port]] retain];
@@ -37,8 +35,6 @@
     if (![[[[NSFileManager alloc] init] autorelease] findOrCreateDirectoryAtPath:path error:nil]) {
         [[PRLog sharedLog] presentFatalError:[self couldNotCreateDirectoryError:path]];
     }
-    
-//    [PREnableLogger enableLogger];
     
     _opQueue = [[NSOperationQueue alloc] init];
     [_opQueue setMaxConcurrentOperationCount:1];
@@ -54,8 +50,7 @@
     return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [_db release];
     [_now release];
     [_win release];
@@ -66,8 +61,7 @@
     [super dealloc];
 }
 
-- (void)awakeFromNib
-{
+- (void)awakeFromNib {
     [_win showWindow:nil];
     
 //    NSLog(@"window:%@",[_win window]);
@@ -79,7 +73,6 @@
 //        modalDelegate:_trialSheet
 //       didEndSelector:nil
 //          contextInfo:nil];
-
     
     if ([[PRUserDefaults userDefaults] showWelcomeSheet]) {
         [[PRUserDefaults userDefaults] setShowWelcomeSheet:FALSE];
@@ -96,24 +89,21 @@
 
 // ========================================
 // Accessors
-// ========================================
 
-@synthesize db = _db;
-@synthesize now = _now;
-@synthesize win = _win;
-@synthesize opQueue = _opQueue;
-@synthesize folderMonitor = _folderMonitor;
-@synthesize taskManager = _taskManager;
-@synthesize mainMenu = _mainMenu;
-@synthesize lastfm = _lastfm;
-@synthesize keys = _keys;
+@synthesize db = _db, 
+now = _now, 
+win = _win, 
+opQueue = _opQueue, 
+folderMonitor = _folderMonitor, 
+taskManager = _taskManager, 
+mainMenu = _mainMenu, 
+lastfm = _lastfm, 
+keys = _keys;
 
 // ========================================
 // Action
-// ========================================
 
-- (IBAction)itunesImport:(id)sender
-{
+- (IBAction)itunesImport:(id)sender {
     NSString *folderPath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Music"] stringByAppendingPathComponent:@"iTunes"];;
     NSString *filePath = [folderPath stringByAppendingPathComponent:@"iTunes Music Library.xml"];
     if ([[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:filePath]) {
@@ -139,8 +129,7 @@
     }
 }
 
-- (IBAction)showOpenPanel:(id)sender
-{
+- (IBAction)showOpenPanel:(id)sender {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
     [panel setCanChooseFiles:YES];
     [panel setCanChooseDirectories:YES];
@@ -161,31 +150,25 @@
 
 // ========================================
 // NSApplication Delegate
-// ========================================
 
-- (void)applicationDidFinishLaunching:(NSNotification *)notification
-{
+- (void)applicationDidFinishLaunching:(NSNotification *)notification {
 }
 
-- (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication
-                    hasVisibleWindows:(BOOL)flag
-{
+- (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag {
     if (!flag) {
         [[_win window] makeKeyAndOrderFront:nil];
     }
     return TRUE;
 }
 
-- (BOOL)application:(NSApplication *)application openFile:(NSString *)filename
-{
+- (BOOL)application:(NSApplication *)application openFile:(NSString *)filename {
     NSArray *URLs = [NSArray arrayWithObject:[NSURL fileURLWithPath:filename]];
     PRImportOperation *op = [PRImportOperation operationWithURLs:URLs core:self];
     [_opQueue addOperation:op];
     return TRUE;
 }
 
-- (void)application:(NSApplication *)application openFiles:(NSArray *)filenames
-{
+- (void)application:(NSApplication *)application openFiles:(NSArray *)filenames {
     NSMutableArray *URLs = [NSMutableArray array];
     for (NSString *i in filenames) {
         [URLs addObject:[NSURL fileURLWithPath:i]];
@@ -194,8 +177,7 @@
     [_opQueue addOperation:op]; 
 }
 
-- (NSMenu *)applicationDockMenu:(NSApplication *)sender
-{
+- (NSMenu *)applicationDockMenu:(NSApplication *)sender {
     NSMenu *menu = [[_win mainMenuController] dockMenu];
     if (menu) {
         return menu;
@@ -205,26 +187,18 @@
 
 // ========================================
 // Error
-// ========================================
 
-- (NSError *)multipleInstancesError
-{
-    NSString *description = @"Another instance of Enqueue appears to be running.";
-    NSString *recovery = @"Close the other instance and try again.";
+- (NSError *)multipleInstancesError {
     NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                              description, NSLocalizedDescriptionKey,
-                              recovery, NSLocalizedRecoverySuggestionErrorKey,
-                              nil];
+                              @"Another instance of Enqueue appears to be running.", NSLocalizedDescriptionKey,
+                              @"Close the other instance and try again.", NSLocalizedRecoverySuggestionErrorKey, nil];
     return [NSError errorWithDomain:PREnqueueErrorDomain code:0 userInfo:userInfo];
 }
 
-- (NSError *)couldNotCreateDirectoryError:(NSString *)directory;
-{
-    NSString *description = @"Enqueue could not create the following directory and must close.";
-    NSString *recovery = directory;
+- (NSError *)couldNotCreateDirectoryError:(NSString *)directory; {
     NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                              description, NSLocalizedDescriptionKey,
-                              recovery, NSLocalizedRecoverySuggestionErrorKey,
+                              @"Enqueue could not create the following directory and must close.", NSLocalizedDescriptionKey,
+                              directory, NSLocalizedRecoverySuggestionErrorKey,
                               nil];
     return [NSError errorWithDomain:PREnqueueErrorDomain code:0 userInfo:userInfo];
 }

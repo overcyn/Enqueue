@@ -104,7 +104,7 @@
     }
     PRList *list = [[db playlists] addStaticList];
     [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:list attr:PRListAttrTitle];
-    [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
+    [[NSNotificationCenter defaultCenter] postListsDidChange];
 }
 
 - (void)newSmartPlaylist {
@@ -132,7 +132,7 @@
     }
     PRList *list = [[db playlists] addSmartList];
     [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:list attr:PRListAttrTitle];
-    [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
+    [[NSNotificationCenter defaultCenter] postListsDidChange];
 }
 
 - (void)duplicatePlaylist:(PRPlaylist)playlist {
@@ -169,8 +169,8 @@
     PRList *list = [[db playlists] addStaticList];
     [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:list attr:PRListAttrTitle];
     [[db playlists] copyItemsFromList:(NSNumber *)context toList:list];
-    [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
-    [[NSNotificationCenter defaultCenter] postPlaylistFilesChanged:[list intValue]];
+    [[NSNotificationCenter defaultCenter] postListsDidChange];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
     [(NSNumber *)context release];
 }
 
@@ -192,7 +192,7 @@
     }
     [[[_core win] libraryViewController] setCurrentList:[[[_core db] playlists] libraryList]];
     [[db playlists] removeList:(NSNumber *)context];
-    [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
+    [[NSNotificationCenter defaultCenter] postListsDidChange];
     [(NSNumber *)context release];
 }
 
@@ -298,8 +298,9 @@
         if (playlist == -1) {
             return;
         }
-        [[db playlists] setTitle:object forList:[NSNumber numberWithInt:playlist]];
-        [[NSNotificationCenter defaultCenter] postPlaylistChanged:playlist];
+        PRList *list = [PRList numberWithInt:playlist];
+        [[db playlists] setTitle:object forList:list];
+        [[NSNotificationCenter defaultCenter] postListDidChange:list];
     }
 }
 

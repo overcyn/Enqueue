@@ -18,6 +18,7 @@
 /* update */
 - (void)updateLayout;
 - (void)updateSearch;
+- (void)postSearchChangedAndRetry:(BOOL)retry;
 @end
 
 
@@ -270,13 +271,35 @@
 // ========================================
 // text field delegate
 
+#define SEARCH_DELAY 0.25
+
 - (void)controlTextDidChange:(NSNotification *)note {
+    [_searchFieldLastEdit release];
+    _searchFieldLastEdit = [[NSDate date] retain];
+    [[NSOperationQueue currentQueue] addBlock:^{
+        [self postSearchChangedAndRetry:TRUE];
+    } afterDelay:SEARCH_DELAY];
+}
+
+- (void)postSearchChangedAndRetry:(BOOL)retry {
     NSString *search = [_searchField stringValue];
 	if (!search) {
 		search = @"";
 	}
+    if ([[[_db playlists] valueForList:_currentList attr:PRListAttrSearch] isEqual:search]) {
+        return;
+    }
+    if (fabs([_searchFieldLastEdit timeIntervalSinceNow]) < SEARCH_DELAY) {
+        if (retry) {
+            [[NSOperationQueue currentQueue] addBlock:^{
+                [self postSearchChangedAndRetry:FALSE];
+            } afterDelay:SEARCH_DELAY];
+        }
+        return;
+    }
+    NSLog(@"setValue:%@",search);
     [[_db playlists] setValue:search forList:_currentList attr:PRListAttrSearch];
-    [[NSNotificationCenter defaultCenter] postPlaylistChanged:[_currentList intValue]];
+    [[NSNotificationCenter defaultCenter] postListDidChange:_currentList];
 }
 
 @end

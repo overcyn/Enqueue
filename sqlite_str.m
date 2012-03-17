@@ -501,8 +501,8 @@ int no_case(void *udp, int lenA, const void *strA, int lenB, const void *strB)
     CFStringRef stringA = CFStringCreateWithCharactersNoCopy(NULL, uniCharA+rangeA.location, rangeA.length, kCFAllocatorNull);
     CFStringRef stringB = CFStringCreateWithCharactersNoCopy(NULL, uniCharB+rangeB.location, rangeB.length, kCFAllocatorNull);
     
-    int result = CFStringCompare(stringA, stringB, kCFCompareCaseInsensitive);
-    
+    int result = CFStringCompare(stringA, stringB, kCFCompareCaseInsensitive|kCFCompareLocalized|kCFCompareNonliteral|kCFCompareDiacriticInsensitive|kCFCompareWidthInsensitive|kCFCompareNumerically);
+
     CFRelease(stringA);
     CFRelease(stringB);
     

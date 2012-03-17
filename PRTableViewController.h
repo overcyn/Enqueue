@@ -33,19 +33,10 @@
     NSTableView *browser2TableView;
     NSTableView *browser3TableView;
     
-    PRStringFormatter *stringFormatter;
-	PRSizeFormatter *sizeFormatter;
-	PRTimeFormatter *timeFormatter;
-	PRNumberFormatter *numberFormatter;
-    PRBitRateFormatter *bitRateFormatter;
-    PRKindFormatter *kindFormatter;
-    PRDateFormatter *dateFormatter;
-    
     PRList *_currentList;
     BOOL _updatingTableViewSelection; // True during reloadData: so tableViewSelectionDidChange doesn't trigger
 	BOOL refreshing;
 }
-
 // Initialization
 - (id)initWithCore:(PRCore *)core;
 
@@ -56,11 +47,10 @@
 
 // Action
 - (void)highlightFile:(PRFile)file;
-- (void)highlightFiles:(NSIndexSet *)indexSet;
+- (void)highlightFiles:(NSArray *)items;
 - (void)highlightArtist:(NSString *)artist;
 - (void)browseToArtist:(NSString *)artist;
 
 // Menu
 - (NSMenu *)browserHeaderMenu;
-
 @end

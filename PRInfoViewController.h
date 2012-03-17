@@ -1,9 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import "PRLibrary.h"
+@class PRDb, PRGradientView, PRNumberFormatter, PRStringFormatter, PRCore, PRPathFormatter, PRKindFormatter, PRSizeFormatter, PRDateFormatter, PRTimeFormatter, PRBitRateFormatter;
 
-
-@class PRDb, PRGradientView, PRNumberFormatter, PRStringFormatter, PRCore, PRPathFormatter,
-PRKindFormatter, PRSizeFormatter, PRDateFormatter, PRTimeFormatter, PRBitRateFormatter;
 
 typedef enum {
     PRInfoModeTags,
@@ -12,8 +10,8 @@ typedef enum {
     PRInfoModeArtwork,
 } PRInfoMode;
 
-@interface PRInfoViewController : NSViewController
-{
+
+@interface PRInfoViewController : NSViewController {
 	IBOutlet NSTextField *titleField;
 	IBOutlet NSTextField *artistField;	
 	IBOutlet NSTextField *albumArtistField;	
@@ -75,7 +73,6 @@ typedef enum {
     PRCore *core;
 	PRDb *db;
 }
-
 // Initialization
 - (id)initWithCore:(PRCore *)core_;
 
@@ -94,6 +91,4 @@ typedef enum {
 
 - (void)setCompilation:(NSNumber *)value;
 - (NSNumber *)compilation;
-
-
 @end

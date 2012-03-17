@@ -34,25 +34,22 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
     [self postNotificationName:PRLibraryDidChangeNotification object:nil];
 }
 
-- (void)postFilesChanged:(NSIndexSet *)files {
-    NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
-                          files, @"files", nil];
+- (void)postItemsChanged:(NSArray *)items {
+    NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:items, @"files", nil];
     [self postNotificationName:PRTagsDidChangeNotification object:nil userInfo:info];
 }
 
-- (void)postPlaylistsChanged {
+- (void)postListsDidChange {
     [self postNotificationName:PRPlaylistsDidChangeNotification object:nil];
 }
 
-- (void)postPlaylistChanged:(PRPlaylist)playlist {
-    NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
-                          [NSNumber numberWithInt:playlist], @"playlist", nil];
+- (void)postListDidChange:(NSNumber *)list {
+    NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:list, @"playlist", nil];
     [self postNotificationName:PRPlaylistDidChangeNotification object:nil userInfo:info];
 }
 
-- (void)postPlaylistFilesChanged:(PRPlaylist)playlist {
-    NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
-                          [NSNumber numberWithInt:playlist], @"playlist", nil];
+- (void)postListItemsDidChange:(NSNumber *)list {
+    NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:list, @"playlist", nil];
     [self postNotificationName:PRPlaylistFilesChangedNote object:nil userInfo:info];
 }
 
@@ -60,7 +57,7 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
     [self addObserver:obs selector:sel name:PRLibraryDidChangeNotification object:nil];
 }
 
-- (void)observeFilesChanged:(id)obs sel:(SEL)sel {
+- (void)observeItemsChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRTagsDidChangeNotification object:nil];
 }
 

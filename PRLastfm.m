@@ -16,7 +16,6 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 
 
 @interface PRLastfm ()
-
 // Update
 - (void)playingChanged:(NSNotification *)note;
 - (void)playingFileChanged:(NSNotification *)note;
@@ -40,7 +39,6 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 // Misc
 - (NSURLRequest *)requestForParameters:(NSDictionary *)parameters;
 - (NSString *)signatureForParameters:(NSDictionary *)parameters;
-
 @end
 
 
@@ -48,10 +46,8 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 
 // ========================================
 // Initialization
-// ========================================
 
-- (id)initWithCore:(PRCore *)core;
-{
+- (id)initWithCore:(PRCore *)core; {
     if (!(self = [super init])) {return nil;}
     _core = core;
     _db = [core db];
@@ -75,8 +71,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [_cachedSessionKey release];
     [_file release];
     [super dealloc];
@@ -84,31 +79,25 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 
 // ========================================
 // Properties
-// ========================================
 
-- (void)setLastfmState:(PRLastfmState)state
-{
+- (void)setLastfmState:(PRLastfmState)state {
     _lastfmState = state;
     [[NSNotificationCenter defaultCenter] postLastfmStateChanged];
 }
 
-- (PRLastfmState)lastfmState
-{
+- (PRLastfmState)lastfmState {
     return _lastfmState;
 }
 
-- (void)setUsername:(NSString *)username
-{
+- (void)setUsername:(NSString *)username {
     [[PRUserDefaults userDefaults] setLastFMUsername:username];
 }
 
-- (NSString *)username
-{
+- (NSString *)username {
     return [[PRUserDefaults userDefaults] lastFMUsername];
 }
 
-- (void)setSessionKey:(NSString *)sessionKey
-{
+- (void)setSessionKey:(NSString *)sessionKey {
     [_cachedSessionKey release];
     _cachedSessionKey = [sessionKey retain];
     if ([[self username] length] == 0) {
@@ -122,17 +111,14 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     }
 }
 
-- (NSString *)sessionKey
-{
+- (NSString *)sessionKey {
     return _cachedSessionKey;
 }
 
 // ========================================
 // Scrobbling
-// ========================================
 
-- (void)playingChanged:(NSNotification *)note
-{
+- (void)playingChanged:(NSNotification *)note {
     if ([[[_core now] mov] isPlaying]) {
         [_file play];
     } else {
@@ -140,24 +126,21 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     }
 }
 
-- (void)playingFileChanged:(NSNotification *)note
-{
+- (void)playingFileChanged:(NSNotification *)note {
     if (_file) {
         [self scrobble:_file];
     }
     [_file release];
     _file = nil;
-    if ([[_core now] currentFile] != 0) {
-        _file = [[PRLastfmFile alloc] initWithFile:[[_core now] currentFile]];
+    if ([[_core now] currentItem]) {
+        _file = [[PRLastfmFile alloc] initWithItem:[[_core now] currentItem]];
         [_file play];
         [self nowPlaying:_file];
     }
 }
 
-- (void)nowPlaying:(PRLastfmFile *)lastfmFile
-{
-    PRFile file = [lastfmFile file];
-    PRItem *item = [PRItem numberWithInt:file];
+- (void)nowPlaying:(PRLastfmFile *)lastfmFile {
+    PRItem *item = [lastfmFile item];
     NSString *title = [[_db library] valueForItem:item attr:PRItemAttrTitle];
     NSString *artist = [[_db library] artistValueForItem:item];
     NSString *album = [[_db library] valueForItem:item attr:PRItemAttrAlbum];
@@ -188,10 +171,8 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     [NSURLConnection send:request onCompletion:handler];
 }
 
-- (void)scrobble:(PRLastfmFile *)lastfmFile
-{
-    PRFile file = [lastfmFile file];
-    PRItem *item = [PRItem numberWithInt:file];
+- (void)scrobble:(PRLastfmFile *)lastfmFile {
+    PRItem *item = [lastfmFile item];
     NSString *title = [[_db library] valueForItem:item attr:PRItemAttrTitle];
     NSString *artist = [[_db library] artistValueForItem:item];
     NSString *album = [[_db library] valueForItem:item attr:PRItemAttrAlbum];
@@ -223,8 +204,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     [NSURLConnection send:request onCompletion:handler];
 }
 
-- (void)fileScrobbled:(NSData *)data
-{
+- (void)fileScrobbled:(NSData *)data {
     if (!data) {
         return;
     }
@@ -247,10 +227,8 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 
 // ========================================
 // Authorization
-// ========================================
 
-- (void)connect
-{
+- (void)connect {
     [self disconnect];
     [self setLastfmState:PRLastfmValidatingState];
     // Create Request
@@ -269,8 +247,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     [NSURLConnection send:request onCompletion:handler];
 }
 
-- (void)tokenGotten:(NSData *)data request:(NSURLRequest *)request
-{
+- (void)tokenGotten:(NSData *)data request:(NSURLRequest *)request {
     if (request != _currentRequest) {
         return;
     }
@@ -295,8 +272,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     [self performSelector:@selector(getSession:) withObject:info afterDelay:5.0];
 }
 
-- (void)getSession:(NSDictionary *)info
-{
+- (void)getSession:(NSDictionary *)info {
     NSString *token = [info objectForKey:@"token"];
     NSURLRequest *currentRequest = [info objectForKey:@"request"];
     if (currentRequest != _currentRequest) {
@@ -320,8 +296,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     [self performSelector:@selector(getSession:) withObject:info afterDelay:5.0];
 }
 
-- (void)sessionGotten:(NSData *)data request:(NSURLRequest *)request
-{
+- (void)sessionGotten:(NSData *)data request:(NSURLRequest *)request {
     if (request != _currentRequest) {
         return;
     }
@@ -342,8 +317,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     _currentRequest = nil;
 }
 
-- (void)disconnect
-{
+- (void)disconnect {
     [self setUsername:@""];
     [self setSessionKey:@""];
     [_currentRequest release];
@@ -353,10 +327,8 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 
 // ========================================
 // Misc
-// ========================================
 
-- (NSURLRequest *)requestForParameters:(NSDictionary *)parameters
-{
+- (NSURLRequest *)requestForParameters:(NSDictionary *)parameters {
     NSURL *URL = [NSURL URLWithString:@"http://ws.audioscrobbler.com/2.0/"];
     NSMutableString *body = [NSMutableString string];
     for (NSString *i in [parameters allKeys]) {
@@ -379,8 +351,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     return request;
 }
 
-- (NSString *)signatureForParameters:(NSDictionary *)parameters
-{
+- (NSString *)signatureForParameters:(NSDictionary *)parameters {
     NSArray *orderedKeys = [[parameters allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
     NSMutableString *stringToSign = [NSMutableString string];
     for (NSString *i in orderedKeys) {

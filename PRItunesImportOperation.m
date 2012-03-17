@@ -217,7 +217,7 @@ end:;
             [[_db playlists] appendItem:file toList:list];
         }
         [_db commit];
-        [[NSNotificationCenter defaultCenter] postPlaylistsChanged];
+        [[NSNotificationCenter defaultCenter] postListsDidChange];
     };
     [[NSOperationQueue mainQueue] addBlockAndWait:blk];
 }

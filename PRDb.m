@@ -261,6 +261,13 @@ create:;
         [self commit];
         version = 6;
     }
+    if (version == 6) {
+        [self begin];
+        e = [self attempt:@"REINDEX NOCASE2"];
+        if (!e) {return FALSE;}
+        [self commit];
+        version = 7;
+    }
     return TRUE;
 }
 

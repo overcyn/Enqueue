@@ -1,8 +1,8 @@
 #import <Foundation/Foundation.h>
 #import "PRLibrary.h"
 #import "PRLastfmFile.h"
-
 @class PRCore;
+
 
 typedef enum {
     PRLastfmDisconnectedState,
@@ -12,8 +12,7 @@ typedef enum {
 } PRLastfmState;
 
 
-@interface PRLastfm : NSObject
-{
+@interface PRLastfm : NSObject {
     // Accesssors
     NSString *_cachedSessionKey;
     PRLastfmState _lastfmState;
@@ -27,22 +26,14 @@ typedef enum {
     __weak PRCore *_core;
     __weak PRDb *_db;
 }
-
-// ========================================
 // Initialization
-
 - (id)initWithCore:(PRCore *)core;
 
-// ========================================
 // Accessors
-
 - (PRLastfmState)lastfmState;
 - (NSString *)username;
 
-// ========================================
 // Authorization
-
 - (void)connect;
 - (void)disconnect;
-
 @end

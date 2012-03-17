@@ -8,13 +8,13 @@ extern NSString * const PRCurrentListDidChangeNotification;
 @interface NSNotificationCenter (Extensions)
 // Db
 - (void)postLibraryChanged;
-- (void)postFilesChanged:(NSIndexSet *)files;
-- (void)postPlaylistsChanged;
-- (void)postPlaylistChanged:(PRPlaylist)playlist;
-- (void)postPlaylistFilesChanged:(PRPlaylist)playlist;
+- (void)postItemsChanged:(NSArray *)items;
+- (void)postListsDidChange;
+- (void)postListDidChange:(PRList *)list;
+- (void)postListItemsDidChange:(PRList *)list;
 
 - (void)observeLibraryChanged:(id)obs sel:(SEL)sel;
-- (void)observeFilesChanged:(id)obs sel:(SEL)sel;
+- (void)observeItemsChanged:(id)obs sel:(SEL)sel;
 - (void)observePlaylistsChanged:(id)obs sel:(SEL)sel;
 - (void)observePlaylistChanged:(id)obs sel:(SEL)sel;
 - (void)observePlaylistFilesChanged:(id)obs sel:(SEL)sel;
