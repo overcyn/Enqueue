@@ -7,9 +7,7 @@
     NSData *imageData = [self TIFFRepresentation];
     NSBitmapImageRep *imageRep = [NSBitmapImageRep imageRepWithData:imageData];
     NSDictionary *imageProps = [NSDictionary dictionaryWithObject:[NSNumber numberWithFloat:compression] forKey:NSImageCompressionFactor];
-    imageData = [imageRep representationUsingType:NSJPEGFileType properties:imageProps];
-    
-    return imageData;
+    return [imageRep representationUsingType:NSJPEGFileType properties:imageProps];
 }
 
 @end

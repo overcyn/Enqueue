@@ -6,7 +6,6 @@
 #import "PRItunesImportOperation.h"
 #import "PRFolderMonitor.h"
 #import "PRTaskManager.h"
-#import "PRWelcomeSheetController.h"
 #import "PRUserDefaults.h"
 #import "NSFileManager+DirectoryLocations.h"
 #import "PRGrowl.h"
@@ -17,6 +16,8 @@
 #import "PRKeyboardShortcuts.h"
 #import "PRFullRescanOperation.h"
 #import "PRTrialSheetController.h"
+#import "PRWelcomeSheetController.h"
+
 
 @implementation PRCore
 
@@ -64,27 +65,13 @@
 - (void)awakeFromNib {
     [_win showWindow:nil];
     
-//    NSLog(@"window:%@",[_win window]);
-//    _trialSheet = [[PRTrialSheetController alloc] initWithCore:self];
-//    
-//    [_trialSheet beginSheetForWindow:[_win window]];
-//    [NSApp beginSheet:[_trialSheet window] 
-//       modalForWindow:[_win window]
-//        modalDelegate:_trialSheet
-//       didEndSelector:nil
-//          contextInfo:nil];
-    
+    PRTrialSheetController *trialSheet = [[PRTrialSheetController alloc] initWithCore:self]; 
+    [trialSheet beginSheetModalForWindow:[_win window] completionHandler:^{[trialSheet release];}];
     if ([[PRUserDefaults userDefaults] showWelcomeSheet]) {
         [[PRUserDefaults userDefaults] setShowWelcomeSheet:FALSE];
-        _welcomeSheet = [[PRWelcomeSheetController alloc] initWithCore:self];
-        [NSApp beginSheet:[_welcomeSheet window] 
-           modalForWindow:[_win window]
-            modalDelegate:_welcomeSheet
-           didEndSelector:nil
-              contextInfo:nil];
+        PRWelcomeSheetController *welcomeSheet = [[PRWelcomeSheetController alloc] initWithCore:self];
+        [welcomeSheet beginSheetModalForWindow:[_win window] completionHandler:^{[welcomeSheet release];}];
     }
-    [_opQueue addOperation:[[[PRVacuumOperation alloc] initWithCore:self] autorelease]];
-    [_opQueue setSuspended:FALSE];
 }
 
 // ========================================
@@ -120,12 +107,11 @@ keys = _keys;
         [panel setMessage:@"Select the 'iTunes Music Library.xml' file to import."];
         [panel setDirectoryURL:[NSURL fileURLWithPath:filePath]];
         [panel setAllowedFileTypes:[NSArray arrayWithObject:@"xml"]];
-        void (^handler)(NSInteger result) = ^(NSInteger result) {
+        [panel beginSheetModalForWindow:[_win window] completionHandler:^(NSInteger result) {
             if (result == NSCancelButton || [[panel URLs] count] == 0) {return;}
             PRItunesImportOperation *op = [PRItunesImportOperation operationWithURL:[[panel URLs] objectAtIndex:0] core:self];
             [_opQueue addOperation:op];
-        };
-        [panel beginSheetModalForWindow:[_win window] completionHandler:handler];
+        }];
     }
 }
 

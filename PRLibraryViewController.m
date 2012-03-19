@@ -151,7 +151,8 @@
 	
 	[[_currentViewController view] setFrame:[_centerSuperview bounds]];
 	[_centerSuperview replaceSubview:[oldViewController view] with:[_currentViewController view]];    
-	[_currentViewController setCurrentList:_currentList];    
+	[_currentViewController setCurrentList:_currentList];
+    [self menuNeedsUpdate:_libraryPopUpButtonMenu];
 }
 
 - (BOOL)infoViewVisible {
@@ -297,7 +298,6 @@
         }
         return;
     }
-    NSLog(@"setValue:%@",search);
     [[_db playlists] setValue:search forList:_currentList attr:PRListAttrSearch];
     [[NSNotificationCenter defaultCenter] postListDidChange:_currentList];
 }

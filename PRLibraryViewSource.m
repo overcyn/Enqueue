@@ -160,7 +160,10 @@ NSString * const compilationString = @"Compilations  ";
 	} else {
         listSort = [[_db playlists] albumListViewSortAttrForList:_list];
 	}
-	
+	if ([listSort isEqual:PRListSortIndex]) {
+        listSort = PRListSortArtistAlbum;
+    }
+    
     // Sort column
     NSString *sortColumnName;
     if ([listSort isEqual:PRListSortIndex]) {
@@ -175,7 +178,7 @@ NSString * const compilationString = @"Compilations  ";
                 listSort = PRItemAttrArtist;
             }
         }
-        sortColumnName = [PRLibrary columnNameForItemAttr:listSort];
+        sortColumnName = [PRPlaylists columnNameForSortAttr:listSort];
     }
     
     // Sort

@@ -122,7 +122,6 @@
 		6771E90F127A47E3007A34F2 /* PRHistoryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6771E90E127A47E3007A34F2 /* PRHistoryViewController.m */; };
 		67723FDE1396BEB7006A6AAC /* PRStringFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 67723FDD1396BEB7006A6AAC /* PRStringFormatter.m */; };
 		6774045E12739455007EA4F5 /* PRRule.m in Sources */ = {isa = PBXBuildFile; fileRef = 6774045D12739455007EA4F5 /* PRRule.m */; };
-		677AE06A14C79D2600159E6F /* PRTrialSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 677AE06914C79D2600159E6F /* PRTrialSheet.xib */; };
 		677AE06D14C79D4700159E6F /* PRTrialSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = 677AE06C14C79D4700159E6F /* PRTrialSheetController.m */; };
 		677CB95A13BC74B60090B4D0 /* PRRescanOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 677CB95913BC74B60090B4D0 /* PRRescanOperation.m */; };
 		67804A96124D4F24003268AD /* PRLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = 67804A95124D4F24003268AD /* PRLibrary.m */; };
@@ -218,6 +217,8 @@
 		67DDC70414FA0F0800E361B0 /* MAZeroingWeakRef.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DDC6FE14FA0F0800E361B0 /* MAZeroingWeakRef.m */; };
 		67DDC70F14FA169B00E361B0 /* NSMenuItem+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */; };
 		67DE033A147B07A600BBB0F6 /* PRFileInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE0339147B07A600BBB0F6 /* PRFileInfo.m */; };
+		67DE13351516E37D00E94F28 /* PRAlertWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE13341516E37D00E94F28 /* PRAlertWindowController.m */; };
+		67DE13391516FB4800E94F28 /* PRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE13381516FB4800E94F28 /* PRViewController.m */; };
 		67DE93AC14884767002687E2 /* PRFrameView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE93AB14884767002687E2 /* PRFrameView.m */; };
 		67DF08411482DFEC00D2C9B5 /* PRControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 67DF083E1482DFEC00D2C9B5 /* PRControlsView.xib */; };
 		67DF08421482DFEC00D2C9B5 /* PRControlsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DF08401482DFEC00D2C9B5 /* PRControlsViewController.m */; };
@@ -473,7 +474,6 @@
 		67723FDD1396BEB7006A6AAC /* PRStringFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRStringFormatter.m; sourceTree = "<group>"; };
 		6774045C12739455007EA4F5 /* PRRule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRule.h; sourceTree = "<group>"; };
 		6774045D12739455007EA4F5 /* PRRule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRule.m; sourceTree = "<group>"; };
-		677AE06914C79D2600159E6F /* PRTrialSheet.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRTrialSheet.xib; sourceTree = "<group>"; };
 		677AE06B14C79D4700159E6F /* PRTrialSheetController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRTrialSheetController.h; sourceTree = "<group>"; };
 		677AE06C14C79D4700159E6F /* PRTrialSheetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRTrialSheetController.m; sourceTree = "<group>"; };
 		677CB95813BC74B60090B4D0 /* PRRescanOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRRescanOperation.h; sourceTree = "<group>"; };
@@ -630,6 +630,10 @@
 		67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMenuItem+Extensions.m"; sourceTree = "<group>"; };
 		67DE0338147B07A600BBB0F6 /* PRFileInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRFileInfo.h; sourceTree = "<group>"; };
 		67DE0339147B07A600BBB0F6 /* PRFileInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRFileInfo.m; sourceTree = "<group>"; };
+		67DE13331516E37D00E94F28 /* PRAlertWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRAlertWindowController.h; sourceTree = "<group>"; };
+		67DE13341516E37D00E94F28 /* PRAlertWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRAlertWindowController.m; sourceTree = "<group>"; };
+		67DE13371516FB4800E94F28 /* PRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRViewController.h; sourceTree = "<group>"; };
+		67DE13381516FB4800E94F28 /* PRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRViewController.m; sourceTree = "<group>"; };
 		67DE93AA14884767002687E2 /* PRFrameView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRFrameView.h; sourceTree = "<group>"; };
 		67DE93AB14884767002687E2 /* PRFrameView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRFrameView.m; sourceTree = "<group>"; };
 		67DF083E1482DFEC00D2C9B5 /* PRControlsView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRControlsView.xib; sourceTree = "<group>"; };
@@ -820,7 +824,7 @@
 		6706FCC312B9A06A00C9B075 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				67691F731338B64D00D27C01 /* Views */,
+				67691F731338B64D00D27C01 /* Cocoa Subclasses */,
 				6739CBD81252AD2B00AB54A1 /* Formatters */,
 				67691F741338B69700D27C01 /* Categories */,
 			);
@@ -1131,6 +1135,8 @@
 				67EB42441339B843009167BA /* PRBackgroundView.m */,
 				67DF08431483159700D2C9B5 /* PRHeaderBox.h */,
 				67DF08441483159800D2C9B5 /* PRHeaderBox.m */,
+				67DE13371516FB4800E94F28 /* PRViewController.h */,
+				67DE13381516FB4800E94F28 /* PRViewController.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -1152,7 +1158,7 @@
 			name = Button;
 			sourceTree = "<group>";
 		};
-		67691F731338B64D00D27C01 /* Views */ = {
+		67691F731338B64D00D27C01 /* Cocoa Subclasses */ = {
 			isa = PBXGroup;
 			children = (
 				67C23B12137FA9080099A5CA /* Window */,
@@ -1165,7 +1171,7 @@
 				67691F6B1338B4FF00D27C01 /* Split View */,
 				67691F721338B60E00D27C01 /* Button */,
 			);
-			name = Views;
+			name = "Cocoa Subclasses";
 			sourceTree = "<group>";
 		};
 		67691F741338B69700D27C01 /* Categories */ = {
@@ -1259,7 +1265,6 @@
 		677AE06814C79A7D00159E6F /* Trial Sheet */ = {
 			isa = PBXGroup;
 			children = (
-				677AE06914C79D2600159E6F /* PRTrialSheet.xib */,
 				677AE06B14C79D4700159E6F /* PRTrialSheetController.h */,
 				677AE06C14C79D4700159E6F /* PRTrialSheetController.m */,
 			);
@@ -1517,6 +1522,8 @@
 		67C23B12137FA9080099A5CA /* Window */ = {
 			isa = PBXGroup;
 			children = (
+				67DE13331516E37D00E94F28 /* PRAlertWindowController.h */,
+				67DE13341516E37D00E94F28 /* PRAlertWindowController.m */,
 				671334CA13206A7D00764174 /* PRApplication.h */,
 				671334CB13206A7D00764174 /* PRApplication.m */,
 				67C23B13137FA91F0099A5CA /* PRWindow.h */,
@@ -1831,7 +1838,6 @@
 				67E63D2614B81F7E0029B3C4 /* PRRulePredicateViewController.xib in Resources */,
 				67FAE2B714BEF65D00A0778B /* PlaylistsPlaceholder.png in Resources */,
 				67FAE2B914BEF93E00A0778B /* HistoryPlaceholder.png in Resources */,
-				677AE06A14C79D2600159E6F /* PRTrialSheet.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1993,6 +1999,8 @@
 				67A7A2C5150C5A2B005E91C0 /* PRNonScrollingScrollView.m in Sources */,
 				67A7A2CB150C5AB9005E91C0 /* PRBox.m in Sources */,
 				67A7A2D4150C909F005E91C0 /* NSTableView+Extensions.m in Sources */,
+				67DE13351516E37D00E94F28 /* PRAlertWindowController.m in Sources */,
+				67DE13391516FB4800E94F28 /* PRViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

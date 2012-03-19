@@ -66,6 +66,7 @@
     
 	// Window
     [[self window] setDelegate:self];
+    [[self window] setAutorecalculatesKeyViewLoop:TRUE];
     
     // Toolbar View
     float temp = 0;
@@ -101,7 +102,7 @@
     controlsViewController = [[PRControlsViewController alloc] initWithCore:_core];
     [[controlsViewController view] setFrame:[controlsSuperview bounds]];
     [controlsSuperview addSubview:[controlsViewController view]];
-    	
+    
     // Initialize currentViewController
     [[libraryViewController view] setFrame:[centerSuperview bounds]];
     [centerSuperview addSubview:[libraryViewController view]];

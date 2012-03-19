@@ -75,7 +75,7 @@
 // ========================================
 // Update
 
-- (void)reloadData:(BOOL)force {	
+- (void)reloadData:(BOOL)force {		
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
 	// update libSrc
@@ -105,44 +105,30 @@
 		[albumSumCountArray replaceObjectAtIndex:i withObject:[NSNumber numberWithInt:count]];
 	}
     
-	// reload tables
-    refreshing = TRUE;
+    // update cachedArt
+    [_cachedArtwork removeAllObjects];
+    
+    // reload tables
     _updatingTableViewSelection = FALSE;
-    NSIndexSet *indexSet;
     if ((tables & PRLibraryView) == PRLibraryView) {
         [libraryTableView reloadData];
         [albumTableView reloadData];
     }
     if ((tables & PRBrowser1View) == PRBrowser1View) {
         [browser1TableView reloadData];
-        indexSet = [[db libraryViewSource] selectionForBrowser:1];
-        if (![indexSet isEqualToIndexSet:[browser1TableView selectedRowIndexes]]) {
-            [browser1TableView selectRowIndexes:indexSet byExtendingSelection:FALSE];
-        }
     }
-    if ((tables & PRBrowser2View) == PRBrowser2View) {
+    if ((tables & PRBrowser2View) == PRBrowser2View) {    
         [browser2TableView reloadData];
-        indexSet = [[db libraryViewSource] selectionForBrowser:2];
-        if (![indexSet isEqualToIndexSet:[browser2TableView selectedRowIndexes]]) {
-            [browser2TableView selectRowIndexes:indexSet byExtendingSelection:FALSE];
-        }
     }
     if ((tables & PRBrowser3View) == PRBrowser3View) {
         [browser3TableView reloadData];
-        indexSet = [[db libraryViewSource] selectionForBrowser:3];
-        if (![indexSet isEqualToIndexSet:[browser3TableView selectedRowIndexes]]) {
-            [browser3TableView selectRowIndexes:indexSet byExtendingSelection:FALSE];
-        }
-    }	
-	refreshing = FALSE;
+    }
+    [browser1TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:1] byExtendingSelection:FALSE];
+    [browser2TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:2] byExtendingSelection:FALSE];
+    [browser3TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:3] byExtendingSelection:FALSE];
     _updatingTableViewSelection = TRUE;
 	
-    // update cachedArt
-    [_cachedArtwork removeAllObjects];
-    
-	// post notification
     [[NSNotificationCenter defaultCenter] postLibraryViewSelectionChanged];
-    
     [pool drain];
 }
 

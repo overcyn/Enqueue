@@ -77,6 +77,7 @@ typedef enum {
 + (PRCol *)columnTypeForListAttr:(PRListAttr *)attr;
 + (NSNumber *)internalForListType:(PRListType *)listType;
 + (PRListType *)listTypeForInternal:(NSNumber *)internal;
++ (NSString *)columnNameForSortAttr:(PRItemAttr *)sortAttr;
 + (NSNumber *)internalForSortAttr:(PRItemAttr *)sortAttr;
 + (PRItemAttr *)sortAttrForInternal:(NSNumber *)internal;
 

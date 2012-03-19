@@ -10,11 +10,9 @@
 // ========================================
 // Initialization
 
-- (id)initWithCore:(PRCore *)core_ {
-    self = [super initWithWindowNibName:@"PRWelcomeSheet"];
-    if (self) {
-        core = core_;
-    }
+- (id)initWithCore:(PRCore *)core {
+    if (!(self = [super initWithWindowNibName:@"PRWelcomeSheet"])) {return nil;}
+    _core = core;
     return self;
 }
 
@@ -39,29 +37,20 @@
 // ========================================
 // Action
 
-- (void)beginSheetForWindow:(NSWindow *)window {
-    [NSApp beginSheet:[self window] modalForWindow:window modalDelegate:self didEndSelector:NULL contextInfo:nil];
-}
-
 - (void)importItunes {
     [self endSheet];
-    [core itunesImport:nil];
+    [_core itunesImport:nil];
 }
 
 - (void)openFiles {
     [self endSheet];
-    [core showOpenPanel:nil];
+    [_core showOpenPanel:nil];
 }
 
 - (void)monitorFolders {
     [self endSheet];
-    [[core win] setCurrentMode:PRPreferencesMode];
-    [[[core win] preferencesViewController] addFolder];
-}
-
-- (void)endSheet {
-    [[self window] orderOut:nil];
-    [NSApp endSheet:[self window]];
+    [[_core win] setCurrentMode:PRPreferencesMode];
+    [[[_core win] preferencesViewController] addFolder];
 }
 
 @end

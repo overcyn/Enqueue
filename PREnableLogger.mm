@@ -7,8 +7,7 @@
 
 @implementation PREnableLogger
 
-+ (void)enableLogger
-{
++ (void)enableLogger {
 //    log4cxx::ConsoleAppender *consoleAppender = new log4cxx::ConsoleAppender();
 //    consoleAppender->setTarget("System.err");
 //    consoleAppender->setLayout(log4cxx::LayoutPtr(new log4cxx::SimpleLayout()));

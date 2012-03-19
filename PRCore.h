@@ -1,14 +1,9 @@
 #import <Cocoa/Cocoa.h>
+@class PRDb, PRNowPlayingController, PRMainWindowController, PRFolderMonitor, PRTaskManager, PRGrowl, PRLastfm, PRKeyboardShortcuts;
 
-@class PRDb, PRNowPlayingController, PRMainWindowController, PRFolderMonitor, PRTaskManager,
-PRWelcomeSheetController, PRGrowl, PRLastfm, PRKeyboardShortcuts, PRTrialSheetController;
 
-@interface PRCore : NSObject <NSApplicationDelegate>
-{
+@interface PRCore : NSObject <NSApplicationDelegate> {
     IBOutlet NSMenu *_mainMenu;
-    
-    PRWelcomeSheetController *_welcomeSheet;
-    PRTrialSheetController *_trialSheet;
     NSConnection *_connection;
     
 	PRDb *_db;
@@ -21,10 +16,7 @@ PRWelcomeSheetController, PRGrowl, PRLastfm, PRKeyboardShortcuts, PRTrialSheetCo
     PRLastfm *_lastfm;
     PRKeyboardShortcuts *_keys;
 }
-
-// ========================================
-// Accessors
-
+/* Accessors */
 @property (readonly) PRDb *db;
 @property (readonly) PRMainWindowController *win;
 @property (readonly) PRNowPlayingController *now;
@@ -35,16 +27,11 @@ PRWelcomeSheetController, PRGrowl, PRLastfm, PRKeyboardShortcuts, PRTrialSheetCo
 @property (readonly) PRLastfm *lastfm;
 @property (readonly) PRKeyboardShortcuts *keys;
 
-// ========================================
-// Actions
-
+/* Actions */
 - (void)itunesImport:(id)sender;
 - (IBAction)showOpenPanel:(id)sender;
 
-// ========================================
-// Error
-
+/* Error */
 - (NSError *)multipleInstancesError;
 - (NSError *)couldNotCreateDirectoryError:(NSString *)directory;
-
 @end

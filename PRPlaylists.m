@@ -276,19 +276,28 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return [dict objectForKey:internal];
 }
 
++ (NSString *)columnNameForSortAttr:(PRItemAttr *)sortAttr {
+    if ([sortAttr isEqual:PRListSortIndex]) {
+        sortAttr = PRItemAttrArtist;
+    } else if ([sortAttr isEqual:PRListSortArtistAlbum]) {
+        sortAttr = PRItemAttrArtist;
+    }
+    return [PRLibrary columnNameForItemAttr:sortAttr];
+}
+
 + (NSNumber *)internalForSortAttr:(PRItemAttr *)sortAttr {
     if ([sortAttr isEqual:PRListSortIndex]) {
-        return [NSNumber numberWithInt:-1];
-    } else if ([sortAttr isEqual:PRListSortArtistAlbum]) {
         return [NSNumber numberWithInt:-2];
+    } else if ([sortAttr isEqual:PRListSortArtistAlbum]) {
+        return [NSNumber numberWithInt:-1];
     }
     return [PRLibrary internalForItemAttr:sortAttr];
 }
 
 + (PRItemAttr *)sortAttrForInternal:(NSNumber *)internal {
-    if ([internal intValue] == -1) {
+    if ([internal intValue] == -2) {
         return PRListSortIndex;
-    } else if ([internal intValue] == -2) {
+    } else if ([internal intValue] == -1) {
         return PRListSortArtistAlbum;
     }
     return [PRLibrary itemAttrForInternal:internal];
@@ -827,7 +836,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 }
 
 - (PRItemAttr *)albumListViewSortAttrForList:(PRList *)list {
-    return [PRLibrary itemAttrForInternal:[self valueForList:list attr:PRListAttrAlbumListViewSortAttr]];
+    return [PRPlaylists sortAttrForInternal:[self valueForList:list attr:PRListAttrAlbumListViewSortAttr]];
 }
 
 - (void)setAlbumListViewSortAttr:(PRItemAttr *)attr forList:(PRList *)list {

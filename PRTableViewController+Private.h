@@ -2,7 +2,6 @@
 
 
 @interface PRTableViewController ()
-
 // Action
 - (void)playIndexes:(NSIndexSet *)indexes;
 - (void)appendIndexes:(NSIndexSet *)indexes;
@@ -61,5 +60,4 @@
 
 // TableViewDataSource Misc
 - (NSArray *)attributesToCache;
-
 @end

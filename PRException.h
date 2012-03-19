@@ -1,7 +1,8 @@
 #import <Foundation/Foundation.h>
 
+
 extern NSString * const PRDbInconsistencyException;
 
-@interface PRException : NSException
 
+@interface PRException : NSException
 @end

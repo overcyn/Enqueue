@@ -1,36 +1,32 @@
 #import "PRLog.h"
 
+
 NSString * const PREnqueueErrorDomain = @"PREnqueueErrorDomain";
 NSString * const PRSQLiteErrorDomain = @"PRSQLiteErrorDomain";
+
 
 @implementation PRLog
 
 // ========================================
 // Initialization
-// ========================================
 
-+ (PRLog *)sharedLog
-{
++ (PRLog *)sharedLog {
     return [[[PRLog alloc] init] autorelease];
 }
 
 // ========================================
 // Action
-// ========================================
 
-- (void)presentError:(NSError *)error
-{
+- (void)presentError:(NSError *)error {
     [self performSelectorOnMainThread:@selector(presentError_:) withObject:error waitUntilDone:TRUE];
 }
 
-- (void)presentError_:(NSError *)error
-{
+- (void)presentError_:(NSError *)error {
     NSAlert *alert = [NSAlert alertWithError:error];
     [alert runModal];
 }
 
-- (void)presentFatalError:(NSError *)error
-{
+- (void)presentFatalError:(NSError *)error {
     NSAlert *alert = [NSAlert alertWithError:error];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert addButtonWithTitle:@"Close Enqueue"];
@@ -41,8 +37,7 @@ NSString * const PRSQLiteErrorDomain = @"PRSQLiteErrorDomain";
     [alert runModal];
 }
 
-- (void)presentFatalError_:(NSError *)error
-{
+- (void)presentFatalError_:(NSError *)error {
     NSAlert *alert = [NSAlert alertWithError:error];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert addButtonWithTitle:@"Close Enqueue"];
@@ -60,8 +55,7 @@ NSString * const PRSQLiteErrorDomain = @"PRSQLiteErrorDomain";
     CFRelease(allModes);
 }
 
-- (void)close
-{
+- (void)close {
     [NSApp terminate:nil];
     exit(EXIT_FAILURE);
 }
