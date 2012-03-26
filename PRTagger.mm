@@ -479,7 +479,7 @@ using namespace TagLib;
 + (void)dictionaryAddDefaultValues:(NSMutableDictionary *)dict {
 	static NSDictionary *defaultTags = nil;
 	if (!defaultTags) {
-		defaultTags = [NSDictionary dictionaryWithObjectsAndKeys:
+		defaultTags = [[NSDictionary alloc] initWithObjectsAndKeys:
 					   @"", PRItemAttrTitle,
 					   @"", PRItemAttrArtist, 
 					   @"", PRItemAttrAlbum,
