@@ -146,18 +146,18 @@ end:;
             goto end;
         }
         if ([track objectForKey:@"Play Date UTC"]) {
-            [[info attributes] setObject:[[track objectForKey:@"Play Date UTC"] description] forKey:[NSNumber numberWithInt:PRLastPlayedFileAttribute]];
+            [[info attributes] setObject:[[track objectForKey:@"Play Date UTC"] description] forKey:PRItemAttrLastPlayed];
         }
         if ([track objectForKey:@"Play Count"]) {
-            [[info attributes] setObject:[track objectForKey:@"Play Count"] forKey:[NSNumber numberWithInt:PRPlayCountFileAttribute]];
+            [[info attributes] setObject:[track objectForKey:@"Play Count"] forKey:PRItemAttrPlayCount];
         }
         if ([track objectForKey:@"Rating"]) {
-            [[info attributes] setObject:[track objectForKey:@"Rating"] forKey:[NSNumber numberWithInt:PRRatingFileAttribute]];
+            [[info attributes] setObject:[track objectForKey:@"Rating"] forKey:PRItemAttrRating];
         }
         if ([track objectForKey:@"Date Added"]) {
-            [[info attributes] setObject:[[track objectForKey:@"Date Added"] description] forKey:[NSNumber numberWithInt:PRDateAddedFileAttribute]];
+            [[info attributes] setObject:[[track objectForKey:@"Date Added"] description] forKey:PRItemAttrDateAdded];
         } else {
-            [[info attributes] setObject:[[NSDate date] description] forKey:[NSNumber numberWithInt:PRDateAddedFileAttribute]];
+            [[info attributes] setObject:[[NSDate date] description] forKey:PRItemAttrDateAdded];
         }
         [info setTrackid:[[track objectForKey:@"Track ID"] intValue]];
         // Artwork

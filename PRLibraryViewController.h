@@ -1,5 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import "PRPlaylists.h"
+#import "PRViewController.h"
 @class PRInfoViewController, PRTableViewController, PRListViewController, PRDb, PRSmartPlaylistEditorViewController, PRStaticPlaylistEditorViewController, PRAlbumListViewController, PRGradientView, PRCore;
 
 
@@ -9,7 +10,7 @@ typedef enum {
 } PRLibraryViewMode;
 
 
-@interface PRLibraryViewController : NSViewController <NSMenuDelegate, NSTextFieldDelegate> {
+@interface PRLibraryViewController : PRViewController <NSMenuDelegate, NSTextFieldDelegate> {
     __weak PRCore *_core;
 	__weak PRDb *_db;
     

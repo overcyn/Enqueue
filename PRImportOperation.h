@@ -3,8 +3,4 @@
 
 
 @interface PRImportOperation : PRRescanOperation
-{
-
-}
-
 @end

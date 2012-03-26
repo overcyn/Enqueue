@@ -23,6 +23,7 @@
 #import "NSMenuItem+Extensions.h"
 #import "NSTableView+Extensions.h"
 #import "NSColor+Extensions.h"
+#import "PRViewController.h"
 #import "MAZeroingWeakRef.h"
 
 
@@ -122,6 +123,7 @@
     [_menuButton setMenu:_playlistMenu];
     [_menuButton setPullsDown:TRUE];
     [_menuButton setBordered:FALSE];
+    [_menuButton setToolTip:@"Save the Now Playing playlist."];
     [_headerView addSubview:_menuButton];
     
     _clearButton = [[NSButton alloc] initWithFrame:NSMakeRect(1, 3, 25, 25)];
@@ -130,6 +132,7 @@
     [_clearButton setTarget:self];
     [_clearButton setAction:@selector(clearPlaylist)];
     [_clearButton setButtonType:NSMomentaryChangeButton];
+    [_clearButton setToolTip:@"Clear the Now Playing playlist."];
     [_headerView addSubview:_clearButton];
     
     // context menu
@@ -137,7 +140,11 @@
     [_contextMenu setDelegate:self];
     [_contextMenu setAutoenablesItems:FALSE];
     [nowPlayingTableView setMenu:_contextMenu];
-        
+    
+    // key views
+    [[self firstKeyView] setNextKeyView:nowPlayingTableView];
+    [nowPlayingTableView setNextKeyView:[self lastKeyView]];
+    
     // playlist and current file obs
     [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(updateTableView)];
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistDidChange:)];

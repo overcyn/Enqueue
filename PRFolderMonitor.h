@@ -1,38 +1,24 @@
 #import <Cocoa/Cocoa.h>
-
-
 @class PRCore, PRDb;
 
-@interface PRFolderMonitor : NSObject 
-{
-    PRDb *db;
-    PRCore *core;
+
+@interface PRFolderMonitor : NSObject {
+    __weak PRCore *_core;
     FSEventStreamRef stream;
 }
-
-@property (readonly) PRCore *core;
-
-// ========================================
-// Initialization
-
+/* Initialization */
 - (id)initWithCore:(PRCore *)core;
 
-// ========================================
-// Accessors
-
-// returns the array of monitored URLs
-- (NSArray *)monitoredFolders;
-- (void)setMonitoredFolders:(NSArray *)folders;
+/* Accessors */
+@property (readonly) PRCore *core;
+@property (readwrite, copy) NSArray *monitoredFolders;
 - (void)removeFolder:(NSURL *)URL;
 - (void)addFolder:(NSURL *)URL;
 
-// ========================================
-// Action
-
+/* Action */
 - (void)monitor;
 - (void)monitor2;
 - (void)rescan;
-
 @end
 
 void eventCallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents,

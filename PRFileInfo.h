@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 
-@interface PRFileInfo : NSObject 
-{
+
+@interface PRFileInfo : NSObject {
     NSMutableDictionary *_attributes;
     NSImage *_art;
     int _tempArt;

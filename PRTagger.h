@@ -1,6 +1,7 @@
 #import <Foundation/Foundation.h>
 @class PRFileInfo;
 
+
 typedef enum {
     PRFileTypeUnknown,
     PRFileTypeAPE,
@@ -18,25 +19,16 @@ typedef enum {
     PRFileTypeWavPack,
 } PRFileType;
 
+
 @interface PRTagger : NSObject
-
-// ========================================
-// Tags
-
+/* Tags */
 + (PRFileInfo *)infoForURL:(NSURL *)URL;
-+ (NSDictionary *)tagsForURL:(NSURL *)URL;
-+ (NSDictionary *)simpleTagsForURL:(NSURL *)URL;
++ (NSMutableDictionary *)tagsForURL:(NSURL *)URL;
++ (void)setTag:(id)tag forAttribute:(PRItemAttr *)attr URL:(NSURL *)URL;
 
-+ (void)setTag:(id)tag forAttribute:(PRFileAttribute)attr URL:(NSURL *)URL;
-
-+ (NSDictionary *)defaultTags;
-
-// ========================================
-// Properties
-
+/* Properties */
 + (NSDate *)lastModifiedAtURL:(NSURL *)URL;
 + (NSDate *)lastModifiedForFileAtPath:(NSString *)path;
 + (NSData *)checkSumForFileAtPath:(NSString *)path;
 + (NSNumber *)sizeForFileAtPath:(NSString *)path;
-
 @end

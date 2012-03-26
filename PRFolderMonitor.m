@@ -10,47 +10,38 @@
 
 @implementation PRFolderMonitor
 
-@synthesize core;
-
 // ========================================
 // Initialization
-// ========================================
 
-- (id)initWithCore:(PRCore *)core_
-{
+- (id)initWithCore:(PRCore *)core_ {
     if (!(self = [super init])) {return nil;}
-    core = [core_ retain];
-    db = [[core db] retain];
+    _core = core_;
     stream = nil;
     [self monitor];
     return self;
 }
 
-- (void)dealloc
-{
-    [db release];
-    [core release];
+- (void)dealloc {
     [super dealloc];
 }
 
 // ========================================
 // Accessors
-// ========================================
 
-- (NSArray *)monitoredFolders
-{
+@synthesize core = _core;
+@dynamic monitoredFolders;
+
+- (NSArray *)monitoredFolders {
     return [[PRUserDefaults userDefaults] monitoredFolders];
 }
 
-- (void)setMonitoredFolders:(NSArray *)folders
-{
+- (void)setMonitoredFolders:(NSArray *)folders {
     [[PRUserDefaults userDefaults] setMonitoredFolders:folders];
     [[PRUserDefaults userDefaults] setLastEventStreamEventId:0];
     [self monitor];
 }
 
-- (void)addFolder:(NSURL *)URL
-{
+- (void)addFolder:(NSURL *)URL {
     if ([[self monitoredFolders] containsObject:URL]) {
         return;
     }
@@ -59,8 +50,7 @@
     [self setMonitoredFolders:[NSArray arrayWithArray:folders]];
 }
 
-- (void)removeFolder:(NSURL *)URL
-{
+- (void)removeFolder:(NSURL *)URL {
     if ([[self monitoredFolders] containsObject:URL]) {
         NSMutableArray *folders = [NSMutableArray arrayWithArray:[self monitoredFolders]];
         [folders removeObjectAtIndex:[folders indexOfObject:URL]];
@@ -70,10 +60,8 @@
 
 // ========================================
 // Action
-// ========================================
 
-- (void)monitor
-{
+- (void)monitor {
     // stop old event monitor
     if (stream) {
         FSEventStreamStop(stream);
@@ -92,10 +80,10 @@
     }
     // if no event id. add URLs and re-monitor
     if ([[PRUserDefaults userDefaults] lastEventStreamEventId] == 0) {
-        PRRescanOperation *op = [PRRescanOperation operationWithURLs:[self monitoredFolders] core:core];
+        PRRescanOperation *op = [PRRescanOperation operationWithURLs:[self monitoredFolders] core:_core];
         [op setEventId:FSEventsGetCurrentEventId()];
         [op setMonitor:TRUE];
-        [[core opQueue] addOperation:op];
+        [[_core opQueue] addOperation:op];
         return;
     }
     // create and schedule new monitor
@@ -111,8 +99,7 @@
     FSEventStreamStart(stream);
 }
 
-- (void)monitor2
-{
+- (void)monitor2 {
     // stop old event monitor
     if (stream) {
         FSEventStreamStop(stream);
@@ -146,19 +133,17 @@
     FSEventStreamStart(stream);
 }
 
-- (void)rescan
-{
-    PRRescanOperation *op = [PRRescanOperation operationWithURLs:[self monitoredFolders] core:core];
+- (void)rescan {
+    PRRescanOperation *op = [PRRescanOperation operationWithURLs:[self monitoredFolders] core:_core];
     [op setEventId:FSEventsGetCurrentEventId()];
-    [[core opQueue] addOperation:op];
+    [[_core opQueue] addOperation:op];
 }
 
 @end
 
 void eventCallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents,
                    void *eventPaths, const FSEventStreamEventFlags eventFlags[],
-                   const FSEventStreamEventId eventIds[])
-{
+                   const FSEventStreamEventId eventIds[]) {
     PRFolderMonitor *folderMonitor = (PRFolderMonitor *)clientCallBackInfo;
     PRCore *core = [folderMonitor core];
     NSFileManager *fm = [[[NSFileManager alloc] init] autorelease];

@@ -1,17 +1,11 @@
 #import <Foundation/Foundation.h>
 #import "Growl/Growl.h"
+@class PRCore, PRDb;
 
-@class PRCore;
 
-@interface PRGrowl : NSObject  <GrowlApplicationBridgeDelegate> 
-{
-    PRCore *core;
+@interface PRGrowl : NSObject  <GrowlApplicationBridgeDelegate> {
+    __weak PRCore *_core;
     __weak PRDb *_db;
 }
-
-
-- (id)initWithCore:(PRCore *)core_;
-//- (void)playingChanged:(NSNotification *)notification;
-- (void)currentFileDidChange:(NSNotification *)notification;
-
+- (id)initWithCore:(PRCore *)core;
 @end

@@ -2,14 +2,13 @@
 
 @implementation PRFileInfo
 
-@synthesize attributes = _attributes;
-@synthesize art = _art;
-@synthesize tempArt = _tempArt;
-@synthesize file = _file;
-@synthesize trackid = _trackid;
+@synthesize attributes = _attributes,
+art = _art,
+tempArt = _tempArt,
+file = _file,
+trackid = _trackid;
 
-- (id)init 
-{
+- (id)init {
     if (!(self = [super init])) {return nil;}
     _attributes = nil;
     _art = nil;
@@ -19,13 +18,11 @@
     return self;
 }
 
-- (NSString *)description
-{
+- (NSString *)description {
     return [NSString stringWithFormat:@"attributes:%@ art:%@ tempArt:%d file:%d",_attributes, _art, _tempArt, _file];
 }
 
-+ (PRFileInfo *)fileInfo
-{
++ (PRFileInfo *)fileInfo {
     return [[[PRFileInfo alloc] init] autorelease];
 }
 

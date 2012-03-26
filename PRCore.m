@@ -26,7 +26,7 @@
 
 - (id)init {
     if (!(self = [super init])) {return nil;}
-    // Register a connection. Prevents multiple instances of application
+    // Prevent multiple instances of application
     _connection = [[NSConnection connectionWithReceivePort:[NSPort port] sendPort:[NSPort port]] retain];
     if (![_connection registerName:@"enqueue"]) {
         [[PRLog sharedLog] presentFatalError:[self multipleInstancesError]];
@@ -52,6 +52,9 @@
 }
 
 - (void)dealloc {
+    [_connection invalidate];
+    
+    [_connection release];
     [_db release];
     [_now release];
     [_win release];
@@ -59,11 +62,14 @@
     [_folderMonitor release];
     [_taskManager release];
     [_growl release];
+    [_lastfm release];
+    [_keys release];
     [super dealloc];
 }
 
 - (void)awakeFromNib {
     [_win showWindow:nil];
+	[_opQueue setSuspended:FALSE];
     
     PRTrialSheetController *trialSheet = [[PRTrialSheetController alloc] initWithCore:self]; 
     [trialSheet beginSheetModalForWindow:[_win window] completionHandler:^{[trialSheet release];}];
@@ -148,6 +154,7 @@ keys = _keys;
 }
 
 - (BOOL)application:(NSApplication *)application openFile:(NSString *)filename {
+	NSLog(@"openingFiles:%@",filename);
     NSArray *URLs = [NSArray arrayWithObject:[NSURL fileURLWithPath:filename]];
     PRImportOperation *op = [PRImportOperation operationWithURLs:URLs core:self];
     [_opQueue addOperation:op];
@@ -155,6 +162,7 @@ keys = _keys;
 }
 
 - (void)application:(NSApplication *)application openFiles:(NSArray *)filenames {
+	NSLog(@"openingFiles:%@",filenames);
     NSMutableArray *URLs = [NSMutableArray array];
     for (NSString *i in filenames) {
         [URLs addObject:[NSURL fileURLWithPath:i]];

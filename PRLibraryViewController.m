@@ -72,17 +72,20 @@
     [_infoButton setTarget:self];
     [_infoButton setAction:@selector(toggleInfoViewVisible)];
     [_infoButton setButtonType:NSMomentaryChangeButton];
+    [_infoButton setToolTip:@"Toggle tag editor."];
     [_headerView addSubview:_infoButton];
     
     _libraryPopUpButton = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(24, 4, 35, 26)];
     [_libraryPopUpButton setMenu:_libraryPopUpButtonMenu];
     [_libraryPopUpButton setBordered:FALSE];
     [_libraryPopUpButton setPullsDown:TRUE];
+    [_libraryPopUpButton setToolTip:@"Change the layout of the library."];
     [[_libraryPopUpButton cell] setArrowPosition:NSPopUpNoArrow];
     [_headerView addSubview:_libraryPopUpButton];
     
     _searchField = [[NSSearchField alloc] initWithFrame:NSMakeRect(66, 6, 145, 19)];
     [_searchField setDelegate:self];
+    [_searchField setToolTip:@"Search for songs."];
     if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_6) {
         [_searchField setFocusRingType:NSFocusRingTypeNone];
     }
@@ -96,6 +99,9 @@
     [self updateLayout];
     _currentList = nil;
     [self setCurrentList:[[_db playlists] libraryList]];
+    
+    // Key View
+    [_searchField setNextKeyView:[self lastKeyView]];
     
     // Update
     [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(updateSearch)];
@@ -121,7 +127,7 @@
     [self setLibraryViewMode:[[_db playlists] viewModeForList:_currentList]];
     [self updateSearch];
     [self menuNeedsUpdate:_libraryPopUpButtonMenu];
-    [[NSNotificationCenter defaultCenter] postNotificationName:PRCurrentListDidChangeNotification object:self];
+    [NSNotificationCenter post:PRCurrentListDidChangeNotification];
 }
 
 - (PRLibraryViewMode)libraryViewMode {
@@ -153,6 +159,8 @@
 	[_centerSuperview replaceSubview:[oldViewController view] with:[_currentViewController view]];    
 	[_currentViewController setCurrentList:_currentList];
     [self menuNeedsUpdate:_libraryPopUpButtonMenu];
+    [[self firstKeyView] setNextKeyView:[_currentViewController firstKeyView]];
+    [[_currentViewController lastKeyView] setNextKeyView:_searchField];
 }
 
 - (BOOL)infoViewVisible {
@@ -176,7 +184,6 @@
 
 - (void)find {
     [[_searchField window] makeFirstResponder:_searchField];
-    NSLog(@"find:%@",[[_searchField window] firstResponder]);
 }
 
 // ========================================

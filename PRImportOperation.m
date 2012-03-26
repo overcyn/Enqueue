@@ -16,10 +16,8 @@
 
 // ========================================
 // Action
-// ========================================
 
-- (void)main
-{
+- (void)main {
     NSLog(@"begin import");
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     PRTask *task = [PRTask task];

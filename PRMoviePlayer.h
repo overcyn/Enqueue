@@ -27,7 +27,6 @@ typedef enum {
     
     PRMovieQueueState _queueState; // should only be accessed through accessor
 }
-
 /* Playback */
 - (BOOL)play:(NSString *)file;
 - (BOOL)queue:(NSString *)file;
@@ -48,6 +47,5 @@ typedef enum {
 - (long)currentTime;
 - (void)setCurrentTime:(long)currentTime;
 - (long)duration;
- 
 @end
 

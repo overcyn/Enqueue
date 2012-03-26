@@ -52,6 +52,13 @@
     [shuffle bind:@"target" toObject:now withKeyPath:@"toggleShuffle" options:options];
 	[repeat bind:@"target" toObject:now withKeyPath:@"toggleRepeat" options:options];
     
+    [playPause setToolTip:@"Play or Pause current song."];
+    [next setToolTip:@"Play next song."];
+    [previous setToolTip:@"Play previous song."];
+    [shuffle setToolTip:@"Toggle shuffle."];
+    [repeat setToolTip:@"Toggle repeat."];
+    [_volumeSlider setToolTip:@"Change volume."];
+    
     // Volume
     [_volumeSlider setMaxValue:1];
     [_volumeSlider setMinValue:0];

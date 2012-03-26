@@ -79,7 +79,7 @@
     NSString *daysString = [NSString stringWithFormat:@"%d",days];
     
     NSMutableAttributedString *string = [[[NSMutableAttributedString alloc] init] autorelease];
-    [string appendAttributedString:[[[NSAttributedString alloc] initWithString:@"15 Day Trial" attributes:boldAttr] autorelease]];
+    [string appendAttributedString:[[[NSAttributedString alloc] initWithString:@"30 Day Trial" attributes:boldAttr] autorelease]];
     [string appendAttributedString:[[[NSAttributedString alloc] initWithString:@"\n\n" attributes:shortAttr] autorelease]];
     [string appendAttributedString:[[[NSAttributedString alloc] initWithString:@"Enqueue is now available for purchase in the Mac App Store. \n\nThis release will stop working in " attributes:regularAttr] autorelease]];
     [string appendAttributedString:[[[NSAttributedString alloc] initWithString:daysString attributes:boldRedAttr] autorelease]];
@@ -106,7 +106,7 @@
 // misc
 
 + (NSDate *)date {
-    return [NSDate dateWithString:@"2012-04-20 01:00:00 +0000"];
+    return [NSDate dateWithString:@"2012-04-25 01:00:00 +0000"];
 }
 
 @end

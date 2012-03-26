@@ -1,9 +1,10 @@
 #import <Cocoa/Cocoa.h>
 #import "PROutlineView.h"
+#import "PRViewController.h"
 @class PRDb, PRLibrary, PRPlaylists, PRNowPlayingController, PRNowPlayingViewSource, PRGradientView, PRMainWindowController, PRNowPlayingCell, PRNowPlayingHeaderCell, PROutlineView, PRCore;
 
 
-@interface PRNowPlayingViewController : NSViewController <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, NSTextFieldDelegate, PROutlineViewDelegate> {
+@interface PRNowPlayingViewController : PRViewController <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, NSTextFieldDelegate, PROutlineViewDelegate> {
     __weak PRCore *_core;
     __weak PRMainWindowController *win;
 	__weak PRDb *db;

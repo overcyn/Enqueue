@@ -1,5 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import "PRLibrary.h"
+#import "PRViewController.h"
 @class PRDb, PRGradientView, PRNumberFormatter, PRStringFormatter, PRCore, PRPathFormatter, PRKindFormatter, PRSizeFormatter, PRDateFormatter, PRTimeFormatter, PRBitRateFormatter;
 
 
@@ -11,7 +12,7 @@ typedef enum {
 } PRInfoMode;
 
 
-@interface PRInfoViewController : NSViewController {
+@interface PRInfoViewController : PRViewController {
 	IBOutlet NSTextField *titleField;
 	IBOutlet NSTextField *artistField;	
 	IBOutlet NSTextField *albumArtistField;	

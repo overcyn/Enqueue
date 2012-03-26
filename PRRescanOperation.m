@@ -174,7 +174,7 @@ end:;
         if (!info) {
             [pool drain]; continue;
         }
-        [[info attributes] setObject:[[NSDate date] description] forKey:[NSNumber numberWithInt:PRDateAddedFileAttribute]];
+        [[info attributes] setObject:[[NSDate date] description] forKey:PRItemAttrDateAdded];
         if ([info art]) {
             [info setTempArt:[[_db albumArtController] saveTempArt:[info art]]];
             [info setArt:nil];
@@ -188,8 +188,8 @@ end:;
             // Check if file exists with same checksum and size
             NSArray *rlt = [_db execute:@"SELECT file_id, path FROM library WHERE checkSum = ?1 AND size = ?2" 
                                bindings:[NSDictionary dictionaryWithObjectsAndKeys:
-                                         [[i attributes] objectForKey:[NSNumber numberWithInt:PRCheckSumFileAttribute]], [NSNumber numberWithInt:1], 
-                                         [[i attributes] objectForKey:[NSNumber numberWithInt:PRSizeFileAttribute]], [NSNumber numberWithInt:2], nil]
+                                         [[i attributes] objectForKey:PRItemAttrCheckSum], [NSNumber numberWithInt:1], 
+                                         [[i attributes] objectForKey:PRItemAttrSize], [NSNumber numberWithInt:2], nil]
                                 columns:[NSArray arrayWithObjects:PRColInteger, PRColString, nil]];
             PRFile moved = 0;
             for (NSArray *j in rlt) {
@@ -202,7 +202,7 @@ end:;
                 PRFile file = [[[_db library] addItemWithAttrs:[i attributes]] intValue];
                 [i setFile:file];
             } else {
-                [[_db library] setValue:[[i attributes] objectForKey:[NSNumber numberWithInt:PRPathFileAttribute]] forItem:[NSNumber numberWithInt:moved] attr:PRItemAttrPath];
+                [[_db library] setValue:[[i attributes] objectForKey:PRItemAttrPath] forItem:[NSNumber numberWithInt:moved] attr:PRItemAttrPath];
                 [self setFileExists:moved];
             }
         }

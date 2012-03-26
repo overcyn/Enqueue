@@ -70,16 +70,15 @@ end:;
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSMutableArray *infoArray = [NSMutableArray array];
     for (NSArray *i in array) {
-        NSDictionary *tags = [PRTagger simpleTagsForURL:[NSURL URLWithString:[i objectAtIndex:1]]];
-        if (!tags ||
-            ([[tags objectForKey:[NSNumber numberWithInt:PRCompilationFileAttribute]] intValue] == 0 &&
-             [[tags objectForKey:[NSNumber numberWithInt:PRLyricsFileAttribute]] length] == 0)) {
-                continue;
-            }
+        NSDictionary *tags = [PRTagger tagsForURL:[NSURL URLWithString:[i objectAtIndex:1]]];
+        if (!tags || ([[tags objectForKey:PRItemAttrCompilation] intValue] == 0 &&
+                      [[tags objectForKey:PRItemAttrLyrics] length] == 0)) {
+            continue;
+        }
         [infoArray addObject:[NSDictionary dictionaryWithObjectsAndKeys:
                               [i objectAtIndex:0], @"file",
-                              [tags objectForKey:[NSNumber numberWithInt:PRCompilationFileAttribute]], @"compilation",
-                              [tags objectForKey:[NSNumber numberWithInt:PRLyricsFileAttribute]], @"lyrics",
+                              [tags objectForKey:PRItemAttrCompilation], @"compilation",
+                              [tags objectForKey:PRItemAttrLyrics], @"lyrics",
                               nil]];
     }
     [[NSOperationQueue mainQueue] addBlockAndWait:^{

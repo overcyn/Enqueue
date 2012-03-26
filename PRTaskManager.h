@@ -1,7 +1,6 @@
 #import <Foundation/Foundation.h>
-
-
 @class PRTask;
+
 
 @interface PRTaskManager : NSObject {
     NSMutableArray *_tasks;

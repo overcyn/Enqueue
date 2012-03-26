@@ -1,15 +1,11 @@
 #import <Foundation/Foundation.h>
-
 @class PRCore, SPMediaKeyTap;
 
-@interface PRKeyboardShortcuts : NSObject 
-{
-    SPMediaKeyTap *_tap;
+
+@interface PRKeyboardShortcuts : NSObject {
+    __weak PRCore *_core;
     
-    // weak
-    PRCore *_core;
+    SPMediaKeyTap *_tap;
 }
-
 - (id)initWithCore:(PRCore *)core;
-
 @end

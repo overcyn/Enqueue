@@ -9,7 +9,6 @@
 #import "PRUserDefaults.h"
 
 @interface PRNowPlayingController ()
-
 // Playback
 - (void)playListItem:(PRListItem *)listItem withSel:(SEL)selector; // should only be called by playPlayistItem: and playPlaylistItemIfNotQueued:
 - (void)playListItemIfNotQueued:(PRListItem *)listItem;
@@ -26,8 +25,8 @@
 @property (readwrite) int marker;
 
 - (void)clearHistory;
-
 @end
+
 
 @implementation PRNowPlayingController
 
@@ -55,8 +54,9 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [_mov release];
+    [_currentListItem release];
     [_invalidItems release];
+    [_mov release];
     [super dealloc];
 }
 

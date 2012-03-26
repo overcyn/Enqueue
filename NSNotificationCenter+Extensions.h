@@ -6,6 +6,12 @@ extern NSString * const PRCurrentListDidChangeNotification;
 
 
 @interface NSNotificationCenter (Extensions)
++ (void)post:(NSString *)name;
++ (void)post:(NSString *)name object:(id)object info:(NSDictionary *)info;
++ (id)observe:(NSString *)name block:(void (^)(NSNotification *))block;
++ (id)observe:(NSString *)name object:(id)object queue:(NSOperationQueue *)queue block:(void (^)(NSNotification *))block;
++ (void)removeObserver:(id)observer;
+
 // Db
 - (void)postLibraryChanged;
 - (void)postItemsChanged:(NSArray *)items;

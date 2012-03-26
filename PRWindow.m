@@ -101,7 +101,6 @@
 - (void)keyDown:(NSEvent *)event{
     BOOL didHandle = FALSE;
     if ([self delegate] && 
-        [[self delegate] conformsToProtocol:@protocol(PRWindowDelegate)] && 
         [[self delegate] respondsToSelector:@selector(window:keyDown:)]) {
         didHandle = [(id<PRWindowDelegate>)[self delegate] window:self keyDown:event];
     }

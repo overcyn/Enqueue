@@ -39,7 +39,8 @@
 // ========================================
 // Accessors
 
-@synthesize title = _title, amplitudes = _amplitudes;
+@synthesize title = _title, 
+amplitudes = _amplitudes;
 
 - (void)setAmp:(float)amp forFreq:(PREQFreq)freq {
     NSMutableArray *a = [NSMutableArray arrayWithArray:_amplitudes];

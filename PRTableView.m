@@ -37,6 +37,14 @@
 
 // sends keyDown to PRDelegate
 - (void)keyDown:(NSEvent *)event {
+    if ([[event characters] characterAtIndex:0] == NSTabCharacter) {
+        if (([event modifierFlags] & NSShiftKeyMask) == NSShiftKeyMask) {
+            [[self window] selectPreviousKeyView:nil];
+        } else {
+            [[self window] selectNextKeyView:nil];
+        }
+        return;
+    }
     BOOL didHandle = FALSE;
     if ([self delegate] && 
         [[self delegate] conformsToProtocol:@protocol(PRTableViewDelegate)] && 

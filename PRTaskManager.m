@@ -23,7 +23,7 @@
     [super dealloc];
 }
 
-- (void)addTask:(PRTask *)task {   
+- (void)addTask:(PRTask *)task {
     if (![_tasks containsObject:task]) {
         [task addObserver:self forKeyPath:@"title" options:0 context:nil];
         [task addObserver:self forKeyPath:@"percent" options:0 context:nil];
@@ -41,10 +41,7 @@
     }
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath 
-                      ofObject:(id)object 
-                        change:(NSDictionary *)change 
-                       context:(void *)context {
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     [self updateTasks];
 }
 

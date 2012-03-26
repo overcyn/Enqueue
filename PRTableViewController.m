@@ -37,7 +37,8 @@
 // Initialization
 
 - (id)initWithCore:(PRCore *)core {
-    return nil;
+    if (!(self = [super init])) {return nil;}
+    return self;
 }
 
 - (void)dealloc {
@@ -442,6 +443,14 @@
 	[verticalBrowser1TableView setDataSource:self];
 	[verticalBrowser1TableView setDelegate:self];
 	
+    // Key Views
+    [[self firstKeyView] setNextKeyView:horizontalBrowser1TableView];
+    [horizontalBrowser1TableView setNextKeyView:horizontalBrowser2TableView];
+    [horizontalBrowser2TableView setNextKeyView:horizontalBrowser3TableView];
+    [horizontalBrowser3TableView setNextKeyView:verticalBrowser1TableView];
+    [verticalBrowser1TableView setNextKeyView:libraryTableView];
+    [libraryTableView setNextKeyView:[self lastKeyView]];
+    
 	// Update
     [[NSNotificationCenter defaultCenter] observeLibraryChanged:self sel:@selector(libraryDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(playlistDidChange:)];
@@ -1314,29 +1323,17 @@
 }
 
 - (void)tableView:(NSTableView *)tableView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)rowIndex {
-	PRFileAttribute attribute = [[tableColumn identifier] intValue];
+	PRItemAttr *attr = [tableColumn identifier];
 	if ([self dbRowForTableRow:rowIndex] != -1) {
         PRFile file = [[[db libraryViewSource] itemForRow:[self dbRowForTableRow:rowIndex]] intValue];
         PRItem *item = [PRItem numberWithInt:file];
-		if (attribute == PRTitleFileAttribute ||
-			attribute == PRArtistFileAttribute ||
-			attribute == PRAlbumFileAttribute ||
-			attribute == PRComposerFileAttribute ||
-			attribute == PRAlbumArtistFileAttribute ||
-			attribute == PRBPMFileAttribute ||
-			attribute == PRYearFileAttribute ||
-			attribute == PRTrackNumberFileAttribute ||
-			attribute == PRTrackCountFileAttribute ||
-			attribute == PRDiscNumberFileAttribute ||
-			attribute == PRDiscCountFileAttribute ||
-			attribute == PRCommentsFileAttribute ||
-			attribute == PRGenreFileAttribute) {
-            NSURL *URL = [[db library] URLForItem:[PRItem numberWithInt:file]];
-            [PRTagger setTag:object forAttribute:attribute URL:URL];
-            [[db library] updateTagsForItem:[NSNumber numberWithInt:file]];
-		} else if (attribute == PRRatingFileAttribute) {
-            int rating = [object intValue] * 20;
+		if ([attr isEqualToString:PRItemAttrRating]) {
+			int rating = [object intValue] * 20;
             [[db library] setValue:[NSNumber numberWithInt:rating] forItem:[NSNumber numberWithInt:file] attr:PRItemAttrRating];
+		} else {
+            NSURL *URL = [[db library] URLForItem:[PRItem numberWithInt:file]];
+            [PRTagger setTag:object forAttribute:attr URL:URL];
+            [[db library] updateTagsForItem:[NSNumber numberWithInt:file]];
 		}
         [[NSNotificationCenter defaultCenter] postItemsChanged:[NSArray arrayWithObject:item]];
 	}

@@ -1,7 +1,5 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface PRBorderlessTextField : NSTextField {
-
-}
+@interface PRBorderlessTextField : NSTextField
 @end

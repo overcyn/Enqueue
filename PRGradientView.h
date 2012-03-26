@@ -25,7 +25,7 @@
     NSColor *_topBorder2;
     NSColor *_botBorder2;
 }
-// Accessors
+/* Accessors */
 @property (readwrite, copy) NSColor *color;
 @property (readwrite, copy) NSGradient *horizontalGradient;
 @property (readwrite, copy) NSGradient *verticalGradient;

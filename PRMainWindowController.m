@@ -43,7 +43,12 @@
 }
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [_splitView setDelegate:nil];
+    [[self window] setDelegate:nil];
+    
+    for (id i in _observers) {
+        [NSNotificationCenter removeObserver:i];
+    }
     
     [mainMenuController release];
     [libraryViewController release];
@@ -66,7 +71,6 @@
     
 	// Window
     [[self window] setDelegate:self];
-    [[self window] setAutorecalculatesKeyViewLoop:TRUE];
     
     // Toolbar View
     float temp = 0;
@@ -112,52 +116,69 @@
     [_headerView addSubview:[libraryViewController headerView]];
     
     // miniplayer
-    [centerSuperview retain];
-    BOOL mini = [self miniPlayer];
     [self setMiniPlayer:FALSE];
-    [self setMiniPlayer:mini];
+    [self setMiniPlayer:[[PRUserDefaults userDefaults] miniPlayer]];
         
 	// Buttons
     for (NSDictionary *i in [NSArray arrayWithObjects:
                              [NSDictionary dictionaryWithObjectsAndKeys:libraryButton, @"button", [NSNumber numberWithInt:PRLibraryMode], @"tag", nil], 
                              [NSDictionary dictionaryWithObjectsAndKeys:playlistsButton, @"button", [NSNumber numberWithInt:PRPlaylistsMode], @"tag", nil], 
                              [NSDictionary dictionaryWithObjectsAndKeys:historyButton, @"button", [NSNumber numberWithInt:PRHistoryMode], @"tag", nil], 
-                             [NSDictionary dictionaryWithObjectsAndKeys:preferencesButton, @"button", [NSNumber numberWithInt:PRPreferencesMode], @"tag", nil], 
-                             nil]) {
+                             [NSDictionary dictionaryWithObjectsAndKeys:preferencesButton, @"button", [NSNumber numberWithInt:PRPreferencesMode], @"tag", nil], nil]) {
         NSButton *button = [i objectForKey:@"button"];
         int tag = [[i objectForKey:@"tag"] intValue];
         [button setAction:@selector(headerButtonAction:)];
         [button setTarget:self];
+        [button setToolTip:[button title]];
         [button setTag:tag];
     }
     
     // artwork
-    [[controlsViewController albumArtView] retain];
+    [[[controlsViewController albumArtView] retain] autorelease];
     [[controlsViewController albumArtView] removeFromSuperview];
     [nowPlayingSuperview addSubview:[controlsViewController albumArtView]];
     
     // SplitView
     [_splitView setDelegate:self];
     
+    // Key Views
+    [[self window] setInitialFirstResponder:[libraryViewController firstKeyView]];
+    [[libraryViewController lastKeyView] setNextKeyView:[nowPlayingViewController firstKeyView]];
+    [[nowPlayingViewController lastKeyView] setNextKeyView:[libraryViewController firstKeyView]];
+    
 	// Update
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateUI) name:PRCurrentListDidChangeNotification object:nil];
+    __block id selfRef = self;
+    _observers = [NSMutableArray array];
+    id obs = [NSNotificationCenter observe:PRCurrentListDidChangeNotification 
+                                     block:^(NSNotification *note){[selfRef updateUI];}];
+    [_observers addObject:obs];
     if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
-        [[NSNotificationCenter defaultCenter] addObserver:self 
-                                                 selector:@selector(windowWillEnterFullScreen:) 
-                                                     name:NSWindowWillEnterFullScreenNotification 
-                                                   object:[self window]];
-        [[NSNotificationCenter defaultCenter] addObserver:self 
-                                                 selector:@selector(windowWillExitFullScreen:) 
-                                                     name:NSWindowWillExitFullScreenNotification 
-                                                   object:[self window]];
+        obs = [NSNotificationCenter observe:NSWindowWillEnterFullScreenNotification 
+                                     object:[self window]
+                                      queue:nil
+                                      block:^(NSNotification *note){[selfRef windowWillEnterFullScreen:note];}];
+        [_observers addObject:obs];
+        obs = [NSNotificationCenter observe:NSWindowDidEnterFullScreenNotification 
+                                     object:[self window]
+                                      queue:nil
+                                      block:^(NSNotification *note){[selfRef windowDidEnterFullScreen:note];}];
+        [_observers addObject:obs];
     }
 }
 
 // ========================================
 // Accessors
 
-@synthesize mainMenuController, libraryViewController, historyViewController, playlistsViewController, preferencesViewController, nowPlayingViewController, controlsViewController;
-@dynamic currentMode, showsArtwork, miniPlayer;
+@synthesize mainMenuController, 
+libraryViewController, 
+historyViewController, 
+playlistsViewController, 
+preferencesViewController, 
+nowPlayingViewController, 
+controlsViewController;
+@dynamic currentMode, 
+showsArtwork, 
+miniPlayer;
 
 - (PRMode)currentMode {
     return _currentMode;
@@ -545,6 +566,10 @@
 }
 
 - (NSRect)window:(NSWindow *)window willPositionSheet:(NSWindow *)sheet usingRect:(NSRect)rect {
+    if ([self miniPlayer] && [[self window] frame].size.height == 140) {
+        rect.origin.y -= 1;
+        return rect;
+    }
     rect.origin.y -= 8;
     return rect;
 }
@@ -573,7 +598,6 @@
         [self updateLayoutWithFrame:[[self window] frame]];
         _windowWillResize = FALSE;
     }
-    
     if ([[self window] styleMask] & NSFullScreenWindowMask) {
         return;
     }

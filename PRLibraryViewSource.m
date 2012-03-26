@@ -534,7 +534,7 @@ NSString * const compilationString = @"Compilations  ";
     *prevBrowserBindings = [bindings retain];
     
 	// Execute
-    if (useCache && [_list isEqual:[[_db playlists] libraryList]] && FALSE) {
+    if (useCache && [_list isEqual:[[_db playlists] libraryList]]) {
         [_db execute:[NSString stringWithFormat:@"DELETE FROM %@", destinationTableName]];
         [_db execute:[NSString stringWithFormat:@"INSERT INTO %@ (value) SELECT value FROM %@ ORDER BY row", destinationTableName, cacheTableName]];
         _compilation = _cachedCompilation;

@@ -177,6 +177,9 @@
     // rating
     [((PRRatingCell *)[ratingControl cell]) setShowDots:TRUE];
     
+    // Key View Loop
+    [_lyricsField setNextKeyView:nil];
+    
     [self update];
     [self updateTabControl];
 }

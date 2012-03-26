@@ -165,10 +165,8 @@
 		67A533E913DE52A000973422 /* PRSmartPlaylistEditorView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 67A533E813DE52A000973422 /* PRSmartPlaylistEditorView.xib */; };
 		67A5F63412A5E261003837CA /* PRRatingCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A5F63312A5E261003837CA /* PRRatingCell.m */; };
 		67A7A2BB150BDC56005E91C0 /* PRFirstResponderGradientView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A7A2B8150BDC53005E91C0 /* PRFirstResponderGradientView.m */; };
-		67A7A2BC150BDC56005E91C0 /* PRFirstResponderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A7A2BA150BDC55005E91C0 /* PRFirstResponderView.m */; };
 		67A7A2BF150BDC68005E91C0 /* PRTitleBarGradientView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A7A2BE150BDC67005E91C0 /* PRTitleBarGradientView.m */; };
 		67A7A2C5150C5A2B005E91C0 /* PRNonScrollingScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A7A2C4150C5A2A005E91C0 /* PRNonScrollingScrollView.m */; };
-		67A7A2CB150C5AB9005E91C0 /* PRBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A7A2CA150C5AB8005E91C0 /* PRBox.m */; };
 		67A7A2D4150C909F005E91C0 /* NSTableView+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67A7A2D3150C909F005E91C0 /* NSTableView+Extensions.m */; };
 		67AB53E0138BAA69000A329B /* PRDateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 67AB53DF138BAA69000A329B /* PRDateFormatter.m */; };
 		67AD280C136CA77C00DF48EE /* PRPlaylistsCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67AD280B136CA77B00DF48EE /* PRPlaylistsCell.m */; };
@@ -541,14 +539,10 @@
 		67A5F63312A5E261003837CA /* PRRatingCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRatingCell.m; sourceTree = "<group>"; };
 		67A7A2B7150BDC52005E91C0 /* PRFirstResponderGradientView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRFirstResponderGradientView.h; sourceTree = "<group>"; };
 		67A7A2B8150BDC53005E91C0 /* PRFirstResponderGradientView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRFirstResponderGradientView.m; sourceTree = "<group>"; };
-		67A7A2B9150BDC54005E91C0 /* PRFirstResponderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRFirstResponderView.h; sourceTree = "<group>"; };
-		67A7A2BA150BDC55005E91C0 /* PRFirstResponderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRFirstResponderView.m; sourceTree = "<group>"; };
 		67A7A2BD150BDC66005E91C0 /* PRTitleBarGradientView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRTitleBarGradientView.h; sourceTree = "<group>"; };
 		67A7A2BE150BDC67005E91C0 /* PRTitleBarGradientView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRTitleBarGradientView.m; sourceTree = "<group>"; };
 		67A7A2C3150C5A2A005E91C0 /* PRNonScrollingScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRNonScrollingScrollView.h; sourceTree = "<group>"; };
 		67A7A2C4150C5A2A005E91C0 /* PRNonScrollingScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRNonScrollingScrollView.m; sourceTree = "<group>"; };
-		67A7A2C9150C5AB7005E91C0 /* PRBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBox.h; sourceTree = "<group>"; };
-		67A7A2CA150C5AB8005E91C0 /* PRBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRBox.m; sourceTree = "<group>"; };
 		67A7A2D2150C909F005E91C0 /* NSTableView+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSTableView+Extensions.h"; sourceTree = "<group>"; };
 		67A7A2D3150C909F005E91C0 /* NSTableView+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSTableView+Extensions.m"; sourceTree = "<group>"; };
 		67AB52E614F96ACA00A0E935 /* PRTableViewController+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PRTableViewController+Private.h"; sourceTree = "<group>"; };
@@ -1121,14 +1115,10 @@
 		67691F711338B5A300D27C01 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				67A7A2C9150C5AB7005E91C0 /* PRBox.h */,
-				67A7A2CA150C5AB8005E91C0 /* PRBox.m */,
 				67A7A2BD150BDC66005E91C0 /* PRTitleBarGradientView.h */,
 				67A7A2BE150BDC67005E91C0 /* PRTitleBarGradientView.m */,
 				67A7A2B7150BDC52005E91C0 /* PRFirstResponderGradientView.h */,
 				67A7A2B8150BDC53005E91C0 /* PRFirstResponderGradientView.m */,
-				67A7A2B9150BDC54005E91C0 /* PRFirstResponderView.h */,
-				67A7A2BA150BDC55005E91C0 /* PRFirstResponderView.m */,
 				67133A621325EF9D00764174 /* PRGradientView.h */,
 				67133A631325EF9D00764174 /* PRGradientView.m */,
 				67EB42431339B843009167BA /* PRBackgroundView.h */,
@@ -1994,10 +1984,8 @@
 				67DDC70414FA0F0800E361B0 /* MAZeroingWeakRef.m in Sources */,
 				67DDC70F14FA169B00E361B0 /* NSMenuItem+Extensions.m in Sources */,
 				67A7A2BB150BDC56005E91C0 /* PRFirstResponderGradientView.m in Sources */,
-				67A7A2BC150BDC56005E91C0 /* PRFirstResponderView.m in Sources */,
 				67A7A2BF150BDC68005E91C0 /* PRTitleBarGradientView.m in Sources */,
 				67A7A2C5150C5A2B005E91C0 /* PRNonScrollingScrollView.m in Sources */,
-				67A7A2CB150C5AB9005E91C0 /* PRBox.m in Sources */,
 				67A7A2D4150C909F005E91C0 /* NSTableView+Extensions.m in Sources */,
 				67DE13351516E37D00E94F28 /* PRAlertWindowController.m in Sources */,
 				67DE13391516FB4800E94F28 /* PRViewController.m in Sources */,

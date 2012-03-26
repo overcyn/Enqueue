@@ -1,6 +1,7 @@
 #import "NSNotificationCenter+Extensions.h"
 #import "PRPlaylists.h"
 
+
 NSString * const PRLibraryDidChangeNotification = @"PRLibraryDidChangeNotification";
 NSString * const PRTagsDidChangeNotification = @"PRTagsDidChangeNotification";
 NSString * const PRPlaylistDidChangeNotification = @"PRPlaylistDidChangeNotification";
@@ -29,7 +30,29 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
 
 @implementation NSNotificationCenter (Extensions)
 
++ (void)post:(NSString *)name {
+    [[NSNotificationCenter defaultCenter] postNotificationName:name object:nil];
+}
+
++ (void)post:(NSString *)name object:(id)object info:(NSDictionary *)info {
+    [[NSNotificationCenter defaultCenter] postNotificationName:name object:object userInfo:info];
+}
+
++ (id)observe:(NSString *)name block:(void (^)(NSNotification *))block {
+    return [[NSNotificationCenter defaultCenter] addObserverForName:name object:nil queue:nil usingBlock:block];
+}
+
++ (id)observe:(NSString *)name object:(id)object queue:(NSOperationQueue *)queue block:(void (^)(NSNotification *))block {
+    return [[NSNotificationCenter defaultCenter] addObserverForName:name object:object queue:queue usingBlock:block];
+}
+
++ (void)removeObserver:(id)observer {
+    [[NSNotificationCenter defaultCenter] removeObserver:observer];
+}
+
+
 // Db notifications
+
 - (void)postLibraryChanged {
     [self postNotificationName:PRLibraryDidChangeNotification object:nil];
 }
@@ -83,7 +106,8 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
     [self addObserver:obs selector:sel name:PRLibraryViewSelectionDidChangeNotification object:nil];
 }
 
-// Preferences 
+// Preferences
+
 - (void)postPreGainChanged {
     [self postNotificationName:PRPreGainDidChangeNotification object:nil];
 }
@@ -109,6 +133,7 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
 }
 
 // Lastfm
+
 - (void)postLastfmStateChanged {
     [self postNotificationName:PRLastfmStateChangedNote object:nil];
 }

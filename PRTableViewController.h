@@ -2,10 +2,11 @@
 #import "PRAlbumTableView.h"
 #import "PRLibrary.h"
 #import "PRLibraryViewController.h"
+#import "PRViewController.h"
 @class PRDb, PRLibrary, PRPlaylists, PRNowPlayingController, PRLibraryViewSource, PRLibraryViewController, PRNumberFormatter, PRSizeFormatter, PRTimeFormatter, PRBitRateFormatter, PRKindFormatter, PRDateFormatter, PRStringFormatter;
 
 
-@interface PRTableViewController : NSViewController <NSSplitViewDelegate, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate, PRTableViewDelegate> {
+@interface PRTableViewController : PRViewController <NSSplitViewDelegate, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate, PRTableViewDelegate> {
     __weak PRCore *_core;
 	__weak PRDb *db;
 	__weak PRNowPlayingController *now;

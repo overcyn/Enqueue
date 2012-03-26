@@ -10,10 +10,11 @@
 #import "AUParamInfo.h"
 #import "PREQ.h"
 
+
 #define DSP_ENABLED 0
 #define PLAYER (static_cast<AudioPlayer *>(player))
-
 volatile static uint32_t sPlayerFlags = 0;
+
 
 @interface PRMoviePlayer ()
 /* Playback */
@@ -30,6 +31,7 @@ volatile static uint32_t sPlayerFlags = 0;
 - (void)update;
 @end
 
+
 static void decodingStarted(void *context, const AudioDecoder *decoder);
 static void renderingStarted(void *context, const AudioDecoder *decoder);
 static void decodingFinished(void *context, const AudioDecoder *decoder);
@@ -40,7 +42,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 // ========================================
 // Initialization
-// ========================================
 
 - (id)init {
     if (!(self = [super init])) {return nil;}
@@ -50,20 +51,20 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     timer = [NSTimer timerWithTimeInterval:0.3 target:self selector:@selector(update) userInfo:nil repeats:YES];
     [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
     
-    BOOL err = PLAYER->AddEffect(kAudioUnitSubType_GraphicEQ, kAudioUnitManufacturer_Apple, 0, 0, &_au);
-    if (!err) {
-        NSLog(@"fail2");
-    }
-    
-    OSStatus status = AudioUnitInitialize(_au);
-    if (status != 0) {
-        NSLog(@"Init:%d",(int)status);
-    }
-        
-    status = AudioUnitSetParameter(_au, kGraphicEQParam_NumberOfBands, kAudioUnitScope_Global, 0, 0, 0);
-    if (status != 0) {
-        NSLog(@"status:%d",(int)status);
-    }
+//    BOOL err = PLAYER->AddEffect(kAudioUnitSubType_GraphicEQ, kAudioUnitManufacturer_Apple, 0, 0, &_au);
+//    if (!err) {
+//        NSLog(@"EQ Fail");
+//    }
+//    
+//    OSStatus status = AudioUnitInitialize(_au);
+//    if (status != 0) {
+//        NSLog(@"Init:%d",(int)status);
+//    }
+//        
+//    status = AudioUnitSetParameter(_au, kGraphicEQParam_NumberOfBands, kAudioUnitScope_Global, 0, 0, 0);
+//    if (status != 0) {
+//        NSLog(@"status:%d",(int)status);
+//    }
     
 //    // Public util
 //    AUParamInfo info(_au, FALSE, FALSE); 
@@ -94,12 +95,17 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 }
 
 - (void)dealloc {
+    [timer invalidate];
+    [self.transitionTimer invalidate];
+    
+    delete PLAYER;
+    [timer release];
+    [_transitionTimer release];
     [super dealloc];
 }
 
 // ========================================
 // Playback
-// ========================================
 
 - (BOOL)play:(NSString *)file {
     // clear queue & stop
@@ -231,7 +237,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 // ========================================
 // Playback Private
-// ========================================
 
 - (void)transitionCallback:(NSTimer *)timer_ {
     switch (transitionState) {
@@ -273,7 +278,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 // ========================================
 // Accessors
-// ========================================
 
 - (BOOL)isPlaying {
     if (transitionState == PRPausingTransitionState) {
@@ -328,11 +332,10 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 // ========================================
 // Accessors Private
-// ========================================
 
-@synthesize transitionTimer = _transitionTimer;
+@synthesize transitionTimer = _transitionTimer,
+player = player;
 @dynamic queueState;
-@synthesize player = player;
 
 - (PRMovieQueueState)queueState {
     if ((1 << 0) & sPlayerFlags) {
@@ -363,7 +366,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 // ========================================
 // Update Private
-// ========================================
 
 - (void)update {
     [[NSNotificationCenter defaultCenter] postTimeChanged];
@@ -384,30 +386,31 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 }
 
 - (void)EQChanged:(NSNotification *)note {
-    PREQ *EQ;
-    if (![[PRUserDefaults userDefaults] EQIsEnabled]) {
-        EQ = [PREQ flat];
-    } else if ([[PRUserDefaults userDefaults] isCustomEQ]) {
-        EQ = [[[PRUserDefaults userDefaults] customEQs] objectAtIndex:[[PRUserDefaults userDefaults] EQIndex]];
-    } else {
-        EQ = [[PREQ defaultEQs] objectAtIndex:[[PRUserDefaults userDefaults] EQIndex]];
-    }
-    
-    for (int i = 0; i < 10; i++) {
-        float amp = [EQ ampForFreq:(PREQFreq)(i + 1)] + [EQ ampForFreq:PREQFreqPreamp];
-        if (amp > 20) {
-            amp = 20;
-        } else if (amp < -20) {
-            amp = -20;
-        }
-        OSStatus status = AudioUnitSetParameter(_au, i, kAudioUnitScope_Global, 0, amp, 0);
-        if (status != 0) {
-            NSLog(@"EQ failed:%d",(int)status);
-        }
-    }
+//    PREQ *EQ;
+//    if (![[PRUserDefaults userDefaults] EQIsEnabled]) {
+//        EQ = [PREQ flat];
+//    } else if ([[PRUserDefaults userDefaults] isCustomEQ]) {
+//        EQ = [[[PRUserDefaults userDefaults] customEQs] objectAtIndex:[[PRUserDefaults userDefaults] EQIndex]];
+//    } else {
+//        EQ = [[PREQ defaultEQs] objectAtIndex:[[PRUserDefaults userDefaults] EQIndex]];
+//    }
+//    
+//    for (int i = 0; i < 10; i++) {
+//        float amp = [EQ ampForFreq:(PREQFreq)(i + 1)] + [EQ ampForFreq:PREQFreqPreamp];
+//        if (amp > 20) {
+//            amp = 20;
+//        } else if (amp < -20) {
+//            amp = -20;
+//        }
+//        OSStatus status = AudioUnitSetParameter(_au, i, kAudioUnitScope_Global, 0, amp, 0);
+//        if (status != 0) {
+//            NSLog(@"EQ failed:%d",(int)status);
+//        }
+//    }
 }
 
 @end
+
 
 static void decodingStarted(void *context, const AudioDecoder *decoder) {
 //    NSLog(@"decodingStarted");
