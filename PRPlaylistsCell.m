@@ -6,7 +6,6 @@
 
 // ========================================
 // Drawing
-// ========================================
 
 - (void)drawWithFrame:(NSRect)theCellFrame inView:(NSView *)theControlView
 {

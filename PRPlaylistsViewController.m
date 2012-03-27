@@ -7,7 +7,6 @@
 #import "PRRolloverTableView.h"
 #import "NSScrollView+Extensions.h"
 #import "PRStringFormatter.h"
-#import "PRSmartPlaylistEditorViewController.h"
 #import "PRCore.h"
 #import "NSColor+Extensions.h"
 #import "PRLibraryViewController.h"
@@ -204,9 +203,7 @@
 }
 
 - (void)editPlaylist:(PRPlaylist)playlist {
-    [smartPlaylistEditorViewController release];
-    smartPlaylistEditorViewController = [[PRSmartPlaylistEditorViewController alloc] initWithCore:_core playlist:playlist];
-    [smartPlaylistEditorViewController beginSheet];
+    
 }
 
 - (void)duplicatePlaylistMenuAction:(NSMenuItem *)menuItem {

@@ -18,7 +18,7 @@
     if (!date) {
         return @"Invalid Date";
     }
-    return [self stringForObjectValue:date];
+    return [super stringForObjectValue:date];
 }
 
 - (BOOL)getObjectValue:(id *)obj forString:(NSString *)string errorDescription:(NSString **)error {

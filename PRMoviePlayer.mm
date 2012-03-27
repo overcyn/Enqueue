@@ -386,27 +386,29 @@ player = player;
 }
 
 - (void)EQChanged:(NSNotification *)note {
-//    PREQ *EQ;
-//    if (![[PRUserDefaults userDefaults] EQIsEnabled]) {
-//        EQ = [PREQ flat];
-//    } else if ([[PRUserDefaults userDefaults] isCustomEQ]) {
-//        EQ = [[[PRUserDefaults userDefaults] customEQs] objectAtIndex:[[PRUserDefaults userDefaults] EQIndex]];
-//    } else {
-//        EQ = [[PREQ defaultEQs] objectAtIndex:[[PRUserDefaults userDefaults] EQIndex]];
-//    }
-//    
-//    for (int i = 0; i < 10; i++) {
-//        float amp = [EQ ampForFreq:(PREQFreq)(i + 1)] + [EQ ampForFreq:PREQFreqPreamp];
-//        if (amp > 20) {
-//            amp = 20;
-//        } else if (amp < -20) {
-//            amp = -20;
-//        }
-//        OSStatus status = AudioUnitSetParameter(_au, i, kAudioUnitScope_Global, 0, amp, 0);
-//        if (status != 0) {
-//            NSLog(@"EQ failed:%d",(int)status);
-//        }
-//    }
+	/*
+    PREQ *EQ;
+    if (![[PRUserDefaults userDefaults] EQIsEnabled]) {
+        EQ = [PREQ flat];
+    } else if ([[PRUserDefaults userDefaults] isCustomEQ]) {
+        EQ = [[[PRUserDefaults userDefaults] customEQs] objectAtIndex:[[PRUserDefaults userDefaults] EQIndex]];
+    } else {
+        EQ = [[PREQ defaultEQs] objectAtIndex:[[PRUserDefaults userDefaults] EQIndex]];
+    }
+    
+    for (int i = 0; i < 10; i++) {
+        float amp = [EQ ampForFreq:(PREQFreq)(i + 1)] + [EQ ampForFreq:PREQFreqPreamp];
+        if (amp > 20) {
+            amp = 20;
+        } else if (amp < -20) {
+            amp = -20;
+        }
+        OSStatus status = AudioUnitSetParameter(_au, i, kAudioUnitScope_Global, 0, amp, 0);
+        if (status != 0) {
+            NSLog(@"EQ failed:%d",(int)status);
+        }
+    }
+	*/
 }
 
 @end

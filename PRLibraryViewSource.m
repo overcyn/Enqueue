@@ -263,37 +263,6 @@ NSString * const compilationString = @"Compilations  ";
 		bindingIndex++;
         whereTerm = TRUE;
 	}
-    
-	/*
-     // filter for rules
-     NSData *data;
-     PRRule *rule = nil;
-     NSString *columnTitle;
-     
-     [play value:&data forPlaylist:playlist attribute:PRRulesPlaylistAttribute _error:nil];
-     if (data) {
-     rule = [NSKeyedUnarchiver unarchiveObjectWithData:data];
-     }
-     
-     if (rule != nil && [[rule subRules] count] != 0 && [rule match]) {
-     [stmtString appendString:@"AND (0 = 1 "];
-     
-     // for each subrule
-     for (PRRule *subRule in [rule subRules]) {
-     [stmtString appendString:@"OR (0 = 1 "];
-     columnTitle = [[PRLibrary columnDict] objectForKey:[NSNumber numberWithInt:[subRule fileAttribute]]];
-     
-     // for each selected in subrule
-     for (id selected in [subRule selectedObjects]) {
-     [stmtString appendString:[NSString stringWithFormat:@"OR ifnull(library.%@, '') = ?%d ", columnTitle, idx]];
-     [bindingDictionary setObject:selected forKey:[NSNumber numberWithInt:idx]];
-     idx++;
-     }
-     [stmtString appendString:@") "];
-     }
-     [stmtString appendString:@") "];
-     }
-     */
 	
     // Filter for Column Browser
     for (int i = 1; i <= 3; i++) {

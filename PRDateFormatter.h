@@ -1,8 +1,5 @@
 #import <Foundation/Foundation.h>
 
 
-@interface PRDateFormatter : NSDateFormatter {
-    
-}
-
+@interface PRDateFormatter : NSDateFormatter
 @end

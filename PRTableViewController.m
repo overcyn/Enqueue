@@ -6,7 +6,6 @@
 #import "PRNowPlayingController.h"
 #import "PRLibraryViewSource.h"
 #import "PRLibraryViewController.h"
-#import "PRRuleViewController.h"
 #import "PRCenteredTextFieldCell.h"
 #import "PRNumberFormatter.h"
 #import "PRSizeFormatter.h"

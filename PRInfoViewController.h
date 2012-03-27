@@ -4,14 +4,6 @@
 @class PRDb, PRGradientView, PRNumberFormatter, PRStringFormatter, PRCore, PRPathFormatter, PRKindFormatter, PRSizeFormatter, PRDateFormatter, PRTimeFormatter, PRBitRateFormatter;
 
 
-typedef enum {
-    PRInfoModeTags,
-    PRInfoModeProperties,
-    PRInfoModeLyrics,
-    PRInfoModeArtwork,
-} PRInfoMode;
-
-
 @interface PRInfoViewController : PRViewController {
 	IBOutlet NSTextField *titleField;
 	IBOutlet NSTextField *artistField;	
@@ -59,7 +51,8 @@ typedef enum {
         
     PRInfoMode _mode;
     
-    NSArray *controls;
+    NSArray *_controls;
+	NSArray *_propertyControls;
     NSArray *labels;
     PRBitRateFormatter *_bitrateFormatter;
     PRDateFormatter *_dateFormatter;
@@ -67,29 +60,12 @@ typedef enum {
     PRPathFormatter *_pathFormatter;
     PRKindFormatter *_kindFormatter;
     PRTimeFormatter *_timeFormatter;
-    PRNumberFormatter *numberFormatter;
-    PRStringFormatter *stringFormatter;
+    PRNumberFormatter *_numberFormatter;
+    PRStringFormatter *_stringFormatter;
 	NSArray *selection;
     
-    PRCore *core;
-	PRDb *db;
+    __weak PRCore *_core;
+	__weak PRDb *_db;
 }
-// Initialization
 - (id)initWithCore:(PRCore *)core_;
-
-// Tab Control
-- (void)updateTabControl;
-- (NSDictionary *)tabs;
-- (void)tabAction:(id)sender;
-
-// Accessors
-- (void)update;
-
-- (id)valueForAttribute:(PRFileAttribute)attribute;
-
-- (void)setAlbumArt:(NSImage *)value;
-- (NSImage *)albumArt;
-
-- (void)setCompilation:(NSNumber *)value;
-- (NSNumber *)compilation;
 @end
