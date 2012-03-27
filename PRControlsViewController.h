@@ -38,19 +38,19 @@
     
     BOOL _progressHidden;
 }
-// Initialization
+/* Initialization */
 - (id)initWithCore:(PRCore *)core_;
 
-// Accessors
+/* Accessors */
 - (NSImageView *)albumArtView;
 
-// Update
+/* Update */
 - (void)updateLayout;
 - (void)updateControls;
 - (void)updatePlayButton;
 - (void)volumeChanged:(NSNotification *)notification;
 
-// Action
+/* Action */
 - (BOOL)progressHidden;
 - (void)setProgressHidden:(BOOL)progressHidden;
 - (void)setProgressTitle:(NSString *)progressTitle;

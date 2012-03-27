@@ -23,13 +23,6 @@
 #import "MAZeroingWeakRef.h"
 
 
-typedef enum {
-    PRInfoModeTags,
-    PRInfoModeProperties,
-    PRInfoModeLyrics,
-    PRInfoModeArtwork,
-} PRInfoMode;
-
 #define CONTROLKEY @"control"
 #define ITEMATTRKEY @"itemAttr"
 #define FORMATTERKEY @"formatter"
@@ -37,7 +30,6 @@ typedef enum {
 #define MULTIPLEVALUEPLACEHOLDERKEY @"multipleValuePlaceholder"
 #define NOSELECTIONPLACEHOLDERKEY @"noSelectionPlaceholder"
 #define KINDKEY @"kindKey"
-
 #define NONEKIND 0
 #define STRINGKIND 1
 #define NUMBERKIND 2

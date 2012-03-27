@@ -24,6 +24,7 @@
 }
 
 - (void)addTask:(PRTask *)task {
+	NSLog(@"addingTask:%@",task);
     if (![_tasks containsObject:task]) {
         [task addObserver:self forKeyPath:@"title" options:0 context:nil];
         [task addObserver:self forKeyPath:@"percent" options:0 context:nil];

@@ -16,6 +16,8 @@
 #import "PRTableViewController.h"
 #import "PRTimeFormatter.h"
 #import "PRUserDefaults.h"
+#import "PRTaskManager.h"
+#import "PRTask.h"
 
 
 @implementation PRControlsViewController
@@ -95,6 +97,7 @@
     [gradientView setTopBorder2:[NSColor colorWithCalibratedWhite:1.0 alpha:0.5]];
     
     // Task Manager
+	[[core taskManager] addObserver:self forKeyPath:@"tasks" options:0 context:nil];
     [_progressDivider setColor:[NSColor colorWithCalibratedWhite:0.0 alpha:0.3]];
     [_progressDivider setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.8]];
     [_progressButton setTarget:[core taskManager]];
@@ -115,6 +118,19 @@
 
 // ========================================
 // Update
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if (object == [core taskManager] && [keyPath isEqualToString:@"tasks"]) {
+        if ([[[core taskManager] tasks] count] > 0) {
+			PRTask *task = [[[core taskManager] tasks] objectAtIndex:0];
+			[self setProgressHidden:FALSE];
+			[self setProgressTitle:[task title]];
+			[self setProgressPercent:[task percent]];
+		} else {
+			[self setProgressHidden:TRUE];
+		}
+    }
+}
 
 - (void)updateLayout {
     [_volumeButton setHidden:[[core win] miniPlayer]];

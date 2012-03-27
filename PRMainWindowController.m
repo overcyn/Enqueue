@@ -12,7 +12,7 @@
 #import "PRPreferencesViewController.h"
 #import "PRHistoryViewController.h"
 #import "PRTableViewController.h"
-#import "PRTaskManager.h"
+
 #import "PRMainMenuController.h"
 #import "PRUserDefaults.h"
 #import "NSWindow+Extensions.h"

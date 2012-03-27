@@ -3,8 +3,18 @@
 #import "PRViewController.h"
 @class PRDb, PRGradientView, PRNumberFormatter, PRStringFormatter, PRCore, PRPathFormatter, PRKindFormatter, PRSizeFormatter, PRDateFormatter, PRTimeFormatter, PRBitRateFormatter;
 
+typedef enum {
+    PRInfoModeTags,
+    PRInfoModeProperties,
+    PRInfoModeLyrics,
+    PRInfoModeArtwork,
+} PRInfoMode;
+
 
 @interface PRInfoViewController : PRViewController {
+	__weak PRCore *_core;
+	__weak PRDb *_db;
+	
 	IBOutlet NSTextField *titleField;
 	IBOutlet NSTextField *artistField;	
 	IBOutlet NSTextField *albumArtistField;	
@@ -63,9 +73,6 @@
     PRNumberFormatter *_numberFormatter;
     PRStringFormatter *_stringFormatter;
 	NSArray *selection;
-    
-    __weak PRCore *_core;
-	__weak PRDb *_db;
 }
-- (id)initWithCore:(PRCore *)core_;
+- (id)initWithCore:(PRCore *)core;
 @end

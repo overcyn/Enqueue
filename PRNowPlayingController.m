@@ -9,21 +9,20 @@
 #import "PRUserDefaults.h"
 
 @interface PRNowPlayingController ()
-// Playback
+/* Playback */
 - (void)playListItem:(PRListItem *)listItem withSel:(SEL)selector; // should only be called by playPlayistItem: and playPlaylistItemIfNotQueued:
 - (void)playListItemIfNotQueued:(PRListItem *)listItem;
 - (void)playListItem:(PRListItem *)listItem;
 - (PRListItem *)nextItem:(BOOL)update;
 - (PRListItem *)previousItem:(BOOL)update;
 
-// Update
+/* Update */
 - (void)movieDidFinish;
 - (void)movieAlmostFinished;
 
-// Order
+/* Order */
 @property (readwrite) int position;
 @property (readwrite) int marker;
-
 - (void)clearHistory;
 @end
 
@@ -88,8 +87,7 @@
 	return [[_db playlists] indexForListItem:[self currentListItem]];
 }
 
-@dynamic shuffle;
-@dynamic repeat;
+@dynamic shuffle, repeat;
 
 - (int)repeat {
     return [[PRUserDefaults userDefaults] repeat];
@@ -372,8 +370,7 @@
 // ========================================
 // Order Priv
 
-@dynamic position;
-@dynamic marker;
+@dynamic position, marker;
 
 - (int)position {
     if (_position < 0 || _position > [[_db playbackOrder] count]) {

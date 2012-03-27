@@ -16,6 +16,12 @@
 volatile static uint32_t sPlayerFlags = 0;
 
 
+static void decodingStarted(void *context, const AudioDecoder *decoder);
+static void renderingStarted(void *context, const AudioDecoder *decoder);
+static void decodingFinished(void *context, const AudioDecoder *decoder);
+static void renderingFinished(void *context, const AudioDecoder *decoder);
+
+
 @interface PRMoviePlayer ()
 /* Playback */
 - (void)transitionCallback:(NSTimer *)timer_;
@@ -30,12 +36,6 @@ volatile static uint32_t sPlayerFlags = 0;
 - (void)EQChanged:(NSNotification *)note;
 - (void)update;
 @end
-
-
-static void decodingStarted(void *context, const AudioDecoder *decoder);
-static void renderingStarted(void *context, const AudioDecoder *decoder);
-static void decodingFinished(void *context, const AudioDecoder *decoder);
-static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 
 @implementation PRMoviePlayer
