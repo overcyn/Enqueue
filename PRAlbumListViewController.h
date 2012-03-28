@@ -14,13 +14,11 @@
     
     NSCache *_cachedArtwork;
 }
-
-// action
+/* action */
 - (void)selectAlbum;
 - (void)playAlbum;
 
+/* misc */
 - (BOOL)shouldDrawGridForRow:(int)row tableView:(NSTableView *)tableView;
-
-- (void)cacheAlbumArtForFile:(int)file artworkInfo:(NSDictionary *)artworkInfo dirtyRect:(NSRect)dirtyRect;
-
+- (void)cacheArtworkForItem:(PRItem *)item artworkInfo:(NSDictionary *)artworkInfo dirtyRect:(NSRect)dirtyRect;
 @end

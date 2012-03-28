@@ -302,8 +302,7 @@
     if ([selection count] == 0) {
         return nil;
     }
-    PRFile file = [[selection objectAtIndex:0] intValue];
-    NSImage *albumArt = [[_db albumArtController] cachedArtForFile:file];
+    NSImage *albumArt = [[_db albumArtController] artworkForItem:[selection objectAtIndex:0]];
     return albumArt;
 }
 

@@ -233,26 +233,25 @@
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)tableRow {
 	if (tableView == albumTableView) {
 		int dbRow = [[albumSumCountArray objectAtIndex:tableRow] intValue];
-		PRFile file = [[[db libraryViewSource] itemForRow:dbRow] intValue];
+		PRItem *item = [[db libraryViewSource] itemForRow:dbRow];
         
 		NSMutableDictionary *dict = [NSMutableDictionary dictionary];
 		[dict setObject:db forKey:@"db"];
-		[dict setObject:[NSNumber numberWithInt:file] forKey:@"file"];
+		[dict setObject:item forKey:@"file"];
         [dict setObject:[NSImage imageNamed:@"PRLightAlbumArt"] forKey:@"icon"];
                 
         // asynchronous drawing
-        NSImage *icon = [_cachedArtwork objectForKey:[NSNumber numberWithInt:file]];
+        NSImage *icon = [_cachedArtwork objectForKey:item];
 		if (icon) {
             [dict setObject:icon forKey:@"icon"];
         } else {
-            NSMutableIndexSet *mfiles = [[[NSMutableIndexSet alloc] init] autorelease];
+			NSMutableArray *items = [NSMutableArray array];
             for (int i = dbRow - [[albumCountArray objectAtIndex:tableRow] intValue] + 1; i < dbRow + 1; i++) {
-                int guessedFile = [[[db libraryViewSource] itemForRow:i] intValue];
-                [mfiles addIndex:guessedFile];
+				[items addObject:[[db libraryViewSource] itemForRow:i]];
             }
-            NSDictionary *artworkInfo = [[db albumArtController] artworkInfoForFiles:mfiles];
+            NSDictionary *artworkInfo = [[db albumArtController] artworkInfoForItems:items];
             NSRect dirtyRect = [albumTableView rectOfRow:tableRow];            
-            [[NSOperationQueue backgroundQueue] addBlock:^{[self cacheAlbumArtForFile:file artworkInfo:artworkInfo dirtyRect:dirtyRect];}];
+            [[NSOperationQueue backgroundQueue] addBlock:^{[self cacheArtworkForItem:item artworkInfo:artworkInfo dirtyRect:dirtyRect];}];
         }
 		return dict;
 	} else {
@@ -260,13 +259,13 @@
 	}
 }
 
-- (void)cacheAlbumArtForFile:(int)file artworkInfo:(NSDictionary *)artworkInfo dirtyRect:(NSRect)dirtyRect {
+- (void)cacheArtworkForItem:(PRItem *)item artworkInfo:(NSDictionary *)artworkInfo dirtyRect:(NSRect)dirtyRect {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSImage *icon = [[db albumArtController] artworkForArtworkInfo:artworkInfo];;    
     if (!icon) {
         icon = [NSImage imageNamed:@"PRLightAlbumArt"];
     }
-    [_cachedArtwork setObject:icon forKey:[NSNumber numberWithInt:file]];
+    [_cachedArtwork setObject:icon forKey:item];
     
     [[NSOperationQueue mainQueue] addBlock:^{[albumTableView setNeedsDisplayInRect:dirtyRect];}];
     [pool drain];

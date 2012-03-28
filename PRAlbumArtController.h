@@ -4,62 +4,36 @@
 
 
 @interface PRAlbumArtController : NSObject {
+	__weak PRDb *_db;
+	
     int _tempIndex;
     NSFileManager *_fileManager;
-    
-	__weak PRDb *_db;
 }
-// Initialization
+/* Initialization */
 - (id)initWithDb:(PRDb *)db;
 
-// Accessors
-- (NSDictionary *)artworkInfoForFile:(PRFile)file;
-- (NSDictionary *)artworkInfoForFiles:(NSIndexSet *)files;
-- (NSDictionary *)artworkInfoForArtist:(NSString *)artist;
-- (NSImage *)artworkForArtworkInfo:(NSDictionary *)info;
-
-- (NSImage *)albumArtForFile:(PRFile)file;
-- (NSImage *)albumArtForFiles:(NSIndexSet *)files;
-- (NSImage *)albumArtForArtist:(NSString *)artist;
-
-- (NSImage *)cachedArtForFile:(PRFile)file;
-
-- (void)setCachedAlbumArt:(NSImage *)image forFile:(PRFile)file;
-//- (void)setCachedAlbumArt2:(NSImage *)image forFile:(PRFile)file;
-
-// Misc
-- (NSString *)cachedAlbumArtPathForFile:(PRFile)file;
-- (NSString *)downloadedAlbumArtPathForFile:(PRFile)file;
-- (void)clearAlbumArtForFile:(PRFile)file;
-- (void)clearAlbumArtForFile2:(PRFile)file;
-- (BOOL)fileHasAlbumArt:(PRFile)file;
-
-// Temp
-- (void)setTempArt:(int)temp forFile:(PRFile)file;
-- (int)saveTempArt:(NSImage *)image;
-- (void)clearTempArt;
-
-// Temp Misc
-- (int)nextTempValue;
-- (NSString *)tempArtPathForTempValue:(int)temp;
-
-// ========================================
-
-- (NSDictionary *)artworkInfoForItem:(PRItem *)item;
-- (NSDictionary *)artworkInfoForItems:(NSArray *)items;
-//- (NSDictionary *)artworkInfoForArtist:(NSString *)artist; // duplicate of above
-//- (NSImage *)artworkForArtworkInfo:(NSDictionary *)info; // dupliacate
-
+/* Accessors */
 - (NSImage *)artworkForItem:(PRItem *)item;
 - (NSImage *)artworkForItems:(NSArray *)items;
 - (NSImage *)artworkForArtist:(NSString *)artist;
 
-- (NSImage *)cachedArtworkForItem:(PRItem *)item;
-- (void)setCachedArtwork:(NSImage *)artwork forItem:(PRItem *)item;
+- (NSDictionary *)artworkInfoForItem:(PRItem *)item;
+- (NSDictionary *)artworkInfoForItems:(NSArray *)items;
+- (NSDictionary *)artworkInfoForArtist:(NSString *)artist;
+- (NSImage *)artworkForArtworkInfo:(NSDictionary *)info;
+
+/* Cache */
 - (void)clearArtworkForItem:(PRItem *)item;
 
+/* Misc */
 - (NSString *)cachedArtworkPathForItem:(PRItem *)item;
 
-- (void)setTempArtwork:(int)temp forItem:(PRItem *)item; // no updates
-- (void)clearArtworkForItemNoUpdate:(NSNumber *)item;
+/* Temp */
+- (void)setTempArtwork:(int)temp forItem:(PRItem *)item;
+- (int)saveTempArt:(NSImage *)image;
+- (void)clearTempArt;
+
+/* Temp Misc */
+- (int)nextTempValue;
+- (NSString *)tempArtPathForTempValue:(int)temp;
 @end

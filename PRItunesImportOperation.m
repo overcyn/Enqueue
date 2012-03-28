@@ -185,7 +185,7 @@ end:;
     // Artwork
     for (PRFileInfo *i in infoArray) {
         if (![i tempArt]) {continue;}
-        [[_db albumArtController] setTempArt:[i tempArt] forFile:[i file]];
+		[[_db albumArtController] setTempArtwork:[i tempArt] forItem:[PRItem numberWithInt:[i file]]];
     }
     [pool drain];
 }

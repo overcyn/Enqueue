@@ -112,12 +112,9 @@ end:;
     // set art
     for (PRFileInfo *i in infoArray) {
         if ([i file] == 0) {continue;}
-        if ([i tempArt] != 0) {
-            [[[_core db] albumArtController] setTempArt:[i tempArt] forFile:[i file]];
-        } else {
-            [[[_core db] albumArtController] clearAlbumArtForFile2:[i file]];
-        }
-    }    [pool drain];
+		[[[_core db] albumArtController] setTempArtwork:[i tempArt] forItem:[PRItem numberWithInt:[i file]]];
+    }    
+	[pool drain];
 }
 
 @end
