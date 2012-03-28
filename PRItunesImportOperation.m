@@ -14,8 +14,7 @@
 
 @implementation PRItunesImportOperation
 
-- (id)initWithURL:(NSURL *)URL_ core:(PRCore *)core
-{
+- (id)initWithURL:(NSURL *)URL_ core:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
     _core = core;
     _db = [core db];
@@ -25,20 +24,17 @@
     return self;
 }
 
-+ (id)operationWithURL:(NSURL *)URL core:(PRCore *)core
-{
++ (id)operationWithURL:(NSURL *)URL core:(PRCore *)core {
     return [[[PRItunesImportOperation alloc] initWithURL:URL core:core] autorelease];
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [iTunesURL release];
     [_fileTrackIdDictionary release];
     [super dealloc];
 }
 
-- (void)main
-{
+- (void)main {
     NSLog(@"begin itunesimport");
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     PRTask *task = [PRTask task];
@@ -98,8 +94,7 @@ end:;
     NSLog(@"end itunesimport");
 }
 
-- (void)addTracks:(NSArray *)tracks
-{
+- (void)addTracks:(NSArray *)tracks {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     // Filter out existing files
     NSMutableIndexSet *toRemove = [NSMutableIndexSet indexSet];
@@ -132,7 +127,7 @@ end:;
         [URLs addObject:name];
     }
     // Get info
-    [[_db albumArtController] clearTempArt];
+    [[_db albumArtController] clearTempArtwork];
     NSMutableArray *infoArray = [NSMutableArray array];
     for (int i = 0; i < [tracks count]; i++) {
         NSAutoreleasePool *pool2 = [[NSAutoreleasePool alloc] init];
@@ -162,7 +157,7 @@ end:;
         [info setTrackid:[[track objectForKey:@"Track ID"] intValue]];
         // Artwork
         if ([info art]) {
-            [info setTempArt:[[_db albumArtController] saveTempArt:[info art]]];
+            [info setTempArt:[[_db albumArtController] saveTempArtwork:[info art]]];
             [info setArt:nil];
         }
         [infoArray addObject:info];
@@ -190,8 +185,7 @@ end:;
     [pool drain];
 }
 
-- (void)addPlaylist:(NSDictionary *)playlist
-{
+- (void)addPlaylist:(NSDictionary *)playlist {
     // filter out invalid playlists
     if ([[playlist objectForKey:@"Master"] boolValue] || 
         [playlist objectForKey:@"Distinguished Kind"] ||

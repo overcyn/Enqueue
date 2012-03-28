@@ -7,15 +7,15 @@
 @interface PRNowPlayingViewSource : NSObject {
 	__weak PRDb *_db;
 }
-// Initialization
+/* Initialization */
 - (id)initWithDb:(PRDb *)db_;
 - (void)create;
 - (BOOL)initialize;
 
-// Update
+/* Update */
 - (void)refresh;
 
-// Accessors
+/* Accessors */
 - (int)count;
 - (PRItem *)itemForRow:(int)row;
 - (NSArray *)albumCounts;

@@ -6,15 +6,13 @@
 
 @implementation PRVacuumOperation
 
-- (id)initWithCore:(PRCore *)core
-{
+- (id)initWithCore:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
     _core = core;
     return self;
 }
 
-- (void)main
-{
+- (void)main {
     NSLog(@"begin vacuum");
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     _task = [PRTask task];

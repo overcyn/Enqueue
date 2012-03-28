@@ -16,24 +16,15 @@
 - (NSImage *)artworkForItem:(PRItem *)item;
 - (NSImage *)artworkForItems:(NSArray *)items;
 - (NSImage *)artworkForArtist:(NSString *)artist;
+- (void)clearArtworkForItem:(PRItem *)item;
 
+/* Async Accessors */
 - (NSDictionary *)artworkInfoForItem:(PRItem *)item;
 - (NSDictionary *)artworkInfoForItems:(NSArray *)items;
 - (NSDictionary *)artworkInfoForArtist:(NSString *)artist;
 - (NSImage *)artworkForArtworkInfo:(NSDictionary *)info;
 
-/* Cache */
-- (void)clearArtworkForItem:(PRItem *)item;
-
-/* Misc */
-- (NSString *)cachedArtworkPathForItem:(PRItem *)item;
-
-/* Temp */
 - (void)setTempArtwork:(int)temp forItem:(PRItem *)item;
-- (int)saveTempArt:(NSImage *)image;
-- (void)clearTempArt;
-
-/* Temp Misc */
-- (int)nextTempValue;
-- (NSString *)tempArtPathForTempValue:(int)temp;
+- (int)saveTempArtwork:(NSImage *)image;
+- (void)clearTempArtwork;
 @end

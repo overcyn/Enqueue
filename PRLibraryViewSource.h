@@ -17,6 +17,8 @@ typedef enum {
 
 
 @interface PRLibraryViewSource : NSObject {
+	__weak PRDb *_db;
+	
     PRList *_list;
     BOOL _compilation;
     
@@ -40,18 +42,16 @@ typedef enum {
     NSArray *_cachedAttrs;
     NSArray *_cachedAttrValues;
     PRStatement *_cachedStatement;
-    
-    __weak PRDb *_db;
 }
-// Initialization
+/* Initialization */
 - (id)initWithDb:(PRDb *)sqlDb;
 - (void)create;
 - (BOOL)initialize;
 
-// Update
+/* Update */
 - (int)refreshWithList:(PRList *)list force:(BOOL)force;
 
-// Library Accessors
+/* Library Accessors */
 - (int)count;
 - (PRItem *)itemForRow:(int)row;
 - (int)rowForItem:(PRItem *)item;
@@ -61,7 +61,7 @@ typedef enum {
 - (NSDictionary *)info;
 - (NSArray *)albumCounts;
 
-// Browser Accessor
+/* Browser Accessor */
 - (int)countForBrowser:(int)browser;
 - (NSString *)valueForRow:(int)row browser:(int)browser;
 - (NSIndexSet *)selectionForBrowser:(int)browser;

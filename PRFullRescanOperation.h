@@ -1,22 +1,14 @@
 #import <Foundation/Foundation.h>
-
 @class PRCore, PRTask;
 
-@interface PRFullRescanOperation : NSOperation
-{
-    // weak
-    PRCore *_core;
+
+@interface PRFullRescanOperation : NSOperation {
+    __weak PRCore *_core;
 }
-
-// ========================================
-// Initialization
-
+/* Initialization */
 + (id)operationWithCore:(PRCore *)core;
 - (id)initWithCore:(PRCore *)core;
 
-// ========================================
-// Action
-
+/* Action */
 - (void)updateFiles:(NSArray *)array;
-
 @end

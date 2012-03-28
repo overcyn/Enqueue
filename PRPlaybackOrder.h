@@ -5,15 +5,15 @@
 @interface PRPlaybackOrder : NSObject {
 	PRDb *db;
 }
-// Initialization
+/* Initialization */
 - (id)initWithDb:(PRDb *)sqlDb;
 - (void)create;
 - (BOOL)initialize;
 
-// Validation
+/* Validation */
 - (BOOL)clean;
 
-// Accessors
+/* Accessors */
 - (int)count;
 - (void)appendListItem:(PRListItem *)listItem;
 - (PRListItem *)listItemAtIndex:(int)index;
@@ -21,6 +21,6 @@
 
 - (NSArray *)listItemsInList:(PRList *)list notInPlaybackOrderAfterIndex:(int)index;
 
-// Update
+/* Update */
 - (BOOL)confirmPlaylistItemDelete:(NSError **)error;
 @end

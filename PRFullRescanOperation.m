@@ -12,28 +12,20 @@
 // ========================================
 // Initialization
 
-+ (id)operationWithCore:(PRCore *)core
-{
++ (id)operationWithCore:(PRCore *)core {
     return [[[PRFullRescanOperation alloc] initWithCore:core] autorelease];
 }
 
-- (id)initWithCore:(PRCore *)core
-{
+- (id)initWithCore:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
     _core = core;
 	return self;
 }
 
-- (void)dealloc
-{
-    [super dealloc];
-}
-
 // ========================================
 // Action
 
-- (void)main
-{
+- (void)main {
     NSLog(@"begin fullrescan");
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     PRTask *task = [PRTask task];
@@ -75,10 +67,9 @@ end:;
     NSLog(@"end fullrescan");
 }
 
-- (void)updateFiles:(NSArray *)array
-{
+- (void)updateFiles:(NSArray *)array {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    [[[_core db] albumArtController] clearTempArt];
+    [[[_core db] albumArtController] clearTempArtwork];
     // get updated attributes
     NSMutableArray *infoArray = [NSMutableArray array];
     for (NSArray *i in array) {
@@ -89,7 +80,7 @@ end:;
         }
         [info setFile:[[i objectAtIndex:0] intValue]];
         if ([info art]) {
-            [info setTempArt:[[[_core db] albumArtController] saveTempArt:[info art]]];
+            [info setTempArt:[[[_core db] albumArtController] saveTempArtwork:[info art]]];
             [info setArt:nil];
         }
         [infoArray addObject:info];

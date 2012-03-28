@@ -3,8 +3,7 @@
 
 @class PRDb, PRLibrary, PRCore;
 
-@interface PRItunesImportOperation : NSOperation 
-{
+@interface PRItunesImportOperation : NSOperation {
     NSURL *iTunesURL;
     NSMutableDictionary *_fileTrackIdDictionary;
     
@@ -13,7 +12,6 @@
     
     int _tempFileCount;
 }
-
 - (id)initWithURL:(NSURL *)URL_ core:(PRCore *)core;
 + (id)operationWithURL:(NSURL *)URL core:(PRCore *)core;
 - (void)addTracks:(NSArray *)tracks;

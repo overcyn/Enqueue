@@ -15,12 +15,12 @@ NSString * const compilationString = @"Compilations  ";
 
 
 @interface PRLibraryViewSource ()
-// update
+/* Update Priv */
 - (BOOL)updateSortIndex;
 - (BOOL)populateSource;
 - (BOOL)populateBrowser:(int)browser;
 
-// misc
+/* Priv */
 - (BOOL)compilationForBrowser:(int)browser;
 - (NSString *)tableNameForBrowser:(int)browser;
 - (NSString *)groupingStringForList:(PRList *)list browser:(int)browser;
@@ -145,7 +145,7 @@ NSString * const compilationString = @"Compilations  ";
 }
 
 // ========================================
-// update
+// Update Priv
 
 - (BOOL)updateSortIndex {
     if (![_list isEqual:[[_db playlists] libraryList]]) {
@@ -733,7 +733,7 @@ NSString * const compilationString = @"Compilations  ";
 }
 
 // ========================================
-// misc
+// Priv
 
 - (BOOL)compilationForBrowser:(int)browser {
     return ([[[_db playlists] attrForBrowser:browser list:_list] isEqual:PRItemAttrArtist] && [[PRUserDefaults userDefaults] useCompilation]);

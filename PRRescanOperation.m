@@ -165,7 +165,7 @@ end:;
 
 // Array of NSURLs to add
 - (void)addURLs:(NSArray *)URLs {
-    [[_db albumArtController] clearTempArt];
+    [[_db albumArtController] clearTempArtwork];
     // Get info for URLs
     NSMutableArray *infoArray = [NSMutableArray array];
     for (int i = 0; i < [URLs count]; i++) {
@@ -176,7 +176,7 @@ end:;
         }
         [[info attributes] setObject:[[NSDate date] description] forKey:PRItemAttrDateAdded];
         if ([info art]) {
-            [info setTempArt:[[_db albumArtController] saveTempArt:[info art]]];
+            [info setTempArt:[[_db albumArtController] saveTempArtwork:[info art]]];
             [info setArt:nil];
         }
         [infoArray addObject:info];
@@ -222,7 +222,7 @@ end:;
 
 // Array of NSDictionary with file (as NSNumber) and corresponding NSURL
 - (void)updateFiles:(NSArray *)files {
-    [[_db albumArtController] clearTempArt];
+    [[_db albumArtController] clearTempArtwork];
     // get updated attributes
     NSMutableArray *infoArray = [NSMutableArray array];
     for (NSDictionary *i in files) {
@@ -233,7 +233,7 @@ end:;
         }
         [info setFile:[[i objectForKey:@"file"] intValue]];
         if ([info art]) {
-            [info setTempArt:[[_db albumArtController] saveTempArt:[info art]]];
+            [info setTempArt:[[_db albumArtController] saveTempArtwork:[info art]]];
             [info setArt:nil];
         }
         [infoArray addObject:info];

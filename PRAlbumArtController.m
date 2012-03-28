@@ -8,6 +8,14 @@
 #import "PRUserDefaults.h"
 
 
+@interface PRAlbumArtController ()
+/* Priv */
+- (NSString *)cachedArtworkPathForItem:(PRItem *)item;
+- (int)nextTempValue;
+- (NSString *)tempArtPathForTempValue:(int)temp;
+@end
+
+
 @implementation PRAlbumArtController
 
 // ========================================
@@ -50,8 +58,7 @@
         if (fileExists && !isDirectory) {
             NSImage *albumArt = [[[NSImage alloc] initWithContentsOfFile:[self cachedArtworkPathForItem:item]] autorelease];
             if (!albumArt || ![albumArt isValid]) {
-                [_fileManager removeItemAtPath:[self cachedArtworkPathForItem:item] error:nil];
-                [[_db library] setValue:[NSNumber numberWithBool:FALSE] forItem:item attr:PRItemAttrArtwork];
+                [self clearArtworkForItem:item];
             } else {
                 return albumArt;
             }
@@ -118,6 +125,14 @@
     }
 	return [self artworkForItems:items];
 }
+
+- (void)clearArtworkForItem:(PRItem *)item {
+    [_fileManager removeItemAtPath:[self cachedArtworkPathForItem:item] error:nil];
+    [[_db library] setValue:[NSNumber numberWithInt:0] forItem:item attr:PRItemAttrArtwork];
+}
+
+// ========================================
+// Async Accessors
 
 - (NSDictionary *)artworkInfoForItem:(PRItem *)item {
     return [self artworkInfoForItems:[NSArray arrayWithObject:item]];
@@ -226,29 +241,6 @@
     return nil;
 }
 
-// ========================================
-// Misc
-
-- (void)clearArtworkForItem:(PRItem *)item {
-    [_fileManager removeItemAtPath:[self cachedArtworkPathForItem:item] error:nil];
-    [[_db library] setValue:[NSNumber numberWithInt:0] forItem:item attr:PRItemAttrArtwork];
-}
-
-- (NSString *)cachedArtworkPathForItem:(PRItem *)item {
-	unsigned long long file = [item unsignedLongLongValue];
-    NSString *path = [[PRUserDefaults userDefaults] cachedAlbumArtPath];
-	path = [path stringByAppendingPathComponent:
-			[NSString stringWithFormat:@"%03d", ((file / 1000000) % 1000)]];
-	path = [path stringByAppendingPathComponent:
-			[NSString stringWithFormat:@"%03d", ((file / 1000) % 1000)]];
-	path = [path stringByAppendingPathComponent:
-            [NSString stringWithFormat:@"%09d", file]];
-	return path;
-}
-
-// ========================================
-// Temp
-
 - (void)setTempArtwork:(int)temp forItem:(PRItem *)item {
     if (temp == 0) {
 		[_fileManager removeItemAtPath:[self cachedArtworkPathForItem:item] error:nil];
@@ -262,7 +254,7 @@
     [_fileManager moveItemAtURL:URL toURL:URL2 error:nil];
 }
 
-- (int)saveTempArt:(NSImage *)image {
+- (int)saveTempArtwork:(NSImage *)image {
     if (![image isValid]) {
         return 0;
     }
@@ -278,14 +270,26 @@
     return tempValue;
 }
 
-- (void)clearTempArt {
+- (void)clearTempArtwork {
     _tempIndex = 1;
     [_fileManager removeItemAtURL:[NSURL fileURLWithPath:[[PRUserDefaults userDefaults] tempArtPath]] error:nil];
     [_fileManager findOrCreateDirectoryAtPath:[[PRUserDefaults userDefaults] tempArtPath] error:nil];
 }
 
 // ========================================
-// Temp Misc
+// Priv
+
+- (NSString *)cachedArtworkPathForItem:(PRItem *)item {
+	unsigned long long file = [item unsignedLongLongValue];
+    NSString *path = [[PRUserDefaults userDefaults] cachedAlbumArtPath];
+	path = [path stringByAppendingPathComponent:
+			[NSString stringWithFormat:@"%03d", ((file / 1000000) % 1000)]];
+	path = [path stringByAppendingPathComponent:
+			[NSString stringWithFormat:@"%03d", ((file / 1000) % 1000)]];
+	path = [path stringByAppendingPathComponent:
+            [NSString stringWithFormat:@"%09d", file]];
+	return path;
+}
 
 - (int)nextTempValue {
     while (_tempIndex < 1000) {

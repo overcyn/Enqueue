@@ -15,28 +15,24 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
 // Initialization
 
 - (id)initWithDb:(PRDb *)db_ {
-    self = [super init];
-	if (self) {
-		db = db_;
-	}
+	if (!(self = [super init])) {return nil;}
+	db = db_;
 	return self;
 }
 
 - (void)create {
-    NSString *string = PR_TBL_PLAYBACK_ORDER_SQL;
-    [db execute:string];
+    [db execute:PR_TBL_PLAYBACK_ORDER_SQL];
 }
 
 - (BOOL)initialize {   
-    NSString *string = @"SELECT sql FROM sqlite_master WHERE name = 'playback_order'";
-    NSArray *columns = [NSArray arrayWithObjects:PRColString, nil];
-    NSArray *result = [db execute:string bindings:nil columns:columns];
+    NSArray *result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'playback_order'"
+						 bindings:nil 
+						  columns:[NSArray arrayWithObjects:PRColString, nil]];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_PLAYBACK_ORDER_SQL]) {
         return FALSE;
     }
-    
-    string = @"DELETE FROM playback_order";
-    [db execute:string];
+	
+    [db execute:@"DELETE FROM playback_order"];
     return TRUE;
 }
 
@@ -44,8 +40,7 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
 // Validation
 
 - (BOOL)clean {
-    NSString *string = @"DELETE FROM playback_order";
-    [db execute:string];
+    [db execute:@"DELETE FROM playback_order"];
 //    int count = [self count];
 //    NSString *string = @"SELECT MAX(index_) from playback_order";
 //    NSArray *columns = [NSArray arrayWithObjects:PRColInteger, nil];
