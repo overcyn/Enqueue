@@ -18,6 +18,7 @@
 #import "PRTimeFormatter.h"
 #import "PRBitRateFormatter.h"
 #import "PRTagger.h"
+#import "NSArray+Extensions.h"
 #import "NSIndexSet+Extensions.h"
 #import "NSNotificationCenter+Extensions.h"
 #import "MAZeroingWeakRef.h"
@@ -73,7 +74,7 @@
     _bitrateFormatter = [[PRBitRateFormatter alloc] init];
     _mode = PRInfoModeTags;
     
-    [[NSNotificationCenter defaultCenter] observeLibraryViewSelectionChanged:self sel:@selector(update)];
+	[NSNotificationCenter addObserver:self selector:@selector(update) name:PRLibraryViewSelectionDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(update)];
 	return self;
 }
@@ -99,21 +100,9 @@
     [_compilationButton setAction:@selector(toggleCompilation)];
     
 	for (NSDictionary *i in [self tagControls]) {
-		PRItemAttr *itemAttr = [i valueForKey:ITEMATTRKEY];
-		int kind = [[i valueForKey:KINDKEY] intValue];
 		NSControl *control = [i valueForKey:CONTROLKEY];
 		NSFormatter *formatter = [i valueForKey:FORMATTERKEY];
-		
-		MAZeroingWeakRef *selfRef = [MAZeroingWeakRef refWithTarget:self];
-		if (kind == NUMBERKIND) {
-			[NSNotificationCenter observe:NSTextDidEndEditingNotification object:control queue:nil block:^(NSNotification *note) {
-				[(PRInfoViewController *)[selfRef target] setValue:[NSNumber numberWithInt:[[note object] intValue]] forKey:itemAttr];
-			}];
-		} else if (kind == STRINGKIND) {
-			[NSNotificationCenter observe:NSTextDidEndEditingNotification object:control queue:nil block:^(NSNotification *note) {
-				[(PRInfoViewController *)[selfRef target] setValue:[[note object] stringValue] forKey:itemAttr];
-			}];
-		}
+		[NSNotificationCenter addObserver:self selector:@selector(controlTextDidEndEditing:) name:NSControlTextDidEndEditingNotification object:control];
 		if (formatter != (id)[NSNull null]) {
 			[control setFormatter:formatter];
 		}
@@ -253,6 +242,25 @@
     [_compilationButton setEnabled:(compilation != NSNoSelectionMarker)];
 }
 
+- (void)controlTextDidEndEditing:(NSNotification *)notification {
+	NSTextField *field = [notification object];
+	NSDictionary *dict = [[self tagControls] objectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
+		return [obj objectForKey:CONTROLKEY] == field;
+	}];
+	if (!dict) {
+		@throw NSInvalidArgumentException;
+	}
+	int kind = [[dict objectForKey:KINDKEY] intValue];
+	PRItemAttr *attr = [dict objectForKey:ITEMATTRKEY];
+	if (kind == STRINGKIND) {
+		[self setValue:[field stringValue] forAttribute:attr];
+	} else if (kind == NUMBERKIND) {
+		[self setValue:[NSNumber numberWithInt:[field intValue]] forAttribute:attr];
+	} else {
+		@throw NSInternalInconsistencyException;
+	}
+}
+
 // ========================================
 // Accessors
 
@@ -266,9 +274,7 @@
     }
     [[NSNotificationCenter defaultCenter] postItemsChanged:selection];
     [[[[_core win] libraryViewController] currentViewController] highlightFiles:selection];
-    [[NSOperationQueue mainQueue] addBlock:^{
-		[self update];
-	}];
+    [[NSOperationQueue mainQueue] addBlock:^{[self update];}];
 }
 
 - (id)valueForAttribute:(PRItemAttr *)attribute {	

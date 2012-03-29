@@ -3,6 +3,7 @@
 #import "PRViewController.h"
 @class PRDb, PRGradientView, PRNumberFormatter, PRStringFormatter, PRCore, PRPathFormatter, PRKindFormatter, PRSizeFormatter, PRDateFormatter, PRTimeFormatter, PRBitRateFormatter;
 
+
 typedef enum {
     PRInfoModeTags,
     PRInfoModeProperties,
@@ -74,5 +75,6 @@ typedef enum {
     PRStringFormatter *_stringFormatter;
 	NSArray *selection;
 }
+/* Initialization */
 - (id)initWithCore:(PRCore *)core;
 @end

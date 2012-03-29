@@ -128,7 +128,7 @@
     [browser3TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:3] byExtendingSelection:FALSE];
     _updatingTableViewSelection = TRUE;
 	
-    [[NSNotificationCenter defaultCenter] postLibraryViewSelectionChanged];
+	[NSNotificationCenter post:PRLibraryViewSelectionDidChangeNotification];
     [pool drain];
 }
 

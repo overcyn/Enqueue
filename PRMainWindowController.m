@@ -12,7 +12,6 @@
 #import "PRPreferencesViewController.h"
 #import "PRHistoryViewController.h"
 #import "PRTableViewController.h"
-
 #import "PRMainMenuController.h"
 #import "PRUserDefaults.h"
 #import "NSWindow+Extensions.h"
@@ -46,9 +45,7 @@
     [_splitView setDelegate:nil];
     [[self window] setDelegate:nil];
     
-    for (id i in _observers) {
-        [NSNotificationCenter removeObserver:i];
-    }
+    [NSNotificationCenter removeObserver:self];
     
     [mainMenuController release];
     [libraryViewController release];
@@ -147,22 +144,19 @@
     [[nowPlayingViewController lastKeyView] setNextKeyView:[libraryViewController firstKeyView]];
     
 	// Update
-    __block id selfRef = self;
-    _observers = [NSMutableArray array];
-    id obs = [NSNotificationCenter observe:PRCurrentListDidChangeNotification 
-                                     block:^(NSNotification *note){[selfRef updateUI];}];
-    [_observers addObject:obs];
+	[NSNotificationCenter addObserver:self 
+							 selector:@selector(updateUI) 
+								 name:PRCurrentListDidChangeNotification 
+							   object:nil];
     if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
-        obs = [NSNotificationCenter observe:NSWindowWillEnterFullScreenNotification 
-                                     object:[self window]
-                                      queue:nil
-                                      block:^(NSNotification *note){[selfRef windowWillEnterFullScreen:note];}];
-        [_observers addObject:obs];
-        obs = [NSNotificationCenter observe:NSWindowDidEnterFullScreenNotification 
-                                     object:[self window]
-                                      queue:nil
-                                      block:^(NSNotification *note){[selfRef windowDidEnterFullScreen:note];}];
-        [_observers addObject:obs];
+		[NSNotificationCenter addObserver:self 
+								 selector:@selector(windowWillEnterFullScreen:) 
+									 name:NSWindowWillEnterFullScreenNotification 
+								   object:[self window]];
+		[NSNotificationCenter addObserver:self 
+								 selector:@selector(windowDidEnterFullScreen:) 
+									 name:NSWindowDidEnterFullScreenNotification 
+								   object:[self window]];
     }
 }
 
@@ -177,7 +171,7 @@ preferencesViewController,
 nowPlayingViewController, 
 controlsViewController;
 @dynamic currentMode, 
-showsArtwork, 
+showsArtwork,
 miniPlayer;
 
 - (PRMode)currentMode {

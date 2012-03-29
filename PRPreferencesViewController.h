@@ -1,8 +1,8 @@
 #import <Cocoa/Cocoa.h>
 #import <ShortcutRecorder/SRRecorderControl.h>
 #import <Carbon/Carbon.h>
-
 @class PRDb, PRNowPlayingController, PRFolderMonitor, PRGradientView, PRCore;
+
 
 typedef enum {
     PRGeneralPrefMode,
@@ -11,8 +11,8 @@ typedef enum {
     PRLastfmPrefMode,
 } PRPrefMode;
 
-@interface PRPreferencesViewController : NSViewController <NSTableViewDataSource, NSMenuDelegate>
-{
+
+@interface PRPreferencesViewController : NSViewController <NSTableViewDataSource, NSMenuDelegate> {
     IBOutlet NSView *background;
     IBOutlet PRGradientView *divider;
     IBOutlet NSButton *_generalButton;
@@ -107,27 +107,19 @@ typedef enum {
 @property (readonly) PRDb *db;
 @property (readonly) PRNowPlayingController *now;
 
-// ========================================
 // Initialization
-
 - (id)initWithCore:(PRCore *)core;
 
-// ========================================
 // Tabs
-
 - (NSDictionary *)tabs;
 - (NSDictionary *)tabInfo;
 - (void)tabAction:(id)sender;
 
-// ========================================
 // Update
-
 - (void)updateUI;
 - (void)importSheetDidEnd:(NSOpenPanel*)openPanel returnCode:(NSInteger)returnCode context:(void*)context;
 
-// ========================================
 // Equalizer
-
 - (NSDictionary *)EQSliders;
 - (void)EQButtonAction;
 - (void)EQSliderAction:(id)sender;
@@ -138,30 +130,23 @@ typedef enum {
 - (void)EQMenuActionCustom:(id)sender;
 - (void)EQMenuActionDefault:(id)sender;
 
-// ========================================
-// Misc Preferences
-
+// Misc Preference
 - (void)setMasterVolume:(id)sender;
 - (void)toggleCompilations;
 - (void)toggleUseAlbumArtist;
 - (void)toggleMediaKeys;
 - (void)toggleFolderArtwork;
 
-// ========================================
 // Folder Monitoring
-
 - (void)addFolder;
 - (void)removeFolder;
 - (void)rescan;
 
-// ========================================
 // Global Hotkeys
-
 - (NSArray *)hotkeyDictionary;
 - (void)registerHotkeys;
 - (void)registerHotkey:(EventHotKeyRef *)hotKeyRef withKeyMasks:(int)keymasks code:(int)code ID:(int)id_;
 - (void)rateCurrentSong:(int)rating;
-
 @end
 
 

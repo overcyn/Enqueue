@@ -18,16 +18,16 @@
 #import "PRUserDefaults.h"
 #import "PRStringFormatter.h"
 #import "PRQueue.h"
-#import "NSString+Extensions.h"
-#import "sqlite_str.h"
 #import "PRTagger.h"
 #import "PRCore.h"
 #import "PRMainWindowController.h"
-#import "MAZeroingWeakRef.h"
-#import "NSMenuItem+Extensions.h"
 #import "PRMainWindowController.h"
 #import "PRNowPlayingViewController.h"
+#import "NSMenuItem+Extensions.h"
 #import "NSTableView+Extensions.h"
+#import "NSString+Extensions.h"
+#import "sqlite_str.h"
+#import "MAZeroingWeakRef.h"
 
 
 @implementation PRTableViewController
@@ -753,7 +753,7 @@
     [browser3TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:3] byExtendingSelection:FALSE];
     _updatingTableViewSelection = TRUE;
 	
-    [[NSNotificationCenter defaultCenter] postLibraryViewSelectionChanged];
+	[NSNotificationCenter post:PRLibraryViewSelectionDidChangeNotification];
 }
 
 // ========================================
@@ -1486,7 +1486,7 @@
 - (void)tableViewSelectionDidChange:(NSNotification *)notification {
 	id object = [notification object];
 	if (object == libraryTableView) {
-        [[NSNotificationCenter defaultCenter] postLibraryViewSelectionChanged];
+		[NSNotificationCenter post:PRLibraryViewSelectionDidChangeNotification];
 	} else if (_currentList && (object == browser1TableView || object == browser2TableView || object == browser3TableView)) {
         if (!_updatingTableViewSelection) {
             return;

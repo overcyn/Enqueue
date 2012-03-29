@@ -3,11 +3,15 @@
 
 
 extern NSString * const PRCurrentListDidChangeNotification;
+extern NSString * const PRLibraryViewSelectionDidChangeNotification;
+
+extern NSString * const PRLastfmStateDidChangeNotification;
 
 
 @interface NSNotificationCenter (Extensions)
 + (void)post:(NSString *)name;
 + (void)post:(NSString *)name object:(id)object info:(NSDictionary *)info;
++ (void)addObserver:(id)observer selector:(SEL)selector name:(NSString *)name object:(id)object;
 + (id)observe:(NSString *)name block:(void (^)(NSNotification *))block;
 + (id)observe:(NSString *)name object:(id)object queue:(NSOperationQueue *)queue block:(void (^)(NSNotification *))block;
 + (void)removeObserver:(id)observer;
@@ -25,11 +29,6 @@ extern NSString * const PRCurrentListDidChangeNotification;
 - (void)observePlaylistChanged:(id)obs sel:(SEL)sel;
 - (void)observePlaylistFilesChanged:(id)obs sel:(SEL)sel;
 
-// Library view
-- (void)postLibraryViewSelectionChanged;
-
-- (void)observeLibraryViewSelectionChanged:(id)obs sel:(SEL)sel;
-
 // Preferences
 - (void)postPreGainChanged;
 - (void)postUseAlbumArtistChanged;
@@ -38,11 +37,6 @@ extern NSString * const PRCurrentListDidChangeNotification;
 - (void)observePreGainChanged:(id)obs sel:(SEL)sel;
 - (void)observeUseAlbumArtistChanged:(id)obs sel:(SEL)sel;
 - (void)observeEQChanged:(id)obs sel:(SEL)sel;
-
-// Last.fm
-- (void)postLastfmStateChanged;
-
-- (void)observeLastfmStateChanged:(id)obs sel:(SEL)sel;
 
 // Playing
 - (void)postTimeChanged;

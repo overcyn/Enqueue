@@ -39,6 +39,7 @@
 		672157F5126663060050A982 /* PRInfoView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 672157F4126663060050A982 /* PRInfoView.xib */; };
 		672157FB1266636E0050A982 /* PRInfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 672157FA1266636E0050A982 /* PRInfoViewController.m */; };
 		67215833126682C80050A982 /* PRLibraryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67215832126682C80050A982 /* PRLibraryViewController.m */; };
+		672235A7152442A700D48695 /* NSArray+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 672235A6152442A700D48695 /* NSArray+Extensions.m */; };
 		672361FE1241D3E4004FFD06 /* sqlite3.c in Sources */ = {isa = PBXBuildFile; fileRef = 672361FC1241D3E4004FFD06 /* sqlite3.c */; };
 		6727A95C13C6522400B264A9 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6727A95B13C6522300B264A9 /* Security.framework */; };
 		6727A96413C6535900B264A9 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6727A96313C6535800B264A9 /* Quartz.framework */; };
@@ -331,6 +332,8 @@
 		672157FA1266636E0050A982 /* PRInfoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRInfoViewController.m; sourceTree = "<group>"; };
 		67215831126682C80050A982 /* PRLibraryViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRLibraryViewController.h; sourceTree = "<group>"; };
 		67215832126682C80050A982 /* PRLibraryViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRLibraryViewController.m; sourceTree = "<group>"; };
+		672235A5152442A700D48695 /* NSArray+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+Extensions.h"; sourceTree = "<group>"; };
+		672235A6152442A700D48695 /* NSArray+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Extensions.m"; sourceTree = "<group>"; };
 		672361FC1241D3E4004FFD06 /* sqlite3.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sqlite3.c; path = Frameworks/Sqlite/sqlite3.c; sourceTree = "<group>"; };
 		672361FD1241D3E4004FFD06 /* sqlite3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sqlite3.h; path = Frameworks/Sqlite/sqlite3.h; sourceTree = "<group>"; };
 		6727A95B13C6522300B264A9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = SDKs/MacOSX10.7.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
@@ -1107,6 +1110,8 @@
 		67691F741338B69700D27C01 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				672235A5152442A700D48695 /* NSArray+Extensions.h */,
+				672235A6152442A700D48695 /* NSArray+Extensions.m */,
 				67EFE76D145EA97F00F05694 /* NSBezierPath+Extensions.h */,
 				67EFE76E145EA97F00F05694 /* NSBezierPath+Extensions.m */,
 				679AE5B01301F4940022F5BF /* NSData+Base64.h */,
@@ -1861,6 +1866,7 @@
 				67A7A2D4150C909F005E91C0 /* NSTableView+Extensions.m in Sources */,
 				67DE13351516E37D00E94F28 /* PRAlertWindowController.m in Sources */,
 				67DE13391516FB4800E94F28 /* PRViewController.m in Sources */,
+				672235A7152442A700D48695 /* NSArray+Extensions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

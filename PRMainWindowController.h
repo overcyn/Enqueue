@@ -40,8 +40,6 @@ typedef enum {
     PRNowPlayingViewController *nowPlayingViewController;
     PRControlsViewController *controlsViewController;
     
-    NSMutableArray *_observers;
-    
     PRMode _currentMode;
     id _currentViewController;
     

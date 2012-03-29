@@ -18,7 +18,7 @@ NSString * const PRIsPlayingDidChangeNotification = @"PRIsPlayingDidChangeNotifi
 NSString * const PRMovieDidFinishNotification = @"PRMovieDidFinishNotification";
 NSString * const PRMovieAlmostFinishedNote = @"PRMovieAlmostFinishedNote";
 
-NSString * const PRLastfmStateChangedNote = @"PRLastfmStateChangedNote";
+NSString * const PRLastfmStateDidChangeNotification = @"PRLastfmStateDidChangeNotification";
 
 NSString * const PRTimeChangedNote = @"PRTimeChangedNote";
 NSString * const PRCurrentFileDidChangeNotification = @"PRCurrentFileDidChangeNotification";
@@ -36,6 +36,10 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
 
 + (void)post:(NSString *)name object:(id)object info:(NSDictionary *)info {
     [[NSNotificationCenter defaultCenter] postNotificationName:name object:object userInfo:info];
+}
+
++ (void)addObserver:(id)observer selector:(SEL)selector name:(NSString *)name object:(id)object {
+	[[NSNotificationCenter defaultCenter] addObserver:observer selector:selector name:name object:object];
 }
 
 + (id)observe:(NSString *)name block:(void (^)(NSNotification *))block {
@@ -96,16 +100,6 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
     [self addObserver:obs selector:sel name:PRPlaylistFilesChangedNote object:nil];
 }
 
-// Library View
-
-- (void)postLibraryViewSelectionChanged {
-    [self postNotificationName:PRLibraryViewSelectionDidChangeNotification object:nil];
-}
-
-- (void)observeLibraryViewSelectionChanged:(id)obs sel:(SEL)sel {
-    [self addObserver:obs selector:sel name:PRLibraryViewSelectionDidChangeNotification object:nil];
-}
-
 // Preferences
 
 - (void)postPreGainChanged {
@@ -130,16 +124,6 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
 
 - (void)observeEQChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PREQChangedNote object:nil];
-}
-
-// Lastfm
-
-- (void)postLastfmStateChanged {
-    [self postNotificationName:PRLastfmStateChangedNote object:nil];
-}
-
-- (void)observeLastfmStateChanged:(id)obs sel:(SEL)sel {
-    [self addObserver:obs selector:sel name:PRLastfmStateChangedNote object:nil];
 }
 
 // Playing 

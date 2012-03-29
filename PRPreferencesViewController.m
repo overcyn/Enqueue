@@ -22,18 +22,14 @@
 
 // ========================================
 // Initialization
-// ========================================
 
-- (id)initWithCore:(PRCore *)core_
-{
+- (id)initWithCore:(PRCore *)core_ {
     if (!(self = [super initWithNibName:@"PRPreferencesView" bundle:nil])) {return nil;}
     core = core_;
     db = [core db];
     now = [core now];
     folderMonitor = [core folderMonitor];
-    
-    // monitoring folders
-    
+
     // hotkeys
     for (NSDictionary *i in [self hotkeyDictionary]) {
         NSDictionary *hotkey = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -47,8 +43,7 @@
 	return self;
 }
 
-- (void)awakeFromNib
-{
+- (void)awakeFromNib {
     [(PRScrollView *)[self view] setMinimumSize:NSMakeSize(650, 100)];
     [(PRScrollView *)[self view] setDocumentView:[background superview]];
     [(NSScrollView *)[self view] scrollToTop];
@@ -216,16 +211,22 @@
     [folderMonitor addObserver:self forKeyPath:@"monitoredFolders" options:0 context:nil];
     
     // last.fm
-    [[NSNotificationCenter defaultCenter] observeLastfmStateChanged:self sel:@selector(updateUI)];
+	[NSNotificationCenter addObserver:self 
+							 selector:@selector(updateUI)
+								 name:PRLastfmStateDidChangeNotification 
+							   object:nil];
     [self updateUI];
+}
+
+- (void)dealloc {
+	[NSNotificationCenter removeObserver:self];
+	[super dealloc];
 }
 
 // ========================================
 // Tabs
-// ======================================== 
 
-- (NSDictionary *)tabs
-{
+- (NSDictionary *)tabs {
     return [NSDictionary dictionaryWithObjectsAndKeys:
             _generalButton, [NSNumber numberWithInt:PRGeneralPrefMode], 
             _playbackButton, [NSNumber numberWithInt:PRPlaybackPrefMode],
@@ -233,8 +234,7 @@
             _lastfmButton, [NSNumber numberWithInt:PRLastfmPrefMode], nil];
 }
 
-- (NSDictionary *)tabInfo
-{
+- (NSDictionary *)tabInfo {
     return [NSDictionary dictionaryWithObjectsAndKeys:
             [NSDictionary dictionaryWithObjectsAndKeys:
              _generalButton, @"tab", 
@@ -255,18 +255,15 @@
             nil];
 }
 
-- (void)tabAction:(id)sender
-{
+- (void)tabAction:(id)sender {
     _prefMode = [sender tag];
     [self updateUI];
 }
 
 // ========================================
 // Update
-// ======================================== 
 
-- (void)updateUI 
-{
+- (void)updateUI  {
     // Tabs
     for (NSNumber *i in [[self tabs] allKeys]) {
         NSButton *tab = [[self tabs] objectForKey:i];
@@ -345,11 +342,7 @@
     }
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath 
-                      ofObject:(id)object 
-                        change:(NSDictionary *)change 
-                       context:(void *)context
-{
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (object == folderMonitor && [keyPath isEqualToString:@"monitoredFolders"]) {
         [self updateUI];
     }
@@ -357,10 +350,8 @@
 
 // ========================================
 // Equalizer
-// ========================================
 
-- (NSDictionary *)EQSliders
-{
+- (NSDictionary *)EQSliders {
     return [NSDictionary dictionaryWithObjectsAndKeys:
             _EQ32Slider, [NSNumber numberWithInt:PREQFreq32],
             _EQ64Slider, [NSNumber numberWithInt:PREQFreq64],
@@ -376,15 +367,13 @@
             nil];
 }
 
-- (void)EQButtonAction
-{
+- (void)EQButtonAction {
     [[PRUserDefaults userDefaults] setEQIsEnabled:([EQButton state] == NSOnState)];
     [self updateUI];
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
 
-- (void)EQSliderAction:(id)sender
-{
+- (void)EQSliderAction:(id)sender {
     float amp = [(NSSlider *)sender floatValue];
     PREQFreq freq = [[[[self EQSliders] allKeysForObject:sender] objectAtIndex:0] intValue];
     int EQIndex = [[PRUserDefaults userDefaults] EQIndex];
@@ -408,8 +397,7 @@
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
 
-- (void)EQMenuActionSave:(id)sender
-{    
+- (void)EQMenuActionSave:(id)sender {    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Save"];
     [alert addButtonWithTitle:@"Cancel"];
@@ -449,8 +437,7 @@
      [alert release];
 }
 
-- (void)EQMenuActionDelete:(id)sender
-{
+- (void)EQMenuActionDelete:(id)sender {
     int EQIndex = [[PRUserDefaults userDefaults] EQIndex];
     BOOL isCustom = [[PRUserDefaults userDefaults] isCustomEQ];
     NSMutableArray *customEQs = [NSMutableArray arrayWithArray:[[PRUserDefaults userDefaults] customEQs]];
@@ -465,22 +452,19 @@
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
 
-- (void)EQMenuActionCustom:(id)sender
-{
+- (void)EQMenuActionCustom:(id)sender {
     [[PRUserDefaults userDefaults] setIsCustomEQ:TRUE];
     [[PRUserDefaults userDefaults] setEQIndex:[sender tag]];
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
 
-- (void)EQMenuActionDefault:(id)sender
-{
+- (void)EQMenuActionDefault:(id)sender {
     [[PRUserDefaults userDefaults] setIsCustomEQ:FALSE];
     [[PRUserDefaults userDefaults] setEQIndex:[sender tag]];
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
 
-- (void)EQViewUpdate
-{
+- (void)EQViewUpdate {
     int EQIndex = [[PRUserDefaults userDefaults] EQIndex];
     BOOL isCustom = [[PRUserDefaults userDefaults] isCustomEQ];
     PREQ *EQ;
@@ -496,8 +480,7 @@
     [self menuNeedsUpdate:EQMenu];
 }
 
-- (void)menuNeedsUpdate:(NSMenu *)menu
-{
+- (void)menuNeedsUpdate:(NSMenu *)menu {
     // clear menu
 	for (NSMenuItem *i in [menu itemArray]) {
 		[menu removeItem:i];
@@ -548,36 +531,30 @@
 
 // ========================================
 // Misc Preferences
-// ========================================
 
-- (void)toggleUseAlbumArtist
-{
+- (void)toggleUseAlbumArtist {
     [[PRUserDefaults userDefaults] setUseAlbumArtist:![[PRUserDefaults userDefaults] useAlbumArtist]];
     [self updateUI];    
     [[NSNotificationCenter defaultCenter] postUseAlbumArtistChanged];
 }
 
-- (void)toggleCompilations
-{
+- (void)toggleCompilations {
     [[PRUserDefaults userDefaults] setUseCompilation:![[PRUserDefaults userDefaults] useCompilation]];
     [self updateUI];
     [[NSNotificationCenter defaultCenter] postUseAlbumArtistChanged];
 }
 
-- (void)toggleMediaKeys
-{
+- (void)toggleMediaKeys {
     [[PRUserDefaults userDefaults] setMediaKeys:![[PRUserDefaults userDefaults] mediaKeys]];
     [self updateUI];
 }
 
-- (void)toggleFolderArtwork
-{
+- (void)toggleFolderArtwork {
     [[PRUserDefaults userDefaults] setFolderArtwork:![[PRUserDefaults userDefaults] folderArtwork]];
     [self updateUI];
 }
 
-- (void)setMasterVolume:(id)sender
-{
+- (void)setMasterVolume:(id)sender {
     float preGain;
     switch ([[sender selectedItem] tag]) {
         case 1:
@@ -602,10 +579,8 @@
 
 // ========================================
 // Folder Monitoring
-// ========================================
 
-- (void)addFolder
-{
+- (void)addFolder {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
 	[panel setCanChooseFiles:NO];
 	[panel setCanChooseDirectories:YES];
@@ -616,23 +591,20 @@
                   completionHandler:^(NSInteger result){[self importSheetDidEnd:panel returnCode:result context:nil];}];
 }
 
-- (void)removeFolder
-{
+- (void)removeFolder {
     if ([foldersTableView selectedRow] == -1) {
         return;
     }
     [folderMonitor removeFolder:[[folderMonitor monitoredFolders] objectAtIndex:[foldersTableView selectedRow]]];
 }
 
-- (void)rescan
-{
+- (void)rescan {
     [folderMonitor rescan];
 }
 
 - (void)importSheetDidEnd:(NSOpenPanel*)openPanel 
 			   returnCode:(NSInteger)returnCode 
-				  context:(void*)context
-{
+				  context:(void*)context {
 	if (returnCode == NSCancelButton) {
 		return;
 	}
@@ -641,24 +613,20 @@
     }
 }
 
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView
-{
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
     return [[folderMonitor monitoredFolders] count];
 }
 
 - (id)            tableView:(NSTableView *)tableView 
   objectValueForTableColumn:(NSTableColumn *)tableColumn 
-                        row:(NSInteger)rowIndex
-{
+                        row:(NSInteger)rowIndex {
     return [[[folderMonitor monitoredFolders] objectAtIndex:rowIndex] path];
 }
 
 // ========================================
 // Global Hotkeys
-// ========================================
 
-- (NSArray *)hotkeyDictionary
-{
+- (NSArray *)hotkeyDictionary {
     return [NSArray arrayWithObjects:
             [NSDictionary dictionaryWithObjectsAndKeys:
              [NSValue valueWithPointer:&playPauseHotKeyRef], @"hotKeyRef",
@@ -743,8 +711,7 @@
             nil];
 }
 
-- (void)registerHotkeys
-{
+- (void)registerHotkeys {
     for (NSDictionary *i in [self hotkeyDictionary]) {
         NSDictionary *defaults = 
           [[NSUserDefaults standardUserDefaults] dictionaryForKey:[i objectForKey:@"userDefaultsKey"]];
@@ -755,8 +722,7 @@
     }
 }
 
-- (void)registerHotkey:(EventHotKeyRef *)hotKeyRef withKeyMasks:(int)keymasks code:(int)code ID:(int)id_ 
-{
+- (void)registerHotkey:(EventHotKeyRef *)hotKeyRef withKeyMasks:(int)keymasks code:(int)code ID:(int)id_  {
     UnregisterEventHotKey(*hotKeyRef);
     if (code == -1) {
         return;
@@ -779,8 +745,7 @@
 
 // SRRecorderControl Delegate
 
-- (void)shortcutRecorder:(SRRecorderControl *)recorder keyComboDidChange:(KeyCombo)newKeyCombo
-{    
+- (void)shortcutRecorder:(SRRecorderControl *)recorder keyComboDidChange:(KeyCombo)newKeyCombo {    
     int keymasks = 0;
     if (newKeyCombo.flags & NSCommandKeyMask) {
         keymasks += cmdKey;
@@ -832,8 +797,7 @@
     [self registerHotkeys];
 }
 
-- (void)rateCurrentSong:(int)rating
-{
+- (void)rateCurrentSong:(int)rating {
     if (rating < 0 || rating > 100 || ![now currentItem]) {
         return;
     }
@@ -843,8 +807,7 @@
 
 @end
 
-OSStatus MyHotKeyHandler(EventHandlerCallRef nextHandler,EventRef theEvent, void *userData)
-{
+OSStatus MyHotKeyHandler(EventHandlerCallRef nextHandler,EventRef theEvent, void *userData) {
     PRPreferencesViewController *self_ = userData;
     PRNowPlayingController *now = [self_ now];
     EventHotKeyID hkCom;

@@ -12,6 +12,14 @@
 #import "PRFileInfo.h"
 
 
+@interface NSDictionary (trackSort)
+- (int)trackSort:(NSDictionary *)dictionary;
+@end
+@implementation NSDictionary (trackSort)
+- (int)trackSort:(NSDictionary *)dictionary {return [(NSString *)[self objectForKey:@"Location"] compare:[dictionary objectForKey:@"Location"]]; }
+@end
+
+
 @implementation PRItunesImportOperation
 
 - (id)initWithURL:(NSURL *)URL_ core:(PRCore *)core {
@@ -19,7 +27,7 @@
     _core = core;
     _db = [core db];
     _tempFileCount = 0;
-    _fileTrackIdDictionary = [[NSMutableDictionary dictionary] retain];
+    _fileTrackIdDictionary = [[NSMutableDictionary alloc] init];
     iTunesURL = [URL_ retain];
     return self;
 }

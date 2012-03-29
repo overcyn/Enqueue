@@ -82,7 +82,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 
 - (void)setLastfmState:(PRLastfmState)state {
     _lastfmState = state;
-    [[NSNotificationCenter defaultCenter] postLastfmStateChanged];
+    [NSNotificationCenter post:PRLastfmStateDidChangeNotification];
 }
 
 - (PRLastfmState)lastfmState {
