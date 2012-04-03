@@ -46,7 +46,7 @@
 			<object class="NSWindowTemplate" id="1005">
 				<int key="NSWindowStyleMask">271</int>
 				<int key="NSWindowBacking">2</int>
-				<string key="NSWindowRect">{{250, 250}, {950, 700}}</string>
+				<string key="NSWindowRect">{{250, 250}, {304, 369}}</string>
 				<int key="NSWTFlags">1618478080</int>
 				<string key="NSWindowTitle">Enqueue</string>
 				<string key="NSWindowClass">PRWindow</string>
@@ -60,7 +60,7 @@
 						<object class="NSCustomView" id="74504878">
 							<reference key="NSNextResponder" ref="1006"/>
 							<int key="NSvFlags">4386</int>
-							<string key="NSFrameSize">{950, 57}</string>
+							<string key="NSFrameSize">{304, 57}</string>
 							<reference key="NSSuperview" ref="1006"/>
 							<reference key="NSNextKeyView"/>
 							<int key="NSViewLayerContentsRedrawPolicy">2</int>
@@ -74,7 +74,7 @@
 								<object class="NSCustomView" id="112297005">
 									<reference key="NSNextResponder" ref="491675417"/>
 									<int key="NSvFlags">4372</int>
-									<string key="NSFrameSize">{167, 603}</string>
+									<string key="NSFrameSize">{98, 313}</string>
 									<reference key="NSSuperview" ref="491675417"/>
 									<reference key="NSNextKeyView" ref="359714292"/>
 									<int key="NSViewLayerContentsRedrawPolicy">2</int>
@@ -83,14 +83,14 @@
 								<object class="NSCustomView" id="359714292">
 									<reference key="NSNextResponder" ref="491675417"/>
 									<int key="NSvFlags">274</int>
-									<string key="NSFrame">{{168, 0}, {782, 603}}</string>
+									<string key="NSFrame">{{99, 0}, {205, 313}}</string>
 									<reference key="NSSuperview" ref="491675417"/>
 									<reference key="NSNextKeyView" ref="74504878"/>
 									<int key="NSViewLayerContentsRedrawPolicy">2</int>
 									<string key="NSClassName">NSView</string>
 								</object>
 							</object>
-							<string key="NSFrame">{{0, 65}, {950, 603}}</string>
+							<string key="NSFrame">{{0, 56}, {304, 313}}</string>
 							<reference key="NSSuperview" ref="1006"/>
 							<reference key="NSNextKeyView" ref="112297005"/>
 							<string key="NSReuseIdentifierKey">_NS:1163</string>
@@ -98,7 +98,7 @@
 							<int key="NSDividerStyle">2</int>
 						</object>
 					</object>
-					<string key="NSFrameSize">{950, 700}</string>
+					<string key="NSFrameSize">{304, 369}</string>
 					<reference key="NSSuperview"/>
 					<reference key="NSNextKeyView" ref="491675417"/>
 					<int key="NSViewLayerContentsRedrawPolicy">2</int>
@@ -234,14 +234,14 @@
 								<string key="NSClassName">PRGradientView</string>
 							</object>
 						</object>
-						<string key="NSFrame">{{131, 0}, {887, 30}}</string>
+						<string key="NSFrame">{{31, 0}, {887, 30}}</string>
 						<reference key="NSSuperview" ref="864440652"/>
 						<reference key="NSNextKeyView" ref="848580964"/>
 						<string key="NSReuseIdentifierKey">_NS:1192</string>
 						<string key="NSClassName">NSView</string>
 					</object>
 				</object>
-				<string key="NSFrameSize">{1018, 30}</string>
+				<string key="NSFrameSize">{918, 30}</string>
 				<reference key="NSSuperview"/>
 				<reference key="NSNextKeyView" ref="550271899"/>
 				<string key="NSClassName">PRTitleBarGradientView</string>
@@ -324,14 +324,6 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">nowPlayingSuperview</string>
-						<reference key="source" ref="1001"/>
-						<reference key="destination" ref="112297005"/>
-					</object>
-					<int key="connectionID">84</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
 						<string key="label">centerSuperview</string>
 						<reference key="source" ref="1001"/>
 						<reference key="destination" ref="359714292"/>
@@ -361,6 +353,14 @@
 						<reference key="destination" ref="848580964"/>
 					</object>
 					<int key="connectionID">375</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">nowPlayingSuperview</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="112297005"/>
+					</object>
+					<int key="connectionID">84</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -406,8 +406,8 @@
 						<reference key="object" ref="1006"/>
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="74504878"/>
 							<reference ref="491675417"/>
+							<reference ref="74504878"/>
 						</object>
 						<reference key="parent" ref="1005"/>
 					</object>
@@ -519,13 +519,11 @@
 						<reference key="parent" ref="1006"/>
 					</object>
 					<object class="IBObjectRecord">
-						<int key="objectID">77</int>
-						<reference key="object" ref="112297005"/>
-						<reference key="parent" ref="491675417"/>
-					</object>
-					<object class="IBObjectRecord">
 						<int key="objectID">200</int>
 						<reference key="object" ref="359714292"/>
+						<object class="NSMutableArray" key="children">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+						</object>
 						<reference key="parent" ref="491675417"/>
 					</object>
 					<object class="IBObjectRecord">
@@ -537,6 +535,11 @@
 						<int key="objectID">374</int>
 						<reference key="object" ref="848580964"/>
 						<reference key="parent" ref="550271899"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">77</int>
+						<reference key="object" ref="112297005"/>
+						<reference key="parent" ref="491675417"/>
 					</object>
 				</object>
 			</object>

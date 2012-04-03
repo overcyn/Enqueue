@@ -70,11 +70,12 @@
     [[self window] setDelegate:self];
     
     // Toolbar View
-    float temp = 0;
+	[[[[self window] contentView] superview] addSubview:toolbarView];
     [toolbarView setTopBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.6]];
     [toolbarView setBotBorder:[NSColor colorWithCalibratedWhite:0.5 alpha:1.0]];
-    [toolbarView setFrame:NSMakeRect(0, [[self window] frame].size.height - [toolbarView frame].size.height, 
-									 [[self window] frame].size.width - temp, [toolbarView frame].size.height)];    
+    [toolbarView setFrame:NSMakeRect(100, [[self window] frame].size.height - [toolbarView frame].size.height, 
+									 [[self window] frame].size.width - 100, [toolbarView frame].size.height)];    
+	
 
     // Window Buttons
     if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
@@ -84,8 +85,6 @@
         frame.origin.x += 26;
         [_headerView setFrame:frame];
     }
-        
-    [[[[self window] contentView] superview] addSubview:toolbarView];
     
     [_verticalDivider setColor:[NSColor colorWithCalibratedWhite:0.0 alpha:0.2]];
     [_verticalDivider setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.8]];
@@ -392,7 +391,7 @@ miniPlayer;
 - (void)updateSplitView {
     NSRect frame;
     frame = [_toolbarSubview frame];
-    frame.origin.x = [nowPlayingSuperview frame].size.width - 54;
+    frame.origin.x = [nowPlayingSuperview frame].size.width - 54 - 100;
     frame.size.width = [[self window] frame].size.width - [nowPlayingSuperview frame].size.width + 54;
     [_toolbarSubview setFrame:frame];
     
