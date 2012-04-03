@@ -7,6 +7,7 @@
 #import "PRMoviePlayer.h"
 #import "PRQueue.h"
 #import "PRUserDefaults.h"
+#import "PRTagger.h"
 
 @interface PRNowPlayingController ()
 /* Playback */
@@ -128,8 +129,9 @@
 
 - (IBAction)playPause {
 	if ([self currentIndex] == 0) {
-		if ([[_db playlists] countForList:[self currentList]] != 0) {
-			[self playItemAtIndex:1];
+		PRListItem *item = [self nextItem:TRUE];
+		if (item) {
+			[self playNext];
 		}
 	} else {
         if ([_mov isPlaying]) {
@@ -181,7 +183,7 @@
     _currentListItem = [listItem retain];
     
     // update tags
-    BOOL updated = [[_db library] updateTagsForItem:item];
+    BOOL updated = [PRTagger updateTagsForItem:item database:_db];
     if (updated) {
         [[NSNotificationCenter defaultCenter] postItemsChanged:[NSArray arrayWithObject:item]];
     }

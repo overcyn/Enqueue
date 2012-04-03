@@ -62,8 +62,7 @@
 }
 
 - (void)resetCursorRects {
-    NSRect rect = [self titleRect];
-    [self addCursorRect:rect cursor:[NSCursor pointingHandCursor]];
+    [self addCursorRect:NSIntersectionRect([self titleRect],[self bounds]) cursor:[NSCursor pointingHandCursor]];
 }
 
 - (void)mouseEntered:(NSEvent *)theEvent {

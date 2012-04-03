@@ -2,8 +2,4 @@
 
 
 @interface PRPlaylistsCell : NSTextFieldCell
-{
-    
-}
-
 @end

@@ -126,11 +126,9 @@ end:;
                 NSNumber *size2 = [[_db library] valueForItem:item attr:PRItemAttrSize];
                 NSString *last2 = [[_db library] valueForItem:item attr:PRItemAttrLastModified];
                 if ([size isEqualToNumber:size2] && [last isEqualToString:last2]) {
-                    [self setFileExists:[item intValue]];
+                    [self setFileExists:item];
                 } else {
-                    [toUpdate addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                                         item, @"file", 
-                                         URL, @"URL", nil]];
+                    [toUpdate addObject:[NSDictionary dictionaryWithObjectsAndKeys:item, @"file", URL, @"URL", nil]];
                 }
             }
         }
@@ -191,18 +189,17 @@ end:;
                                          [[i attributes] objectForKey:PRItemAttrCheckSum], [NSNumber numberWithInt:1], 
                                          [[i attributes] objectForKey:PRItemAttrSize], [NSNumber numberWithInt:2], nil]
                                 columns:[NSArray arrayWithObjects:PRColInteger, PRColString, nil]];
-            PRFile moved = 0;
+            PRItem *moved = nil;
             for (NSArray *j in rlt) {
                 if (![[NSFileManager defaultManager] fileExistsAtPath:[[NSURL URLWithString:[j objectAtIndex:1]] path]]) {
-                    moved = [[j objectAtIndex:0] intValue];
+                    moved = [j objectAtIndex:0];
                 }
             }
             // Add file if doesnt exist. Update path if it does
-            if (moved == 0) {
-                PRFile file = [[[_db library] addItemWithAttrs:[i attributes]] intValue];
-                [i setFile:file];
+            if (!moved) {
+                [i setItem:[[_db library] addItemWithAttrs:[i attributes]]];
             } else {
-                [[_db library] setValue:[[i attributes] objectForKey:PRItemAttrPath] forItem:[NSNumber numberWithInt:moved] attr:PRItemAttrPath];
+                [[_db library] setValue:[[i attributes] objectForKey:PRItemAttrPath] forItem:moved attr:PRItemAttrPath];
                 [self setFileExists:moved];
             }
         }
@@ -214,8 +211,8 @@ end:;
     }];
     // set artwork for files
     for (PRFileInfo *i in infoArray) {
-        if ([i tempArt] != 0 && [i file] != 0) {
-            [[_db albumArtController] setTempArtwork:[i tempArt] forItem:[PRItem numberWithInt:[i file]]];
+        if ([i tempArt] != 0 && ![i item]) {
+            [[_db albumArtController] setTempArtwork:[i tempArt] forItem:[i item]];
         }
     }
 }
@@ -231,7 +228,7 @@ end:;
         if (!info) {
             [pool drain]; continue;
         }
-        [info setFile:[[i objectForKey:@"file"] intValue]];
+        [info setItem:[i objectForKey:@"file"]];
         if ([info art]) {
             [info setTempArt:[[_db albumArtController] saveTempArtwork:[info art]]];
             [info setArt:nil];
@@ -244,9 +241,9 @@ end:;
         // set updated attributes
         NSMutableArray *updated = [NSMutableArray array];
         for (PRFileInfo *i in infoArray) {
-            [[_db library] setAttrs:[i attributes] forItem:[NSNumber numberWithInt:[i file]]];
-            [self setFileExists:[i file]];
-            [updated addObject:[PRItem numberWithInt:[i file]]];
+            [[_db library] setAttrs:[i attributes] forItem:[i item]];
+            [self setFileExists:[i item]];
+            [updated addObject:[i item]];
         }
         [_db commit];
         // post notifications
@@ -256,8 +253,8 @@ end:;
     }];
     // set art
     for (PRFileInfo *i in infoArray) {
-        if ([i file] == 0) {continue;}
-		[[_db albumArtController] setTempArtwork:[i tempArt] forItem:[PRItem numberWithInt:[i file]]];
+        if (![i item]) {continue;}
+		[[_db albumArtController] setTempArtwork:[i tempArt] forItem:[i item]];
     }
 }
 
@@ -279,10 +276,10 @@ end:;
 // Misc
 
 // Should only be called on the main thread
-- (void)setFileExists:(PRFile)file {
+- (void)setFileExists:(PRItem *)item {
     [_db execute:@"UPDATE tmp_tbl_monitored_files SET exist = 1 WHERE file_id = ?1"
         bindings:[NSDictionary dictionaryWithObjectsAndKeys:
-                  [NSNumber numberWithInt:file], [NSNumber numberWithInt:1], nil]
+                  item, [NSNumber numberWithInt:1], nil]
          columns:nil];
 }
 

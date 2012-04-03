@@ -5,14 +5,14 @@
     NSMutableDictionary *_attributes;
     NSImage *_art;
     int _tempArt;
-    int _file;
+    PRItem *_item;
     int _trackid; // used by iTunesImport
 }
 
 @property (readwrite, retain) NSMutableDictionary *attributes;
 @property (readwrite, retain) NSImage *art;
 @property (readwrite) int tempArt;
-@property (readwrite) int file;
+@property (readwrite, retain) PRItem *item;
 @property (readwrite) int trackid;
 
 - (id)init;

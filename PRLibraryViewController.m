@@ -54,7 +54,7 @@
     
     // Pane view
     _paneSuperview = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 500, 140)];
-    [_paneSuperview setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+    [_paneSuperview setAutoresizingMask:NSViewWidthSizable | NSViewMaxYMargin];
     _infoViewVisible = FALSE;
     
     infoViewController = [[PRInfoViewController alloc] initWithCore:_core];

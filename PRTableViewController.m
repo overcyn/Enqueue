@@ -509,8 +509,7 @@
 // ========================================
 // Action
 
-- (void)highlightFile:(PRFile)file {
-    PRItem *item = [PRItem numberWithInt:file];
+- (void)highlightItem:(PRItem *)item {
     NSString *artist;
     if ([[PRUserDefaults userDefaults] useCompilation] && [[[db library] valueForItem:item attr:PRItemAttrCompilation] boolValue]) {
         artist = compilationString;
@@ -519,7 +518,7 @@
     }
     [self browseToArtist:artist];
     
-	int dbRow = [[db libraryViewSource] rowForItem:[NSNumber numberWithInt:file]];
+	int dbRow = [[db libraryViewSource] rowForItem:item];
 	if (dbRow != -1) {
 		int tableRow = [self tableRowForDbRow:dbRow];
 		[libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:tableRow] byExtendingSelection:FALSE];
@@ -606,7 +605,7 @@
     }];
     [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
     if ([[db playlists] countForList:[now currentList]] > 0) {
-        [now playItemAtIndex:1];
+        [now playNext];
     }
 }
 
@@ -725,7 +724,7 @@
     [[db playlists] appendItemsFromLibraryViewSourceToList:[now currentList]];
     [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
     if ([[db playlists] countForList:[now currentList]] > 0) {
-        [now playItemAtIndex:1];
+        [now playNext];
     }
 }
 
@@ -1286,7 +1285,7 @@
         
         PRItemAttr *attr = [tableColumn identifier];
 		if ([attr isEqual:PRListSortIndex]) {
-            PRFile file_ = [[[db libraryViewSource] itemForRow:rowIndex] intValue];
+            PRItem *item = [[db libraryViewSource] itemForRow:rowIndex];
             if ([[self sortAttr] isEqual:PRListSortIndex]) {
                 if ([self ascending]) {
                     return [NSNumber numberWithInt:rowIndex];
@@ -1294,7 +1293,7 @@
                     return [NSNumber numberWithInt:[self numberOfRowsInTableView:libraryTableView] - rowIndex + 1];
                 } 
             } else {
-                NSIndexSet *rows = [[db playlists] indexesOfItem:[NSNumber numberWithInt:file_] inList:_currentList];
+                NSIndexSet *rows = [[db playlists] indexesOfItem:item inList:_currentList];
                 return [NSNumber numberWithInt:[rows firstIndex]];
             }
 		} else {
@@ -1324,15 +1323,13 @@
 - (void)tableView:(NSTableView *)tableView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)rowIndex {
 	PRItemAttr *attr = [tableColumn identifier];
 	if ([self dbRowForTableRow:rowIndex] != -1) {
-        PRFile file = [[[db libraryViewSource] itemForRow:[self dbRowForTableRow:rowIndex]] intValue];
-        PRItem *item = [PRItem numberWithInt:file];
+        PRItem *item = [[db libraryViewSource] itemForRow:[self dbRowForTableRow:rowIndex]];
 		if ([attr isEqualToString:PRItemAttrRating]) {
 			int rating = [object intValue] * 20;
-            [[db library] setValue:[NSNumber numberWithInt:rating] forItem:[NSNumber numberWithInt:file] attr:PRItemAttrRating];
+            [[db library] setValue:[NSNumber numberWithInt:rating] forItem:item attr:PRItemAttrRating];
 		} else {
-            NSURL *URL = [[db library] URLForItem:[PRItem numberWithInt:file]];
-            [PRTagger setTag:object forAttribute:attr URL:URL];
-            [[db library] updateTagsForItem:[NSNumber numberWithInt:file]];
+            [PRTagger setTag:object forAttribute:attr URL:[[db library] URLForItem:item]];
+			[PRTagger updateTagsForItem:item database:db];
 		}
         [[NSNotificationCenter defaultCenter] postItemsChanged:[NSArray arrayWithObject:item]];
 	}
@@ -1366,8 +1363,7 @@
 		// If dragging from browser, get all files
 		while (currentIndex < [self numberOfRowsInTableView:libraryTableView]) {
 			if ([self dbRowForTableRow:currentIndex] != -1) {
-				PRFile file = [[[db libraryViewSource] itemForRow:[self dbRowForTableRow:currentIndex]] intValue];
-				[files addObject:[NSNumber numberWithInt:file]];
+				[files addObject:[[db libraryViewSource] itemForRow:[self dbRowForTableRow:currentIndex]]];
 			}
 			currentIndex++;
 		}
@@ -1375,8 +1371,7 @@
 		// If dragging from library, get selected files
 		while ((currentIndex = [rowIndexes indexGreaterThanOrEqualToIndex:currentIndex]) != NSNotFound) {
 			if ([self dbRowForTableRow:currentIndex] != -1) {
-				PRFile file = [[[db libraryViewSource] itemForRow:[self dbRowForTableRow:currentIndex]] intValue];
-				[files addObject:[NSNumber numberWithInt:file]];
+				[files addObject:[[db libraryViewSource] itemForRow:[self dbRowForTableRow:currentIndex]]];
 			}
 			currentIndex++;
 		}

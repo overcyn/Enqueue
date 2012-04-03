@@ -103,6 +103,7 @@
 		NSControl *control = [i valueForKey:CONTROLKEY];
 		NSFormatter *formatter = [i valueForKey:FORMATTERKEY];
 		[NSNotificationCenter addObserver:self selector:@selector(controlTextDidEndEditing:) name:NSControlTextDidEndEditingNotification object:control];
+		[NSNotificationCenter addObserver:self selector:@selector(controlTextDidChange:) name:NSControlTextDidChangeNotification object:control];
 		if (formatter != (id)[NSNull null]) {
 			[control setFormatter:formatter];
 		}
@@ -132,16 +133,13 @@
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
    if (object == [ratingControl cell] && [keyPath isEqualToString:@"objectValue"]) {
-       if ([selection count] == 0) {
-           return;
-       }
-       int rating = [ratingControl selectedSegment] * 20;
-       for (NSNumber *i in selection) {
-           [[_db library] setValue:[NSNumber numberWithInt:rating] forItem:i attr:PRItemAttrRating];
-       }
-       [[NSNotificationCenter defaultCenter] postItemsChanged:selection];
+	   [self setValue:[NSNumber numberWithInt:[ratingControl selectedSegment] * 20] forAttribute:PRItemAttrRating];
    } else if (object == albumArtView && [keyPath isEqualToString:@"objectValue"]) {
-       [self setAlbumArt:[object objectValue]];
+	   NSData *data = [NSData data];
+	   if ([object objectValue]) {
+		   data = [[object objectValue] TIFFRepresentation];
+	   }
+	   [self setValue:data forAttribute:PRItemAttrArtwork];
    }
 }
 
@@ -196,10 +194,10 @@
 // Update
 
 - (void)update {
-    [selection release];
-	selection = [[[[[_core win] libraryViewController] currentViewController] selection] retain];
+    [_selection release];
+	_selection = [[[[[_core win] libraryViewController] currentViewController] selection] retain];
     
-    [ratingControl setHidden:([selection count] == 0)];
+    [ratingControl setHidden:([_selection count] == 0)];
     
 	for (NSDictionary *i in [self tagControls]) {
 		id value = [self valueForAttribute:[i valueForKey:ITEMATTRKEY]];
@@ -217,11 +215,16 @@
 			[field setObjectValue:value];
 		}
 		if ([[i valueForKey:KINDKEY] intValue] != NONEKIND) {
-			[field setEnabled:[selection count] > 0];
+			[field setEnabled:[_selection count] > 0];
 		}
 	}
 	
-    [albumArtView setImage:[self albumArt]];
+	NSImage *albumArt = nil;
+	if ([_selection count] != 0) {
+        albumArt= [[_db albumArtController] artworkForItem:[_selection objectAtIndex:0]];
+    }
+    [albumArtView setImage:albumArt];
+	
     NSNumber *rating = [self valueForAttribute:PRItemAttrRating];
     if ([rating isKindOfClass:[NSNumber class]]) {
         [ratingControl setSelectedSegment:floor([rating intValue] / 20)];
@@ -240,9 +243,15 @@
         [_compilationButton setState:NSOffState];
     }
     [_compilationButton setEnabled:(compilation != NSNoSelectionMarker)];
+	
+	_didChange = FALSE;
 }
 
 - (void)controlTextDidEndEditing:(NSNotification *)notification {
+	if (!_didChange) {
+		_didChange = FALSE;
+		return;
+	}
 	NSTextField *field = [notification object];
 	NSDictionary *dict = [[self tagControls] objectPassingTest:^BOOL(id obj, NSUInteger idx, BOOL *stop) {
 		return [obj objectForKey:CONTROLKEY] == field;
@@ -252,6 +261,9 @@
 	}
 	int kind = [[dict objectForKey:KINDKEY] intValue];
 	PRItemAttr *attr = [dict objectForKey:ITEMATTRKEY];
+	if ([field objectValue] == [self valueForAttribute:attr]) {
+		return;
+	}
 	if (kind == STRINGKIND) {
 		[self setValue:[field stringValue] forAttribute:attr];
 	} else if (kind == NUMBERKIND) {
@@ -261,28 +273,37 @@
 	}
 }
 
+- (void)controlTextDidChange:(NSNotification *)note {
+	_didChange = TRUE;
+}
+
 // ========================================
 // Accessors
 
 - (void)setValue:(id)value forAttribute:(PRItemAttr *)attribute {
-    if ([selection count] == 0) {
+    if ([_selection count] == 0) {
 		return;
 	}
-    for (NSNumber *i in selection) {
-        [PRTagger setTag:value forAttribute:attribute URL:[[_db library] URLForItem:i]];
-        [[_db library] updateTagsForItem:i];
+    for (NSNumber *i in _selection) {
+		if (attribute == PRItemAttrRating) {
+			[[_db library] setValue:value forItem:i attr:PRItemAttrRating];
+			continue;
+		}
+		[PRTagger setTag:value forAttribute:attribute URL:[[_db library] URLForItem:i]];
+		[PRTagger updateTagsForItem:i database:_db];
     }
-    [[NSNotificationCenter defaultCenter] postItemsChanged:selection];
-    [[[[_core win] libraryViewController] currentViewController] highlightFiles:selection];
-    [[NSOperationQueue mainQueue] addBlock:^{[self update];}];
+	// postItemsChanged clears _selection so we save prior selection so we can highlight
+	NSArray *selection = [[_selection retain] autorelease];
+    [[NSNotificationCenter defaultCenter] postItemsChanged:_selection];
+	[[[[_core win] libraryViewController] currentViewController] highlightFiles:selection];
 }
 
-- (id)valueForAttribute:(PRItemAttr *)attribute {	
-	if ([selection count] == 0) {
+- (id)valueForAttribute:(PRItemAttr *)attribute {
+	if ([_selection count] == 0) {
 		return NSNoSelectionMarker;
 	}
-    id firstResult = [[_db library] valueForItem:[selection objectAtIndex:0] attr:attribute];
-    for (NSNumber *i in selection) {
+    id firstResult = [[_db library] valueForItem:[_selection objectAtIndex:0] attr:attribute];
+    for (NSNumber *i in _selection) {
         id result = [[_db library] valueForItem:i attr:attribute];
         if (![firstResult isEqual:result]) {
             return NSMultipleValuesMarker;
@@ -296,22 +317,6 @@
 	return firstResult;
 }
 
-- (void)setAlbumArt:(NSImage *)value {
-    NSData *data = [value TIFFRepresentation];
-    if (!value) {
-        data = [NSData data];
-    }
-    [self setValue:data forAttribute:PRItemAttrArtwork];
-}
-
-- (NSImage *)albumArt {
-    if ([selection count] == 0) {
-        return nil;
-    }
-    NSImage *albumArt = [[_db albumArtController] artworkForItem:[selection objectAtIndex:0]];
-    return albumArt;
-}
-
 - (void)toggleCompilation {
     NSNumber *compilation = [self valueForAttribute:PRItemAttrCompilation];
     if (compilation == NSMultipleValuesMarker || [compilation intValue] == 1) {
@@ -322,7 +327,7 @@
 }
 
 // ========================================
-// misc
+// Misc
 
 - (NSArray *)tagControls {
     static NSMutableArray *array = nil;

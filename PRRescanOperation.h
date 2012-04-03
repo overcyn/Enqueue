@@ -27,5 +27,5 @@
 - (void)removeFiles:(NSArray *)files;
 
 // Misc
-- (void)setFileExists:(PRFile)file;
+- (void)setFileExists:(PRItem *)item;
 @end

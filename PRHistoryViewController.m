@@ -205,8 +205,8 @@
         NSString *artist = [[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"artist"];
         [(PRTableViewController *)[[mainWindowController libraryViewController] currentViewController] highlightArtist:artist];
     } else {
-        PRFile file = [[[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"file"] intValue];
-        [[[mainWindowController libraryViewController] currentViewController] highlightFile:file];
+        PRItem *item = [[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"file"];
+        [[[mainWindowController libraryViewController] currentViewController] highlightItem:item];
     }
 }
 

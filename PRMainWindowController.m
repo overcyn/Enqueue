@@ -73,7 +73,8 @@
     float temp = 0;
     [toolbarView setTopBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.6]];
     [toolbarView setBotBorder:[NSColor colorWithCalibratedWhite:0.5 alpha:1.0]];
-    [toolbarView setFrame:NSMakeRect(temp, [[self window] frame].size.height - [toolbarView frame].size.height, [[self window] frame].size.width - temp, [toolbarView frame].size.height)];    
+    [toolbarView setFrame:NSMakeRect(0, [[self window] frame].size.height - [toolbarView frame].size.height, 
+									 [[self window] frame].size.width - temp, [toolbarView frame].size.height)];    
 
     // Window Buttons
     if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {

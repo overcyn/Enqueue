@@ -411,6 +411,7 @@
         [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.6]];
         [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
         NSMutableParagraphStyle *align = [[[NSMutableParagraphStyle alloc] init] autorelease];
+		[align setLineBreakMode:NSLineBreakByTruncatingTail];
         if ([[core win] miniPlayer]) {
             [align setAlignment:NSCenterTextAlignment];
         } else {
@@ -601,7 +602,8 @@
                                  centerAlign, NSParagraphStyleAttributeName,				  
                                  shadow2, NSShadowAttributeName,
                                  nil];
-	NSAttributedString *attributedString = [[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%d%%",progressPercent] attributes:attributes2] autorelease];
+	NSAttributedString *attributedString = [[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%d%%",progressPercent] 
+																			attributes:attributes2] autorelease];
 	[_progressPercentTextField setAttributedStringValue:attributedString];
 }
 
@@ -612,7 +614,7 @@
     if (![[core win] miniPlayer]) {
         [[core win] setCurrentMode:PRLibraryMode];
         [[[core win] libraryViewController] setCurrentList:[[db playlists] libraryList]];
-        [[[[core win] libraryViewController] currentViewController] highlightFile:[[now currentItem] intValue]];
+        [[[[core win] libraryViewController] currentViewController] highlightItem:[now currentItem]];
     } 
     [[[core win] nowPlayingViewController] higlightPlayingFile];
 }

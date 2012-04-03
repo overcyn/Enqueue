@@ -6,10 +6,10 @@
     NSAttributedString *_altAttrString;
     NSTrackingArea *_trackingArea;
 }
-// Accessors
+/* Accessors */
 @property (readwrite, retain) NSAttributedString *attrString;
 @property (readwrite, retain) NSAttributedString *altAttrString;
 
-// Misc
+/* Misc */
 - (NSRect)titleRect;
 @end

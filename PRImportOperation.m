@@ -91,8 +91,7 @@ end:;
 // ========================================
 // Misc
 
-- (void)setFileExists:(PRFile)file
-{
+- (void)setFileExists:(PRItem *)file {
     
 }
 

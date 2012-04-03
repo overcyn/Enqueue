@@ -295,12 +295,6 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     [db execute:string bindings:bindings columns:nil];
 }
 
-- (BOOL)updateTagsForItem:(PRItem *)item {
-	PRFileInfo *info = [PRTagger infoForURL:[self URLForItem:item]];
-	[self setAttrs:[info attributes] forItem:item];
-    return TRUE;
-}
-
 - (NSString *)artistValueForItem:(PRItem *)item {
     if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
         return [self valueForItem:item attr:PRItemAttrArtistAlbumArtist];

@@ -176,10 +176,10 @@ end:;
     blk = ^{
         [_db begin];
         for (PRFileInfo *i in infoArray) {
-            PRFile f = [[[_db library] addItemWithAttrs:[i attributes]] intValue];
-            [i setFile:f];
+			PRItem *item = [[_db library] addItemWithAttrs:[i attributes]];
+            [i setItem:item];
             NSNumber *trackId = [NSNumber numberWithInt:[i trackid]];
-            [_fileTrackIdDictionary setObject:[NSNumber numberWithInt:f] forKey:trackId];
+            [_fileTrackIdDictionary setObject:item forKey:trackId];
         }
         [_db commit];
         [[NSNotificationCenter defaultCenter] postLibraryChanged];
@@ -188,7 +188,7 @@ end:;
     // Artwork
     for (PRFileInfo *i in infoArray) {
         if (![i tempArt]) {continue;}
-		[[_db albumArtController] setTempArtwork:[i tempArt] forItem:[PRItem numberWithInt:[i file]]];
+		[[_db albumArtController] setTempArtwork:[i tempArt] forItem:[i item]];
     }
     [pool drain];
 }

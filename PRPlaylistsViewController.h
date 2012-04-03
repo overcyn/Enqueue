@@ -23,20 +23,13 @@ PRStringFormatter, PRSmartPlaylistEditorViewController;
 	PRMainWindowController *win;
     PRSmartPlaylistEditorViewController *smartPlaylistEditorViewController;
 }
-
-// ========================================
-// Initialization
-
+/* Initialization */
 - (id)initWithCore:(PRCore *)core;
 
-// ========================================
-// Update
-
+/* Update */
 - (void)update;
 
-// ========================================
-// Action
-
+/* Action */
 - (void)tableViewAction;
 - (void)newSmartPlaylist;
 - (void)newStaticPlaylist;
@@ -51,12 +44,9 @@ PRStringFormatter, PRSmartPlaylistEditorViewController;
 - (void)deletePlaylistMenuAction:(NSMenuItem *)menuItem;
 - (void)editPlaylistMenuAction:(NSMenuItem *)menuItem;
 
-// ========================================
-// Misc
-
+/* Misc */
 // Returns playlist for row. -1 if no row.
 - (int)playlistForRow:(int)row;
 // Returns row for playlist. -1 if no row.
 - (int)rowForPlaylist:(PRPlaylist)playlist;
-
 @end

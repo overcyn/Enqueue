@@ -2,24 +2,23 @@
 
 @implementation PRFileInfo
 
-@synthesize attributes = _attributes,
-art = _art,
-tempArt = _tempArt,
-file = _file,
-trackid = _trackid;
+@synthesize attributes = _attributes;
+@synthesize art = _art;
+@synthesize tempArt = _tempArt;
+@synthesize trackid = _trackid;
+@synthesize item = _item;
 
 - (id)init {
     if (!(self = [super init])) {return nil;}
     _attributes = nil;
     _art = nil;
     _tempArt = 0;
-    _file = 0;
     _trackid = 0;
     return self;
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"attributes:%@ art:%@ tempArt:%d file:%d",_attributes, _art, _tempArt, _file];
+    return [NSString stringWithFormat:@"attributes:%@ art:%@ tempArt:%d file:%ull",_attributes, _art, _tempArt, [_item unsignedLongLongValue]];
 }
 
 + (PRFileInfo *)fileInfo {

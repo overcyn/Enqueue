@@ -78,7 +78,7 @@ end:;
         if (!info) {
             [pool drain]; continue;
         }
-        [info setFile:[[i objectAtIndex:0] intValue]];
+        [info setItem:[i objectAtIndex:0]];
         if ([info art]) {
             [info setTempArt:[[[_core db] albumArtController] saveTempArtwork:[info art]]];
             [info setArt:nil];
@@ -91,8 +91,8 @@ end:;
         // set updated attributes
         NSMutableArray *updated = [NSMutableArray array];
         for (PRFileInfo *i in infoArray) {
-            [[[_core db] library] setAttrs:[i attributes] forItem:[NSNumber numberWithInt:[i file]]];
-            [updated addObject:[PRItem numberWithInt:[i file]]];
+            [[[_core db] library] setAttrs:[i attributes] forItem:[i item]];
+            [updated addObject:[i item]];
         }
         [[_core db] commit];
         // post notifications
@@ -102,8 +102,8 @@ end:;
     }];
     // set art
     for (PRFileInfo *i in infoArray) {
-        if ([i file] == 0) {continue;}
-		[[[_core db] albumArtController] setTempArtwork:[i tempArt] forItem:[PRItem numberWithInt:[i file]]];
+        if (![i item]) {continue;}
+		[[[_core db] albumArtController] setTempArtwork:[i tempArt] forItem:[i item]];
     }    
 	[pool drain];
 }

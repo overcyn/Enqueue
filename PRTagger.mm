@@ -1,6 +1,7 @@
 #import "PRTagger.h"
 #import "PRDb.h"
 #import "PRLibrary.h"
+#import "PRAlbumArtController.h"
 #import "PRFileInfo.h"
 #import <stdio.h>
 #import <iostream>
@@ -267,6 +268,26 @@ using namespace TagLib;
     file->save();
     delete file;
     return;
+}
+
++ (BOOL)updateTagsForItem:(PRItem *)item database:(PRDb *)db {
+	PRFileInfo *info = [PRTagger infoForURL:[[db library] URLForItem:item]];
+	if (!info) {
+		return FALSE;
+	}
+	
+    BOOL change = FALSE;
+    NSDictionary *attrs = [info attributes];
+    for (PRItemAttr *i in [attrs allKeys]) {
+        id value = [[db library] valueForItem:item attr:i];
+        if (![[attrs objectForKey:i] isEqual:value]) {
+            change = TRUE;
+        }
+    }
+    [[db library] setAttrs:attrs forItem:item];
+	[[db albumArtController] clearTempArtwork];
+	[[db albumArtController] setTempArtwork:[[db albumArtController] saveTempArtwork:[info art]] forItem:item];
+	return change;
 }
 
 // ========================================
@@ -940,8 +961,10 @@ using namespace TagLib;
         const char *frameID;
 		if ([attr isEqualToString:@"TDAT"]) {
 			frameID = "TDAT";
+			attr = PRItemAttrYear;
 		} else if ([attr isEqualToString:@"YEAR"]) {
 			frameID = "YEAR";
+			attr = PRItemAttrYear;
 		} else {
 			[PRTagger ID3v2FrameIDForAttribute:attr];
 		}

@@ -1,11 +1,11 @@
 #import "PRAlbumArtController.h"
 #import "PRLibrary.h"
 #import "PRUserDefaults.h"
-#import "NSFileManager+DirectoryLocations.h"
-#import "NSImage+Extensions.h"
 #import "PRDb.h"
 #import "PRLibrary.h"
 #import "PRUserDefaults.h"
+#import "NSFileManager+DirectoryLocations.h"
+#import "NSImage+Extensions.h"
 
 
 @interface PRAlbumArtController ()

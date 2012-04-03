@@ -7,9 +7,7 @@
 // ========================================
 // Drawing
 
-- (void)drawWithFrame:(NSRect)theCellFrame inView:(NSView *)theControlView
-{
-        
+- (void)drawWithFrame:(NSRect)theCellFrame inView:(NSView *)theControlView {
     [[NSColor PRGridColor] set];
     [NSBezierPath fillRect:NSMakeRect(theCellFrame.origin.x, theCellFrame.origin.y + theCellFrame.size.height - 3, theCellFrame.size.width, 1)];
     [[NSColor PRGridHighlightColor] set];
@@ -146,10 +144,8 @@
 
 // ========================================
 // Misc
-// ========================================
 
-- (NSMenu *)menuForEvent:(NSEvent *)event inRect:(NSRect)cellFrame ofView:(NSView *)view
-{
+- (NSMenu *)menuForEvent:(NSEvent *)event inRect:(NSRect)cellFrame ofView:(NSView *)view {
     NSRect rect = cellFrame;
     rect.origin.x += rect.size.width - 40;
     rect.origin.y += rect.size.height/2 - 10;
@@ -189,8 +185,7 @@
     return menu_;
 }
 
-- (NSText *)setUpFieldEditorAttributes:(NSText *)fieldEditor
-{
+- (NSText *)setUpFieldEditorAttributes:(NSText *)fieldEditor {
     [super setUpFieldEditorAttributes:fieldEditor];
     [fieldEditor setDrawsBackground:FALSE];
     [self setFont:[NSFont fontWithName:@"HelveticaNeue-Medium" size:15]];
@@ -201,13 +196,11 @@
     return fieldEditor;
 }
 
-- (NSRect)drawingRectForBounds:(NSRect)theRect
-{
+- (NSRect)drawingRectForBounds:(NSRect)theRect {
     return NSInsetRect(theRect, 10, 9);
 }
 
-- (void)selectWithFrame:(NSRect)aRect inView:(NSView *)controlView editor:(NSText *)textObj delegate:(id)anObject start:(NSInteger)selStart length:(NSInteger)selLength
-{
+- (void)selectWithFrame:(NSRect)aRect inView:(NSView *)controlView editor:(NSText *)textObj delegate:(id)anObject start:(NSInteger)selStart length:(NSInteger)selLength {
     [super selectWithFrame:NSInsetRect(aRect, 10, 9) 
                     inView:controlView 
                     editor:textObj 

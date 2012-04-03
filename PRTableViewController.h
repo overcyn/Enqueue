@@ -47,7 +47,7 @@
 @property (readonly) NSArray *selection;
 
 // Action
-- (void)highlightFile:(PRFile)file;
+- (void)highlightItem:(PRItem *)item;
 - (void)highlightFiles:(NSArray *)items;
 - (void)highlightArtist:(NSString *)artist;
 - (void)browseToArtist:(NSString *)artist;

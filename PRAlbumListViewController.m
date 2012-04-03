@@ -135,7 +135,7 @@
 // ========================================
 // Action
 
-- (void)selectAlbum {	
+- (void)selectAlbum {
 	if ([albumTableView clickedRow] == -1) {
 		[libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
 		return;
@@ -287,9 +287,7 @@
 		int maxIndex = currentIndex + [[albumCountArray objectAtIndex:row] intValue];
 		
 		for (; currentIndex < maxIndex; currentIndex++) {
-			PRFile file = [[[db libraryViewSource] itemForRow:currentIndex + 1] intValue];
-			NSNumber *fileNumber = [NSNumber numberWithInt:file];
-			[files addObject:fileNumber];
+			[files addObject:[[db libraryViewSource] itemForRow:currentIndex + 1]];
 		}
 		
 		// archive files and save to pasteboard

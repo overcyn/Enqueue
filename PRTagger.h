@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-@class PRFileInfo;
+@class PRDb, PRFileInfo;
 
 
 typedef enum {
@@ -22,9 +22,10 @@ typedef enum {
 
 @interface PRTagger : NSObject
 /* Tags */
-+ (PRFileInfo *)infoForURL:(NSURL *)URL;
-+ (NSMutableDictionary *)tagsForURL:(NSURL *)URL;
++ (PRFileInfo *)infoForURL:(NSURL *)URL; // returns nil if invalid or missing file
++ (NSMutableDictionary *)tagsForURL:(NSURL *)URL; // returns nil if invalid or missing file
 + (void)setTag:(id)tag forAttribute:(PRItemAttr *)attr URL:(NSURL *)URL;
++ (BOOL)updateTagsForItem:(PRItem *)item database:(PRDb *)db; // post ItemsDidChangeNotification if this updates
 
 /* Properties */
 + (NSDate *)lastModifiedAtURL:(NSURL *)URL;

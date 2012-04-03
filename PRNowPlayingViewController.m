@@ -378,7 +378,7 @@
     PRItem *item = [[db playlists] itemAtIndex:[dbRows firstIndex] forList:[now currentList]];
     [win setCurrentMode:PRLibraryMode];
     [[win libraryViewController] setCurrentList:[[db playlists] libraryList]];
-    [[[win libraryViewController] currentViewController] highlightFile:[item intValue]];
+    [[[win libraryViewController] currentViewController] highlightItem:item];
 }
 
 - (void)removeSelected {

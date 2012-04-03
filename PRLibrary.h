@@ -38,49 +38,6 @@ extern PRItemAttr * const PRItemAttrPlayCount;
 extern PRItemAttr * const PRItemAttrRating;
 
 
-typedef int PRFile;
-typedef enum {
-	PRPathFileAttribute = 25,
-	
-    // tags
-	PRTitleFileAttribute = 1, 
-	PRArtistFileAttribute = 2,
-	PRAlbumFileAttribute = 3,
-	PRBPMFileAttribute = 4,
-	PRYearFileAttribute = 5,
-	PRTrackNumberFileAttribute = 6,
-	PRTrackCountFileAttribute = 7,
-	PRComposerFileAttribute = 8,
-	PRDiscNumberFileAttribute = 9,
-	PRDiscCountFileAttribute = 10,
-	PRCommentsFileAttribute = 11,
-	PRAlbumArtistFileAttribute = 12,
-	PRGenreFileAttribute = 13,
-    PRCompilationFileAttribute = 29,
-    PRLyricsFileAttribute = 30,
-	
-    // album art
-    PRAlbumArtFileAttribute = 24,
-    
-    // properties
-	PRSizeFileAttribute = 18,
-	PRKindFileAttribute = 19,
-	PRTimeFileAttribute = 20,
-	PRBitrateFileAttribute = 21,
-	PRChannelsFileAttribute = 22,
-	PRSampleRateFileAttribute = 23,
-    PRCheckSumFileAttribute = 27,
-    PRLastModifiedFileAttribute = 28,
-    
-    PRDateAddedFileAttribute = 14,
-	PRLastPlayedFileAttribute = 15,
-	PRPlayCountFileAttribute = 16,
-	PRRatingFileAttribute = 17,
-    
-    PRArtistAlbumArtistFileAttribute = 26,
-} PRFileAttribute;
-
-
 @interface PRLibrary : NSObject {
 	PRDb *db;
 }
@@ -100,7 +57,6 @@ typedef enum {
 - (void)setValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr;
 - (NSDictionary *)attrsForItem:(PRItem *)item;
 - (void)setAttrs:(NSDictionary *)attrs forItem:(PRItem *)item;
-- (BOOL)updateTagsForItem:(PRItem *)item;
 
 - (NSString *)artistValueForItem:(PRItem *)item;
 - (NSURL *)URLForItem:(PRItem *)item;

@@ -73,7 +73,9 @@ typedef enum {
     PRTimeFormatter *_timeFormatter;
     PRNumberFormatter *_numberFormatter;
     PRStringFormatter *_stringFormatter;
-	NSArray *selection;
+	
+	NSArray *_selection;
+	BOOL _didChange;
 }
 /* Initialization */
 - (id)initWithCore:(PRCore *)core;
