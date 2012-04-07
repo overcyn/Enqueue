@@ -552,17 +552,17 @@
         dbRow = [dbRows indexGreaterThanIndex:dbRow];
     }
     if (addToQueue) {
-        NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Add to Queue" action:@selector(addSelectedToQueue) keyEquivalent:@""];
+        NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"Add to Queue" action:@selector(addSelectedToQueue) keyEquivalent:@""] autorelease];
         [menuItem setTarget:self];
         [_contextMenu addItem:menuItem];
     }
     if (removeFromQueue) {
-        NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Remove From Queue" action:@selector(removeSelectedFromQueue) keyEquivalent:@""];
+        NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"Remove From Queue" action:@selector(removeSelectedFromQueue) keyEquivalent:@""] autorelease];
         [menuItem setTarget:self];
         [_contextMenu addItem:menuItem];
     }
     if ([queue count] != 0) {
-        NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Clear Queue" action:@selector(clearQueue) keyEquivalent:@""];
+        NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"Clear Queue" action:@selector(clearQueue) keyEquivalent:@""] autorelease];
         [menuItem setTarget:self];
         [_contextMenu addItem:menuItem];
     }
@@ -589,10 +589,10 @@
     [_contextMenu addItem:[NSMenuItem separatorItem]];
     
     // Other
-    NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Show in Library" action:@selector(showInLibrary) keyEquivalent:@""];
+    NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"Show in Library" action:@selector(showInLibrary) keyEquivalent:@""] autorelease];
     [menuItem setTarget:self];
     [_contextMenu addItem:menuItem];
-    menuItem = [[NSMenuItem alloc] initWithTitle:@"Reveal in Finder" action:@selector(revealInFinder) keyEquivalent:@""];
+    menuItem = [[[NSMenuItem alloc] initWithTitle:@"Reveal in Finder" action:@selector(revealInFinder) keyEquivalent:@""] autorelease];
     [menuItem setTarget:self];
     [_contextMenu addItem:menuItem];
     [_contextMenu addItem:[NSMenuItem separatorItem]];

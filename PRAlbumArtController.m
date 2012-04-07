@@ -49,8 +49,7 @@
 	}
     [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
     [string appendString:@") AND albumArt = 1"];
-    NSArray *columns = [NSArray arrayWithObjects:PRColInteger, nil];
-    NSArray *results = [_db execute:string bindings:nil columns:columns];
+    NSArray *results = [_db execute:string bindings:nil columns:@[PRColInteger]];
     for (NSArray *i in results) {
         PRItem *item = [i objectAtIndex:0];
         BOOL isDirectory;
@@ -116,7 +115,7 @@
         string = @"SELECT file_id FROM library WHERE artist COLLATE NOCASE2 = ?1";
     }
     NSArray *results = [_db execute:string bindings:@{@1:artist} columns:@[PRColInteger]];
-    NSMutableArray *items;
+    NSMutableArray *items = [NSMutableArray array];
     for (NSArray *i in results) {
         [items addObject:[i objectAtIndex:0]];
     }

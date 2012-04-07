@@ -159,9 +159,12 @@
                     } else if (col == PRColData) {
                         value = [[NSData alloc] initWithBytes:sqlite3_column_blob(_stmt, i) length:sqlite3_column_bytes(_stmt, i)];
                     } else {
-                        if (!crash) {return nil;}
-                        [PRException raise:PRDbInconsistencyException 
-                                    format:@"Unknown column type - self:%@", self];
+                        if (!crash) {
+                            [column release];
+                            return nil;
+                        }
+                        [column release];
+                        [PRException raise:PRDbInconsistencyException format:@"Unknown column type - self:%@", self];
                         return nil;
                     }
                     [column addObject:value];

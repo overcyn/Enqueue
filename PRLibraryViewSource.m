@@ -514,8 +514,8 @@ NSString * const compilationString = @"Compilations  ";
         if ([self compilationForBrowser:browser]) {
             [_db execute:[NSString stringWithFormat:@"INSERT INTO %@ (value) SELECT value FROM browserTempViewSource WHERE compilation = 0 ORDER BY row", destinationTableName]];
             NSArray *rlt = [_db execute:@"SELECT compilation FROM browserTempViewSource WHERE compilation != 0 LIMIT 1" 
-                              bindings:nil 
-                               columns:[NSArray arrayWithObject:PRColInteger]];
+                               bindings:nil 
+                                columns:@[PRColInteger]];
             _compilation = ([rlt count] != 0);
         } else {
             [_db execute:[NSString stringWithFormat:@"INSERT INTO %@ (value) SELECT value FROM browserTempViewSource ORDER BY row", destinationTableName]];
@@ -532,8 +532,8 @@ NSString * const compilationString = @"Compilations  ";
             }
         } else {
             NSArray *results = [_db execute:[NSString stringWithFormat:@"SELECT COUNT(*) FROM %@ WHERE value COLLATE NOCASE2 = ?1", destinationTableName]
-                                  bindings:[NSDictionary dictionaryWithObjectsAndKeys:[selection objectAtIndex:i], [NSNumber numberWithInt:1], nil]
-                                   columns:[NSArray arrayWithObject:PRColInteger]];
+                                   bindings:@{@1:[selection objectAtIndex:i]}
+                                    columns:@[PRColInteger]];
             if ([[[results objectAtIndex:0] objectAtIndex:0] intValue] == 0) {
                 [indexesToRemove addIndex:i];
             }
@@ -551,17 +551,16 @@ NSString * const compilationString = @"Compilations  ";
 
 - (int)count {
     NSArray *rlt = [_db execute:@"SELECT COUNT(*) FROM libraryViewSource"
-                      bindings:nil 
-                       columns:[NSArray arrayWithObject:PRColInteger]];
+                       bindings:nil 
+                        columns:@[PRColInteger]];
     if ([rlt count] != 1) {[PRException raise:PRDbInconsistencyException format:@""];}
     return [[[rlt objectAtIndex:0] objectAtIndex:0] intValue];
 }
 
 - (PRItem *)itemForRow:(int)row {
     NSArray *rlt = [_db execute:@"SELECT file_id FROM libraryViewSource WHERE row = ?1"
-                      bindings:[NSDictionary dictionaryWithObjectsAndKeys:
-                                [NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil] 
-                       columns:[NSArray arrayWithObject:PRColInteger]];
+                       bindings:@{@1:[NSNumber numberWithInt:row]}
+                        columns:@[PRColInteger]];
     if ([rlt count] != 1) {
         [PRException raise:PRDbInconsistencyException format:@""];
     }
@@ -570,8 +569,8 @@ NSString * const compilationString = @"Compilations  ";
 
 - (int)rowForItem:(PRItem *)item {
     NSArray *rlt = [_db execute:@"SELECT row FROM libraryViewSource WHERE file_id = ?1"
-                      bindings:[NSDictionary dictionaryWithObjectsAndKeys:item, [NSNumber numberWithInt:1], nil] 
-                       columns:[NSArray arrayWithObjects:PRColInteger, nil]];
+                       bindings:@{@1:item}
+                        columns:@[PRColInteger]];
     if ([rlt count] > 1) {
         [PRException raise:PRDbInconsistencyException format:@""];
     } else if ([rlt count] == 0) {

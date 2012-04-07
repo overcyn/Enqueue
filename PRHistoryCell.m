@@ -4,8 +4,7 @@
 
 @implementation PRHistoryCell
 
-- (void)drawWithFrame:(NSRect)frame inView:(NSView *)theControlView
-{
+- (void)drawWithFrame:(NSRect)frame inView:(NSView *)theControlView {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
 	NSDictionary *dict = [self objectValue];
@@ -37,20 +36,17 @@
     }
 	NSSize iconSize = NSMakeSize(25, 25);
 	[icon setFlipped:YES];
-	NSRect iconBox = NSMakeRect(frame.origin.x,
-								frame.origin.y + frame.size.height*.5 - iconSize.height*.5,
-								0,
-								0);
+	NSRect iconBox = NSMakeRect(frame.origin.x, frame.origin.y + frame.size.height*.5 - iconSize.height*.5, 0, 0);
     [icon drawInRect:iconBox fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
     
     // TITLE SUBTITLE
 	NSMutableParagraphStyle *style = [[[NSMutableParagraphStyle alloc] init] autorelease];
 	[style setLineBreakMode:NSLineBreakByTruncatingTail];
     
-    NSDictionary *titleAttr = [NSDictionary dictionaryWithObjectsAndKeys:
-                               [NSFont fontWithName:@"HelveticaNeue" size:12], NSFontAttributeName,
-                               style, NSParagraphStyleAttributeName,
-                               [NSColor colorWithCalibratedWhite:0.0 alpha:1.0], NSForegroundColorAttributeName, nil];
+    NSDictionary *titleAttr = @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue" size:12],
+NSParagraphStyleAttributeName:style,
+NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.0 alpha:1.0]};
+    
     NSDictionary *subtitleAttr = [NSDictionary dictionaryWithObjectsAndKeys:
                                   [NSFont fontWithName:@"HelveticaNeue-Italic" size:12], NSFontAttributeName,
                                   style, NSParagraphStyleAttributeName,

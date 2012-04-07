@@ -22,10 +22,8 @@
 
 // ========================================
 // Initialization
-// ========================================
 
-- (id)initWithDb:(PRDb *)db_ mainWindowController:(PRMainWindowController *)mainWindowController_
-{
+- (id)initWithDb:(PRDb *)db_ mainWindowController:(PRMainWindowController *)mainWindowController_ {
 	if (!(self = [super initWithNibName:@"PRHistoryView" bundle:nil])) {return nil;}
     db = db_;
     mainWindowController = mainWindowController_;
@@ -45,16 +43,14 @@
 	return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     [dataSource release];
     [_dateFormatter release];
     [_timeFormatter release];
     [super dealloc];
 }
 
-- (void)awakeFromNib
-{
+- (void)awakeFromNib {
     [(PRScrollView *)[self view] setMinimumSize:NSMakeSize(650, 2267)];
     [(PRScrollView *)[self view] setDocumentView:[background superview]];
     [(NSScrollView *)[self view] scrollToTop];
@@ -93,25 +89,20 @@
 
 // ========================================
 // Accesssors
-// ========================================
 
-- (PRHistoryMode2)historyMode
-{
+- (PRHistoryMode2)historyMode {
     return historyMode;
 }
 
-- (void)setHistoryMode:(PRHistoryMode2)historyMode_
-{
+- (void)setHistoryMode:(PRHistoryMode2)historyMode_ {
     historyMode = historyMode_;
     [self update];
 }
 
 // ========================================
 // Update
-// ========================================
 
-- (void)update
-{
+- (void)update {
     [dataSource release];
     switch (historyMode) {
         case PRTopArtistsHistoryMode:
@@ -187,15 +178,12 @@
 
 // ========================================
 // Action
-// ========================================
 
-- (void)historyModeButtonAction:(id)sender
-{
+- (void)historyModeButtonAction:(id)sender {
     [self setHistoryMode:[sender tag]];
 }
 
-- (void)tableViewAction:(id)sender
-{
+- (void)tableViewAction:(id)sender {
 	if ([sender clickedRow] == -1) {
 		return;
 	}
@@ -212,10 +200,8 @@
 
 // ========================================
 // NSTableView DataSource
-// ========================================
 
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView_
-{
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView_ {
     if (tableView_ == tableView) {
         return [dataSource count];
     }
@@ -224,8 +210,7 @@
 
 - (id)            tableView:(NSTableView *)tableView_
   objectValueForTableColumn:(NSTableColumn *)tableColumn 
-						row:(NSInteger)row
-{
+						row:(NSInteger)row {
     if (tableView_ != tableView) {
         return nil;
     }
@@ -281,15 +266,12 @@
 
 // ========================================
 // NSTableView Delegate
-// ========================================
 
-- (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex
-{
+- (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex {
 	return FALSE;
 }
 
-- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
-{
+- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithDictionary:[aCell objectValue]];
 //	if ([(PRRolloverTableView *)aTableView mouseOverRow] == rowIndex) {
 //        [dictionary setObject:[NSNumber numberWithBool:TRUE] forKey:@"mouseOver"];
@@ -300,8 +282,7 @@
     [aCell setObjectValue:dictionary];
 }
 
-- (BOOL)tableView:(NSTableView *)tableView shouldShowCellExpansionForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
-{
+- (BOOL)tableView:(NSTableView *)tableView shouldShowCellExpansionForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     return FALSE;
 }
 

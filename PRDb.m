@@ -259,7 +259,7 @@ create:;
         [[_core opQueue] addOperation:[PRUpdate060Operation operationWithCore:_core]];
         
         [self commit];
-        version = 6;
+//        version = 6;
     }
 //    if (version == 6) {
 //        [self begin];
@@ -290,7 +290,7 @@ create:;
     NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
     BOOL libraryExists = [fileManager fileExistsAtPath:[[PRUserDefaults userDefaults] libraryPath]];
     BOOL artExists = [fileManager fileExistsAtPath:[[PRUserDefaults userDefaults] cachedAlbumArtPath]];
-    if (!libraryExists && !artExists) {
+    if (!libraryExists && !artExists && err) {
         *err = nil;
         return TRUE;
     }
@@ -321,7 +321,7 @@ create:;
                      withIntermediateDirectories:TRUE 
                                       attributes:nil 
                                            error:nil];
-    if (!e) {
+    if (!e && err) {
         *err = [self databaseCouldNotBeMovedError];
         return FALSE;
     }
@@ -329,7 +329,7 @@ create:;
     NSString *library_ = [[PRUserDefaults userDefaults] libraryPath];
     NSString *newLibrary = [folder stringByAppendingPathComponent:@"Enqueue.db"];
     e = [fileManager moveItemAtPath:library_ toPath:newLibrary error:nil];
-    if (!e) {
+    if (!e && err) {
         *err = [self databaseCouldNotBeMovedError];
         return FALSE;
     }
@@ -337,12 +337,14 @@ create:;
     NSString *art = [[PRUserDefaults userDefaults] cachedAlbumArtPath];
     NSString *newArt = [folder stringByAppendingPathComponent:@"Cached Album Art"];
     e = [fileManager moveItemAtPath:art toPath:newArt error:nil];
-    if (!e) {
+    if (!e && err) {
         *err = [self databaseCouldNotBeMovedError];
         return FALSE;
     }
     
-    *err = [self databaseWasMovedError:folder];
+    if (err) {
+        *err = [self databaseWasMovedError:folder];
+    }
     return TRUE;
 }
 

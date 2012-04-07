@@ -8,9 +8,8 @@
 
 - (id)init {
     if (!(self = [super init])) {return nil;}
-    shouldCancel = FALSE;
-    background = TRUE;
-    percent = 0;
+    _shouldCancel = FALSE;
+    _background = TRUE;
     return self;
 }
 
@@ -19,13 +18,13 @@
 }
 
 - (void)dealloc {
-    [title release];
+    [_title release];
     [super dealloc];
 }
 
 // ========================================
 // Accessors
 
-@synthesize title, percent, shouldCancel, background;
+@synthesize title = _title, percent = _percent, shouldCancel = _shouldCancel, background = _background;
 
 @end

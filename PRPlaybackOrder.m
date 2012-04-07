@@ -83,9 +83,9 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
 // Accessors
 
 - (int)count {
-    NSString *string = @"SELECT COUNT(*) FROM playback_order";
-    NSArray *columns = [NSArray arrayWithObjects:PRColInteger, nil];
-    NSArray *results = [db execute:string bindings:nil columns:columns];
+    NSArray *results = [db execute:@"SELECT COUNT(*) FROM playback_order"
+                          bindings:nil
+                           columns:@[PRColInteger]];
     if ([results count] != 1) {
         [PRException raise:PRDbInconsistencyException format:@""];
     }
@@ -94,16 +94,14 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
 
 - (void)appendListItem:(PRListItem *)listItem {
     [db execute:@"INSERT INTO playback_order (index_, playlist_item_id) VALUES (?1, ?2)"
-       bindings:[NSDictionary dictionaryWithObjectsAndKeys:
-                 [NSNumber numberWithInt:[self count] + 1], [NSNumber numberWithInt:1],
-                 listItem, [NSNumber numberWithInt:2], nil]
+       bindings:@{@1:[NSNumber numberWithInt:[self count] + 1], @2:listItem}
         columns:nil];
 }
 
 - (PRListItem *)listItemAtIndex:(int)index {
     NSArray *rlt = [db execute:@"SELECT playlist_item_id FROM playback_order WHERE index_ = ?1"
-                      bindings:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:index],[NSNumber numberWithInt:1], nil]
-                       columns:[NSArray arrayWithObjects:PRColInteger, nil]];
+                      bindings:@{@1:[NSNumber numberWithInt:index]}
+                       columns:@[PRColInteger]];
     if ([rlt count] != 1) {
         [PRException raise:PRDbInconsistencyException format:@""];
     }
@@ -119,10 +117,8 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
                     "LEFT OUTER JOIN (SELECT index_, playlist_item_id AS temp FROM playback_order "
                     "GROUP BY playlist_item_id) ON playlist_item_id = temp "
                     "WHERE playlist_id = ?1 AND (index_ <= ?2 OR index_ IS NULL)"
-                      bindings:[NSDictionary dictionaryWithObjectsAndKeys:
-                                list, [NSNumber numberWithInt:1],
-                                [NSNumber numberWithInt:index], [NSNumber numberWithInt:2], nil]
-                       columns:[NSArray arrayWithObjects:PRColInteger, nil]];
+                      bindings:@{@1:list, @2:[NSNumber numberWithInt:index]}
+                       columns:@[PRColInteger]];
     NSMutableArray *playlistItems = [NSMutableArray array];
     for (NSArray *i in rlt) {
         [playlistItems addObject:[i objectAtIndex:0]];

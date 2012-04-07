@@ -27,7 +27,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 - (BOOL)initialize {
     NSArray *result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'history'" 
                           bindings:nil 
-                           columns:[NSArray arrayWithObjects:PRColString, nil]];
+                           columns:@[PRColString]];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_HISTORY_SQL]) {
         return FALSE;
     }
@@ -60,7 +60,8 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
     NSMutableArray *topSongs = [NSMutableArray array];
     
     for (NSArray *i in rlt) {
-        [topSongs addObject:@{@"file":[i objectAtIndex:0],
+        [topSongs addObject:@{
+         @"file":[i objectAtIndex:0],
 		 @"count":[i objectAtIndex:1],
 		 @"title":[i objectAtIndex:2],
 		 @"artist":[i objectAtIndex:3],
@@ -84,12 +85,11 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
     NSMutableArray *topArtists = [NSMutableArray array];
     
     for (NSArray *i in results) {
-        [topArtists addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                               [i objectAtIndex:0], @"file", 
-                               [i objectAtIndex:1], @"count", 
-                               [i objectAtIndex:2], @"artist", 
-                               [[results objectAtIndex:0] objectAtIndex:1], @"max", 
-                               nil]];
+        [topArtists addObject:@{
+         @"file":[i objectAtIndex:0],
+         @"count":[i objectAtIndex:1],
+         @"artist":[i objectAtIndex:2],
+         @"max":[[results objectAtIndex:0] objectAtIndex:1]}];
     }
     return topArtists;
 }
@@ -111,13 +111,12 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         if (!date) {
             date = [NSDate date];
         }
-        [recentlyAdded addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                                  [i objectAtIndex:0], @"file", 
-                                  [i objectAtIndex:2], @"count", 
-                                  [i objectAtIndex:3], @"artist", 
-                                  [i objectAtIndex:4], @"album", 
-                                  date, @"date", 
-                                  nil]];
+        [recentlyAdded addObject:
+         @{@"file":[i objectAtIndex:0],
+         @"count":[i objectAtIndex:2],
+         @"artist":[i objectAtIndex:3],
+         @"album":[i objectAtIndex:4],
+         @"date":date}];
     }
     return recentlyAdded;
 }
@@ -138,11 +137,11 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         if (!date) {
             date = [NSDate date];
         }
-        [recentlyPlayed addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                                   [i objectAtIndex:0], @"file", 
-                                   [i objectAtIndex:2], @"title",
-                                   [i objectAtIndex:3], @"artist", 
-                                   date, @"date", nil]];
+        [recentlyPlayed addObject:@{
+         @"file":[i objectAtIndex:0],
+         @"title":[i objectAtIndex:2],
+         @"artist":[i objectAtIndex:3],
+         @"date":date}];
     }
     return recentlyPlayed;
 }

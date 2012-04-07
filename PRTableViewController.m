@@ -70,13 +70,13 @@
 	// LibraryTableView TableColumns
     NSTableColumn *tableColumn;
     NSMutableArray *tableColumns = [NSMutableArray array];
-    PRStringFormatter *stringFormatter = [[PRStringFormatter alloc] init];
-    PRNumberFormatter *numberFormatter = [[PRNumberFormatter alloc] init];
-    PRSizeFormatter *sizeFormatter = [[PRSizeFormatter alloc] init];
-    PRTimeFormatter *timeFormatter = [[PRTimeFormatter alloc] init];
-    PRBitRateFormatter *bitRateFormatter = [[PRBitRateFormatter alloc] init];
-    PRKindFormatter *kindFormatter = [[PRKindFormatter alloc] init];
-    PRDateFormatter *dateFormatter = [[PRDateFormatter alloc] init];
+    PRStringFormatter *stringFormatter = [[[PRStringFormatter alloc] init] autorelease];
+    PRNumberFormatter *numberFormatter = [[[PRNumberFormatter alloc] init] autorelease];
+    PRSizeFormatter *sizeFormatter = [[[PRSizeFormatter alloc] init] autorelease];
+    PRTimeFormatter *timeFormatter = [[[PRTimeFormatter alloc] init] autorelease];
+    PRBitRateFormatter *bitRateFormatter = [[[PRBitRateFormatter alloc] init] autorelease];
+    PRKindFormatter *kindFormatter = [[[PRKindFormatter alloc] init] autorelease];
+    PRDateFormatter *dateFormatter = [[[PRDateFormatter alloc] init] autorelease];
     
     // Playlist Index
     tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRListSortIndex] autorelease];
@@ -1152,7 +1152,7 @@
     [libraryMenu addItem:[NSMenuItem separatorItem]];
     
     // Misc
-    item = [[NSMenuItem alloc] init];
+    item = [[[NSMenuItem alloc] init] autorelease];
     [item setTitle:@"Reveal in Finder"];
     [item setActionBlock:^{[[selfRef target] revealIndexes:[[selfRef target] selectedIndexes]];}];
     [libraryMenu addItem:item];

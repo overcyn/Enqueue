@@ -140,11 +140,11 @@
     [self setMiniPlayer:[[PRUserDefaults userDefaults] miniPlayer]];
         
 	// Buttons
-    for (NSDictionary *i in [NSArray arrayWithObjects:
-                             [NSDictionary dictionaryWithObjectsAndKeys:libraryButton, @"button", [NSNumber numberWithInt:PRLibraryMode], @"tag", nil], 
-                             [NSDictionary dictionaryWithObjectsAndKeys:playlistsButton, @"button", [NSNumber numberWithInt:PRPlaylistsMode], @"tag", nil], 
-                             [NSDictionary dictionaryWithObjectsAndKeys:historyButton, @"button", [NSNumber numberWithInt:PRHistoryMode], @"tag", nil], 
-                             [NSDictionary dictionaryWithObjectsAndKeys:preferencesButton, @"button", [NSNumber numberWithInt:PRPreferencesMode], @"tag", nil], nil]) {
+    for (NSDictionary *i in @[
+         @{@"button":libraryButton, @"tag":[NSNumber numberWithInt:PRLibraryMode]},
+         @{@"button":playlistsButton, @"tag":[NSNumber numberWithInt:PRPlaylistsMode]},
+         @{@"button":historyButton, @"tag":[NSNumber numberWithInt:PRHistoryMode]},
+         @{@"button":preferencesButton, @"tag":[NSNumber numberWithInt:PRPreferencesMode]}]) {
         NSButton *button = [i objectForKey:@"button"];
         int tag = [[i objectForKey:@"tag"] intValue];
         [button setAction:@selector(headerButtonAction:)];
@@ -488,7 +488,7 @@ miniPlayer;
             button = libraryButton;
 			break;
 	}
-    for (NSButton *i in [NSArray arrayWithObjects:libraryButton,playlistsButton,historyButton,preferencesButton,nil]) {
+    for (NSButton *i in @[libraryButton,playlistsButton,historyButton,preferencesButton]) {
         [i setState:NSOffState];
     }
     [button setState:NSOnState];
@@ -503,10 +503,9 @@ miniPlayer;
         
     } else {
         float x = 10;
-        for (NSButton *i in [NSArray arrayWithObjects:
-                             [[self window] standardWindowButton:NSWindowCloseButton],
-                             [[self window] standardWindowButton:NSWindowMiniaturizeButton],
-                             [[self window] standardWindowButton:NSWindowZoomButton], nil]) {
+        for (NSButton *i in @[[[self window] standardWindowButton:NSWindowCloseButton],
+             [[self window] standardWindowButton:NSWindowMiniaturizeButton],
+             [[self window] standardWindowButton:NSWindowZoomButton]]) {
             NSRect frame = [i frame];
             frame.origin.y = [[self window] frame].size.height - [i bounds].size.height - 7;
             frame.origin.x = x;

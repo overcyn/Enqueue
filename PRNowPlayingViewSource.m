@@ -36,17 +36,17 @@
     [_db execute:@"DELETE FROM now_playing_view_source"];
     [_db execute:@"INSERT INTO now_playing_view_source (file_id) "
      "SELECT file_id FROM playlist_items WHERE playlist_id = ?1 ORDER BY playlist_index"
-       bindings:[NSDictionary dictionaryWithObjectsAndKeys:[[_db playlists] nowPlayingList], [NSNumber numberWithInt:1], nil]
-        columns:nil];
+        bindings:@{@1:[[_db playlists] nowPlayingList]}
+         columns:nil];
 }
 
 // ========================================
 // Accessors
 
 - (int)count {
-    NSString *string = @"SELECT COUNT(*) FROM now_playing_view_source";
-    NSArray *columns = [NSArray arrayWithObjects:PRColInteger, nil];
-    NSArray *result = [_db execute:string bindings:nil columns:columns];
+    NSArray *result = [_db execute:@"SELECT COUNT(*) FROM now_playing_view_source"
+                          bindings:nil
+                           columns:@[PRColInteger]];
     if ([result count] != 1) {
         [PRException raise:PRDbInconsistencyException format:@""];
     }
@@ -55,8 +55,8 @@
 
 - (PRItem *)itemForRow:(int)row {
     NSArray *rlt = [_db execute:@"SELECT file_id FROM now_playing_view_source WHERE row = ?1"
-                      bindings:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil]
-                       columns:[NSArray arrayWithObjects:PRColInteger, nil]];
+                       bindings:@{@1:[NSNumber numberWithInt:row]}
+                        columns:@[PRColInteger]];
     if ([rlt count] != 1) {
         [PRException raise:PRDbInconsistencyException format:@""];
     }
@@ -74,13 +74,12 @@
         "FROM now_playing_view_source "
         "JOIN library ON now_playing_view_source.file_id = library.file_id";
     }
-    NSArray *columns = [NSArray arrayWithObjects:PRColString, PRColString, nil];
-    NSArray *results = [_db execute:string bindings:nil columns:columns];
+    NSArray *results = [_db execute:string bindings:nil columns:@[PRColString, PRColString]];
     
     if ([results count] == 0) {
-        return [NSArray array];
+        return @[];
     } else if ([results count] == 1) {
-        return [NSArray arrayWithObject:[NSNumber numberWithInt:1]];
+        return @[@1];
     }
     
     NSMutableArray *array = [NSMutableArray array];

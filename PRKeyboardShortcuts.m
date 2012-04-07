@@ -13,8 +13,7 @@
     _tap = [[SPMediaKeyTap alloc] initWithDelegate:self];
     [_tap startWatchingMediaKeys];
     [[NSUserDefaults standardUserDefaults] registerDefaults:
-     [NSDictionary dictionaryWithObjectsAndKeys:
-      [SPMediaKeyTap defaultMediaKeyUserBundleIdentifiers], kMediaKeyUsingBundleIdentifiersDefaultsKey, nil]];
+     @{kMediaKeyUsingBundleIdentifiersDefaultsKey:[SPMediaKeyTap defaultMediaKeyUserBundleIdentifiers]}];
     return self;
 }
 

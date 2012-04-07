@@ -253,7 +253,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
 - (void)setValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr {
     [db execute:[NSString stringWithFormat:@"UPDATE library SET %@ = ?1 WHERE file_id = ?2", [PRLibrary columnNameForItemAttr:attr]]
-       bindings:[NSDictionary dictionaryWithObjectsAndKeys:value, [NSNumber numberWithInt:1], item, [NSNumber numberWithInt:2], nil]
+       bindings:@{@1:value, @2:item}
         columns:nil];
 }
 
@@ -266,9 +266,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     }
     [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
     [string appendString:@"FROM library WHERE file_id = ?1"];
-    NSArray *results = [db execute:string 
-                          bindings:[NSDictionary dictionaryWithObjectsAndKeys:item, [NSNumber numberWithInt:1], nil] 
-                           columns:columns];
+    NSArray *results = [db execute:string bindings:@{@1:item} columns:columns];
     if ([results count] != 1) {
         [PRException raise:PRDbInconsistencyException format:@""];
     }
@@ -309,8 +307,8 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
 - (NSArray *)itemsWithSimilarURL:(NSURL *)URL {
     NSArray *rlt = [db execute:@"SELECT file_id FROM library WHERE path = ?1 COLLATE hfs_compare" 
-                      bindings:[NSDictionary dictionaryWithObjectsAndKeys:[URL absoluteString], [NSNumber numberWithInt:1], nil]
-                       columns:[NSArray arrayWithObjects:PRColInteger, nil]];
+                      bindings:@{@1:[URL absoluteString]}
+                       columns:@[PRColInteger]];
     NSMutableArray *array = [NSMutableArray array];
     for (NSArray *i in rlt) {
         [array addObject:[i objectAtIndex:0]];
@@ -320,8 +318,8 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
 - (NSArray *)itemsWithValue:(id)value forAttr:(PRItemAttr *)attr {
     NSArray *result = [db execute:[NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ = ?1", [PRLibrary columnNameForItemAttr:attr]]
-                         bindings:[NSDictionary dictionaryWithObject:value forKey:[NSNumber numberWithInt:1]] 
-                          columns:[NSArray arrayWithObjects:[PRLibrary columnTypeForItemAttr:attr], nil]];
+                         bindings:@{@1:value}
+                          columns:@[[PRLibrary columnTypeForItemAttr:attr]]];
     NSMutableArray *items = [NSMutableArray array];
     for (NSArray *i in result) {
         [items addObject:[i objectAtIndex:0]];
