@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-@class PRDb, PRItem;
+@class PRDb;
 
 
 @interface PRHistory : NSObject {   

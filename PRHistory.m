@@ -39,9 +39,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
  
 - (void)addItem:(PRItem *)item withDate:(NSDate *)date {
     [_db execute:@"INSERT INTO history (file_id, date) VALUES (?1, ?2)"
-       bindings:[NSDictionary dictionaryWithObjectsAndKeys:
-                 item, [NSNumber numberWithInt:1],
-                 [[NSDate date] description], [NSNumber numberWithInt:2], nil]
+		bindings:@{@1:item, @2:[[NSDate date] description]}
         columns:nil];
 }
 
@@ -58,19 +56,16 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         stm = @"SELECT file_id, playCount, title, artist FROM library "
         "WHERE playCount > 0 ORDER BY playCount DESC LIMIT 250";
     }
-    NSArray *col = [NSArray arrayWithObjects:PRColInteger, PRColInteger, PRColString, PRColString, nil];
-    NSArray *rlt = [_db execute:stm bindings:nil columns:col];
+    NSArray *rlt = [_db execute:stm bindings:nil columns:@[PRColInteger, PRColInteger, PRColString, PRColString]];
     NSMutableArray *topSongs = [NSMutableArray array];
     
     for (NSArray *i in rlt) {
-        [topSongs addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                             [i objectAtIndex:0], @"file", 
-                             [i objectAtIndex:1], @"count", 
-                             [i objectAtIndex:2], @"title", 
-                             [i objectAtIndex:3], @"artist", 
-                             [[rlt objectAtIndex:0] objectAtIndex:1], @"max", 
-                             nil]];
-    }
+        [topSongs addObject:@{@"file":[i objectAtIndex:0],
+		 @"count":[i objectAtIndex:1],
+		 @"title":[i objectAtIndex:2],
+		 @"artist":[i objectAtIndex:3],
+		 @"max":[[rlt objectAtIndex:0] objectAtIndex:1]}];
+	}
     return topSongs;
 }
 
@@ -85,8 +80,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         "GROUP BY artist COLLATE NOCASE2 HAVING sum(playCount) > 0 AND artist COLLATE NOCASE2 != '' "
         "ORDER BY 2 DESC, 3 DESC LIMIT 250";
     }
-    NSArray *col = [NSArray arrayWithObjects:PRColInteger, PRColInteger, PRColString, nil];
-    NSArray *results = [_db execute:stm bindings:nil columns:col];
+    NSArray *results = [_db execute:stm bindings:nil columns:@[PRColInteger, PRColInteger, PRColString]];
     NSMutableArray *topArtists = [NSMutableArray array];
     
     for (NSArray *i in results) {
@@ -109,10 +103,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         stm = @"SELECT file_id, dateAdded, count(album), artist, album FROM library "
         "GROUP BY artistAlbumArtist COLLATE NOCASE2, album COLLATE NOCASE2 ORDER BY 2 DESC LIMIT 250";
     }
-    NSArray *col = [NSArray arrayWithObjects:
-                    PRColInteger, PRColString, PRColInteger, 
-                    PRColString, PRColString, nil];
-    NSArray *rlt = [_db execute:stm bindings:nil columns:col];
+    NSArray *rlt = [_db execute:stm bindings:nil columns:@[PRColInteger, PRColString, PRColInteger, PRColString, PRColString]];
     
     NSMutableArray *recentlyAdded = [NSMutableArray array];
     for (NSArray *i in rlt) {
@@ -140,8 +131,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         stm = @"SELECT library.file_id, date, title, artist FROM history "
         "JOIN library ON history.file_id = library.file_id ORDER BY date DESC LIMIT 250";
     }
-    NSArray *columns = [NSArray arrayWithObjects:PRColInteger, PRColString, PRColString, PRColString,nil];
-    NSArray *results = [_db execute:stm bindings:nil columns:columns];
+    NSArray *results = [_db execute:stm bindings:nil columns:@[PRColInteger, PRColString, PRColString, PRColString]];
     NSMutableArray *recentlyPlayed = [NSMutableArray array];
     for (NSArray *i in results) {
         NSDate *date = [NSDate dateWithString:[i objectAtIndex:1]];

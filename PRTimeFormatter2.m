@@ -14,7 +14,7 @@
 	} else if (time > 60 * 60) {
 		return [NSString stringWithFormat:@"%0.1f hours", time / (60. * 60)];
 	} else {
-		return [NSString stringWithFormat:@"%d minutes", time / 60];
+		return [NSString stringWithFormat:@"%lld minutes", time / 60];
 	}
 }
 

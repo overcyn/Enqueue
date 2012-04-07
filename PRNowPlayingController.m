@@ -127,7 +127,7 @@
 	[self clearHistory];
 }
 
-- (IBAction)playPause {
+- (void)playPause {
 	if ([self currentIndex] == 0) {
 		PRListItem *item = [self nextItem:TRUE];
 		if (item) {

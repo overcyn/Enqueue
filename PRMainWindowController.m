@@ -15,6 +15,7 @@
 #import "PRMainMenuController.h"
 #import "PRUserDefaults.h"
 #import "NSWindow+Extensions.h"
+#import "PRTitleBarGradientView.h"
 
 
 @interface PRMainWindowController ()
@@ -70,12 +71,34 @@
     [[self window] setDelegate:self];
     
     // Toolbar View
-	[[[[self window] contentView] superview] addSubview:toolbarView];
-    [toolbarView setTopBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.6]];
-    [toolbarView setBotBorder:[NSColor colorWithCalibratedWhite:0.5 alpha:1.0]];
-    [toolbarView setFrame:NSMakeRect(100, [[self window] frame].size.height - [toolbarView frame].size.height, 
-									 [[self window] frame].size.width - 100, [toolbarView frame].size.height)];    
+	NSRect frame = [_headerView frame];
+	frame.origin.x = [[self window] frame].size.width - frame.size.width;
+	frame.origin.y = [[self window] frame].size.height - frame.size.height;
+	[_headerView setFrame:frame];
 	
+	frame = [_toolbarSubview frame];
+	frame.origin.x = 0;
+	frame.origin.y = [[self window] frame].size.height - frame.size.height;
+	[_toolbarSubview setFrame:frame];
+	
+	frame = [_sidebarHeaderView frame];
+	frame.origin.x = 0;
+	frame.origin.y = [[self window] frame].size.height - frame.size.height;
+	[_sidebarHeaderView setFrame:frame];
+	
+	_titlebarView = [[PRTitleBarGradientView alloc] init];
+	[_titlebarView setAutoresizingMask:NSViewWidthSizable | NSViewMinYMargin];
+	frame = [_toolbarSubview frame];
+	frame.origin.x = 100;
+	frame.size.width = [[self window] frame].size.width - 100;
+	frame.size.height = 30;
+	frame.origin.y = [[self window] frame].size.height - 30;
+	[_titlebarView setFrame:frame];
+	
+	[[[[self window] contentView] superview] addSubview:_headerView];
+	[[[[self window] contentView] superview] addSubview:_toolbarSubview];
+	[[[[self window] contentView] superview] addSubview:_sidebarHeaderView];
+	[[[[self window] contentView] superview] addSubview:_titlebarView];
 
     // Window Buttons
     if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
@@ -265,8 +288,10 @@ miniPlayer;
     for (id i in [NSArray arrayWithObjects:_verticalDivider,libraryButton,playlistsButton, historyButton, preferencesButton, nil]) {
         [i setHidden:[self miniPlayer]];
     }
-    [toolbarView setHidden:([self miniPlayer] && winFrame.size.height == 140)];
-    
+    [_sidebarHeaderView setHidden:([self miniPlayer] && winFrame.size.height == 140)];
+	[_toolbarSubview setHidden:[self miniPlayer]];
+	[_headerView setHidden:[self miniPlayer]];
+	
     if ([self miniPlayer] && winFrame.size.height != 140) {
         // FULLSCREEN
         if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6 && [[self window] collectionBehavior] & NSWindowCollectionBehaviorFullScreenPrimary) {
@@ -391,9 +416,14 @@ miniPlayer;
 - (void)updateSplitView {
     NSRect frame;
     frame = [_toolbarSubview frame];
-    frame.origin.x = [nowPlayingSuperview frame].size.width - 54 - 100;
+    frame.origin.x = [nowPlayingSuperview frame].size.width - 6;
     frame.size.width = [[self window] frame].size.width - [nowPlayingSuperview frame].size.width + 54;
     [_toolbarSubview setFrame:frame];
+	
+	frame = [_sidebarHeaderView frame];
+	frame.origin.x = [nowPlayingSuperview frame].size.width - 53;
+    frame.size.width = [[self window] frame].size.width - [nowPlayingSuperview frame].size.width + 54;
+    [_sidebarHeaderView setFrame:frame];
     
     if (![self miniPlayer] && ([[self window] frame].size.width - [nowPlayingSuperview frame].size.width < 700)) {
         [_splitView setPosition:[[self window] frame].size.width-700 ofDividerAtIndex:0];

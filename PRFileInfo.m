@@ -18,7 +18,7 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"attributes:%@ art:%@ tempArt:%d file:%ull",_attributes, _art, _tempArt, [_item unsignedLongLongValue]];
+    return [NSString stringWithFormat:@"attributes:%@ art:%@ tempArt:%d file:%llu",_attributes, _art, _tempArt, [_item unsignedLongLongValue]];
 }
 
 + (PRFileInfo *)fileInfo {

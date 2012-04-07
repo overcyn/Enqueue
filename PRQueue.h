@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-@class PRDb, PRListItem;
+@class PRDb;
 
 
 @interface PRQueue : NSObject {

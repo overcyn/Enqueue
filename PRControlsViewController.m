@@ -46,7 +46,7 @@
 	[controlSlider bind:@"value" toObject:now withKeyPath:@"mov.currentTime" options:nil];
 	    
 	// bind buttons
-	NSDictionary *options = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:FALSE] 
+	NSDictionary *options = [NSDictionary dictionaryWithObject:@FALSE
                                                         forKey:NSConditionallySetsEnabledBindingOption];
 	[playPause bind:@"target" toObject:now withKeyPath:@"playPause" options:options];
 	[next bind:@"target" toObject:now withKeyPath:@"playNext" options:options];

@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-@class PRDb, PRList, PRListItem;
+@class PRDb;
 
 
 @interface PRPlaybackOrder : NSObject {

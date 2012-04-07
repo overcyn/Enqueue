@@ -1,6 +1,8 @@
 #import <Cocoa/Cocoa.h>
 #import "PRPlaylists.h"
-@class PRCore, PRDb, PRPlaylists, PRNowPlayingController, PRFolderMonitor,PRNowPlayingViewController, PRControlsViewController, PRLibraryViewController, PRPreferencesViewController, PRPlaylistsViewController, PRHistoryViewController, PRGradientView, PRMainMenuController;
+@class PRCore, PRDb, PRPlaylists, PRNowPlayingController, PRFolderMonitor,PRNowPlayingViewController, 
+PRControlsViewController, PRLibraryViewController, PRPreferencesViewController, PRPlaylistsViewController, 
+PRHistoryViewController, PRGradientView, PRMainMenuController, PRTitleBarGradientView;
 
 
 typedef enum {
@@ -25,10 +27,9 @@ typedef enum {
     IBOutlet NSButton *preferencesButton;
     IBOutlet NSSplitView *_splitView;
     
+	PRTitleBarGradientView *_titlebarView;
     IBOutlet NSView *_sidebarHeaderView;
     IBOutlet NSView *_headerView;
-    
-    IBOutlet PRGradientView *toolbarView;
     IBOutlet NSView *_toolbarSubview;
     IBOutlet PRGradientView *_verticalDivider;
     

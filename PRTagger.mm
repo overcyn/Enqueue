@@ -1310,7 +1310,7 @@ using namespace TagLib;
 			secondaryValue = [PRTagger secondValue:attributeListMap[ASFAttributeName][0].toString().toCString(TRUE)];
 		}
 		if (secondaryValue != 0 && [tag intValue] == 0) {
-			tag = [NSString stringWithFormat:@"%d", secondaryValue, tag];
+			tag = [NSString stringWithFormat:@"%d", secondaryValue];
 			ASFAttribute = String([tag UTF8String], String::UTF8);
 			isAttr = TRUE;
 		} else if ([tag intValue] != 0) {

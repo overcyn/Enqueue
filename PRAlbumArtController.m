@@ -45,7 +45,7 @@
 	// Cached album art
     NSMutableString *string = [NSMutableString stringWithString:@"SELECT file_id FROM library WHERE file_id IN ("];
     for (PRItem *i in items) {
-		[string appendFormat:@"%d, ", index];
+		[string appendFormat:@"%llu, ", [i unsignedLongLongValue]];
 	}
     [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
     [string appendString:@") AND albumArt = 1"];
@@ -75,8 +75,7 @@
 	}
     [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
     [string appendString:@")"];
-    columns = [NSArray arrayWithObjects:PRColString, nil];
-    results = [_db execute:string bindings:nil columns:columns];
+    results = [_db execute:string bindings:nil columns:@[PRColString]];
     NSMutableSet *paths = [NSMutableSet set];
     for (NSArray *i in results) {
         NSURL *URL = [NSURL URLWithString:[i objectAtIndex:0]];
@@ -116,9 +115,7 @@
     } else {
         string = @"SELECT file_id FROM library WHERE artist COLLATE NOCASE2 = ?1";
     }
-    NSArray *results = [_db execute:string 
-						   bindings:[NSDictionary dictionaryWithObjectsAndKeys:artist, [NSNumber numberWithInt:1], nil]
-							columns:[NSArray arrayWithObjects:PRColInteger, nil]];
+    NSArray *results = [_db execute:string bindings:@{@1:artist} columns:@[PRColInteger]];
     NSMutableArray *items;
     for (NSArray *i in results) {
         [items addObject:[i objectAtIndex:0]];
@@ -128,7 +125,7 @@
 
 - (void)clearArtworkForItem:(PRItem *)item {
     [_fileManager removeItemAtPath:[self cachedArtworkPathForItem:item] error:nil];
-    [[_db library] setValue:[NSNumber numberWithInt:0] forItem:item attr:PRItemAttrArtwork];
+    [[_db library] setValue:@0 forItem:item attr:PRItemAttrArtwork];
 }
 
 // ========================================
@@ -164,13 +161,13 @@
 	}        
     [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
     [string appendString:@")"];
-    results = [_db execute:string bindings:nil columns:[NSArray arrayWithObject:PRColString]];
+    results = [_db execute:string bindings:nil columns:@[PRColString]];
     
     NSMutableArray *paths = [NSMutableArray array];
     for (NSArray *i in results) {
         [paths addObject:[i objectAtIndex:0]];
     }
-    return [NSDictionary dictionaryWithObjectsAndKeys:indexSet, @"files", paths, @"paths", nil];
+    return @{@"files":indexSet,@"paths":paths};
 }
 
 - (NSDictionary *)artworkInfoForArtist:(NSString *)artist {
@@ -180,10 +177,7 @@
     } else {
         string = @"SELECT file_id FROM library WHERE artist COLLATE NOCASE2 = ?1";
     }
-    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-                              artist, [NSNumber numberWithInt:1], nil];
-    NSArray *columns = [NSArray arrayWithObjects:PRColInteger, nil];
-    NSArray *results = [_db execute:string bindings:bindings columns:columns];
+    NSArray *results = [_db execute:string bindings:@{@1:artist} columns:@[PRColInteger]];
     NSMutableArray *items = [NSMutableArray array];
     for (NSArray *i in results) {
         [items addObject:[i objectAtIndex:0]];
@@ -282,12 +276,9 @@
 - (NSString *)cachedArtworkPathForItem:(PRItem *)item {
 	unsigned long long file = [item unsignedLongLongValue];
     NSString *path = [[PRUserDefaults userDefaults] cachedAlbumArtPath];
-	path = [path stringByAppendingPathComponent:
-			[NSString stringWithFormat:@"%03d", ((file / 1000000) % 1000)]];
-	path = [path stringByAppendingPathComponent:
-			[NSString stringWithFormat:@"%03d", ((file / 1000) % 1000)]];
-	path = [path stringByAppendingPathComponent:
-            [NSString stringWithFormat:@"%09d", file]];
+	path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%03llu", ((file / 1000000) % 1000)]];
+	path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%03llu", ((file / 1000) % 1000)]];
+	path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%09llu", file]];
 	return path;
 }
 
@@ -305,8 +296,7 @@
 
 - (NSString *)tempArtPathForTempValue:(int)temp {
     NSString *path = [[PRUserDefaults userDefaults] tempArtPath];
-	path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%03d", temp]];
-	return path;
+	return [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%03d", temp]];
 }
 
 @end

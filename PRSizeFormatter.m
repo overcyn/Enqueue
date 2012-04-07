@@ -16,7 +16,7 @@
 	} else if (size > 1000) {
 		return [NSString stringWithFormat:@"%.1f kB", size / 1000.0];
 	} else {
-		return [NSString stringWithFormat:@"%d bytes", size];
+		return [NSString stringWithFormat:@"%lld bytes", size];
 	}
 }
 

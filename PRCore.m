@@ -96,7 +96,7 @@ keys = _keys;
 // ========================================
 // Action
 
-- (IBAction)itunesImport:(id)sender {
+- (void)itunesImport:(id)sender {
     NSString *folderPath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Music"] stringByAppendingPathComponent:@"iTunes"];;
     NSString *filePath = [folderPath stringByAppendingPathComponent:@"iTunes Music Library.xml"];
     if ([[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:filePath]) {

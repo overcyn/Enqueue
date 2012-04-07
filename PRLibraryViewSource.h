@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-@class PRDb, PRItem, PRItemAttr, PRList, PRStatement;
+@class PRDb, PRStatement;
 
 
 extern NSString * const libraryViewSource;

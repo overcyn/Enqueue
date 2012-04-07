@@ -5,8 +5,6 @@
     BOOL _entered;
     NSTrackingArea *_trackingArea;
 }
-- (BOOL)mouseInGroup:(NSButton*)widget;
-- (void)updateTrackingArea;
 @end
 
 

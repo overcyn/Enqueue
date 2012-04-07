@@ -642,7 +642,7 @@
     } else {
         NSString *message = @"Do you want to remove the selected song from your library?";
         if ([indexes count] != 1) {
-            message = [NSString stringWithFormat:@"Do you want to remove the %d selected songs from your library?", [indexes count]];
+            message = [NSString stringWithFormat:@"Do you want to remove the %lu selected songs from your library?", (unsigned long)[indexes count]];
         }
         NSAlert *alert = [[[NSAlert alloc] init] autorelease];
         [alert addButtonWithTitle:@"Remove"];
