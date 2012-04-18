@@ -7,6 +7,7 @@
 #import "PRPlaylistsViewController.h"
 #import "PRControlsViewController.h"
 #import "PRNowPlayingController.h"
+#import "PRNowPlayingViewController.h"
 #import "PRMoviePlayer.h"
 #import "PRFolderMonitor.h"
 #import "NSWindow+Extensions.h"
@@ -79,6 +80,10 @@
     menuItem = [editMenu itemWithTag:8];
     [menuItem setTarget:self];
     [menuItem setAction:@selector(find)];
+    
+    menuItem = [editMenu itemWithTag:9];
+    [menuItem setTarget:self];
+    [menuItem setAction:@selector(clearNowPlaying)];
     
     // View Menu
     menuItem = [viewMenu itemWithTag:1];
@@ -248,6 +253,10 @@
 
 - (void)find {
     [[[core win] libraryViewController] find];
+}
+
+- (void)clearNowPlaying {
+    [[[core win] nowPlayingViewController] clearPlaylist];
 }
 
 - (void)viewAsList {

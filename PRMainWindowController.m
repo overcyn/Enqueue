@@ -72,7 +72,7 @@
     
     // Toolbar View
 	NSRect frame = [_headerView frame];
-	frame.origin.x = [[self window] frame].size.width - frame.size.width;
+	frame.origin.x = [[self window] frame].size.width - frame.size.width + 5;
 	frame.origin.y = [[self window] frame].size.height - frame.size.height;
 	[_headerView setFrame:frame];
 	
@@ -177,8 +177,8 @@
 									 name:NSWindowWillEnterFullScreenNotification 
 								   object:[self window]];
 		[NSNotificationCenter addObserver:self 
-								 selector:@selector(windowDidEnterFullScreen:) 
-									 name:NSWindowDidEnterFullScreenNotification 
+								 selector:@selector(windowWillExitFullScreen:)
+									 name:NSWindowWillExitFullScreenNotification
 								   object:[self window]];
     }
 }

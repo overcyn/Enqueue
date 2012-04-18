@@ -183,8 +183,8 @@ NSString * const compilationString = @"Compilations  ";
     
     // Sort
     NSString *string = [NSString stringWithFormat:@"CREATE INDEX index_librarySort ON library "
-                        "(%@ COLLATE NOCASE2, album COLLATE NOCASE2, discNumber COLLATE NOCASE2, trackNumber COLLATE NOCASE2, path COLLATE NOCASE2)", 
-                        sortColumnName];
+                        "(%@ COLLATE NOCASE2, album COLLATE NOCASE2, discNumber COLLATE NOCASE2, "
+						"trackNumber COLLATE NOCASE2, path COLLATE NOCASE2)", sortColumnName];
     if (![string isEqualToString:_cachedSortIndexStatement]) {
         [_db execute:@"DROP INDEX IF EXISTS index_librarySort"];
         [_db execute:string];
@@ -238,7 +238,9 @@ NSString * const compilationString = @"Compilations  ";
     }
     
     // Cache Compilation
-    NSArray *rlt = [_db execute:@"SELECT file_id FROM library WHERE compilation != 0 LIMIT 1" bindings:nil columns:[NSArray arrayWithObject:PRColInteger]];
+    NSArray *rlt = [_db execute:@"SELECT file_id FROM library WHERE compilation != 0 LIMIT 1"
+					   bindings:nil
+						columns:@[PRColInteger]];
     _cachedCompilation = ([rlt count] != 0);
     return TRUE;
 }
@@ -338,7 +340,7 @@ NSString * const compilationString = @"Compilations  ";
     if ([sort isEqual:PRListSortIndex]) {
         sortColumnName = @"playlist_items.playlist_index";
     } else if ([[PRUserDefaults userDefaults] useAlbumArtist] && [sort isEqual:PRItemAttrArtist]) {
-        sortColumnName = @"artistAlbumArtist";
+        sortColumnName = [PRLibrary columnNameForItemAttr:PRItemAttrArtistAlbumArtist];
     } else {
         if ([sort isEqual:PRListSortArtistAlbum]) {
             if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
@@ -357,8 +359,14 @@ NSString * const compilationString = @"Compilations  ";
 	} else {
 		ascending = @"DESC";
 	}
-    [string appendFormat:@"ORDER BY %@ COLLATE NOCASE2 %@, album COLLATE NOCASE2 %@, discNumber COLLATE NOCASE2 %@, trackNumber COLLATE NOCASE2 %@, path COLLATE NOCASE2 %@ ", 
-     sortColumnName, ascending, ascending, ascending, ascending, ascending];
+	if (sort == PRItemAttrArtist || sort == PRItemAttrArtistAlbumArtist) {
+		[string appendFormat:@"ORDER BY CASE WHEN compilation == 0 THEN %@ ELSE 'compilation' END COLLATE NOCASE2 %@, "
+		 "album COLLATE NOCASE2 %@, discNumber %@, trackNumber %@",
+		 sortColumnName, ascending, ascending, ascending, ascending];
+	} else {
+		[string appendFormat:@"ORDER BY %@ COLLATE NOCASE2 %@, album COLLATE NOCASE2 %@, discNumber %@, trackNumber %@",
+		 sortColumnName, ascending, ascending, ascending, ascending];
+	}
     
     if (!_force &&
         [string isEqualToString:_prevSourceString] &&

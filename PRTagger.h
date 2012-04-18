@@ -25,7 +25,7 @@ typedef enum {
 + (PRFileInfo *)infoForURL:(NSURL *)URL; // returns nil if invalid or missing file
 + (NSMutableDictionary *)tagsForURL:(NSURL *)URL; // returns nil if invalid or missing file
 + (void)setTag:(id)tag forAttribute:(PRItemAttr *)attr URL:(NSURL *)URL;
-+ (BOOL)updateTagsForItem:(PRItem *)item database:(PRDb *)db; // post ItemsDidChangeNotification if this updates
++ (BOOL)updateTagsForItem:(PRItem *)item database:(PRDb *)db; // caller should post ItemsDidChangeNotification if this returns TRUE
 
 /* Properties */
 + (NSDate *)lastModifiedAtURL:(NSURL *)URL;

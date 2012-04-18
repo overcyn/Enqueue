@@ -150,7 +150,7 @@ create:;
     e = [libraryViewSource initialize];
     if (!e) {return FALSE;}
     e = [nowPlayingViewSource initialize];
-    if (!e) {return FALSE;}
+    if (!e) {return FALSE;}    
     return TRUE;
 }
 
@@ -411,6 +411,20 @@ create:;
     id rlt = [stmt attempt];
     [stmt release];
     return rlt;
+}
+
+- (NSArray *)explain:(NSString *)string {
+	return [self explain:string bindings:nil columns:nil];
+}
+
+- (NSArray *)explain:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns {
+	NSArray *explain = [self execute:[NSString stringWithFormat:@"EXPLAIN %@",string]
+							bindings:bindings
+							 columns:@[PRColInteger,PRColInteger,PRColInteger,PRColInteger,PRColInteger,PRColInteger,PRColInteger,PRColInteger]];
+	NSDate *date = [NSDate date];
+	NSArray *rlt = [self execute:string bindings:bindings columns:columns];
+	NSLog(@"time:%f string:%@ explain:%@",[date timeIntervalSinceNow],string, explain);
+	return rlt;
 }
 
 - (long)lastInsertRowid {

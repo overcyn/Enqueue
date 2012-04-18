@@ -875,12 +875,12 @@
                 [[db playlists] setAttr:[attrs objectAtIndex:i] forBrowser:3-i list:_currentList];
             }
         }
-        [[db playlists] setSelection:[NSArray array] forBrowser:1 list:_currentList];
-        [[db playlists] setSelection:[NSArray array] forBrowser:2 list:_currentList];
-        [[db playlists] setSelection:[NSArray array] forBrowser:3 list:_currentList];
     }
-	[self loadBrowser];
-    [self reloadData:FALSE];
+    [[db playlists] setSelection:[NSArray array] forBrowser:1 list:_currentList];
+    [[db playlists] setSelection:[NSArray array] forBrowser:2 list:_currentList];
+    [[db playlists] setSelection:[NSArray array] forBrowser:3 list:_currentList];
+    [self loadBrowser];
+    [[NSNotificationCenter defaultCenter] postListDidChange:_currentList];
 }
 
 - (void)setBrowserPosition:(PRBrowserPosition)position {
@@ -900,8 +900,11 @@
         [[db playlists] setAttr:nil forBrowser:2 list:_currentList];
         [[db playlists] setAttr:nil forBrowser:3 list:_currentList];
     }
+    [[db playlists] setSelection:[NSArray array] forBrowser:1 list:_currentList];
+    [[db playlists] setSelection:[NSArray array] forBrowser:2 list:_currentList];
+    [[db playlists] setSelection:[NSArray array] forBrowser:3 list:_currentList];
     [self loadBrowser];
-    [self reloadData:TRUE];
+    [[NSNotificationCenter defaultCenter] postListDidChange:_currentList];
 }
 
 - (void)loadBrowser {

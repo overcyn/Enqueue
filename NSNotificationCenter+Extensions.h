@@ -12,8 +12,6 @@ extern NSString * const PRLastfmStateDidChangeNotification;
 + (void)post:(NSString *)name;
 + (void)post:(NSString *)name object:(id)object info:(NSDictionary *)info;
 + (void)addObserver:(id)observer selector:(SEL)selector name:(NSString *)name object:(id)object;
-+ (id)observe:(NSString *)name block:(void (^)(NSNotification *))block;
-+ (id)observe:(NSString *)name object:(id)object queue:(NSOperationQueue *)queue block:(void (^)(NSNotification *))block;
 + (void)removeObserver:(id)observer;
 
 // Db

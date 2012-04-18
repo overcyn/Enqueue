@@ -21,6 +21,7 @@
 		6709D7BA12476E0400963B11 /* PRImportOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6709D7B912476E0400963B11 /* PRImportOperation.m */; };
 		6709DA3E1248304A00963B11 /* PRDb.m in Sources */ = {isa = PBXBuildFile; fileRef = 6709DA3D1248304A00963B11 /* PRDb.m */; };
 		670EDD7B135FC9F200CAB2F1 /* PRBitRateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 670EDD7A135FC9F200CAB2F1 /* PRBitRateFormatter.m */; };
+		670F95081535724400E72AAE /* PRClipView.m in Sources */ = {isa = PBXBuildFile; fileRef = 670F95071535724400E72AAE /* PRClipView.m */; };
 		671334CC13206A7D00764174 /* PRApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 671334CB13206A7D00764174 /* PRApplication.m */; };
 		671334F01320704C00764174 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 671334EF1320704C00764174 /* Carbon.framework */; };
 		67133A641325EF9D00764174 /* PRGradientView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67133A631325EF9D00764174 /* PRGradientView.m */; };
@@ -301,6 +302,8 @@
 		670EDD79135FC9F200CAB2F1 /* PRBitRateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBitRateFormatter.h; sourceTree = "<group>"; };
 		670EDD7A135FC9F200CAB2F1 /* PRBitRateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRBitRateFormatter.m; sourceTree = "<group>"; };
 		670EDD8C135FFBE300CAB2F1 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = Frameworks/Sparkle.framework; sourceTree = "<group>"; };
+		670F95061535724400E72AAE /* PRClipView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRClipView.h; sourceTree = "<group>"; };
+		670F95071535724400E72AAE /* PRClipView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRClipView.m; sourceTree = "<group>"; };
 		671334CA13206A7D00764174 /* PRApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRApplication.h; sourceTree = "<group>"; };
 		671334CB13206A7D00764174 /* PRApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRApplication.m; sourceTree = "<group>"; };
 		671334EF1320704C00764174 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
@@ -1048,6 +1051,8 @@
 				67D732A5132FBB4700AB2D14 /* PRScrollView.m */,
 				6796AF61128933D900FEDE14 /* PRSynchronizedScrollView.h */,
 				6796AF62128933D900FEDE14 /* PRSynchronizedScrollView.m */,
+				670F95061535724400E72AAE /* PRClipView.h */,
+				670F95071535724400E72AAE /* PRClipView.m */,
 			);
 			name = "Scroll View";
 			sourceTree = "<group>";
@@ -1861,6 +1866,7 @@
 				67DE13351516E37D00E94F28 /* PRAlertWindowController.m in Sources */,
 				67DE13391516FB4800E94F28 /* PRViewController.m in Sources */,
 				672235A7152442A700D48695 /* NSArray+Extensions.m in Sources */,
+				670F95081535724400E72AAE /* PRClipView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1918,7 +1924,11 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = (
+					"-DSQLITE_ENABLE_FTS3",
+					"-DSQLITE_ENABLE_FTS3_PARENTHESIS",
+					"-DSQLITE_MAX_VARIABLE_NUMBER=9999",
+				);
 				PRODUCT_NAME = Enqueue;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -1957,7 +1967,11 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_CFLAGS = "";
+				OTHER_CFLAGS = (
+					"-DSQLITE_ENABLE_FTS3",
+					"-DSQLITE_ENABLE_FTS3_PARENTHESIS",
+					"-DSQLITE_MAX_VARIABLE_NUMBER=9999",
+				);
 				PRODUCT_NAME = Enqueue;
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -1977,6 +1991,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = "";
 				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
 			};
@@ -1994,6 +2009,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = "";
 				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
 			};

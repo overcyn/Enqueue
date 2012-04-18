@@ -54,6 +54,8 @@ extern NSString * const PRColData;
 - (NSArray *)executeCached:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns;
 - (NSArray *)attempt:(NSString *)string;
 - (NSArray *)attempt:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns;
+- (NSArray *)explain:(NSString *)string;
+- (NSArray *)explain:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns;
 
 /* Error */
 - (NSError *)databaseWasMovedError:(NSString *)newPath;

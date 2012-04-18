@@ -47,10 +47,9 @@
 NSParagraphStyleAttributeName:style,
 NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.0 alpha:1.0]};
     
-    NSDictionary *subtitleAttr = [NSDictionary dictionaryWithObjectsAndKeys:
-                                  [NSFont fontWithName:@"HelveticaNeue-Italic" size:12], NSFontAttributeName,
-                                  style, NSParagraphStyleAttributeName,
-                                  [NSColor colorWithCalibratedWhite:0.3 alpha:1.0], NSForegroundColorAttributeName, nil];
+    NSDictionary *subtitleAttr = @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-Italic" size:12],
+NSParagraphStyleAttributeName:style,
+NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.3 alpha:1.0]};
     
     // get the size of the string for layout
 	NSSize titleSize = [title sizeWithAttributes:titleAttr];

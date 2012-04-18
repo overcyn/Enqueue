@@ -110,7 +110,7 @@
 }
 
 // Draw custom higlights
-- (void)highlightSelectionInClipRect:(NSRect)theClipRect {	
+- (void)highlightSelectionInClipRect:(NSRect)theClipRect {
 	// this method is asking us to draw the hightlights for 
 	// all of the selected rows that are visible inside theClipRect
 	NSRange	visibleRowIndexes = [self rowsInRect:theClipRect];

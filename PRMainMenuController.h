@@ -34,6 +34,7 @@
 - (void)missingFiles;
 
 - (void)find;
+- (void)clearNowPlaying;
 
 - (void)viewAsList;
 - (void)viewAsAlbumList;

@@ -320,9 +320,9 @@
 - (void)toggleCompilation {
     NSNumber *compilation = [self valueForAttribute:PRItemAttrCompilation];
     if (compilation == NSMultipleValuesMarker || [compilation intValue] == 1) {
-        [self setValue:[NSNumber numberWithInt:0] forAttribute:PRItemAttrCompilation];
+        [self setValue:@0 forAttribute:PRItemAttrCompilation];
     } else {
-        [self setValue:[NSNumber numberWithInt:1] forKey:PRItemAttrCompilation];
+        [self setValue:@1 forAttribute:PRItemAttrCompilation];
     }
 }
 

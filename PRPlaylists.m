@@ -255,7 +255,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 + (NSNumber *)internalForListType:(PRListType *)listType {
     static NSDictionary *dict = nil;
     if (!dict) {
-        dict = @{PRListTypeLibrary:@0, PRListTypeNowPlaying:@1, PRListTypeStatic:@2, PRListTypeSmart:@3};
+        dict = [@{PRListTypeLibrary:@0,PRListTypeNowPlaying:@1, PRListTypeStatic:@2, PRListTypeSmart:@3} retain];
     }
     return [dict objectForKey:listType];
 }
@@ -263,7 +263,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 + (PRListType *)listTypeForInternal:(NSNumber *)internal {
     static NSDictionary *dict = nil;
     if (!dict) {
-        dict = @{@0:PRListTypeLibrary, @1:PRListTypeNowPlaying, @2:PRListTypeStatic, @3:PRListTypeSmart};
+        dict = [@{@0:PRListTypeLibrary, @1:PRListTypeNowPlaying, @2:PRListTypeStatic, @3:PRListTypeSmart} retain];
     }
     return [dict objectForKey:internal];
 }
@@ -347,9 +347,13 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 - (PRList *)addStaticList {
     [db begin];
     PRList *list = [self addList];
+    NSLog(@"title");
     [self setTitle:@"Untitled Playlist" forList:list];
+    NSLog(@"type");
     [self setType:PRListTypeStatic forList:list];
+    NSLog(@"sortIndex");
     [self setListViewSortAttr:PRListSortIndex forList:list];
+    NSLog(@"commit");
     [db commit];
     return list;
 }
@@ -649,7 +653,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 }
 
 - (BOOL)list:(PRList *)list containsItem:(PRItem *)item {
-    NSArray *result = [db execute: @"SELECT file_id FROM playlist_items WHERE file_id = ?1 AND playlist_id = ?2 LIMIT 1"
+    NSArray *result = [db execute:@"SELECT file_id FROM playlist_items WHERE file_id = ?1 AND playlist_id = ?2 LIMIT 1"
                          bindings:@{@1:item, @2:list}
                           columns:@[PRColInteger]];
     return [result count] > 0;
@@ -779,7 +783,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 }
 
 - (void)setListViewSortAttr:(PRItemAttr *)attr forList:(PRList *)list {
-    [self setValue:[PRLibrary internalForItemAttr:attr] forList:list attr:PRListAttrListViewSortAttr];
+    [self setValue:[PRPlaylists internalForSortAttr:attr] forList:list attr:PRListAttrListViewSortAttr];
 }
 
 - (PRItemAttr *)albumListViewSortAttrForList:(PRList *)list {

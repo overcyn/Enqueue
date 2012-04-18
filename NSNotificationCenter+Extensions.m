@@ -42,14 +42,6 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
 	[[NSNotificationCenter defaultCenter] addObserver:observer selector:selector name:name object:object];
 }
 
-+ (id)observe:(NSString *)name block:(void (^)(NSNotification *))block {
-    return [[NSNotificationCenter defaultCenter] addObserverForName:name object:nil queue:nil usingBlock:block];
-}
-
-+ (id)observe:(NSString *)name object:(id)object queue:(NSOperationQueue *)queue block:(void (^)(NSNotification *))block {
-    return [[NSNotificationCenter defaultCenter] addObserverForName:name object:object queue:queue usingBlock:block];
-}
-
 + (void)removeObserver:(id)observer {
     [[NSNotificationCenter defaultCenter] removeObserver:observer];
 }

@@ -40,7 +40,6 @@
 - (void)revealInFinder;
 
 // PlaylistMenu Actions
-- (void)clearPlaylist;
 - (void)saveAsPlaylist:(id)sender;
 - (void)newPlaylist:(id)sender;
 
@@ -73,7 +72,7 @@
     _parentItems = [[NSMutableDictionary alloc] init];
     _childItems = [[NSMutableDictionary alloc] init];
     _core = core;
-    db = [core db];;
+    db = [core db];
     now = [core now];
     win = [core win];
     return self;
@@ -164,6 +163,20 @@
 
 // ========================================
 // Action
+
+- (void)clearPlaylist {
+    int count = [[db playlists] countForList:[now currentList]];
+    if (count == 1 || [now currentIndex] == 0) {
+        // if nothing playing or count == 1, clear playlist
+        [now stop];
+        [[db playlists] clearList:[now currentList]];
+    } else {
+        // otherwise delete all previous songs
+        [[db playlists] clearList:[now currentList] exceptIndex:[now currentIndex]];
+    }
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
+    [nowPlayingTableView expandItem:nil];
+}
 
 - (void)higlightPlayingFile {
     if (![now currentItem]) {
@@ -267,20 +280,6 @@
 - (void)playItem:(id)item {
     int dbRow = [self dbRowForItem:item];
     [now playItemAtIndex:dbRow];
-}
-
-- (void)clearPlaylist {
-    int count = [[db playlists] countForList:[now currentList]];
-    if (count == 1 || [now currentIndex] == 0) {
-        // if nothing playing or count == 1, clear playlist
-        [now stop];
-        [[db playlists] clearList:[now currentList]];
-    } else {
-        // otherwise delete all previous songs
-        [[db playlists] clearList:[now currentList] exceptIndex:[now currentIndex]];
-    }
-    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
-    [nowPlayingTableView expandItem:nil];
 }
 
 - (IBAction)delete:(id)sender {

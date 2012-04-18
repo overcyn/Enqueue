@@ -1,5 +1,6 @@
 #import "PRScrollView.h"
 #import "NSColor+Extensions.h"
+#import "PRClipView.h"
 
 
 @interface PRScrollView ()
@@ -15,6 +16,7 @@
                                              selector:@selector(viewFrameDidChange:) 
                                                  name:NSViewFrameDidChangeNotification
                                                object:self];
+    [self setContentView:[[PRClipView alloc] init]];
     [self setBackgroundColor:[NSColor PRBackgroundColor]];
 }
 

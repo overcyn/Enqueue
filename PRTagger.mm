@@ -966,7 +966,7 @@ using namespace TagLib;
 			frameID = "YEAR";
 			attr = PRItemAttrYear;
 		} else {
-			[PRTagger ID3v2FrameIDForAttribute:attr];
+			frameID = [PRTagger ID3v2FrameIDForAttribute:attr];
 		}
         if (tag->frameListMap()[frameID].isEmpty()) {return;}
         NSString *string = [NSString stringWithUTF8String:tag->frameListMap()[frameID].front()->toString().toCString(TRUE)];
