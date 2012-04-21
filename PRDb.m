@@ -27,7 +27,7 @@ NSString * const PRColData = @"PRColData";
 
 
 @interface PRDb ()
-// initialization
+/* Initialization Priv */
 - (BOOL)open;
 - (void)create;
 - (BOOL)update;
@@ -105,7 +105,7 @@ create:;
     [super dealloc];
 }
 
-#pragma mark - initialization
+#pragma mark - Initialization Priv
 
 - (BOOL)open {
 	int e = sqlite3_initialize();
@@ -350,6 +350,10 @@ create:;
 
 @synthesize sqlDb, history, library, playlists, queue, libraryViewSource, nowPlayingViewSource, albumArtController, playbackOrder;
 
+- (long)lastInsertRowid {
+    return sqlite3_last_insert_rowid(sqlDb);
+}
+
 #pragma mark - Action
 
 - (void)begin {
@@ -421,10 +425,6 @@ create:;
 	NSArray *rlt = [self execute:string bindings:bindings columns:columns];
 	NSLog(@"time:%f string:%@ explain:%@",[date timeIntervalSinceNow],string, explain);
 	return rlt;
-}
-
-- (long)lastInsertRowid {
-    return sqlite3_last_insert_rowid(sqlDb);
 }
 
 #pragma mark - Error
