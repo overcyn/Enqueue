@@ -979,7 +979,7 @@
         if ([[[db library] valueForItem:it attr:PRItemAttrCompilation] boolValue]) {
             artist = @"Compilation";
         }
-        NSNumber *drawBorder = [NSNumber numberWithBool:[[item objectAtIndex:0] intValue] + 1 == [_albumCounts count] || [nowPlayingTableView isItemExpanded:item]];h
+        NSNumber *drawBorder = [NSNumber numberWithBool:[[item objectAtIndex:0] intValue] + 1 == [_albumCounts count] || [nowPlayingTableView isItemExpanded:item]];
         return @{@"title":artist, @"subtitle":album, @"item":item, @"drawBorder":drawBorder, @"target":self};
     } else {
         int row = [self dbRowForItem:item];

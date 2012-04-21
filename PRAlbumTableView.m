@@ -18,8 +18,8 @@
 	}
 }
 
-- (void)highlightSelectionInClipRect:(NSRect)theClipRect {
-	NSRange	visibleRowIndexes = [self rowsInRect:theClipRect];
+- (void)highlightSelectionInClipRect:(NSRect)rect {
+	NSRange	visibleRowIndexes = [self rowsInRect:rect];
 	NSIndexSet *selectedRowIndexes = [self selectedRowIndexes];
 	
 	// if the view is focused, use highlight color, otherwise use the out-of-focus highlight color
@@ -41,10 +41,7 @@
             NSRect rowRect;
 			rowRect.origin = rectOfRow.origin;
 			rowRect.size.width = rectOfRow.size.width;
-			rowRect.origin.y = rowRect.origin.y;
-			
-//			actualRow = [(PRAlbumListViewController *)[self delegate] dbRowForTableRow:row + 1];
-			
+			rowRect.origin.y = rowRect.origin.y;			
 			rowRect.size.height = rectOfRow.size.height - 0.3;
 			[[NSBezierPath bezierPathWithRect:rowRect] fill];
 		}

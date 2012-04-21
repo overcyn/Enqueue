@@ -5,8 +5,7 @@
 
 @synthesize nextResponder__;
 
-- (BOOL)becomeFirstResponder
-{
+- (BOOL)becomeFirstResponder {
 	if ([self nextResponder__] != self && [self nextResponder__] != nil) {
 		[[self window] makeFirstResponder:nextResponder__];
 	}

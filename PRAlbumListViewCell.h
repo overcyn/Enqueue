@@ -2,8 +2,4 @@
 
 
 @interface PRAlbumListViewCell : NSTextFieldCell 
-{
-    
-}
-
 @end

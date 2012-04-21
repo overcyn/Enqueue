@@ -249,12 +249,10 @@ NSString * const compilationString = @"Compilations  ";
     NSMutableString *string;
 	if ([_list isEqual:[[_db playlists] libraryList]]) {
 		string = [NSMutableString stringWithFormat:
-                  @"INSERT INTO libraryViewSource (file_id) "
-                  "SELECT file_id FROM library WHERE "];
+                  @"INSERT INTO libraryViewSource (file_id) SELECT file_id FROM library WHERE "];
 	} else {
 		string = [NSMutableString stringWithFormat:
-                  @"INSERT INTO libraryViewSource (file_id) "
-                  "SELECT playlist_items.file_id "
+                  @"INSERT INTO libraryViewSource (file_id) SELECT playlist_items.file_id "
                   "FROM playlist_items JOIN library ON playlist_items.file_id = library.file_id "
                   "WHERE playlist_items.playlist_id = ?%d AND ",
                   bindingIndex];
@@ -287,7 +285,6 @@ NSString * const compilationString = @"Compilations  ";
                     [string appendString:@"AND library.compilation == 0 "];
                 }
             }
-            
             [string appendString:@") AND "];
         }
     }
