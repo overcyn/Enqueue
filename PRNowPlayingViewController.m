@@ -29,6 +29,7 @@
 
 @interface PRNowPlayingViewController () 
 // TableView Actions
+- (void)play;
 - (void)playItem:(id)item;
 - (void)playSelected;
 - (void)removeSelected;
@@ -261,7 +262,7 @@
     }
 }
 
-#pragma mark - action
+#pragma mark - Action Priv
 
 - (void)play {
     if ([nowPlayingTableView clickedRow] == -1) {
@@ -309,7 +310,7 @@
     [[win playlistsViewController] duplicatePlaylist:[[now currentList] intValue]];
 }
 
-#pragma mark - menu Action
+#pragma mark - Action Menu Priv
 
 - (void)playSelected {
     if ([[self selectedDbRows] count] == 0) {
@@ -420,7 +421,7 @@
     }
 }
 
-#pragma mark - update
+#pragma mark - Update Priv
 
 - (void)updateTableView {
     // refresh nowPlayingViewSource
@@ -472,7 +473,7 @@
     }
 }
 
-#pragma mark - menu
+#pragma mark - Menu Priv
 
 - (void)playlistMenuNeedsUpdate {
     NSMenu *menu = _playlistMenu;
@@ -596,7 +597,7 @@
     [_contextMenu addItem:item];
 }
 
-#pragma mark - misc
+#pragma mark - Priv
 
 - (int)dbRowCount {
     return [_albumIndexes lastIndex] - 1;
