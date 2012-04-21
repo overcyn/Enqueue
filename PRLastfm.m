@@ -44,8 +44,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 
 @implementation PRLastfm
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core; {
     if (!(self = [super init])) {return nil;}
@@ -77,8 +76,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     [super dealloc];
 }
 
-// ========================================
-// Properties
+#pragma mark - Properties
 
 - (void)setLastfmState:(PRLastfmState)state {
     _lastfmState = state;
@@ -115,8 +113,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     return _cachedSessionKey;
 }
 
-// ========================================
-// Scrobbling
+#pragma mark - Scrobbling
 
 - (void)playingChanged:(NSNotification *)note {
     if ([[[_core now] mov] isPlaying]) {
@@ -225,8 +222,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     }
 }
 
-// ========================================
-// Authorization
+#pragma mark - Authorization
 
 - (void)connect {
     [self disconnect];
@@ -325,8 +321,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     [self setLastfmState:PRLastfmDisconnectedState];
 }
 
-// ========================================
-// Misc
+#pragma mark - Misc
 
 - (NSURLRequest *)requestForParameters:(NSDictionary *)parameters {
     NSURL *URL = [NSURL URLWithString:@"http://ws.audioscrobbler.com/2.0/"];

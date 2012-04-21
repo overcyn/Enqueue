@@ -10,8 +10,7 @@
 
 @implementation PRStatement
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithString:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns db:(PRDb *)db {
     if (!(self = [super init])) {return nil;}
@@ -61,8 +60,7 @@
     return [NSString stringWithFormat:@"statement:%@ bindings:%@ columns:%@", _statement, _bindings, _columns];
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 @synthesize statement = _statement, bindings = _bindings, columns = _columns;
 
@@ -114,8 +112,7 @@
     }
 }
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (NSArray *)execute {
     return [self execute_:TRUE];
@@ -125,8 +122,7 @@
     return [self execute_:FALSE];
 }
 
-// ========================================
-// action
+#pragma mark - action
 
 - (NSArray *)execute_:(BOOL)crash {
 //    if (![NSThread isMainThread]) {

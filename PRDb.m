@@ -38,8 +38,7 @@ NSString * const PRColData = @"PRColData";
 
 @implementation PRDb
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
@@ -106,8 +105,7 @@ create:;
     [super dealloc];
 }
 
-// ========================================
-// initialization
+#pragma mark - initialization
 
 - (BOOL)open {
 	int e = sqlite3_initialize();
@@ -348,13 +346,11 @@ create:;
     return TRUE;
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 @synthesize sqlDb, history, library, playlists, queue, libraryViewSource, nowPlayingViewSource, albumArtController, playbackOrder;
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)begin {
     if (transaction == 0) {
@@ -431,8 +427,7 @@ create:;
     return sqlite3_last_insert_rowid(sqlDb);
 }
 
-// ========================================
-// Error
+#pragma mark - Error
 
 - (NSError *)databaseWasMovedError:(NSString *)newPath {
     NSString *description = @"The Enqueue library file does not appear to be valid.";

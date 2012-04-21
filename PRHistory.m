@@ -11,8 +11,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 
 @implementation PRHistory
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db {
 	if (!(self = [super init])) {return nil;}
@@ -34,8 +33,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
     return TRUE;
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
  
 - (void)addItem:(PRItem *)item withDate:(NSDate *)date {
     [_db execute:@"INSERT INTO history (file_id, date) VALUES (?1, ?2)"
@@ -146,8 +144,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
     return recentlyPlayed;
 }
 
-// ========================================
-// Update
+#pragma mark - Update
 
 - (BOOL)confirmFileDelete_error:(NSError **)error {
     return TRUE;

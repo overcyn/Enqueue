@@ -31,8 +31,7 @@
 
 @implementation PRMainWindowController
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core {
 	if (!(self = [super initWithWindowNibName:@"PRMainWindow"])) {return nil;}
@@ -183,8 +182,7 @@
     }
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 @synthesize mainMenuController, 
 libraryViewController, 
@@ -278,8 +276,7 @@ miniPlayer;
     [self setMiniPlayer:![self miniPlayer]];
 }
 
-// ========================================
-// UI
+#pragma mark - UI
 
 - (void)updateLayoutWithFrame:(NSRect)winFrame {
     [[self window] setDelegate:nil];
@@ -522,8 +519,7 @@ miniPlayer;
     }
 }
 
-// ========================================
-// Update Priv
+#pragma mark - Update Priv
 
 - (int)libraryViewMode {
 	if (_currentMode != PRLibraryMode) {
@@ -547,8 +543,7 @@ miniPlayer;
     [self setCurrentMode:[sender tag]];
 }
 
-// ========================================
-// Window Delegate
+#pragma mark - Window Delegate
 
 - (void)windowWillEnterFullScreen:(NSNotification *)notification {
     NSRect frame = [_splitView frame];
@@ -644,8 +639,7 @@ miniPlayer;
     }
 }
 
-// ========================================
-// PRWindow Delegate
+#pragma mark - PRWindow Delegate
 
 - (BOOL)window:(NSWindow *)window keyDown:(NSEvent *)event {
     if ([[event characters] length] != 1) {
@@ -671,8 +665,7 @@ miniPlayer;
     return didHandle;
 }
 
-// ========================================
-// SplitView Delegate
+#pragma mark - SplitView Delegate
 
 - (void)splitViewDidResizeSubviews:(NSNotification *)note {
     if (_resizingSplitView) {
@@ -708,8 +701,7 @@ miniPlayer;
     }
 }
 
-// ========================================
-// Menu Delegate
+#pragma mark - Menu Delegate
 
 - (void)menuNeedsUpdate:(NSMenu *)menu {
 }

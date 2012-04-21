@@ -20,8 +20,7 @@
 @synthesize db;
 @synthesize now;
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core_ {
     if (!(self = [super initWithNibName:@"PRPreferencesView" bundle:nil])) {return nil;}
@@ -223,8 +222,7 @@
 	[super dealloc];
 }
 
-// ========================================
-// Tabs
+#pragma mark - Tabs
 
 - (NSDictionary *)tabs {
     return [NSDictionary dictionaryWithObjectsAndKeys:
@@ -260,8 +258,7 @@
     [self updateUI];
 }
 
-// ========================================
-// Update
+#pragma mark - Update
 
 - (void)updateUI  {
     // Tabs
@@ -348,8 +345,7 @@
     }
 }
 
-// ========================================
-// Equalizer
+#pragma mark - Equalizer
 
 - (NSDictionary *)EQSliders {
     return [NSDictionary dictionaryWithObjectsAndKeys:
@@ -529,8 +525,7 @@
     [EQPopUp selectItem:selectedItem];
 }
 
-// ========================================
-// Misc Preferences
+#pragma mark - Misc Preferences
 
 - (void)toggleUseAlbumArtist {
     [[PRUserDefaults userDefaults] setUseAlbumArtist:![[PRUserDefaults userDefaults] useAlbumArtist]];
@@ -577,8 +572,7 @@
     [[NSNotificationCenter defaultCenter] postPreGainChanged];
 }
 
-// ========================================
-// Folder Monitoring
+#pragma mark - Folder Monitoring
 
 - (void)addFolder {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
@@ -623,8 +617,7 @@
     return [[[folderMonitor monitoredFolders] objectAtIndex:rowIndex] path];
 }
 
-// ========================================
-// Global Hotkeys
+#pragma mark - Global Hotkeys
 
 - (NSArray *)hotkeyDictionary {
     return [NSArray arrayWithObjects:

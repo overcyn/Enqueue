@@ -12,8 +12,7 @@
 
 @implementation PROutlineView
 
-// ========================================
-// Responder
+#pragma mark - Responder
 
 - (NSMenu *)menuForEvent:(NSEvent *)theEvent {
 	if ([[self selectedRowIndexes] count] == 0) {
@@ -137,8 +136,7 @@
     }
 }
 
-// ========================================
-// Selection
+#pragma mark - Selection
 
 - (void)selectRowIndexes:(NSIndexSet *)indexes byExtendingSelection:(BOOL)extend {
     if ([[self delegate] respondsToSelector:@selector(outlineView:selectionIndexesForProposedSelection:)]) {
@@ -147,8 +145,7 @@
     [super selectRowIndexes:indexes byExtendingSelection:extend];
 }
 
-// ========================================
-// Drawing
+#pragma mark - Drawing
 
 // Disable default highlight color
 - (id)_highlightColorForCell:(NSCell *)cell {
@@ -256,8 +253,7 @@
     return FALSE;
 }
 
-// ========================================
-// Layout
+#pragma mark - Layout
 
 - (NSRect)frameOfOutlineCellAtRow:(NSInteger)row {
     NSRect rect = [super frameOfOutlineCellAtRow:row];
@@ -271,8 +267,7 @@
     return NSMakeRect(0, superFrame.origin.y, [self bounds].size.width, superFrame.size.height);
 }
 
-// ========================================
-// Misc
+#pragma mark - Misc
 
 - (void)reloadVisibleItems {
     NSRange range = [self rowsInRect:[self visibleRect]];

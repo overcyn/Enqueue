@@ -6,8 +6,7 @@
 
 @implementation PRTableView
 
-// ========================================
-// Responder
+#pragma mark - Responder
 
 // Make first responder with right click
 - (NSMenu *)menuForEvent:(NSEvent *)event {
@@ -80,8 +79,7 @@
            slideBack:TRUE];
 }
 
-// ========================================
-// Editing
+#pragma mark - Editing
 
 - (void)cancelOperation:(id)sender {
     if ([self currentEditor] != nil) {
@@ -91,8 +89,7 @@
     }
 }
 
-// ========================================
-// Selection
+#pragma mark - Selection
 
 - (void)selectRowIndexes:(NSIndexSet *)indexes byExtendingSelection:(BOOL)extend {
     if ([[self delegate] respondsToSelector:@selector(tableView:selectionIndexesForProposedSelection:)]) {
@@ -101,8 +98,7 @@
     [super selectRowIndexes:indexes byExtendingSelection:extend];
 }
 
-// ========================================
-// Drawing
+#pragma mark - Drawing
 
 // Disable default highlight color
 - (id)_highlightColorForCell:(NSCell *)cell {

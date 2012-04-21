@@ -30,8 +30,7 @@
 
 @implementation PRNowPlayingController
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db {
     if (!(self = [super init])) {return nil;}
@@ -60,8 +59,7 @@
     [super dealloc];
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 @synthesize invalidItems = _invalidItems, mov = _mov;
 @dynamic currentList, currentListItem, currentItem, currentIndex;
@@ -116,8 +114,7 @@
 	[self setShuffle:![self shuffle]];
 }
 
-// ========================================
-// Playback
+#pragma mark - Playback
 
 - (void)stop {
 	[_mov stop];
@@ -170,8 +167,7 @@
     [self playListItem:item];
 }
 
-// ========================================
-// Playback Priv
+#pragma mark - Playback Priv
 
 - (void)playListItem:(PRListItem *)listItem withSel:(SEL)selector {
     if ([_invalidItems count] == [[_db playlists] countForList:[self currentList]]) {
@@ -335,8 +331,7 @@
     }
 }
 
-// ========================================
-// Update Priv
+#pragma mark - Update Priv
 
 - (void)movieDidFinish {
 	int playCount = [[[_db library] valueForItem:[self currentItem] attr:PRItemAttrPlayCount] intValue];
@@ -369,8 +364,7 @@
     }
 }
 
-// ========================================
-// Order Priv
+#pragma mark - Order Priv
 
 @dynamic position, marker;
 

@@ -4,8 +4,7 @@
 
 @implementation PRUserDefaults
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)init {
     if (!(self = [super init])) {return nil;}
@@ -18,8 +17,7 @@
     return [[[PRUserDefaults alloc] init] autorelease];
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 @dynamic volume;
 @dynamic repeat;

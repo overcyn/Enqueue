@@ -10,8 +10,7 @@ NSString * const PR_TBL_QUEUE_SQL = @"CREATE TABLE queue ("
 
 @implementation PRQueue
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db {
     if (!(self = [super init])) {return nil;}
@@ -33,8 +32,7 @@ NSString * const PR_TBL_QUEUE_SQL = @"CREATE TABLE queue ("
     return TRUE;
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 - (NSArray *)queueArray {
     NSArray *results = [_db execute:@"SELECT playlist_item_id FROM queue ORDER BY queue_index"

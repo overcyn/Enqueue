@@ -8,8 +8,7 @@
 
 @implementation PRUpdate060Operation
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 + (id)operationWithCore:(PRCore *)core {
     return [[[PRUpdate060Operation alloc] initWithCore:core] autorelease];
@@ -21,8 +20,7 @@
 	return self;
 }
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)main {
     NSLog(@"begin update060");

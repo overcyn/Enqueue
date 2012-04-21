@@ -121,8 +121,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
 @implementation PRLibrary
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db_ {
     if (!(self = [super init])) {return nil;}
@@ -198,15 +197,13 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     return TRUE;
 }
 
-// ========================================
-// Update
+#pragma mark - Update
 
 - (BOOL)propagateItemDelete {
     return [[db playlists] cleanPlaylistItems] && [[db playlists] propagateListItemDelete];
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 - (BOOL)containsItem:(PRItem *)item {
     NSArray *rlt = [db execute:@"SELECT count(*) FROM library WHERE file_id = ?1"
@@ -333,8 +330,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     return items;
 }
 
-// ========================================
-// Misc
+#pragma mark - Misc
 
 + (NSArray *)itemAttrProperties {
     static NSMutableArray *array = nil;

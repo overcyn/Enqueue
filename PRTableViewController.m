@@ -32,8 +32,7 @@
 
 @implementation PRTableViewController
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
@@ -461,8 +460,7 @@
     [pool drain];
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 @dynamic currentList, info, selection, selectedIndexes;
 
@@ -499,15 +497,13 @@
 	return selectionArray;
 }
 
-// ========================================
-// accessors
+#pragma mark - accessors
 
 - (NSIndexSet *)selectedIndexes {
     return [libraryTableView selectedRowIndexes];
 }
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)highlightItem:(PRItem *)item {
     NSString *artist;
@@ -593,8 +589,7 @@
     [browser3TableView scrollRowToVisiblePretty:[browser3TableView selectedRow]];
 }
 
-// ========================================
-// action
+#pragma mark - action
 
 - (void)playIndexes:(NSIndexSet *)indexes {
     [now stop];
@@ -697,8 +692,7 @@
     [self appendNextIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [self numberOfRowsInTableView:libraryTableView])]];
 }
 
-// ========================================
-// action mouse
+#pragma mark - action mouse
 
 - (void)play {
 	if ([self dbRowForTableRow:[libraryTableView clickedRow]] < 1) {
@@ -728,8 +722,7 @@
     }
 }
 
-// ========================================
-// setup
+#pragma mark - setup
 
 - (void)reloadData:(BOOL)force {
     int tables = [[db libraryViewSource] refreshWithList:_currentList force:force];
@@ -755,8 +748,7 @@
 	[NSNotificationCenter post:PRLibraryViewSelectionDidChangeNotification];
 }
 
-// ========================================
-// update
+#pragma mark - update
 
 - (void)playingFileChanged:(NSNotification *)note {
     NSIndexSet *rows = [NSIndexSet indexSetWithIndexesInRange:[libraryTableView rowsInRect:[libraryTableView visibleRect]]];
@@ -794,8 +786,7 @@
 	}
 }
 
-// ========================================
-// ui
+#pragma mark - ui
 
 @dynamic ascending, sortAttr, columnInfo;
 
@@ -1026,8 +1017,7 @@
     [self setColumnInfo:columnsInfo];
 }
 
-// ========================================
-// ui misc
+#pragma mark - ui misc
 
 - (void)highlightTableColumn:(NSTableColumn *)tableColumn ascending:(BOOL)ascending {
     for (NSTableColumn *i in [libraryTableView tableColumns]) {
@@ -1049,8 +1039,7 @@
     return [libraryTableView tableColumnWithIdentifier:attr];
 }
 
-// ========================================
-// Menu
+#pragma mark - Menu
 
 - (NSMenu *)browserHeaderMenu {
     int browserPosition = [[db playlists] verticalForList:_currentList];
@@ -1100,8 +1089,7 @@
     return menu;
 }
 
-// ========================================
-// menu
+#pragma mark - menu
 
 - (void)updateLibraryMenu {
     if ([libraryTableView clickedRow] == -1) {
@@ -1212,8 +1200,7 @@
     }
 }
 
-// ========================================
-// misc
+#pragma mark - misc
 
 - (NSTableView *)tableViewForBrowser:(int)browser {
     if (browser == 1) {
@@ -1263,8 +1250,7 @@
     return tableRows;
 }
 
-// ========================================
-// Tableview Datasource
+#pragma mark - Tableview Datasource
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
 	if (tableView == libraryTableView) {
@@ -1338,8 +1324,7 @@
 	}
 }
 
-// ========================================
-// tableview datasource misc
+#pragma mark - tableview datasource misc
 
 - (NSArray *)attributesToCache {
     NSMutableArray *cachedAttributes = [NSMutableArray array];
@@ -1351,8 +1336,7 @@
     return cachedAttributes;
 }
 
-// ========================================
-// Tableview DragAndDrop
+#pragma mark - Tableview DragAndDrop
 
 - (BOOL)tableView:(NSTableView *)tableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard*)pboard {
     [pboard declareTypes:[NSArray arrayWithObjects:PRFilePboardType, PRIndexesPboardType, nil] owner:self];
@@ -1443,8 +1427,7 @@
     return TRUE;
 }
 
-// ========================================
-// Tableview Delegate
+#pragma mark - Tableview Delegate
 
 - (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)column row:(NSInteger)row {
     [cell setHighlighted:[[tableView selectedRowIndexes] containsIndex:row]];
@@ -1520,8 +1503,7 @@
 	}
 }
 
-// ========================================
-// Tableview PRDelegate
+#pragma mark - Tableview PRDelegate
 
 - (BOOL)tableView:(PRTableView *)tableView keyDown:(NSEvent *)event {
     if ([[event characters] length] != 1) {
@@ -1577,8 +1559,7 @@
     return didHandle;
 }
 
-// ========================================
-// Splitview Delegate
+#pragma mark - Splitview Delegate
 
 - (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {
     if (splitView == horizontalBrowserSplitView) {
@@ -1651,8 +1632,7 @@
     return proposedRect;
 }
 
-// ========================================
-// Menu Delegate
+#pragma mark - Menu Delegate
 
 - (void)menuNeedsUpdate:(NSMenu *)menu {
 	if (menu == libraryMenu) {

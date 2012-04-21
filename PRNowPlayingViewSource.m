@@ -5,8 +5,7 @@
 
 @implementation PRNowPlayingViewSource
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db_ {
     self = [super init];
@@ -29,8 +28,7 @@
     return TRUE;
 }
 
-// ========================================
-// Update
+#pragma mark - Update
 
 - (void)refresh {
     [_db execute:@"DELETE FROM now_playing_view_source"];
@@ -40,8 +38,7 @@
          columns:nil];
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 - (int)count {
     NSArray *result = [_db execute:@"SELECT COUNT(*) FROM now_playing_view_source"

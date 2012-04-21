@@ -18,8 +18,7 @@
 
 @implementation PRAlbumArtController
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db {
     if (!(self = [super init])){return nil;}
@@ -34,8 +33,7 @@
     [super dealloc];
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 - (NSImage *)artworkForItem:(PRItem *)item {
     return [self artworkForItems:[NSArray arrayWithObject:item]];
@@ -127,8 +125,7 @@
     [[_db library] setValue:@0 forItem:item attr:PRItemAttrArtwork];
 }
 
-// ========================================
-// Async Accessors
+#pragma mark - Async Accessors
 
 - (NSDictionary *)artworkInfoForItem:(PRItem *)item {
     return [self artworkInfoForItems:[NSArray arrayWithObject:item]];
@@ -269,8 +266,7 @@
     [_fileManager findOrCreateDirectoryAtPath:[[PRUserDefaults userDefaults] tempArtPath] error:nil];
 }
 
-// ========================================
-// Priv
+#pragma mark - Priv
 
 - (NSString *)cachedArtworkPathForItem:(PRItem *)item {
 	unsigned long long file = [item unsignedLongLongValue];

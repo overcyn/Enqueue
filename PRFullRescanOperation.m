@@ -9,8 +9,7 @@
 
 @implementation PRFullRescanOperation
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 + (id)operationWithCore:(PRCore *)core {
     return [[[PRFullRescanOperation alloc] initWithCore:core] autorelease];
@@ -22,8 +21,7 @@
 	return self;
 }
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)main {
     NSLog(@"begin fullrescan");

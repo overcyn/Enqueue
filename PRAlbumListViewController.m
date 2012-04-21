@@ -12,8 +12,7 @@
 
 @implementation PRAlbumListViewController
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core {
 	if (!(self = [super initWithNibName:@"PRAlbumListView" bundle:nil])) {return nil;}
@@ -53,8 +52,7 @@
 	[albumScrollView setSynchronizedScrollView:libraryScrollView2];
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 - (PRItemAttr *)sortAttr {
     return [[db playlists] albumListViewSortAttrForList:_currentList];
@@ -72,8 +70,7 @@
     [[db playlists] setAlbumListViewAscending:ascending forList:_currentList];
 }
 
-// ========================================
-// Update
+#pragma mark - Update
 
 - (void)reloadData:(BOOL)force {		
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -132,8 +129,7 @@
     [pool drain];
 }
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)selectAlbum {
 	if ([albumTableView clickedRow] == -1) {
@@ -173,8 +169,7 @@
 	[now playItemAtIndex:1];
 }
 
-// ========================================
-// UI Misc
+#pragma mark - UI Misc
 
 - (NSArray *)columnInfo {
     return [[db playlists] albumListViewInfoForList:_currentList];
@@ -217,8 +212,7 @@
 	[tableView setIndicatorImage:indicatorImage inTableColumn:tableColumn];	
 }
 
-// ========================================
-// TableView DataSource
+#pragma mark - TableView DataSource
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {	
 	if (tableView == libraryTableView) {
@@ -271,8 +265,7 @@
     [pool drain];
 }
 
-// ========================================
-// TableView DragAndDrop
+#pragma mark - TableView DragAndDrop
 
 - (BOOL)tableView:(NSTableView *)tableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard*)pboard {
 	NSInteger currentIndex = 0;
@@ -311,8 +304,7 @@
 	return NSDragOperationNone;
 }
 
-// ========================================
-// TableView Delegate
+#pragma mark - TableView Delegate
 
 //- (NSCell *)   tableView:(NSTableView *)tableView 
 //  dataCellForTableColumn:(NSTableColumn *)tableColumn 

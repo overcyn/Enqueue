@@ -24,8 +24,7 @@
 
 @implementation PRLibraryViewController
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
@@ -107,8 +106,7 @@
     [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(updateSearch)];
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 @synthesize currentViewController = _currentViewController, headerView = _headerView;
 @dynamic libraryViewMode, currentList, infoViewVisible;
@@ -179,22 +177,19 @@
     [self setInfoViewVisible:![self infoViewVisible]];
 }
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)find {
     [[_searchField window] makeFirstResponder:_searchField];
 }
 
-// ========================================
-// action
+#pragma mark - action
 
 - (void)setLibraryViewModeAction:(id)sender {
     [self setLibraryViewMode:[sender tag]];
 }
 
-// ========================================
-// update
+#pragma mark - update
 
 - (void)updateLayout {
     if (_infoViewVisible) {
@@ -235,8 +230,7 @@
     [_searchField setStringValue:search];
 }
 
-// ========================================
-// menu delegate
+#pragma mark - menu delegate
 
 - (void)menuNeedsUpdate:(NSMenu *)menu {
     [menu removeAllItems];
@@ -276,8 +270,7 @@
     }
 }
 
-// ========================================
-// text field delegate
+#pragma mark - text field delegate
 
 #define SEARCH_DELAY 0.25
 

@@ -7,15 +7,13 @@ NSString * const PRSQLiteErrorDomain = @"PRSQLiteErrorDomain";
 
 @implementation PRLog
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 + (PRLog *)sharedLog {
     return [[[PRLog alloc] init] autorelease];
 }
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)presentError:(NSError *)error {
     [self performSelectorOnMainThread:@selector(presentError_:) withObject:error waitUntilDone:TRUE];

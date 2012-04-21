@@ -29,8 +29,7 @@ NSString * const compilationString = @"Compilations  ";
 
 @implementation PRLibraryViewSource
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db {
 	if (!(self = [super init])) {return nil;}
@@ -117,8 +116,7 @@ NSString * const compilationString = @"Compilations  ";
     [super dealloc];
 }
 
-// ========================================
-// Update
+#pragma mark - Update
 
 - (int)refreshWithList:(PRList *)list force:(BOOL)force {
     [_cachedAttrValues release];
@@ -144,8 +142,7 @@ NSString * const compilationString = @"Compilations  ";
 	return tables;
 }
 
-// ========================================
-// Update Priv
+#pragma mark - Update Priv
 
 - (BOOL)updateSortIndex {
     if (![_list isEqual:[[_db playlists] libraryList]]) {
@@ -554,8 +551,7 @@ NSString * const compilationString = @"Compilations  ";
 	return TRUE;
 }
 
-// ========================================
-// Library Accessors
+#pragma mark - Library Accessors
 
 - (int)count {
     NSArray *rlt = [_db execute:@"SELECT COUNT(*) FROM libraryViewSource"
@@ -670,8 +666,7 @@ NSString * const compilationString = @"Compilations  ";
     return array;
 }
 
-// ========================================
-// Browser Accessors
+#pragma mark - Browser Accessors
 
 - (int)countForBrowser:(int)browser {
     if (![[_db playlists] attrForBrowser:browser list:_list]) {
@@ -739,8 +734,7 @@ NSString * const compilationString = @"Compilations  ";
     return indexSet;
 }
 
-// ========================================
-// Priv
+#pragma mark - Priv
 
 - (BOOL)compilationForBrowser:(int)browser {
     return ([[[_db playlists] attrForBrowser:browser list:_list] isEqual:PRItemAttrArtist] && [[PRUserDefaults userDefaults] useCompilation]);

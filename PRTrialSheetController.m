@@ -12,8 +12,7 @@
 
 @implementation PRTrialSheetController
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
@@ -87,8 +86,7 @@
     [_label setAttributedStringValue:string];
 }
 
-// ========================================
-// action
+#pragma mark - action
 
 - (void)purchase {
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"http://itunes.apple.com/us/app/enqueue/id493119959?ls=1&mt=12"]];
@@ -102,8 +100,7 @@
     [self endSheet];
 }
 
-// ========================================
-// misc
+#pragma mark - misc
 
 + (NSDate *)date {
     return [NSDate dateWithString:@"2012-04-25 01:00:00 +0000"];

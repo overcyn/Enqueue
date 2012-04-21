@@ -67,8 +67,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 
 @implementation PRPlaylists
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db_ {
     self = [super init];
@@ -188,8 +187,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return TRUE;
 }
 
-// ========================================
-// Misc
+#pragma mark - Misc
 
 + (NSArray *)listAttrProperties {
     static NSMutableArray *array = nil; 
@@ -295,8 +293,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return [PRLibrary itemAttrForInternal:internal];
 }
 
-// ========================================
-// List Getters
+#pragma mark - List Getters
 
 - (NSArray *)lists {
     NSArray *rlt = [db execute:@"SELECT playlist_id FROM playlists ORDER BY type, title COLLATE NOCASE, playlist_id"
@@ -391,8 +388,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return [[rlt objectAtIndex:0] objectAtIndex:0];
 }
 
-// ========================================
-// ListItem Setters
+#pragma mark - ListItem Setters
 
 - (void)addItem:(PRItem *)item atIndex:(int)index toList:(PRList *)list {
     [self addItems:[NSArray arrayWithObject:item] atIndex:index toList:list];
@@ -589,8 +585,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     [db commit];
 }
 
-// ========================================
-// ListItem Getters 
+#pragma mark - ListItem Getters 
 
 - (int)countForList:(PRList *)list {
     NSArray *rlt = [db execute:@"SELECT COUNT(*) FROM playlist_items WHERE playlist_id = ?1"
@@ -670,8 +665,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return mutableIndexes;
 } 
 
-// ========================================
-// ListItem Getters Misc
+#pragma mark - ListItem Getters Misc
 
 - (NSArray *)playlistsViewSource {
     NSString *string = @"SELECT playlist_id, type, title FROM playlists "
@@ -686,8 +680,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return playlists;
 }
 
-// ========================================
-// Update
+#pragma mark - Update
 
 - (BOOL)propagateListDelete {
     return [self propagateListItemDelete];

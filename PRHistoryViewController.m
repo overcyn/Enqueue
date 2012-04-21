@@ -20,8 +20,7 @@
 
 @dynamic historyMode;
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db_ mainWindowController:(PRMainWindowController *)mainWindowController_ {
 	if (!(self = [super initWithNibName:@"PRHistoryView" bundle:nil])) {return nil;}
@@ -87,8 +86,7 @@
     [self update];
 }
 
-// ========================================
-// Accesssors
+#pragma mark - Accesssors
 
 - (PRHistoryMode2)historyMode {
     return historyMode;
@@ -99,8 +97,7 @@
     [self update];
 }
 
-// ========================================
-// Update
+#pragma mark - Update
 
 - (void)update {
     [dataSource release];
@@ -176,8 +173,7 @@
     [_placeholder setHidden:[dataSource count] != 0];
 }
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)historyModeButtonAction:(id)sender {
     [self setHistoryMode:[sender tag]];
@@ -198,8 +194,7 @@
     }
 }
 
-// ========================================
-// NSTableView DataSource
+#pragma mark - NSTableView DataSource
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView_ {
     if (tableView_ == tableView) {
@@ -264,8 +259,7 @@
 	return nil;
 }
 
-// ========================================
-// NSTableView Delegate
+#pragma mark - NSTableView Delegate
 
 - (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex {
 	return FALSE;

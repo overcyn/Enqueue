@@ -21,8 +21,7 @@
 
 @implementation PRCore
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)init {
     if (!(self = [super init])) {return nil;}
@@ -80,8 +79,7 @@
     }
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 @synthesize db = _db, 
 now = _now, 
@@ -93,8 +91,7 @@ mainMenu = _mainMenu,
 lastfm = _lastfm, 
 keys = _keys;
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)itunesImport:(id)sender {
     NSString *folderPath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Music"] stringByAppendingPathComponent:@"iTunes"];;
@@ -140,8 +137,7 @@ keys = _keys;
     [panel beginSheetModalForWindow:[_win window] completionHandler:handler];
 }
 
-// ========================================
-// NSApplication Delegate
+#pragma mark - NSApplication Delegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
 }
@@ -179,8 +175,7 @@ keys = _keys;
     return nil;
 }
 
-// ========================================
-// Error
+#pragma mark - Error
 
 - (NSError *)multipleInstancesError {
     NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:

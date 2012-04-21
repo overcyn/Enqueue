@@ -11,8 +11,7 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
 
 @implementation PRPlaybackOrder
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db_ {
 	if (!(self = [super init])) {return nil;}
@@ -36,8 +35,7 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
     return TRUE;
 }
 
-// ========================================
-// Validation
+#pragma mark - Validation
 
 - (BOOL)clean {
     [db execute:@"DELETE FROM playback_order"];
@@ -79,8 +77,7 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
     return TRUE;
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 - (int)count {
     NSArray *results = [db execute:@"SELECT COUNT(*) FROM playback_order"
@@ -126,8 +123,7 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
 	return playlistItems;
 }
 
-// ========================================
-// Update
+#pragma mark - Update
 
 - (BOOL)confirmPlaylistItemDelete:(NSError **)error {
     [self clean];

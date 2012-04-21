@@ -3,8 +3,7 @@
 
 @implementation PREQ
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)init {
     if (!(self = [super init])) {return nil;}
@@ -36,8 +35,7 @@
     [super dealloc];
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 @synthesize title = _title, 
 amplitudes = _amplitudes;
@@ -57,8 +55,7 @@ amplitudes = _amplitudes;
     return [NSString stringWithFormat:@"PREQ:%@ %@",_title,[_amplitudes class]];
 }
 
-// ========================================
-// DefaultEQs
+#pragma mark - DefaultEQs
 
 + (NSArray *)defaultEQs {
     return [NSArray arrayWithObjects:[PREQ flat],[PREQ stairs], [PREQ triangle], nil];
@@ -96,8 +93,7 @@ amplitudes = _amplitudes;
     return stairs;
 }
 
-// ========================================
-// NSCoder
+#pragma mark - NSCoder
 
 - (void)encodeWithCoder:(NSCoder *)coder {
     [coder encodeObject:_title forKey:@"title"];

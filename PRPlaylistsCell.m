@@ -4,8 +4,7 @@
 
 @implementation PRPlaylistsCell
 
-// ========================================
-// Drawing
+#pragma mark - Drawing
 
 - (void)drawWithFrame:(NSRect)theCellFrame inView:(NSView *)theControlView {
     [[NSColor PRGridColor] set];
@@ -142,8 +141,7 @@
     [pool drain];
 }
 
-// ========================================
-// Misc
+#pragma mark - Misc
 
 - (NSMenu *)menuForEvent:(NSEvent *)event inRect:(NSRect)cellFrame ofView:(NSView *)view {
     NSRect rect = cellFrame;

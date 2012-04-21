@@ -4,8 +4,7 @@
 
 @implementation PRGradientView
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (void)dealloc {
     [_color release];
@@ -32,8 +31,7 @@
     [super dealloc];
 }
 
-// ========================================
-// Properties
+#pragma mark - Properties
 
 @synthesize color = _color;
 @synthesize horizontalGradient = _horizontalGradient;
@@ -58,8 +56,7 @@
 @synthesize topBorder2 = _topBorder2;
 @synthesize botBorder2 = _botBorder2;
 
-// ========================================
-// Drawing
+#pragma mark - Drawing
 
 - (void)drawRect:(NSRect)rect {   
     NSRect bounds = [self bounds];

@@ -40,8 +40,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 @implementation PRMoviePlayer
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)init {
     if (!(self = [super init])) {return nil;}
@@ -104,8 +103,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     [super dealloc];
 }
 
-// ========================================
-// Playback
+#pragma mark - Playback
 
 - (BOOL)play:(NSString *)file {
     // clear queue & stop
@@ -235,8 +233,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 	PLAYER->SeekBackward();
 }
 
-// ========================================
-// Playback Private
+#pragma mark - Playback Private
 
 - (void)transitionCallback:(NSTimer *)timer_ {
     switch (transitionState) {
@@ -276,8 +273,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     }
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 - (BOOL)isPlaying {
     if (transitionState == PRPausingTransitionState) {
@@ -330,8 +326,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     return duration * 1000;
 }
 
-// ========================================
-// Accessors Private
+#pragma mark - Accessors Private
 
 @synthesize transitionTimer = _transitionTimer,
 player = player;
@@ -364,8 +359,7 @@ player = player;
     }
 }
 
-// ========================================
-// Update Private
+#pragma mark - Update Private
 
 - (void)update {
     [[NSNotificationCenter defaultCenter] postTimeChanged];

@@ -3,8 +3,7 @@
 
 @implementation PRRolloverTableView
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (void)awakeFromNib {
 	[[self window] setAcceptsMouseMovedEvents:YES];
@@ -23,15 +22,13 @@
 	[super dealloc];
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 @synthesize trackMouseWithinCell;
 @synthesize pointInCell;
 @synthesize mouseOverRow;
 
-// ========================================
-// Update
+#pragma mark - Update
 
 - (void)mouseEntered:(NSEvent *)theEvent {
 	
@@ -100,8 +97,7 @@
     }
 }
 
-// ========================================
-// Drawing
+#pragma mark - Drawing
 
 // Disable default highlight color
 - (id)_highlightColorForCell:(NSCell *)cell {

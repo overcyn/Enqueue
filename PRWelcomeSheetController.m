@@ -7,8 +7,7 @@
 
 @implementation PRWelcomeSheetController
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core {
     if (!(self = [super initWithWindowNibName:@"PRWelcomeSheet"])) {return nil;}
@@ -34,8 +33,7 @@
     [closeButton setAction:@selector(endSheet)];
 }
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)importItunes {
     [self endSheet];

@@ -22,8 +22,7 @@
 
 @implementation PRControlsViewController
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core_; {
     if (!(self = [super initWithNibName:@"PRControlsView" bundle:nil])) {return nil;}
@@ -109,15 +108,13 @@
     [self updateLayout];
 }
 
-// ========================================
-// Artwork
+#pragma mark - Artwork
 
 - (NSImageView *)albumArtView {
     return albumArtView;
 }
 
-// ========================================
-// Update
+#pragma mark - Update
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (object == [core taskManager] && [keyPath isEqualToString:@"tasks"]) {
@@ -553,8 +550,7 @@
     [_volumeButton setImage:image];
 }
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)setProgressHidden:(BOOL)progressHidden {
     BOOL update = (_progressHidden != progressHidden);

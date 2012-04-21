@@ -57,8 +57,7 @@
 
 @implementation PRInfoViewController
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core {
 	if (!(self = [super initWithNibName:@"PRInfoView" bundle:nil])) {return nil;}
@@ -143,8 +142,7 @@
    }
 }
 
-// ========================================
-// Tab Control
+#pragma mark - Tab Control
 
 - (NSDictionary *)tabs {
     return [NSArray arrayWithObjects:
@@ -190,8 +188,7 @@
     [self updateTabControl];
 }
 
-// ========================================
-// Update
+#pragma mark - Update
 
 - (void)update {
     [_selection release];
@@ -277,8 +274,7 @@
 	_didChange = TRUE;
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 - (void)setValue:(id)value forAttribute:(PRItemAttr *)attribute {
     if ([_selection count] == 0) {
@@ -326,8 +322,7 @@
     }
 }
 
-// ========================================
-// Misc
+#pragma mark - Misc
 
 - (NSArray *)tagControls {
     static NSMutableArray *array = nil;

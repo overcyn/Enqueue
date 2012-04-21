@@ -64,8 +64,7 @@
 
 @implementation PRNowPlayingViewController
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
@@ -156,13 +155,11 @@
     [nowPlayingTableView expandItem:parentItem];
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 @synthesize headerView = _headerView;
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)clearPlaylist {
     int count = [[db playlists] countForList:[now currentList]];
@@ -264,8 +261,7 @@
     }
 }
 
-// ========================================
-// action
+#pragma mark - action
 
 - (void)play {
     if ([nowPlayingTableView clickedRow] == -1) {
@@ -313,8 +309,7 @@
     [[win playlistsViewController] duplicatePlaylist:[[now currentList] intValue]];
 }
 
-// ========================================
-// menu Action
+#pragma mark - menu Action
 
 - (void)playSelected {
     if ([[self selectedDbRows] count] == 0) {
@@ -425,8 +420,7 @@
     }
 }
 
-// ========================================
-// update
+#pragma mark - update
 
 - (void)updateTableView {
     // refresh nowPlayingViewSource
@@ -478,8 +472,7 @@
     }
 }
 
-// ========================================
-// menu
+#pragma mark - menu
 
 - (void)playlistMenuNeedsUpdate {
     NSMenu *menu = _playlistMenu;
@@ -603,8 +596,7 @@
     [_contextMenu addItem:item];
 }
 
-// ========================================
-// misc
+#pragma mark - misc
 
 - (int)dbRowCount {
     return [_albumIndexes lastIndex] - 1;
@@ -684,8 +676,7 @@
     return selectedDbRows;
 }
 
-// ========================================
-// OutlineView Delegate
+#pragma mark - OutlineView Delegate
 
 - (void)outlineView:(NSOutlineView *)outlineView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn item:(id)item {
     [cell setHighlighted:[[outlineView selectedRowIndexes] containsIndex:[outlineView rowForItem:item]]];
@@ -720,8 +711,7 @@
     return nowPlayingCell;
 }
 
-// ========================================
-// OutlineView DragAndDrop
+#pragma mark - OutlineView DragAndDrop
 
 - (BOOL)outlineView:(NSOutlineView *)view writeItems:(NSArray *)items toPasteboard:(NSPasteboard *)pboard {
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:[self selectedDbRows]];
@@ -954,8 +944,7 @@
     }
 }
 
-// ========================================
-// OutlineView DataSource
+#pragma mark - OutlineView DataSource
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item {
     if ([(NSArray *)item count] == 1) {
@@ -1037,8 +1026,7 @@
     return [self itemForItem:newItem];
 }
 
-// ========================================
-// PROutlineView Delegate
+#pragma mark - PROutlineView Delegate
 
 - (BOOL)outlineView:(PROutlineView *)outlineView keyDown:(NSEvent *)event {
     if ([[event characters] length] != 1) {
@@ -1070,8 +1058,7 @@
     return didHandle;
 }
 
-// ========================================
-// Menu Delegate
+#pragma mark - Menu Delegate
 
 - (void)menuNeedsUpdate:(NSMenu *)menu {
     if (menu == _contextMenu) {

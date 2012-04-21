@@ -115,8 +115,7 @@ using namespace TagLib;
 
 @implementation PRTagger
 
-// ========================================
-// Tags
+#pragma mark - Tags
 
 + (PRFileInfo *)infoForURL:(NSURL *)URL {
     // Tags
@@ -290,8 +289,7 @@ using namespace TagLib;
 	return change;
 }
 
-// ========================================
-// Tags Priv
+#pragma mark - Tags Priv
 
 + (File *)fileAtURL:(NSURL *)URL type:(PRFileType *)fileType {
     NSString *path = [URL path];
@@ -549,8 +547,7 @@ using namespace TagLib;
     [dict setObject:[URL absoluteString] forKey:PRItemAttrPath];
 }
 
-// ========================================
-// Properties
+#pragma mark - Properties
 
 + (NSDate *)lastModifiedAtURL:(NSURL *)URL {
     return [PRTagger lastModifiedForFileAtPath:[URL path]];
@@ -587,8 +584,7 @@ using namespace TagLib;
     return nil;
 }
 
-// ========================================
-// Tag Reading Priv
+#pragma mark - Tag Reading Priv
 
 + (NSMutableDictionary *)tagsForAPEFile:(APE::File *)file {
     NSMutableDictionary *tags = [NSMutableDictionary dictionary];
@@ -1134,8 +1130,7 @@ using namespace TagLib;
     return tags;    
 }
 
-// ========================================
-// Tag Writing Priv
+#pragma mark - Tag Writing Priv
 
 + (void)setTag:(id)tag forAttribute:(PRItemAttr *)attr APEFile:(APE::File *)file {
     ID3v1::Tag *ID3v1Tag = file->ID3v1Tag();
@@ -1631,8 +1626,7 @@ using namespace TagLib;
 	}
 }
 
-// ========================================
-// Tags Misc
+#pragma mark - Tags Misc
 
 + (int)firstValue:(const char *)string {
     NSArray *array = [[NSString stringWithUTF8String:string] componentsSeparatedByString:@"/"];

@@ -4,8 +4,7 @@
 
 @implementation PRDirectoryEnumerator
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithURLs:(NSArray *)URLs {
     if (!(self = [super init])) {return nil;}
@@ -60,8 +59,7 @@
     [super dealloc];
 }
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (id)nextObject {
     // if directory enumerator return next file that isnt a directory

@@ -2,8 +2,7 @@
 
 @implementation PRDropImageView
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)init {
     if (!(self = [super init])) {return nil;}
@@ -16,13 +15,11 @@
     [self registerForDraggedTypes:[NSArray arrayWithObjects:NSTIFFPboardType, NSFilenamesPboardType, nil]];
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 @synthesize focusRing;
 
-// ========================================
-// Subclassing
+#pragma mark - Subclassing
 
 - (void)mouseDown:(NSEvent *)theEvent {
     [[self window] makeFirstResponder:self];

@@ -14,8 +14,7 @@
 
 @implementation PRPlaylistsViewController
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core {
 	if (!(self = [super initWithNibName:@"PRPlaylistsView" bundle:nil])) {return nil;}
@@ -67,8 +66,7 @@
     [self update];
 }
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)tableViewAction {
     int idx = [tableView clickedRow];
@@ -222,8 +220,7 @@
     [self editPlaylist:[menuItem tag]];
 }
 
-// ========================================
-// Update
+#pragma mark - Update
 
 - (void)update {
     [newPlaylistButton setState:NSOffState];
@@ -241,8 +238,7 @@
     [_placeholder setHidden:[_datasource count] != 0];
 }
 
-// ========================================
-// NSTableView DataSource
+#pragma mark - NSTableView DataSource
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView_ {
     if (tableView_ != tableView) {
@@ -301,8 +297,7 @@
     }
 }
 
-// ========================================
-// NSTableView Delegate
+#pragma mark - NSTableView Delegate
 
 - (NSIndexSet *)tableView:(NSTableView *)tableView selectionIndexesForProposedSelection:(NSIndexSet *)proposedSelectionIndexes {
 	return [NSIndexSet indexSet];
@@ -334,8 +329,7 @@
     return TRUE;
 }
 
-// ========================================
-// Misc
+#pragma mark - Misc
 
 - (int)playlistForRow:(int)row {
     return [[[_datasource objectAtIndex:row] objectForKey:@"playlist"] intValue];

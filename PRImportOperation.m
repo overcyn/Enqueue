@@ -14,8 +14,7 @@
 
 @implementation PRImportOperation
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)main {
     NSLog(@"begin import");
@@ -88,8 +87,7 @@ end:;
 //    }
 //}
 
-// ========================================
-// Misc
+#pragma mark - Misc
 
 - (void)setFileExists:(PRItem *)file {
     

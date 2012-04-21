@@ -18,8 +18,7 @@
 
 @implementation PRRescanOperation
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 + (id)operationWithURLs:(NSArray *)URLs core:(PRCore *)core {
     return [[[PRRescanOperation alloc] initWithURLs:URLs core:core] autorelease];
@@ -40,13 +39,11 @@
     [super dealloc];
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 @synthesize eventId = _eventId, monitor = _monitor;
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)main {
     NSLog(@"begin folderrescan");
@@ -272,8 +269,7 @@ end:;
     }];
 }
 
-// ========================================
-// Misc
+#pragma mark - Misc
 
 // Should only be called on the main thread
 - (void)setFileExists:(PRItem *)item {

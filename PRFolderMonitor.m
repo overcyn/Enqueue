@@ -10,8 +10,7 @@
 
 @implementation PRFolderMonitor
 
-// ========================================
-// Initialization
+#pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core_ {
     if (!(self = [super init])) {return nil;}
@@ -21,8 +20,7 @@
     return self;
 }
 
-// ========================================
-// Accessors
+#pragma mark - Accessors
 
 @synthesize core = _core;
 @dynamic monitoredFolders;
@@ -54,8 +52,7 @@
     }
 }
 
-// ========================================
-// Action
+#pragma mark - Action
 
 - (void)monitor {
     // stop old event monitor
