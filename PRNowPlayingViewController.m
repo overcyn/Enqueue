@@ -976,13 +976,11 @@
         if ([album isEqualToString:@""]) {
             album = @"Unknown Album";
         }
-        NSNumber *drawBorder = [NSNumber numberWithBool:[[item objectAtIndex:0] intValue] + 1 == [_albumCounts count] || [nowPlayingTableView isItemExpanded:item]];
-        return [NSDictionary dictionaryWithObjectsAndKeys:
-                artist, @"title",
-                album, @"subtitle", 
-                item, @"item",
-                drawBorder, @"drawBorder", 
-                self, @"target", nil];
+        if ([[[db library] valueForItem:it attr:PRItemAttrCompilation] boolValue]) {
+            artist = @"Compilation";
+        }
+        NSNumber *drawBorder = [NSNumber numberWithBool:[[item objectAtIndex:0] intValue] + 1 == [_albumCounts count] || [nowPlayingTableView isItemExpanded:item]];h
+        return @{@"title":artist, @"subtitle":album, @"item":item, @"drawBorder":drawBorder, @"target":self};
     } else {
         int row = [self dbRowForItem:item];
         PRItem *it = [[db nowPlayingViewSource] itemForRow:row];
@@ -1007,13 +1005,7 @@
         } else {
             badge = [NSNumber numberWithInt:0];
         }
-        return [NSDictionary dictionaryWithObjectsAndKeys:
-                title, @"title",
-                icon, @"icon", 
-                invertedIcon, @"invertedIcon", 
-                badge, @"badge",
-                item, @"item",
-                self, @"target", nil];
+        return @{@"title":title, @"icon":icon, @"invertedIcon":invertedIcon, @"badge":badge, @"item":item, @"target":self};
     }
 }
 
