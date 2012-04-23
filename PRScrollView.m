@@ -16,7 +16,7 @@
                                              selector:@selector(viewFrameDidChange:) 
                                                  name:NSViewFrameDidChangeNotification
                                                object:self];
-    [self setContentView:[[PRClipView alloc] init]];
+    [self setContentView:[[[PRClipView alloc] init] autorelease]];
     [self setBackgroundColor:[NSColor PRBackgroundColor]];
 }
 
