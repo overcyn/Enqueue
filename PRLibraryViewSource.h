@@ -19,10 +19,14 @@ typedef enum {
 @interface PRLibraryViewSource : NSObject {
 	__weak PRDb *_db;
 	
+    // state of current/last refresh
     PRList *_list;
+    BOOL _force;
+    
+    // flag indicating if compilations browser item should be shown.
     BOOL _compilation;
     
-    BOOL _force;
+    // info about last refresh so as not to unnecessarily repopulate tables
     NSString *_prevSourceString;
     NSDictionary *_prevSourceBindings;
     NSString *prevBrowser1Statement;
@@ -32,12 +36,14 @@ typedef enum {
     NSString *prevBrowser3Statement;
     NSDictionary *prevBrowser3Bindings;
     
-    NSString *_cachedSortIndexStatement;
+    // cache for basic library with no browser selection or search
+    NSString *_cachedLibraryStatement;
     NSString *_cachedBrowser1Statement;
     NSString *_cachedBrowser2Statement;
     NSString *_cachedBrowser3Statement;
     BOOL _cachedCompilation;
     
+    // cache for valueForRow:attribute:andCacheAttributes:
     int _cachedRow;
     NSArray *_cachedAttrs;
     NSArray *_cachedAttrValues;

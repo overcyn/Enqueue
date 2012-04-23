@@ -16,9 +16,10 @@ NSString * const compilationString = @"Compilations  ";
 
 @interface PRLibraryViewSource ()
 /* Update Priv */
-- (BOOL)updateSortIndex;
-- (BOOL)populateSource;
+- (BOOL)populateCaches;
+- (BOOL)populateLibrary;
 - (BOOL)populateBrowser:(int)browser;
+- (NSString *)searchStringForList:(PRList *)list;
 
 /* Priv */
 - (BOOL)compilationForBrowser:(int)browser;
@@ -40,7 +41,7 @@ NSString * const compilationString = @"Compilations  ";
     prevBrowser1Bindings = [[NSDictionary alloc] init];
     prevBrowser2Bindings = [[NSDictionary alloc] init];
     prevBrowser3Bindings = [[NSDictionary alloc] init];
-    _cachedSortIndexStatement = @"";
+    _cachedLibraryStatement = @"";
     _cachedBrowser1Statement = @"";
     _cachedBrowser2Statement = @"";
     _cachedBrowser3Statement = @"";
@@ -52,47 +53,42 @@ NSString * const compilationString = @"Compilations  ";
 }
 
 - (BOOL)initialize {
-    NSString *string;
-    string = @"CREATE TEMP TABLE libraryViewSource "
-    "(row INTEGER NOT NULL PRIMARY KEY, "
-    "file_id INTEGER NOT NULL)";
-    [_db execute:string];
+    [_db execute:@"CREATE TEMP TABLE libraryViewSource "
+     "(row INTEGER NOT NULL PRIMARY KEY, "
+     "file_id INTEGER NOT NULL)"];
     
-    string = @"CREATE TEMP TABLE browser1ViewSource "
-    "(row INTEGER NOT NULL PRIMARY KEY, "
-    "value TEXT NOT NULL)";
-    [_db execute:string];
+    [_db execute:@"CREATE TEMP TABLE browser1ViewSource "
+     "(row INTEGER NOT NULL PRIMARY KEY, "
+     "value TEXT NOT NULL)"];
     
-    string = @"CREATE TEMP TABLE browser2ViewSource "
-    "(row INTEGER NOT NULL PRIMARY KEY, "
-    "value TEXT NOT NULL)";
-    [_db execute:string];
+    [_db execute:@"CREATE TEMP TABLE browser2ViewSource "
+     "(row INTEGER NOT NULL PRIMARY KEY, "
+     "value TEXT NOT NULL)"];
     
-    string = @"CREATE TEMP TABLE browser3ViewSource "
-    "(row INTEGER NOT NULL PRIMARY KEY, "
-    "value TEXT NOT NULL)";
-    [_db execute:string];
+    [_db execute:@"CREATE TEMP TABLE browser3ViewSource "
+     "(row INTEGER NOT NULL PRIMARY KEY, "
+     "value TEXT NOT NULL)"];
     
-    string = @"CREATE TEMP TABLE browserTempViewSource "
-    "(row INTEGER NOT NULL PRIMARY KEY, "
-    "value TEXT NOT NULL,"
-    "compilation INTEGER NOT NULL)";
-    [_db execute:string];
+    [_db execute:@"CREATE TEMP TABLE browserTempViewSource "
+     "(row INTEGER NOT NULL PRIMARY KEY, "
+     "value TEXT NOT NULL,"
+     "compilation INTEGER NOT NULL)"];
     
-    string = @"CREATE TEMP TABLE browser1Cache "
-    "(row INTEGER NOT NULL PRIMARY KEY, "
-    "value TEXT NOT NULL)";
-    [_db execute:string];    
+    [_db execute:@"CREATE TEMP TABLE libraryCache "
+     "(row INTEGER NOT NULL PRIMARY KEY, "
+     "file_id INTEGER NOT NULL)"];
     
-    string = @"CREATE TEMP TABLE browser2Cache "
-    "(row INTEGER NOT NULL PRIMARY KEY, "
-    "value TEXT NOT NULL)";
-    [_db execute:string];
+    [_db execute:@"CREATE TEMP TABLE browser1Cache "
+     "(row INTEGER NOT NULL PRIMARY KEY, "
+     "value TEXT NOT NULL)"];    
     
-    string = @"CREATE TEMP TABLE browser3Cache "
-    "(row INTEGER NOT NULL PRIMARY KEY, "
-    "value TEXT NOT NULL)";
-    [_db execute:string];
+    [_db execute:@"CREATE TEMP TABLE browser2Cache "
+     "(row INTEGER NOT NULL PRIMARY KEY, "
+     "value TEXT NOT NULL)"];
+    
+    [_db execute:@"CREATE TEMP TABLE browser3Cache "
+     "(row INTEGER NOT NULL PRIMARY KEY, "
+     "value TEXT NOT NULL)"];
     return TRUE;
 }
 
@@ -106,7 +102,7 @@ NSString * const compilationString = @"Compilations  ";
     [prevBrowser2Bindings release];
     [prevBrowser3Statement release];
     [prevBrowser3Bindings release];
-    [_cachedSortIndexStatement release];
+    [_cachedLibraryStatement release];
     [_cachedBrowser1Statement release];
     [_cachedBrowser2Statement release];
     [_cachedBrowser3Statement release];
@@ -126,7 +122,7 @@ NSString * const compilationString = @"Compilations  ";
     _force = force;
     
     int tables = 0;
-    [self updateSortIndex];
+    [self populateCaches];
     if ([self populateBrowser:1]) {
         tables = PRBrowser1View;
     }
@@ -136,7 +132,7 @@ NSString * const compilationString = @"Compilations  ";
     if ([self populateBrowser:3]) {
         tables = tables | PRBrowser3View;
     }
-    if ([self populateSource]) {
+    if ([self populateLibrary]) {
         tables = tables | PRLibraryView;
     }
 	return tables;
@@ -144,49 +140,19 @@ NSString * const compilationString = @"Compilations  ";
 
 #pragma mark - Update Priv
 
-- (BOOL)updateSortIndex {
+- (BOOL)populateCaches {
     if (![_list isEqual:[[_db playlists] libraryList]]) {
         return TRUE;
     }
     
-    // Library view mode
-	int libraryViewMode = [[_db playlists] viewModeForList:_list];
-    PRListSort *listSort;
-	if (libraryViewMode == PRListMode) {
-		listSort = [[_db playlists] listViewSortAttrForList:_list];
-	} else {
-        listSort = [[_db playlists] albumListViewSortAttrForList:_list];
-	}
-	if ([listSort isEqual:PRListSortIndex]) {
-        listSort = PRListSortArtistAlbum;
-    }
-    
-    // Sort column
-    NSString *sortColumnName;
-    if ([listSort isEqual:PRListSortIndex]) {
-        @throw NSInvalidArgumentException;
-    } else if ([[PRUserDefaults userDefaults] useAlbumArtist] && [listSort isEqual:PRItemAttrArtist]) {
-        sortColumnName = @"artistAlbumArtist";
-    } else {
-        if ([listSort isEqual:PRListSortArtistAlbum]) {
-            if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
-                listSort = PRItemAttrArtistAlbumArtist;
-            } else {
-                listSort = PRItemAttrArtist;
-            }
-        }
-        sortColumnName = [PRPlaylists columnNameForSortAttr:listSort];
-    }
-    
-    // Sort
-    NSString *string = [NSString stringWithFormat:@"CREATE INDEX index_librarySort ON library "
-                        "(%@ COLLATE NOCASE2, album COLLATE NOCASE2, discNumber COLLATE NOCASE2, "
-						"trackNumber COLLATE NOCASE2, path COLLATE NOCASE2)", sortColumnName];
-    if (![string isEqualToString:_cachedSortIndexStatement]) {
-        [_db execute:@"DROP INDEX IF EXISTS index_librarySort"];
+    // Cache library
+    NSString *string = [NSString stringWithFormat:@"INSERT INTO libraryCache (file_id) SELECT file_id FROM library %@ ",
+              [self searchStringForList:_list]];
+    if (![string isEqualToString:_cachedLibraryStatement] || _force) {
+        [_db execute:@"DELETE FROM libraryCache"];
         [_db execute:string];
-        [_cachedSortIndexStatement release];
-        _cachedSortIndexStatement = [string retain];
+        [_cachedLibraryStatement release];
+        _cachedLibraryStatement = [string retain];
     }
     
     // Cache browser 1
@@ -242,14 +208,14 @@ NSString * const compilationString = @"Compilations  ";
     return TRUE;
 }
 
-- (BOOL)populateSource {
-    BOOL whereTerm = FALSE;
+- (BOOL)populateLibrary {
+    BOOL useCache = TRUE;
 	int bindingIndex = 1;
 	NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
     NSMutableString *string;
 	if ([_list isEqual:[[_db playlists] libraryList]]) {
 		string = [NSMutableString stringWithFormat:
-                  @"INSERT INTO libraryViewSource (file_id) SELECT file_id FROM library WHERE "];
+                  @"INSERT INTO libraryViewSource (file_id) SELECT file_id FROM library WHERE 1=1 AND "];
 	} else {
 		string = [NSMutableString stringWithFormat:
                   @"INSERT INTO libraryViewSource (file_id) SELECT playlist_items.file_id "
@@ -258,16 +224,14 @@ NSString * const compilationString = @"Compilations  ";
                   bindingIndex];
 		[bindings setObject:_list forKey:[NSNumber numberWithInt:bindingIndex]];
 		bindingIndex++;
-        whereTerm = TRUE;
 	}
 	
     // Filter for Column Browser
     for (int i = 1; i <= 3; i++) {
         NSString *grouping = [self groupingStringForList:_list browser:i];
         NSArray *selection = [[_db playlists] selectionForBrowser:i list:_list];
-        
         if ([selection count] != 0 && [grouping length] != 0) {
-            whereTerm = TRUE;
+            useCache = FALSE;
             // copy rows from library_view_source into temp table that match selection
             [string appendFormat:@"(%@ COLLATE NOCASE2 IN (", grouping];
             for (NSString *i in selection) {
@@ -292,10 +256,9 @@ NSString * const compilationString = @"Compilations  ";
 	// Search
 	NSString *search = [[_db playlists] searchForList:_list];
 	if (search && [search length] != 0) {
-        whereTerm = TRUE;
+        useCache = FALSE;
 		[string appendString:@"(1 = 1 "];
 		NSArray *searchTerms = [search componentsSeparatedByString:@" "];
-		
 		for (NSString *term in searchTerms) {
 			[string appendString:[NSString stringWithFormat:@"AND (library.title LIKE ?%d "
                                   "OR library.album LIKE ?%d "
@@ -311,60 +274,13 @@ NSString * const compilationString = @"Compilations  ";
 		[string appendString:@") AND "];
 	}
     
-    if (whereTerm) {
-        [string deleteCharactersInRange:NSMakeRange([string length] - 4, 4)];
-    } else {
-        [string deleteCharactersInRange:NSMakeRange([string length] - 6, 6)];
-    }
+    // Delete 'AND '
+    [string deleteCharactersInRange:NSMakeRange([string length] - 4, 4)];
     
-    // Library view mode
-	int libraryViewMode = [[_db playlists] viewModeForList:_list];
-    PRListSort *sort;
-    int asc;
-	if (libraryViewMode == PRListMode) {
-        sort = [[_db playlists] listViewSortAttrForList:_list];
-        asc = [[_db playlists] listViewAscendingForList:_list];
-	} else {
-        sort = [[_db playlists] albumListViewSortAttrForList:_list];
-        asc = [[_db playlists] albumListViewAscendingForList:_list];
-	}
-	
-    // Sort column
-    NSString *sortColumnName;
-    if ([sort isEqual:PRListSortIndex]) {
-        sortColumnName = @"playlist_items.playlist_index";
-    } else if ([[PRUserDefaults userDefaults] useAlbumArtist] && [sort isEqual:PRItemAttrArtist]) {
-        sortColumnName = [PRLibrary columnNameForItemAttr:PRItemAttrArtistAlbumArtist];
-    } else {
-        if ([sort isEqual:PRListSortArtistAlbum]) {
-            if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
-                sort = PRItemAttrArtistAlbumArtist;
-            } else {
-                sort = PRItemAttrArtist;
-            }
-        }
-        sortColumnName = [PRLibrary columnNameForItemAttr:sort];
-    }
+    // Add Sort
+    [string appendString:[self searchStringForList:_list]];
     
-    // Sort
-    NSString *ascending;
-	if (asc) {
-		ascending = @"ASC";
-	} else {
-		ascending = @"DESC";
-	}
-	if (sort == PRItemAttrArtist || sort == PRItemAttrArtistAlbumArtist) {
-		[string appendFormat:@"ORDER BY CASE WHEN compilation == 0 THEN %@ ELSE 'compilation' END COLLATE NOCASE2 %@, "
-		 "album COLLATE NOCASE2 %@, discNumber %@, trackNumber %@",
-		 sortColumnName, ascending, ascending, ascending, ascending];
-	} else {
-		[string appendFormat:@"ORDER BY %@ COLLATE NOCASE2 %@, album COLLATE NOCASE2 %@, discNumber %@, trackNumber %@",
-		 sortColumnName, ascending, ascending, ascending, ascending];
-	}
-    
-    if (!_force &&
-        [string isEqualToString:_prevSourceString] &&
-        [bindings isEqualToDictionary:_prevSourceBindings]) {
+    if (!_force && [string isEqualToString:_prevSourceString] && [bindings isEqualToDictionary:_prevSourceBindings]) {
         return FALSE;
     }
     [_prevSourceString release];
@@ -372,11 +288,13 @@ NSString * const compilationString = @"Compilations  ";
     _prevSourceString = [string retain];
     _prevSourceBindings = [bindings retain];
     
-    // Delete all items from library1ViewSource
+    // Repopulate libraryViewSource
     [_db execute:@"DELETE FROM libraryViewSource"];
-    
-	// Execute
-    [_db execute:string bindings:bindings columns:nil];
+    if (useCache) {
+        [_db execute:@"INSERT INTO libraryViewSource (row, file_id) SELECT row, file_id FROM libraryCache"];
+    } else {
+        [_db execute:string bindings:bindings columns:nil];
+    }
     return TRUE;
 }
 
@@ -410,7 +328,7 @@ NSString * const compilationString = @"Compilations  ";
         [*prevBrowserStatement release];
         [*prevBrowserBindings release];
         *prevBrowserStatement = [@"" retain];
-        *prevBrowserBindings = [[NSDictionary alloc] init];
+        *prevBrowserBindings = [@{} retain];
 		return TRUE;
 	}
     
@@ -548,6 +466,55 @@ NSString * const compilationString = @"Compilations  ";
 	return TRUE;
 }
 
+- (NSString *)searchStringForList:(PRList *)list {
+    NSMutableString *string = [[[NSMutableString alloc] init] autorelease];
+    // Library view mode
+	int libraryViewMode = [[_db playlists] viewModeForList:_list];
+    PRListSort *sort;
+    int asc;
+	if (libraryViewMode == PRListMode) {
+        sort = [[_db playlists] listViewSortAttrForList:_list];
+        asc = [[_db playlists] listViewAscendingForList:_list];
+	} else {
+        sort = [[_db playlists] albumListViewSortAttrForList:_list];
+        asc = [[_db playlists] albumListViewAscendingForList:_list];
+	}
+	
+    // Sort column
+    NSString *sortColumnName;
+    if ([sort isEqual:PRListSortIndex]) {
+        sortColumnName = @"playlist_items.playlist_index";
+    } else if ([[PRUserDefaults userDefaults] useAlbumArtist] && [sort isEqual:PRItemAttrArtist]) {
+        sortColumnName = [PRLibrary columnNameForItemAttr:PRItemAttrArtistAlbumArtist];
+    } else {
+        if ([sort isEqual:PRListSortArtistAlbum]) {
+            if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
+                sort = PRItemAttrArtistAlbumArtist;
+            } else {
+                sort = PRItemAttrArtist;
+            }
+        }
+        sortColumnName = [PRLibrary columnNameForItemAttr:sort];
+    }
+    
+    // Sort
+    NSString *ascending;
+	if (asc) {
+		ascending = @"ASC";
+	} else {
+		ascending = @"DESC";
+	}
+	if (sort == PRItemAttrArtist || sort == PRItemAttrArtistAlbumArtist) {
+		[string appendFormat:@"ORDER BY CASE WHEN compilation == 0 THEN %@ ELSE 'compilation' END COLLATE NOCASE2 %@, "
+		 "album COLLATE NOCASE2 %@, discNumber %@, trackNumber %@",
+		 sortColumnName, ascending, ascending, ascending, ascending];
+	} else {
+		[string appendFormat:@"ORDER BY %@ COLLATE NOCASE2 %@, album COLLATE NOCASE2 %@, discNumber %@, trackNumber %@",
+		 sortColumnName, ascending, ascending, ascending, ascending];
+	}
+    return string;
+}
+
 #pragma mark - Library Accessors
 
 - (int)count {
@@ -602,7 +569,7 @@ NSString * const compilationString = @"Compilations  ";
         [_cachedStatement release];
         _cachedStatement = [[PRStatement alloc] initWithString:string bindings:nil columns:columns db:_db];
     }
-    [_cachedStatement setBindings:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil]];
+    [_cachedStatement setBindings:@{@1:[NSNumber numberWithInt:row]}];
     NSArray *result = [[_cachedStatement execute] objectAtIndex:0];
     _cachedRow = row;
     [_cachedAttrValues release];
@@ -611,13 +578,12 @@ NSString * const compilationString = @"Compilations  ";
 }
 
 - (int)firstRowWithValue:(id)value forAttr:(PRItemAttr *)attr {
-    NSString *stm = [NSString stringWithFormat:@"SELECT row FROM libraryViewSource "
-                     "JOIN library ON libraryViewSource.file_id = library.file_id WHERE %@ = ?1 COLLATE NOCASE2 "
-                     "ORDER BY row LIMIT 1", 
-                     [PRLibrary columnNameForItemAttr:attr]];
-    NSArray *rlt = [_db execute:stm 
-                       bindings:[NSDictionary dictionaryWithObjectsAndKeys:value, [NSNumber numberWithInt:1], nil]
-                        columns:[NSArray arrayWithObject:PRColInteger]];
+    NSArray *rlt = [_db execute:[NSString stringWithFormat:@"SELECT row FROM libraryViewSource "
+                                 "JOIN library ON libraryViewSource.file_id = library.file_id WHERE %@ = ?1 COLLATE NOCASE2 "
+                                 "ORDER BY row LIMIT 1", 
+                                 [PRLibrary columnNameForItemAttr:attr]]
+                       bindings:@{@1:value}
+                        columns:@[PRColInteger]];
     if ([rlt count] == 0) {
         return -1;
     }
@@ -628,22 +594,23 @@ NSString * const compilationString = @"Compilations  ";
     NSArray *rlt = [_db execute:@"SELECT SUM(time), SUM(size), count(libraryViewSource.file_id) "
                     "FROM libraryViewSource JOIN library ON libraryViewSource.file_id = library.file_id"
                       bindings:nil
-                       columns:[NSArray arrayWithObjects:PRColInteger, PRColInteger, PRColInteger, nil]];
-    NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
-                          [[rlt objectAtIndex:0] objectAtIndex:0], @"time",
-                          [[rlt objectAtIndex:0] objectAtIndex:1], @"size",
-                          [[rlt objectAtIndex:0] objectAtIndex:2], @"count", nil];
-    return info;
+                       columns:@[PRColInteger, PRColInteger, PRColInteger]];
+    if ([rlt count] != 1) {
+        @throw PRDbInconsistencyException;
+    }
+    return @{@"time":[[rlt objectAtIndex:0] objectAtIndex:0],
+    @"size":[[rlt objectAtIndex:0] objectAtIndex:1],
+    @"count":[[rlt objectAtIndex:0] objectAtIndex:2]};
 }
 
 - (NSArray *)albumCounts {
     NSArray *results = [_db execute:@"SELECT library.album FROM libraryViewSource JOIN library ON libraryViewSource.file_id = library.file_id" 
                           bindings:nil 
-                           columns:[NSArray arrayWithObject:PRColString]];
+                           columns:@[PRColString]];
     if ([results count] == 0) {
-        return [NSArray array];
+        return @[];
     } else if ([results count] == 1) {
-        return [NSArray arrayWithObject:[NSNumber numberWithInt:1]];
+        return @[@1];
     }
     
     NSMutableArray *array = [NSMutableArray array];
@@ -670,10 +637,11 @@ NSString * const compilationString = @"Compilations  ";
         return 0;
     }
     NSArray *rlt = [_db execute:[NSString stringWithFormat:@"SELECT COUNT(*) FROM %@", [self tableNameForBrowser:browser]]
-                      bindings:nil 
-                       columns:[NSArray arrayWithObject:PRColInteger]];
-    if ([rlt count] != 1) {[PRException raise:PRDbInconsistencyException format:@""];}
-    
+                       bindings:nil 
+                        columns:@[PRColInteger]];
+    if ([rlt count] != 1) {
+        [PRException raise:PRDbInconsistencyException format:@""];
+    }
     int count = [[[rlt objectAtIndex:0] objectAtIndex:0] intValue];
     if ([self compilationForBrowser:browser] && _compilation) {
         count += 1;
@@ -691,7 +659,9 @@ NSString * const compilationString = @"Compilations  ";
     NSArray *rlt = [_db execute:[NSString stringWithFormat:@"SELECT value FROM %@ WHERE row = ?1", [self tableNameForBrowser:browser]]
                       bindings:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil]
                        columns:[NSArray arrayWithObjects:PRColString, nil]];
-    if ([rlt count] != 1) {[PRException raise:PRDbInconsistencyException format:@"row:%d browser:%d",row, browser];}
+    if ([rlt count] != 1) {
+        [PRException raise:PRDbInconsistencyException format:@"row:%d browser:%d",row, browser];
+    }
     return [[rlt objectAtIndex:0] objectAtIndex:0];
 }
 
@@ -712,7 +682,7 @@ NSString * const compilationString = @"Compilations  ";
     for (int i = 0; i < [selectionArray count]; i++) {
         [bnd setObject:[selectionArray objectAtIndex:i] forKey:[NSNumber numberWithInt:i + 1]];
     }
-    NSArray *rlt = [_db execute:string bindings:bnd columns:[NSArray arrayWithObject:PRColInteger]];
+    NSArray *rlt = [_db execute:string bindings:bnd columns:@[PRColInteger]];
     
     NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
     for (NSArray *i in rlt) {
@@ -734,7 +704,8 @@ NSString * const compilationString = @"Compilations  ";
 #pragma mark - Priv
 
 - (BOOL)compilationForBrowser:(int)browser {
-    return ([[[_db playlists] attrForBrowser:browser list:_list] isEqual:PRItemAttrArtist] && [[PRUserDefaults userDefaults] useCompilation]);
+    return ([[[_db playlists] attrForBrowser:browser list:_list] isEqual:PRItemAttrArtist] &&
+            [[PRUserDefaults userDefaults] useCompilation]);
 }
 
 - (NSString *)tableNameForBrowser:(int)browser {
@@ -754,9 +725,8 @@ NSString * const compilationString = @"Compilations  ";
     }
     PRItemAttr *attr = [[_db playlists] attrForBrowser:browser list:list];
     if (!attr) {
-       return @"";
-    }
-    if ([[PRUserDefaults userDefaults] useAlbumArtist] && [attr isEqual:PRItemAttrArtist]) {
+        return @"";
+    } else if ([[PRUserDefaults userDefaults] useAlbumArtist] && [attr isEqual:PRItemAttrArtist]) {
         return @"artistAlbumArtist";
     }
     return [PRLibrary columnNameForItemAttr:attr];
