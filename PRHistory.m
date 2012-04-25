@@ -38,7 +38,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 - (void)addItem:(PRItem *)item withDate:(NSDate *)date {
     [_db execute:@"INSERT INTO history (file_id, date) VALUES (?1, ?2)"
 		bindings:@{@1:item, @2:[[NSDate date] description]}
-        columns:nil];
+         columns:nil];
 }
 
 - (void)clear {

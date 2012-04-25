@@ -140,9 +140,10 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 }
 
 - (BOOL)initialize {
-    NSString *string = @"SELECT sql FROM sqlite_master WHERE name = 'library'";
-    NSArray *columns = [NSArray arrayWithObjects:PRColString, nil];
-    NSArray *result = [db execute:string bindings:nil columns:columns];
+    NSArray *columns = @[PRColString];
+    NSArray *result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'library'" 
+                         bindings:nil
+                          columns:columns];
     if ([result count] != 1 || !([[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_LIBRARY_SQL] || [[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_LIBRARY_SQL2])) {
         return FALSE;
     }
@@ -191,9 +192,8 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
     [db execute:PR_TRG_ARTIST_ALBUM_ARTIST_SQL];
     [db execute:PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL];
-    string = @"UPDATE library SET artistAlbumArtist = coalesce(nullif(albumArtist, ''), artist) "
-    "WHERE artistAlbumArtist != coalesce(nullif(albumArtist, ''), artist)";
-    [db execute:string];
+    [db execute:@"UPDATE library SET artistAlbumArtist = coalesce(nullif(albumArtist, ''), artist) "
+     "WHERE artistAlbumArtist != coalesce(nullif(albumArtist, ''), artist)"];
     return TRUE;
 }
 
@@ -322,7 +322,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 - (NSArray *)itemsWithValue:(id)value forAttr:(PRItemAttr *)attr {
     NSArray *result = [db execute:[NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ = ?1", [PRLibrary columnNameForItemAttr:attr]]
                          bindings:@{@1:value}
-                          columns:@[[PRLibrary columnTypeForItemAttr:attr]]];
+                          columns:@[PRColInteger]];
     NSMutableArray *items = [NSMutableArray array];
     for (NSArray *i in result) {
         [items addObject:[i objectAtIndex:0]];

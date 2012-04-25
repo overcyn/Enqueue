@@ -23,6 +23,9 @@
 
 #pragma mark - Accessors
 
-@synthesize title = _title, percent = _percent, shouldCancel = _shouldCancel, background = _background;
+@synthesize title = _title,
+percent = _percent,
+shouldCancel = _shouldCancel,
+background = _background;
 
 @end

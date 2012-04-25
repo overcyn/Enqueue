@@ -19,7 +19,7 @@
     NSString *artist = [[db library] artistValueForItem:item];
 	NSString *album = [[db library] valueForItem:item attr:PRItemAttrAlbum];
 	NSNumber *year = [[db library] valueForItem:item attr:PRItemAttrYear];
-    if ([[[db library] valueForItem:item attr:PRItemAttrCompilation] boolValue]) {
+    if ([[[db library] valueForItem:item attr:PRItemAttrCompilation] boolValue] && [[PRUserDefaults userDefaults] useCompilation]) {
         artist = @"Compilation";
     }
     

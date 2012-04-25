@@ -52,7 +52,6 @@
 
 - (void)dealloc {
     [_connection invalidate];
-    
     [_connection release];
     [_db release];
     [_now release];
@@ -109,7 +108,7 @@ keys = _keys;
         [panel setPrompt:@"Import"];
         [panel setMessage:@"Select the 'iTunes Music Library.xml' file to import."];
         [panel setDirectoryURL:[NSURL fileURLWithPath:filePath]];
-        [panel setAllowedFileTypes:[NSArray arrayWithObject:@"xml"]];
+        [panel setAllowedFileTypes:@[@"xml"]];
         [panel beginSheetModalForWindow:[_win window] completionHandler:^(NSInteger result) {
             if (result == NSCancelButton || [[panel URLs] count] == 0) {return;}
             PRItunesImportOperation *op = [PRItunesImportOperation operationWithURL:[[panel URLs] objectAtIndex:0] core:self];
@@ -151,7 +150,7 @@ keys = _keys;
 
 - (BOOL)application:(NSApplication *)application openFile:(NSString *)filename {
 	NSLog(@"openingFiles:%@",filename);
-    NSArray *URLs = [NSArray arrayWithObject:[NSURL fileURLWithPath:filename]];
+    NSArray *URLs = @[[NSURL fileURLWithPath:filename]];
     PRImportOperation *op = [PRImportOperation operationWithURLs:URLs core:self];
     [_opQueue addOperation:op];
     return TRUE;

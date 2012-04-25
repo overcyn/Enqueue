@@ -36,11 +36,10 @@
 
 	__weak PRDb *_db;
 }
-
-// Initialization
+/* Initialization */
 - (id)initWithDb:(PRDb *)db;
 
-// Accessors
+/* Accessors */
 @property (readonly) NSArray *invalidItems;
 @property (readonly) PRMoviePlayer *mov;
 @property (readonly) PRList *currentList;
@@ -53,11 +52,10 @@
 - (void)toggleRepeat;
 - (void)toggleShuffle;
 
-// Playback
+/* Playback */
 - (void)playItemAtIndex:(int)index;
 - (void)playPause;
 - (void)playNext;
 - (void)playPrevious;
 - (void)stop;
-
 @end

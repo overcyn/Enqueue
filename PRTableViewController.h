@@ -38,20 +38,20 @@
     BOOL _updatingTableViewSelection; // True during reloadData: so tableViewSelectionDidChange doesn't trigger
 	BOOL refreshing;
 }
-// Initialization
+/* Initialization */
 - (id)initWithCore:(PRCore *)core;
 
-// Accessors
+/* Accessors */
 @property (nonatomic, assign) PRList *currentList;
 @property (readonly) NSDictionary *info;
 @property (readonly) NSArray *selection;
 
-// Action
+/* Action */
 - (void)highlightItem:(PRItem *)item;
 - (void)highlightFiles:(NSArray *)items;
 - (void)highlightArtist:(NSString *)artist;
 - (void)browseToArtist:(NSString *)artist;
 
-// Menu
+/* Menu */
 - (NSMenu *)browserHeaderMenu;
 @end

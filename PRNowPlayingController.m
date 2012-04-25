@@ -11,7 +11,7 @@
 
 @interface PRNowPlayingController ()
 /* Playback */
-- (void)playListItem:(PRListItem *)listItem withSel:(SEL)selector; // should only be called by playPlayistItem: and playPlaylistItemIfNotQueued:
+- (void)playListItem:(PRListItem *)listItem withSel:(SEL)selector;
 - (void)playListItemIfNotQueued:(PRListItem *)listItem;
 - (void)playListItem:(PRListItem *)listItem;
 - (PRListItem *)nextItem:(BOOL)update;
@@ -181,7 +181,7 @@
     // update tags
     BOOL updated = [PRTagger updateTagsForItem:item database:_db];
     if (updated) {
-        [[NSNotificationCenter defaultCenter] postItemsChanged:[NSArray arrayWithObject:item]];
+        [[NSNotificationCenter defaultCenter] postItemsChanged:@[item]];
     }
     
     NSString *path = [[_db library] valueForItem:item attr:PRItemAttrPath];

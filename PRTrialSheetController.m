@@ -103,7 +103,7 @@
 #pragma mark - misc
 
 + (NSDate *)date {
-    return [NSDate dateWithString:@"2012-04-25 01:00:00 +0000"];
+    return [NSDate dateWithString:@"2012-09-25 01:00:00 +0000"];
 }
 
 @end

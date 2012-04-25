@@ -39,41 +39,6 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
 
 - (BOOL)clean {
     [db execute:@"DELETE FROM playback_order"];
-//    int count = [self count];
-//    NSString *string = @"SELECT MAX(index_) from playback_order";
-//    NSArray *columns = [NSArray arrayWithObjects:PRColInteger, nil];
-//    NSArray *results = [db execute:string bindings:nil columns:columns];
-//    if ([results count] != 1) {
-//        [PRException raise:PRDbInconsistencyException format:@""];
-//    }
-//    int max = [[[results objectAtIndex:0] objectAtIndex:0] intValue];
-//    
-//    string = @"SELECT MIN(index_) from playback_order";
-//    columns = [NSArray arrayWithObjects:PRColInteger, nil];
-//    results = [db execute:string bindings:nil columns:columns];
-//    if ([results count] != 1) {
-//        [PRException raise:PRDbInconsistencyException format:@""];
-//    }
-//    int min = [[[results objectAtIndex:0] objectAtIndex:0] intValue];
-//    
-//    if (min != 0 && max != count - 1) {
-//        // clean up playback order
-//        NSLog(@"PRPlaylistItems Inconsistency error!!!!!!!!!!!!!!!!!!!!");
-//    }
-//
-//    
-//    string = @"SELECT index_ FROM playback_order ORDER BY index_";
-//    columns = [NSArray arrayWithObjects:PRColInteger, nil];
-//    results = [db execute:string bindings:nil columns:columns];
-//    
-//    for (int i = 0; i < [results count]; i++) {
-//        int oldIndex = [[[results objectAtIndex:i] objectAtIndex:0] intValue];
-//        string = @"UPDATE playback_order SET index_ = ?1 WHERE index_ = ?2";
-//        NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-//                                  [NSNumber numberWithInt:i + 1], [NSNumber numberWithInt:1],
-//                                  [NSNumber numberWithInt:oldIndex], [NSNumber numberWithInt:2], nil];
-//        [db execute:string bindings:bindings columns:nil];
-//    }
     return TRUE;
 }
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2010, 2011 Stephen F. Booth <me@sbooth.org>
+ *  Copyright (C) 2010, 2011, 2012 Stephen F. Booth <me@sbooth.org>
  *  All Rights Reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -59,21 +59,25 @@ class InputSource
 public:
 
 	// ========================================
-	// Factory methods that return an InputSource for the specified URL, or NULL on failure
-	static InputSource * CreateInputSourceForURL(CFURLRef url, int flags = 0, CFErrorRef *error = NULL);
+	// Factory methods that return an InputSource for the specified URL, or nullptr on failure
+	static InputSource * CreateInputSourceForURL(CFURLRef url, int flags = 0, CFErrorRef *error = nullptr);
 
 	// ========================================
 	// Destruction
 	virtual ~InputSource();
-	
+
+	// This class is non-copyable
+	InputSource(const InputSource& rhs) = delete;
+	InputSource& operator=(const InputSource& rhs) = delete;
+
 	// ========================================
 	// The URL this source will process
 	inline CFURLRef GetURL() const							{ return mURL; }
 	
 	// ========================================
 	// Bytestream access (must be implemented by subclasses)
-	virtual bool Open(CFErrorRef *error = NULL) = 0;
-	virtual bool Close(CFErrorRef *error = NULL) = 0;
+	virtual bool Open(CFErrorRef *error = nullptr) = 0;
+	virtual bool Close(CFErrorRef *error = nullptr) = 0;
 	
 	inline bool IsOpen() const								{ return mIsOpen; }
 
@@ -99,7 +103,5 @@ protected:
 	// For subclass use only
 	InputSource();
 	InputSource(CFURLRef url);
-	InputSource(const InputSource& rhs);
-	InputSource& operator=(const InputSource& rhs);
 
 };

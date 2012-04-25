@@ -17,7 +17,7 @@ static NSOperationQueue* cw_sharedOperationQueue = nil;
 }
 
 - (void)addBlockAndWait:(void (^)(void))block {
-    NSArray *operations = [NSArray arrayWithObject:[NSBlockOperation blockOperationWithBlock:block]];
+    NSArray *operations = @[[NSBlockOperation blockOperationWithBlock:block]];
     [self addOperations:operations waitUntilFinished:TRUE];
 }
 

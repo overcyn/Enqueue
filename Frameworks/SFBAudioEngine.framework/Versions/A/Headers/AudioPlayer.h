@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011 Stephen F. Booth <me@sbooth.org>
+ *  Copyright (C) 2006, 2007, 2008, 2009, 2010, 2011, 2012 Stephen F. Booth <me@sbooth.org>
  *  All Rights Reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -85,6 +85,10 @@ public:
 	AudioPlayer();
 	~AudioPlayer();
 	
+	// This class is non-copyable
+	AudioPlayer(const AudioPlayer& rhs) = delete;
+	AudioPlayer& operator=(const AudioPlayer& rhs) = delete;
+
 	// ========================================
 	// Playback Control
 	bool Play();
@@ -170,7 +174,7 @@ public:
 
 	// ========================================
 	// DSP Effects
-	bool AddEffect(OSType subType, OSType manufacturer, UInt32 flags, UInt32 mask, AudioUnit *effectUnit = NULL);
+	bool AddEffect(OSType subType, OSType manufacturer, UInt32 flags, UInt32 mask, AudioUnit *effectUnit = nullptr);
 	bool RemoveEffect(AudioUnit effectUnit);
 
 	// ========================================

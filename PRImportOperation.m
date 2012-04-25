@@ -32,11 +32,15 @@
     // Filter and add/update files
     NSArray *files;
     PRDirectoryEnumerator *dirEnum = [PRDirectoryEnumerator enumeratorWithURLs:_URLs];
-    while ((files = [dirEnum nextXObjects:200])) {
+    int filesPerTransaction = 50;
+    while ((files = [dirEnum nextXObjects:filesPerTransaction])) {
         [task setPercent:(int)([dirEnum progress] * 90)];
         [self filterURLs:files];
         if ([task shouldCancel]) {
             goto end;
+        }
+        if (filesPerTransaction < 1000) {
+            filesPerTransaction += 200;
         }
     }
     
@@ -82,7 +86,7 @@ end:;
 //                [self addM3UFile:URL2 depth:depth+1];
 //            }
 //        } else {
-////            [self addFiles:[NSArray arrayWithObject:URL2]];
+////            [self addFiles:@[URL2]];
 //        }
 //    }
 //}

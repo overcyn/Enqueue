@@ -59,7 +59,7 @@
 	// LibraryTableView
 	[libraryTableView setTarget:self];
 	[libraryTableView setDoubleAction:@selector(play)];
-	[libraryTableView registerForDraggedTypes:[NSArray arrayWithObject:PRFilePboardType]];
+	[libraryTableView registerForDraggedTypes:@[PRFilePboardType]];
 	[libraryTableView setVerticalMotionCanBeginDrag:FALSE];
 	[libraryTableView setDataSource:self];
 	[libraryTableView setDelegate:self];
@@ -579,7 +579,7 @@
     for (int i = 1; i <= 3; i++) {
         NSArray *selection = [NSArray array];
         if ([[[db playlists] attrForBrowser:i list:_currentList] isEqual:PRItemAttrArtist]) {
-            selection = [NSArray arrayWithObject:artist];
+            selection = @[artist];
         }
         [[db playlists] setSelection:selection forBrowser:i list:_currentList];
     }
@@ -849,7 +849,7 @@
         }
         
         NSMutableArray *attrs = [NSMutableArray array];
-        for (PRItemAttr *i in [NSArray arrayWithObjects:PRItemAttrAlbum, PRItemAttrArtist, PRItemAttrComposer, PRItemAttrGenre, nil]) {
+        for (PRItemAttr *i in @[PRItemAttrAlbum, PRItemAttrArtist, PRItemAttrComposer, PRItemAttrGenre]) {
             if ([set containsObject:i]) {
                 [attrs addObject:i];
             }
@@ -1076,7 +1076,7 @@
         PRItemAttr *attr1 = [[db playlists] attrForBrowser:1 list:_currentList];
         PRItemAttr *attr2 = [[db playlists] attrForBrowser:2 list:_currentList];
         PRItemAttr *attr3 = [[db playlists] attrForBrowser:3 list:_currentList];
-        for (PRItemAttr *i in [NSArray arrayWithObjects:PRItemAttrGenre, PRItemAttrComposer, PRItemAttrArtist, PRItemAttrAlbum, nil]) {
+        for (PRItemAttr *i in @[PRItemAttrGenre, PRItemAttrComposer, PRItemAttrArtist, PRItemAttrAlbum]) {
             item = [[[NSMenuItem alloc] init] autorelease];
             [item setTitle:[PRLibrary titleForItemAttr:i]];
             [item setActionBlock:^{[[selfRef target] toggleBrowser:i];}];
@@ -1176,7 +1176,7 @@
 	
 	// Columns	
 	NSSortDescriptor *sortDescriptor = [[[NSSortDescriptor alloc] initWithKey:@"headerCell.stringValue" ascending:TRUE] autorelease];
-	NSArray *sortedTableColumns = [[libraryTableView tableColumns] sortedArrayUsingDescriptors:[NSArray arrayWithObject:sortDescriptor]];
+	NSArray *sortedTableColumns = [[libraryTableView tableColumns] sortedArrayUsingDescriptors:@[sortDescriptor]];
 	for (NSTableColumn *i in sortedTableColumns) {
         if ([[i identifier] isEqual:PRListSortIndex]) {
             continue;
@@ -1320,7 +1320,7 @@
             [PRTagger setTag:object forAttribute:attr URL:[[db library] URLForItem:item]];
 			[PRTagger updateTagsForItem:item database:db];
 		}
-        [[NSNotificationCenter defaultCenter] postItemsChanged:[NSArray arrayWithObject:item]];
+        [[NSNotificationCenter defaultCenter] postItemsChanged:@[item]];
 	}
 }
 
@@ -1339,7 +1339,7 @@
 #pragma mark - Tableview DragAndDrop
 
 - (BOOL)tableView:(NSTableView *)tableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard*)pboard {
-    [pboard declareTypes:[NSArray arrayWithObjects:PRFilePboardType, PRIndexesPboardType, nil] owner:self];
+    [pboard declareTypes:@[PRFilePboardType, PRIndexesPboardType] owner:self];
     
     // PRFilePboardType
 	NSInteger currentIndex = 0;

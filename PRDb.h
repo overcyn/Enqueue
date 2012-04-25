@@ -1,6 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #include "sqlite3.h"
-@class PRHistory, PRLibrary, PRPlaylists, PRLibraryViewSource, PRNowPlayingViewSource, PRAlbumArtController, PRPlaybackOrder, PRQueue, PRStatement, PRCore;
+@class PRHistory, PRLibrary, PRPlaylists, PRLibraryViewSource, PRNowPlayingViewSource, PRAlbumArtController,
+PRPlaybackOrder, PRQueue, PRStatement, PRCore;
 
 
 extern NSString * const PRFilePboardType;

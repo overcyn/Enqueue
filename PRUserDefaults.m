@@ -85,7 +85,7 @@
 - (NSArray *)customEQs {
     PREQ *defaultEQ = [PREQ flat];
     [defaultEQ setTitle:@"Custom"];
-    NSArray *defaultEQArray = [NSArray arrayWithObjects:defaultEQ, nil];
+    NSArray *defaultEQArray = @[defaultEQ];
     
     id object = [defaults objectForKey:@"CustomEQs"];
     if (!object || ![object isKindOfClass:[NSData class]]) {

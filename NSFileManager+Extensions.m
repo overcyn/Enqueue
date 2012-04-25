@@ -2,8 +2,7 @@
 
 @implementation NSFileManager (Extensions)
 
-- (BOOL)itemAtURL:(NSURL *)u1 containsItemAtURL:(NSURL *)u2
-{
+- (BOOL)itemAtURL:(NSURL *)u1 containsItemAtURL:(NSURL *)u2 {
     FSRef ref, ref2;
     BOOL err = CFURLGetFSRef((CFURLRef)u1, &ref);
     if (!err) {return FALSE;}
@@ -30,8 +29,7 @@
 
 }
 
-- (BOOL)itemAtURL:(NSURL *)u1 equalsItemAtURL:(NSURL *)u2
-{
+- (BOOL)itemAtURL:(NSURL *)u1 equalsItemAtURL:(NSURL *)u2 {
     NSString *name1 = nil;
     NSString *name2 = nil;
     BOOL err = [u1 getResourceValue:&name1 forKey:NSURLNameKey error:nil];
@@ -42,11 +40,10 @@
     return [name1 isEqualToString:name2];
 }
 
-- (NSArray *)subDirsAtURL:(NSURL *)URL error:(NSError **)error
-{
+- (NSArray *)subDirsAtURL:(NSURL *)URL error:(NSError **)error {
     NSMutableArray *subdirs = [NSMutableArray array];
     NSArray *contents = [self contentsOfDirectoryAtURL:URL
-                            includingPropertiesForKeys:[NSArray arrayWithObject:NSURLIsDirectoryKey] 
+                            includingPropertiesForKeys:@[NSURLIsDirectoryKey]
                                                options:0 
                                                  error:error];
     if (!contents) {return [NSArray array];}

@@ -60,7 +60,7 @@
     if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
         string = @"SELECT library.album, library.artistAlbumArtist, library.compilation "
         "FROM now_playing_view_source JOIN library ON now_playing_view_source.file_id = library.file_id";
-	} else {
+    } else {
         string = @"SELECT library.album, library.artist, library.compilation "
         "FROM now_playing_view_source JOIN library ON now_playing_view_source.file_id = library.file_id";
     }
@@ -81,6 +81,10 @@
         
         BOOL albumSame = [albumString noCaseCompare:albumString2] == NSOrderedSame;
         BOOL artistSame = [artistString noCaseCompare:artistString2] == NSOrderedSame;
+        if (![[PRUserDefaults userDefaults] useCompilation]) {
+            compilation = FALSE;
+            compilation2 = FALSE;
+        }
         if (compilation != compilation2 || (compilation && !albumSame) || (!compilation && (!albumSame || !artistSame))) {
             [array addObject:[NSNumber numberWithInt:count]];
             count = 0;

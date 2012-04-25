@@ -391,7 +391,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 #pragma mark - ListItem Setters
 
 - (void)addItem:(PRItem *)item atIndex:(int)index toList:(PRList *)list {
-    [self addItems:[NSArray arrayWithObject:item] atIndex:index toList:list];
+    [self addItems:@[item] atIndex:index toList:list];
 }
 
 - (void)addItems:(NSArray *)items atIndex:(int)index toList:(PRList *)list {
@@ -772,7 +772,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 }
 
 - (PRItemAttr *)listViewSortAttrForList:(PRList *)list {
-    return [PRLibrary itemAttrForInternal:[self valueForList:list attr:PRListAttrListViewSortAttr]];
+    return [PRPlaylists sortAttrForInternal:[self valueForList:list attr:PRListAttrListViewSortAttr]];
 }
 
 - (void)setListViewSortAttr:(PRItemAttr *)attr forList:(PRList *)list {
@@ -784,7 +784,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 }
 
 - (void)setAlbumListViewSortAttr:(PRItemAttr *)attr forList:(PRList *)list {
-    [self setValue:[PRLibrary internalForItemAttr:attr] forList:list attr:PRListAttrAlbumListViewSortAttr];
+    [self setValue:[PRPlaylists internalForSortAttr:attr] forList:list attr:PRListAttrAlbumListViewSortAttr];
 }
 
 - (NSArray *)listViewInfoForList:(PRList *)list {

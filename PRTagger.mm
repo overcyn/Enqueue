@@ -6,6 +6,7 @@
 #import <stdio.h>
 #import <iostream>
 #import <QTKit/QTMovie.h>
+#import "SFBAudioEngine/AudioMetadata.h"
 #import "taglib/taglib.h"
 #import "taglib/tbytevector.h"
 #import "taglib/mpegfile.h"
@@ -155,6 +156,12 @@ using namespace TagLib;
 }
 
 + (NSMutableDictionary *)tagsForURL:(NSURL *)URL {
+    
+    
+    
+    
+    
+    
     NSMutableDictionary *tags;
     PRFileType fileType;
     File *file = [PRTagger fileAtURL:URL type:&fileType];
@@ -349,15 +356,15 @@ using namespace TagLib;
         }
         delete file;
         return nil;
-    } else if ([pathExtension compare:@"ASF"] == NSOrderedSame ||
-               [pathExtension compare:@"WMA"] == NSOrderedSame) {
-        file = new ASF::File([path UTF8String]);
-        if (file->isValid()) {
-            *fileType = PRFileTypeASF;
-            return file;
-        }
-        delete file;
-        return nil;
+//    } else if ([pathExtension compare:@"ASF"] == NSOrderedSame ||
+//               [pathExtension compare:@"WMA"] == NSOrderedSame) {
+//        file = new ASF::File([path UTF8String]);
+//        if (file->isValid()) {
+//            *fileType = PRFileTypeASF;
+//            return file;
+//        }
+//        delete file;
+//        return nil;
     } else if ([pathExtension compare:@"OGG"] == NSOrderedSame ||
                [pathExtension compare:@"OGA"] == NSOrderedSame ||
                [pathExtension compare:@"OGX"] == NSOrderedSame || 

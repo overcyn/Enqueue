@@ -103,7 +103,9 @@
 	}
     
     // update cachedArt
-    [_cachedArtwork removeAllObjects];
+    if (force) {
+        [_cachedArtwork removeAllObjects];
+    }
     
     // reload tables
     _updatingTableViewSelection = FALSE;
@@ -288,7 +290,7 @@
 			return FALSE;
 		}
 		NSData *data = [NSKeyedArchiver archivedDataWithRootObject:files];
-		[pboard declareTypes:[NSArray arrayWithObject:PRFilePboardType] owner:self];
+		[pboard declareTypes:@[PRFilePboardType] owner:self];
 		[pboard setData:data forType:PRFilePboardType];
 		return TRUE;
 	} else if (tableView == libraryTableView) {

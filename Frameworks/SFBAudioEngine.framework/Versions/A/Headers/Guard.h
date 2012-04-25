@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011 Stephen F. Booth <me@sbooth.org>
+ *  Copyright (C) 2011, 2012 Stephen F. Booth <me@sbooth.org>
  *  All Rights Reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,9 @@ public:
 	Guard();
 	virtual ~Guard();
 
+	Guard(const Guard& rhs) = delete;
+	Guard& operator=(const Guard& rhs) = delete;
+
 	// Wait() and WaitUntil() will throw std::runtime_error if the mutex isn't locked
 	// WaitUntil() returns true if the request timed out, false otherwise
 
@@ -51,9 +54,6 @@ public:
 	void Broadcast();
 
 protected:
-	Guard(const Guard& guard);
-	Guard& operator=(const Guard& guard);
-
 	pthread_cond_t mCondition;
 
 public:

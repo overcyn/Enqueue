@@ -31,7 +31,7 @@
     
     int count = [[[[[_core db] execute:@"SELECT count(file_id) FROM library" 
                               bindings:nil 
-                               columns:[NSArray arrayWithObject:PRColInteger]] objectAtIndex:0] objectAtIndex:0] intValue];
+                               columns:@[PRColInteger]] objectAtIndex:0] objectAtIndex:0] intValue];
     if (count == 0) {
         count = 1;
     }
@@ -43,8 +43,8 @@
         __block NSArray *rlt;
         [[NSOperationQueue mainQueue] addBlockAndWait:^{
             rlt = [[_core db] execute:@"SELECT file_id, path FROM library ORDER BY file_id LIMIT 200 OFFSET ?1"
-                             bindings:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:offset], [NSNumber numberWithInt:1], nil] 
-                              columns:[NSArray arrayWithObjects:PRColInteger, PRColString, nil]];
+                             bindings:@{@1:[NSNumber numberWithInt:offset]}
+                              columns:@[PRColInteger, PRColString]];
             [rlt retain];
         }];
         [rlt autorelease];

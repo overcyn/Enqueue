@@ -91,10 +91,12 @@
     [scrollview setDrawsBackground:FALSE];
     [scrollview setBorderType:NSNoBorder];
     [scrollview setAutohidesScrollers:TRUE];
+    [scrollview setHasVerticalScroller:YES];
     [[self view] addSubview:scrollview];
     
     NSTableColumn *column = [[[NSTableColumn alloc] initWithIdentifier:@"column"] autorelease];
-    nowPlayingTableView = [[PROutlineView alloc] initWithFrame:NSMakeRect(0, 0, 210, 500)];
+    nowPlayingTableView = [[PROutlineView alloc] initWithFrame:[scrollview bounds]];
+    [nowPlayingTableView setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
     [nowPlayingTableView setFocusRingType:NSFocusRingTypeNone];
     [nowPlayingTableView setBackgroundColor:[NSColor transparent]];
     [nowPlayingTableView setHeaderView:nil];
@@ -104,7 +106,7 @@
     [nowPlayingTableView setTarget:self];
     [nowPlayingTableView setDataSource:self];
     [nowPlayingTableView setDelegate:self]; 
-    [nowPlayingTableView registerForDraggedTypes:[NSArray arrayWithObject:PRFilePboardType]];
+    [nowPlayingTableView registerForDraggedTypes:@[PRFilePboardType]];
     [nowPlayingTableView setVerticalMotionCanBeginDrag:FALSE];
     [nowPlayingTableView setAutoresizesOutlineColumn:FALSE];
     [nowPlayingTableView addTableColumn:column];
@@ -152,7 +154,7 @@
     [self playlistMenuNeedsUpdate];
     [self updateTableView];
     [nowPlayingTableView collapseItem:nil];
-    NSArray *parentItem = [self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:0]]];
+    NSArray *parentItem = [self itemForItem:@[[NSNumber numberWithInt:0]]];
     [nowPlayingTableView expandItem:parentItem];
 }
 
@@ -181,7 +183,7 @@
         return;
     }
     id currentItem = [self itemForDbRow:[now currentIndex]];
-    NSArray *parentItem = [self itemForItem:[NSArray arrayWithObject:[currentItem objectAtIndex:0]]];
+    NSArray *parentItem = [self itemForItem:@[[currentItem objectAtIndex:0]]];
     if (![nowPlayingTableView isItemExpanded:parentItem]) {
         [nowPlayingTableView collapseItem:nil];
     }
@@ -240,7 +242,7 @@
     
     albumCount = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
     for (int i = 0; i < [beforeArray count]; i++) {
-        id item = [self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:i]]];
+        id item = [self itemForItem:@[[NSNumber numberWithInt:i]]];
         if ([[beforeArray objectAtIndex:i] boolValue]) {
             [nowPlayingTableView expandItem:item];
         } else {
@@ -248,7 +250,7 @@
         }
     }
     for (int i = 0; i < [afterArray count]; i++) {
-        id item = [self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:albumCount - i - 1]]];
+        id item = [self itemForItem:@[[NSNumber numberWithInt:albumCount - i - 1]]];
         if ([[afterArray objectAtIndex:i] boolValue]) {
             [nowPlayingTableView expandItem:item];
         } else {
@@ -257,7 +259,7 @@
     }
     
     if (singleAlbum) {
-        id item = [self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:[beforeArray count]]]];
+        id item = [self itemForItem:@[[NSNumber numberWithInt:[beforeArray count]]]];
         [nowPlayingTableView expandItem:item];
     }
 }
@@ -414,9 +416,9 @@
     
     for (int i = 0; i < [array count]; i++) {
         if ([[[array objectAtIndex:i] objectForKey:@"expanded"] boolValue]) {
-            [nowPlayingTableView expandItem:[self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:i]]]];
+            [nowPlayingTableView expandItem:[self itemForItem:@[[NSNumber numberWithInt:i]]]];
         } else {
-            [nowPlayingTableView collapseItem:[self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:i]]]];
+            [nowPlayingTableView collapseItem:[self itemForItem:@[[NSNumber numberWithInt:i]]]];
         }
     }
 }
@@ -454,7 +456,7 @@
         [self updateTableView];
         [nowPlayingTableView collapseItem:nil];
         if ([now currentIndex] != 0) {
-            NSArray *parentItem = [self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:0]]];
+            NSArray *parentItem = [self itemForItem:@[[NSNumber numberWithInt:0]]];
             [nowPlayingTableView expandItem:parentItem];
         }
     }
@@ -464,7 +466,7 @@
     [(PROutlineView *)nowPlayingTableView reloadVisibleItems];
     if ([now currentIndex] != 0) {
         id currentItem = [self itemForDbRow:[now currentIndex]];
-        NSArray *parentItem = [self itemForItem:[NSArray arrayWithObject:[currentItem objectAtIndex:0]]];
+        NSArray *parentItem = [self itemForItem:@[[currentItem objectAtIndex:0]]];
         if (![nowPlayingTableView isItemExpanded:parentItem]) {
             [nowPlayingTableView collapseItem:nil];
         }
@@ -716,7 +718,7 @@
 
 - (BOOL)outlineView:(NSOutlineView *)view writeItems:(NSArray *)items toPasteboard:(NSPasteboard *)pboard {
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:[self selectedDbRows]];
-    [pboard declareTypes:[NSArray arrayWithObject:PRFilePboardType] owner:self];
+    [pboard declareTypes:@[PRFilePboardType] owner:self];
     [pboard setData:data forType:PRFilePboardType];
     return TRUE;
 }
@@ -831,7 +833,7 @@
         // Collapse/uncollapse using beforeArray and afterArray;
         albumCount = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
         for (int i = 0; i < [beforeArray count]; i++) {
-            id item = [self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:i]]];
+            id item = [self itemForItem:@[[NSNumber numberWithInt:i]]];
             if ([[beforeArray objectAtIndex:i] boolValue]) {
                 [nowPlayingTableView expandItem:item];
             } else {
@@ -839,7 +841,7 @@
             }
         }
         for (int i = 0; i < [afterArray count]; i++) {
-            id item = [self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:albumCount - i - 1]]];
+            id item = [self itemForItem:@[[NSNumber numberWithInt:albumCount - i - 1]]];
             if ([[afterArray objectAtIndex:i] boolValue]) {
                 [nowPlayingTableView expandItem:item];
             } else {
@@ -904,7 +906,7 @@
         
         albumCount = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
         for (int i = 0; i < [beforeArray count]; i++) {
-            id item = [self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:i]]];
+            id item = [self itemForItem:@[[NSNumber numberWithInt:i]]];
             if ([[beforeArray objectAtIndex:i] boolValue]) {
                 [nowPlayingTableView expandItem:item];
             } else {
@@ -912,7 +914,7 @@
             }
         }
         for (int i = 0; i < [afterArray count]; i++) {
-            id item = [self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:albumCount - i - 1]]];
+            id item = [self itemForItem:@[[NSNumber numberWithInt:albumCount - i - 1]]];
             if ([[afterArray objectAtIndex:i] boolValue]) {
                 [nowPlayingTableView expandItem:item];
             } else {
@@ -921,7 +923,7 @@
         }
         
         if (singleAlbum) {
-            id item = [self itemForItem:[NSArray arrayWithObject:[NSNumber numberWithInt:[beforeArray count]]]];
+            id item = [self itemForItem:@[[NSNumber numberWithInt:[beforeArray count]]]];
             [nowPlayingTableView expandItem:item];
         }
     }
@@ -976,7 +978,7 @@
         if ([album isEqualToString:@""]) {
             album = @"Unknown Album";
         }
-        if ([[[db library] valueForItem:it attr:PRItemAttrCompilation] boolValue]) {
+        if ([[[db library] valueForItem:it attr:PRItemAttrCompilation] boolValue] && [[PRUserDefaults userDefaults] useCompilation]) {
             artist = @"Compilation";
         }
         NSNumber *drawBorder = [NSNumber numberWithBool:[[item objectAtIndex:0] intValue] + 1 == [_albumCounts count] || [nowPlayingTableView isItemExpanded:item]];

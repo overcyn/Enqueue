@@ -31,7 +31,7 @@
 #include "tbytevector.h"
 
 #include <string>
-#include <ostream>
+#include <iostream>
 
 /*!
  * \relates TagLib::String
@@ -356,6 +356,12 @@ namespace TagLib {
      * returns true if the strings match.
      */
     bool operator==(const String &s) const;
+
+    /*!
+     * Compares each character of the String with each character of \a s and
+     * returns false if the strings match.
+     */
+    bool operator!=(const String &s) const;
 
     /*!
      * Appends \a s to the end of the String.

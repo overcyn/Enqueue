@@ -37,10 +37,10 @@ NSString * const compilationString = @"Compilations  ";
     _db = db;
     _compilation = TRUE;
     _prevSourceString = @"";
-    _prevSourceBindings = [[NSDictionary alloc] init];
-    prevBrowser1Bindings = [[NSDictionary alloc] init];
-    prevBrowser2Bindings = [[NSDictionary alloc] init];
-    prevBrowser3Bindings = [[NSDictionary alloc] init];
+    _prevSourceBindings = [@{} retain];
+    prevBrowser1Bindings = [@{} retain];
+    prevBrowser2Bindings = [@{} retain];
+    prevBrowser3Bindings = [@{} retain];
     _cachedLibraryStatement = @"";
     _cachedBrowser1Statement = @"";
     _cachedBrowser2Statement = @"";
@@ -217,6 +217,7 @@ NSString * const compilationString = @"Compilations  ";
 		string = [NSMutableString stringWithFormat:
                   @"INSERT INTO libraryViewSource (file_id) SELECT file_id FROM library WHERE 1=1 AND "];
 	} else {
+        useCache = FALSE;
 		string = [NSMutableString stringWithFormat:
                   @"INSERT INTO libraryViewSource (file_id) SELECT playlist_items.file_id "
                   "FROM playlist_items JOIN library ON playlist_items.file_id = library.file_id "
@@ -287,7 +288,7 @@ NSString * const compilationString = @"Compilations  ";
     [_prevSourceBindings release];
     _prevSourceString = [string retain];
     _prevSourceBindings = [bindings retain];
-    
+
     // Repopulate libraryViewSource
     [_db execute:@"DELETE FROM libraryViewSource"];
     if (useCache) {

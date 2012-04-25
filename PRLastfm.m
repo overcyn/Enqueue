@@ -37,6 +37,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 - (void)sessionGotten:(NSData *)data request:(NSURLRequest *)request;
 
 // Misc
+- (NSURLRequest *)signAndGetRequestForParameters:(NSDictionary *)parameters;
 - (NSURLRequest *)requestForParameters:(NSDictionary *)parameters;
 - (NSString *)signatureForParameters:(NSDictionary *)parameters;
 @end
@@ -76,23 +77,29 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     [super dealloc];
 }
 
-#pragma mark - Properties
+#pragma mark - Accessors
+
+- (PRLastfmState)lastfmState {
+    return _lastfmState;
+}
+
+- (NSString *)username {
+    return [[PRUserDefaults userDefaults] lastFMUsername];
+}
+
+- (NSString *)sessionKey {
+    return _cachedSessionKey;
+}
+
+#pragma mark - Accessors Priv
 
 - (void)setLastfmState:(PRLastfmState)state {
     _lastfmState = state;
     [NSNotificationCenter post:PRLastfmStateDidChangeNotification];
 }
 
-- (PRLastfmState)lastfmState {
-    return _lastfmState;
-}
-
 - (void)setUsername:(NSString *)username {
     [[PRUserDefaults userDefaults] setLastFMUsername:username];
-}
-
-- (NSString *)username {
-    return [[PRUserDefaults userDefaults] lastFMUsername];
 }
 
 - (void)setSessionKey:(NSString *)sessionKey {
@@ -107,10 +114,6 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     } else {
         [EMGenericKeychainItem addGenericKeychainItemForService:@"Last.fm (com.enqueue.enqueue)" withUsername:[self username] password:sessionKey];
     }
-}
-
-- (NSString *)sessionKey {
-    return _cachedSessionKey;
 }
 
 #pragma mark - Scrobbling
@@ -148,24 +151,20 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
         return;
     }
     
-    // Create request
-    NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                       @"track.updateNowPlaying", @"method",
-                                       artist, @"artist",
-                                       album, @"album",
-                                       title, @"track",
-                                       [NSString stringWithFormat:@"%li", (long)[time longValue]/1000], @"duration",
-                                       PRLastfmAPIKey, @"api_key",
-                                       [self sessionKey], @"sk", nil];
-    [parameters setObject:[self signatureForParameters:parameters] forKey:@"api_sig"];
-    NSURLRequest *request = [self requestForParameters:parameters];
-    void (^handler)(NSURLResponse*, NSData*, NSError*) = 
-    ^(NSURLResponse *response, NSData *data, NSError *error) {};
+    // Create request                  
+    NSURLRequest *request = [self signAndGetRequestForParameters:@{
+                             @"method":@"track.updateNowPlaying",
+                             @"artist":artist,
+                             @"album":album,
+                             @"track":title,
+                             @"duration":[NSString stringWithFormat:@"%li", (long)[time longValue]/1000],
+                             @"api_key":PRLastfmAPIKey,
+                             @"sk":[self sessionKey]}];
 	
 	// Send request
     [_currentRequest release];
     _currentRequest = [request retain];
-    [NSURLConnection send:request onCompletion:handler];
+    [NSURLConnection send:request onCompletion:nil];
 }
 
 - (void)scrobble:(PRLastfmFile *)lastfmFile {
@@ -182,23 +181,21 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     }
     
     // Create request
-    NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                       @"track.scrobble", @"method",
-                                       [NSString stringWithFormat:@"%li",(long)[[lastfmFile startDate] timeIntervalSince1970]], @"timestamp[0]",
-                                       artist, @"artist[0]",
-                                       album, @"album[0]",
-                                       title, @"track[0]",
-                                       PRLastfmAPIKey, @"api_key",
-                                       [self sessionKey], @"sk", nil];
-    [parameters setObject:[self signatureForParameters:parameters] forKey:@"api_sig"];
-    NSURLRequest *request = [self requestForParameters:parameters];
-    void (^handler)(NSURLResponse*, NSData*, NSError*) = 
-    ^(NSURLResponse *response, NSData *data, NSError *error) {[self fileScrobbled:data];};
+    NSURLRequest *request = [self signAndGetRequestForParameters:@{
+                             @"method": @"track.scrobble",
+                             @"timestamp[0]":[NSString stringWithFormat:@"%li",(long)[[lastfmFile startDate] timeIntervalSince1970]],
+                             @"artist[0]":artist,
+                             @"album[0]":album,
+                             @"track[0]":title,
+                             @"api_key":PRLastfmAPIKey,
+                             @"sk":[self sessionKey],}];
 	
 	// Send request
     [_currentRequest release];
     _currentRequest = [request retain];
-    [NSURLConnection send:request onCompletion:handler];
+    [NSURLConnection send:request onCompletion:^(NSURLResponse *response, NSData *data, NSError *error) {
+        [self fileScrobbled:data];
+    }];
 }
 
 - (void)fileScrobbled:(NSData *)data {
@@ -227,20 +224,18 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 - (void)connect {
     [self disconnect];
     [self setLastfmState:PRLastfmValidatingState];
+    
     // Create Request
-    NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                       @"auth.getToken", @"method",
-                                       PRLastfmAPIKey, @"api_key", nil];
-    [parameters setObject:[self signatureForParameters:parameters] forKey:@"api_sig"];
-    NSURLRequest *request = [self requestForParameters:parameters];
-    void (^handler)(NSURLResponse*, NSData*, NSError*) = 
-    ^(NSURLResponse *response, NSData *data, NSError *error) {
-        [self tokenGotten:data request:request];
-    };
+    NSURLRequest *request = [self signAndGetRequestForParameters:@{
+                             @"method":@"auth.getToken",
+                             @"api_key":PRLastfmAPIKey}];
+    
     // Send Request
     [_currentRequest release];
     _currentRequest = [request retain];
-    [NSURLConnection send:request onCompletion:handler];
+    [NSURLConnection send:request onCompletion:^(NSURLResponse *response, NSData *data, NSError *error) {
+        [self tokenGotten:data request:request];
+    }];
 }
 
 - (void)tokenGotten:(NSData *)data request:(NSURLRequest *)request {
@@ -258,14 +253,14 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
         return;
     }
     NSString *token = [[[[XMLDocument rootElement] elementsForName:@"token"] objectAtIndex:0] stringValue];
+    
     // Request authorization in webbrowser
-    NSString *URLString = [NSString stringWithFormat:@"http://www.last.fm/api/auth/?api_key=%@&token=%@",PRLastfmAPIKey, token];
+    NSString *URLString = [NSString stringWithFormat:@"http://www.last.fm/api/auth/?api_key=%@&token=%@", PRLastfmAPIKey, token];
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:URLString]];
     [self setLastfmState:PRLastfmPendingState];
+    
     // Check for authorization in 5 seconds
-    NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
-                          request, @"request", token, @"token", nil];
-    [self performSelector:@selector(getSession:) withObject:info afterDelay:5.0];
+    [self performSelector:@selector(getSession:) withObject:@{@"request":request, @"token":token} afterDelay:5.0];
 }
 
 - (void)getSession:(NSDictionary *)info {
@@ -274,20 +269,18 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     if (currentRequest != _currentRequest) {
         return;
     }
+    
     // Create Request
-    NSMutableDictionary *parameters = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                       @"auth.getSession", @"method",
-                                       token, @"token",
-                                       PRLastfmAPIKey, @"api_key", nil];
-    [parameters setObject:[self signatureForParameters:parameters] forKey:@"api_sig"];
-    NSURLRequest *request = [self requestForParameters:parameters];
-    void (^handler)(NSURLResponse*, NSData*, NSError*) = 
-    ^(NSURLResponse *response, NSData *data, NSError *error) {
-        [self sessionGotten:data request:currentRequest];
-        return;
-    };
+    NSURLRequest *request = [self signAndGetRequestForParameters:@{
+                             @"method":@"auth.getSession",
+                             @"token":token,
+                             @"api_key":PRLastfmAPIKey}];
+    
     // Send request
-    [NSURLConnection send:request onCompletion:handler];
+    [NSURLConnection send:request onCompletion:^(NSURLResponse *response, NSData *data, NSError *error) {
+        [self sessionGotten:data request:currentRequest];
+    }];
+    
     // Recheck for authorization in 5 seconds
     [self performSelector:@selector(getSession:) withObject:info afterDelay:5.0];
 }
@@ -322,6 +315,12 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 }
 
 #pragma mark - Misc
+
+- (NSURLRequest *)signAndGetRequestForParameters:(NSDictionary *)parameters {
+    NSMutableDictionary *mutableParameters = [NSMutableDictionary dictionaryWithDictionary:parameters];
+    [mutableParameters setObject:[self signatureForParameters:parameters] forKey:@"api_sig"];
+    return [self requestForParameters:mutableParameters];
+}
 
 - (NSURLRequest *)requestForParameters:(NSDictionary *)parameters {
     NSURL *URL = [NSURL URLWithString:@"http://ws.audioscrobbler.com/2.0/"];

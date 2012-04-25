@@ -132,7 +132,6 @@ create:;
     
     e = sqlite3_create_collation(sqlDb, "hfs_compare", SQLITE_UTF16, NULL, hfs_compare);
 	if (e != SQLITE_OK) {return FALSE;}
-    
     return TRUE;
 }
 
@@ -217,12 +216,12 @@ create:;
     }
     if (version == 3) {
         [self begin];
-        e = [self attempt:@"UPDATE playlists SET browserInfo = x'', listViewSortColumn = -2, albumListViewSortColumn = -2 WHERE type = 1 OR type = 2 OR type = 3"];
+        e = [self attempt:@"UPDATE playlists SET browserInfo = x'', listViewSortColumn = -2, "
+             "albumListViewSortColumn = -2 WHERE type = 1 OR type = 2 OR type = 3"];
         if (!e) {return FALSE;}
         
         e = [self attempt:@"UPDATE schema_version SET version = 4"];
         if (!e) {return FALSE;}
-        
         [self commit];
         version = 4;
     }
@@ -236,7 +235,6 @@ create:;
         
         e = [self attempt:@"UPDATE schema_version SET version = 5"];
         if (!e) {return FALSE;}
-        
         [self commit];
         version = 5;
     }
@@ -255,17 +253,21 @@ create:;
         if (!e) {return FALSE;}
         
         [[_core opQueue] addOperation:[PRUpdate060Operation operationWithCore:_core]];
-        
         [self commit];
 //        version = 6;
     }
+//    
 //    if (version == 6) {
 //        [self begin];
 //        e = [self attempt:@"REINDEX NOCASE2"];
 //        if (!e) {return FALSE;}
+//        
+//        e = [self attempt:@"ALTER TABLE library ADD COLUMN resolvedYear INT NOT NULL DEFAULT 0 "];
+//        if (!e) {return FALSE;}
 //        [self commit];
 //        version = 7;
 //    }
+     
     return TRUE;
 }
 

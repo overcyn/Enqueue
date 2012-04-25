@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2010, 2011 Stephen F. Booth <me@sbooth.org>
+ *  Copyright (C) 2010, 2011, 2012 Stephen F. Booth <me@sbooth.org>
  *  All Rights Reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -41,15 +41,14 @@ public:
 	Semaphore();
 	~Semaphore();
 
+	Semaphore(const Semaphore& rhs) = delete;
+	Semaphore& operator=(const Semaphore& rhs) = delete;
+
 	bool Signal();
 	bool SignalAll();
 
 	bool Wait();
 	bool TimedWait(mach_timespec_t duration);
-
-protected:
-	Semaphore(const Semaphore& semaphore);
-	Semaphore& operator=(const Semaphore& semaphore);
 
 private:
 	semaphore_t mSemaphore;

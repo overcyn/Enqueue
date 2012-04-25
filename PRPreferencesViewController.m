@@ -795,7 +795,7 @@
         return;
     }
     [[db library] setValue:[NSNumber numberWithInt:rating] forItem:[now currentItem] attr:PRItemAttrRating];
-    [[NSNotificationCenter defaultCenter] postItemsChanged:[NSArray arrayWithObject:[now currentItem]]];
+    [[NSNotificationCenter defaultCenter] postItemsChanged:@[[now currentItem]]];
 }
 
 @end
