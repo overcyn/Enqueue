@@ -1032,8 +1032,8 @@
     UniChar c = [[event characters] characterAtIndex:0];
     if (flags == 0) {
         if (c == 0x20) {
-            [now playPause];
-            didHandle = TRUE;
+//            [now playPause];
+//            didHandle = TRUE;
         } else if (c == 0x7F || c == 0xf728) {
             [self delete:nil];
             didHandle = TRUE;
@@ -1042,13 +1042,13 @@
             didHandle = TRUE;
         }
     } else if (flags == (NSNumericPadKeyMask | NSFunctionKeyMask)) {
-        if (c == 0xf703) {
-            [now playNext];
-            didHandle = TRUE;
-        } else if (c == 0xf702) {
-            [now playPrevious];
-            didHandle = TRUE;
-        }
+//        if (c == 0xf703) {
+//            [now playNext];
+//            didHandle = TRUE;
+//        } else if (c == 0xf702) {
+//            [now playPrevious];
+//            didHandle = TRUE;
+//        }
     }
     return didHandle;
 }

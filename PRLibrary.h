@@ -4,33 +4,38 @@
 
 
 typedef NSNumber PRItem;
-
 typedef NSString PRItemAttr;
+/* File Attributes */
 extern PRItemAttr * const PRItemAttrPath;
 extern PRItemAttr * const PRItemAttrSize;
-extern PRItemAttr * const PRItemAttrKind;
-extern PRItemAttr * const PRItemAttrTime;
-extern PRItemAttr * const PRItemAttrBitrate;
-extern PRItemAttr * const PRItemAttrChannels;
-extern PRItemAttr * const PRItemAttrSampleRate;
 extern PRItemAttr * const PRItemAttrCheckSum;
 extern PRItemAttr * const PRItemAttrLastModified;
+/* Song Attributes */
+extern PRItemAttr * const PRItemAttrKind;
+extern PRItemAttr * const PRItemAttrChannels;
+extern PRItemAttr * const PRItemAttrTime;
+extern PRItemAttr * const PRItemAttrBitrate;
+extern PRItemAttr * const PRItemAttrSampleRate;
+/* String Tags */
 extern PRItemAttr * const PRItemAttrTitle;
 extern PRItemAttr * const PRItemAttrArtist;
+extern PRItemAttr * const PRItemAttrAlbumArtist;
 extern PRItemAttr * const PRItemAttrAlbum;
+extern PRItemAttr * const PRItemAttrComposer;
+extern PRItemAttr * const PRItemAttrGenre;
+extern PRItemAttr * const PRItemAttrComments;
+extern PRItemAttr * const PRItemAttrLyrics;
+/* Number Tags */
 extern PRItemAttr * const PRItemAttrBPM;
 extern PRItemAttr * const PRItemAttrYear;
 extern PRItemAttr * const PRItemAttrTrackNumber;
 extern PRItemAttr * const PRItemAttrTrackCount;
-extern PRItemAttr * const PRItemAttrComposer;
 extern PRItemAttr * const PRItemAttrDiscNumber;
 extern PRItemAttr * const PRItemAttrDiscCount;
-extern PRItemAttr * const PRItemAttrComments;
-extern PRItemAttr * const PRItemAttrAlbumArtist;
-extern PRItemAttr * const PRItemAttrGenre;
 extern PRItemAttr * const PRItemAttrCompilation;
-extern PRItemAttr * const PRItemAttrLyrics;
+/* Artwork Tags */
 extern PRItemAttr * const PRItemAttrArtwork;
+/* Custom Attributes */
 extern PRItemAttr * const PRItemAttrArtistAlbumArtist;
 extern PRItemAttr * const PRItemAttrDateAdded;
 extern PRItemAttr * const PRItemAttrLastPlayed;

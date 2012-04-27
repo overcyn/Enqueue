@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import "PRTableViewController.h"
-
 @class PRSynchronizedScrollView, PRAlbumTableView2;
+
 
 @interface PRAlbumListViewController : PRTableViewController {
 	IBOutlet PRSynchronizedScrollView *albumScrollView;
@@ -14,11 +14,11 @@
     
     NSCache *_cachedArtwork;
 }
-/* action */
+/* Action */
 - (void)selectAlbum;
 - (void)playAlbum;
 
-/* misc */
+/* Misc */
 - (BOOL)shouldDrawGridForRow:(int)row tableView:(NSTableView *)tableView;
 - (void)cacheArtworkForItem:(PRItem *)item artworkInfo:(NSDictionary *)artworkInfo dirtyRect:(NSRect)dirtyRect;
 @end

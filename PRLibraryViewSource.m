@@ -658,8 +658,8 @@ NSString * const compilationString = @"Compilations  ";
         row -= 1;
     }
     NSArray *rlt = [_db execute:[NSString stringWithFormat:@"SELECT value FROM %@ WHERE row = ?1", [self tableNameForBrowser:browser]]
-                      bindings:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil]
-                       columns:[NSArray arrayWithObjects:PRColString, nil]];
+                       bindings:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:row], [NSNumber numberWithInt:1], nil]
+                        columns:[NSArray arrayWithObjects:PRColString, nil]];
     if ([rlt count] != 1) {
         [PRException raise:PRDbInconsistencyException format:@"row:%d browser:%d",row, browser];
     }

@@ -510,8 +510,49 @@ a:;
         return -1;
     }
 
-// CFStringRef stringA = CFStringCreateWithCharactersNoCopy(NULL, uniCharA+rangeA.location, rangeA.length, kCFAllocatorNull);
-// CFStringRef stringB = CFStringCreateWithCharactersNoCopy(NULL, uniCharB+rangeB.location, rangeB.length, kCFAllocatorNull);
+    static CFMutableStringRef stringA = 0;
+    static CFMutableStringRef stringB = 0;
+    if (stringA == 0) {
+        stringA = CFStringCreateMutable(NULL, 0);
+    }
+    if (stringB == 0) {
+        stringB = CFStringCreateMutable(NULL, 0);
+    }
+    CFStringDelete(stringA, CFRangeMake(500, CFStringGetLength(stringA)));
+    CFStringDelete(stringB, CFRangeMake(500, CFStringGetLength(stringB)));
+    CFStringAppendCharacters (stringA, uniCharA+rangeA.location, rangeA.length);
+    CFStringAppendCharacters (stringB, uniCharB+rangeB.location, rangeB.length);
+    
+    return CFStringCompare(stringA, stringB, kCFCompareCaseInsensitive
+    /*|kCFCompareLocalized|kCFCompareNonliteral|kCFCompareDiacriticInsensitive|kCFCompareWidthInsensitive|kCFCompareNumerically*/);
+}
+
+BOOL no_case_begins(void *udp, int lenA, const void *strA, int lenB, const void *strB)
+{
+    UniChar *uniCharA = (UniChar *)strA;
+    UniChar *uniCharB = (UniChar *)strB;
+	
+	if (lenA == lenB) {
+		int loc = 0;
+		while (loc < lenA/2) {
+			if (uniCharA[loc] != uniCharB[loc]) {
+				goto a;
+			}
+			loc++;
+		}
+		return 0;
+	}
+a:;
+	CFRange rangeA = PRFormatString(uniCharA, lenA/2);
+	CFRange rangeB = PRFormatString(uniCharB, lenB/2);
+	
+    if (rangeA.length == 0 && rangeB.length == 0) {
+        return 0;
+    } else if (rangeA.length == 0) {
+        return 1;
+    } else if (rangeB.length == 0) {
+        return -1;
+    }
     
     static CFMutableStringRef stringA = 0;
     static CFMutableStringRef stringB = 0;
@@ -526,13 +567,10 @@ a:;
     CFStringAppendCharacters (stringA, uniCharA+rangeA.location, rangeA.length);
     CFStringAppendCharacters (stringB, uniCharB+rangeB.location, rangeB.length);
     
-    int result = CFStringCompare(stringA, stringB, kCFCompareCaseInsensitive
-    /*|kCFCompareLocalized|kCFCompareNonliteral|kCFCompareDiacriticInsensitive|kCFCompareWidthInsensitive|kCFCompareNumerically*/);
-
-// CFRelease(stringA);
-// CFRelease(stringB);
-    
-    return result;
+    if (lenB > lenA) {
+        return FALSE;
+    }
+    return [(NSString *)stringA compare:(NSString *)stringB options:kCFCompareCaseInsensitive range:NSMakeRange(0, [(NSString *)stringB length])] == 0;
 }
 
 CFRange PRFormatString(UniChar *string, int length) 

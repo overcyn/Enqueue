@@ -642,6 +642,7 @@ miniPlayer;
 #pragma mark - PRWindow Delegate
 
 - (BOOL)window:(NSWindow *)window keyDown:(NSEvent *)event {
+    NSLog(@"window:%@",[event characters]);
     if ([[event characters] length] != 1) {
         return FALSE;
     }

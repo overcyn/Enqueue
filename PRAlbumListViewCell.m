@@ -41,14 +41,14 @@ NSParagraphStyleAttributeName:paragraphStyle,
 NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.2 alpha:1.0]};
 	
 	// Make a Title string
-	NSString *title = artist;
-    NSString *subtitle = album;
+	NSString *title = album;
+    NSString *subtitle = artist;
 	NSString *subSubtitle = [year stringValue];
     if ([title isEqualToString:@""]) {
-        title = @"Unknown Artist";
+        title = @"Unknown Album";
     }
     if ([subtitle isEqualToString:@""]) {
-        subtitle = @"Unknown Album";
+        subtitle = @"Unknown Artist";
     }
     if ([subSubtitle isEqualToString:@"0"]) {
         subSubtitle = @"";

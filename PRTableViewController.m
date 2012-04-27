@@ -28,6 +28,7 @@
 #import "NSString+Extensions.h"
 #import "sqlite_str.h"
 #import "MAZeroingWeakRef.h"
+#import <Carbon/Carbon.h>
 
 
 @implementation PRTableViewController
@@ -497,7 +498,7 @@
 	return selectionArray;
 }
 
-#pragma mark - accessors
+#pragma mark - Accessors Priv
 
 - (NSIndexSet *)selectedIndexes {
     return [libraryTableView selectedRowIndexes];
@@ -589,7 +590,7 @@
     [browser3TableView scrollRowToVisiblePretty:[browser3TableView selectedRow]];
 }
 
-#pragma mark - action
+#pragma mark - Action Priv
 
 - (void)playIndexes:(NSIndexSet *)indexes {
     [now stop];
@@ -692,7 +693,7 @@
     [self appendNextIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [self numberOfRowsInTableView:libraryTableView])]];
 }
 
-#pragma mark - action mouse
+#pragma mark - Action Mouse Priv
 
 - (void)play {
 	if ([self dbRowForTableRow:[libraryTableView clickedRow]] < 1) {
@@ -722,7 +723,7 @@
     }
 }
 
-#pragma mark - setup
+#pragma mark - Setup
 
 - (void)reloadData:(BOOL)force {
     int tables = [[db libraryViewSource] refreshWithList:_currentList force:force];
@@ -748,7 +749,7 @@
 	[NSNotificationCenter post:PRLibraryViewSelectionDidChangeNotification];
 }
 
-#pragma mark - update
+#pragma mark - Update Priv
 
 - (void)playingFileChanged:(NSNotification *)note {
     NSIndexSet *rows = [NSIndexSet indexSetWithIndexesInRange:[libraryTableView rowsInRect:[libraryTableView visibleRect]]];
@@ -786,7 +787,7 @@
 	}
 }
 
-#pragma mark - ui
+#pragma mark - UI Priv
 
 @dynamic ascending, sortAttr, columnInfo;
 
@@ -1017,7 +1018,7 @@
     [self setColumnInfo:columnsInfo];
 }
 
-#pragma mark - ui misc
+#pragma mark - UI Misc Priv
 
 - (void)highlightTableColumn:(NSTableColumn *)tableColumn ascending:(BOOL)ascending {
     for (NSTableColumn *i in [libraryTableView tableColumns]) {
@@ -1089,7 +1090,7 @@
     return menu;
 }
 
-#pragma mark - menu
+#pragma mark - Menu Priv
 
 - (void)updateLibraryMenu {
     if ([libraryTableView clickedRow] == -1) {
@@ -1200,7 +1201,7 @@
     }
 }
 
-#pragma mark - misc
+#pragma mark - Misc Priv
 
 - (NSTableView *)tableViewForBrowser:(int)browser {
     if (browser == 1) {
@@ -1250,7 +1251,7 @@
     return tableRows;
 }
 
-#pragma mark - Tableview Datasource
+#pragma mark - TableView Datasource
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
 	if (tableView == libraryTableView) {
@@ -1324,7 +1325,7 @@
 	}
 }
 
-#pragma mark - tableview datasource misc
+#pragma mark - TableView Datasource Priv
 
 - (NSArray *)attributesToCache {
     NSMutableArray *cachedAttributes = [NSMutableArray array];
@@ -1336,7 +1337,7 @@
     return cachedAttributes;
 }
 
-#pragma mark - Tableview DragAndDrop
+#pragma mark - TableView DragAndDrop
 
 - (BOOL)tableView:(NSTableView *)tableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard*)pboard {
     [pboard declareTypes:@[PRFilePboardType, PRIndexesPboardType] owner:self];
@@ -1427,7 +1428,33 @@
     return TRUE;
 }
 
-#pragma mark - Tableview Delegate
+#pragma mark - TableView Delegate
+
+- (NSInteger)tableView:(NSTableView *)tableView nextTypeSelectMatchFromRow:(NSInteger)startRow toRow:(NSInteger)endRow forString:(NSString *)string {
+    if (tableView == browser1TableView || tableView == browser2TableView || tableView == browser3TableView) {
+        // forward event if space-key so window can play/pause
+        if ([string isEqualToString:@" "]) {
+            return -1;
+        }
+        
+        // endRow can be before startRow so account for loop around
+        int end = !(endRow < startRow) ? endRow : [self numberOfRowsInTableView:tableView] - 1;
+        for (int i = startRow; i <= end; i++) {
+            NSString *value = [self tableView:tableView objectValueForTableColumn:[[tableView tableColumns] objectAtIndex:0] row:i];
+            if ([value noCaseBegins:string]) {
+                return i;
+            }
+            if (i == end && endRow < startRow && end != endRow) {
+                // if reached end of table, continue from 0 to endRow
+                i = 0;
+                end = endRow;
+            }
+        }
+        return startRow;
+    } else {
+        return -1;
+    }
+}
 
 - (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)column row:(NSInteger)row {
     [cell setHighlighted:[[tableView selectedRowIndexes] containsIndex:row]];
@@ -1503,9 +1530,10 @@
 	}
 }
 
-#pragma mark - Tableview PRDelegate
+#pragma mark - TableView PRDelegate
 
 - (BOOL)tableView:(PRTableView *)tableView keyDown:(NSEvent *)event {
+//    NSLog(@"tableview:%@",[event characters]);
     if ([[event characters] length] != 1) {
         return FALSE;
     }
@@ -1514,8 +1542,8 @@
     UniChar c = [[event characters] characterAtIndex:0];
     if (flags == 0) {
         if (c == 0x20) {
-            [now playPause];
-            didHandle = TRUE;
+//            [now playPause];
+//            didHandle = TRUE;
         } else if (c == 0x7F || c == 0xf728) {
             if (tableView == libraryTableView) {
                 [self deleteIndexes:[libraryTableView selectedRowIndexes]];
@@ -1548,18 +1576,18 @@
             didHandle = TRUE;
         }
     } else if (flags == (NSNumericPadKeyMask | NSFunctionKeyMask)) {
-        if (c == 0xf703) {
-            [now playNext];
-            didHandle = TRUE;
-        } else if (c == 0xf702) {
-            [now playPrevious];
-            didHandle = TRUE;
-        }
+//        if (c == 0xf703) {
+//            [now playNext];
+//            didHandle = TRUE;
+//        } else if (c == 0xf702) {
+//            [now playPrevious];
+//            didHandle = TRUE;
+//        }
     }
     return didHandle;
 }
 
-#pragma mark - Splitview Delegate
+#pragma mark - SplitView Delegate
 
 - (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {
     if (splitView == horizontalBrowserSplitView) {

@@ -6,5 +6,5 @@
 + (NSString *)stringWithNumber:(NSNumber *)number;
 + (NSString *)stringWithInt:(int)integer;
 - (NSComparisonResult)noCaseCompare:(NSString *)string;
-
+- (BOOL)noCaseBegins:(NSString *)string;
 @end
