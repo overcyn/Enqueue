@@ -156,12 +156,121 @@ using namespace TagLib;
 }
 
 + (NSMutableDictionary *)tagsForURL:(NSURL *)URL {
+    AudioMetadata *metadata = AudioMetadata::CreateMetadataForURL((CFURLRef)URL);
+    if (!metadata) {
+        return nil;
+    }
+    BOOL err = metadata->ReadMetadata();
+    if (err == FALSE) {
+        return nil;
+    }
+    NSNumber *(^formatKind)(CFStringRef) = ^(CFStringRef a) {
+        PRFileType kind;
+        if (CFEqual(a, CFSTR("Monkey's Audio"))) {
+            kind = PRFileTypeAPE;
+        } else if (CFEqual(a, CFSTR("FLAC"))) {
+            kind = PRFileTypeFLAC;
+        } else if (CFEqual(a, CFSTR("AAC")) || CFEqual(a, CFSTR("Apple Lossless"))) {
+            kind = PRFileTypeMP4;
+        } else if (CFEqual(a, CFSTR("Musepack"))) {
+            kind = PRFileTypeMPC;
+        } else if (CFEqual(a, CFSTR("MP3"))) {
+            kind = PRFileTypeMPEG;
+        } else if (CFEqual(a, CFSTR("Ogg FLAC"))) {
+            kind = PRFileTypeOggFLAC;
+        } else if (CFEqual(a, CFSTR("Ogg Vorbis"))) {
+            kind = PRFileTypeOggVorbis;
+        } else if (CFEqual(a, CFSTR("Ogg Speex"))) {
+            kind = PRFileTypeOggSpeex;
+        } else if (CFEqual(a, CFSTR("AIFF"))) {
+            kind = PRFileTypeAIFF;
+        } else if (CFEqual(a, CFSTR("WAVE"))) {
+            kind = PRFileTypeWAV;
+        } else if (CFEqual(a, CFSTR("True Audio"))) {
+            kind = PRFileTypeTrueAudio;
+        } else if (CFEqual(a, CFSTR("WavPack"))) {
+            kind = PRFileTypeWavPack;
+        } else {
+            kind = PRFileTypeUnknown;
+        }
+        return [NSNumber numberWithInt:kind];
+    };
+    NSString *(^formatStr)(CFStringRef) = ^(CFStringRef a){
+        NSString *b = (NSString *)a;
+        if ([b length] > 255) {
+            return [b substringToIndex:255];
+        }
+        return b;
+    };
+    NSString *(^formatLongStr)(CFStringRef) = ^(CFStringRef a){
+        NSString *b = (NSString *)a;
+        if ([b length] > 10000) {
+            return [b substringToIndex:10000];
+        }
+        return b;
+    };
+    NSNumber *(^formatInt)(CFNumberRef) = ^(CFNumberRef a){
+        NSNumber *b = (NSNumber *)a;
+        if ([b intValue] < 0 || [b intValue] > 9999) {
+            return [NSNumber numberWithInt:0];
+        }
+        return b;
+    };
+    NSNumber *(^formatTime)(CFNumberRef) = ^(CFNumberRef a){
+        NSNumber *b = (NSNumber *)a;
+        return [NSNumber numberWithInt:[b intValue] * 1000];
+    };
+    NSNumber *(^formatLongInt)(CFNumberRef) = ^(CFNumberRef a){
+        return (NSNumber *)a;
+    };
+    NSNumber *(^formatYear)(CFStringRef) = ^(CFStringRef a){
+        return (NSNumber *)formatInt((CFNumberRef)[NSNumber numberWithInt:[(NSString *)a intValue]]);
+    };
+    NSNumber *(^formatBool)(CFBooleanRef) = ^(CFBooleanRef a){
+        if (!a) {
+            return (NSNumber *)nil;
+        }
+        return [NSNumber numberWithBool:CFBooleanGetValue(a)];
+    };
+//    NSData *(^formatArt)(CFDataRef) = ^(CFDataRef a){
+//        return (NSData *)a;
+//    };
     
+    if ([formatKind(metadata->GetFormatName()) intValue] == PRFileTypeUnknown) {
+        return nil;
+    }
     
-    
-    
-    
-    
+    NSMutableDictionary *tags = [NSMutableDictionary dictionary];
+    /* File Attributes */
+    [tags setValue:[URL absoluteString] forKey:PRItemAttrPath];
+    [tags setValue:[PRTagger sizeForURL:URL] forKey:PRItemAttrSize];
+    [tags setValue:[PRTagger checkSumForURL:URL] forKey:PRItemAttrCheckSum];
+    [tags setValue:[PRTagger lastModifiedForURL:URL] forKey:PRItemAttrLastModified];
+    /* Song Attributes */
+    [tags setValue:formatKind(metadata->GetFormatName()) forKey:PRItemAttrKind];
+    [tags setValue:formatLongInt(metadata->GetChannelsPerFrame()) forKey:PRItemAttrChannels];
+   	[tags setValue:formatTime(metadata->GetDuration()) forKey:PRItemAttrTime];
+   	[tags setValue:formatLongInt(metadata->GetBitrate()) forKey:PRItemAttrBitrate];
+   	[tags setValue:formatLongInt(metadata->GetSampleRate()) forKey:PRItemAttrSampleRate];
+    /* String Tags */
+    [tags setValue:formatStr(metadata->GetTitle()) forKey:PRItemAttrTitle];
+    [tags setValue:formatStr(metadata->GetArtist()) forKey:PRItemAttrArtist];
+    [tags setValue:formatStr(metadata->GetAlbumArtist()) forKey:PRItemAttrAlbumArtist];
+    [tags setValue:formatStr(metadata->GetAlbumTitle()) forKey:PRItemAttrAlbum];
+   	[tags setValue:formatStr(metadata->GetComposer()) forKey:PRItemAttrComposer];
+    [tags setValue:formatStr(metadata->GetGenre()) forKey:PRItemAttrGenre];
+    [tags setValue:formatLongStr(metadata->GetComment()) forKey:PRItemAttrComments];
+   	[tags setValue:formatLongStr(metadata->GetLyrics()) forKey:PRItemAttrLyrics];
+    /* Number Tags */
+   	[tags setValue:formatInt(metadata->GetTrackNumber()) forKey:PRItemAttrTrackNumber];
+   	[tags setValue:formatInt(metadata->GetTrackTotal()) forKey:PRItemAttrTrackCount];
+   	[tags setValue:formatInt(metadata->GetDiscNumber()) forKey:PRItemAttrDiscNumber];
+   	[tags setValue:formatInt(metadata->GetDiscTotal()) forKey:PRItemAttrDiscCount];
+    [tags setValue:formatBool(metadata->GetCompilation()) forKey:PRItemAttrCompilation];
+    [tags setValue:formatYear(metadata->GetReleaseDate()) forKey:PRItemAttrYear];
+    return tags;
+
+    /*
     NSMutableDictionary *tags;
     PRFileType fileType;
     File *file = [PRTagger fileAtURL:URL type:&fileType];
@@ -216,6 +325,7 @@ using namespace TagLib;
     [PRTagger dictionary:tags addPropertiesForURL:URL];
     [tags setObject:[NSNumber numberWithInt:fileType] forKey:PRItemAttrKind];
     return tags;
+     */
 }
 
 + (void)setTag:(id)tag forAttribute:(PRItemAttr *)attr URL:(NSURL *)URL {
@@ -556,10 +666,6 @@ using namespace TagLib;
 
 #pragma mark - Properties
 
-+ (NSDate *)lastModifiedAtURL:(NSURL *)URL {
-    return [PRTagger lastModifiedForFileAtPath:[URL path]];
-}
-
 + (NSDate *)lastModifiedForFileAtPath:(NSString *)path {
     NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
 	NSDictionary *fileAttributes = [fileManager attributesOfItemAtPath:path error:nil];
@@ -581,6 +687,37 @@ using namespace TagLib;
 + (NSNumber *)sizeForFileAtPath:(NSString *)path {
     FSRef fileRef;
     OSStatus err = FSPathMakeRef ((const UInt8 *)[path fileSystemRepresentation], &fileRef, NULL);
+    if (err == noErr) {
+        FSCatalogInfo catalogInfo;
+        err = FSGetCatalogInfo(&fileRef, kFSCatInfoDataSizes, &catalogInfo, NULL, NULL, NULL);
+        if (err == noErr) {
+            return [NSNumber numberWithUnsignedLongLong:catalogInfo.dataPhysicalSize];
+        }
+    }
+    return nil;
+}
+
++ (NSDate *)lastModifiedForURL:(NSURL *)URL {
+    NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
+	NSDictionary *fileAttributes = [fileManager attributesOfItemAtPath:[URL path] error:nil];
+    if (fileAttributes) {
+        return [fileAttributes objectForKey:NSFileModificationDate];
+    }
+    return nil;
+}
+
++ (NSData *)checkSumForURL:(NSURL *)URL {
+    NSFileHandle *fileHandle = [NSFileHandle fileHandleForReadingAtPath:[URL path]];
+    if (fileHandle) {
+        NSData *firstMegabyte = [fileHandle readDataOfLength:10000];
+        return [SSCrypto getMD5ForData:firstMegabyte];
+    }
+    return nil;
+}
+
++ (NSNumber *)sizeForURL:(NSURL *)URL {
+    FSRef fileRef;
+    OSStatus err = FSPathMakeRef ((const UInt8 *)[[URL path] fileSystemRepresentation], &fileRef, NULL);
     if (err == noErr) {
         FSCatalogInfo catalogInfo;
         err = FSGetCatalogInfo(&fileRef, kFSCatInfoDataSizes, &catalogInfo, NULL, NULL, NULL);

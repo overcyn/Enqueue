@@ -5,7 +5,7 @@
 typedef enum {
     PRFileTypeUnknown,
     PRFileTypeAPE,
-    PRFileTypeASF,
+    PRFileTypeASF, /*not used*/
     PRFileTypeFLAC,
     PRFileTypeMP4,
     PRFileTypeMPC,
@@ -28,8 +28,11 @@ typedef enum {
 + (BOOL)updateTagsForItem:(PRItem *)item database:(PRDb *)db; // caller should post ItemsDidChangeNotification if this returns TRUE
 
 /* Properties */
-+ (NSDate *)lastModifiedAtURL:(NSURL *)URL;
 + (NSDate *)lastModifiedForFileAtPath:(NSString *)path;
 + (NSData *)checkSumForFileAtPath:(NSString *)path;
 + (NSNumber *)sizeForFileAtPath:(NSString *)path;
+
++ (NSDate *)lastModifiedForURL:(NSURL *)URL;
++ (NSData *)checkSumForURL:(NSURL *)URL;
++ (NSNumber *)sizeForURL:(NSURL *)URL;
 @end

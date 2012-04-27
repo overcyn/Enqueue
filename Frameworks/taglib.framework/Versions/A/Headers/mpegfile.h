@@ -28,6 +28,7 @@
 
 #include "taglib_export.h"
 #include "tfile.h"
+#include "tag.h"
 
 #include "mpegproperties.h"
 
@@ -85,9 +86,22 @@ namespace TagLib {
        * file's audio properties will also be read using \a propertiesStyle.  If
        * false, \a propertiesStyle is ignored.  The frames will be created using
        * \a frameFactory.
+       *
+       * \deprecated This constructor will be dropped in favor of the one below
+       * in a future version.
+       */
+      File(FileName file, ID3v2::FrameFactory *frameFactory,
+           bool readProperties = true,
+           Properties::ReadStyle propertiesStyle = Properties::Average);
+
+      /*!
+       * Contructs an MPEG file from \a stream.  If \a readProperties is true the
+       * file's audio properties will also be read using \a propertiesStyle.  If
+       * false, \a propertiesStyle is ignored.  The frames will be created using
+       * \a frameFactory.
        */
       // BIC: merge with the above constructor
-      File(FileName file, ID3v2::FrameFactory *frameFactory,
+      File(IOStream *stream, ID3v2::FrameFactory *frameFactory,
            bool readProperties = true,
            Properties::ReadStyle propertiesStyle = Properties::Average);
 
@@ -114,6 +128,23 @@ namespace TagLib {
        * \see APETag()
        */
       virtual Tag *tag() const;
+
+      /*!
+       * Implements the unified property interface -- export function.
+       * If the file contains more than one tag, only the
+       * first one (in the order ID3v2, APE, ID3v1) will be converted to the
+       * PropertyMap.
+       */
+      PropertyMap properties() const;
+
+      void removeUnsupportedProperties(const StringList &properties);
+
+      /*!
+       * Implements the unified tag dictionary interface -- import function.
+       * As with the export, only one tag is taken into account. If the file
+       * has no tag at all, ID3v2 will be created.
+       */
+      PropertyMap setProperties(const PropertyMap &);
 
       /*!
        * Returns the MPEG::Properties for this file.  If no audio properties
@@ -160,6 +191,21 @@ namespace TagLib {
        */
       // BIC: combine with the above method
       bool save(int tags, bool stripOthers);
+
+      /*!
+       * Save the file.  This will attempt to save all of the tag types that are
+       * specified by OR-ing together TagTypes values.  The save() method above
+       * uses AllTags.  This returns true if saving was successful.
+       *
+       * If \a stripOthers is true this strips all tags not included in the mask,
+       * but does not modify them in memory, so later calls to save() which make
+       * use of these tags will remain valid.  This also strips empty tags.
+       *
+       * The \a id3v2Version parameter specifies the version of the saved
+       * ID3v2 tag. It can be either 4 or 3.
+       */
+      // BIC: combine with the above method
+      bool save(int tags, bool stripOthers, int id3v2Version);
 
       /*!
        * Returns a pointer to the ID3v2 tag of the file.
