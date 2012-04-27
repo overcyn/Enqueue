@@ -1445,7 +1445,6 @@
                 return i;
             }
             if (i == end && endRow < startRow && end != endRow) {
-                // if reached end of table, continue from 0 to endRow
                 i = 0;
                 end = endRow;
             }
