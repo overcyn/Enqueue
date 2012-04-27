@@ -344,13 +344,9 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 - (PRList *)addStaticList {
     [db begin];
     PRList *list = [self addList];
-    NSLog(@"title");
     [self setTitle:@"Untitled Playlist" forList:list];
-    NSLog(@"type");
     [self setType:PRListTypeStatic forList:list];
-    NSLog(@"sortIndex");
     [self setListViewSortAttr:PRListSortIndex forList:list];
-    NSLog(@"commit");
     [db commit];
     return list;
 }

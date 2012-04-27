@@ -1533,7 +1533,6 @@
 #pragma mark - TableView PRDelegate
 
 - (BOOL)tableView:(PRTableView *)tableView keyDown:(NSEvent *)event {
-//    NSLog(@"tableview:%@",[event characters]);
     if ([[event characters] length] != 1) {
         return FALSE;
     }
@@ -1541,10 +1540,7 @@
     NSUInteger flags = [NSEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
     UniChar c = [[event characters] characterAtIndex:0];
     if (flags == 0) {
-        if (c == 0x20) {
-//            [now playPause];
-//            didHandle = TRUE;
-        } else if (c == 0x7F || c == 0xf728) {
+        if (c == 0x7F || c == 0xf728) {
             if (tableView == libraryTableView) {
                 [self deleteIndexes:[libraryTableView selectedRowIndexes]];
             }
@@ -1575,14 +1571,6 @@
             }
             didHandle = TRUE;
         }
-    } else if (flags == (NSNumericPadKeyMask | NSFunctionKeyMask)) {
-//        if (c == 0xf703) {
-//            [now playNext];
-//            didHandle = TRUE;
-//        } else if (c == 0xf702) {
-//            [now playPrevious];
-//            didHandle = TRUE;
-//        }
     }
     return didHandle;
 }
