@@ -140,12 +140,11 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 
 - (BOOL)cleanPlaylistItems {
     // remove playlist_items where the playlist type is not static or nowplaying
-    NSString *string = @"DELETE FROM playlist_items WHERE playlist_id IN "
-    "(SELECT playlist_id FROM playlists WHERE type != ?1 || type != ?2)";
-    NSDictionary *bindings = [NSDictionary dictionaryWithObjectsAndKeys:
-                              [NSNumber numberWithInt:PRStaticPlaylistType], [NSNumber numberWithInt:1],
-                              [NSNumber numberWithInt:PRNowPlayingPlaylistType], [NSNumber numberWithInt:2], nil];
-    [db execute:string bindings:bindings columns:nil];
+    [db execute:@"DELETE FROM playlist_items WHERE playlist_id IN "
+     "(SELECT playlist_id FROM playlists WHERE type != ?1 || type != ?2)"
+       bindings:@{@1:[NSNumber numberWithInt:PRStaticPlaylistType],
+     @2:[NSNumber numberWithInt:PRNowPlayingPlaylistType]}
+        columns:nil];
     
     // Make sure that there are no gaps in playlist_index
     NSArray *lists = [self lists];
@@ -158,9 +157,9 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
         
         // get max and min values for playlist_index
         NSArray *rlt = [db execute:@"SELECT max(playlist_index), min(playlist_index) "
-                            "FROM playlist_items WHERE playlist_id = ?1"
-                              bindings:[NSDictionary dictionaryWithObjectsAndKeys:i, [NSNumber numberWithInt:1], nil]
-                               columns:[NSArray arrayWithObjects:PRColInteger, PRColInteger, nil]];
+                        "FROM playlist_items WHERE playlist_id = ?1"
+                          bindings:@{@1:i}
+                           columns:@[PRColInteger, PRColInteger]];
         if ([rlt count] != 1) {
             [PRException raise:PRDbInconsistencyException format:@""];
         }
