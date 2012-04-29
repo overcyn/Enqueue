@@ -518,8 +518,8 @@ a:;
     if (stringB == 0) {
         stringB = CFStringCreateMutable(NULL, 0);
     }
-    CFStringDelete(stringA, CFRangeMake(500, CFStringGetLength(stringA)));
-    CFStringDelete(stringB, CFRangeMake(500, CFStringGetLength(stringB)));
+    CFStringDelete(stringA, CFRangeMake(0, CFStringGetLength(stringA)));
+    CFStringDelete(stringB, CFRangeMake(0, CFStringGetLength(stringB)));
     CFStringAppendCharacters (stringA, uniCharA+rangeA.location, rangeA.length);
     CFStringAppendCharacters (stringB, uniCharB+rangeB.location, rangeB.length);
     
@@ -531,27 +531,16 @@ BOOL no_case_begins(void *udp, int lenA, const void *strA, int lenB, const void 
 {
     UniChar *uniCharA = (UniChar *)strA;
     UniChar *uniCharB = (UniChar *)strB;
-	
-	if (lenA == lenB) {
-		int loc = 0;
-		while (loc < lenA/2) {
-			if (uniCharA[loc] != uniCharB[loc]) {
-				goto a;
-			}
-			loc++;
-		}
-		return 0;
-	}
-a:;
+
 	CFRange rangeA = PRFormatString(uniCharA, lenA/2);
 	CFRange rangeB = PRFormatString(uniCharB, lenB/2);
 	
     if (rangeA.length == 0 && rangeB.length == 0) {
-        return 0;
+        return FALSE;
     } else if (rangeA.length == 0) {
-        return 1;
+        return FALSE;
     } else if (rangeB.length == 0) {
-        return -1;
+        return FALSE;
     }
     
     static CFMutableStringRef stringA = 0;
@@ -562,15 +551,27 @@ a:;
     if (stringB == 0) {
         stringB = CFStringCreateMutable(NULL, 0);
     }
-    CFStringDelete(stringA, CFRangeMake(500, CFStringGetLength(stringA)));
-    CFStringDelete(stringB, CFRangeMake(500, CFStringGetLength(stringB)));
+    CFStringDelete(stringA, CFRangeMake(0, CFStringGetLength(stringA)));
+    CFStringDelete(stringB, CFRangeMake(0, CFStringGetLength(stringB)));
     CFStringAppendCharacters (stringA, uniCharA+rangeA.location, rangeA.length);
     CFStringAppendCharacters (stringB, uniCharB+rangeB.location, rangeB.length);
-    
     if (lenB > lenA) {
         return FALSE;
     }
-    return [(NSString *)stringA compare:(NSString *)stringB options:kCFCompareCaseInsensitive range:NSMakeRange(0, [(NSString *)stringB length])] == 0;
+    BOOL begins = [(NSString *)stringA compare:(NSString *)stringB options:kCFCompareCaseInsensitive range:NSMakeRange(0, [(NSString *)stringB length])] == 0;
+    
+    // check for edge case where stringA was trimmed but stringB was not. i.e. A='The Beatles' b='Th'
+    if (!begins && rangeA.location != 0 && rangeB.location == 0 && rangeB.length < 4) {
+        CFStringDelete(stringA, CFRangeMake(0, CFStringGetLength(stringA)));
+        CFStringDelete(stringB, CFRangeMake(0, CFStringGetLength(stringB)));
+        CFStringAppendCharacters (stringA, uniCharA, lenA/2);
+        CFStringAppendCharacters (stringB, uniCharB, lenB/2);
+        if ([(NSString *)stringA compare:(NSString *)stringB options:kCFCompareCaseInsensitive range:NSMakeRange(0, [(NSString *)stringB length])] == 0) {
+            return TRUE;
+        }
+    }
+    
+    return begins;
 }
 
 CFRange PRFormatString(UniChar *string, int length) 
