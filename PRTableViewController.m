@@ -578,7 +578,7 @@
 - (void)browseToArtist:(NSString *)artist {
     [[db playlists] setSearch:@"" forList:_currentList];
     for (int i = 1; i <= 3; i++) {
-        NSArray *selection = [NSArray array];
+        NSArray *selection = @[];
         if ([[[db playlists] attrForBrowser:i list:_currentList] isEqual:PRItemAttrArtist]) {
             selection = @[artist];
         }

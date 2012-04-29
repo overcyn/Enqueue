@@ -823,12 +823,12 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     }
     NSData *data = [self valueForList:list attr:attr];
     if ([data length] == 0) {
-        return [NSArray array];
+        return @[];
     }
     @try {
         return [NSKeyedUnarchiver unarchiveObjectWithData:data];
     } @catch (NSException *exception) {
-        return [NSArray array];
+        return @[];
     }
 }
 

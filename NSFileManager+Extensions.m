@@ -46,7 +46,7 @@
                             includingPropertiesForKeys:@[NSURLIsDirectoryKey]
                                                options:0 
                                                  error:error];
-    if (!contents) {return [NSArray array];}
+    if (!contents) {return @[];}
     
     for (NSURL *i in contents) {
         NSNumber *isDir = nil;

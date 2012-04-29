@@ -84,7 +84,7 @@
         }
         NSError *error;
         NSArray *directoryURLs = [_fileManager contentsOfDirectoryAtURL:URL 
-                                            includingPropertiesForKeys:[NSArray array] 
+                                            includingPropertiesForKeys:@[] 
 															   options:0 
 																 error:&error];
         if (!directoryURLs) {
@@ -148,7 +148,7 @@
     
     // Folder Artwork
     if (![[PRUserDefaults userDefaults] folderArtwork]) {
-        return [NSDictionary dictionaryWithObjectsAndKeys:indexSet, @"files", [NSArray array], @"paths", nil];
+        return [NSDictionary dictionaryWithObjectsAndKeys:indexSet, @"files", @[], @"paths", nil];
     }
     
     string = [NSMutableString stringWithString:@"SELECT path FROM library WHERE file_id IN ("];
@@ -209,7 +209,7 @@
         [folderPaths addObject:[URL absoluteString]];
         NSError *error;
         NSArray *contents = [_fileManager contentsOfDirectoryAtURL:URL 
-										includingPropertiesForKeys:[NSArray array] 
+										includingPropertiesForKeys:@[] 
 														   options:0 
 															 error:&error];
         if (!contents) {

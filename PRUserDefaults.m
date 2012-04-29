@@ -355,17 +355,17 @@
 - (NSArray *)monitoredFolders {
     id object = [defaults objectForKey:@"monitoredFolders"];
     if (!object || ![object isKindOfClass:[NSData class]]) {
-        return [NSArray array];
+        return @[];
     }
     
     id monitoredFolders = [NSKeyedUnarchiver unarchiveObjectWithData:object];
     if (!monitoredFolders || ![monitoredFolders isKindOfClass:[NSArray class]]) {
-        return [NSArray array];
+        return @[];
     }
     
     for (id i in monitoredFolders) {
         if (![i isKindOfClass:[NSURL class]]) {
-            return [NSArray array];
+            return @[];
         }
     }
     return monitoredFolders;

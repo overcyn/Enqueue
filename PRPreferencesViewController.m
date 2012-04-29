@@ -31,11 +31,8 @@
 
     // hotkeys
     for (NSDictionary *i in [self hotkeyDictionary]) {
-        NSDictionary *hotkey = [NSDictionary dictionaryWithObjectsAndKeys:
-                                [i objectForKey:@"defaultCode"], @"code",
-                                [i objectForKey:@"defaultKeyMask"], @"keyMask", nil];
-        NSDictionary *defaults = [NSDictionary dictionaryWithObject:hotkey forKey:[i objectForKey:@"userDefaultsKey"]];
-        [[NSUserDefaults standardUserDefaults] registerDefaults:defaults];
+        NSDictionary *hotkey = @{@"code":[i objectForKey:@"defaultCode"],@"keyMask":[i objectForKey:@"defaultKeyMask"]};
+        [[NSUserDefaults standardUserDefaults] registerDefaults:@{[i objectForKey:@"userDefaultsKey"]:hotkey}];
     }
     [[NSUserDefaults standardUserDefaults] synchronize];
     [self registerHotkeys];
@@ -596,9 +593,7 @@
     [folderMonitor rescan];
 }
 
-- (void)importSheetDidEnd:(NSOpenPanel*)openPanel 
-			   returnCode:(NSInteger)returnCode 
-				  context:(void*)context {
+- (void)importSheetDidEnd:(NSOpenPanel*)openPanel returnCode:(NSInteger)returnCode context:(void*)context {
 	if (returnCode == NSCancelButton) {
 		return;
 	}
@@ -611,17 +606,20 @@
     return [[folderMonitor monitoredFolders] count];
 }
 
-- (id)            tableView:(NSTableView *)tableView 
-  objectValueForTableColumn:(NSTableColumn *)tableColumn 
-                        row:(NSInteger)rowIndex {
+- (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)rowIndex {
     return [[[folderMonitor monitoredFolders] objectAtIndex:rowIndex] path];
 }
 
 #pragma mark - Global Hotkeys
 
+#define HOTKEYREFKEY        @"hotKeyRef"
+#define IDKEY               @"ID"
+#define DEFAULTCODEKEY      @"defaultCode"
+#define DEFAULTKEYMASKKEY   @"defaultKeyMask"
+#define USERDEFAULTSKEY     @"userDefaultsKey"
+
 - (NSArray *)hotkeyDictionary {
-    return [NSArray arrayWithObjects:
-            [NSDictionary dictionaryWithObjectsAndKeys:
+    return @[[NSDictionary dictionaryWithObjectsAndKeys:
              [NSValue valueWithPointer:&playPauseHotKeyRef], @"hotKeyRef",
              [NSNumber numberWithInt:1], @"ID",
              [NSNumber numberWithInt:49], @"defaultCode",
@@ -699,15 +697,13 @@
              [NSNumber numberWithInt:23], @"defaultCode",
              [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
              @"rate5StarHotKey", @"userDefaultsKey",
-             nil],
-            
-            nil];
+             nil]
+    ];
 }
 
 - (void)registerHotkeys {
     for (NSDictionary *i in [self hotkeyDictionary]) {
-        NSDictionary *defaults = 
-          [[NSUserDefaults standardUserDefaults] dictionaryForKey:[i objectForKey:@"userDefaultsKey"]];
+        NSDictionary *defaults = [[NSUserDefaults standardUserDefaults] dictionaryForKey:[i objectForKey:@"userDefaultsKey"]];
         [self registerHotkey:[[i objectForKey:@"hotKeyRef"] pointerValue]
                 withKeyMasks:[[defaults objectForKey:@"keyMask"] intValue] 
                         code:[[defaults objectForKey:@"code"] intValue] 
@@ -715,7 +711,7 @@
     }
 }
 
-- (void)registerHotkey:(EventHotKeyRef *)hotKeyRef withKeyMasks:(int)keymasks code:(int)code ID:(int)id_  {
+- (void)registerHotkey:(EventHotKeyRef *)hotKeyRef withKeyMasks:(int)keymasks code:(int)code ID:(int)id_ {
     UnregisterEventHotKey(*hotKeyRef);
     if (code == -1) {
         return;

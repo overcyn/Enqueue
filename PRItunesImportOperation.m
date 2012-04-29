@@ -202,7 +202,7 @@ end:;
     // Get playlist items
     NSArray *playlistItems = [playlist objectForKey:@"Playlist Items"];
     if (!playlistItems) {
-        playlistItems = [NSArray array];
+        playlistItems = @[];
     }
     // Add playlist items
     void (^blk)(void) = ^{
