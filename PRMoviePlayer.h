@@ -16,14 +16,14 @@ typedef enum {
 
 
 @interface PRMoviePlayer : NSObject {
-    AudioUnit _au;
-    
-    void *player; // An instance of AudioPlayer
-	NSTimer	*timer; // User interface update timer
+    void *player;
+    AudioUnit _equalizer;
     
     float transitionVolume;
     int transitionState;
     NSTimer *_transitionTimer; // should only be accessed through accessor
+    
+    NSTimer	*_UIUpdateTimer;
     
     PRMovieQueueState _queueState; // should only be accessed through accessor
 }

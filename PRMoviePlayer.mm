@@ -33,8 +33,11 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 /* Update */
 - (void)preGainDidChange:(NSNotification *)notification;
-- (void)EQChanged:(NSNotification *)note;
 - (void)update;
+- (void)EQChanged:(NSNotification *)note;
+- (void)updateEQ; // only to be called inside EQChanged
+- (void)enableEQ; // only to be called inside EQChanged
+- (void)disableEQ; // only to be called inside EQChanged
 @end
 
 
@@ -47,39 +50,9 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     player = new AudioPlayer();
     
     // Update the UI 5 times per second in all run loop modes (so menus, etc. don't stop updates)
-    timer = [NSTimer timerWithTimeInterval:0.3 target:self selector:@selector(update) userInfo:nil repeats:YES];
-    [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
-    
-//    BOOL err = PLAYER->AddEffect(kAudioUnitSubType_GraphicEQ, kAudioUnitManufacturer_Apple, 0, 0, &_au);
-//    if (!err) {
-//        NSLog(@"EQ Fail");
-//    }
-//    
-//    OSStatus status = AudioUnitInitialize(_au);
-//    if (status != 0) {
-//        NSLog(@"Init:%d",(int)status);
-//    }
-//        
-//    status = AudioUnitSetParameter(_au, kGraphicEQParam_NumberOfBands, kAudioUnitScope_Global, 0, 0, 0);
-//    if (status != 0) {
-//        NSLog(@"status:%d",(int)status);
-//    }
-    
-//    // Public util
-//    AUParamInfo info(_au, FALSE, FALSE); 
-//    for(int i = 0; i < info.NumParams(); i++) {
-//        AudioUnitParameterID paramID = info.ParamID(i);
-//        const CAAUParameter *param = info.GetParamInfo(paramID);
-//        
-//        NSLog(@"param: %d",(int)paramID);
-//        if (param) {
-//            NSLog(@"name:%@",(NSString *)param->GetName());
-//            NSLog(@"value:%f",param->GetValue());
-//            AudioUnitParameterInfo paramInfo = param->ParamInfo();
-//            NSLog(@"min:%f max:%f default:%f", paramInfo.minValue, paramInfo.maxValue, paramInfo.defaultValue);
-//        }
-//    }
-    
+    _UIUpdateTimer = [NSTimer timerWithTimeInterval:0.3 target:self selector:@selector(update) userInfo:nil repeats:YES];
+    [[NSRunLoop mainRunLoop] addTimer:_UIUpdateTimer forMode:NSRunLoopCommonModes];
+        
     [[NSNotificationCenter defaultCenter] observePreGainChanged:self sel:@selector(preGainDidChange:)];
     [[NSNotificationCenter defaultCenter] observeEQChanged:self sel:@selector(EQChanged:)];
     [self preGainDidChange:nil];
@@ -94,11 +67,11 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 }
 
 - (void)dealloc {
-    [timer invalidate];
+    [_UIUpdateTimer invalidate];
     [self.transitionTimer invalidate];
     
     delete PLAYER;
-    [timer release];
+    [_UIUpdateTimer release];
     [_transitionTimer release];
     [super dealloc];
 }
@@ -380,16 +353,23 @@ player = player;
 }
 
 - (void)EQChanged:(NSNotification *)note {
-	/*
+    BOOL enabled = [[PRUserDefaults userDefaults] EQIsEnabled];
+    if (enabled && !_equalizer) {
+        [self enableEQ];
+    } else if (!enabled && _equalizer) {
+        [self disableEQ];
+    } else if (enabled && _equalizer) {
+        [self updateEQ];
+    }
+}
+
+- (void)updateEQ {
     PREQ *EQ;
-    if (![[PRUserDefaults userDefaults] EQIsEnabled]) {
-        EQ = [PREQ flat];
-    } else if ([[PRUserDefaults userDefaults] isCustomEQ]) {
+    if ([[PRUserDefaults userDefaults] isCustomEQ]) {
         EQ = [[[PRUserDefaults userDefaults] customEQs] objectAtIndex:[[PRUserDefaults userDefaults] EQIndex]];
     } else {
         EQ = [[PREQ defaultEQs] objectAtIndex:[[PRUserDefaults userDefaults] EQIndex]];
     }
-    
     for (int i = 0; i < 10; i++) {
         float amp = [EQ ampForFreq:(PREQFreq)(i + 1)] + [EQ ampForFreq:PREQFreqPreamp];
         if (amp > 20) {
@@ -397,12 +377,46 @@ player = player;
         } else if (amp < -20) {
             amp = -20;
         }
-        OSStatus status = AudioUnitSetParameter(_au, i, kAudioUnitScope_Global, 0, amp, 0);
+        OSStatus status = AudioUnitSetParameter(_equalizer, i, kAudioUnitScope_Global, 0, amp, 0);
         if (status != 0) {
-            NSLog(@"EQ failed:%d",(int)status);
+            NSLog(@"EQ update failed:%d",(int)status);
         }
     }
-	*/
+}
+
+- (void)enableEQ {
+    OSStatus status;
+    BOOL err = PLAYER->AddEffect(kAudioUnitSubType_GraphicEQ, kAudioUnitManufacturer_Apple, 0, 0, &_equalizer);
+    if (!err) {
+        NSLog(@"EQ addition failed");
+        goto error;
+    }
+    status = AudioUnitInitialize(_equalizer);
+    if (status != 0) {
+        NSLog(@"EQ initialization failed:%d",(int)status);
+        goto error;
+    }
+    status = AudioUnitSetParameter(_equalizer, kGraphicEQParam_NumberOfBands, kAudioUnitScope_Global, 0, 0, 0);
+    if (status != 0) {
+        NSLog(@"EQ set parameter failed:%d",(int)status);
+        goto error;
+    }
+    [self updateEQ];
+    return;
+    
+error:;
+    PLAYER->RemoveEffect(_equalizer);
+    _equalizer = nil;
+    return;
+}
+
+- (void)disableEQ {
+    // disable the audio unit
+    BOOL succ = PLAYER->RemoveEffect(_equalizer);
+    if (succ != TRUE) {
+        NSLog(@"EQ removal failed");
+    }
+    _equalizer = nil;
 }
 
 @end
