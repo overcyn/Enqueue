@@ -29,6 +29,9 @@
     NSMutableDictionary *_childItems;
     
     NSPoint dropPoint;
+    
+    NSCell *_cachedNowPlayingCell;
+    NSCell *_cachedNowPlayingHeaderCell;
 }
 /* Initialization */
 - (id)initWithCore:(PRCore *)core;

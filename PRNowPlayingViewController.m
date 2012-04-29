@@ -702,16 +702,14 @@
 }
 
 - (NSCell *)outlineView:(NSOutlineView *)outlineView dataCellForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
-    static NSCell *nowPlayingCell = nil;
-    static NSCell *nowPlayingHeaderCell = nil;
-    if (!nowPlayingCell || ! nowPlayingHeaderCell) {
-        nowPlayingCell = [[PRNowPlayingCell alloc] initTextCell:@""];
-        nowPlayingHeaderCell = [[PRNowPlayingHeaderCell alloc] initTextCell:@""];
+    if (!_cachedNowPlayingCell || !_cachedNowPlayingHeaderCell) {
+        _cachedNowPlayingCell = [[PRNowPlayingCell alloc] initTextCell:@""];
+        _cachedNowPlayingHeaderCell = [[PRNowPlayingHeaderCell alloc] initTextCell:@""];
     }
     if ([(NSArray *)item count] == 1) {
-        return nowPlayingHeaderCell;
+        return _cachedNowPlayingHeaderCell;
     }
-    return nowPlayingCell;
+    return _cachedNowPlayingCell;
 }
 
 #pragma mark - OutlineView DragAndDrop
