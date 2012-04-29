@@ -1431,28 +1431,36 @@
 #pragma mark - TableView Delegate
 
 - (NSInteger)tableView:(NSTableView *)tableView nextTypeSelectMatchFromRow:(NSInteger)startRow toRow:(NSInteger)endRow forString:(NSString *)string {
-    if (tableView == browser1TableView || tableView == browser2TableView || tableView == browser3TableView) {
-        // forward event if space-key so window can play/pause
-        if ([string isEqualToString:@" "]) {
-            return -1;
-        }
-        
-        // endRow can be before startRow so account for loop around
-        int end = !(endRow < startRow) ? endRow : [self numberOfRowsInTableView:tableView] - 1;
-        for (int i = startRow; i <= end; i++) {
-            NSString *value = [self tableView:tableView objectValueForTableColumn:[[tableView tableColumns] objectAtIndex:0] row:i];
-            if ([value noCaseBegins:string]) {
-                return i;
-            }
-            if (i == end && endRow < startRow && end != endRow) {
-                i = 0;
-                end = endRow;
-            }
-        }
-        return startRow;
-    } else {
+    // forward event if space-key so window can play/pause
+    if ([string isEqualToString:@" "]) {
         return -1;
     }
+    // if last search was unsuccessful don't search again
+    if (_lastLibraryTypeSelectFailure && [string length] > 1) {
+        return startRow;
+    }
+    
+    NSTableColumn *column;
+    if (tableView == browser1TableView || tableView == browser2TableView || tableView == browser3TableView) {
+        column = [[tableView tableColumns] objectAtIndex:0];
+    } else {
+        column = [tableView tableColumnWithIdentifier:PRItemAttrTitle];
+    }
+    // endRow can be before startRow so account for loop around
+    int end = !(endRow < startRow) ? endRow : [self numberOfRowsInTableView:tableView] - 1;
+    for (int i = startRow; i <= end; i++) {
+        NSString *value = [self tableView:tableView objectValueForTableColumn:column row:i];
+        if ([value noCaseBegins:string]) {
+            _lastLibraryTypeSelectFailure = FALSE;
+            return i;
+        }
+        if (i == end && endRow < startRow && end != endRow) {
+            i = -1;
+            end = endRow;
+        }
+    }
+    _lastLibraryTypeSelectFailure = TRUE;
+    return startRow;
 }
 
 - (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)column row:(NSInteger)row {

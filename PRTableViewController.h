@@ -37,6 +37,8 @@
     PRList *_currentList;
     BOOL _updatingTableViewSelection; // True during reloadData: so tableViewSelectionDidChange doesn't trigger
 	BOOL refreshing;
+    
+    BOOL _lastLibraryTypeSelectFailure; // Optimization for type select. TRUE if last search was unsuccessful.
 }
 /* Initialization */
 - (id)initWithCore:(PRCore *)core;
