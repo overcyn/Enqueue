@@ -23,6 +23,7 @@
 @property (readwrite) NSRect miniPlayerFrame;
 @property (readwrite) NSRect playerFrame;
 @property (readwrite) float sidebarWidth;
+@property (readwrite, copy) NSIndexSet *nowPlayingCollapseState;
 
 @property (readwrite) BOOL mediaKeys;
 @property (readwrite) BOOL postGrowlNotification;

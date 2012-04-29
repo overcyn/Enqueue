@@ -48,6 +48,7 @@
 - (void)updateTableView;
 - (void)playlistDidChange:(NSNotification *)notification;
 - (void)currentFileDidChange:(NSNotification *)notification;
+- (void)applicationWillTerminate:(NSNotification *)notification;
 
 // Menu
 - (void)playlistMenuNeedsUpdate;
@@ -85,6 +86,7 @@
     [background setAltColor:[NSColor colorWithDeviceWhite:0.92 alpha:1.0]];
     [self setView:background];
     
+    // outline view
     scrollview = [[NSScrollView alloc] initWithFrame:NSMakeRect(0, 0, 210, 501)];
     [scrollview setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
     [scrollview setFocusRingType:NSFocusRingTypeNone];
@@ -146,16 +148,26 @@
     [[self firstKeyView] setNextKeyView:nowPlayingTableView];
     [nowPlayingTableView setNextKeyView:[self lastKeyView]];
     
-    // playlist and current file obs
+    // update
+    [self playlistMenuNeedsUpdate];
+    [self updateTableView];
+    
+    // restore collapse state
+    NSIndexSet *collapseState = [[PRUserDefaults userDefaults] nowPlayingCollapseState];
+    [nowPlayingTableView collapseItem:nil];
+    if ([collapseState lastIndex] < [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil]) {
+        [collapseState enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+            [nowPlayingTableView expandItem:[self itemForItem:@[[NSNumber numberWithInt:idx]]]];
+        }];
+    } else {
+        [nowPlayingTableView expandItem:[self itemForItem:@[@0]]];
+    }
+    
+    // notifications
     [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(updateTableView)];
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(currentFileDidChange:)];
-    
-    [self playlistMenuNeedsUpdate];
-    [self updateTableView];
-    [nowPlayingTableView collapseItem:nil];
-    NSArray *parentItem = [self itemForItem:@[[NSNumber numberWithInt:0]]];
-    [nowPlayingTableView expandItem:parentItem];
+    [NSNotificationCenter addObserver:self selector:@selector(applicationWillTerminate:) name:NSApplicationWillTerminateNotification object:nil];
 }
 
 #pragma mark - Accessors
@@ -473,6 +485,18 @@
         [nowPlayingTableView expandItem:parentItem];
         [nowPlayingTableView scrollRowToVisiblePretty:[nowPlayingTableView rowForItem:currentItem]];
     }
+}
+
+- (void)applicationWillTerminate:(NSNotification *)notification {
+    // save collapse state
+    NSMutableIndexSet *collapseState = [NSMutableIndexSet indexSet];
+    NSUInteger count = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
+    for (NSUInteger i = 0; i < count; i++) {
+        if ([nowPlayingTableView isItemExpanded:[self itemForItem:@[[NSNumber numberWithInt:i]]]]) {
+            [collapseState addIndex:i];
+        }
+    }
+    [[PRUserDefaults userDefaults] setNowPlayingCollapseState:collapseState];
 }
 
 #pragma mark - Menu Priv

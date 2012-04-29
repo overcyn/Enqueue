@@ -170,6 +170,7 @@
 @dynamic miniPlayerFrame;
 @dynamic playerFrame;
 @dynamic sidebarWidth;
+@dynamic nowPlayingCollapseState;
 
 - (BOOL)showWelcomeSheet {
     NSNumber *object = [defaults objectForKey:@"showsWelcomeSheet"];
@@ -234,6 +235,23 @@
 
 - (void)setSidebarWidth:(float)sidebarWidth {
     [defaults setObject:[NSNumber numberWithFloat:sidebarWidth] forKey:@"sidebarWidth"];
+}
+
+- (NSIndexSet *)nowPlayingCollapseState {
+    id object = [defaults objectForKey:@"nowPlayingCollapseState"];
+    if (!object || ![object isKindOfClass:[NSData class]]) {
+        return [NSIndexSet indexSet];
+    }
+    
+    id collapse = [NSKeyedUnarchiver unarchiveObjectWithData:object];
+    if (!collapse || ![collapse isKindOfClass:[NSIndexSet class]]) {
+        return [NSIndexSet indexSet];
+    }
+    return collapse;
+}
+
+- (void)setNowPlayingCollapseState:(NSIndexSet *)nowPlayingCollapseState {
+    [defaults setObject:[NSKeyedArchiver archivedDataWithRootObject:nowPlayingCollapseState] forKey:@"nowPlayingCollapseState"];
 }
 
 @dynamic mediaKeys;
