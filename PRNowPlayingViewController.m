@@ -28,33 +28,33 @@
 
 
 @interface PRNowPlayingViewController () 
-// TableView Actions
-- (void)play;
+/* Action */
 - (void)playItem:(id)item;
 - (void)playSelected;
 - (void)removeSelected;
 - (void)addSelectedToQueue;
 - (void)removeSelectedFromQueue;
-- (void)addToPlaylist:(id)sender;
-- (IBAction)delete:(id)sender;
-- (void)showInLibrary;
-- (void)revealInFinder;
+- (void)showSelectedInLibrary;
+- (void)revealSelectedInFinder;
 
-// PlaylistMenu Actions
+/* Action Mouse */
+- (void)play;
+
+/* Action Menu */
+- (void)saveAsNewPlaylist:(id)sender;
 - (void)saveAsPlaylist:(id)sender;
-- (void)newPlaylist:(id)sender;
+- (void)saveAsPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context;
+- (void)addToPlaylist:(id)sender;
 
-// Update
+/* Update */
 - (void)updateTableView;
+- (void)playlistMenuNeedsUpdate; // only called by menuNeedsUpdate:
+- (void)contextMenuNeedsUpdate; // only called by menuNeedsUpdate:
 - (void)playlistDidChange:(NSNotification *)notification;
 - (void)currentFileDidChange:(NSNotification *)notification;
 - (void)applicationWillTerminate:(NSNotification *)notification;
 
-// Menu
-- (void)playlistMenuNeedsUpdate;
-- (void)contextMenuNeedsUpdate;
-
-// Misc
+/* Misc */
 - (int)dbRowCount;
 - (NSRange)dbRangeForParentItem:(id)item;
 - (int)dbRowForItem:(id)item;
@@ -149,7 +149,7 @@
     [nowPlayingTableView setNextKeyView:[self lastKeyView]];
     
     // update
-    [self playlistMenuNeedsUpdate];
+    [self menuNeedsUpdate:_playlistMenu];
     [self updateTableView];
     
     // restore collapse state
@@ -278,116 +278,15 @@
 
 #pragma mark - Action Priv
 
-- (void)play {
-    if ([nowPlayingTableView clickedRow] == -1) {
-        return;
-    }
-    id item = [nowPlayingTableView itemAtRow:[nowPlayingTableView clickedRow]];
-    [self playItem:item];
-    int row = [nowPlayingTableView rowForItem:item];
-    [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:FALSE];
-}
-
 - (void)playItem:(id)item {
-    int dbRow = [self dbRowForItem:item];
-    [now playItemAtIndex:dbRow];
+    [now playItemAtIndex:[self dbRowForItem:item]];
 }
-
-- (IBAction)delete:(id)sender {
-    [self removeSelected];
-}
-
-- (void)saveAsPlaylist:(id)sender {
-    int playlist = [[sender representedObject] intValue];
-    NSString *title = [[db playlists] titleForList:[NSNumber numberWithInt:playlist]];
-    NSAlert *alert = [[[NSAlert alloc] init] autorelease];
-    [alert addButtonWithTitle:@"Save"];
-    [alert addButtonWithTitle:@"Cancel"];
-    [alert setMessageText:[NSString stringWithFormat:@"Are you sure you want to save this as \"%@\"?", title]];
-    [alert setInformativeText:@"Existing playlist contents will be removed."];
-    [alert setAlertStyle:NSWarningAlertStyle];
-    
-    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(saveAsPlaylistHandler:code:context:) contextInfo:[NSNumber numberWithInt:playlist]];
-}
-
-- (void)saveAsPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context {
-    if (code != NSAlertFirstButtonReturn) {
-        return;
-    }
-    PRList *list = context;
-    [[db playlists] clearList:list];
-    [[db playlists] copyItemsFromList:[now currentList] toList:list];
-    [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
-}
-
-- (void)newPlaylist:(id)sender {
-    [[win playlistsViewController] duplicatePlaylist:[[now currentList] intValue]];
-}
-
-#pragma mark - Action Menu Priv
 
 - (void)playSelected {
     if ([[self selectedDbRows] count] == 0) {
         return;
     }
     [now playItemAtIndex:[[self selectedDbRows] firstIndex]];
-}
-
-- (void)addSelectedToQueue {
-    [self removeSelectedFromQueue];
-    NSIndexSet *dbRows = [self selectedDbRows];
-    NSInteger dbRow = [dbRows firstIndex];
-    while (dbRow != NSNotFound) {
-        if (dbRow != [now currentIndex]) {
-            [[db queue] appendListItem:[[db playlists] listItemAtIndex:dbRow inList:[now currentList]]];
-        }
-        dbRow = [dbRows indexGreaterThanIndex:dbRow];
-    }
-}
-
-- (void)removeSelectedFromQueue {
-    NSIndexSet *dbRows = [self selectedDbRows];
-    NSInteger dbRow = [dbRows firstIndex];
-    while (dbRow != NSNotFound) {
-        [[db queue] removeListItem:[[db playlists] listItemAtIndex:dbRow inList:[now currentList]]];
-        dbRow = [dbRows indexGreaterThanIndex:dbRow];
-    }
-}
-
-- (void)clearQueue {
-    [[db queue] clear];
-}
-
-- (void)addToPlaylist:(id)sender {
-    PRList *list = [sender representedObject];
-    NSIndexSet *dbRows = [self selectedDbRows];
-    NSInteger dbRow = [dbRows firstIndex];
-    while (dbRow != NSNotFound) {
-        [[db playlists] appendItem:[[db playlists] itemAtIndex:dbRow forList:[now currentList]] toList:list];
-        dbRow = [dbRows indexGreaterThanIndex:dbRow];
-    }
-    [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
-}
-
-- (void)revealInFinder {
-    NSIndexSet *dbRows = [self selectedDbRows];
-    if ([dbRows count] == 0) {
-        return;
-    }
-    PRItem *item = [[db playlists] itemAtIndex:[dbRows firstIndex] forList:[now currentList]];
-    NSString *path = [[db library] valueForItem:item attr:PRItemAttrPath];
-    [[NSWorkspace sharedWorkspace] selectFile:[[NSURL URLWithString:path] path] inFileViewerRootedAtPath:nil];
-}
-
-- (void)showInLibrary {
-    NSIndexSet *dbRows = [self selectedDbRows];
-    if ([dbRows count] == 0) {
-        return;
-    }
-    PRItem *item = [[db playlists] itemAtIndex:[dbRows firstIndex] forList:[now currentList]];
-    [win setCurrentMode:PRLibraryMode];
-    [[win libraryViewController] setCurrentList:[[db playlists] libraryList]];
-    [[[win libraryViewController] currentViewController] highlightItem:item];
 }
 
 - (void)removeSelected {
@@ -435,6 +334,104 @@
     }
 }
 
+- (void)revealSelectedInFinder {
+    NSIndexSet *dbRows = [self selectedDbRows];
+    if ([dbRows count] == 0) {
+        return;
+    }
+    PRItem *item = [[db playlists] itemAtIndex:[dbRows firstIndex] forList:[now currentList]];
+    NSString *path = [[db library] valueForItem:item attr:PRItemAttrPath];
+    [[NSWorkspace sharedWorkspace] selectFile:[[NSURL URLWithString:path] path] inFileViewerRootedAtPath:nil];
+}
+
+- (void)showSelectedInLibrary {
+    NSIndexSet *dbRows = [self selectedDbRows];
+    if ([dbRows count] == 0) {
+        return;
+    }
+    PRItem *item = [[db playlists] itemAtIndex:[dbRows firstIndex] forList:[now currentList]];
+    [win setCurrentMode:PRLibraryMode];
+    [[win libraryViewController] setCurrentList:[[db playlists] libraryList]];
+    [[[win libraryViewController] currentViewController] highlightItem:item];
+}
+
+- (void)addSelectedToQueue {
+    [self removeSelectedFromQueue];
+    NSIndexSet *dbRows = [self selectedDbRows];
+    NSInteger dbRow = [dbRows firstIndex];
+    while (dbRow != NSNotFound) {
+        if (dbRow != [now currentIndex]) {
+            [[db queue] appendListItem:[[db playlists] listItemAtIndex:dbRow inList:[now currentList]]];
+        }
+        dbRow = [dbRows indexGreaterThanIndex:dbRow];
+    }
+}
+
+- (void)removeSelectedFromQueue {
+    NSIndexSet *dbRows = [self selectedDbRows];
+    NSInteger dbRow = [dbRows firstIndex];
+    while (dbRow != NSNotFound) {
+        [[db queue] removeListItem:[[db playlists] listItemAtIndex:dbRow inList:[now currentList]]];
+        dbRow = [dbRows indexGreaterThanIndex:dbRow];
+    }
+}
+
+- (void)clearQueue {
+    [[db queue] clear];
+}
+
+#pragma mark - Action Mouse Priv
+
+- (void)play {
+    if ([nowPlayingTableView clickedRow] == -1) {
+        return;
+    }
+    id item = [nowPlayingTableView itemAtRow:[nowPlayingTableView clickedRow]];
+    [self playItem:item];
+    int row = [nowPlayingTableView rowForItem:item];
+    [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:FALSE];
+}
+
+#pragma mark - Action Menu Priv
+
+- (void)saveAsNewPlaylist:(id)sender {
+    [[win playlistsViewController] duplicatePlaylist:[[now currentList] intValue]];
+}
+
+- (void)saveAsPlaylist:(id)sender {
+    int playlist = [[sender representedObject] intValue];
+    NSString *title = [[db playlists] titleForList:[NSNumber numberWithInt:playlist]];
+    NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+    [alert addButtonWithTitle:@"Save"];
+    [alert addButtonWithTitle:@"Cancel"];
+    [alert setMessageText:[NSString stringWithFormat:@"Are you sure you want to save this as \"%@\"?", title]];
+    [alert setInformativeText:@"Existing playlist contents will be removed."];
+    [alert setAlertStyle:NSWarningAlertStyle];
+    
+    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(saveAsPlaylistHandler:code:context:) contextInfo:[NSNumber numberWithInt:playlist]];
+}
+
+- (void)saveAsPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context {
+    if (code != NSAlertFirstButtonReturn) {
+        return;
+    }
+    PRList *list = context;
+    [[db playlists] clearList:list];
+    [[db playlists] copyItemsFromList:[now currentList] toList:list];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
+}
+
+- (void)addToPlaylist:(id)sender {
+    PRList *list = [sender representedObject];
+    NSIndexSet *dbRows = [self selectedDbRows];
+    NSInteger dbRow = [dbRows firstIndex];
+    while (dbRow != NSNotFound) {
+        [[db playlists] appendItem:[[db playlists] itemAtIndex:dbRow forList:[now currentList]] toList:list];
+        dbRow = [dbRows indexGreaterThanIndex:dbRow];
+    }
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
+}
+
 #pragma mark - Update Priv
 
 - (void)updateTableView {
@@ -463,60 +460,20 @@
     [nowPlayingTableView reloadData];
 }
 
-- (void)playlistDidChange:(NSNotification *)notification {
-    if ([[[notification userInfo] valueForKey:@"playlist"] isEqual:[now currentList]]) {
-        [self updateTableView];
-        [nowPlayingTableView collapseItem:nil];
-        if ([now currentIndex] != 0) {
-            NSArray *parentItem = [self itemForItem:@[[NSNumber numberWithInt:0]]];
-            [nowPlayingTableView expandItem:parentItem];
-        }
-    }
-}
-
-- (void)currentFileDidChange:(NSNotification *)notification {
-    [(PROutlineView *)nowPlayingTableView reloadVisibleItems];
-    if ([now currentIndex] != 0) {
-        id currentItem = [self itemForDbRow:[now currentIndex]];
-        NSArray *parentItem = [self itemForItem:@[[currentItem objectAtIndex:0]]];
-        if (![nowPlayingTableView isItemExpanded:parentItem]) {
-            [nowPlayingTableView collapseItem:nil];
-        }
-        [nowPlayingTableView expandItem:parentItem];
-        [nowPlayingTableView scrollRowToVisiblePretty:[nowPlayingTableView rowForItem:currentItem]];
-    }
-}
-
-- (void)applicationWillTerminate:(NSNotification *)notification {
-    // save collapse state
-    NSMutableIndexSet *collapseState = [NSMutableIndexSet indexSet];
-    NSUInteger count = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
-    for (NSUInteger i = 0; i < count; i++) {
-        if ([nowPlayingTableView isItemExpanded:[self itemForItem:@[[NSNumber numberWithInt:i]]]]) {
-            [collapseState addIndex:i];
-        }
-    }
-    [[PRUserDefaults userDefaults] setNowPlayingCollapseState:collapseState];
-}
-
-#pragma mark - Menu Priv
-
 - (void)playlistMenuNeedsUpdate {
     NSMenu *menu = _playlistMenu;
     for (NSMenuItem *i in [menu itemArray]) {
         [menu removeItem:i];
     }
-    // Title of the popup button
     NSMenuItem *menuItem = [[[NSMenuItem alloc] init] autorelease];
     [menuItem setImage:[NSImage imageNamed:@"Settings"]];
     [menu addItem:menuItem];
     
-    // Save
     menuItem = [[[NSMenuItem alloc] initWithTitle:@"Save as..." action:nil keyEquivalent:@""] autorelease];
     [menuItem setEnabled:FALSE];
     [menu addItem:menuItem];
     
-    menuItem = [[[NSMenuItem alloc] initWithTitle:@" New Playlist          " action:@selector(newPlaylist:) keyEquivalent:@""] autorelease];
+    menuItem = [[[NSMenuItem alloc] initWithTitle:@" New Playlist          " action:@selector(saveAsNewPlaylist:) keyEquivalent:@""] autorelease];
     [menuItem setImage:[NSImage imageNamed:@"Add"]];
     [menu addItem:menuItem];
     
@@ -608,10 +565,10 @@
     [_contextMenu addItem:[NSMenuItem separatorItem]];
     
     // Other
-    NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"Show in Library" action:@selector(showInLibrary) keyEquivalent:@""] autorelease];
+    NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"Show in Library" action:@selector(showSelectedInLibrary) keyEquivalent:@""] autorelease];
     [menuItem setTarget:self];
     [_contextMenu addItem:menuItem];
-    menuItem = [[[NSMenuItem alloc] initWithTitle:@"Reveal in Finder" action:@selector(revealInFinder) keyEquivalent:@""] autorelease];
+    menuItem = [[[NSMenuItem alloc] initWithTitle:@"Reveal in Finder" action:@selector(revealSelectedInFinder) keyEquivalent:@""] autorelease];
     [menuItem setTarget:self];
     [_contextMenu addItem:menuItem];
     [_contextMenu addItem:[NSMenuItem separatorItem]];
@@ -623,7 +580,43 @@
     [_contextMenu addItem:item];
 }
 
-#pragma mark - Priv
+- (void)playlistDidChange:(NSNotification *)notification {
+    if ([[[notification userInfo] valueForKey:@"playlist"] isEqual:[now currentList]]) {
+        [self updateTableView];
+        [nowPlayingTableView collapseItem:nil];
+        if ([now currentIndex] != 0) {
+            NSArray *parentItem = [self itemForItem:@[[NSNumber numberWithInt:0]]];
+            [nowPlayingTableView expandItem:parentItem];
+        }
+    }
+}
+
+- (void)currentFileDidChange:(NSNotification *)notification {
+    [(PROutlineView *)nowPlayingTableView reloadVisibleItems];
+    if ([now currentIndex] != 0) {
+        id currentItem = [self itemForDbRow:[now currentIndex]];
+        NSArray *parentItem = [self itemForItem:@[[currentItem objectAtIndex:0]]];
+        if (![nowPlayingTableView isItemExpanded:parentItem]) {
+            [nowPlayingTableView collapseItem:nil];
+        }
+        [nowPlayingTableView expandItem:parentItem];
+        [nowPlayingTableView scrollRowToVisiblePretty:[nowPlayingTableView rowForItem:currentItem]];
+    }
+}
+
+- (void)applicationWillTerminate:(NSNotification *)notification {
+    // save collapse state
+    NSMutableIndexSet *collapseState = [NSMutableIndexSet indexSet];
+    NSUInteger count = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
+    for (NSUInteger i = 0; i < count; i++) {
+        if ([nowPlayingTableView isItemExpanded:[self itemForItem:@[[NSNumber numberWithInt:i]]]]) {
+            [collapseState addIndex:i];
+        }
+    }
+    [[PRUserDefaults userDefaults] setNowPlayingCollapseState:collapseState];
+}
+
+#pragma mark - Misc Priv
 
 - (int)dbRowCount {
     return [_albumIndexes lastIndex] - 1;
@@ -1054,7 +1047,7 @@
     UniChar c = [[event characters] characterAtIndex:0];
     if (flags == 0) {
         if (c == 0x7F || c == 0xf728) {
-            [self delete:nil];
+            [self removeSelected];
             didHandle = TRUE;
         } else if (c == 0xd) {
             [self playSelected];
