@@ -108,8 +108,11 @@
 
 #pragma mark - Accessors
 
-@synthesize currentViewController = _currentViewController, headerView = _headerView;
-@dynamic libraryViewMode, currentList, infoViewVisible;
+@synthesize currentViewController = _currentViewController,
+headerView = _headerView;
+@dynamic libraryViewMode,
+currentList,
+infoViewVisible;
 
 - (PRList *)currentList {
     return _currentList;
