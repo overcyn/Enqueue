@@ -538,9 +538,9 @@
     }
     if ([dbRows count] == 0) {
         [[db playlists] setSearch:@"" forList:_currentList];
-        [[db playlists] setSelection:[NSArray array] forBrowser:1 list:_currentList];
-        [[db playlists] setSelection:[NSArray array] forBrowser:2 list:_currentList];
-        [[db playlists] setSelection:[NSArray array] forBrowser:3 list:_currentList];
+        [[db playlists] setSelection:@[] forBrowser:1 list:_currentList];
+        [[db playlists] setSelection:@[] forBrowser:2 list:_currentList];
+        [[db playlists] setSelection:@[] forBrowser:3 list:_currentList];
         [[NSNotificationCenter defaultCenter] postListDidChange:_currentList];
         
         for (NSNumber *i in items) {
@@ -868,9 +868,9 @@
             }
         }
     }
-    [[db playlists] setSelection:[NSArray array] forBrowser:1 list:_currentList];
-    [[db playlists] setSelection:[NSArray array] forBrowser:2 list:_currentList];
-    [[db playlists] setSelection:[NSArray array] forBrowser:3 list:_currentList];
+    [[db playlists] setSelection:@[] forBrowser:1 list:_currentList];
+    [[db playlists] setSelection:@[] forBrowser:2 list:_currentList];
+    [[db playlists] setSelection:@[] forBrowser:3 list:_currentList];
     [self loadBrowser];
     [[NSNotificationCenter defaultCenter] postListDidChange:_currentList];
 }
@@ -892,9 +892,9 @@
         [[db playlists] setAttr:nil forBrowser:2 list:_currentList];
         [[db playlists] setAttr:nil forBrowser:3 list:_currentList];
     }
-    [[db playlists] setSelection:[NSArray array] forBrowser:1 list:_currentList];
-    [[db playlists] setSelection:[NSArray array] forBrowser:2 list:_currentList];
-    [[db playlists] setSelection:[NSArray array] forBrowser:3 list:_currentList];
+    [[db playlists] setSelection:@[] forBrowser:1 list:_currentList];
+    [[db playlists] setSelection:@[] forBrowser:2 list:_currentList];
+    [[db playlists] setSelection:@[] forBrowser:3 list:_currentList];
     [self loadBrowser];
     [[NSNotificationCenter defaultCenter] postListDidChange:_currentList];
 }
