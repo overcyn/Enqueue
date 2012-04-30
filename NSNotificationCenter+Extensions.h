@@ -14,7 +14,7 @@ extern NSString * const PRLastfmStateDidChangeNotification;
 + (void)addObserver:(id)observer selector:(SEL)selector name:(NSString *)name object:(id)object;
 + (void)removeObserver:(id)observer;
 
-// Db
+/* Db */
 - (void)postLibraryChanged;
 - (void)postItemsChanged:(NSArray *)items;
 - (void)postListsDidChange;
@@ -27,7 +27,7 @@ extern NSString * const PRLastfmStateDidChangeNotification;
 - (void)observePlaylistChanged:(id)obs sel:(SEL)sel;
 - (void)observePlaylistFilesChanged:(id)obs sel:(SEL)sel;
 
-// Preferences
+/* Preferences */
 - (void)postPreGainChanged;
 - (void)postUseAlbumArtistChanged;
 - (void)postEQChanged;
@@ -36,7 +36,7 @@ extern NSString * const PRLastfmStateDidChangeNotification;
 - (void)observeUseAlbumArtistChanged:(id)obs sel:(SEL)sel;
 - (void)observeEQChanged:(id)obs sel:(SEL)sel;
 
-// Playing
+/* Playing */
 - (void)postTimeChanged;
 - (void)postPlayingChanged;
 - (void)postMovieFinished;
