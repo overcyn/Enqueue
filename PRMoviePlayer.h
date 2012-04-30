@@ -46,6 +46,5 @@ typedef enum {
 @property (readwrite) BOOL hogOutput;
 - (void)increaseVolume;
 - (void)decreaseVolume;
-
 @end
 

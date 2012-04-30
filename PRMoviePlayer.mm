@@ -56,6 +56,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
         
     [[NSNotificationCenter defaultCenter] observePreGainChanged:self sel:@selector(preGainDidChange:)];
     [[NSNotificationCenter defaultCenter] observeEQChanged:self sel:@selector(EQChanged:)];
+    [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(updateHogOutput)];
     [self preGainDidChange:nil];
     [self EQChanged:nil];
     [self setVolume:[self volume]];
@@ -63,7 +64,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     
     PLAYER->SetRingBufferCapacity(32768*4);
     PLAYER->SetRingBufferWriteChunkSize(4096);
-    
 	return self;
 }
 
@@ -154,6 +154,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 - (void)stop {
     PLAYER->Stop();
+    [[NSNotificationCenter defaultCenter] postPlayingChanged];
 }
 
 - (void)pause {
@@ -189,7 +190,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
         PLAYER->SetVolume(transitionVolume * [self volume]);
         PLAYER->Play();
         self.transitionTimer = [NSTimer scheduledTimerWithTimeInterval:0.025
-                                                                target:self 
+                                                                target:self
                                                               selector:@selector(transitionCallback:) 
                                                               userInfo:nil 
                                                                repeats:FALSE];
@@ -377,7 +378,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     if ([self queueState] == PRMovieQueueEmpty && [self isPlaying] && timeLeft < 2000) {
         [[NSNotificationCenter defaultCenter] postMovieAlmostFinished];
     }
-    [self updateHogOutput];
 }
 
 - (void)preGainDidChange:(NSNotification *)note {
@@ -458,31 +458,39 @@ error:;
 static void decodingStarted(void *context, const AudioDecoder *decoder) {
 //    NSLog(@"decodingStarted");
 //    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
-    NSAutoreleasePool *p = [[NSAutoreleasePool alloc] init];
-    PRMoviePlayer *player = (PRMoviePlayer *)context;
-    static_cast<AudioPlayer *>([player player])->Play();
-    if ([player queueState] == PRMovieQueueWaiting) {
-        [player setQueueState:PRMovieQueuePlayed];
+    @autoreleasepool {
+        PRMoviePlayer *player = (PRMoviePlayer *)context;
+        static_cast<AudioPlayer *>([player player])->Play();
+        if ([player queueState] == PRMovieQueueWaiting) {
+            [player setQueueState:PRMovieQueuePlayed];
+        }
     }
-    [p drain];
 }
 
 static void renderingStarted(void *context, const AudioDecoder *decoder) {
 //    NSLog(@"renderingStarted");
 //    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
+    @autoreleasepool {
+        [[NSOperationQueue mainQueue] addBlock:^{
+            [[NSNotificationCenter defaultCenter] postPlayingChanged];
+        }];
+    }
 }
 
 static void decodingFinished(void *context, const AudioDecoder *decoder) {
 //    NSLog(@"decodingFinished");
 //    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
+    @autoreleasepool {
+    }
 }
 
 static void renderingFinished(void *context, const AudioDecoder *decoder) {
 //    NSLog(@"renderingFinished");
 //    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
-    NSAutoreleasePool *p = [[NSAutoreleasePool alloc] init];
-    [[NSOperationQueue mainQueue] addBlock:^{
-        [[NSNotificationCenter defaultCenter] postMovieFinished];
-    }];
-    [p drain];
+    @autoreleasepool {
+        [[NSOperationQueue mainQueue] addBlock:^{
+            [[NSNotificationCenter defaultCenter] postMovieFinished];
+            [[NSNotificationCenter defaultCenter] postPlayingChanged];
+        }];
+    }
 }
