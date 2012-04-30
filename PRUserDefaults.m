@@ -23,6 +23,7 @@
 @dynamic repeat;
 @dynamic shuffle;
 @dynamic preGain;
+@dynamic hogOutput;
 
 - (float)volume {
 	NSNumber *object = [defaults objectForKey:@"volume"];
@@ -75,6 +76,19 @@
 
 - (void)setPreGain:(float)preGain {
     [defaults setObject:[NSNumber numberWithFloat:preGain] forKey:@"preGain"];
+}
+
+- (BOOL)hogOutput {
+    NSNumber *object = [defaults objectForKey:@"hogOutput"];
+    if (object && [object isKindOfClass:[NSNumber class]]) {
+        return [object boolValue];
+    } else {
+        return FALSE;
+    }
+}
+
+- (void)setHogOutput:(BOOL)hogOutput {
+    [defaults setObject:[NSNumber numberWithBool:hogOutput] forKey:@"hogOutput"];
 }
 
 @dynamic customEQs;

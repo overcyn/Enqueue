@@ -12,6 +12,7 @@
 @property (readwrite) BOOL repeat;
 @property (readwrite) BOOL shuffle;
 @property (readwrite) float preGain;
+@property (readwrite) BOOL hogOutput;
 
 @property (readwrite, copy) NSArray *customEQs;
 @property (readwrite) BOOL isCustomEQ;
