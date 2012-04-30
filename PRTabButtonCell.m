@@ -1,6 +1,7 @@
 #import "PRTabButtonCell.h"
 #import "NSColor+Extensions.h"
 #import "NSBezierPath+Extensions.h"
+#import "NSParagraphStyle+Extensions.h"
 
 
 @implementation PRTabButtonCell
@@ -55,16 +56,13 @@
 - (void)drawInteriorWithFrame:(NSRect)frame inView:(NSView *)view {
     frame.origin.y -= 2;
     NSAttributedString *attrTitle;
-    NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
-    [paragraphStyle setLineBreakMode:NSLineBreakByTruncatingTail];
-    [paragraphStyle setAlignment:NSCenterTextAlignment];
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
     [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.4]];
     [shadow setShadowOffset:NSMakeSize(0.0, -1.0)];
     NSDictionary *attr = [NSDictionary dictionaryWithObjectsAndKeys:
                           [NSFont fontWithName:@"HelveticaNeue-Bold" size:12], NSFontAttributeName,
                           [NSColor colorWithCalibratedWhite:0.15 alpha:1.0], NSForegroundColorAttributeName,
-                          paragraphStyle, NSParagraphStyleAttributeName, 
+                          [NSParagraphStyle centerAlignStyle], NSParagraphStyleAttributeName,
                           shadow, NSShadowAttributeName, nil];
     attrTitle = [[[NSAttributedString alloc] initWithString:[self title] attributes:attr] autorelease];
     [self setAttributedTitle:attrTitle];

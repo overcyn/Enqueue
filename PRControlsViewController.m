@@ -18,6 +18,7 @@
 #import "PRUserDefaults.h"
 #import "PRTaskManager.h"
 #import "PRTask.h"
+#import "NSParagraphStyle+Extensions.h"
 
 
 @implementation PRControlsViewController
@@ -33,18 +34,17 @@
 }
 
 - (void)dealloc {
-    [timeFormatter release];
     [super dealloc];
 }
 
-- (void)awakeFromNib  {
-	// bind time and volume sliders
+- (void)awakeFromNib {
+	// Time
     [controlSlider setCell:[[[PRSliderCell alloc] init] autorelease]];
 	[controlSlider setMinValue:0.0];
     [controlSlider setTarget:self];
     [controlSlider setAction:@selector(setCurrentTime:)];
 	    
-	// bind buttons
+	// Buttons
     [playPause setTarget:now];
     [playPause setAction:@selector(playPause)];
     [previous setTarget:now];
@@ -55,6 +55,8 @@
     [shuffle setAction:@selector(toggleShuffle)];
     [repeat setTarget:now];
     [repeat setAction:@selector(toggleRepeat)];
+    [titleButton setTarget:self];
+    [titleButton setAction:@selector(showInLibrary)];
     
     [playPause setToolTip:@"Play or Pause current song."];
     [next setToolTip:@"Play next song."];
@@ -62,6 +64,7 @@
     [shuffle setToolTip:@"Toggle shuffle."];
     [repeat setToolTip:@"Toggle repeat."];
     [_volumeSlider setToolTip:@"Change volume."];
+    [titleButton setToolTip:@"Reveal current song in library."];
     
     // Volume
     [_volumeSlider setMaxValue:1];
@@ -71,20 +74,7 @@
     [_volumeButton setTarget:self];
     [_volumeButton setAction:@selector(mute)];
     
-	// register for observers
-    [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(updateControls)];
-    [[NSNotificationCenter defaultCenter] observeShuffleChanged:self sel:@selector(updateControls)];
-    [[NSNotificationCenter defaultCenter] observeRepeatChanged:self sel:@selector(updateControls)];
-    [[NSNotificationCenter defaultCenter] observeTimeChanged:self sel:@selector(updatePlayButton)];
-    [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(updateControls)];
-    [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(updateControls)];
-    [[NSNotificationCenter defaultCenter] observeVolumeChanged:self sel:@selector(updateVolume)];
-    
-    [titleButton setTarget:self];
-    [titleButton setAction:@selector(showInLibrary)];
-    
-    timeFormatter = [[PRTimeFormatter alloc] init];
-    
+    // UI
     NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
                              [NSColor colorWithCalibratedWhite:0.75 alpha:1.0], 0.0,
                              [NSColor colorWithCalibratedWhite:0.5 alpha:1.0], 1.0,
@@ -106,6 +96,15 @@
     [_progressButton setAction:@selector(cancel)];
     [self setProgressHidden:TRUE];
     [self setProgressTitle:@"Scanning for Updates..."];
+    
+    // Notifications
+    [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(updateControls)];
+    [[NSNotificationCenter defaultCenter] observeShuffleChanged:self sel:@selector(updateControls)];
+    [[NSNotificationCenter defaultCenter] observeRepeatChanged:self sel:@selector(updateControls)];
+    [[NSNotificationCenter defaultCenter] observeTimeChanged:self sel:@selector(updatePlayButton)];
+    [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(updateControls)];
+    [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(updateControls)];
+    [[NSNotificationCenter defaultCenter] observeVolumeChanged:self sel:@selector(updateVolume)];
     
 	[self updateControls];
     [self updateLayout];
@@ -411,12 +410,11 @@
         NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
         [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.6]];
         [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
-        NSMutableParagraphStyle *align = [[[NSMutableParagraphStyle alloc] init] autorelease];
-		[align setLineBreakMode:NSLineBreakByTruncatingTail];
+        NSParagraphStyle *align;
         if ([[core win] miniPlayer]) {
-            [align setAlignment:NSCenterTextAlignment];
+            align = [NSParagraphStyle centerAlignStyle];
         } else {
-            [align setAlignment:NSLeftTextAlignment];
+            align = [NSParagraphStyle leftAlignStyle];
         }
         NSMutableDictionary *titleAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                                 [NSFont fontWithName:@"LucidaGrande-Bold" size:11], NSFontAttributeName,
@@ -513,25 +511,21 @@
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
 	[shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.3]];
 	[shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
-    NSMutableParagraphStyle *rightAlign = [[[NSMutableParagraphStyle alloc] init] autorelease];
-    [rightAlign setAlignment:NSRightTextAlignment];
-    NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
-                                [NSFont fontWithName:@"LucidaGrande" size:10], NSFontAttributeName,
-                                [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-                                rightAlign, NSParagraphStyleAttributeName,
-                                shadow, NSShadowAttributeName, nil];
-    NSString *currentTime_ = [timeFormatter stringForObjectValue:[NSNumber numberWithLong:[[now mov] currentTime]]];
+    NSDictionary *attributes = @{
+NSFontAttributeName:[NSFont fontWithName:@"LucidaGrande" size:10],
+NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.3 alpha:1.0],
+NSParagraphStyleAttributeName:[NSParagraphStyle rightAlignStyle],
+NSShadowAttributeName:shadow};
+    NSString *currentTime_ = [[[[PRTimeFormatter alloc] init] autorelease] stringForObjectValue:[NSNumber numberWithLong:[[now mov] currentTime]]];
     NSAttributedString *timeAttrString = [[[NSAttributedString alloc] initWithString:currentTime_ attributes:attributes] autorelease];
     [_currentTime setAttributedStringValue:timeAttrString];
     
-    NSMutableParagraphStyle *leftAlign = [[[NSMutableParagraphStyle alloc] init] autorelease];
-    [leftAlign setAlignment:NSLeftTextAlignment];
-    NSDictionary *attributes2 = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 [NSFont fontWithName:@"LucidaGrande" size:10], NSFontAttributeName,
-                                 [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-                                 leftAlign, NSParagraphStyleAttributeName,
-                                 shadow, NSShadowAttributeName, nil];
-    NSString *duration_ = [timeFormatter stringForObjectValue:[NSNumber numberWithLong:[[now mov] duration]]];
+    NSDictionary *attributes2 = @{
+NSFontAttributeName:[NSFont fontWithName:@"LucidaGrande" size:10],
+NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.3 alpha:1.0],
+NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
+NSShadowAttributeName:shadow};
+    NSString *duration_ = [[[[PRTimeFormatter alloc] init] autorelease] stringForObjectValue:[NSNumber numberWithLong:[[now mov] duration]]];
     timeAttrString = [[[NSAttributedString alloc] initWithString:duration_ attributes:attributes2] autorelease];
     [duration setAttributedStringValue:timeAttrString];
     
@@ -576,13 +570,10 @@
     NSShadow *shadow2 = [[[NSShadow alloc] init] autorelease];
 	[shadow2 setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.5]];
 	[shadow2 setShadowOffset:NSMakeSize(1.1, -1.3)];
-    NSMutableParagraphStyle *centerAlign = [[[NSMutableParagraphStyle alloc] init] autorelease];
-	[centerAlign setAlignment:NSLeftTextAlignment];
-    [centerAlign setLineBreakMode:NSLineBreakByTruncatingTail];
 	NSDictionary *attributes2 = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSFont systemFontOfSize:11], NSFontAttributeName,
                                  [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-                                 centerAlign, NSParagraphStyleAttributeName,				  
+                                 [NSParagraphStyle centerAlignStyle], NSParagraphStyleAttributeName,
                                  shadow2, NSShadowAttributeName,
                                  nil];
 	NSAttributedString *attributedString = [[[NSAttributedString alloc] initWithString:progressTitle attributes:attributes2] autorelease];
@@ -597,13 +588,10 @@
     NSShadow *shadow2 = [[[NSShadow alloc] init] autorelease];
 	[shadow2 setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.5]];
 	[shadow2 setShadowOffset:NSMakeSize(1.1, -1.3)];
-    NSMutableParagraphStyle *centerAlign = [[[NSMutableParagraphStyle alloc] init] autorelease];
-	[centerAlign setAlignment:NSCenterTextAlignment];
-    [centerAlign setLineBreakMode:NSLineBreakByTruncatingTail];
 	NSDictionary *attributes2 = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSFont systemFontOfSize:11], NSFontAttributeName,
                                  [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-                                 centerAlign, NSParagraphStyleAttributeName,				  
+                                 [NSParagraphStyle centerAlignStyle], NSParagraphStyleAttributeName,
                                  shadow2, NSShadowAttributeName,
                                  nil];
 	NSAttributedString *attributedString = [[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%d%%",progressPercent] 

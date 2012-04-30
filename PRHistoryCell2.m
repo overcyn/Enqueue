@@ -1,6 +1,7 @@
 #import "PRHistoryCell2.h"
 #import "NSBezierPath+Extensions.h"
 #import "NSColor+Extensions.h"
+#import "NSParagraphStyle+Extensions.h"
 
 @implementation PRHistoryCell2
 
@@ -61,17 +62,14 @@
 								0);
     [icon drawInRect:iconBox fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
     
-    // TITLE SUBTITLE
-	NSMutableParagraphStyle *style = [[[NSMutableParagraphStyle alloc] init] autorelease];
-	[style setLineBreakMode:NSLineBreakByTruncatingTail];
-    
+    // TITLE SUBTITLE    
     NSDictionary *titleAttr = [NSDictionary dictionaryWithObjectsAndKeys:
                                [NSFont fontWithName:@"HelveticaNeue" size:12], NSFontAttributeName,
-                               style, NSParagraphStyleAttributeName,
+                               [NSParagraphStyle leftAlignStyle], NSParagraphStyleAttributeName,
                                [NSColor colorWithCalibratedWhite:0.0 alpha:1.0], NSForegroundColorAttributeName, nil];
     NSDictionary *subtitleAttr = [NSDictionary dictionaryWithObjectsAndKeys:
                                   [NSFont fontWithName:@"HelveticaNeue-Italic" size:12], NSFontAttributeName,
-                                  style, NSParagraphStyleAttributeName,
+                                  [NSParagraphStyle leftAlignStyle], NSParagraphStyleAttributeName,
                                   [NSColor colorWithCalibratedWhite:0.3 alpha:1.0], NSForegroundColorAttributeName, nil];
     
     // get the size of the string for layout
@@ -93,12 +91,9 @@
     [str drawInRect:textFrame];
     
     // SUBSUBTITLE
-    NSMutableParagraphStyle *style2 = [[[NSMutableParagraphStyle alloc] init] autorelease];
-	[style2 setLineBreakMode:NSLineBreakByTruncatingTail];
-    [style2 setAlignment:NSRightTextAlignment];
     NSMutableDictionary *subSubtitleAttr = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                             [NSFont fontWithName:@"HelveticaNeue" size:12], NSFontAttributeName,
-                                            style2, NSParagraphStyleAttributeName,
+                                            [NSParagraphStyle rightAlignStyle], NSParagraphStyleAttributeName,
                                             [NSColor colorWithCalibratedWhite:0.0 alpha:1.0], NSForegroundColorAttributeName, nil];
     
     NSSize subSubtitleSize = [subSubTitle sizeWithAttributes:subSubtitleAttr];

@@ -166,6 +166,7 @@
 		67AFF8F9124FDEB6006E7535 /* PRNowPlayingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67AFF8F8124FDEB6006E7535 /* PRNowPlayingViewController.m */; };
 		67B1D5F012FD633E00FEF494 /* PRBackgroundPattern.png in Resources */ = {isa = PBXBuildFile; fileRef = 67B1D5EF12FD633E00FEF494 /* PRBackgroundPattern.png */; };
 		67B4248A1290BFAE00FC98A0 /* PRShadowImageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67B424891290BFAE00FC98A0 /* PRShadowImageCell.m */; };
+		67BB82C7154E875E000CD7FE /* NSParagraphStyle+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67BB82C6154E875E000CD7FE /* NSParagraphStyle+Extensions.m */; };
 		67BBE75F1421752E003C438B /* NSURLConnection+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67BBE75E1421752E003C438B /* NSURLConnection+Extensions.m */; };
 		67BBE7621421AF5D003C438B /* PRLastfmFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 67BBE7611421AF5D003C438B /* PRLastfmFile.m */; };
 		67BC7269144D2D7A00CD6BD3 /* PRHistoryCell2.m in Sources */ = {isa = PBXBuildFile; fileRef = 67BC7268144D2D7A00CD6BD3 /* PRHistoryCell2.m */; };
@@ -518,6 +519,8 @@
 		67B1D5EF12FD633E00FEF494 /* PRBackgroundPattern.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRBackgroundPattern.png; path = Icons/PRBackgroundPattern.png; sourceTree = "<group>"; };
 		67B424881290BFAE00FC98A0 /* PRShadowImageCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRShadowImageCell.h; sourceTree = "<group>"; };
 		67B424891290BFAE00FC98A0 /* PRShadowImageCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRShadowImageCell.m; sourceTree = "<group>"; };
+		67BB82C5154E875E000CD7FE /* NSParagraphStyle+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSParagraphStyle+Extensions.h"; sourceTree = "<group>"; };
+		67BB82C6154E875E000CD7FE /* NSParagraphStyle+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSParagraphStyle+Extensions.m"; sourceTree = "<group>"; };
 		67BBE75D1421752E003C438B /* NSURLConnection+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLConnection+Extensions.h"; sourceTree = "<group>"; };
 		67BBE75E1421752E003C438B /* NSURLConnection+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLConnection+Extensions.m"; sourceTree = "<group>"; };
 		67BBE7601421AF5D003C438B /* PRLastfmFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRLastfmFile.h; sourceTree = "<group>"; };
@@ -1141,6 +1144,8 @@
 				678E90B91443F54A00B8B7C3 /* NSWindow+Extensions.m */,
 				6795F548143B1C5600AC8C91 /* sqlite_str.h */,
 				6795F549143B1D5500AC8C91 /* sqlite_str.m */,
+				67BB82C5154E875E000CD7FE /* NSParagraphStyle+Extensions.h */,
+				67BB82C6154E875E000CD7FE /* NSParagraphStyle+Extensions.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -1861,6 +1866,7 @@
 				67DE13391516FB4800E94F28 /* PRViewController.m in Sources */,
 				672235A7152442A700D48695 /* NSArray+Extensions.m in Sources */,
 				670F95081535724400E72AAE /* PRClipView.m in Sources */,
+				67BB82C7154E875E000CD7FE /* NSParagraphStyle+Extensions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

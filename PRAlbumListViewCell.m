@@ -3,6 +3,7 @@
 #import "PRLibrary.h"
 #import "NSImage+Extensions.h"
 #import "PRUserDefaults.h"
+#import "NSParagraphStyle+Extensions.h"
 
 
 @implementation PRAlbumListViewCell
@@ -28,16 +29,12 @@
 	NSSize iconSize = NSMakeSize(150, 150);
     [icon setFlipped:TRUE];
 	
-	// Make attributes for our strings	
-	NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
-	[paragraphStyle setLineBreakMode:NSLineBreakByTruncatingTail];
-    [paragraphStyle setAlignment:NSCenterTextAlignment];
-	
+	// Make attributes for our strings		
 	NSDictionary *titleAttributes = @{NSFontAttributeName:[NSFont boldSystemFontOfSize:11],
-NSParagraphStyleAttributeName:paragraphStyle,
+NSParagraphStyleAttributeName:[NSParagraphStyle centerAlignStyle],
 NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.2 alpha:1.0]};
 	NSDictionary *subtitleAttributes = @{NSFontAttributeName:[NSFont systemFontOfSize:11],
-NSParagraphStyleAttributeName:paragraphStyle,
+NSParagraphStyleAttributeName:[NSParagraphStyle centerAlignStyle],
 NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.2 alpha:1.0]};
 	
 	// Make a Title string

@@ -1,6 +1,7 @@
 #import "PRPlaylistsCell.h"
 #import "PRPlaylistsViewController.h"
 #import "NSColor+Extensions.h"
+#import "NSParagraphStyle+Extensions.h"
 
 @implementation PRPlaylistsCell
 
@@ -71,8 +72,6 @@
     theCellFrame.size.width -= 50;
     
     // paragraph style
-	NSMutableParagraphStyle *paragraphStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
-    [paragraphStyle setLineBreakMode:NSLineBreakByTruncatingTail];
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
     [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.5]];
     [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
@@ -80,14 +79,14 @@
     NSMutableDictionary *titleAttributes = 
         [NSMutableDictionary dictionaryWithObjectsAndKeys:
          [NSFont fontWithName:@"HelveticaNeue-Medium" size:12], NSFontAttributeName,
-         paragraphStyle, NSParagraphStyleAttributeName,
+         [NSParagraphStyle leftAlignStyle], NSParagraphStyleAttributeName,
          [NSColor colorWithDeviceWhite:0.2 alpha:1.0], NSForegroundColorAttributeName,
          shadow, NSShadowAttributeName,
          nil];
     NSMutableDictionary *subtitleAttributes = 
         [NSMutableDictionary dictionaryWithObjectsAndKeys:
          [NSFont fontWithName:@"HelveticaNeue" size:11], NSFontAttributeName,
-         paragraphStyle, NSParagraphStyleAttributeName,
+         [NSParagraphStyle leftAlignStyle], NSParagraphStyleAttributeName,
          [NSColor colorWithDeviceWhite:0.5 alpha:1.0], NSForegroundColorAttributeName,
          nil];
     

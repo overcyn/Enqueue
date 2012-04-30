@@ -1,5 +1,6 @@
 #import "PRHistoryCell.h"
 #import "NSColor+Extensions.h"
+#import "NSParagraphStyle+Extensions.h"
 
 
 @implementation PRHistoryCell
@@ -40,15 +41,12 @@
     [icon drawInRect:iconBox fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
     
     // TITLE SUBTITLE
-	NSMutableParagraphStyle *style = [[[NSMutableParagraphStyle alloc] init] autorelease];
-	[style setLineBreakMode:NSLineBreakByTruncatingTail];
-    
     NSDictionary *titleAttr = @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue" size:12],
-NSParagraphStyleAttributeName:style,
+NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
 NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.0 alpha:1.0]};
     
     NSDictionary *subtitleAttr = @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-Italic" size:12],
-NSParagraphStyleAttributeName:style,
+NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
 NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.3 alpha:1.0]};
     
     // get the size of the string for layout

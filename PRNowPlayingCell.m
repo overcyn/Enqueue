@@ -1,5 +1,6 @@
 #import "PRNowPlayingCell.h"
 #import "PRNowPlayingViewController.h"
+#import "NSParagraphStyle+Extensions.h"
 
 
 @implementation PRNowPlayingCell
@@ -28,9 +29,6 @@
         NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
         [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:1.0]];
         [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
-        NSMutableParagraphStyle *badgeStyle = [[[NSMutableParagraphStyle alloc] init] autorelease];
-        [badgeStyle setLineBreakMode:NSLineBreakByTruncatingTail];
-        [badgeStyle setAlignment:NSCenterTextAlignment];
         NSColor *badgeColor = [NSColor colorWithDeviceWhite:0.3 alpha:1.0];
         if ([self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder] && [[[self controlView] window] isMainWindow]) {
             [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.0]];
@@ -39,7 +37,7 @@
         NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
                                     badgeColor, NSForegroundColorAttributeName,
                                     [NSFont fontWithName:@"Helvetica-Bold" size:12], NSFontAttributeName,
-                                    badgeStyle, NSParagraphStyleAttributeName, 
+                                    [NSParagraphStyle centerAlignStyle], NSParagraphStyleAttributeName,
                                     shadow, NSShadowAttributeName, nil];
         NSAttributedString *badgeString = [[[NSAttributedString alloc] initWithString:[badge stringValue] attributes:attributes] autorelease];
         
@@ -50,8 +48,6 @@
     }
 	
 	// Text
-    NSMutableParagraphStyle *style = [[[NSMutableParagraphStyle alloc] init] autorelease];
-	[style setLineBreakMode:NSLineBreakByTruncatingTail];
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
 	[shadow setShadowColor:[NSColor colorWithDeviceWhite:0.95 alpha:1.0]];
 	[shadow setShadowOffset:NSMakeSize(1.1, -1.3)];
@@ -61,7 +57,7 @@
     }
     NSMutableDictionary *attributes = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                         [NSFont systemFontOfSize:11.0], NSFontAttributeName,
-                                        style, NSParagraphStyleAttributeName,
+                                        [NSParagraphStyle leftAlignStyle], NSParagraphStyleAttributeName,
                                         color, NSForegroundColorAttributeName, 
                                         nil] autorelease];
     float height = [title sizeWithAttributes:attributes].height;

@@ -1,5 +1,6 @@
 #import "PRNowPlayingHeaderCell.h"
 #import "PRNowPlayingViewController.h"
+#import "NSParagraphStyle+Extensions.h"
 
 
 @implementation PRNowPlayingHeaderCell
@@ -53,8 +54,6 @@
 //                  fraction:1.0];
 
 	// Text Attributes	
-	NSMutableParagraphStyle *style = [[[NSMutableParagraphStyle alloc] init] autorelease];
-	[style setLineBreakMode:NSLineBreakByTruncatingTail];
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
     NSColor *color;
     NSColor *altColor;
@@ -69,7 +68,7 @@
     }
     NSMutableDictionary *titleAttributes = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
                                              [NSFont boldSystemFontOfSize:11], NSFontAttributeName,
-                                             style, NSParagraphStyleAttributeName,
+                                             [NSParagraphStyle leftAlignStyle], NSParagraphStyleAttributeName,
                                              color, NSForegroundColorAttributeName,
                                              shadow, NSShadowAttributeName,
                                              nil] autorelease];
@@ -77,7 +76,7 @@
                                                 [NSFont systemFontOfSize:11], NSFontAttributeName,
                                                 altColor, NSForegroundColorAttributeName,
                                                 shadow, NSShadowAttributeName,
-                                                style, NSParagraphStyleAttributeName, 
+                                                [NSParagraphStyle leftAlignStyle], NSParagraphStyleAttributeName, 
                                                 nil] autorelease];
 	
 	// Text

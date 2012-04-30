@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-@class PRDb, PRNowPlayingController, PRGradientView, PRLibraryViewController, PRCore, PRTimeFormatter, PRHeaderBox, PRHyperlinkButton;
+@class PRDb, PRNowPlayingController, PRGradientView, PRLibraryViewController, PRCore, PRHeaderBox, PRHyperlinkButton;
 
 
 @interface PRControlsViewController : NSViewController {
@@ -33,8 +33,6 @@
     IBOutlet NSTextField *_progressTextField;
     IBOutlet NSTextField *_progressPercentTextField;
     IBOutlet NSButton *_progressButton;
-    
-    PRTimeFormatter *timeFormatter;
     
     BOOL _progressHidden;
 }
