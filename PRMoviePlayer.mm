@@ -173,8 +173,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
                                                               userInfo:nil 
                                                                repeats:FALSE];
     }
-    [self willChangeValueForKey:@"isPlaying"];
-    [self didChangeValueForKey:@"isPlaying"];
     [[NSNotificationCenter defaultCenter] postPlayingChanged];
 }
 
@@ -195,8 +193,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
                                                               userInfo:nil 
                                                                repeats:FALSE];
     }
-    [self willChangeValueForKey:@"isPlaying"];
-    [self didChangeValueForKey:@"isPlaying"];
     [[NSNotificationCenter defaultCenter] postPlayingChanged];
 }
 
@@ -368,12 +364,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 }
 
 - (void)update {
-    [[NSNotificationCenter defaultCenter] postTimeChanged];
-    [self willChangeValueForKey:@"duration"];
-    [self didChangeValueForKey:@"duration"];
-    [self willChangeValueForKey:@"currentTime"];
-    [self didChangeValueForKey:@"currentTime"];
-    
+    [[NSNotificationCenter defaultCenter] postTimeChanged];    
     int timeLeft = [self duration] - [self currentTime];
     if ([self queueState] == PRMovieQueueEmpty && [self isPlaying] && timeLeft < 2000) {
         [[NSNotificationCenter defaultCenter] postMovieAlmostFinished];
