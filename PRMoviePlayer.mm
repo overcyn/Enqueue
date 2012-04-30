@@ -34,6 +34,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 /* Update */
 - (void)preGainDidChange:(NSNotification *)notification;
 - (void)update;
+- (void)updateHogOutput;
 - (void)EQChanged:(NSNotification *)note;
 - (void)updateEQ; // only to be called inside EQChanged
 - (void)enableEQ; // only to be called inside EQChanged
@@ -248,6 +249,12 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 #pragma mark - Accessors
 
+@dynamic isPlaying;
+@dynamic volume;
+@dynamic currentTime;
+@dynamic duration;
+@dynamic hogOutput;
+
 - (BOOL)isPlaying {
     if (transitionState == PRPausingTransitionState) {
         return FALSE;
@@ -299,10 +306,19 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     return duration * 1000;
 }
 
+- (BOOL)hogOutput {
+    return [[PRUserDefaults userDefaults] hogOutput];
+}
+
+- (void)setHogOutput:(BOOL)hogOutput {
+    [[PRUserDefaults userDefaults] setHogOutput:hogOutput];
+    [self updateHogOutput];
+}
+
 #pragma mark - Accessors Private
 
-@synthesize transitionTimer = _transitionTimer,
-player = player;
+@synthesize transitionTimer = _transitionTimer;
+@synthesize player = player;
 @dynamic queueState;
 
 - (PRMovieQueueState)queueState {
@@ -334,6 +350,22 @@ player = player;
 
 #pragma mark - Update Private
 
+- (void)updateHogOutput {
+    if (!PLAYER->IsPlaying()) {
+        if (PLAYER->OutputDeviceIsHogged()) {
+            PLAYER->StopHoggingOutputDevice();
+        }
+    } else {
+        if ([[PRUserDefaults userDefaults] hogOutput] != PLAYER->OutputDeviceIsHogged()) {
+            if ([[PRUserDefaults userDefaults] hogOutput]) {
+                PLAYER->StartHoggingOutputDevice();
+            } else {
+                PLAYER->StopHoggingOutputDevice();
+            }
+        }
+    }
+}
+
 - (void)update {
     [[NSNotificationCenter defaultCenter] postTimeChanged];
     [self willChangeValueForKey:@"duration"];
@@ -345,6 +377,7 @@ player = player;
     if ([self queueState] == PRMovieQueueEmpty && [self isPlaying] && timeLeft < 2000) {
         [[NSNotificationCenter defaultCenter] postMovieAlmostFinished];
     }
+    [self updateHogOutput];
 }
 
 - (void)preGainDidChange:(NSNotification *)note {
@@ -448,6 +481,8 @@ static void renderingFinished(void *context, const AudioDecoder *decoder) {
 //    NSLog(@"renderingFinished");
 //    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
     NSAutoreleasePool *p = [[NSAutoreleasePool alloc] init];
-    [[NSOperationQueue mainQueue] addBlock:^{[[NSNotificationCenter defaultCenter] postMovieFinished];}];
+    [[NSOperationQueue mainQueue] addBlock:^{
+        [[NSNotificationCenter defaultCenter] postMovieFinished];
+    }];
     [p drain];
 }

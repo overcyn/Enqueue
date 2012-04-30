@@ -39,13 +39,13 @@ typedef enum {
 - (void)seekBackward;
 
 /* Accessors */
-- (BOOL)isPlaying;
-- (float)volume;
-- (void)setVolume:(float)newVolume;
+@property (readonly) BOOL isPlaying;
+@property (readwrite) float volume;
+@property (readwrite) long currentTime;
+@property (readonly) long duration;
+@property (readwrite) BOOL hogOutput;
 - (void)increaseVolume;
 - (void)decreaseVolume;
-- (long)currentTime;
-- (void)setCurrentTime:(long)currentTime;
-- (long)duration;
+
 @end
 

@@ -31,33 +31,21 @@ typedef enum {
     IBOutlet PRGradientView *_shortcutsBorder;
     IBOutlet PRGradientView *_lastfmBorder;
     
+    // General
     IBOutlet NSButton *sortWithAlbumArtist;
     IBOutlet NSButton *folderArtwork;
     IBOutlet NSButton *_compilationsButton;
-    
-    IBOutlet NSButton *mediaKeys;
-    IBOutlet SRRecorderControl *playPause;
-    IBOutlet SRRecorderControl *playNext;
-    IBOutlet SRRecorderControl *playPrevious;
-    IBOutlet SRRecorderControl *increaseVolume;
-    IBOutlet SRRecorderControl *decreaseVolume;
-    IBOutlet SRRecorderControl *rate1Star;
-    IBOutlet SRRecorderControl *rate2Star;
-    IBOutlet SRRecorderControl *rate3Star;
-    IBOutlet SRRecorderControl *rate4Star;
-    IBOutlet SRRecorderControl *rate5Star;
     
     IBOutlet NSTableView *foldersTableView;
     IBOutlet NSButton *addFolder;
     IBOutlet NSButton *removeFolder;
     IBOutlet NSButton *rescan;
     
-    IBOutlet NSButton *button1;
-    IBOutlet NSTextField *textField;
+    IBOutlet NSButton *_lastfmConnectButton;
+    IBOutlet NSTextField *_lastfmConnectField;
     
-    IBOutlet NSPopUpButton *masterVolumePopUpButton;
-    
-    // EQ
+    // Playback
+    IBOutlet NSMenu *EQMenu;
     IBOutlet NSButton *EQButton;
     IBOutlet NSPopUpButton *EQPopUp;
     IBOutlet NSSlider *_EQPreampSlider;
@@ -83,7 +71,22 @@ typedef enum {
     IBOutlet PRGradientView *_EQDivider8;
     IBOutlet PRGradientView *_EQDivider9;
     
-    IBOutlet NSMenu *EQMenu;
+    IBOutlet NSPopUpButton *masterVolumePopUpButton;
+    
+    IBOutlet NSButton *_hogButton;
+    
+    // Shortcuts
+    IBOutlet NSButton *mediaKeys;
+    IBOutlet SRRecorderControl *playPause;
+    IBOutlet SRRecorderControl *playNext;
+    IBOutlet SRRecorderControl *playPrevious;
+    IBOutlet SRRecorderControl *increaseVolume;
+    IBOutlet SRRecorderControl *decreaseVolume;
+    IBOutlet SRRecorderControl *rate1Star;
+    IBOutlet SRRecorderControl *rate2Star;
+    IBOutlet SRRecorderControl *rate3Star;
+    IBOutlet SRRecorderControl *rate4Star;
+    IBOutlet SRRecorderControl *rate5Star;
     
     EventHotKeyRef playPauseHotKeyRef;
     EventHotKeyRef playNextHotKeyRef;
@@ -98,10 +101,10 @@ typedef enum {
     
     PRPrefMode _prefMode;
     
-    PRCore *core;
-    PRDb *db;
-    PRNowPlayingController *now;
-    PRFolderMonitor *folderMonitor;
+    __weak PRCore *core;
+    __weak PRDb *db;
+    __weak PRNowPlayingController *now;
+    __weak PRFolderMonitor *folderMonitor;
 }
 
 @property (readonly) PRDb *db;
@@ -136,6 +139,7 @@ typedef enum {
 - (void)toggleUseAlbumArtist;
 - (void)toggleMediaKeys;
 - (void)toggleFolderArtwork;
+- (void)toggleHogOutput;
 
 // Folder Monitoring
 - (void)addFolder;

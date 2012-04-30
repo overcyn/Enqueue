@@ -61,6 +61,9 @@
     [mediaKeys setTarget:self];
     [mediaKeys setAction:@selector(toggleMediaKeys)];
     
+    [_hogButton setTarget:self];
+    [_hogButton setAction:@selector(toggleHogOutput)];
+    
     // masterVolume
     [masterVolumePopUpButton setEnabled:FALSE];
     [masterVolumePopUpButton setTarget:self];
@@ -257,7 +260,7 @@
 
 #pragma mark - Update
 
-- (void)updateUI  {
+- (void)updateUI {
     // Tabs
     for (NSNumber *i in [[self tabs] allKeys]) {
         NSButton *tab = [[self tabs] objectForKey:i];
@@ -280,6 +283,7 @@
     [sortWithAlbumArtist setState:[[PRUserDefaults userDefaults] useAlbumArtist]];
     [mediaKeys setState:[[PRUserDefaults userDefaults] mediaKeys]];
     [folderArtwork setState:[[PRUserDefaults userDefaults] folderArtwork]];
+    [_hogButton setState:[[now mov] hogOutput]];
     
     // Folders
     [foldersTableView reloadData];
@@ -297,7 +301,7 @@
 
     
     // last.fm
-    [button1 setTarget:[core lastfm]];
+    [_lastfmConnectButton setTarget:[core lastfm]];
     switch ([[core lastfm] lastfmState]) {
         case PRLastfmConnectedState:;
             NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -312,24 +316,24 @@
                                                                         attributes:attributes] autorelease];
             [lastfmString appendAttributedString:username];
             [lastfmString appendAttributedString:closing];
-            [textField setAttributedStringValue:lastfmString];
-            [button1 setTitle:@"Logout"];
-            [button1 setAction:@selector(disconnect)];
+            [_lastfmConnectField setAttributedStringValue:lastfmString];
+            [_lastfmConnectButton setTitle:@"Logout"];
+            [_lastfmConnectButton setAction:@selector(disconnect)];
             break;
         case PRLastfmDisconnectedState:
-            [textField setStringValue:@"Click below to connect with your Last.fm Account."];
-            [button1 setTitle:@"Sign In"];
-            [button1 setAction:@selector(connect)];
+            [_lastfmConnectField setStringValue:@"Click below to connect with your Last.fm Account."];
+            [_lastfmConnectButton setTitle:@"Sign In"];
+            [_lastfmConnectButton setAction:@selector(connect)];
             break;
         case PRLastfmPendingState:
-            [textField setStringValue:@"You will now need to provide authorization in your web browser."];
-            [button1 setTitle:@"Cancel"];
-            [button1 setAction:@selector(disconnect)];
+            [_lastfmConnectField setStringValue:@"You will now need to provide authorization in your web browser."];
+            [_lastfmConnectButton setTitle:@"Cancel"];
+            [_lastfmConnectButton setAction:@selector(disconnect)];
             break;
         case PRLastfmValidatingState:
-            [textField setStringValue:@"Making authorization request..."];
-            [button1 setTitle:@"Cancel"];
-            [button1 setAction:@selector(disconnect)];
+            [_lastfmConnectField setStringValue:@"Making authorization request..."];
+            [_lastfmConnectButton setTitle:@"Cancel"];
+            [_lastfmConnectButton setAction:@selector(disconnect)];
             break;
         default:
             break;
@@ -524,9 +528,14 @@
 
 #pragma mark - Misc Preferences
 
+- (void)toggleHogOutput {
+    [[now mov] setHogOutput:![[now mov] hogOutput]];
+    [self updateUI];
+}
+
 - (void)toggleUseAlbumArtist {
     [[PRUserDefaults userDefaults] setUseAlbumArtist:![[PRUserDefaults userDefaults] useAlbumArtist]];
-    [self updateUI];    
+    [self updateUI];
     [[NSNotificationCenter defaultCenter] postUseAlbumArtistChanged];
 }
 
