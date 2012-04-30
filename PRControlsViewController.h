@@ -18,7 +18,7 @@
     IBOutlet NSTextField *_artistAlbumField;
     
     IBOutlet NSSlider *controlSlider;
-	IBOutlet NSTextField *currentTime;
+	IBOutlet NSTextField *_currentTime;
 	IBOutlet NSTextField *duration;
 	
 	IBOutlet NSImageView *albumArtView;
@@ -48,7 +48,7 @@
 - (void)updateLayout;
 - (void)updateControls;
 - (void)updatePlayButton;
-- (void)volumeChanged:(NSNotification *)notification;
+- (void)updateVolume;
 
 /* Action */
 - (BOOL)progressHidden;
@@ -58,4 +58,6 @@
 
 - (void)showInLibrary;
 - (void)mute;
+- (void)setVolume:(id)sender;
+- (void)setCurrentTime:(id)sender;
 @end

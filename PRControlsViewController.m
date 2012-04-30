@@ -41,17 +41,20 @@
 	// bind time and volume sliders
     [controlSlider setCell:[[[PRSliderCell alloc] init] autorelease]];
 	[controlSlider setMinValue:0.0];
-	[controlSlider bind:@"maxValue" toObject:now withKeyPath:@"mov.duration" options:nil];
-	[controlSlider bind:@"value" toObject:now withKeyPath:@"mov.currentTime" options:nil];
+    [controlSlider setTarget:self];
+    [controlSlider setAction:@selector(setCurrentTime:)];
 	    
 	// bind buttons
-	NSDictionary *options = [NSDictionary dictionaryWithObject:@FALSE
-                                                        forKey:NSConditionallySetsEnabledBindingOption];
-	[playPause bind:@"target" toObject:now withKeyPath:@"playPause" options:options];
-	[next bind:@"target" toObject:now withKeyPath:@"playNext" options:options];
-	[previous bind:@"target" toObject:now withKeyPath:@"playPrevious" options:options];
-    [shuffle bind:@"target" toObject:now withKeyPath:@"toggleShuffle" options:options];
-	[repeat bind:@"target" toObject:now withKeyPath:@"toggleRepeat" options:options];
+    [playPause setTarget:now];
+    [playPause setAction:@selector(playPause)];
+    [previous setTarget:now];
+    [previous setAction:@selector(playPrevious)];
+    [next setTarget:now];
+    [next setAction:@selector(playNext)];
+    [shuffle setTarget:now];
+    [shuffle setAction:@selector(toggleShuffle)];
+    [repeat setTarget:now];
+    [repeat setAction:@selector(toggleRepeat)];
     
     [playPause setToolTip:@"Play or Pause current song."];
     [next setToolTip:@"Play next song."];
@@ -63,11 +66,10 @@
     // Volume
     [_volumeSlider setMaxValue:1];
     [_volumeSlider setMinValue:0];
-    [_volumeSlider bind:@"value" toObject:now withKeyPath:@"mov.volume" options:nil];
+    [_volumeSlider setTarget:self];
+    [_volumeSlider setAction:@selector(setVolume:)];
     [_volumeButton setTarget:self];
     [_volumeButton setAction:@selector(mute)];
-    [[NSNotificationCenter defaultCenter] observeVolumeChanged:self sel:@selector(volumeChanged:)];
-    [self volumeChanged:nil];
     
 	// register for observers
     [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(updateControls)];
@@ -76,6 +78,7 @@
     [[NSNotificationCenter defaultCenter] observeTimeChanged:self sel:@selector(updatePlayButton)];
     [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(updateControls)];
     [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(updateControls)];
+    [[NSNotificationCenter defaultCenter] observeVolumeChanged:self sel:@selector(updateVolume)];
     
     [titleButton setTarget:self];
     [titleButton setAction:@selector(showInLibrary)];
@@ -106,6 +109,7 @@
     
 	[self updateControls];
     [self updateLayout];
+    [self updateVolume];
 }
 
 #pragma mark - Artwork
@@ -282,11 +286,11 @@
         frame.size.width = [_box frame].size.width - 70;
         [controlSlider setFrame:frame];
         
-        frame = [currentTime frame];
+        frame = [_currentTime frame];
         frame.origin.x = 3;
         frame.origin.y = 1;
         frame.size.width = 40;
-        [currentTime setFrame:frame];
+        [_currentTime setFrame:frame];
         
         frame = [duration frame];
         frame.size.width = 40;
@@ -301,9 +305,9 @@
         frame.size.width -= 165;
         [titleButton setFrame:frame];
         
-        frame = [currentTime frame];
+        frame = [_currentTime frame];
         frame.origin.x -= 165;
-        [currentTime setFrame:frame];
+        [_currentTime setFrame:frame];
         
         frame = [duration frame];
         frame.origin.x -= 165;
@@ -382,11 +386,11 @@
 - (void)updateControls {
     if ([now currentIndex] == 0) {
         [duration setHidden:TRUE];
-        [currentTime setHidden:TRUE];
+        [_currentTime setHidden:TRUE];
         [titleButton setHidden:TRUE];
     } else {
         [duration setHidden:FALSE];
-        [currentTime setHidden:FALSE];
+        [_currentTime setHidden:FALSE];
         [titleButton setHidden:FALSE];
     }
     [controlSlider setHidden:([now currentIndex] == 0)];
@@ -496,6 +500,9 @@
 }
 
 - (void)updatePlayButton {
+    [controlSlider setMaxValue:[[now mov] duration]];
+    [controlSlider setIntegerValue:[[now mov] currentTime]];
+    
     // Play button
     if ([[now mov] isPlaying]) {
 		[playPause setImage:[NSImage imageNamed:@"PauseButton"]];
@@ -515,7 +522,7 @@
                                 shadow, NSShadowAttributeName, nil];
     NSString *currentTime_ = [timeFormatter stringForObjectValue:[NSNumber numberWithLong:[[now mov] currentTime]]];
     NSAttributedString *timeAttrString = [[[NSAttributedString alloc] initWithString:currentTime_ attributes:attributes] autorelease];
-    [currentTime setAttributedStringValue:timeAttrString];
+    [_currentTime setAttributedStringValue:timeAttrString];
     
     NSMutableParagraphStyle *leftAlign = [[[NSMutableParagraphStyle alloc] init] autorelease];
     [leftAlign setAlignment:NSLeftTextAlignment];
@@ -531,11 +538,11 @@
     if (![[core win] miniPlayer]) {
         timeAttrString = [[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@ / %@",currentTime_, duration_] attributes:attributes] autorelease];
         [duration setAttributedStringValue:timeAttrString];
-        [currentTime setStringValue:@""];
+        [_currentTime setStringValue:@""];
     }
 }
 
-- (void)volumeChanged:(NSNotification *)notification {
+- (void)updateVolume {
     float volume = [[now mov] volume];
     NSImage *image = nil;
     if (volume == 0) {
@@ -548,6 +555,7 @@
         image = [NSImage imageNamed:@"NowSpeaker3"];
     }
     [_volumeButton setImage:image];
+    [_volumeSlider setFloatValue:[[now mov] volume]];
 }
 
 #pragma mark - Action
@@ -617,6 +625,14 @@
 
 - (void)mute {
     [[now mov] setVolume:0];
+}
+
+- (void)setVolume:(id)sender {
+    [[now mov] setVolume:[_volumeSlider floatValue]];
+}
+
+- (void)setCurrentTime:(id)sender {
+    [[now mov] setCurrentTime:[controlSlider integerValue]];
 }
 
 @end
