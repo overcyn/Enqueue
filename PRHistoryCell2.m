@@ -5,8 +5,7 @@
 
 @implementation PRHistoryCell2
 
-- (void)drawWithFrame:(NSRect)frame inView:(NSView *)theControlView
-{
+- (void)drawWithFrame:(NSRect)frame inView:(NSView *)theControlView {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
         
 	NSDictionary *dict = [self objectValue];
@@ -56,10 +55,7 @@
     }
 	NSSize iconSize = NSMakeSize(25, 25);
 	[icon setFlipped:YES];
-	NSRect iconBox = NSMakeRect(frame.origin.x,
-								frame.origin.y + frame.size.height*.5 - iconSize.height*.5,
-								0,
-								0);
+	NSRect iconBox = NSMakeRect(frame.origin.x, frame.origin.y + frame.size.height*.5 - iconSize.height*.5, 0, 0);
     [icon drawInRect:iconBox fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
     
     // TITLE SUBTITLE    
@@ -77,10 +73,8 @@
 	float titleHeight = titleSize.height;
 	
     NSRect textFrame = frame;
-    textFrame = NSMakeRect(textFrame.origin.x + 10, 
-                           textFrame.origin.y + textFrame.size.height * .5 - titleHeight * .5, 
-                           textFrame.size.width, 
-                           titleHeight);
+    textFrame = NSMakeRect(textFrame.origin.x + 10, textFrame.origin.y + textFrame.size.height * .5 - titleHeight * .5,
+                           textFrame.size.width, titleHeight);
     
     NSMutableAttributedString *str = [[[NSMutableAttributedString alloc] initWithString:title attributes:titleAttr] autorelease];
     if (subtitle) {
@@ -91,13 +85,11 @@
     [str drawInRect:textFrame];
     
     // SUBSUBTITLE
-    NSMutableDictionary *subSubtitleAttr = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                            [NSFont fontWithName:@"HelveticaNeue" size:12], NSFontAttributeName,
-                                            [NSParagraphStyle rightAlignStyle], NSParagraphStyleAttributeName,
-                                            [NSColor colorWithCalibratedWhite:0.0 alpha:1.0], NSForegroundColorAttributeName, nil];
+    NSDictionary *subSubtitleAttr = @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue" size:12],
+        NSParagraphStyleAttributeName:[NSParagraphStyle rightAlignStyle],
+        NSForegroundColorAttributeName:[NSColor blackColor]};
     
     NSSize subSubtitleSize = [subSubTitle sizeWithAttributes:subSubtitleAttr];
-    
     NSRect subSubtitleFrame = frame;
     subSubtitleFrame.origin.x += subSubtitleFrame.size.width;
     subSubtitleFrame.size.width = 90;

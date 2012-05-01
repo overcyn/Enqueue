@@ -42,22 +42,20 @@
     
     // TITLE SUBTITLE
     NSDictionary *titleAttr = @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue" size:12],
-NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
-NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.0 alpha:1.0]};
+        NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
+        NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.0 alpha:1.0]};
     
     NSDictionary *subtitleAttr = @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-Italic" size:12],
-NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
-NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.3 alpha:1.0]};
+        NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
+        NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.3 alpha:1.0]};
     
     // get the size of the string for layout
 	NSSize titleSize = [title sizeWithAttributes:titleAttr];
 	float titleHeight = titleSize.height;
 	
     NSRect textFrame = frame;
-    textFrame = NSMakeRect(textFrame.origin.x + 10, 
-                           textFrame.origin.y + textFrame.size.height * .5 - titleHeight * .5, 
-                           textFrame.size.width, 
-                           titleHeight);
+    textFrame = NSMakeRect(textFrame.origin.x + 10, textFrame.origin.y + textFrame.size.height * .5 - titleHeight * .5,
+                           textFrame.size.width, titleHeight);
     
     NSMutableAttributedString *str = [[[NSMutableAttributedString alloc] initWithString:title attributes:titleAttr] autorelease];
     if (subtitle) {
@@ -68,13 +66,10 @@ NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.3 alpha:1.0]}
     [str drawInRect:textFrame];
     
     // SUBSUBTITLE
-    NSMutableParagraphStyle *style2 = [[[NSMutableParagraphStyle alloc] init] autorelease];
-	[style2 setLineBreakMode:NSLineBreakByTruncatingTail];
-    [style2 setAlignment:NSRightTextAlignment];
-    NSMutableDictionary *subSubtitleAttr = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                            [NSFont fontWithName:@"HelveticaNeue" size:12], NSFontAttributeName,
-                                            style2, NSParagraphStyleAttributeName,
-                                            [NSColor colorWithCalibratedWhite:0.0 alpha:1.0], NSForegroundColorAttributeName, nil];
+    NSDictionary *subSubtitleAttr = @{
+        NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue" size:12],
+        NSParagraphStyleAttributeName:[NSParagraphStyle rightAlignStyle],
+        NSForegroundColorAttributeName:[NSColor blackColor]};
     
     NSSize subSubtitleSize = [subSubTitle sizeWithAttributes:subSubtitleAttr];
     

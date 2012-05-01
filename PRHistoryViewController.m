@@ -203,9 +203,7 @@
 	return 0;
 }
 
-- (id)            tableView:(NSTableView *)tableView_
-  objectValueForTableColumn:(NSTableColumn *)tableColumn 
-						row:(NSInteger)row {
+- (id)tableView:(NSTableView *)tableView_ objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     if (tableView_ != tableView) {
         return nil;
     }
@@ -261,19 +259,13 @@
 
 #pragma mark - NSTableView Delegate
 
-- (BOOL)tableView:(NSTableView *)aTableView shouldSelectRow:(NSInteger)rowIndex {
+- (BOOL)tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)rowIndex {
 	return FALSE;
 }
 
-- (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
-    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithDictionary:[aCell objectValue]];
-//	if ([(PRRolloverTableView *)aTableView mouseOverRow] == rowIndex) {
-//        [dictionary setObject:[NSNumber numberWithBool:TRUE] forKey:@"mouseOver"];
-//    } else {
-//        [dictionary setObject:[NSNumber numberWithBool:FALSE] forKey:@"mouseOver"];
-//    }
-    
-    [aCell setObjectValue:dictionary];
+- (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithDictionary:[cell objectValue]];
+    [cell setObjectValue:dictionary];
 }
 
 - (BOOL)tableView:(NSTableView *)tableView shouldShowCellExpansionForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {

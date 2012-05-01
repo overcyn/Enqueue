@@ -138,10 +138,12 @@
     [menuItem setAction:@selector(decreaseVolume)];
     
     menuItem = [controlsMenu itemWithTag:6];
-    [menuItem bind:@"value" toObject:[core now] withKeyPath:@"shuffle" options:nil];
+    [menuItem setTarget:[core now]];
+    [menuItem setAction:@selector(toggleShuffle)];
     
     menuItem = [controlsMenu itemWithTag:7];
-    [menuItem bind:@"value" toObject:[core now] withKeyPath:@"repeat" options:nil];
+    [menuItem setTarget:[core now]];
+    [menuItem setAction:@selector(toggleRepeat)];
     return self;
 }
 
@@ -309,6 +311,9 @@
     }
     [[viewMenu itemWithTag:7] setTitle:title];
     
+    [[controlsMenu itemWithTag:6] setState:[[core now] shuffle]];
+    [[controlsMenu itemWithTag:7] setState:[[core now] repeat]];
+
     NSMenu *browser = [[[[core win] libraryViewController] currentViewController] browserHeaderMenu];
     [browser setAutoenablesItems:FALSE];
     [[viewMenu itemWithTitle:@"Browser"] setSubmenu:browser];

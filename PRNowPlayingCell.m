@@ -34,11 +34,10 @@
             [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.0]];
             badgeColor = [NSColor whiteColor];
         }
-        NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
-                                    badgeColor, NSForegroundColorAttributeName,
-                                    [NSFont fontWithName:@"Helvetica-Bold" size:12], NSFontAttributeName,
-                                    [NSParagraphStyle centerAlignStyle], NSParagraphStyleAttributeName,
-                                    shadow, NSShadowAttributeName, nil];
+        NSDictionary *attributes = @{NSForegroundColorAttributeName:badgeColor,
+            NSFontAttributeName:[NSFont fontWithName:@"Helvetica-Bold" size:12],
+            NSParagraphStyleAttributeName:[NSParagraphStyle centerAlignStyle],
+            NSShadowAttributeName:shadow};
         NSAttributedString *badgeString = [[[NSAttributedString alloc] initWithString:[badge stringValue] attributes:attributes] autorelease];
         
         NSRect badgeRect = NSMakeRect(cellFrame.origin.x + 2, cellFrame.origin.y + 2, 18, 14);
@@ -55,11 +54,9 @@
     if ([self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder] && [[[self controlView] window] isMainWindow]) {
         color = [NSColor whiteColor];
     }
-    NSMutableDictionary *attributes = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                        [NSFont systemFontOfSize:11.0], NSFontAttributeName,
-                                        [NSParagraphStyle leftAlignStyle], NSParagraphStyleAttributeName,
-                                        color, NSForegroundColorAttributeName, 
-                                        nil] autorelease];
+    NSDictionary *attributes = @{NSFontAttributeName:[NSFont systemFontOfSize:11.0],
+        NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
+        NSForegroundColorAttributeName:color};
     float height = [title sizeWithAttributes:attributes].height;
 	NSRect textRect = NSMakeRect(iconRect.origin.x + iconRect.size.width + horizontalPadding,
                                  cellFrame.origin.y + cellFrame.size.height/2 - height/2,

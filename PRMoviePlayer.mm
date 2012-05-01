@@ -117,7 +117,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     }
     [self setQueueState:PRMovieQueueWaiting];
     
-    // clear queue
     PLAYER->ClearQueuedDecoders();
     
     AudioDecoder *decoder = AudioDecoder::CreateDecoderForURL(reinterpret_cast<CFURLRef>([NSURL URLWithString:file]));
@@ -173,7 +172,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
                                                               userInfo:nil 
                                                                repeats:FALSE];
     }
-    [[NSNotificationCenter defaultCenter] postPlayingChanged];
 }
 
 - (void)unpause {
@@ -230,6 +228,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
                 transitionVolume = 0;
                 transitionState = PRNeitherTransitionState;
                 PLAYER->Pause();
+                [[NSNotificationCenter defaultCenter] postPlayingChanged];
             } else {
                 self.transitionTimer = [NSTimer scheduledTimerWithTimeInterval:0.025
                                                                         target:self 
@@ -348,7 +347,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 #pragma mark - Update Private
 
 - (void)updateHogOutput {
-    if (!PLAYER->IsPlaying()) {
+    if (![self isPlaying]) {
         if (PLAYER->OutputDeviceIsHogged()) {
             PLAYER->StopHoggingOutputDevice();
         }
@@ -364,7 +363,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 }
 
 - (void)update {
-    [[NSNotificationCenter defaultCenter] postTimeChanged];    
+    [[NSNotificationCenter defaultCenter] postTimeChanged];
     int timeLeft = [self duration] - [self currentTime];
     if ([self queueState] == PRMovieQueueEmpty && [self isPlaying] && timeLeft < 2000) {
         [[NSNotificationCenter defaultCenter] postMovieAlmostFinished];
@@ -435,7 +434,6 @@ error:;
 }
 
 - (void)disableEQ {
-    // disable the audio unit
     BOOL succ = PLAYER->RemoveEffect(_equalizer);
     if (succ != TRUE) {
         NSLog(@"EQ removal failed");
