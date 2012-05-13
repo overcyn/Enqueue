@@ -2,8 +2,4 @@
 
 
 @interface PRHistoryCell : NSTextFieldCell 
-{
-
-}
-
 @end

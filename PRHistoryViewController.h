@@ -12,7 +12,6 @@ typedef enum {
 
 @interface PRHistoryViewController : NSViewController <NSTableViewDelegate, NSTableViewDataSource> {
     IBOutlet NSView *background;
-    IBOutlet PRGradientView *divider;
     IBOutlet PRGradientView *divider2;
     IBOutlet PRTableView *tableView;
     
@@ -26,17 +25,12 @@ typedef enum {
     NSArray *dataSource;
     
     PRHistoryMode2 historyMode;
-    
-    float _rowHeight;
 	
     NSDateFormatter *_dateFormatter;
     NSDateFormatter *_timeFormatter;
     
-	// Weak
-	PRDb *db;
-	PRHistory *history;
-	PRLibrary *library;
-	PRMainWindowController *mainWindowController;
+	__weak PRDb *db;
+	__weak PRMainWindowController *_win;
 }
 /* Initialization */
 - (id)initWithDb:(PRDb *)db_ mainWindowController:(PRMainWindowController *)mainWindowController_;

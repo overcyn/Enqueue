@@ -16,16 +16,24 @@
 #import "PRTabButtonCell.h"
 
 
+#define HISTORY_ROW_HEIGHT              30
+#define HISTORY_CELL_TITLE_KEY          @"title"
+#define HISTORY_CELL_SUBTITLE_KEY       @"subtitle"
+#define HISTORY_CELL_SUBSUBTITLE_KEY    @"subSubTitle"
+#define HISTORY_CELL_VALUE_KEY          @"value"
+#define HISTORY_CELL_MAX_VALUE_KEY      @"max"
+
+
 @implementation PRHistoryViewController
 
 @dynamic historyMode;
 
 #pragma mark - Initialization
 
-- (id)initWithDb:(PRDb *)db_ mainWindowController:(PRMainWindowController *)mainWindowController_ {
+- (id)initWithDb:(PRDb *)db_ mainWindowController:(PRMainWindowController *)win {
 	if (!(self = [super initWithNibName:@"PRHistoryView" bundle:nil])) {return nil;}
     db = db_;
-    mainWindowController = mainWindowController_;
+    _win = win;
     historyMode = PRTopArtistsHistoryMode;
     
     _dateFormatter = [[NSDateFormatter alloc] init];
@@ -74,12 +82,7 @@
     [tableView setDataSource:self];
     [tableView setTarget:self];
     [tableView setDoubleAction:@selector(tableViewAction:)];
-    
-    // Tabs
-    [divider setBotBorder2:[NSColor PRTabBorderColor]];
-    [divider setBotBorder:[NSColor PRTabBorderHighlightColor]];
-    [divider setColor:[NSColor PRTabBackgroundColor]];
-    
+        
     [divider2 setTopBorder:[NSColor PRGridColor]];
     [divider2 setBotBorder:[NSColor PRGridHighlightColor]];
     
@@ -115,18 +118,16 @@
             dataSource = [[[db history] recentlyPlayed] retain];
             break;
         default:
-            [PRException raise:NSInternalInconsistencyException format:@"Invalid History Mode"];
+            @throw NSInternalInconsistencyException;
             break;
     }
     
     if (historyMode == PRTopArtistsHistoryMode || historyMode == PRTopSongsHistoryMode) {
-        _rowHeight = 30;
         [[[tableView tableColumns] objectAtIndex:0] setDataCell:[[[PRHistoryCell2 alloc] init] autorelease]];
     } else {
-        _rowHeight = 30;
         [[[tableView tableColumns] objectAtIndex:0] setDataCell:[[[PRHistoryCell alloc] init] autorelease]];
     }
-    [tableView setRowHeight:_rowHeight];
+    [tableView setRowHeight:HISTORY_ROW_HEIGHT];
     
     [tableView reloadData];
 
@@ -134,11 +135,10 @@
     if (rows < 5) {
         rows = 5;
     }
-    float height = 53 + _rowHeight * rows + 50;
+    float height = 53 + HISTORY_ROW_HEIGHT * rows + 50;
     [(PRScrollView *)[self view] setMinimumSize:NSMakeSize(650, height)];
-//    [background setFrame:NSMakeRect([background frame].origin.x, [[background superview] frame].size.height - height, 650, height)];
     
-    for (NSButton *i in [NSArray arrayWithObjects:topArtistsButton, topSongsButton, recentlyAddedButton, recentlyPlayedButton, nil]) {
+    for (NSButton *i in @[topArtistsButton, topSongsButton, recentlyAddedButton, recentlyPlayedButton]) {
         [i setState:NSOffState];
     }
     NSButton *button;
@@ -183,24 +183,24 @@
 	if ([sender clickedRow] == -1) {
 		return;
 	}
-    [mainWindowController setCurrentMode:PRLibraryMode];
-    [[mainWindowController libraryViewController] setCurrentList:[[db playlists] libraryList]];
+    [_win setCurrentMode:PRLibraryMode];
+    [[_win libraryViewController] setCurrentList:[[db playlists] libraryList]];
     if (historyMode == PRTopArtistsHistoryMode) {
         NSString *artist = [[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"artist"];
-        [(PRTableViewController *)[[mainWindowController libraryViewController] currentViewController] highlightArtist:artist];
+        [(PRTableViewController *)[[_win libraryViewController] currentViewController] highlightArtist:artist];
     } else {
         PRItem *item = [[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"file"];
-        [[[mainWindowController libraryViewController] currentViewController] highlightItem:item];
+        [[[_win libraryViewController] currentViewController] highlightItem:item];
     }
 }
 
 #pragma mark - NSTableView DataSource
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView_ {
-    if (tableView_ == tableView) {
-        return [dataSource count];
+    if (tableView_ != tableView) {
+        return 0;
     }
-	return 0;
+	return [dataSource count];
 }
 
 - (id)tableView:(NSTableView *)tableView_ objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
@@ -208,36 +208,28 @@
         return nil;
     }
     
+    NSDictionary *dict = [dataSource objectAtIndex:row];
     if (historyMode == PRTopArtistsHistoryMode) {
-        NSDictionary *dict = [dataSource objectAtIndex:row];
-        return [NSDictionary dictionaryWithObjectsAndKeys:
-                [dict objectForKey:@"artist"], @"title",
-                [dict objectForKey:@"count"], @"value",
-                [dict objectForKey:@"max"], @"max",
-                [[dict objectForKey:@"count"] stringValue], @"subSubTitle",
-                nil];
+        return @{HISTORY_CELL_TITLE_KEY:[dict objectForKey:@"artist"],
+            HISTORY_CELL_SUBSUBTITLE_KEY:[[dict objectForKey:@"count"] stringValue],
+            HISTORY_CELL_VALUE_KEY:[dict objectForKey:@"count"],
+            HISTORY_CELL_MAX_VALUE_KEY:[dict objectForKey:@"max"]};
     } else if (historyMode == PRTopSongsHistoryMode) {
-        NSDictionary *dict = [dataSource objectAtIndex:row];
-        return [NSDictionary dictionaryWithObjectsAndKeys:
-                [dict objectForKey:@"artist"], @"title",
-                [dict objectForKey:@"title"], @"subtitle",
-                [dict objectForKey:@"count"], @"value",
-                [dict objectForKey:@"max"] , @"max",
-                [[dict objectForKey:@"count"] stringValue], @"subSubTitle",
-                nil];
+        return @{HISTORY_CELL_TITLE_KEY:[dict objectForKey:@"artist"],
+            HISTORY_CELL_SUBTITLE_KEY:[dict objectForKey:@"title"],
+            HISTORY_CELL_SUBSUBTITLE_KEY:[[dict objectForKey:@"count"] stringValue],
+            HISTORY_CELL_VALUE_KEY:[dict objectForKey:@"count"],
+            HISTORY_CELL_MAX_VALUE_KEY:[dict objectForKey:@"max"]};
     } else if (historyMode == PRRecentlyAddedHistoryMode) {
-        NSDictionary *dict = [dataSource objectAtIndex:row];
         NSString *dateStr;
         if ([[dict objectForKey:@"date"] timeIntervalSinceDate:[NSDate dateWithNaturalLanguageString:@"midnight today"]] > 0) {
             dateStr = [_timeFormatter stringFromDate:[dict objectForKey:@"date"]];
         } else {
             dateStr = [_dateFormatter stringFromDate:[dict objectForKey:@"date"]];
         }
-        return [NSDictionary dictionaryWithObjectsAndKeys:
-                [NSString stringWithFormat:@"%@  —  %@",[dict objectForKey:@"count"],[dict objectForKey:@"album"]], @"subtitle",
-                [dict objectForKey:@"artist"], @"title",
-                dateStr, @"subSubTitle",
-                nil];
+        return @{HISTORY_CELL_TITLE_KEY:[dict objectForKey:@"artist"],
+            HISTORY_CELL_SUBTITLE_KEY:[NSString stringWithFormat:@"%@  —  %@",[dict objectForKey:@"count"],[dict objectForKey:@"album"]],
+            HISTORY_CELL_SUBSUBTITLE_KEY:dateStr};
     } else if (historyMode == PRRecentlyPlayedHistoryMode) {
         NSDictionary *dict = [dataSource objectAtIndex:row];
         NSString *dateStr;
@@ -246,13 +238,11 @@
         } else {
             dateStr = [_dateFormatter stringFromDate:[dict objectForKey:@"date"]];
         }
-        return [NSDictionary dictionaryWithObjectsAndKeys:
-                [dict objectForKey:@"artist"], @"title",
-                [dict objectForKey:@"title"], @"subtitle",
-                dateStr, @"subSubTitle",
-                nil];
+        return @{HISTORY_CELL_TITLE_KEY:[dict objectForKey:@"artist"],
+            HISTORY_CELL_SUBTITLE_KEY:[dict objectForKey:@"title"],
+            HISTORY_CELL_SUBSUBTITLE_KEY:dateStr};
     } else {
-        [PRException raise:NSInternalInconsistencyException format:@"Invalid History Mode"];
+        @throw NSInternalInconsistencyException;
     }
 	return nil;
 }
@@ -263,12 +253,12 @@
 	return FALSE;
 }
 
-- (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
+- (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)column row:(NSInteger)row {
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithDictionary:[cell objectValue]];
     [cell setObjectValue:dictionary];
 }
 
-- (BOOL)tableView:(NSTableView *)tableView shouldShowCellExpansionForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
+- (BOOL)tableView:(NSTableView *)tableView shouldShowCellExpansionForTableColumn:(NSTableColumn *)column row:(NSInteger)row {
     return FALSE;
 }
 

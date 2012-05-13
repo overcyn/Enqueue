@@ -701,9 +701,4 @@ miniPlayer;
     }
 }
 
-#pragma mark - Menu Delegate
-
-- (void)menuNeedsUpdate:(NSMenu *)menu {
-}
-
 @end
