@@ -174,10 +174,9 @@
     [EQPopUp setMenu:EQMenu];
     [[NSNotificationCenter defaultCenter] observeEQChanged:self sel:@selector(EQViewUpdate)];
     
-    for (PRGradientView *i in [NSArray arrayWithObjects:
-                               _EQDivider1, _EQDivider2, _EQDivider3,
-                               _EQDivider4, _EQDivider5, _EQDivider6, 
-                               _EQDivider7, _EQDivider8, _EQDivider9, nil]) {
+    for (PRGradientView *i in @[_EQDivider1, _EQDivider2, _EQDivider3,
+         _EQDivider4, _EQDivider5, _EQDivider6, 
+         _EQDivider7, _EQDivider8, _EQDivider9]) {
         [i setTopBorder:[NSColor PRGridColor]];
         [i setBotBorder:[NSColor PRGridHighlightColor]];
     }
@@ -209,11 +208,9 @@
     [foldersTableView setDataSource:self];
     [folderMonitor addObserver:self forKeyPath:@"monitoredFolders" options:0 context:nil];
     
-    // last.fm
-	[NSNotificationCenter addObserver:self 
-							 selector:@selector(updateUI)
-								 name:PRLastfmStateDidChangeNotification 
-							   object:nil];
+	[NSNotificationCenter addObserver:self selector:@selector(updateUI) name:PRLastfmStateDidChangeNotification object:nil];
+    [NSNotificationCenter addObserver:self selector:@selector(updateUI) name:PRHogOutputDidChangeNotification object:nil];
+    
     [self updateUI];
 }
 
@@ -277,13 +274,12 @@
         }
     }
     
-    
     // Misc preferences
     [_compilationsButton setState:[[PRUserDefaults userDefaults] useCompilation]];
     [sortWithAlbumArtist setState:[[PRUserDefaults userDefaults] useAlbumArtist]];
     [mediaKeys setState:[[PRUserDefaults userDefaults] mediaKeys]];
     [folderArtwork setState:[[PRUserDefaults userDefaults] folderArtwork]];
-    [_hogButton setState:[[now mov] hogOutput]];
+    [_hogButton setState:[[PRUserDefaults userDefaults] hogOutput]];
     
     // Folders
     [foldersTableView reloadData];
@@ -394,7 +390,7 @@
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
 
-- (void)EQMenuActionSave:(id)sender {    
+- (void)EQMenuActionSave:(id)sender {
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Save"];
     [alert addButtonWithTitle:@"Cancel"];
@@ -529,8 +525,8 @@
 #pragma mark - Misc Preferences
 
 - (void)toggleHogOutput {
-    [[now mov] setHogOutput:![[now mov] hogOutput]];
-    [self updateUI];
+    [[PRUserDefaults userDefaults] setHogOutput:![[PRUserDefaults userDefaults] hogOutput]];
+    [NSNotificationCenter post:PRHogOutputDidChangeNotification];
 }
 
 - (void)toggleUseAlbumArtist {

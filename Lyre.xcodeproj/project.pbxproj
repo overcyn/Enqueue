@@ -109,6 +109,7 @@
 		67691F901338C8F300D27C01 /* PRSliderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67691F8F1338C8F000D27C01 /* PRSliderCell.m */; };
 		676978BC13FDB45B004E0A08 /* PRVacuumOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 676978BB13FDB45B004E0A08 /* PRVacuumOperation.m */; };
 		676A4E36134A94DF00AA9DAB /* InfoAlt.png in Resources */ = {isa = PBXBuildFile; fileRef = 676A4E35134A94DF00AA9DAB /* InfoAlt.png */; };
+		6770C83E1560732900C3A24B /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6770C83D1560732800C3A24B /* CoreAudio.framework */; };
 		6771E787127974F9007A34F2 /* PRPlaylistsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6771E786127974F9007A34F2 /* PRPlaylistsViewController.m */; };
 		6771E78912797511007A34F2 /* PRPlaylistsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6771E78812797511007A34F2 /* PRPlaylistsView.xib */; };
 		6771E90C127A47D8007A34F2 /* PRHistoryView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6771E90B127A47D8007A34F2 /* PRHistoryView.xib */; };
@@ -426,6 +427,7 @@
 		676978BA13FDB45B004E0A08 /* PRVacuumOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRVacuumOperation.h; sourceTree = "<group>"; };
 		676978BB13FDB45B004E0A08 /* PRVacuumOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRVacuumOperation.m; sourceTree = "<group>"; };
 		676A4E35134A94DF00AA9DAB /* InfoAlt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = InfoAlt.png; path = Icons/InfoAlt.png; sourceTree = "<group>"; };
+		6770C83D1560732800C3A24B /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		6771E785127974F9007A34F2 /* PRPlaylistsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRPlaylistsViewController.h; sourceTree = "<group>"; };
 		6771E786127974F9007A34F2 /* PRPlaylistsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRPlaylistsViewController.m; sourceTree = "<group>"; };
 		6771E78812797511007A34F2 /* PRPlaylistsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PRPlaylistsView.xib; sourceTree = "<group>"; };
@@ -652,6 +654,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6770C83E1560732900C3A24B /* CoreAudio.framework in Frameworks */,
 				673540FF145CBA3D004044F1 /* AudioToolbox.framework in Frameworks */,
 				67EA1307145BA83D00309876 /* AudioUnit.framework in Frameworks */,
 				6727A96413C6535900B264A9 /* Quartz.framework in Frameworks */,
@@ -740,6 +743,7 @@
 				6727A95B13C6522300B264A9 /* Security.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 				671334EF1320704C00764174 /* Carbon.framework */,
+				6770C83D1560732800C3A24B /* CoreAudio.framework */,
 				6782CF8012D5E1630003F1C9 /* CoreFoundation.framework */,
 				678BA9C912F283600019E9D8 /* ScriptingBridge.framework */,
 			);

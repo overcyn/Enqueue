@@ -74,6 +74,7 @@ typedef enum {
     IBOutlet NSPopUpButton *masterVolumePopUpButton;
     
     IBOutlet NSButton *_hogButton;
+    IBOutlet NSPopUpButton *_outputPopUp;
     
     // Shortcuts
     IBOutlet NSButton *mediaKeys;
@@ -106,23 +107,23 @@ typedef enum {
     __weak PRNowPlayingController *now;
     __weak PRFolderMonitor *folderMonitor;
 }
-
+/* Accessors */
 @property (readonly) PRDb *db;
 @property (readonly) PRNowPlayingController *now;
 
-// Initialization
+/* Initialization */
 - (id)initWithCore:(PRCore *)core;
 
-// Tabs
+/* Tabs */
 - (NSDictionary *)tabs;
 - (NSDictionary *)tabInfo;
 - (void)tabAction:(id)sender;
 
-// Update
+/* Update */
 - (void)updateUI;
 - (void)importSheetDidEnd:(NSOpenPanel*)openPanel returnCode:(NSInteger)returnCode context:(void*)context;
 
-// Equalizer
+/* Equalizer */
 - (NSDictionary *)EQSliders;
 - (void)EQButtonAction;
 - (void)EQSliderAction:(id)sender;
@@ -133,7 +134,7 @@ typedef enum {
 - (void)EQMenuActionCustom:(id)sender;
 - (void)EQMenuActionDefault:(id)sender;
 
-// Misc Preference
+/* Misc Preference */
 - (void)setMasterVolume:(id)sender;
 - (void)toggleCompilations;
 - (void)toggleUseAlbumArtist;
@@ -141,12 +142,12 @@ typedef enum {
 - (void)toggleFolderArtwork;
 - (void)toggleHogOutput;
 
-// Folder Monitoring
+/* Folder Monitoring */
 - (void)addFolder;
 - (void)removeFolder;
 - (void)rescan;
 
-// Global Hotkeys
+/* Global Hotkeys */
 - (NSArray *)hotkeyDictionary;
 - (void)registerHotkeys;
 - (void)registerHotkey:(EventHotKeyRef *)hotKeyRef withKeyMasks:(int)keymasks code:(int)code ID:(int)id_;
