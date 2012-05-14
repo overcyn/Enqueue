@@ -22,18 +22,17 @@ typedef enum {
     
     IBOutlet NSImageView *_placeholder;
     
-    NSArray *dataSource;
-    
     PRHistoryMode2 historyMode;
 	
+    NSArray *dataSource;
     NSDateFormatter *_dateFormatter;
     NSDateFormatter *_timeFormatter;
     
-	__weak PRDb *db;
+	__weak PRDb *_db;
 	__weak PRMainWindowController *_win;
 }
 /* Initialization */
-- (id)initWithDb:(PRDb *)db_ mainWindowController:(PRMainWindowController *)mainWindowController_;
+- (id)initWithDb:(PRDb *)db mainWindowController:(PRMainWindowController *)win;
 
 /* Accessors */
 @property (readwrite) PRHistoryMode2 historyMode;

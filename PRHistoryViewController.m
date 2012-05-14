@@ -30,9 +30,9 @@
 
 #pragma mark - Initialization
 
-- (id)initWithDb:(PRDb *)db_ mainWindowController:(PRMainWindowController *)win {
+- (id)initWithDb:(PRDb *)db mainWindowController:(PRMainWindowController *)win {
 	if (!(self = [super initWithNibName:@"PRHistoryView" bundle:nil])) {return nil;}
-    db = db_;
+    _db = db;
     _win = win;
     historyMode = PRTopArtistsHistoryMode;
     
@@ -106,16 +106,16 @@
     [dataSource release];
     switch (historyMode) {
         case PRTopArtistsHistoryMode:
-            dataSource = [[[db history] topArtists] retain];
+            dataSource = [[[_db history] topArtists] retain];
             break;
         case PRTopSongsHistoryMode:
-            dataSource = [[[db history] topSongs] retain];
+            dataSource = [[[_db history] topSongs] retain];
             break;
         case PRRecentlyAddedHistoryMode:
-            dataSource = [[[db history] recentlyAdded] retain];
+            dataSource = [[[_db history] recentlyAdded] retain];
             break;
         case PRRecentlyPlayedHistoryMode:
-            dataSource = [[[db history] recentlyPlayed] retain];
+            dataSource = [[[_db history] recentlyPlayed] retain];
             break;
         default:
             @throw NSInternalInconsistencyException;
@@ -184,7 +184,7 @@
 		return;
 	}
     [_win setCurrentMode:PRLibraryMode];
-    [[_win libraryViewController] setCurrentList:[[db playlists] libraryList]];
+    [[_win libraryViewController] setCurrentList:[[_db playlists] libraryList]];
     if (historyMode == PRTopArtistsHistoryMode) {
         NSString *artist = [[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"artist"];
         [(PRTableViewController *)[[_win libraryViewController] currentViewController] highlightArtist:artist];
