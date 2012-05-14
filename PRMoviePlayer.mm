@@ -1,11 +1,13 @@
 #import "PRMoviePlayer.h"
 #import "PRUserDefaults.h"
 #import "NSNotificationCenter+Extensions.h"
+#import "NSOperationQueue+Extensions.h"
 #import <AudioUnit/AudioUnit.h>
 #include <cmath>
 #include <libkern/OSAtomic.h>
 #include <SFBAudioEngine/AudioPlayer.h>
 #include <SFBAudioEngine/AudioDecoder.h>
+#include <CoreAudio/CoreAudio.h>
 #import "CAAUParameter.h"
 #import "AUParamInfo.h"
 #import "PREQ.h"
@@ -27,18 +29,23 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 - (void)transitionCallback:(NSTimer *)timer_;
 
 /* Accessors */
-@property (readwrite, retain) NSTimer *transitionTimer;
 @property (readwrite) PRMovieQueueState queueState;
 @property (readonly) void *player;
 
-/* Update */
+/* Notifications */
 - (void)preGainDidChange:(NSNotification *)notification;
+- (void)volumeDidChange:(NSNotification *)note;
+- (void)EQDidChange:(NSNotification *)note;
+- (void)hogOutputDidChange:(NSNotification *)note;
+
+/* Update */
 - (void)update;
+- (void)updateVolume;
 - (void)updateHogOutput;
-- (void)EQChanged:(NSNotification *)note;
-- (void)updateEQ; // only to be called inside EQChanged
-- (void)enableEQ; // only to be called inside EQChanged
-- (void)disableEQ; // only to be called inside EQChanged
+- (void)updateEQ;
+- (void)modifyEQ;
+- (void)enableEQ;
+- (void)disableEQ;
 @end
 
 
@@ -50,26 +57,31 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     if (!(self = [super init])) {return nil;}
     player = new AudioPlayer();
     
-    // Update the UI 5 times per second in all run loop modes (so menus, etc. don't stop updates)
     _UIUpdateTimer = [NSTimer timerWithTimeInterval:0.3 target:self selector:@selector(update) userInfo:nil repeats:YES];
     [[NSRunLoop mainRunLoop] addTimer:_UIUpdateTimer forMode:NSRunLoopCommonModes];
         
     [[NSNotificationCenter defaultCenter] observePreGainChanged:self sel:@selector(preGainDidChange:)];
-    [[NSNotificationCenter defaultCenter] observeEQChanged:self sel:@selector(EQChanged:)];
-    [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(updateHogOutput)];
-    [self preGainDidChange:nil];
-    [self EQChanged:nil];
-    [self setVolume:[self volume]];
+    [[NSNotificationCenter defaultCenter] observeEQChanged:self sel:@selector(EQDidChange:)];
+    [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(playingDidChange:)];
+    [[NSNotificationCenter defaultCenter] observeVolumeChanged:self sel:@selector(volumeDidChange:)];
+    [NSNotificationCenter addObserver:self selector:@selector(hogOutputDidChange:) name:PRHogOutputDidChangeNotification object:nil];
+    
+    [self updateEQ];
+    [self updateHogOutput];
+    [self updateVolume];
     [self setQueueState:PRMovieQueueEmpty];
     
     PLAYER->SetRingBufferCapacity(32768*4);
     PLAYER->SetRingBufferWriteChunkSize(4096);
+    
+    [self devices];
+    
 	return self;
 }
 
 - (void)dealloc {
     [_UIUpdateTimer invalidate];
-    [self.transitionTimer invalidate];
+    [_transitionTimer invalidate];
     
     delete PLAYER;
     [_UIUpdateTimer release];
@@ -87,11 +99,10 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     PLAYER->ClearQueuedDecoders();
     
     // invalidate transition timer and reset volume
-    if ([self transitionTimer]) {
-        [[self transitionTimer] invalidate];
-        [self setTransitionTimer:nil];
-        transitionState = PRNeitherTransitionState;
-    }
+    [_transitionTimer invalidate];
+    [_transitionTimer release];
+    _transitionTimer = nil;
+    transitionState = PRNeitherTransitionState;
     [self setVolume:[self volume]];
     
 //    NSLog(@"capacity:%d, minchunksize:%d",PLAYER->GetRingBufferCapacity(), PLAYER->GetRingBufferWriteChunkSize());
@@ -158,38 +169,24 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 - (void)pause {
     if ([self isPlaying]) {
-        if (self.transitionTimer && [self.transitionTimer isValid]) {
-            [self.transitionTimer invalidate];
-        }
         if (transitionState != PRPlayingTransitionState) {
             transitionVolume = 1;
         }
         transitionState = PRPausingTransitionState;
         PLAYER->SetVolume(transitionVolume * [self volume]);
-        self.transitionTimer = [NSTimer scheduledTimerWithTimeInterval:0.025
-                                                                target:self 
-                                                              selector:@selector(transitionCallback:) 
-                                                              userInfo:nil 
-                                                               repeats:FALSE];
+        [self transitionCallback:nil];
     }
 }
 
 - (void)unpause {
     if (![self isPlaying]) {
-        if (self.transitionTimer && [self.transitionTimer isValid]) {
-            [self.transitionTimer invalidate];
-        }
         if (transitionState != PRPausingTransitionState) {
             transitionVolume = 0;
         }
         transitionState = PRPlayingTransitionState;
         PLAYER->SetVolume(transitionVolume * [self volume]);
         PLAYER->Play();
-        self.transitionTimer = [NSTimer scheduledTimerWithTimeInterval:0.025
-                                                                target:self
-                                                              selector:@selector(transitionCallback:) 
-                                                              userInfo:nil 
-                                                               repeats:FALSE];
+        [self transitionCallback:nil];
     }
     [[NSNotificationCenter defaultCenter] postPlayingChanged];
 }
@@ -204,7 +201,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 #pragma mark - Playback Private
 
-- (void)transitionCallback:(NSTimer *)timer_ {
+- (void)transitionCallback:(NSTimer *)timer {
     switch (transitionState) {
         case PRNeitherTransitionState:
             break;
@@ -214,11 +211,14 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
                 transitionVolume = 1;
                 transitionState = PRNeitherTransitionState;
             } else {
-                self.transitionTimer = [NSTimer scheduledTimerWithTimeInterval:0.025
-                                                                        target:self 
-                                                                      selector:@selector(transitionCallback:) 
-                                                                      userInfo:nil 
-                                                                       repeats:FALSE];
+                [_transitionTimer invalidate];
+                [_transitionTimer release];
+                _transitionTimer = [[NSTimer timerWithTimeInterval:0.025
+                                                            target:self
+                                                          selector:@selector(transitionCallback:)
+                                                          userInfo:nil
+                                                           repeats:FALSE] retain];
+                [[NSRunLoop currentRunLoop] addTimer:_transitionTimer forMode:NSRunLoopCommonModes];
             }
             PLAYER->SetVolume(transitionVolume * [self volume]);
             break;
@@ -230,15 +230,19 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
                 PLAYER->Pause();
                 [[NSNotificationCenter defaultCenter] postPlayingChanged];
             } else {
-                self.transitionTimer = [NSTimer scheduledTimerWithTimeInterval:0.025
-                                                                        target:self 
-                                                                      selector:@selector(transitionCallback:) 
-                                                                      userInfo:nil 
-                                                                       repeats:FALSE];
+                [_transitionTimer invalidate];
+                [_transitionTimer release];
+                _transitionTimer = [[NSTimer timerWithTimeInterval:0.025
+                                                            target:self
+                                                          selector:@selector(transitionCallback:)
+                                                          userInfo:nil
+                                                           repeats:FALSE] retain];
+                [[NSRunLoop currentRunLoop] addTimer:_transitionTimer forMode:NSRunLoopCommonModes];
             }
             PLAYER->SetVolume(transitionVolume * [self volume]);
             break;
         default:
+            @throw NSInternalInconsistencyException;
             break;
     }
 }
@@ -249,7 +253,8 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 @dynamic volume;
 @dynamic currentTime;
 @dynamic duration;
-@dynamic hogOutput;
+@dynamic devices;
+@dynamic currentDevice;
 
 - (BOOL)isPlaying {
     if (transitionState == PRPausingTransitionState) {
@@ -266,7 +271,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 - (void)setVolume:(float)volume {
     [[PRUserDefaults userDefaults] setVolume:volume];
-    PLAYER->SetVolume(volume);
     [[NSNotificationCenter defaultCenter] postVolumeChanged];
 }
 
@@ -302,18 +306,74 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     return duration * 1000;
 }
 
-- (BOOL)hogOutput {
-    return [[PRUserDefaults userDefaults] hogOutput];
+- (NSArray *)devices {
+    UInt32 propertySize;
+    AudioObjectPropertyAddress propertyAddress;
+    propertyAddress.mSelector = kAudioHardwarePropertyDevices;
+    propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
+    propertyAddress.mElement = kAudioObjectPropertyElementMaster;
+    if (AudioObjectGetPropertyDataSize(kAudioObjectSystemObject, &propertyAddress, 0, NULL, &propertySize) != noErr) {
+        return nil;
+    }
+    NSInteger numDevices = propertySize / sizeof(AudioDeviceID);
+    AudioObjectID *deviceIDs = (AudioDeviceID *)calloc(numDevices, sizeof(AudioDeviceID));
+    if (AudioObjectGetPropertyData(kAudioObjectSystemObject, &propertyAddress, 0, NULL, &propertySize, deviceIDs) != noErr) {
+        free(deviceIDs);
+        return nil;
+    }
+    
+    NSMutableArray *devices = [NSMutableArray array];
+    for (NSInteger idx=0; idx<numDevices; idx++) {
+        AudioObjectPropertyAddress deviceAddress;
+        UInt32 dataSize;
+        deviceAddress.mSelector = kAudioDevicePropertyStreams;
+        deviceAddress.mScope = kAudioDevicePropertyScopeOutput;
+        deviceAddress.mElement = kAudioObjectPropertyElementMaster;
+        if (AudioObjectGetPropertyDataSize(deviceIDs[idx], &deviceAddress, 0, NULL, &dataSize) != noErr ||
+            (dataSize / sizeof(AudioStreamID)) < 1) {
+            continue;
+        }
+        char deviceName[64];
+        propertySize = sizeof(deviceName);
+        deviceAddress.mSelector = kAudioDevicePropertyDeviceName;
+        deviceAddress.mScope = kAudioObjectPropertyScopeGlobal;
+        deviceAddress.mElement = kAudioObjectPropertyElementMaster;
+        if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, deviceName) != noErr) {
+            continue;
+        }
+        char manufacturerName[64];
+        propertySize = sizeof(manufacturerName);
+        deviceAddress.mSelector = kAudioDevicePropertyDeviceManufacturer;
+        deviceAddress.mScope = kAudioObjectPropertyScopeGlobal;
+        deviceAddress.mElement = kAudioObjectPropertyElementMaster;
+        if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, manufacturerName) != noErr) {
+            continue;
+        }
+        CFStringRef uidString;
+        propertySize = sizeof(uidString);
+        deviceAddress.mSelector = kAudioDevicePropertyDeviceUID;
+        deviceAddress.mScope = kAudioObjectPropertyScopeGlobal;
+        deviceAddress.mElement = kAudioObjectPropertyElementMaster;
+        if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, &uidString) != noErr) {
+            continue;
+        }
+        [devices addObject:[NSString stringWithString:(NSString *)uidString]];
+        CFRelease(uidString);
+    }
+    free(deviceIDs);
+    return devices;
 }
 
-- (void)setHogOutput:(BOOL)hogOutput {
-    [[PRUserDefaults userDefaults] setHogOutput:hogOutput];
-    [self updateHogOutput];
+- (void)setCurrentDevice:(NSString *)device {
+    
+}
+
+- (NSString *)currentDevice {
+    
 }
 
 #pragma mark - Accessors Private
 
-@synthesize transitionTimer = _transitionTimer;
 @synthesize player = player;
 @dynamic queueState;
 
@@ -346,6 +406,20 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 #pragma mark - Update Private
 
+- (void)update {
+    [[NSNotificationCenter defaultCenter] postTimeChanged];
+    int timeLeft = [self duration] - [self currentTime];
+    if ([self queueState] == PRMovieQueueEmpty && [self isPlaying] && timeLeft < 2000) {
+        [[NSNotificationCenter defaultCenter] postMovieAlmostFinished];
+    }
+}
+
+- (void)updateVolume {
+    if (transitionState == PRNeitherTransitionState) {
+        PLAYER->SetVolume([self volume]);
+    }
+}
+
 - (void)updateHogOutput {
     if (![self isPlaying]) {
         if (PLAYER->OutputDeviceIsHogged()) {
@@ -362,31 +436,18 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     }
 }
 
-- (void)update {
-    [[NSNotificationCenter defaultCenter] postTimeChanged];
-    int timeLeft = [self duration] - [self currentTime];
-    if ([self queueState] == PRMovieQueueEmpty && [self isPlaying] && timeLeft < 2000) {
-        [[NSNotificationCenter defaultCenter] postMovieAlmostFinished];
-    }
-}
-
-- (void)preGainDidChange:(NSNotification *)note {
-//    float preGain = [[PRUserDefaults userDefaults] preGain];
-    PLAYER->SetPreGain(1.0);
-}
-
-- (void)EQChanged:(NSNotification *)note {
+- (void)updateEQ {
     BOOL enabled = [[PRUserDefaults userDefaults] EQIsEnabled];
     if (enabled && !_equalizer) {
         [self enableEQ];
     } else if (!enabled && _equalizer) {
         [self disableEQ];
     } else if (enabled && _equalizer) {
-        [self updateEQ];
+        [self modifyEQ];
     }
 }
 
-- (void)updateEQ {
+- (void)modifyEQ {
     PREQ *EQ;
     if ([[PRUserDefaults userDefaults] isCustomEQ]) {
         EQ = [[[PRUserDefaults userDefaults] customEQs] objectAtIndex:[[PRUserDefaults userDefaults] EQIndex]];
@@ -440,6 +501,28 @@ error:;
     }
     _equalizer = nil;
 }
+
+#pragma mark - Notifications
+
+- (void)playingDidChange:(NSNotification *)note {
+    [self updateHogOutput];
+}
+
+- (void)preGainDidChange:(NSNotification *)note {
+}
+
+- (void)volumeDidChange:(NSNotification *)note {
+    [self updateVolume];
+}
+
+- (void)EQDidChange:(NSNotification *)note {
+    [self updateEQ];
+}
+
+- (void)hogOutputDidChange:(NSNotification *)note {
+    [self updateHogOutput];
+}
+
 
 @end
 

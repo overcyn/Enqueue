@@ -21,7 +21,7 @@ typedef enum {
     
     float transitionVolume;
     int transitionState;
-    NSTimer *_transitionTimer; // should only be accessed through accessor
+    NSTimer *_transitionTimer;
     
     NSTimer	*_UIUpdateTimer;
     
@@ -43,8 +43,8 @@ typedef enum {
 @property (readwrite) float volume;
 @property (readwrite) long currentTime;
 @property (readonly) long duration;
-@property (readwrite) BOOL hogOutput;
+@property (readonly) NSArray *devices;
+@property (readwrite, copy) NSString *currentDevice;
 - (void)increaseVolume;
 - (void)decreaseVolume;
 @end
-
