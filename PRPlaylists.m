@@ -170,14 +170,12 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
         if (min != 1 || max != count) {
             [db begin];
             NSArray *playlistItems = [db execute:@"SELECT playlist_item_id FROM playlist_items WHERE playlist_id = :playlist ORDER BY playlist_index"
-                                        bindings:[NSDictionary dictionaryWithObjectsAndKeys:i, [NSNumber numberWithInt:1], nil]
-                                         columns:[NSArray arrayWithObjects:PRColInteger, nil]];
+                                        bindings:@{@1:i}
+                                         columns:@[PRColInteger]];
             
             for (int i = 0; i < [playlistItems count]; i++) {
                 [db execute:@"UPDATE playlist_items SET playlist_index = ?1 WHERE playlist_item_id = ?2" 
-                   bindings:[NSDictionary dictionaryWithObjectsAndKeys:
-                             [NSNumber numberWithInt:i + 1], [NSNumber numberWithInt:1],
-                             [[playlistItems objectAtIndex:i] objectAtIndex:0], [NSNumber numberWithInt:2], nil]
+                   bindings:@{@1:[NSNumber numberWithInt:i + 1], @2:[[playlistItems objectAtIndex:i] objectAtIndex:0]}
                     columns:nil];
             }
             [db commit];

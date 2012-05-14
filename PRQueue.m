@@ -25,7 +25,7 @@ NSString * const PR_TBL_QUEUE_SQL = @"CREATE TABLE queue ("
 - (BOOL)initialize {
     NSArray *results = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'queue'"
                            bindings:nil 
-                            columns:[NSArray arrayWithObjects:PRColString, nil]];
+                            columns:@[PRColString]];
     if ([results count] != 1 || ![[[results objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_QUEUE_SQL]) {
         return FALSE;
     }
@@ -36,8 +36,8 @@ NSString * const PR_TBL_QUEUE_SQL = @"CREATE TABLE queue ("
 
 - (NSArray *)queueArray {
     NSArray *results = [_db execute:@"SELECT playlist_item_id FROM queue ORDER BY queue_index"
-                           bindings:nil 
-                            columns:[NSArray arrayWithObjects:PRColInteger, nil]];
+                           bindings:nil
+                            columns:@[PRColInteger]];
     NSMutableArray *queue = [NSMutableArray array];
     for (int i = 0; i < [results count]; i++) {
         [queue addObject:[[results objectAtIndex:i] objectAtIndex:0]];
@@ -46,15 +46,11 @@ NSString * const PR_TBL_QUEUE_SQL = @"CREATE TABLE queue ("
 }
 
 - (void)removeListItem:(PRListItem *)listItem {
-    [_db execute:@"DELETE FROM queue WHERE playlist_item_id = ?1"
-       bindings:[NSDictionary dictionaryWithObjectsAndKeys:listItem, [NSNumber numberWithInt:1], nil]
-        columns:nil];
+    [_db execute:@"DELETE FROM queue WHERE playlist_item_id = ?1" bindings:@{@1:listItem} columns:nil];
 }
 
 - (void)appendListItem:(PRListItem *)listItem {
-    [_db execute:@"INSERT INTO queue (playlist_item_id) VALUES (?1)"
-       bindings:[NSDictionary dictionaryWithObjectsAndKeys:listItem, [NSNumber numberWithInt:1], nil]
-        columns:nil];
+    [_db execute:@"INSERT INTO queue (playlist_item_id) VALUES (?1)" bindings:@{@1:listItem} columns:nil];
 }
 
 - (void)clear {

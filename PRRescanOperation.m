@@ -58,7 +58,7 @@
         [_db execute:@"CREATE TEMP TABLE tmp_tbl_monitored_files (file_id INTEGER UNIQUE NOT NULL, path TEXT NOT NULL, exist INTEGER DEFAULT 0)"];
         for (NSURL *i in _URLs) {
             [_db execute:@"INSERT OR IGNORE INTO tmp_tbl_monitored_files (file_id, path) SELECT file_id, path FROM library WHERE hfs_begins(?1, path)"
-                bindings:[NSDictionary dictionaryWithObjectsAndKeys:[i absoluteString], [NSNumber numberWithInt:1], nil]
+                bindings:@{@1:[i absoluteString]}
                  columns:nil];
         }
     }];
@@ -80,7 +80,7 @@
     [[NSOperationQueue mainQueue] addBlockAndWait:^{
         NSArray *rlt = [_db execute:@"SELECT file_id FROM tmp_tbl_monitored_files WHERE exist = 0"
                            bindings:nil 
-                            columns:[NSArray arrayWithObjects:PRColInteger, nil]];
+                            columns:@[PRColInteger]];
         for (NSArray *i in rlt) {
             [toRemove addObject:[i objectAtIndex:0]];
         }
@@ -182,10 +182,9 @@ end:;
         for (PRFileInfo *i in infoArray) {
             // Check if file exists with same checksum and size
             NSArray *rlt = [_db execute:@"SELECT file_id, path FROM library WHERE checkSum = ?1 AND size = ?2" 
-                               bindings:[NSDictionary dictionaryWithObjectsAndKeys:
-                                         [[i attributes] objectForKey:PRItemAttrCheckSum], [NSNumber numberWithInt:1], 
-                                         [[i attributes] objectForKey:PRItemAttrSize], [NSNumber numberWithInt:2], nil]
-                                columns:[NSArray arrayWithObjects:PRColInteger, PRColString, nil]];
+                               bindings:@{@1:[[i attributes] objectForKey:PRItemAttrCheckSum],
+                                          @2:[[i attributes] objectForKey:PRItemAttrSize]}
+                                columns:@[PRColInteger, PRColString]];
             PRItem *moved = nil;
             for (NSArray *j in rlt) {
                 if (![[NSFileManager defaultManager] fileExistsAtPath:[[NSURL URLWithString:[j objectAtIndex:1]] path]]) {
@@ -274,8 +273,7 @@ end:;
 // Should only be called on the main thread
 - (void)setFileExists:(PRItem *)item {
     [_db execute:@"UPDATE tmp_tbl_monitored_files SET exist = 1 WHERE file_id = ?1"
-        bindings:[NSDictionary dictionaryWithObjectsAndKeys:
-                  item, [NSNumber numberWithInt:1], nil]
+        bindings:@{@1:item}
          columns:nil];
 }
 
