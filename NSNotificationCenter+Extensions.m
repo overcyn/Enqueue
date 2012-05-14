@@ -13,6 +13,7 @@ NSString * const PRLibraryViewSelectionDidChangeNotification = @"PRLibraryViewSe
 
 NSString * const PRPreGainDidChangeNotification = @"PRPreGainDidChangeNotification";
 NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidChangeNotification";
+NSString * const PRHogOutputDidChangeNotification = @"PRHogOutputDidChangeNotification";
 
 NSString * const PRIsPlayingDidChangeNotification = @"PRIsPlayingDidChangeNotification";
 NSString * const PRMovieDidFinishNotification = @"PRMovieDidFinishNotification";
@@ -45,7 +46,6 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
 + (void)removeObserver:(id)observer {
     [[NSNotificationCenter defaultCenter] removeObserver:observer];
 }
-
 
 // Db notifications
 

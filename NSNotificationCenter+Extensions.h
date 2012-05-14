@@ -7,6 +7,9 @@ extern NSString * const PRLibraryViewSelectionDidChangeNotification;
 
 extern NSString * const PRLastfmStateDidChangeNotification;
 
+/* Preferences */
+extern NSString * const PRHogOutputDidChangeNotification;
+
 
 @interface NSNotificationCenter (Extensions)
 + (void)post:(NSString *)name;
@@ -36,20 +39,24 @@ extern NSString * const PRLastfmStateDidChangeNotification;
 - (void)observeUseAlbumArtistChanged:(id)obs sel:(SEL)sel;
 - (void)observeEQChanged:(id)obs sel:(SEL)sel;
 
-/* Playing */
+/* PRMoviePlayer */
 - (void)postTimeChanged;
 - (void)postPlayingChanged;
 - (void)postMovieFinished;
 - (void)postMovieAlmostFinished;
-- (void)postPlayingFileChanged;
-- (void)postShuffleChanged;
-- (void)postRepeatChanged;
-- (void)postVolumeChanged;
 
 - (void)observeTimeChanged:(id)obs sel:(SEL)sel;
 - (void)observePlayingChanged:(id)obs sel:(SEL)sel;
 - (void)observeMovieFinished:(id)obs sel:(SEL)sel;
 - (void)observeMovieAlmostFinished:(id)obs sel:(SEL)sel;
+
+
+/* PRNowPlayingController */
+- (void)postPlayingFileChanged;
+- (void)postShuffleChanged;
+- (void)postRepeatChanged;
+- (void)postVolumeChanged;
+
 - (void)observePlayingFileChanged:(id)obs sel:(SEL)sel;
 - (void)observeShuffleChanged:(id)obs sel:(SEL)sel;
 - (void)observeRepeatChanged:(id)obs sel:(SEL)sel;
