@@ -40,22 +40,11 @@
 - (id)initWithCore:(PRCore *)core_;
 
 /* Accessors */
-- (NSImageView *)albumArtView;
+@property (readonly) NSImageView *albumArtView;
 
 /* Update */
 - (void)updateLayout;
-- (void)updateControls;
-- (void)updatePlayButton;
-- (void)updateVolume;
 
 /* Action */
-- (BOOL)progressHidden;
-- (void)setProgressHidden:(BOOL)progressHidden;
-- (void)setProgressTitle:(NSString *)progressTitle;
-- (void)setProgressPercent:(int)progressPercent;
-
 - (void)showInLibrary;
-- (void)mute;
-- (void)setVolume:(id)sender;
-- (void)setCurrentTime:(id)sender;
 @end

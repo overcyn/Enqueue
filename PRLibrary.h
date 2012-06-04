@@ -46,15 +46,12 @@ extern PRItemAttr * const PRItemAttrRating;
 @interface PRLibrary : NSObject {
 	PRDb *db;
 }
-// Initialization
+/* Initialization */
 - (id)initWithDb:(PRDb *)db_;
 - (void)create;
 - (BOOL)initialize;
 
-// Update
-- (BOOL)propagateItemDelete;
-
-// Accessors
+/* Accessors */
 - (BOOL)containsItem:(PRItem *)item;
 - (PRItem *)addItemWithAttrs:(NSDictionary *)attrs;
 - (void)removeItems:(NSArray *)items;
@@ -68,7 +65,7 @@ extern PRItemAttr * const PRItemAttrRating;
 - (NSArray *)itemsWithSimilarURL:(NSURL *)URL;
 - (NSArray *)itemsWithValue:(id)value forAttr:(PRItemAttr *)attr;
 
-// Misc
+/* Misc */
 + (NSArray *)itemAttrProperties;
 + (NSArray *)itemAttrs;
 + (NSString *)columnNameForItemAttr:(PRItemAttr *)attr;

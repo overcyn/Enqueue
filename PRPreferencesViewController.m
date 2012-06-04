@@ -1,19 +1,20 @@
 #import "PRPreferencesViewController.h"
+#import "PRCore.h"
+#import "PRDb.h"
+#import "PREQ.h"
+#import "PRFolderMonitor.h"
+#import "PRGradientView.h"
+#import "PRHotKeyController.h"
+#import "PRLastfm.h"
+#import "PRMoviePlayer.h"
+#import "PRNowPlayingController.h"
+#import "PRScrollView.h"
+#import "PRTabButtonCell.h"
+#import "PRUserDefaults.h"
+#import "NSColor+Extensions.h"
+#import "NSScrollView+Extensions.h"
 #import <Carbon/Carbon.h>
 #import <ShortcutRecorder/SRRecorderControl.h>
-#import "PRNowPlayingController.h"
-#import "PRDb.h"
-#import "PRMoviePlayer.h"
-#import "PRFolderMonitor.h"
-#import "PRScrollView.h"
-#import "NSScrollView+Extensions.h"
-#import "PRCore.h"
-#import "PRLastfm.h"
-#import "PRUserDefaults.h"
-#import "PRGradientView.h"
-#import "NSColor+Extensions.h"
-#import "PREQ.h"
-#import "PRTabButtonCell.h"
 
 @implementation PRPreferencesViewController
 
@@ -35,7 +36,6 @@
         [[NSUserDefaults standardUserDefaults] registerDefaults:@{[i objectForKey:@"userDefaultsKey"]:hotkey}];
     }
     [[NSUserDefaults standardUserDefaults] synchronize];
-    [self registerHotkeys];
 	return self;
 }
 
@@ -625,7 +625,6 @@
 
 - (NSArray *)hotkeyDictionary {
     return @[[NSDictionary dictionaryWithObjectsAndKeys:
-             [NSValue valueWithPointer:&playPauseHotKeyRef], @"hotKeyRef",
              [NSNumber numberWithInt:1], @"ID",
              [NSNumber numberWithInt:49], @"defaultCode",
              [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
@@ -633,7 +632,6 @@
              nil],
             
             [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSValue valueWithPointer:&playNextHotKeyRef], @"hotKeyRef",
              [NSNumber numberWithInt:2], @"ID",
              [NSNumber numberWithInt:124], @"defaultCode",
              [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
@@ -641,7 +639,6 @@
              nil],
             
             [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSValue valueWithPointer:&playPreviousHotKeyRef], @"hotKeyRef",
              [NSNumber numberWithInt:3], @"ID",
              [NSNumber numberWithInt:123], @"defaultCode",
              [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
@@ -649,7 +646,6 @@
              nil],
             
             [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSValue valueWithPointer:&increaseVolumeHotKeyRef], @"hotKeyRef",
              [NSNumber numberWithInt:4], @"ID",
              [NSNumber numberWithInt:126], @"defaultCode",
              [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
@@ -657,7 +653,6 @@
              nil],
             
             [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSValue valueWithPointer:&decreaseVolumeHotKeyRef], @"hotKeyRef",
              [NSNumber numberWithInt:5], @"ID",
              [NSNumber numberWithInt:125], @"defaultCode",
              [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
@@ -665,7 +660,6 @@
              nil],
             
             [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSValue valueWithPointer:&rate1StarHotKeyRef], @"hotKeyRef",
              [NSNumber numberWithInt:6], @"ID",
              [NSNumber numberWithInt:18], @"defaultCode",
              [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
@@ -681,7 +675,6 @@
              nil],
             
             [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSValue valueWithPointer:&rate3StarHotKeyRef], @"hotKeyRef",
              [NSNumber numberWithInt:8], @"ID",
              [NSNumber numberWithInt:20], @"defaultCode",
              [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
@@ -689,7 +682,6 @@
              nil],
             
             [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSValue valueWithPointer:&rate4StarHotKeyRef], @"hotKeyRef",
              [NSNumber numberWithInt:9], @"ID",
              [NSNumber numberWithInt:21], @"defaultCode",
              [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
@@ -697,7 +689,6 @@
              nil],
             
             [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSValue valueWithPointer:&rate5StarHotKeyRef], @"hotKeyRef",
              [NSNumber numberWithInt:10], @"ID",
              [NSNumber numberWithInt:23], @"defaultCode",
              [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
@@ -706,138 +697,48 @@
     ];
 }
 
-- (void)registerHotkeys {
-    for (NSDictionary *i in [self hotkeyDictionary]) {
-        NSDictionary *defaults = [[NSUserDefaults standardUserDefaults] dictionaryForKey:[i objectForKey:@"userDefaultsKey"]];
-        [self registerHotkey:[[i objectForKey:@"hotKeyRef"] pointerValue]
-                withKeyMasks:[[defaults objectForKey:@"keyMask"] intValue] 
-                        code:[[defaults objectForKey:@"code"] intValue] 
-                          ID:[[i objectForKey:@"ID"] intValue]];
-    }
-}
-
-- (void)registerHotkey:(EventHotKeyRef *)hotKeyRef withKeyMasks:(int)keymasks code:(int)code ID:(int)id_ {
-    UnregisterEventHotKey(*hotKeyRef);
-    if (code == -1) {
-        return;
-    }
-    
-    //Register the Hotkeys
-    EventTypeSpec eventType;
-    eventType.eventClass=kEventClassKeyboard;
-    eventType.eventKind=kEventHotKeyPressed;
-    InstallApplicationEventHandler(&MyHotKeyHandler, 1, &eventType, self, NULL);
-    
-    EventHotKeyID hotKeyID;
-    hotKeyID.signature = 's';
-    hotKeyID.id = id_;
-        
-    RegisterEventHotKey(code, // keyboard reference number
-                        keymasks, // modifier keys: cmdKey, shiftKey, optionKey, controlKey
-                        hotKeyID, GetApplicationEventTarget(), 0, hotKeyRef);
-}
-
-// SRRecorderControl Delegate
+#pragma mark - SRRecorderControl Delegate
 
 - (void)shortcutRecorder:(SRRecorderControl *)recorder keyComboDidChange:(KeyCombo)newKeyCombo {    
-    int keymasks = 0;
+    int keymask = 0;
     if (newKeyCombo.flags & NSCommandKeyMask) {
-        keymasks += cmdKey;
+        keymask += cmdKey;
     }
     if (newKeyCombo.flags & NSAlternateKeyMask) {
-        keymasks += optionKey;
+        keymask += optionKey;
     }
     if (newKeyCombo.flags & NSControlKeyMask) {
-        keymasks += controlKey;
+        keymask += controlKey;
     }
     if (newKeyCombo.flags & NSShiftKeyMask) {
-        keymasks += shiftKey;
+        keymask += shiftKey;
     }
     
-    int ID_;
+    PRHotKey hotKey;
     if (recorder == playPause) {
-        ID_ = 1;
+        hotKey = PRPlayPauseHotKey;
     } else if (recorder == playNext) {
-        ID_ = 2;
+        hotKey = PRNextHotKey;
     } else if (recorder == playPrevious) {
-        ID_ = 3;
+        hotKey = PRPreviousHotKey;
     } else if (recorder == increaseVolume) {
-        ID_ = 4;
+        hotKey = PRIncreaseVolumeHotKey;
     } else if (recorder == decreaseVolume) {
-        ID_ = 5;
+        hotKey = PRDecreaseVolumetHotKey;
     } else if (recorder == rate1Star) {
-        ID_ = 6;
+        hotKey = PRRate1HotKey;
     } else if (recorder == rate2Star) {
-        ID_ = 7;
+        hotKey = PRRate2HotKey;
     } else if (recorder == rate3Star) {
-        ID_ = 8;
+        hotKey = PRRate3HotKey;
     } else if (recorder == rate4Star) {
-        ID_ = 9;
+        hotKey = PRRate4HotKey;
     } else if (recorder == rate5Star) {
-        ID_ = 10;
+        hotKey = PRRate5HotKey;
     } else {
         return;
     }
-    for (NSDictionary *i in [self hotkeyDictionary]) {
-        if ([[i objectForKey:@"ID"] intValue] == ID_) {
-            [[NSUserDefaults standardUserDefaults] setObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                              [NSNumber numberWithInt:newKeyCombo.code], @"code",
-                                                              [NSNumber numberWithInt:keymasks], @"keyMask", nil]
-                                                      forKey:[i objectForKey:@"userDefaultsKey"]];
-            continue;
-        }
-    }
-    
-    [self registerHotkeys];
-}
-
-- (void)rateCurrentSong:(int)rating {
-    if (rating < 0 || rating > 100 || ![now currentItem]) {
-        return;
-    }
-    [[db library] setValue:[NSNumber numberWithInt:rating] forItem:[now currentItem] attr:PRItemAttrRating];
-    [[NSNotificationCenter defaultCenter] postItemsChanged:@[[now currentItem]]];
+    [[core hotKeys] setKeymask:keymask code:newKeyCombo.code forHotKey:hotKey];
 }
 
 @end
-
-OSStatus MyHotKeyHandler(EventHandlerCallRef nextHandler,EventRef theEvent, void *userData) {
-    PRPreferencesViewController *self_ = userData;
-    PRNowPlayingController *now = [self_ now];
-    EventHotKeyID hkCom;
-    GetEventParameter(theEvent,kEventParamDirectObject,typeEventHotKeyID,NULL,
-                      sizeof(hkCom),NULL,&hkCom);
-    switch (hkCom.id) {
-        case 1:
-            [now playPause];
-            break;
-        case 2:
-            [now playNext];
-            break;
-        case 3:
-            [now playPrevious];
-            break;
-        case 4:
-            [[now mov] increaseVolume];
-            break;
-        case 5:
-            [[now mov] decreaseVolume];
-            break;
-        case 6:
-            [self_ rateCurrentSong:20];
-            break;
-        case 7:
-            [self_ rateCurrentSong:40];
-            break;
-        case 8:
-            [self_ rateCurrentSong:60];
-            break;
-        case 9:
-            [self_ rateCurrentSong:80];
-            break;
-        case 10:
-            [self_ rateCurrentSong:100];
-            break;
-    }
-    return noErr;
-}

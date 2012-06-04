@@ -1,5 +1,5 @@
 #import <Cocoa/Cocoa.h>
-@class PRDb, PRHistory, PRLibrary, PRMainWindowController, PRGradientView, PRTableView;
+@class PRDb, PRHistory, PRLibrary, PRMainWindowController, PRGradientView, PRTableView,PRHistoryDateFormatter;
 
 
 typedef enum {
@@ -25,8 +25,7 @@ typedef enum {
     PRHistoryMode2 historyMode;
 	
     NSArray *dataSource;
-    NSDateFormatter *_dateFormatter;
-    NSDateFormatter *_timeFormatter;
+    PRHistoryDateFormatter *_dateFormatter;
     
 	__weak PRDb *_db;
 	__weak PRMainWindowController *_win;

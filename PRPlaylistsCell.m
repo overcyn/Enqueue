@@ -38,14 +38,6 @@
 	NSSize iconSize = NSMakeSize(14, 14);
 	[icon setFlipped:YES];
     
-//    if ([[dict objectForKey:@"mouseOver"] boolValue]) {
-//        NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
-//                                 [NSColor colorWithDeviceRed:212.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:0.6], 0.0, 
-//                                 [NSColor colorWithDeviceRed:212.0/255.0 green:233.0/255.0 blue:246.0/255.0 alpha:0.8], 1.0,
-//                                 nil] autorelease];
-//        [gradient drawInRect:theCellFrame angle:90.0];
-//    }
-    
     // Draw dropdown button
     NSRect rect = theCellFrame;
     rect.origin.x += rect.size.width - 40;
@@ -76,24 +68,18 @@
     [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.5]];
     [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
     
-    NSMutableDictionary *titleAttributes = 
-        [NSMutableDictionary dictionaryWithObjectsAndKeys:
-         [NSFont fontWithName:@"HelveticaNeue-Medium" size:12], NSFontAttributeName,
-         [NSParagraphStyle leftAlignStyle], NSParagraphStyleAttributeName,
-         [NSColor colorWithDeviceWhite:0.2 alpha:1.0], NSForegroundColorAttributeName,
-         shadow, NSShadowAttributeName,
-         nil];
-    NSMutableDictionary *subtitleAttributes = 
-        [NSMutableDictionary dictionaryWithObjectsAndKeys:
-         [NSFont fontWithName:@"HelveticaNeue" size:11], NSFontAttributeName,
-         [NSParagraphStyle leftAlignStyle], NSParagraphStyleAttributeName,
-         [NSColor colorWithDeviceWhite:0.5 alpha:1.0], NSForegroundColorAttributeName,
-         nil];
+    NSDictionary *titleAttributes = 
+        @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-Medium" size:12],
+         NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
+         NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.2 alpha:1.0],
+         NSShadowAttributeName:shadow};
+    NSDictionary *subtitleAttributes = 
+        @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-Medium" size:11],
+         NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
+         NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.5 alpha:1.0]};
     
     // Inset the cell frame to give everything a little horizontal padding
 	NSRect insetRect = NSInsetRect(theCellFrame, 0, 0);
-//    insetRect.origin.x += 5;
-//    insetRect.size.width -= 5;
     
 	// get the size of the string for layout
 	NSSize titleSize = [title sizeWithAttributes:titleAttributes];
@@ -107,8 +93,7 @@
 	// Icon box: center the icon vertically inside of the inset rect
 	NSRect iconBox = NSMakeRect(insetRect.origin.x + 0.08,
 								floor(insetRect.origin.y + insetRect.size.height*.5 - iconSize.height*.5),
-								iconSize.width,
-								iconSize.height);
+								iconSize.width, iconSize.height);
 	
 	// Make a box for our text
 	// Place it next to the icon with horizontal padding

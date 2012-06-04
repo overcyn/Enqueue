@@ -4,8 +4,7 @@
 @class PRDb, PRCore, PRPlaylists, PRMainWindowController, PRGradientView, PRRolloverTableView, 
 PRStringFormatter, PRSmartPlaylistEditorViewController;
 
-@interface PRPlaylistsViewController : NSViewController <NSTableViewDelegate, NSTableViewDataSource, NSMenuDelegate>
-{
+@interface PRPlaylistsViewController : NSViewController <NSTableViewDelegate, NSTableViewDataSource, NSMenuDelegate> {
     IBOutlet NSView *background;
     IBOutlet PRRolloverTableView *tableView;
     IBOutlet PRGradientView *divider;
@@ -45,8 +44,8 @@ PRStringFormatter, PRSmartPlaylistEditorViewController;
 - (void)editPlaylistMenuAction:(NSMenuItem *)menuItem;
 
 /* Misc */
-// Returns playlist for row. -1 if no row.
+// -1 if no row.
 - (int)playlistForRow:(int)row;
-// Returns row for playlist. -1 if no row.
+// -1 if no row.
 - (int)rowForPlaylist:(PRPlaylist)playlist;
 @end

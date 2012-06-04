@@ -1,6 +1,4 @@
 #import "PRAlbumArtController.h"
-#import "PRLibrary.h"
-#import "PRUserDefaults.h"
 #import "PRDb.h"
 #import "PRLibrary.h"
 #import "PRUserDefaults.h"
@@ -106,12 +104,8 @@
 }
 
 - (NSImage *)artworkForArtist:(NSString *)artist {
-	NSString *string;
-    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
-        string = @"SELECT file_id FROM library WHERE artistAlbumArtist COLLATE NOCASE2 = ?1";
-    } else {
-        string = @"SELECT file_id FROM library WHERE artist COLLATE NOCASE2 = ?1";
-    }
+	NSString *string = [NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ COLLATE NOCASE2 = ?1",
+                        ([[PRUserDefaults userDefaults] useAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
     NSArray *results = [_db execute:string bindings:@{@1:artist} columns:@[PRColInteger]];
     NSMutableArray *items = [NSMutableArray array];
     for (NSArray *i in results) {
@@ -128,7 +122,7 @@
 #pragma mark - Async Accessors
 
 - (NSDictionary *)artworkInfoForItem:(PRItem *)item {
-    return [self artworkInfoForItems:[NSArray arrayWithObject:item]];
+    return [self artworkInfoForItems:@[item]];
 }
 
 - (NSDictionary *)artworkInfoForItems:(NSArray *)items {
@@ -139,7 +133,7 @@
 	}
     [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
     [string appendString:@") AND albumArt = 1"];
-    NSArray *results = [_db execute:string bindings:nil columns:[NSArray arrayWithObject:PRColInteger]];
+    NSArray *results = [_db execute:string bindings:nil columns:@[PRColInteger]];
     
     NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
     for (NSArray *i in results) {
@@ -148,7 +142,7 @@
     
     // Folder Artwork
     if (![[PRUserDefaults userDefaults] folderArtwork]) {
-        return [NSDictionary dictionaryWithObjectsAndKeys:indexSet, @"files", @[], @"paths", nil];
+        return @{@"files":indexSet, @"paths":@[]};
     }
     
     string = [NSMutableString stringWithString:@"SELECT path FROM library WHERE file_id IN ("];
@@ -167,12 +161,8 @@
 }
 
 - (NSDictionary *)artworkInfoForArtist:(NSString *)artist {
-    NSString *string;
-    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
-        string = @"SELECT file_id FROM library WHERE artistAlbumArtist COLLATE NOCASE2 = ?1";
-    } else {
-        string = @"SELECT file_id FROM library WHERE artist COLLATE NOCASE2 = ?1";
-    }
+    NSString *string = [NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ COLLATE NOCASE2 = ?1",
+                        ([[PRUserDefaults userDefaults] useAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
     NSArray *results = [_db execute:string bindings:@{@1:artist} columns:@[PRColInteger]];
     NSMutableArray *items = [NSMutableArray array];
     for (NSArray *i in results) {

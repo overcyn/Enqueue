@@ -1,20 +1,22 @@
 #import "PRNowPlayingHeaderCell.h"
 #import "PRNowPlayingViewController.h"
+#import "NSAttributedString+Extensions.h"
 #import "NSParagraphStyle+Extensions.h"
 
 
 @implementation PRNowPlayingHeaderCell
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
-    NSOutlineView *outlineView = (NSOutlineView *)controlView;
+    BOOL highlighted = [self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder]
+        && [[[self controlView] window] isMainWindow];
+    
 	NSString *title = [[self objectValue] objectForKey:@"title"];
 	NSString *subtitle = [[self objectValue] objectForKey:@"subtitle"];
     BOOL drawBorder = [[[self objectValue] objectForKey:@"drawBorder"] boolValue];
-    id item = [[self objectValue] objectForKey:@"item"];
     
     // Background
     NSGradient *gradient;
-    if ([self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder] && [[[self controlView] window] isKeyWindow]) {
+    if (highlighted) {
         gradient = [[[NSGradient alloc] initWithColorsAndLocations: 
                      [[NSColor colorWithCalibratedRed:59./255 green:128./255 blue:223./255 alpha:1.0] blendedColorWithFraction:0.1 ofColor:[NSColor whiteColor]], 1.0, nil] autorelease];
     } else if ([self isHighlighted]) {
@@ -41,75 +43,31 @@
         NSRect rect = NSMakeRect(cellFrame.origin.x, cellFrame.origin.y + cellFrame.size.height - 1 , cellFrame.size.width, 1);
         [NSBezierPath fillRect:rect];
     }
-    
-    // Disclosure Triangle
-    NSImage *disclosure = [NSImage imageNamed:@"Disclosure"];
-    if ([outlineView isItemExpanded:item]) {
-        disclosure = [NSImage imageNamed:@"DisclosureAlt"];
-    }
-    [disclosure setFlipped:TRUE];
-//    [disclosure drawInRect:[self disclosureImageRectForCellFrame:cellFrame] 
-//                  fromRect:NSZeroRect 
-//                 operation:NSCompositeSourceOver 
-//                  fraction:1.0];
 
 	// Text Attributes	
-    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
-    NSColor *color;
-    NSColor *altColor;
-    if ([self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder] && [[[self controlView] window] isKeyWindow]) {
-        color = [NSColor whiteColor];
-        altColor = [NSColor whiteColor];
-    } else {
-        [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.4]];
-        [shadow setShadowOffset:NSMakeSize(1.1, -1.3)];
-        color = [NSColor colorWithDeviceWhite:0.25 alpha:1.0];
-        altColor = [NSColor colorWithDeviceWhite:0.4 alpha:1.0];
+    NSMutableDictionary *titleAttrs = [NSAttributedString defaultBoldUIAttributes];
+    NSMutableDictionary *subtitleAttrs = [NSAttributedString defaultUIAttributes];
+    NSColor *titleColor = highlighted ? [NSColor whiteColor] : [NSColor colorWithDeviceWhite:0.25 alpha:1.0];
+    NSColor *subTitleColor = highlighted ? [NSColor whiteColor] : [NSColor colorWithDeviceWhite:0.4 alpha:1.0];
+    if (highlighted) {
+        [titleAttrs removeObjectForKey:NSShadowAttributeName];
+        [subtitleAttrs removeObjectForKey:NSShadowAttributeName];
     }
-    NSMutableDictionary *titleAttributes = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                             [NSFont boldSystemFontOfSize:11], NSFontAttributeName,
-                                             [NSParagraphStyle leftAlignStyle], NSParagraphStyleAttributeName,
-                                             color, NSForegroundColorAttributeName,
-                                             shadow, NSShadowAttributeName,
-                                             nil] autorelease];
-    NSMutableDictionary *subtitleAttributes = [[[NSMutableDictionary alloc] initWithObjectsAndKeys:
-                                                [NSFont systemFontOfSize:11], NSFontAttributeName,
-                                                altColor, NSForegroundColorAttributeName,
-                                                shadow, NSShadowAttributeName,
-                                                [NSParagraphStyle leftAlignStyle], NSParagraphStyleAttributeName, 
-                                                nil] autorelease];
+    [titleAttrs setObject:titleColor forKey:NSForegroundColorAttributeName];
+    [subtitleAttrs setObject:subTitleColor forKey:NSForegroundColorAttributeName];
 	
 	// Text
-	NSSize titleSize = [title sizeWithAttributes:titleAttributes];
-	NSSize subtitleSize = [subtitle sizeWithAttributes:subtitleAttributes];
+	NSSize titleSize = [title sizeWithAttributes:titleAttrs];
+	NSSize subtitleSize = [subtitle sizeWithAttributes:subtitleAttrs];
     float height = titleSize.height + subtitleSize.height + 3;
-	NSRect textBox = NSMakeRect(cellFrame.origin.x + 21,
-                                cellFrame.origin.y + cellFrame.size.height * .5 - height * 0.5,
-                                cellFrame.size.width - 24,
-                                height);
-    NSRect titleBox = NSMakeRect(textBox.origin.x, 
-                                 textBox.origin.y + textBox.size.height*.5 - titleSize.height,
-                                 textBox.size.width,
-                                 titleSize.height);
-    NSRect subtitleBox = NSMakeRect(textBox.origin.x,
-                                    textBox.origin.y + textBox.size.height*.5,
-                                    textBox.size.width,
-                                    subtitleSize.height);
-	[title drawInRect:titleBox withAttributes:titleAttributes];
-    [subtitle drawInRect:subtitleBox withAttributes:subtitleAttributes];
-}
-
-- (NSRect)disclosureImageRectForCellFrame:(NSRect)cellFrame {
-    NSRect disclosureRect = NSMakeRect(0, 0, 15, 15);
-    disclosureRect.origin.y = cellFrame.origin.y + cellFrame.size.height/2 - 7;
-    disclosureRect.origin.x = cellFrame.origin.x + 3;
-    return disclosureRect;
-}
-
-- (NSRect)disclosureRectForCellFrame:(NSRect)cellFrame {
-    NSRect disclosureRect = cellFrame;
-    disclosureRect.size.width = 21;
-    return disclosureRect;
+	NSRect textBox = NSMakeRect(cellFrame.origin.x + 21, cellFrame.origin.y + cellFrame.size.height * .5 - height * 0.5,
+                                cellFrame.size.width - 24, height);
+    NSRect titleBox = NSMakeRect(textBox.origin.x, textBox.origin.y + textBox.size.height*.5 - titleSize.height,
+                                 textBox.size.width, titleSize.height);
+    NSRect subtitleBox = NSMakeRect(textBox.origin.x, textBox.origin.y + textBox.size.height*.5,
+                                    textBox.size.width, subtitleSize.height);
+	[title drawInRect:titleBox withAttributes:titleAttrs];
+    [subtitle drawInRect:subtitleBox withAttributes:subtitleAttrs];
 }
 
 @end

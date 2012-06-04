@@ -49,6 +49,7 @@
 @property (readonly) NSArray *selection;
 
 /* Action */
+// These methods will change the browser selection but not the currentList.
 - (void)highlightItem:(PRItem *)item;
 - (void)highlightFiles:(NSArray *)items;
 - (void)highlightArtist:(NSString *)artist;

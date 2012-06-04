@@ -10,10 +10,10 @@
 #import "PRRolloverTableView.h"
 #import "NSScrollView+Extensions.h"
 #import "PRHistoryCell.h"
-#import "PRHistoryCell2.h"
 #import "PRTableViewController.h"
 #import "NSColor+Extensions.h"
 #import "PRTabButtonCell.h"
+#import "PRHistoryDateFormatter.h"
 
 
 #define HISTORY_ROW_HEIGHT              30
@@ -26,8 +26,6 @@
 
 @implementation PRHistoryViewController
 
-@dynamic historyMode;
-
 #pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db mainWindowController:(PRMainWindowController *)win {
@@ -36,24 +34,13 @@
     _win = win;
     historyMode = PRTopArtistsHistoryMode;
     
-    _dateFormatter = [[NSDateFormatter alloc] init];
-    [_dateFormatter setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMM dd" options:0 locale:[NSLocale currentLocale]]];
-    
-    _timeFormatter = [[NSDateFormatter alloc] init];
-    if ([[_timeFormatter AMSymbol] isEqualToString:@"AM"]) {
-        [_timeFormatter setAMSymbol:@"am"];
-    }
-    if ([[_timeFormatter PMSymbol] isEqualToString:@"PM"]) {
-        [_timeFormatter setPMSymbol:@"pm"];
-    }
-    [_timeFormatter setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"h mm a" options:0 locale:[NSLocale currentLocale]]];
+    _dateFormatter = [[PRHistoryDateFormatter alloc] init];
 	return self;
 }
 
 - (void)dealloc {
     [dataSource release];
     [_dateFormatter release];
-    [_timeFormatter release];
     [super dealloc];
 }
 
@@ -86,10 +73,15 @@
     [divider2 setTopBorder:[NSColor PRGridColor]];
     [divider2 setBotBorder:[NSColor PRGridHighlightColor]];
     
+    [[[tableView tableColumns] objectAtIndex:0] setDataCell:[[[PRHistoryCell alloc] init] autorelease]];
+    [tableView setRowHeight:HISTORY_ROW_HEIGHT];
+    
     [self update];
 }
 
 #pragma mark - Accesssors
+
+@dynamic historyMode;
 
 - (PRHistoryMode2)historyMode {
     return historyMode;
@@ -121,14 +113,6 @@
             @throw NSInternalInconsistencyException;
             break;
     }
-    
-    if (historyMode == PRTopArtistsHistoryMode || historyMode == PRTopSongsHistoryMode) {
-        [[[tableView tableColumns] objectAtIndex:0] setDataCell:[[[PRHistoryCell2 alloc] init] autorelease]];
-    } else {
-        [[[tableView tableColumns] objectAtIndex:0] setDataCell:[[[PRHistoryCell alloc] init] autorelease]];
-    }
-    [tableView setRowHeight:HISTORY_ROW_HEIGHT];
-    
     [tableView reloadData];
 
     int rows = [self numberOfRowsInTableView:tableView];
@@ -163,12 +147,9 @@
     
     if (!(historyMode == PRTopArtistsHistoryMode || historyMode == PRTopSongsHistoryMode)) {
         [divider2 setTopBorder:[NSColor PRGridColor]];
-        [divider2 setBotBorder:[NSColor clearColor]]; // no clue why you have to draw the top one but not the bottom.
     } else {
         [divider2 setTopBorder:[[NSColor PRGridColor] blendedColorWithFraction:0.07 ofColor:[NSColor blackColor]]];
-        [divider2 setBotBorder:[NSColor clearColor]]; // no clue why you have to draw the top one but not the bottom.
     }
-    [divider2 setNeedsDisplay:TRUE];
     
     [_placeholder setHidden:[dataSource count] != 0];
 }
@@ -210,37 +191,28 @@
     
     NSDictionary *dict = [dataSource objectAtIndex:row];
     if (historyMode == PRTopArtistsHistoryMode) {
-        return @{HISTORY_CELL_TITLE_KEY:[dict objectForKey:@"artist"],
+        return @{
+            HISTORY_CELL_TITLE_KEY:[dict objectForKey:@"artist"],
             HISTORY_CELL_SUBSUBTITLE_KEY:[[dict objectForKey:@"count"] stringValue],
             HISTORY_CELL_VALUE_KEY:[dict objectForKey:@"count"],
             HISTORY_CELL_MAX_VALUE_KEY:[dict objectForKey:@"max"]};
     } else if (historyMode == PRTopSongsHistoryMode) {
-        return @{HISTORY_CELL_TITLE_KEY:[dict objectForKey:@"artist"],
+        return @{
+            HISTORY_CELL_TITLE_KEY:[dict objectForKey:@"artist"],
             HISTORY_CELL_SUBTITLE_KEY:[dict objectForKey:@"title"],
             HISTORY_CELL_SUBSUBTITLE_KEY:[[dict objectForKey:@"count"] stringValue],
             HISTORY_CELL_VALUE_KEY:[dict objectForKey:@"count"],
             HISTORY_CELL_MAX_VALUE_KEY:[dict objectForKey:@"max"]};
     } else if (historyMode == PRRecentlyAddedHistoryMode) {
-        NSString *dateStr;
-        if ([[dict objectForKey:@"date"] timeIntervalSinceDate:[NSDate dateWithNaturalLanguageString:@"midnight today"]] > 0) {
-            dateStr = [_timeFormatter stringFromDate:[dict objectForKey:@"date"]];
-        } else {
-            dateStr = [_dateFormatter stringFromDate:[dict objectForKey:@"date"]];
-        }
-        return @{HISTORY_CELL_TITLE_KEY:[dict objectForKey:@"artist"],
+        return @{
+            HISTORY_CELL_TITLE_KEY:[dict objectForKey:@"artist"],
             HISTORY_CELL_SUBTITLE_KEY:[NSString stringWithFormat:@"%@  —  %@",[dict objectForKey:@"count"],[dict objectForKey:@"album"]],
-            HISTORY_CELL_SUBSUBTITLE_KEY:dateStr};
+            HISTORY_CELL_SUBSUBTITLE_KEY:[_dateFormatter stringForObjectValue:[dict objectForKey:@"date"]]};
     } else if (historyMode == PRRecentlyPlayedHistoryMode) {
-        NSDictionary *dict = [dataSource objectAtIndex:row];
-        NSString *dateStr;
-        if ([[dict objectForKey:@"date"] timeIntervalSinceDate:[NSDate dateWithNaturalLanguageString:@"midnight today"]] > 0) {
-            dateStr = [_timeFormatter stringFromDate:[dict objectForKey:@"date"]];
-        } else {
-            dateStr = [_dateFormatter stringFromDate:[dict objectForKey:@"date"]];
-        }
-        return @{HISTORY_CELL_TITLE_KEY:[dict objectForKey:@"artist"],
+        return @{
+            HISTORY_CELL_TITLE_KEY:[dict objectForKey:@"artist"],
             HISTORY_CELL_SUBTITLE_KEY:[dict objectForKey:@"title"],
-            HISTORY_CELL_SUBSUBTITLE_KEY:dateStr};
+            HISTORY_CELL_SUBSUBTITLE_KEY:[_dateFormatter stringForObjectValue:[dict objectForKey:@"date"]]};
     } else {
         @throw NSInternalInconsistencyException;
     }

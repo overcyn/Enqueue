@@ -149,10 +149,4 @@ typedef enum {
 
 /* Global Hotkeys */
 - (NSArray *)hotkeyDictionary;
-- (void)registerHotkeys;
-- (void)registerHotkey:(EventHotKeyRef *)hotKeyRef withKeyMasks:(int)keymasks code:(int)code ID:(int)id_;
-- (void)rateCurrentSong:(int)rating;
 @end
-
-
-OSStatus MyHotKeyHandler(EventHandlerCallRef nextHandler,EventRef theEvent, void *userData);

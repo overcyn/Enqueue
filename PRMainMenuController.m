@@ -178,11 +178,7 @@
         [menu addItem:[NSMenuItem separatorItem]];
     }
     
-    if ([[[core now] mov] isPlaying]) {
-        title = @"Pause";
-    } else {
-        title = @"Play";
-    }
+    title = [[[core now] mov] isPlaying] ? @"Pause" : @"Play";
     item = [[[NSMenuItem alloc] initWithTitle:title action:@selector(playPause) keyEquivalent:@""] autorelease];
     [item setTarget:[core now]];
     [menu addItem:item];
@@ -285,30 +281,16 @@
 #pragma mark - menu delegate
 
 - (void)menuNeedsUpdate:(NSMenu *)menu {
-    NSString *title;
-    if (![[[core now] mov] isPlaying]) {
-        title = @"Play";
-    } else {
-        title = @"Pause";
-    }
+    NSString *title = [[[core now] mov] isPlaying] ? @"Pause" : @"Play";
     [[controlsMenu itemWithTag:1] setTitle:title];
-    if ([[core win] showsArtwork]) {
-        title = @"Hide Artwork";
-    } else {
-        title = @"Show Artwork";
-    }
+    
+    title = [[core win] showsArtwork] ? @"Hide Artwork" : @"Show Artwork";
     [[viewMenu itemWithTag:3] setTitle:title];
-    if ([[[core win] libraryViewController] infoViewVisible]) {
-        title = @"Hide Info Pane";
-    } else {
-        title = @"Show Info Pane";
-    }
+    
+    title = [[[core win] libraryViewController] infoViewVisible] ? @"Hide Info Pane" : @"Show Info Pane";
     [[viewMenu itemWithTag:4] setTitle:title];
-    if ([[core win] miniPlayer]) {
-        title = @"Switch to Main Player";
-    } else {
-        title = @"Switch to Mini Player";
-    }
+    
+    title = [[core win] miniPlayer] ? @"Switch to Main Player" : @"Switch to Mini Player";
     [[viewMenu itemWithTag:7] setTitle:title];
     
     [[controlsMenu itemWithTag:6] setState:[[core now] shuffle]];
@@ -321,12 +303,7 @@
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    NSArray *items = [NSArray arrayWithObjects:
-                      [viewMenu itemWithTag:1],
-                      [viewMenu itemWithTag:2],
-                      [viewMenu itemWithTag:4],
-                      nil];
-    for (NSMenuItem *i in items) {
+    for (NSMenuItem *i in @[[viewMenu itemWithTag:1], [viewMenu itemWithTag:2], [viewMenu itemWithTag:4]]) {
         if (menuItem == i && [[core win] currentMode] != PRLibraryMode) {
             return FALSE;
         }

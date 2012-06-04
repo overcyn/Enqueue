@@ -19,6 +19,20 @@
 #import "PRTaskManager.h"
 #import "PRTask.h"
 #import "NSParagraphStyle+Extensions.h"
+#import "NSAttributedString+Extensions.h"
+
+@interface PRControlsViewController ()
+/* Update */
+- (void)updateControls;
+- (void)updatePlayButton;
+- (void)updateVolume;
+- (void)updateProgress;
+
+/* Action */
+- (void)mute;
+- (void)setVolume:(id)sender;
+- (void)setCurrentTime:(id)sender;
+@end
 
 
 @implementation PRControlsViewController
@@ -94,8 +108,6 @@
     [_progressDivider setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.8]];
     [_progressButton setTarget:[core taskManager]];
     [_progressButton setAction:@selector(cancel)];
-    [self setProgressHidden:TRUE];
-    [self setProgressTitle:@"Scanning for Updates..."];
     
     // Notifications
     [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(updateControls)];
@@ -106,29 +118,22 @@
     [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(updateControls)];
     [[NSNotificationCenter defaultCenter] observeVolumeChanged:self sel:@selector(updateVolume)];
     
+    _progressHidden = [[[core taskManager] tasks] count] == 0; // set initial value so it doesn't immediately update
 	[self updateControls];
     [self updateLayout];
     [self updateVolume];
+    [self updateProgress];
 }
 
-#pragma mark - Artwork
+#pragma mark - properties
 
-- (NSImageView *)albumArtView {
-    return albumArtView;
-}
+@synthesize albumArtView = albumArtView;
 
 #pragma mark - Update
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
     if (object == [core taskManager] && [keyPath isEqualToString:@"tasks"]) {
-        if ([[[core taskManager] tasks] count] > 0) {
-			PRTask *task = [[[core taskManager] tasks] objectAtIndex:0];
-			[self setProgressHidden:FALSE];
-			[self setProgressTitle:[task title]];
-			[self setProgressPercent:[task percent]];
-		} else {
-			[self setProgressHidden:TRUE];
-		}
+        [self updateProgress];
     }
 }
 
@@ -213,7 +218,7 @@
         [[self view] addSubview:_containerView];
         [_box addSubview:_artistAlbumField];
         
-        for (NSView *i in [NSArray arrayWithObjects:playPause, next, previous, shuffle, repeat, nil]) {
+        for (NSView *i in @[playPause, next, previous, shuffle, repeat]) {
             [i removeFromSuperview];
             [_containerView addSubview:i];
         }
@@ -298,7 +303,7 @@
         [duration setFrame:frame];
     }
     
-    if (![self progressHidden] && ![[core win] miniPlayer]) {
+    if (!_progressHidden && ![[core win] miniPlayer]) {
         NSRect frame;
         frame = [titleButton frame];
         frame.size.width -= 165;
@@ -338,7 +343,7 @@
         frame.origin.x = [_box frame].size.width - 173;
         frame.origin.y = 12;
         [_progressButton setFrame:frame];
-    } else if (![self progressHidden] && [[core win] miniPlayer]) {
+    } else if (!_progressHidden && [[core win] miniPlayer]) {
         NSRect frame;
         frame = [titleButton frame];
         frame.size.width -= 37;
@@ -383,64 +388,24 @@
 }
 
 - (void)updateControls {
-    if ([now currentIndex] == 0) {
-        [duration setHidden:TRUE];
-        [_currentTime setHidden:TRUE];
-        [titleButton setHidden:TRUE];
-    } else {
-        [duration setHidden:FALSE];
-        [_currentTime setHidden:FALSE];
-        [titleButton setHidden:FALSE];
-    }
+    [duration setHidden:([now currentIndex] == 0)];
+    [_currentTime setHidden:([now currentIndex] == 0)];
+    [titleButton setHidden:([now currentIndex] == 0)];
     [controlSlider setHidden:([now currentIndex] == 0)];
 	
-    if (![now shuffle]) {
-        [shuffle setImage:[NSImage imageNamed:@"Shuffle"]];
-    } else {
-        [shuffle setImage:[NSImage imageNamed:@"ShuffleAlt"]];
-    }
-    if (![now repeat]) {
-        [repeat setImage:[NSImage imageNamed:@"Repeat"]];
-    } else {
-        [repeat setImage:[NSImage imageNamed:@"RepeatAlt"]];
-    }
+    NSImage *shuffleImage = [now shuffle] ? [NSImage imageNamed:@"ShuffleAlt"] : [NSImage imageNamed:@"Shuffle"];
+    NSImage *repeatImage = [now repeat] ? [NSImage imageNamed:@"RepeatAlt"]: [NSImage imageNamed:@"Repeat"];
+    [shuffle setImage:shuffleImage];
+    [repeat setImage:repeatImage];
     
     // title
     if ([now currentIndex] != 0) {
-        NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
-        [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.6]];
-        [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
-        NSParagraphStyle *align;
+        NSMutableDictionary *titleAttrs = [NSAttributedString defaultBoldUIAttributes];
+        NSMutableDictionary *albumAttrs = [NSAttributedString defaultUIAttributes];
         if ([[core win] miniPlayer]) {
-            align = [NSParagraphStyle centerAlignStyle];
-        } else {
-            align = [NSParagraphStyle leftAlignStyle];
+            [titleAttrs setObject:[NSParagraphStyle centerAlignStyle] forKey:NSParagraphStyleAttributeName];
+            [albumAttrs setObject:[NSParagraphStyle centerAlignStyle] forKey:NSParagraphStyleAttributeName];
         }
-        NSMutableDictionary *titleAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                                [NSFont fontWithName:@"LucidaGrande-Bold" size:11], NSFontAttributeName,
-                                                [NSColor colorWithDeviceWhite:0.1 alpha:1.0], NSForegroundColorAttributeName,
-                                                align, NSParagraphStyleAttributeName,
-                                                shadow, NSShadowAttributeName, nil];
-        NSMutableDictionary *albumAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                                [NSFont fontWithName:@"LucidaGrande" size:11], NSFontAttributeName,
-                                                [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-                                                align, NSParagraphStyleAttributeName,
-                                                shadow, NSShadowAttributeName, nil];
-        NSMutableDictionary *separatorAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                                    [NSFont fontWithName:@"LucidaGrande" size:11], NSFontAttributeName,
-                                                    [NSColor colorWithDeviceWhite:0.2 alpha:1.0], NSForegroundColorAttributeName,
-                                                    align, NSParagraphStyleAttributeName,
-                                                    shadow, NSShadowAttributeName, nil];
-        NSMutableDictionary *altTitleAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                                   [NSFont fontWithName:@"LucidaGrande-Bold" size:11], NSFontAttributeName,
-                                                   [NSColor colorWithDeviceWhite:0.1 alpha:1.0], NSForegroundColorAttributeName,
-                                                   align, NSParagraphStyleAttributeName,
-                                                   shadow, NSShadowAttributeName, nil];
-        NSMutableDictionary *altAlbumAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                                                   [NSFont fontWithName:@"LucidaGrande" size:11], NSFontAttributeName,
-                                                   [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-                                                   align, NSParagraphStyleAttributeName,
-                                                   shadow, NSShadowAttributeName, nil];        
         
         NSString *title = [[db library] valueForItem:[now currentItem] attr:PRItemAttrTitle];
         NSString *artist = [[db library] artistValueForItem:[now currentItem]];
@@ -453,30 +418,18 @@
         }
         
         if (![[core win] miniPlayer]) {
-            NSMutableAttributedString *attrString = [[[NSMutableAttributedString alloc] initWithString:title attributes:titleAttributes] autorelease];
-            [attrString appendAttributedString:[[[NSAttributedString alloc] initWithString:@" - " attributes:separatorAttributes] autorelease]];
-            [attrString appendAttributedString:[[[NSAttributedString alloc] initWithString:album attributes:albumAttributes] autorelease]];
-            [attrString appendAttributedString:[[[NSAttributedString alloc] initWithString:@" - " attributes:separatorAttributes] autorelease]];
-            [attrString appendAttributedString:[[[NSAttributedString alloc] initWithString:artist attributes:albumAttributes] autorelease]];
+            NSMutableAttributedString *attrString = [[[NSMutableAttributedString alloc] initWithString:title attributes:titleAttrs] autorelease];
+            [attrString appendAttributedString:[[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" - %@ - %@",album,artist]
+                                                                                attributes:albumAttrs] autorelease]];
             [titleButton setAttrString:attrString];
-            
-            attrString = [[[NSMutableAttributedString alloc] initWithString:title attributes:altTitleAttributes] autorelease];
-            [attrString appendAttributedString:[[[NSAttributedString alloc] initWithString:@" - " attributes:separatorAttributes] autorelease]];
-            [attrString appendAttributedString:[[[NSAttributedString alloc] initWithString:album attributes:altAlbumAttributes] autorelease]];
-            [attrString appendAttributedString:[[[NSAttributedString alloc] initWithString:@" - " attributes:separatorAttributes] autorelease]];
-            [attrString appendAttributedString:[[[NSAttributedString alloc] initWithString:artist attributes:altAlbumAttributes] autorelease]];
             [titleButton setAltAttrString:attrString];
-            
             [_artistAlbumField setStringValue:@""];
         } else {
-            NSMutableAttributedString *attrString = [[[NSMutableAttributedString alloc] initWithString:title attributes:titleAttributes] autorelease];
+            NSAttributedString *attrString = [[[NSAttributedString alloc] initWithString:title attributes:titleAttrs] autorelease];
             [titleButton setAttrString:attrString];
-            attrString =  [[[NSMutableAttributedString alloc] initWithString:title attributes:altTitleAttributes] autorelease];
-            [titleButton setAltAttrString:attrString];
             
-            attrString = [[[NSMutableAttributedString alloc] initWithString:album attributes:albumAttributes] autorelease];
-            [attrString appendAttributedString:[[[NSAttributedString alloc] initWithString:@" - " attributes:separatorAttributes] autorelease]];
-            [attrString appendAttributedString:[[[NSAttributedString alloc] initWithString:artist attributes:albumAttributes] autorelease]];
+            NSString *string = [NSString stringWithFormat:@"%@ - %@",album,artist];
+            attrString = [[[NSAttributedString alloc] initWithString:string attributes:albumAttrs] autorelease];
             [_artistAlbumField setAttributedStringValue:attrString];
         }
     } else {
@@ -484,12 +437,9 @@
     }
         
     // AlbumArt
-    NSImage *albumArt = nil;
+    NSImage *albumArt;
 	if ([now currentIndex] != 0) {
-		albumArt = [[db albumArtController] artworkForItem:[now currentItem]];
-        if (!albumArt) {
-            albumArt = [NSImage imageNamed:@"PREmptyAlbumArt.png"];
-        }
+		albumArt = [[db albumArtController] artworkForItem:[now currentItem]] ?: [NSImage imageNamed:@"PREmptyAlbumArt.png"];
 	} else {
         albumArt = [NSImage imageNamed:@"PRNothingPlaying.png"];
     }
@@ -501,44 +451,41 @@
     [controlSlider setMaxValue:[[now mov] duration]];
     [controlSlider setIntegerValue:[[now mov] currentTime]];
     
-    // Play button
-    if ([[now mov] isPlaying]) {
-		[playPause setImage:[NSImage imageNamed:@"PauseButton"]];
-	} else {
-        [playPause setImage:[NSImage imageNamed:@"PlayButton"]];
-	}
+    NSImage *image = [[now mov] isPlaying] ? [NSImage imageNamed:@"PauseButton"] : [NSImage imageNamed:@"PlayButton"];
+    [playPause setImage:image];
     
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
 	[shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.3]];
 	[shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
     NSDictionary *attributes = @{
-NSFontAttributeName:[NSFont fontWithName:@"LucidaGrande" size:10],
-NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.3 alpha:1.0],
-NSParagraphStyleAttributeName:[NSParagraphStyle rightAlignStyle],
-NSShadowAttributeName:shadow};
+        NSFontAttributeName:[NSFont fontWithName:@"LucidaGrande" size:10],
+        NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.3 alpha:1.0],
+        NSParagraphStyleAttributeName:[NSParagraphStyle rightAlignStyle],
+        NSShadowAttributeName:shadow};
     NSString *currentTime_ = [[[[PRTimeFormatter alloc] init] autorelease] stringForObjectValue:[NSNumber numberWithLong:[[now mov] currentTime]]];
-    NSAttributedString *timeAttrString = [[[NSAttributedString alloc] initWithString:currentTime_ attributes:attributes] autorelease];
-    [_currentTime setAttributedStringValue:timeAttrString];
-    
     NSDictionary *attributes2 = @{
-NSFontAttributeName:[NSFont fontWithName:@"LucidaGrande" size:10],
-NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.3 alpha:1.0],
-NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
-NSShadowAttributeName:shadow};
+        NSFontAttributeName:[NSFont fontWithName:@"LucidaGrande" size:10],
+        NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.3 alpha:1.0],
+        NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
+        NSShadowAttributeName:shadow};
     NSString *duration_ = [[[[PRTimeFormatter alloc] init] autorelease] stringForObjectValue:[NSNumber numberWithLong:[[now mov] duration]]];
-    timeAttrString = [[[NSAttributedString alloc] initWithString:duration_ attributes:attributes2] autorelease];
-    [duration setAttributedStringValue:timeAttrString];
     
     if (![[core win] miniPlayer]) {
-        timeAttrString = [[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@ / %@",currentTime_, duration_] attributes:attributes] autorelease];
-        [duration setAttributedStringValue:timeAttrString];
+        NSString *string = [NSString stringWithFormat:@"%@ / %@",currentTime_, duration_];
+        NSAttributedString *attrString = [[[NSAttributedString alloc] initWithString:string attributes:attributes] autorelease];
+        [duration setAttributedStringValue:attrString];
         [_currentTime setStringValue:@""];
+    } else {
+        NSAttributedString *attrString = [[[NSAttributedString alloc] initWithString:currentTime_ attributes:attributes] autorelease];
+        [_currentTime setAttributedStringValue:attrString];
+        attrString = [[[NSAttributedString alloc] initWithString:duration_ attributes:attributes2] autorelease];
+        [duration setAttributedStringValue:attrString];
     }
 }
 
 - (void)updateVolume {
     float volume = [[now mov] volume];
-    NSImage *image = nil;
+    NSImage *image;
     if (volume == 0) {
         image = [NSImage imageNamed:@"NowSpeaker1"];
     } else if (volume < 0.33) {
@@ -549,55 +496,31 @@ NSShadowAttributeName:shadow};
         image = [NSImage imageNamed:@"NowSpeaker3"];
     }
     [_volumeButton setImage:image];
-    [_volumeSlider setFloatValue:[[now mov] volume]];
+    [_volumeSlider setFloatValue:volume];
+}
+
+- (void)updateProgress {
+    BOOL prevProgressHidden = _progressHidden;
+    _progressHidden = [[[core taskManager] tasks] count] == 0;
+    if (prevProgressHidden != _progressHidden) {
+        [self updateLayout];
+    }
+
+    if (_progressHidden) {
+        return;
+    }
+    PRTask *task = [[[core taskManager] tasks] objectAtIndex:0];
+
+    NSDictionary *attributes = [NSAttributedString defaultUIAttributes];
+    NSAttributedString *attributedString = [[[NSAttributedString alloc] initWithString:[task title] attributes:attributes] autorelease];
+    [_progressTextField setAttributedStringValue:attributedString];
+    
+    NSString *string = [NSString stringWithFormat:@"%d%%", [task percent]];
+    attributedString = [[[NSAttributedString alloc] initWithString:string attributes:attributes] autorelease];
+    [_progressPercentTextField setAttributedStringValue:attributedString];
 }
 
 #pragma mark - Action
-
-- (void)setProgressHidden:(BOOL)progressHidden {
-    BOOL update = (_progressHidden != progressHidden);
-    _progressHidden = progressHidden;
-    if (update) {
-        [self updateLayout];
-    }
-}
-
-- (BOOL)progressHidden {
-    return _progressHidden;
-}
-
-- (void)setProgressTitle:(NSString *)progressTitle {
-    NSShadow *shadow2 = [[[NSShadow alloc] init] autorelease];
-	[shadow2 setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.5]];
-	[shadow2 setShadowOffset:NSMakeSize(1.1, -1.3)];
-	NSDictionary *attributes2 = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 [NSFont systemFontOfSize:11], NSFontAttributeName,
-                                 [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-                                 [NSParagraphStyle centerAlignStyle], NSParagraphStyleAttributeName,
-                                 shadow2, NSShadowAttributeName,
-                                 nil];
-	NSAttributedString *attributedString = [[[NSAttributedString alloc] initWithString:progressTitle attributes:attributes2] autorelease];
-	[_progressTextField setAttributedStringValue:attributedString];
-}
-
-- (void)setProgressPercent:(int)progressPercent {
-//    if (progressPercent == 0) {
-//        [_progressPercentTextField setAttributedStringValue:nil];
-//        return;
-//    }
-    NSShadow *shadow2 = [[[NSShadow alloc] init] autorelease];
-	[shadow2 setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.5]];
-	[shadow2 setShadowOffset:NSMakeSize(1.1, -1.3)];
-	NSDictionary *attributes2 = [NSDictionary dictionaryWithObjectsAndKeys:
-                                 [NSFont systemFontOfSize:11], NSFontAttributeName,
-                                 [NSColor colorWithDeviceWhite:0.3 alpha:1.0], NSForegroundColorAttributeName,
-                                 [NSParagraphStyle centerAlignStyle], NSParagraphStyleAttributeName,
-                                 shadow2, NSShadowAttributeName,
-                                 nil];
-	NSAttributedString *attributedString = [[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%d%%",progressPercent] 
-																			attributes:attributes2] autorelease];
-	[_progressPercentTextField setAttributedStringValue:attributedString];
-}
 
 - (void)showInLibrary {
     if (![now currentItem]) {

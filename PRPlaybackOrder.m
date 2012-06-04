@@ -26,11 +26,10 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
 - (BOOL)initialize {   
     NSArray *result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'playback_order'"
 						 bindings:nil 
-						  columns:[NSArray arrayWithObjects:PRColString, nil]];
+						  columns:@[PRColString]];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_PLAYBACK_ORDER_SQL]) {
         return FALSE;
-    }
-	
+    }	
     [db execute:@"DELETE FROM playback_order"];
     return TRUE;
 }

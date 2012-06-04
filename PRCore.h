@@ -1,5 +1,6 @@
 #import <Cocoa/Cocoa.h>
-@class PRDb, PRNowPlayingController, PRMainWindowController, PRFolderMonitor, PRTaskManager, PRGrowl, PRLastfm, PRKeyboardShortcuts;
+@class PRDb, PRNowPlayingController, PRMainWindowController, PRFolderMonitor, PRTaskManager, PRGrowl, PRLastfm,
+PRMediaKeyController, PRHotKeyController;
 
 
 @interface PRCore : NSObject <NSApplicationDelegate> {
@@ -14,7 +15,8 @@
     PRTaskManager *_taskManager;
     PRGrowl *_growl;
     PRLastfm *_lastfm;
-    PRKeyboardShortcuts *_keys;
+    PRMediaKeyController *_keys;
+    PRHotKeyController *_hotKeys;
 }
 /* Accessors */
 @property (readonly) PRDb *db;
@@ -25,7 +27,8 @@
 @property (readonly) PRTaskManager *taskManager;
 @property (readonly) NSMenu *mainMenu;
 @property (readonly) PRLastfm *lastfm;
-@property (readonly) PRKeyboardShortcuts *keys;
+@property (readonly) PRMediaKeyController *keys;
+@property (readonly) PRHotKeyController *hotKeys;
 
 /* Actions */
 - (void)itunesImport:(id)sender;

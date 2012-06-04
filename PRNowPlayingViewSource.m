@@ -56,14 +56,9 @@
 }
 
 - (NSArray *)albumCounts {
-    NSString *string;
-    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
-        string = @"SELECT library.album, library.artistAlbumArtist, library.compilation "
-        "FROM now_playing_view_source JOIN library ON now_playing_view_source.file_id = library.file_id";
-    } else {
-        string = @"SELECT library.album, library.artist, library.compilation "
-        "FROM now_playing_view_source JOIN library ON now_playing_view_source.file_id = library.file_id";
-    }
+    NSString *string = [NSString stringWithFormat:@"SELECT library.album, library.%@, library.compilation "
+                        "FROM now_playing_view_source JOIN library ON now_playing_view_source.file_id = library.file_id",
+                        ([[PRUserDefaults userDefaults] useAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
     NSArray *results = [_db execute:string bindings:nil columns:@[PRColString, PRColString, PRColInteger]];
     if ([results count] == 0) {
         return @[];

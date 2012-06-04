@@ -310,10 +310,10 @@
     
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithDictionary:[aCell objectValue]];
 	if ([(PRRolloverTableView *)aTableView mouseOverRow] == rowIndex) {
-        [dictionary setObject:[NSNumber numberWithBool:TRUE] forKey:@"mouseOver"];
+        [dictionary setObject:@TRUE forKey:@"mouseOver"];
         [dictionary setObject:[NSValue valueWithPoint:[(PRRolloverTableView *)aTableView pointInCell]] forKey:@"point"];
     } else {
-        [dictionary setObject:[NSNumber numberWithBool:FALSE] forKey:@"mouseOver"];
+        [dictionary setObject:@FALSE forKey:@"mouseOver"];
         [dictionary setObject:[NSValue valueWithPoint:NSMakePoint(0, 0)] forKey:@"point"];
     }
     

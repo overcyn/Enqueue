@@ -2,7 +2,7 @@
 @class PRCore, SPMediaKeyTap;
 
 
-@interface PRKeyboardShortcuts : NSObject {
+@interface PRMediaKeyController : NSObject {
     __weak PRCore *_core;
     SPMediaKeyTap *_tap;
 }

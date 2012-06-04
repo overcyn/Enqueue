@@ -5,12 +5,12 @@
 @interface PRQueue : NSObject {
     __weak PRDb *_db;
 }
-// Initialization
+/* Initialization */
 - (id)initWithDb:(PRDb *)db;
 - (void)create;
 - (BOOL)initialize;
 
-// Accessors
+/* Accessors */
 - (NSArray *)queueArray;
 - (void)removeListItem:(PRListItem *)listItem;
 - (void)appendListItem:(PRListItem *)listItem;

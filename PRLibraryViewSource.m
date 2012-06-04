@@ -581,8 +581,7 @@ NSString * const compilationString = @"Compilations  ";
 - (int)firstRowWithValue:(id)value forAttr:(PRItemAttr *)attr {
     NSArray *rlt = [_db execute:[NSString stringWithFormat:@"SELECT row FROM libraryViewSource "
                                  "JOIN library ON libraryViewSource.file_id = library.file_id WHERE %@ = ?1 COLLATE NOCASE2 "
-                                 "ORDER BY row LIMIT 1", 
-                                 [PRLibrary columnNameForItemAttr:attr]]
+                                 "ORDER BY row LIMIT 1", [PRLibrary columnNameForItemAttr:attr]]
                        bindings:@{@1:value}
                         columns:@[PRColInteger]];
     if ([rlt count] == 0) {

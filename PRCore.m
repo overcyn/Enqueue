@@ -7,16 +7,18 @@
 #import "PRFolderMonitor.h"
 #import "PRTaskManager.h"
 #import "PRUserDefaults.h"
-#import "NSFileManager+DirectoryLocations.h"
 #import "PRGrowl.h"
+#import "PRHotKeyController.h"
 #import "PRLastfm.h"
 #import "PRVacuumOperation.h"
-#include "PREnableLogger.h"
 #import "PRMainMenuController.h"
-#import "PRKeyboardShortcuts.h"
+#import "PRMediaKeyController.h"
 #import "PRFullRescanOperation.h"
 #import "PRTrialSheetController.h"
 #import "PRWelcomeSheetController.h"
+#import "NSFileManager+DirectoryLocations.h"
+#include "PREnableLogger.h"
+
 
 
 @implementation PRCore
@@ -46,7 +48,8 @@
     _win = [[PRMainWindowController alloc] initWithCore:self]; // requires: db, now, taskManager, folderMonitor
     _growl  = [[PRGrowl alloc] initWithCore:self];
     _lastfm = [[PRLastfm alloc] initWithCore:self];
-    _keys = [[PRKeyboardShortcuts alloc] initWithCore:self];
+    _keys = [[PRMediaKeyController alloc] initWithCore:self];
+    _hotKeys = [[PRHotKeyController alloc] initWithCore:self];
     return self;
 }
 
@@ -87,8 +90,9 @@ opQueue = _opQueue,
 folderMonitor = _folderMonitor, 
 taskManager = _taskManager, 
 mainMenu = _mainMenu, 
-lastfm = _lastfm, 
-keys = _keys;
+lastfm = _lastfm,
+keys = _keys,
+hotKeys = _hotKeys;
 
 #pragma mark - Action
 

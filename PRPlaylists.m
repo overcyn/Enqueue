@@ -321,7 +321,6 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
         [PRException raise:PRDbInconsistencyException format:@""];
     }
     return [[rlt objectAtIndex:0] objectAtIndex:0];
-    
 }
 
 - (PRList *)addList {

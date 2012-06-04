@@ -38,71 +38,71 @@ PRItemAttr * const PRItemAttrPlayCount = @"PRItemAttrPlayCount";
 PRItemAttr * const PRItemAttrRating = @"PRItemAttrRating";
 
 NSString * const PR_TBL_LIBRARY_SQL = @"CREATE TABLE library ("
-"file_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
-"path TEXT NOT NULL UNIQUE, "
-"title TEXT NOT NULL DEFAULT '', "
-"artist TEXT NOT NULL DEFAULT '', "
-"album TEXT NOT NULL DEFAULT '', "
-"albumArtist TEXT NOT NULL DEFAULT '', "
-"composer TEXT NOT NULL DEFAULT '', "
-"comments TEXT NOT NULL DEFAULT '', "
-"genre TEXT NOT NULL DEFAULT '', "
-"year INT NOT NULL DEFAULT 0, "
-"trackNumber INT NOT NULL DEFAULT 0, "
-"trackCount INT NOT NULL DEFAULT 0, "
-"discNumber INT NOT NULL DEFAULT 0, "
-"discCount INT NOT NULL DEFAULT 0, "
-"BPM INT NOT NULL DEFAULT 0, "
-"checkSum BLOB NOT NULL DEFAULT x'', "
-"size INT NOT NULL DEFAULT 0, "
-"kind INT NOT NULL DEFAULT 0, "
-"time INT NOT NULL DEFAULT 0, "
-"bitrate INT NOT NULL DEFAULT 0, "
-"channels INT NOT NULL DEFAULT 0, "
-"sampleRate INT NOT NULL DEFAULT 0, "
-"lastModified TEXT NOT NULL DEFAULT '', "
-"albumArt INT NOT NULL DEFAULT 0, "
-"dateAdded TEXT NOT NULL DEFAULT '', "
-"lastPlayed TEXT NOT NULL DEFAULT '', "
-"playCount INT NOT NULL DEFAULT 0, "
-"rating INT NOT NULL DEFAULT 0 ,"
-"artistAlbumArtist TEXT NOT NULL DEFAULT '' , "
-"lyrics TEXT NOT NULL DEFAULT '', "
-"compilation INT NOT NULL DEFAULT 0"
-")";
+    "file_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
+    "path TEXT NOT NULL UNIQUE, "
+    "title TEXT NOT NULL DEFAULT '', "
+    "artist TEXT NOT NULL DEFAULT '', "
+    "album TEXT NOT NULL DEFAULT '', "
+    "albumArtist TEXT NOT NULL DEFAULT '', "
+    "composer TEXT NOT NULL DEFAULT '', "
+    "comments TEXT NOT NULL DEFAULT '', "
+    "genre TEXT NOT NULL DEFAULT '', "
+    "year INT NOT NULL DEFAULT 0, "
+    "trackNumber INT NOT NULL DEFAULT 0, "
+    "trackCount INT NOT NULL DEFAULT 0, "
+    "discNumber INT NOT NULL DEFAULT 0, "
+    "discCount INT NOT NULL DEFAULT 0, "
+    "BPM INT NOT NULL DEFAULT 0, "
+    "checkSum BLOB NOT NULL DEFAULT x'', "
+    "size INT NOT NULL DEFAULT 0, "
+    "kind INT NOT NULL DEFAULT 0, "
+    "time INT NOT NULL DEFAULT 0, "
+    "bitrate INT NOT NULL DEFAULT 0, "
+    "channels INT NOT NULL DEFAULT 0, "
+    "sampleRate INT NOT NULL DEFAULT 0, "
+    "lastModified TEXT NOT NULL DEFAULT '', "
+    "albumArt INT NOT NULL DEFAULT 0, "
+    "dateAdded TEXT NOT NULL DEFAULT '', "
+    "lastPlayed TEXT NOT NULL DEFAULT '', "
+    "playCount INT NOT NULL DEFAULT 0, "
+    "rating INT NOT NULL DEFAULT 0 ,"
+    "artistAlbumArtist TEXT NOT NULL DEFAULT '' , "
+    "lyrics TEXT NOT NULL DEFAULT '', "
+    "compilation INT NOT NULL DEFAULT 0"
+    ")";
 NSString * const PR_TBL_LIBRARY_SQL2 = @"CREATE TABLE library ("
-"file_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
-"path TEXT NOT NULL UNIQUE, "
-"title TEXT NOT NULL DEFAULT '', "
-"artist TEXT NOT NULL DEFAULT '', "
-"album TEXT NOT NULL DEFAULT '', "
-"albumArtist TEXT NOT NULL DEFAULT '', "
-"composer TEXT NOT NULL DEFAULT '', "
-"comments TEXT NOT NULL DEFAULT '', "
-"genre TEXT NOT NULL DEFAULT '', "
-"year INT NOT NULL DEFAULT 0, "
-"trackNumber INT NOT NULL DEFAULT 0, "
-"trackCount INT NOT NULL DEFAULT 0, "
-"discNumber INT NOT NULL DEFAULT 0, "
-"discCount INT NOT NULL DEFAULT 0, "
-"BPM INT NOT NULL DEFAULT 0, "
-"checkSum BLOB NOT NULL DEFAULT x'', "
-"size INT NOT NULL DEFAULT 0, "
-"kind INT NOT NULL DEFAULT 0, "
-"time INT NOT NULL DEFAULT 0, "
-"bitrate INT NOT NULL DEFAULT 0, "
-"channels INT NOT NULL DEFAULT 0, "
-"sampleRate INT NOT NULL DEFAULT 0, "
-"albumArt INT NOT NULL DEFAULT 0, "
-"dateAdded TEXT NOT NULL DEFAULT '', "
-"lastPlayed TEXT NOT NULL DEFAULT '', "
-"playCount INT NOT NULL DEFAULT 0, "
-"rating INT NOT NULL DEFAULT 0 ,"
-"artistAlbumArtist TEXT NOT NULL DEFAULT '' , "
-"lastModified TEXT NOT NULL DEFAULT '', "
-"lyrics TEXT NOT NULL DEFAULT '', "
-"compilation INT NOT NULL DEFAULT 0"
-")";
+    "file_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, "
+    "path TEXT NOT NULL UNIQUE, "
+    "title TEXT NOT NULL DEFAULT '', "
+    "artist TEXT NOT NULL DEFAULT '', "
+    "album TEXT NOT NULL DEFAULT '', "
+    "albumArtist TEXT NOT NULL DEFAULT '', "
+    "composer TEXT NOT NULL DEFAULT '', "
+    "comments TEXT NOT NULL DEFAULT '', "
+    "genre TEXT NOT NULL DEFAULT '', "
+    "year INT NOT NULL DEFAULT 0, "
+    "trackNumber INT NOT NULL DEFAULT 0, "
+    "trackCount INT NOT NULL DEFAULT 0, "
+    "discNumber INT NOT NULL DEFAULT 0, "
+    "discCount INT NOT NULL DEFAULT 0, "
+    "BPM INT NOT NULL DEFAULT 0, "
+    "checkSum BLOB NOT NULL DEFAULT x'', "
+    "size INT NOT NULL DEFAULT 0, "
+    "kind INT NOT NULL DEFAULT 0, "
+    "time INT NOT NULL DEFAULT 0, "
+    "bitrate INT NOT NULL DEFAULT 0, "
+    "channels INT NOT NULL DEFAULT 0, "
+    "sampleRate INT NOT NULL DEFAULT 0, "
+    "albumArt INT NOT NULL DEFAULT 0, "
+    "dateAdded TEXT NOT NULL DEFAULT '', "
+    "lastPlayed TEXT NOT NULL DEFAULT '', "
+    "playCount INT NOT NULL DEFAULT 0, "
+    "rating INT NOT NULL DEFAULT 0 ,"
+    "artistAlbumArtist TEXT NOT NULL DEFAULT '' , "
+    "lastModified TEXT NOT NULL DEFAULT '', "
+    "lyrics TEXT NOT NULL DEFAULT '', "
+    "compilation INT NOT NULL DEFAULT 0"
+    ")";
 NSString * const PR_IDX_PATH_SQL = @"CREATE INDEX index_path ON library (path COLLATE hfs_compare)";
 NSString * const PR_IDX_ALBUM_SQL = @"CREATE INDEX index_album ON library (album COLLATE NOCASE2)";
 NSString * const PR_IDX_ARTIST_SQL = @"CREATE INDEX index_artist ON library (artist COLLATE NOCASE2)";
@@ -110,13 +110,19 @@ NSString * const PR_IDX_GENRE_SQL = @"CREATE INDEX index_genre ON library (genre
 NSString * const PR_IDX_ARTIST_ALBUM_ARTIST_SQL = @"CREATE INDEX index_artistAlbumArtist ON library (artistAlbumArtist COLLATE NOCASE2)";
 NSString * const PR_IDX_COMPILATION_SQL = @"CREATE INDEX index_compilation ON library (compilation)";
 NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_SQL = @"CREATE TEMP TRIGGER trg_artistAlbumArtist "
-"AFTER UPDATE OF artist, albumArtist ON library FOR EACH ROW BEGIN "
-"UPDATE library SET artistAlbumArtist = coalesce(nullif(albumArtist, ''), artist) "
-"WHERE file_id = NEW.file_id; END ";
+    "AFTER UPDATE OF artist, albumArtist ON library FOR EACH ROW BEGIN "
+    "UPDATE library SET artistAlbumArtist = coalesce(nullif(albumArtist, ''), artist) "
+    "WHERE file_id = NEW.file_id; END ";
 NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_artistAlbumArtist2 "
-"AFTER INSERT ON library FOR EACH ROW BEGIN "
-"UPDATE library SET artistAlbumArtist = coalesce(nullif(albumArtist, ''), artist) "
-"WHERE file_id = NEW.file_id; END ";
+    "AFTER INSERT ON library FOR EACH ROW BEGIN "
+    "UPDATE library SET artistAlbumArtist = coalesce(nullif(albumArtist, ''), artist) "
+    "WHERE file_id = NEW.file_id; END ";
+
+
+@interface PRLibrary ()
+/* Update */
+- (BOOL)propagateItemDelete;
+@end
 
 
 @implementation PRLibrary
@@ -141,51 +147,38 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
 - (BOOL)initialize {
     NSArray *columns = @[PRColString];
-    NSArray *result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'library'" 
-                         bindings:nil
-                          columns:columns];
-    if ([result count] != 1 || !([[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_LIBRARY_SQL] || [[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_LIBRARY_SQL2])) {
+    NSArray *result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'library'" bindings:nil columns:columns];
+    if ([result count] != 1 || !([[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_LIBRARY_SQL] || 
+        [[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_LIBRARY_SQL2])) {
         return FALSE;
     }
     
-    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_path'"
-				bindings:nil
-				 columns:columns];
+    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_path'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_PATH_SQL]) {
         return FALSE;
     }
     
-    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_album'"
-				bindings:nil
-				 columns:columns];
+    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_album'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_ALBUM_SQL]) {
         return FALSE;
     }
     
-    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_artist'"
-				bindings:nil
-				 columns:columns];
+    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_artist'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_ARTIST_SQL]) {
         return FALSE;
     }
     
-    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_genre'"
-				bindings:nil
-				 columns:columns];
+    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_genre'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_GENRE_SQL]) {
         return FALSE;
     }
     
-    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_artistAlbumArtist'"
-				bindings:nil
-				 columns:columns];
+    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_artistAlbumArtist'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_ARTIST_ALBUM_ARTIST_SQL]) {
         return FALSE;
     }
     
-    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_compilation'"
-				bindings:nil
-				 columns:columns];
+    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_compilation'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_COMPILATION_SQL]) {
         return FALSE;
     }
@@ -193,7 +186,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     [db execute:PR_TRG_ARTIST_ALBUM_ARTIST_SQL];
     [db execute:PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL];
     [db execute:@"UPDATE library SET artistAlbumArtist = coalesce(nullif(albumArtist, ''), artist) "
-     "WHERE artistAlbumArtist != coalesce(nullif(albumArtist, ''), artist)"];
+        "WHERE artistAlbumArtist != coalesce(nullif(albumArtist, ''), artist)"];
     return TRUE;
 }
 
@@ -444,7 +437,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
 + (NSNumber *)internalForItemAttr:(PRItemAttr *)attr {
     if (attr == nil) {
-        return [NSNumber numberWithInt:0];
+        return @0;
     }
     static NSMutableDictionary *dict = nil;
     if (!dict) {

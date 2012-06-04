@@ -6,35 +6,30 @@
 @implementation PRNowPlayingCell
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)theControlView {
+    BOOL highlighted = [self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder]
+        && [[[self controlView] window] isMainWindow];
+    
 	NSDictionary *dict = [self objectValue];
 	NSString *title = [dict objectForKey:@"title"];
     NSNumber *badge = [dict objectForKey:@"badge"];
 	NSImage *icon = [dict objectForKey:@"icon"];
     NSImage *invertedIcon = [dict objectForKey:@"invertedIcon"];
 	
-    // Icon
-	float insetPadding = 0;
+    // Layout
     float horizontalPadding = 3;
     NSSize iconSize = NSMakeSize(15, 15);
-    NSRect iconRect = NSMakeRect(cellFrame.origin.x + insetPadding + 4,
+    NSRect iconRect = NSMakeRect(cellFrame.origin.x + 4,
                                  cellFrame.origin.y + cellFrame.size.height/2 - iconSize.height/2, 
                                  iconSize.width, iconSize.height);
-    if ([self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder] && [[[self controlView] window] isMainWindow]) {
-        icon = invertedIcon;
-    }
-    [icon setFlipped:TRUE];
         
-    // Badge
-    if ([badge intValue] != 0) {        
+    if ([badge intValue] != 0) {
+        // Badge
         NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
-        [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:1.0]];
         [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
-        NSColor *badgeColor = [NSColor colorWithDeviceWhite:0.3 alpha:1.0];
-        if ([self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder] && [[[self controlView] window] isMainWindow]) {
-            [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.0]];
-            badgeColor = [NSColor whiteColor];
-        }
-        NSDictionary *attributes = @{NSForegroundColorAttributeName:badgeColor,
+        [shadow setShadowColor:(highlighted ? [NSColor colorWithDeviceWhite:1.0 alpha:0.0] : [NSColor colorWithDeviceWhite:1.0 alpha:1.0])];
+        NSColor *badgeColor = highlighted ? [NSColor whiteColor] : [NSColor colorWithDeviceWhite:0.3 alpha:1.0];
+        NSDictionary *attributes = @{
+            NSForegroundColorAttributeName:badgeColor,
             NSFontAttributeName:[NSFont fontWithName:@"Helvetica-Bold" size:12],
             NSParagraphStyleAttributeName:[NSParagraphStyle centerAlignStyle],
             NSShadowAttributeName:shadow};
@@ -43,6 +38,9 @@
         NSRect badgeRect = NSMakeRect(cellFrame.origin.x + 2, cellFrame.origin.y + 2, 18, 14);
         [badgeString drawInRect:NSInsetRect(badgeRect, 2, 0)];
     } else {
+        // Icon
+        icon = highlighted ? invertedIcon : icon;
+        [icon setFlipped:TRUE];
         [icon drawInRect:iconRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
     }
 	
@@ -50,11 +48,9 @@
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
 	[shadow setShadowColor:[NSColor colorWithDeviceWhite:0.95 alpha:1.0]];
 	[shadow setShadowOffset:NSMakeSize(1.1, -1.3)];
-    NSColor *color = [NSColor colorWithCalibratedWhite:0.10 alpha:1];
-    if ([self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder] && [[[self controlView] window] isMainWindow]) {
-        color = [NSColor whiteColor];
-    }
-    NSDictionary *attributes = @{NSFontAttributeName:[NSFont systemFontOfSize:11.0],
+    NSColor *color = highlighted ? [NSColor whiteColor] : [NSColor colorWithCalibratedWhite:0.10 alpha:1];
+    NSDictionary *attributes = @{
+        NSFontAttributeName:[NSFont systemFontOfSize:11.0],
         NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
         NSForegroundColorAttributeName:color};
     float height = [title sizeWithAttributes:attributes].height;

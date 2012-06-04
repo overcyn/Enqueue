@@ -20,6 +20,9 @@
 		670975341251B333008DA63D /* PRNowPlayingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 670975331251B333008DA63D /* PRNowPlayingController.m */; };
 		6709D7BA12476E0400963B11 /* PRImportOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 6709D7B912476E0400963B11 /* PRImportOperation.m */; };
 		6709DA3E1248304A00963B11 /* PRDb.m in Sources */ = {isa = PBXBuildFile; fileRef = 6709DA3D1248304A00963B11 /* PRDb.m */; };
+		670C465415681E7200409097 /* NSAttributedString+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 670C465315681E7200409097 /* NSAttributedString+Extensions.m */; };
+		670C46581568825900409097 /* PRHistoryDateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 670C46571568825900409097 /* PRHistoryDateFormatter.m */; };
+		670C465B15688E6000409097 /* PRHotKeyController.m in Sources */ = {isa = PBXBuildFile; fileRef = 670C465A15688E6000409097 /* PRHotKeyController.m */; };
 		670EDD7B135FC9F200CAB2F1 /* PRBitRateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 670EDD7A135FC9F200CAB2F1 /* PRBitRateFormatter.m */; };
 		670F95081535724400E72AAE /* PRClipView.m in Sources */ = {isa = PBXBuildFile; fileRef = 670F95071535724400E72AAE /* PRClipView.m */; };
 		671334CC13206A7D00764174 /* PRApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 671334CB13206A7D00764174 /* PRApplication.m */; };
@@ -170,7 +173,6 @@
 		67BB82C7154E875E000CD7FE /* NSParagraphStyle+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67BB82C6154E875E000CD7FE /* NSParagraphStyle+Extensions.m */; };
 		67BBE75F1421752E003C438B /* NSURLConnection+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67BBE75E1421752E003C438B /* NSURLConnection+Extensions.m */; };
 		67BBE7621421AF5D003C438B /* PRLastfmFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 67BBE7611421AF5D003C438B /* PRLastfmFile.m */; };
-		67BC7269144D2D7A00CD6BD3 /* PRHistoryCell2.m in Sources */ = {isa = PBXBuildFile; fileRef = 67BC7268144D2D7A00CD6BD3 /* PRHistoryCell2.m */; };
 		67C0481A14B5703D00F8A9FF /* PRNothingPlaying.png in Resources */ = {isa = PBXBuildFile; fileRef = 67C0481914B5703D00F8A9FF /* PRNothingPlaying.png */; };
 		67C0BA1A13C7AE1E0088D2E7 /* NSString+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C0BA1913C7AE1E0088D2E7 /* NSString+Extensions.m */; };
 		67C0CE3E1458A67800CBCE24 /* SFBAudioEngine.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6727E46C1368F80200A21055 /* SFBAudioEngine.framework */; };
@@ -195,7 +197,7 @@
 		67D911DF147107D6001C9DE8 /* SPMediaKeyTap.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911DD147107D6001C9DE8 /* SPMediaKeyTap.m */; };
 		67D911E0147107D6001C9DE8 /* SPMediaKeyTapDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911DE147107D6001C9DE8 /* SPMediaKeyTapDelegate.m */; };
 		67D911E3147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911E2147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.m */; };
-		67D911E71471087B001C9DE8 /* PRKeyboardShortcuts.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911E61471087B001C9DE8 /* PRKeyboardShortcuts.m */; };
+		67D911E71471087B001C9DE8 /* PRMediaKeyController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911E61471087B001C9DE8 /* PRMediaKeyController.m */; };
 		67DAC8161456387900E120B6 /* EMKeychainItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DAC8151456387900E120B6 /* EMKeychainItem.m */; };
 		67DC10891489D12100A76236 /* PRPathFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC10881489D12100A76236 /* PRPathFormatter.m */; };
 		67DDC70014FA0F0800E361B0 /* MANotificationCenterAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DDC6F614FA0F0800E361B0 /* MANotificationCenterAdditions.m */; };
@@ -298,6 +300,12 @@
 		6709D7B912476E0400963B11 /* PRImportOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRImportOperation.m; sourceTree = "<group>"; };
 		6709DA3C1248304A00963B11 /* PRDb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRDb.h; sourceTree = "<group>"; };
 		6709DA3D1248304A00963B11 /* PRDb.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRDb.m; sourceTree = "<group>"; };
+		670C465215681E7200409097 /* NSAttributedString+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSAttributedString+Extensions.h"; sourceTree = "<group>"; };
+		670C465315681E7200409097 /* NSAttributedString+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSAttributedString+Extensions.m"; sourceTree = "<group>"; };
+		670C46561568825900409097 /* PRHistoryDateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRHistoryDateFormatter.h; sourceTree = "<group>"; };
+		670C46571568825900409097 /* PRHistoryDateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRHistoryDateFormatter.m; sourceTree = "<group>"; };
+		670C465915688E6000409097 /* PRHotKeyController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRHotKeyController.h; sourceTree = "<group>"; };
+		670C465A15688E6000409097 /* PRHotKeyController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRHotKeyController.m; sourceTree = "<group>"; };
 		670EDD79135FC9F200CAB2F1 /* PRBitRateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBitRateFormatter.h; sourceTree = "<group>"; };
 		670EDD7A135FC9F200CAB2F1 /* PRBitRateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRBitRateFormatter.m; sourceTree = "<group>"; };
 		670EDD8C135FFBE300CAB2F1 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = Frameworks/Sparkle.framework; sourceTree = "<group>"; };
@@ -527,8 +535,6 @@
 		67BBE75E1421752E003C438B /* NSURLConnection+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLConnection+Extensions.m"; sourceTree = "<group>"; };
 		67BBE7601421AF5D003C438B /* PRLastfmFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRLastfmFile.h; sourceTree = "<group>"; };
 		67BBE7611421AF5D003C438B /* PRLastfmFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRLastfmFile.m; sourceTree = "<group>"; };
-		67BC7267144D2D7900CD6BD3 /* PRHistoryCell2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRHistoryCell2.h; sourceTree = "<group>"; };
-		67BC7268144D2D7A00CD6BD3 /* PRHistoryCell2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRHistoryCell2.m; sourceTree = "<group>"; };
 		67C0481914B5703D00F8A9FF /* PRNothingPlaying.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRNothingPlaying.png; path = Icons/PRNothingPlaying.png; sourceTree = "<group>"; };
 		67C0BA1813C7AE1E0088D2E7 /* NSString+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Extensions.h"; sourceTree = "<group>"; };
 		67C0BA1913C7AE1E0088D2E7 /* NSString+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Extensions.m"; sourceTree = "<group>"; };
@@ -563,8 +569,8 @@
 		67D911DE147107D6001C9DE8 /* SPMediaKeyTapDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SPMediaKeyTapDelegate.m; path = Frameworks/SPMediaKeyTap/SPMediaKeyTapDelegate.m; sourceTree = "<group>"; };
 		67D911E1147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSObject+SPInvocationGrabbing.h"; path = "Frameworks/SPMediaKeyTap/SPInvocationGrabbing/NSObject+SPInvocationGrabbing.h"; sourceTree = "<group>"; };
 		67D911E2147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSObject+SPInvocationGrabbing.m"; path = "Frameworks/SPMediaKeyTap/SPInvocationGrabbing/NSObject+SPInvocationGrabbing.m"; sourceTree = "<group>"; };
-		67D911E51471087B001C9DE8 /* PRKeyboardShortcuts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRKeyboardShortcuts.h; sourceTree = "<group>"; };
-		67D911E61471087B001C9DE8 /* PRKeyboardShortcuts.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRKeyboardShortcuts.m; sourceTree = "<group>"; };
+		67D911E51471087B001C9DE8 /* PRMediaKeyController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRMediaKeyController.h; sourceTree = "<group>"; };
+		67D911E61471087B001C9DE8 /* PRMediaKeyController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRMediaKeyController.m; sourceTree = "<group>"; };
 		67DAC8141456387900E120B6 /* EMKeychainItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EMKeychainItem.h; path = Frameworks/EMKeychainItem/EMKeychainItem.h; sourceTree = "<group>"; };
 		67DAC8151456387900E120B6 /* EMKeychainItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EMKeychainItem.m; path = Frameworks/EMKeychainItem/EMKeychainItem.m; sourceTree = "<group>"; };
 		67DC10871489D12100A76236 /* PRPathFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRPathFormatter.h; sourceTree = "<group>"; };
@@ -773,12 +779,14 @@
 		6706FCF512B9C64400C9B075 /* User Defaults */ = {
 			isa = PBXGroup;
 			children = (
-				679CE89A14307CE20090D6D1 /* NSNotificationCenter+Extensions.h */,
-				679CE89B14307CE20090D6D1 /* NSNotificationCenter+Extensions.m */,
 				6706FCF612B9C7BF00C9B075 /* PRUserDefaults.h */,
 				6706FCF712B9C7BF00C9B075 /* PRUserDefaults.m */,
+				679CE89A14307CE20090D6D1 /* NSNotificationCenter+Extensions.h */,
+				679CE89B14307CE20090D6D1 /* NSNotificationCenter+Extensions.m */,
 				67EFE764145E813B00F05694 /* NSColor+Extensions.h */,
 				67EFE765145E813B00F05694 /* NSColor+Extensions.m */,
+				670C465215681E7200409097 /* NSAttributedString+Extensions.h */,
+				670C465315681E7200409097 /* NSAttributedString+Extensions.m */,
 			);
 			name = "User Defaults";
 			sourceTree = "<group>";
@@ -880,6 +888,8 @@
 				670EDD7A135FC9F200CAB2F1 /* PRBitRateFormatter.m */,
 				67AB53DE138BAA69000A329B /* PRDateFormatter.h */,
 				67AB53DF138BAA69000A329B /* PRDateFormatter.m */,
+				670C46561568825900409097 /* PRHistoryDateFormatter.h */,
+				670C46571568825900409097 /* PRHistoryDateFormatter.m */,
 				6714296B1366C7A5009A2DAB /* PRKindFormatter.h */,
 				6714296C1366C7A5009A2DAB /* PRKindFormatter.m */,
 				67F0D5B712B1DAD6008E1458 /* PRNumberFormatter.h */,
@@ -1196,8 +1206,6 @@
 				6771E90E127A47E3007A34F2 /* PRHistoryViewController.m */,
 				672AE9B5127FD5E40034C641 /* PRHistoryCell.h */,
 				672AE9B6127FD5E40034C641 /* PRHistoryCell.m */,
-				67BC7267144D2D7900CD6BD3 /* PRHistoryCell2.h */,
-				67BC7268144D2D7A00CD6BD3 /* PRHistoryCell2.m */,
 			);
 			name = History;
 			sourceTree = "<group>";
@@ -1515,8 +1523,10 @@
 		67D911E414710856001C9DE8 /* Keyboard Shortcuts */ = {
 			isa = PBXGroup;
 			children = (
-				67D911E51471087B001C9DE8 /* PRKeyboardShortcuts.h */,
-				67D911E61471087B001C9DE8 /* PRKeyboardShortcuts.m */,
+				67D911E51471087B001C9DE8 /* PRMediaKeyController.h */,
+				67D911E61471087B001C9DE8 /* PRMediaKeyController.m */,
+				670C465915688E6000409097 /* PRHotKeyController.h */,
+				670C465A15688E6000409097 /* PRHotKeyController.m */,
 			);
 			name = "Keyboard Shortcuts";
 			sourceTree = "<group>";
@@ -1831,7 +1841,6 @@
 				6795B236143C34D4008D53CB /* NSFileManager+Extensions.m in Sources */,
 				678E90BA1443F54A00B8B7C3 /* NSWindow+Extensions.m in Sources */,
 				67EA44A014499336006DDB47 /* PREnableLogger.mm in Sources */,
-				67BC7269144D2D7A00CD6BD3 /* PRHistoryCell2.m in Sources */,
 				67DAC8161456387900E120B6 /* EMKeychainItem.m in Sources */,
 				673540FC145CB76D004044F1 /* AUParamInfo.cpp in Sources */,
 				673540FD145CB76D004044F1 /* CAAUParameter.cpp in Sources */,
@@ -1845,7 +1854,7 @@
 				67D911DF147107D6001C9DE8 /* SPMediaKeyTap.m in Sources */,
 				67D911E0147107D6001C9DE8 /* SPMediaKeyTapDelegate.m in Sources */,
 				67D911E3147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.m in Sources */,
-				67D911E71471087B001C9DE8 /* PRKeyboardShortcuts.m in Sources */,
+				67D911E71471087B001C9DE8 /* PRMediaKeyController.m in Sources */,
 				67DE033A147B07A600BBB0F6 /* PRFileInfo.m in Sources */,
 				67E38846147E541D00C094E5 /* PRTagger.mm in Sources */,
 				67DF08421482DFEC00D2C9B5 /* PRControlsViewController.m in Sources */,
@@ -1871,6 +1880,9 @@
 				672235A7152442A700D48695 /* NSArray+Extensions.m in Sources */,
 				670F95081535724400E72AAE /* PRClipView.m in Sources */,
 				67BB82C7154E875E000CD7FE /* NSParagraphStyle+Extensions.m in Sources */,
+				670C465415681E7200409097 /* NSAttributedString+Extensions.m in Sources */,
+				670C46581568825900409097 /* PRHistoryDateFormatter.m in Sources */,
+				670C465B15688E6000409097 /* PRHotKeyController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

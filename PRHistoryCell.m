@@ -1,61 +1,58 @@
 #import "PRHistoryCell.h"
 #import "NSColor+Extensions.h"
 #import "NSParagraphStyle+Extensions.h"
+#import "NSBezierPath+Extensions.h"
 
 
 @implementation PRHistoryCell
 
-- (void)drawWithFrame:(NSRect)frame inView:(NSView *)theControlView {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    
+- (void)drawWithFrame:(NSRect)frame inView:(NSView *)controlView {
 	NSDictionary *dict = [self objectValue];
 	NSString *title = [dict objectForKey:@"title"];
 	NSString *subtitle = [dict objectForKey:@"subtitle"];
     NSString *subSubTitle = [dict objectForKey:@"subSubTitle"];
+    float value = [[dict objectForKey:@"value"] floatValue];
+	float max = [[dict objectForKey:@"max"] floatValue];
     
-    // BACKGROUND
+    // Border
     [[NSColor PRGridColor] set];
     [NSBezierPath fillRect:NSMakeRect(frame.origin.x, frame.origin.y + frame.size.height - 1, frame.size.width, 1)];
     [[NSColor PRGridHighlightColor] set];
     [NSBezierPath fillRect:NSMakeRect(frame.origin.x, frame.origin.y, frame.size.width, 1)];
 
-    frame.size.height -= 1;
-    if ([self isHighlighted]) {
-        [[NSColor colorWithCalibratedWhite:0.84 alpha:1.0] set];
-        [NSBezierPath fillRect:frame];
+    // Graph
+    if (value != 0 && max != 0) {
+        NSRect graphFrame = frame;
+        graphFrame.size.width -= 100;
+        graphFrame.origin.y += 0.5;
+        graphFrame.size.height -= 0.5;
+        if (max < 10) {
+            max = 10;
+        }
+        float drawWidth = (value / max * (graphFrame.size.width)) + 20;
+        NSRect fillFrame, eraseFrame;
+        NSDivideRect(graphFrame, &fillFrame, &eraseFrame, drawWidth, NSMinXEdge);
+        
+        [[[NSColor selectedTextBackgroundColor] blendedColorWithFraction:0.5 ofColor:[NSColor whiteColor]] set];
+        [[NSBezierPath bezierPathWithRect:fillFrame] fill];
+        [[[NSColor PRGridColor] blendedColorWithFraction:0.07 ofColor:[NSColor blackColor]] set];    
+        [NSBezierPath fillRect:[NSBezierPath topBorderOfRect:fillFrame]];
     }
     
     frame.size.width -= 40;
     frame.origin.x += 20;
-    frame.size.height -= 2;
+    frame.size.height -= 3;
     frame.size.width -= 100;
     
-    // ICON
-    NSImage *icon = [dict objectForKey:@"icon"];
-    if (!icon) {
-        icon = [NSImage imageNamed:@"PRLightAlbumArt"];
-    }
-	NSSize iconSize = NSMakeSize(25, 25);
-	[icon setFlipped:YES];
-	NSRect iconBox = NSMakeRect(frame.origin.x, frame.origin.y + frame.size.height*.5 - iconSize.height*.5, 0, 0);
-    [icon drawInRect:iconBox fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
-    
-    // TITLE SUBTITLE
-    NSDictionary *titleAttr = @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue" size:12],
+    // Title & Subtitle
+    NSDictionary *titleAttr = @{
+        NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue" size:12],
         NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
         NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.0 alpha:1.0]};
-    
-    NSDictionary *subtitleAttr = @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-Italic" size:12],
+    NSDictionary *subtitleAttr = @{
+        NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-Italic" size:12],
         NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
         NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.3 alpha:1.0]};
-    
-    // get the size of the string for layout
-	NSSize titleSize = [title sizeWithAttributes:titleAttr];
-	float titleHeight = titleSize.height;
-	
-    NSRect textFrame = frame;
-    textFrame = NSMakeRect(textFrame.origin.x + 10, textFrame.origin.y + textFrame.size.height * .5 - titleHeight * .5,
-                           textFrame.size.width, titleHeight);
     
     NSMutableAttributedString *str = [[[NSMutableAttributedString alloc] initWithString:title attributes:titleAttr] autorelease];
     if (subtitle) {
@@ -63,24 +60,21 @@
         [str appendAttributedString:[[[NSMutableAttributedString alloc] initWithString:subtitle attributes:subtitleAttr] autorelease]];
     }
     
+    NSSize titleSize = [title sizeWithAttributes:titleAttr];
+    NSRect textFrame = NSMakeRect(frame.origin.x + 10, frame.origin.y + frame.size.height * .5 - titleSize.height * .5,
+                                  frame.size.width, titleSize.height);
     [str drawInRect:textFrame];
     
-    // SUBSUBTITLE
+    // SubSubTitle
     NSDictionary *subSubtitleAttr = @{
         NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue" size:12],
         NSParagraphStyleAttributeName:[NSParagraphStyle rightAlignStyle],
         NSForegroundColorAttributeName:[NSColor blackColor]};
     
     NSSize subSubtitleSize = [subSubTitle sizeWithAttributes:subSubtitleAttr];
-    
-    NSRect subSubtitleFrame = frame;
-    subSubtitleFrame.origin.x += subSubtitleFrame.size.width;
-    subSubtitleFrame.size.width = 90;
-    subSubtitleFrame.origin.y = subSubtitleFrame.origin.y + (subSubtitleFrame.size.height - subSubtitleSize.height) / 2.0;
-    
+    NSRect subSubtitleFrame = NSMakeRect(textFrame.origin.x + textFrame.size.width, frame.origin.y + (frame.size.height - subSubtitleSize.height) / 2.0,
+                                         90, frame.size.height);
     [subSubTitle drawInRect:subSubtitleFrame withAttributes:subSubtitleAttr];
-    
-    [pool drain];
 }
 
 @end
