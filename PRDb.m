@@ -10,7 +10,7 @@
 #import "PRPlaybackOrder.h"
 #include <string.h>
 #include <ctype.h>
-#include "PRUserDefaults.h"
+#include "PRDefaults.h"
 #include <sys/file.h>
 #import "PRUpdate060Operation.h"
 #import "PRStatement.h"
@@ -54,7 +54,7 @@ NSString * const PRColData = @"PRColData";
     _cachedStatements = [[NSMutableDictionary alloc] init];
     transaction = 0;
 
-    BOOL e = ([[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:[[PRUserDefaults userDefaults] libraryPath] isDirectory:nil] &&
+    BOOL e = ([[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:[[PRDefaults sharedDefaults] libraryPath] isDirectory:nil] &&
               [self open] && [self update] && [self initialize]);
     if (!e) {
         NSLog(@"create");
@@ -95,7 +95,7 @@ NSString * const PRColData = @"PRColData";
     }
     sqlite3_close(sqlDb);
 
-    return (SQLITE_OK == sqlite3_open_v2([[[PRUserDefaults userDefaults] libraryPath] fileSystemRepresentation], &sqlDb,
+    return (SQLITE_OK == sqlite3_open_v2([[[PRDefaults sharedDefaults] libraryPath] fileSystemRepresentation], &sqlDb,
                                          SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, NULL) &&
             SQLITE_OK == sqlite3_extended_result_codes(sqlDb, TRUE) &&
             SQLITE_OK == sqlite3_exec(sqlDb, "PRAGMA foreign_keys = ON", NULL, NULL, NULL) &&
@@ -222,8 +222,8 @@ NSString * const PRColData = @"PRColData";
 
 - (BOOL)move:(NSError **)err {
     NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
-    BOOL libraryExists = [fileManager fileExistsAtPath:[[PRUserDefaults userDefaults] libraryPath]];
-    BOOL artExists = [fileManager fileExistsAtPath:[[PRUserDefaults userDefaults] cachedAlbumArtPath]];
+    BOOL libraryExists = [fileManager fileExistsAtPath:[[PRDefaults sharedDefaults] libraryPath]];
+    BOOL artExists = [fileManager fileExistsAtPath:[[PRDefaults sharedDefaults] cachedAlbumArtPath]];
     if (!libraryExists && !artExists && err) {
         *err = nil;
         return TRUE;
@@ -239,7 +239,7 @@ NSString * const PRColData = @"PRColData";
         } else {
             folderName = [NSString stringWithFormat:@"Backup %@ %d", date, i];
         }
-        folder = [[[PRUserDefaults userDefaults] backupPath] stringByAppendingPathComponent:folderName];
+        folder = [[[PRDefaults sharedDefaults] backupPath] stringByAppendingPathComponent:folderName];
         if (![fileManager fileExistsAtPath:folder isDirectory:nil]) {
             break;
         }
@@ -257,7 +257,7 @@ NSString * const PRColData = @"PRColData";
         return FALSE;
     }
     
-    NSString *library_ = [[PRUserDefaults userDefaults] libraryPath];
+    NSString *library_ = [[PRDefaults sharedDefaults] libraryPath];
     NSString *newLibrary = [folder stringByAppendingPathComponent:@"Enqueue.db"];
     e = [fileManager moveItemAtPath:library_ toPath:newLibrary error:nil];
     if (!e && err) {
@@ -265,7 +265,7 @@ NSString * const PRColData = @"PRColData";
         return FALSE;
     }
     
-    NSString *art = [[PRUserDefaults userDefaults] cachedAlbumArtPath];
+    NSString *art = [[PRDefaults sharedDefaults] cachedAlbumArtPath];
     NSString *newArt = [folder stringByAppendingPathComponent:@"Cached Album Art"];
     e = [fileManager moveItemAtPath:art toPath:newArt error:nil];
     if (!e && err) {

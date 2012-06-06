@@ -10,7 +10,7 @@
 #import "PRNowPlayingController.h"
 #import "PRScrollView.h"
 #import "PRTabButtonCell.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "NSColor+Extensions.h"
 #import "NSScrollView+Extensions.h"
 #import <Carbon/Carbon.h>
@@ -69,7 +69,7 @@
     [masterVolumePopUpButton setTarget:self];
     [masterVolumePopUpButton setAction:@selector(setMasterVolume:)];
     int tag;
-    switch ((int)[[PRUserDefaults userDefaults] preGain]) {
+    switch ((int)[[PRDefaults sharedDefaults] floatValueForKey:PRDefaultsPregain]) {
         case -10:
             tag = 1;
             break;
@@ -275,17 +275,17 @@
     }
     
     // Misc preferences
-    [_compilationsButton setState:[[PRUserDefaults userDefaults] useCompilation]];
-    [sortWithAlbumArtist setState:[[PRUserDefaults userDefaults] useAlbumArtist]];
-    [mediaKeys setState:[[PRUserDefaults userDefaults] mediaKeys]];
-    [folderArtwork setState:[[PRUserDefaults userDefaults] folderArtwork]];
-    [_hogButton setState:[[PRUserDefaults userDefaults] hogOutput]];
+    [_compilationsButton setState:[[PRDefaults sharedDefaults] useCompilation]];
+    [sortWithAlbumArtist setState:[[PRDefaults sharedDefaults] useAlbumArtist]];
+    [mediaKeys setState:[[PRDefaults sharedDefaults] mediaKeys]];
+    [folderArtwork setState:[[PRDefaults sharedDefaults] folderArtwork]];
+    [_hogButton setState:[[PRDefaults sharedDefaults] hogOutput]];
     
     // Folders
     [foldersTableView reloadData];
     
     // EQ
-    BOOL EQIsEnabled = [[PRUserDefaults userDefaults] EQIsEnabled];
+    BOOL EQIsEnabled = [[PRDefaults sharedDefaults] EQIsEnabled];
     for (NSNumber *i in [self EQSliders]) {
         NSSlider *slider = [[self EQSliders] objectForKey:i];
         [slider setEnabled:EQIsEnabled];
@@ -306,7 +306,7 @@
                                          [NSFont boldSystemFontOfSize:13], NSFontAttributeName, nil];
             NSMutableAttributedString *lastfmString = [[[NSMutableAttributedString alloc] initWithString:@"Signed in to Last.fm as " 
                                                                                               attributes:attributes] autorelease];
-            NSAttributedString *username = [[[NSAttributedString alloc] initWithString:[[PRUserDefaults userDefaults] lastFMUsername]
+            NSAttributedString *username = [[[NSAttributedString alloc] initWithString:[[PRDefaults sharedDefaults] lastFMUsername]
                                                                             attributes:attributes2] autorelease];
             NSAttributedString *closing = [[[NSAttributedString alloc] initWithString:@"."
                                                                         attributes:attributes] autorelease];
@@ -361,7 +361,7 @@
 }
 
 - (void)EQButtonAction {
-    [[PRUserDefaults userDefaults] setEQIsEnabled:([EQButton state] == NSOnState)];
+    [[PRDefaults sharedDefaults] setEQIsEnabled:([EQButton state] == NSOnState)];
     [self updateUI];
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
@@ -369,23 +369,23 @@
 - (void)EQSliderAction:(id)sender {
     float amp = [(NSSlider *)sender floatValue];
     PREQFreq freq = [[[[self EQSliders] allKeysForObject:sender] objectAtIndex:0] intValue];
-    int EQIndex = [[PRUserDefaults userDefaults] EQIndex];
-    BOOL isCustom = [[PRUserDefaults userDefaults] isCustomEQ];
-    NSMutableArray *customEQs = [NSMutableArray arrayWithArray:[[PRUserDefaults userDefaults] customEQs]];
+    int EQIndex = [[PRDefaults sharedDefaults] EQIndex];
+    BOOL isCustom = [[PRDefaults sharedDefaults] isCustomEQ];
+    NSMutableArray *customEQs = [NSMutableArray arrayWithArray:[[PRDefaults sharedDefaults] customEQs]];
     
     PREQ *EQ;
     if (isCustom) {
         EQ = [customEQs objectAtIndex:EQIndex];
         [EQ setAmp:amp forFreq:freq];
-        [[PRUserDefaults userDefaults] setCustomEQs:customEQs];
+        [[PRDefaults sharedDefaults] setCustomEQs:customEQs];
     } else {
         EQ = [[PREQ defaultEQs] objectAtIndex:EQIndex];
         [EQ setAmp:amp forFreq:freq];
         [EQ setTitle:@"Custom"];
         [customEQs replaceObjectAtIndex:0 withObject:EQ];
-        [[PRUserDefaults userDefaults] setCustomEQs:customEQs];
-        [[PRUserDefaults userDefaults] setIsCustomEQ:TRUE];
-        [[PRUserDefaults userDefaults] setEQIndex:0];
+        [[PRDefaults sharedDefaults] setCustomEQs:customEQs];
+        [[PRDefaults sharedDefaults] setIsCustomEQ:TRUE];
+        [[PRDefaults sharedDefaults] setEQIndex:0];
     }
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
@@ -406,9 +406,9 @@
      
      if (result == NSAlertFirstButtonReturn) {
          // "Save"
-         int EQIndex = [[PRUserDefaults userDefaults] EQIndex];
-         BOOL isCustom = [[PRUserDefaults userDefaults] isCustomEQ];
-         NSMutableArray *customEQs = [NSMutableArray arrayWithArray:[[PRUserDefaults userDefaults] customEQs]];
+         int EQIndex = [[PRDefaults sharedDefaults] EQIndex];
+         BOOL isCustom = [[PRDefaults sharedDefaults] isCustomEQ];
+         NSMutableArray *customEQs = [NSMutableArray arrayWithArray:[[PRDefaults sharedDefaults] customEQs]];
          
          PREQ *newEQ;
          if (isCustom) {
@@ -418,9 +418,9 @@
          }
          [newEQ setTitle:[_EQSaveTextField stringValue]];
          [customEQs addObject:newEQ];
-         [[PRUserDefaults userDefaults] setCustomEQs:customEQs];
-         [[PRUserDefaults userDefaults] setEQIndex:[customEQs count]-1];
-         [[PRUserDefaults userDefaults] setIsCustomEQ:TRUE];
+         [[PRDefaults sharedDefaults] setCustomEQs:customEQs];
+         [[PRDefaults sharedDefaults] setEQIndex:[customEQs count]-1];
+         [[PRDefaults sharedDefaults] setIsCustomEQ:TRUE];
          [[NSNotificationCenter defaultCenter] postEQChanged];
 
      } else if ( result == NSAlertSecondButtonReturn ) {  // Accessory view: handle user-specified data
@@ -431,38 +431,38 @@
 }
 
 - (void)EQMenuActionDelete:(id)sender {
-    int EQIndex = [[PRUserDefaults userDefaults] EQIndex];
-    BOOL isCustom = [[PRUserDefaults userDefaults] isCustomEQ];
-    NSMutableArray *customEQs = [NSMutableArray arrayWithArray:[[PRUserDefaults userDefaults] customEQs]];
+    int EQIndex = [[PRDefaults sharedDefaults] EQIndex];
+    BOOL isCustom = [[PRDefaults sharedDefaults] isCustomEQ];
+    NSMutableArray *customEQs = [NSMutableArray arrayWithArray:[[PRDefaults sharedDefaults] customEQs]];
     
     if (!isCustom || EQIndex == 0) {
         return;
     }
     
     [customEQs removeObjectAtIndex:EQIndex];
-    [[PRUserDefaults userDefaults] setCustomEQs:customEQs];
-    [[PRUserDefaults userDefaults] setEQIndex:0];
+    [[PRDefaults sharedDefaults] setCustomEQs:customEQs];
+    [[PRDefaults sharedDefaults] setEQIndex:0];
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
 
 - (void)EQMenuActionCustom:(id)sender {
-    [[PRUserDefaults userDefaults] setIsCustomEQ:TRUE];
-    [[PRUserDefaults userDefaults] setEQIndex:[sender tag]];
+    [[PRDefaults sharedDefaults] setIsCustomEQ:TRUE];
+    [[PRDefaults sharedDefaults] setEQIndex:[sender tag]];
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
 
 - (void)EQMenuActionDefault:(id)sender {
-    [[PRUserDefaults userDefaults] setIsCustomEQ:FALSE];
-    [[PRUserDefaults userDefaults] setEQIndex:[sender tag]];
+    [[PRDefaults sharedDefaults] setIsCustomEQ:FALSE];
+    [[PRDefaults sharedDefaults] setEQIndex:[sender tag]];
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
 
 - (void)EQViewUpdate {
-    int EQIndex = [[PRUserDefaults userDefaults] EQIndex];
-    BOOL isCustom = [[PRUserDefaults userDefaults] isCustomEQ];
+    int EQIndex = [[PRDefaults sharedDefaults] EQIndex];
+    BOOL isCustom = [[PRDefaults sharedDefaults] isCustomEQ];
     PREQ *EQ;
     if (isCustom) {
-        EQ = [[[PRUserDefaults userDefaults] customEQs] objectAtIndex:EQIndex];
+        EQ = [[[PRDefaults sharedDefaults] customEQs] objectAtIndex:EQIndex];
     } else {
         EQ = [[PREQ defaultEQs] objectAtIndex:EQIndex];
     }
@@ -479,8 +479,8 @@
 		[menu removeItem:i];
 	}
     
-    int EQIndex = [[PRUserDefaults userDefaults] EQIndex];
-    BOOL isCustom = [[PRUserDefaults userDefaults] isCustomEQ];
+    int EQIndex = [[PRDefaults sharedDefaults] EQIndex];
+    BOOL isCustom = [[PRDefaults sharedDefaults] isCustomEQ];
     
     NSMenuItem *item = [[[NSMenuItem alloc] initWithTitle:@"Save..." action:@selector(EQMenuActionSave:) keyEquivalent:@""] autorelease];
     [EQMenu addItem:item];
@@ -492,7 +492,7 @@
     NSMenuItem *selectedItem;
     [EQMenu addItem:[NSMenuItem separatorItem]];
     
-    NSArray *customEQs = [[PRUserDefaults userDefaults] customEQs];
+    NSArray *customEQs = [[PRDefaults sharedDefaults] customEQs];
     for (int i = 0; i < [customEQs count]; i++) {
         PREQ *EQ = [customEQs objectAtIndex:i];
         item = [[[NSMenuItem alloc] initWithTitle:[EQ title] action:@selector(EQMenuActionCustom:) keyEquivalent:@""] autorelease];
@@ -525,29 +525,29 @@
 #pragma mark - Misc Preferences
 
 - (void)toggleHogOutput {
-    [[PRUserDefaults userDefaults] setHogOutput:![[PRUserDefaults userDefaults] hogOutput]];
+    [[PRDefaults sharedDefaults] setHogOutput:![[PRDefaults sharedDefaults] hogOutput]];
     [NSNotificationCenter post:PRHogOutputDidChangeNotification];
 }
 
 - (void)toggleUseAlbumArtist {
-    [[PRUserDefaults userDefaults] setUseAlbumArtist:![[PRUserDefaults userDefaults] useAlbumArtist]];
+    [[PRDefaults sharedDefaults] setUseAlbumArtist:![[PRDefaults sharedDefaults] useAlbumArtist]];
     [self updateUI];
     [[NSNotificationCenter defaultCenter] postUseAlbumArtistChanged];
 }
 
 - (void)toggleCompilations {
-    [[PRUserDefaults userDefaults] setUseCompilation:![[PRUserDefaults userDefaults] useCompilation]];
+    [[PRDefaults sharedDefaults] setUseCompilation:![[PRDefaults sharedDefaults] useCompilation]];
     [self updateUI];
     [[NSNotificationCenter defaultCenter] postUseAlbumArtistChanged];
 }
 
 - (void)toggleMediaKeys {
-    [[PRUserDefaults userDefaults] setMediaKeys:![[PRUserDefaults userDefaults] mediaKeys]];
+    [[PRDefaults sharedDefaults] setMediaKeys:![[PRDefaults sharedDefaults] mediaKeys]];
     [self updateUI];
 }
 
 - (void)toggleFolderArtwork {
-    [[PRUserDefaults userDefaults] setFolderArtwork:![[PRUserDefaults userDefaults] folderArtwork]];
+    [[PRDefaults sharedDefaults] setFolderArtwork:![[PRDefaults sharedDefaults] folderArtwork]];
     [self updateUI];
 }
 
@@ -570,7 +570,7 @@
             preGain = 0;
             break;
     }
-    [[PRUserDefaults userDefaults] setPreGain:preGain];
+    [[PRDefaults sharedDefaults] setFloatValue:preGain forKey:PRDefaultsPregain];
     [[NSNotificationCenter defaultCenter] postPreGainChanged];
 }
 

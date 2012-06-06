@@ -1,5 +1,5 @@
 #import "PRMoviePlayer.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "NSNotificationCenter+Extensions.h"
 #import "NSOperationQueue+Extensions.h"
 #import <AudioUnit/AudioUnit.h>
@@ -266,11 +266,11 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 }
 
 - (float)volume {
-    return [[PRUserDefaults userDefaults] volume];
+    return [[PRDefaults sharedDefaults] floatValueForKey:PRDefaultsVolume];
 }
 
 - (void)setVolume:(float)volume {
-    [[PRUserDefaults userDefaults] setVolume:volume];
+    [[PRDefaults sharedDefaults] setFloatValue:volume forKey:PRDefaultsVolume];
     [[NSNotificationCenter defaultCenter] postVolumeChanged];
 }
 
@@ -426,8 +426,8 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
             PLAYER->StopHoggingOutputDevice();
         }
     } else {
-        if ([[PRUserDefaults userDefaults] hogOutput] != PLAYER->OutputDeviceIsHogged()) {
-            if ([[PRUserDefaults userDefaults] hogOutput]) {
+        if ([[PRDefaults sharedDefaults] hogOutput] != PLAYER->OutputDeviceIsHogged()) {
+            if ([[PRDefaults sharedDefaults] hogOutput]) {
                 PLAYER->StartHoggingOutputDevice();
             } else {
                 PLAYER->StopHoggingOutputDevice();
@@ -437,7 +437,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 }
 
 - (void)updateEQ {
-    BOOL enabled = [[PRUserDefaults userDefaults] EQIsEnabled];
+    BOOL enabled = [[PRDefaults sharedDefaults] EQIsEnabled];
     if (enabled && !_equalizer) {
         [self enableEQ];
     } else if (!enabled && _equalizer) {
@@ -449,10 +449,10 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 - (void)modifyEQ {
     PREQ *EQ;
-    if ([[PRUserDefaults userDefaults] isCustomEQ]) {
-        EQ = [[[PRUserDefaults userDefaults] customEQs] objectAtIndex:[[PRUserDefaults userDefaults] EQIndex]];
+    if ([[PRDefaults sharedDefaults] isCustomEQ]) {
+        EQ = [[[PRDefaults sharedDefaults] customEQs] objectAtIndex:[[PRDefaults sharedDefaults] EQIndex]];
     } else {
-        EQ = [[PREQ defaultEQs] objectAtIndex:[[PRUserDefaults userDefaults] EQIndex]];
+        EQ = [[PREQ defaultEQs] objectAtIndex:[[PRDefaults sharedDefaults] EQIndex]];
     }
     for (int i = 0; i < 10; i++) {
         float amp = [EQ ampForFreq:(PREQFreq)(i + 1)] + [EQ ampForFreq:PREQFreqPreamp];
@@ -495,8 +495,8 @@ error:;
 }
 
 - (void)disableEQ {
-    BOOL succ = PLAYER->RemoveEffect(_equalizer);
-    if (succ != TRUE) {
+    BOOL err = PLAYER->RemoveEffect(_equalizer);
+    if (!err) {
         NSLog(@"EQ removal failed");
     }
     _equalizer = nil;

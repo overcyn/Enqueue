@@ -1,7 +1,7 @@
 #import "PRMediaKeyController.h"
 #import "PRCore.h"
 #import "SPMediaKeyTap.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "PRNowPlayingController.h"
 
 
@@ -33,7 +33,7 @@
 	int keyFlags = ([event data1] & 0x0000FFFF);
 	int keyState = (((keyFlags & 0xFF00) >> 8)) == 0xA;
     
-	if (keyState == 1 && [[PRUserDefaults userDefaults] mediaKeys]) {
+	if (keyState == 1 && [[PRDefaults sharedDefaults] mediaKeys]) {
 		switch (keyCode) {
         case NX_KEYTYPE_PLAY:
             [[_core now] playPause];

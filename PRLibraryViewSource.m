@@ -4,7 +4,7 @@
 #import "PRLibrary.h"
 #import "PRPlaylists.h"
 #import "PRStatement.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 
 
 NSString * const libraryViewSource = @"libraryViewSource";
@@ -485,11 +485,11 @@ NSString * const compilationString = @"Compilations  ";
     NSString *sortColumnName;
     if ([sort isEqual:PRListSortIndex]) {
         sortColumnName = @"playlist_items.playlist_index";
-    } else if ([[PRUserDefaults userDefaults] useAlbumArtist] && [sort isEqual:PRItemAttrArtist]) {
+    } else if ([[PRDefaults sharedDefaults] useAlbumArtist] && [sort isEqual:PRItemAttrArtist]) {
         sortColumnName = [PRLibrary columnNameForItemAttr:PRItemAttrArtistAlbumArtist];
     } else {
         if ([sort isEqual:PRListSortArtistAlbum]) {
-            if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
+            if ([[PRDefaults sharedDefaults] useAlbumArtist]) {
                 sort = PRItemAttrArtistAlbumArtist;
             } else {
                 sort = PRItemAttrArtist;
@@ -705,7 +705,7 @@ NSString * const compilationString = @"Compilations  ";
 
 - (BOOL)compilationForBrowser:(int)browser {
     return ([[[_db playlists] attrForBrowser:browser list:_list] isEqual:PRItemAttrArtist] &&
-            [[PRUserDefaults userDefaults] useCompilation]);
+            [[PRDefaults sharedDefaults] useCompilation]);
 }
 
 - (NSString *)tableNameForBrowser:(int)browser {
@@ -726,7 +726,7 @@ NSString * const compilationString = @"Compilations  ";
     PRItemAttr *attr = [[_db playlists] attrForBrowser:browser list:list];
     if (!attr) {
         return @"";
-    } else if ([[PRUserDefaults userDefaults] useAlbumArtist] && [attr isEqual:PRItemAttrArtist]) {
+    } else if ([[PRDefaults sharedDefaults] useAlbumArtist] && [attr isEqual:PRItemAttrArtist]) {
         return @"artistAlbumArtist";
     }
     return [PRLibrary columnNameForItemAttr:attr];

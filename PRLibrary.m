@@ -2,7 +2,7 @@
 #import "PRDb.h"
 #import "PRPlaylists.h"
 #import "PRAlbumArtController.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "PRTagger.h"
 #import "PRFileInfo.h"
 
@@ -290,7 +290,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 }
 
 - (NSString *)artistValueForItem:(PRItem *)item {
-    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
+    if ([[PRDefaults sharedDefaults] useAlbumArtist]) {
         return [self valueForItem:item attr:PRItemAttrArtistAlbumArtist];
     } else {
         return [self valueForItem:item attr:PRItemAttrArtist];

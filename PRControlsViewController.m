@@ -15,7 +15,7 @@
 #import "PRSliderCell.h"
 #import "PRTableViewController.h"
 #import "PRTimeFormatter.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "PRTaskManager.h"
 #import "PRTask.h"
 #import "NSParagraphStyle+Extensions.h"

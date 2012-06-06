@@ -6,7 +6,7 @@
 #import "PRDb.h"
 #import "PRMoviePlayer.h"
 #import "PRQueue.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "PRTagger.h"
 
 @interface PRNowPlayingController ()
@@ -89,20 +89,20 @@
 @dynamic shuffle, repeat;
 
 - (int)repeat {
-    return [[PRUserDefaults userDefaults] repeat];
+    return [[PRDefaults sharedDefaults] boolValueForKey:PRDefaultsRepeat];
 }
 
 - (void)setRepeat:(int)repeat {
-    [[PRUserDefaults userDefaults] setRepeat:repeat];
+    [[PRDefaults sharedDefaults] setBoolValue:repeat forKey:PRDefaultsRepeat];
     [[NSNotificationCenter defaultCenter] postRepeatChanged];
 }
 
 - (BOOL)shuffle {
-	return [[PRUserDefaults userDefaults] shuffle];
+	return [[PRDefaults sharedDefaults] boolValueForKey:PRDefaultsShuffle];
 }
 
 - (void)setShuffle:(BOOL)shuffle {
-	[[PRUserDefaults userDefaults] setShuffle:shuffle];
+	[[PRDefaults sharedDefaults] setBoolValue:shuffle forKey:PRDefaultsShuffle];
     [[NSNotificationCenter defaultCenter] postShuffleChanged];
 }
 

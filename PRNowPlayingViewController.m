@@ -13,7 +13,7 @@
 #import "PRMainWindowController.h"
 #import "PRLibraryViewController.h"
 #import "PRPlaylistsViewController.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "PRQueue.h"
 #import "NSIndexSet+Extensions.h"
 #import "PROutlineView.h"
@@ -153,7 +153,7 @@
     [self updateTableView];
     
     // restore collapse state
-    NSIndexSet *collapseState = [[PRUserDefaults userDefaults] nowPlayingCollapseState];
+    NSIndexSet *collapseState = [[PRDefaults sharedDefaults] nowPlayingCollapseState];
     [nowPlayingTableView collapseItem:nil];
     if ([collapseState lastIndex] < [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil]) {
         [collapseState enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
@@ -613,7 +613,7 @@
             [collapseState addIndex:i];
         }
     }
-    [[PRUserDefaults userDefaults] setNowPlayingCollapseState:collapseState];
+    [[PRDefaults sharedDefaults] setNowPlayingCollapseState:collapseState];
 }
 
 #pragma mark - Misc Priv
@@ -993,7 +993,7 @@
         if ([album isEqualToString:@""]) {
             album = @"Unknown Album";
         }
-        if ([[[db library] valueForItem:it attr:PRItemAttrCompilation] boolValue] && [[PRUserDefaults userDefaults] useCompilation]) {
+        if ([[[db library] valueForItem:it attr:PRItemAttrCompilation] boolValue] && [[PRDefaults sharedDefaults] useCompilation]) {
             artist = @"Compilation";
         }
         NSNumber *drawBorder = [NSNumber numberWithBool:[[item objectAtIndex:0] intValue] + 1 == [_albumCounts count] || [nowPlayingTableView isItemExpanded:item]];

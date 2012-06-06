@@ -2,7 +2,7 @@
 #import "PRDb.h"
 #import "PRLibrary.h"
 #import "NSImage+Extensions.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "NSParagraphStyle+Extensions.h"
 
 
@@ -20,7 +20,7 @@
     NSString *artist = [[db library] artistValueForItem:item];
 	NSString *album = [[db library] valueForItem:item attr:PRItemAttrAlbum];
 	NSNumber *year = [[db library] valueForItem:item attr:PRItemAttrYear];
-    if ([[[db library] valueForItem:item attr:PRItemAttrCompilation] boolValue] && [[PRUserDefaults userDefaults] useCompilation]) {
+    if ([[[db library] valueForItem:item attr:PRItemAttrCompilation] boolValue] && [[PRDefaults sharedDefaults] useCompilation]) {
         artist = @"Compilation";
     }
     

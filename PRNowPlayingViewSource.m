@@ -1,6 +1,6 @@
 #import "PRNowPlayingViewSource.h"
 #import "PRDb.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 
 
 @implementation PRNowPlayingViewSource
@@ -58,7 +58,7 @@
 - (NSArray *)albumCounts {
     NSString *string = [NSString stringWithFormat:@"SELECT library.album, library.%@, library.compilation "
                         "FROM now_playing_view_source JOIN library ON now_playing_view_source.file_id = library.file_id",
-                        ([[PRUserDefaults userDefaults] useAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
+                        ([[PRDefaults sharedDefaults] useAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
     NSArray *results = [_db execute:string bindings:nil columns:@[PRColString, PRColString, PRColInteger]];
     if ([results count] == 0) {
         return @[];
@@ -76,7 +76,7 @@
         
         BOOL albumSame = [albumString noCaseCompare:albumString2] == NSOrderedSame;
         BOOL artistSame = [artistString noCaseCompare:artistString2] == NSOrderedSame;
-        if (![[PRUserDefaults userDefaults] useCompilation]) {
+        if (![[PRDefaults sharedDefaults] useCompilation]) {
             compilation = FALSE;
             compilation2 = FALSE;
         }

@@ -8,13 +8,7 @@
 - (id)init {
     if (!(self = [super init])) {return nil;}
     _title = @"";
-    _amplitudes = [[NSArray arrayWithObjects:
-                    [NSNumber numberWithFloat:0], [NSNumber numberWithFloat:0],
-                    [NSNumber numberWithFloat:0], [NSNumber numberWithFloat:0],
-                    [NSNumber numberWithFloat:0], [NSNumber numberWithFloat:0],
-                    [NSNumber numberWithFloat:0], [NSNumber numberWithFloat:0],
-                    [NSNumber numberWithFloat:0], [NSNumber numberWithFloat:0], 
-                    [NSNumber numberWithFloat:0], nil] retain];
+    _amplitudes = [@[@0, @0, @0, @0, @0, @0, @0, @0, @0, @0] retain];
     return self;
 }
 

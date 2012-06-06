@@ -15,7 +15,7 @@
 #import "PRBitRateFormatter.h"
 #import "PRKindFormatter.h"
 #import "PRDateFormatter.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "PRStringFormatter.h"
 #import "PRQueue.h"
 #import "PRTagger.h"
@@ -508,7 +508,7 @@
 
 - (void)highlightItem:(PRItem *)item {
     NSString *artist;
-    if ([[PRUserDefaults userDefaults] useCompilation] && [[[db library] valueForItem:item attr:PRItemAttrCompilation] boolValue]) {
+    if ([[PRDefaults sharedDefaults] useCompilation] && [[[db library] valueForItem:item attr:PRItemAttrCompilation] boolValue]) {
         artist = compilationString;
     } else {
         artist = [[db library] artistValueForItem:item];
@@ -562,7 +562,7 @@
 - (void)highlightArtist:(NSString *)artist {
     [self browseToArtist:artist];
     PRItemAttr *attr;
-    if ([[PRUserDefaults userDefaults] useAlbumArtist]) {
+    if ([[PRDefaults sharedDefaults] useAlbumArtist]) {
         attr = PRItemAttrArtistAlbumArtist;
     } else {
         attr = PRItemAttrArtist;

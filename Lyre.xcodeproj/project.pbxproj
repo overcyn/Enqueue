@@ -14,7 +14,7 @@
 		67026EA512697833002E929F /* PRPreferencesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 67026EA412697833002E929F /* PRPreferencesView.xib */; };
 		6702717E126AFC6F002E929F /* PRSizeFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6702717D126AFC6F002E929F /* PRSizeFormatter.m */; };
 		6706FCC612B9A08200C9B075 /* NSFileManager+DirectoryLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FCC512B9A08200C9B075 /* NSFileManager+DirectoryLocations.m */; };
-		6706FCF812B9C7BF00C9B075 /* PRUserDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FCF712B9C7BF00C9B075 /* PRUserDefaults.m */; };
+		6706FCF812B9C7BF00C9B075 /* PRDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FCF712B9C7BF00C9B075 /* PRDefaults.m */; };
 		6706FDF712BB897B00C9B075 /* PRAlbumArtController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FDF612BB897B00C9B075 /* PRAlbumArtController.m */; };
 		67091AD013AB3D6400C4D298 /* PRQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 67091ACF13AB3D6400C4D298 /* PRQueue.m */; };
 		670975341251B333008DA63D /* PRNowPlayingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 670975331251B333008DA63D /* PRNowPlayingController.m */; };
@@ -288,8 +288,8 @@
 		6702717D126AFC6F002E929F /* PRSizeFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRSizeFormatter.m; sourceTree = "<group>"; };
 		6706FCC412B9A08200C9B075 /* NSFileManager+DirectoryLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+DirectoryLocations.h"; sourceTree = "<group>"; };
 		6706FCC512B9A08200C9B075 /* NSFileManager+DirectoryLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+DirectoryLocations.m"; sourceTree = "<group>"; };
-		6706FCF612B9C7BF00C9B075 /* PRUserDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRUserDefaults.h; sourceTree = "<group>"; };
-		6706FCF712B9C7BF00C9B075 /* PRUserDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRUserDefaults.m; sourceTree = "<group>"; };
+		6706FCF612B9C7BF00C9B075 /* PRDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; path = PRDefaults.h; sourceTree = "<group>"; };
+		6706FCF712B9C7BF00C9B075 /* PRDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRDefaults.m; sourceTree = "<group>"; };
 		6706FDF512BB897B00C9B075 /* PRAlbumArtController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRAlbumArtController.h; sourceTree = "<group>"; };
 		6706FDF612BB897B00C9B075 /* PRAlbumArtController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRAlbumArtController.m; sourceTree = "<group>"; };
 		67091ACE13AB3D6400C4D298 /* PRQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PRQueue.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -692,7 +692,7 @@
 				67D911E414710856001C9DE8 /* Keyboard Shortcuts */,
 				673E4AB31385510900DD8260 /* Growl */,
 				673E4ACF13858CB000DD8260 /* LastFm */,
-				6706FCF512B9C64400C9B075 /* User Defaults */,
+				6706FCF512B9C64400C9B075 /* Defaults */,
 				67FCEE0B133EA04800765EE1 /* Log */,
 			);
 			name = Core;
@@ -776,11 +776,11 @@
 			name = Extensions;
 			sourceTree = "<group>";
 		};
-		6706FCF512B9C64400C9B075 /* User Defaults */ = {
+		6706FCF512B9C64400C9B075 /* Defaults */ = {
 			isa = PBXGroup;
 			children = (
-				6706FCF612B9C7BF00C9B075 /* PRUserDefaults.h */,
-				6706FCF712B9C7BF00C9B075 /* PRUserDefaults.m */,
+				6706FCF612B9C7BF00C9B075 /* PRDefaults.h */,
+				6706FCF712B9C7BF00C9B075 /* PRDefaults.m */,
 				679CE89A14307CE20090D6D1 /* NSNotificationCenter+Extensions.h */,
 				679CE89B14307CE20090D6D1 /* NSNotificationCenter+Extensions.m */,
 				67EFE764145E813B00F05694 /* NSColor+Extensions.h */,
@@ -788,7 +788,7 @@
 				670C465215681E7200409097 /* NSAttributedString+Extensions.h */,
 				670C465315681E7200409097 /* NSAttributedString+Extensions.m */,
 			);
-			name = "User Defaults";
+			name = Defaults;
 			sourceTree = "<group>";
 		};
 		6709731C12502F62008DA63D /* Controls */ = {
@@ -1783,7 +1783,7 @@
 				67A5F63412A5E261003837CA /* PRRatingCell.m in Sources */,
 				67F0D5B912B1DAD6008E1458 /* PRNumberFormatter.m in Sources */,
 				6706FCC612B9A08200C9B075 /* NSFileManager+DirectoryLocations.m in Sources */,
-				6706FCF812B9C7BF00C9B075 /* PRUserDefaults.m in Sources */,
+				6706FCF812B9C7BF00C9B075 /* PRDefaults.m in Sources */,
 				6706FDF712BB897B00C9B075 /* PRAlbumArtController.m in Sources */,
 				67F1AA4D12BDCCC8000A0D8F /* NSIndexSet+Extensions.m in Sources */,
 				679E3A0F12D28984006190C7 /* PRMoviePlayer.mm in Sources */,

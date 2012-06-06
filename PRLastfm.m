@@ -1,6 +1,6 @@
 #import "PRLastfm.h"
 #import <Security/Security.h>
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "EMKeychainItem.h"
 #import "PRCore.h"
 #import "PRNowPlayingController.h"
@@ -84,7 +84,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 }
 
 - (NSString *)username {
-    return [[PRUserDefaults userDefaults] lastFMUsername];
+    return [[PRDefaults sharedDefaults] lastFMUsername];
 }
 
 - (NSString *)sessionKey {
@@ -99,7 +99,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 }
 
 - (void)setUsername:(NSString *)username {
-    [[PRUserDefaults userDefaults] setLastFMUsername:username];
+    [[PRDefaults sharedDefaults] setLastFMUsername:username];
 }
 
 - (void)setSessionKey:(NSString *)sessionKey {

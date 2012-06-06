@@ -2,7 +2,7 @@
 #import "PRCore.h"
 #import "PRMoviePlayer.h"
 #import "PRNowPlayingController.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import <Carbon/Carbon.h>
 #import <ShortcutRecorder/SRRecorderControl.h>
 
@@ -17,7 +17,7 @@
 }
 
 - (void)setKeymask:(unsigned int)keymask code:(int)code forHotKey:(PRHotKey)hotKey {
-    [[PRUserDefaults userDefaults] setKeyMask:keymask keyCode:code forHotKey:hotKey];
+    [[PRDefaults sharedDefaults] setKeyMask:keymask keyCode:code forHotKey:hotKey];
     [self updateHotKeys];
 }
 
@@ -27,7 +27,7 @@
         
         unsigned int keymask;
         int code;
-        [[PRUserDefaults userDefaults] keyMask:&keymask keyCode:&code forHotKey:i];
+        [[PRDefaults sharedDefaults] keyMask:&keymask keyCode:&code forHotKey:i];
         if (code == -1) {
             continue;
         }

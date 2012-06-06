@@ -1,7 +1,7 @@
 #import "PRAlbumArtController.h"
 #import "PRDb.h"
 #import "PRLibrary.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "NSFileManager+DirectoryLocations.h"
 #import "NSImage+Extensions.h"
 
@@ -61,7 +61,7 @@
     }
     
     // Artwork in Folder
-    if (![[PRUserDefaults userDefaults] folderArtwork]) {
+    if (![[PRDefaults sharedDefaults] folderArtwork]) {
         return nil;
     }
     string = [NSMutableString stringWithString:@"SELECT path FROM library WHERE file_id IN ("];
@@ -105,7 +105,7 @@
 
 - (NSImage *)artworkForArtist:(NSString *)artist {
 	NSString *string = [NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ COLLATE NOCASE2 = ?1",
-                        ([[PRUserDefaults userDefaults] useAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
+                        ([[PRDefaults sharedDefaults] useAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
     NSArray *results = [_db execute:string bindings:@{@1:artist} columns:@[PRColInteger]];
     NSMutableArray *items = [NSMutableArray array];
     for (NSArray *i in results) {
@@ -141,7 +141,7 @@
     }
     
     // Folder Artwork
-    if (![[PRUserDefaults userDefaults] folderArtwork]) {
+    if (![[PRDefaults sharedDefaults] folderArtwork]) {
         return @{@"files":indexSet, @"paths":@[]};
     }
     
@@ -162,7 +162,7 @@
 
 - (NSDictionary *)artworkInfoForArtist:(NSString *)artist {
     NSString *string = [NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ COLLATE NOCASE2 = ?1",
-                        ([[PRUserDefaults userDefaults] useAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
+                        ([[PRDefaults sharedDefaults] useAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
     NSArray *results = [_db execute:string bindings:@{@1:artist} columns:@[PRColInteger]];
     NSMutableArray *items = [NSMutableArray array];
     for (NSArray *i in results) {
@@ -252,15 +252,15 @@
 
 - (void)clearTempArtwork {
     _tempIndex = 1;
-    [_fileManager removeItemAtURL:[NSURL fileURLWithPath:[[PRUserDefaults userDefaults] tempArtPath]] error:nil];
-    [_fileManager findOrCreateDirectoryAtPath:[[PRUserDefaults userDefaults] tempArtPath] error:nil];
+    [_fileManager removeItemAtURL:[NSURL fileURLWithPath:[[PRDefaults sharedDefaults] tempArtPath]] error:nil];
+    [_fileManager findOrCreateDirectoryAtPath:[[PRDefaults sharedDefaults] tempArtPath] error:nil];
 }
 
 #pragma mark - Priv
 
 - (NSString *)cachedArtworkPathForItem:(PRItem *)item {
 	unsigned long long file = [item unsignedLongLongValue];
-    NSString *path = [[PRUserDefaults userDefaults] cachedAlbumArtPath];
+    NSString *path = [[PRDefaults sharedDefaults] cachedAlbumArtPath];
 	path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%03llu", ((file / 1000000) % 1000)]];
 	path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%03llu", ((file / 1000) % 1000)]];
 	path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%09llu", file]];
@@ -280,7 +280,7 @@
 }
 
 - (NSString *)tempArtPathForTempValue:(int)temp {
-    NSString *path = [[PRUserDefaults userDefaults] tempArtPath];
+    NSString *path = [[PRDefaults sharedDefaults] tempArtPath];
 	return [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%03d", temp]];
 }
 

@@ -4,7 +4,7 @@
 #import "PRCore.h"
 #import "PRImportOperation.h"
 #import "PRRescanOperation.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "NSFileManager+Extensions.h"
 
 
@@ -26,12 +26,12 @@
 @dynamic monitoredFolders;
 
 - (NSArray *)monitoredFolders {
-    return [[PRUserDefaults userDefaults] monitoredFolders];
+    return [[PRDefaults sharedDefaults] monitoredFolders];
 }
 
 - (void)setMonitoredFolders:(NSArray *)folders {
-    [[PRUserDefaults userDefaults] setMonitoredFolders:folders];
-    [[PRUserDefaults userDefaults] setLastEventStreamEventId:0];
+    [[PRDefaults sharedDefaults] setMonitoredFolders:folders];
+    [[PRDefaults sharedDefaults] setLastEventStreamEventId:0];
     [self monitor];
 }
 
@@ -72,7 +72,7 @@
         [paths addObject:[i path]];
     }
     // if no event id. add URLs and re-monitor
-    if ([[PRUserDefaults userDefaults] lastEventStreamEventId] == 0) {
+    if ([[PRDefaults sharedDefaults] lastEventStreamEventId] == 0) {
         PRRescanOperation *op = [PRRescanOperation operationWithURLs:[self monitoredFolders] core:_core];
         [op setEventId:FSEventsGetCurrentEventId()];
         [op setMonitor:TRUE];
@@ -87,7 +87,7 @@
     context.release = NULL;
     context.copyDescription = NULL;
     stream = FSEventStreamCreate(NULL, &eventCallback, &context, (CFArrayRef)paths, 
-                                 [[PRUserDefaults userDefaults] lastEventStreamEventId], 5.0, kFSEventStreamCreateFlagNone);
+                                 [[PRDefaults sharedDefaults] lastEventStreamEventId], 5.0, kFSEventStreamCreateFlagNone);
     FSEventStreamScheduleWithRunLoop(stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
     FSEventStreamStart(stream);
 }
@@ -110,8 +110,8 @@
         [paths addObject:[i path]];
     }
     // if no event id. add URLs and re-monitor
-    if ([[PRUserDefaults userDefaults] lastEventStreamEventId] == 0) {
-        [[PRUserDefaults userDefaults] setLastEventStreamEventId:FSEventsGetCurrentEventId()];
+    if ([[PRDefaults sharedDefaults] lastEventStreamEventId] == 0) {
+        [[PRDefaults sharedDefaults] setLastEventStreamEventId:FSEventsGetCurrentEventId()];
     }
     // create and schedule new monitor
     FSEventStreamContext context;
@@ -121,7 +121,7 @@
     context.release = NULL;
     context.copyDescription = NULL;
     stream = FSEventStreamCreate(NULL, &eventCallback, &context, (CFArrayRef)paths, 
-                                 [[PRUserDefaults userDefaults] lastEventStreamEventId], 5.0, kFSEventStreamCreateFlagNone);
+                                 [[PRDefaults sharedDefaults] lastEventStreamEventId], 5.0, kFSEventStreamCreateFlagNone);
     FSEventStreamScheduleWithRunLoop(stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
     FSEventStreamStart(stream);
 }

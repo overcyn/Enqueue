@@ -1,7 +1,7 @@
 #import "PRGrowl.h"
 #import "Growl/Growl.h"
 #import "PRNowPlayingController.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "PRCore.h"
 #import "PRDb.h"
 #import "PRLibrary.h"
@@ -35,7 +35,7 @@
 
 - (void)playingChanged:(NSNotification *)notification {
     PRItem *item = [[_core now] currentItem];
-    if (![[PRUserDefaults userDefaults] postGrowlNotification] || !item || ![[[_core now] mov] isPlaying]) {
+    if (![[PRDefaults sharedDefaults] postGrowlNotification] || !item || ![[[_core now] mov] isPlaying]) {
         return;
     }
     NSString *title = [[_db library] valueForItem:item attr:PRItemAttrTitle];
@@ -59,7 +59,7 @@
 
 - (void)currentFileDidChange:(NSNotification *)notification {
     PRItem *item = [[_core now] currentItem];
-    if (![[PRUserDefaults userDefaults] postGrowlNotification] || !item) {
+    if (![[PRDefaults sharedDefaults] postGrowlNotification] || !item) {
         return;
     }
     

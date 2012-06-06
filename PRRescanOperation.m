@@ -9,7 +9,7 @@
 #import "NSFileManager+Extensions.h"
 #import "PRAlbumArtController.h"
 #import "PRDirectoryEnumerator.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "PRNowPlayingController.h"
 #import "PRFileInfo.h"
 #import "PRTagger.h"
@@ -90,7 +90,7 @@
     // Update lastEventStreamEventId
     [task setPercent:99];
     [[NSOperationQueue mainQueue] addBlockAndWait:^{
-        [[PRUserDefaults userDefaults] setLastEventStreamEventId:_eventId];
+        [[PRDefaults sharedDefaults] setLastEventStreamEventId:_eventId];
         if (_monitor) {
             [[_core folderMonitor] monitor2];
         }

@@ -1,19 +1,18 @@
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import <Carbon/Carbon.h>
 #import "PREQ.h"
 #import "PRHotKeyController.h"
 
 
-NSString * const PRDefaultsVolume = @"PRDefaultsVolume";
-NSString * const PRDefaultsPregain = @"PRDefaultsPregain";
-NSString * const PRDefaultsRepeat = @"PRDefaultsRepeat";
-NSString * const PRDefaultsShuffle = @"PRDefaultsShuffle";
-NSString * const PRDefaultsHogOutput = @"PRDefaultsHogOutput";
+NSString * const PRDefaultsUseCompilation = @"PRDefaultsUseCompilation";
+NSString * const PRDefaultsFolderArtwork = @"PRDefaultsFolderArtwork";
 
-NSString * const PRDefaultsEQCustomArray = @"PRDefaultsEQCustomArray";
-NSString * const PRDefaultsEQIsCustom = @"PRDefaultsEQIsCustom";
-NSString * const PRDefaultsEQIndex = @"PRDefaultsEQIndex";
-NSString * const PRDefaultsEQEnabled = @"PRDefaultsEQEnabled";
+NSString * const PRDefaultsMonitoredFolders = @"PRDefaultsMonitoredFolders";
+NSString * const PRDefaultsLastEventStreamEventId = @"PRDefaultsLastEventStreamEventId";
+
+NSString * const PRDefaultsPostGrowl = @"PRDefaultsPostGrowl";
+
+NSString * const PRDefaultsLastFMUsername = @"PRDefaultsLastFMUsername";
 
 NSString * const PRDefaultsShowWelcomeSheet = @"PRDefaultsShowWelcomeSheet";
 NSString * const PRDefaultsShowArtwork = @"PRDefaultsShowArtwork";
@@ -23,20 +22,25 @@ NSString * const PRDefaultsPlayerFrame = @"PRDefaultsSidebarWidth";
 NSString * const PRDefaultsNowPlayingCollapseState = @"PRDefaultsNowPlayingCollapseState";
 
 NSString * const PRDefaultsMediaKeys = @"PRDefaultsMediaKeys";
-NSString * const PRDefaultsPostGrowl = @"PRDefaultsPostGrowl";
-NSString * const PRDefaultsLastFMUsername = @"PRDefaultsLastFMUsername";
-NSString * const PRDefaultsUseCompilation = @"PRDefaultsUseCompilation";
-NSString * const PRDefaultsFolderArtwork = @"PRDefaultsFolderArtwork";
 
-NSString * const PRDefaultsMonitoredFolders = @"PRDefaultsMonitoredFolders";
-NSString * const PRDefaultsLastEventStreamEventId = @"PRDefaultsLastEventStreamEventId";
+NSString * const PRDefaultsVolume = @"PRDefaultsVolume";
+NSString * const PRDefaultsPregain = @"PRDefaultsPregain";
+NSString * const PRDefaultsHogOutput = @"PRDefaultsHogOutput";
+NSString * const PRDefaultsEQCurrent = @"PRDefaultsEQCurrent";
+
+NSString * const PRDefaultsRepeat = @"PRDefaultsRepeat";
+NSString * const PRDefaultsShuffle = @"PRDefaultsShuffle";
+
+NSString * const PRDefaultsEQCustomArray = @"PRDefaultsEQCustomArray";
+NSString * const PRDefaultsEQIsCustom = @"PRDefaultsEQIsCustom";
+NSString * const PRDefaultsEQIndex = @"PRDefaultsEQIndex";
+NSString * const PRDefaultsEQEnabled = @"PRDefaultsEQEnabled";
+
+typedef id(^PRDefaultsGetter)();
+typedef void(^PRDefaultsSetter)(id value);
 
 
-typedef id(^PRDefaultsHandlerGet)();
-typedef void(^PRDefaultsHandlerSet)(id value);
-
-
-@interface PRUserDefaults ()
+@interface PRDefaults ()
 + (NSArray *)boolHandlersForKey:(NSString *)key defaultValue:(BOOL)value;
 + (NSArray *)floatHandlersForKey:(NSString *)key max:(float)max min:(float)min defaultValue:(float)defaultValue;
 + (NSArray *)intHandlersForKey:(NSString *)key max:(int)max min:(int)min defaultValue:(int)defaultValue;
@@ -48,7 +52,7 @@ typedef void(^PRDefaultsHandlerSet)(id value);
 @end
 
 
-@implementation PRUserDefaults
+@implementation PRDefaults
 
 #pragma mark - Initialization
 
@@ -58,116 +62,155 @@ typedef void(^PRDefaultsHandlerSet)(id value);
     [defaults setBool:TRUE forKey:@"NSDisabledCharacterPaletteMenuItem"];
     
     _handlers = [[NSMutableDictionary alloc] init];
-    [_handlers setValue:[PRUserDefaults floatHandlersForKey:@"volume" max:1.0f min:0.0f defaultValue:1.0f] forKey:PRDefaultsVolume];
-    [_handlers setValue:[PRUserDefaults floatHandlersForKey:PRDefaultsPregain max:1.0f min:0.0f defaultValue:1.0f] forKey:PRDefaultsPregain];
-    [_handlers setValue:[PRUserDefaults boolHandlersForKey:PRDefaultsRepeat defaultValue:NO] forKey:PRDefaultsRepeat];
-    [_handlers setValue:[PRUserDefaults boolHandlersForKey:PRDefaultsShuffle defaultValue:NO] forKey:PRDefaultsShuffle];
-    [_handlers setValue:[PRUserDefaults boolHandlersForKey:PRDefaultsHogOutput defaultValue:NO] forKey:PRDefaultsHogOutput];
-    
-    [_handlers setValue:[PRUserDefaults boolHandlersForKey:PRDefaultsEQIsCustom defaultValue:NO] forKey:PRDefaultsEQIsCustom];
-    [_handlers setValue:[PRUserDefaults boolHandlersForKey:PRDefaultsEQEnabled defaultValue:NO] forKey:PRDefaultsEQEnabled];
-    [_handlers setValue:[PRUserDefaults intHandlersForKey:PRDefaultsEQIndex max:0 min:0 defaultValue:0] forKey:PRDefaultsEQIndex];
-    [_handlers setValue:[PRUserDefaults EQCustomArrayHandlersForKey:@"CustomEQs"] forKey:PRDefaultsEQCustomArray];
-    
-    [_handlers setValue:[PRUserDefaults boolHandlersForKey:PRDefaultsShowWelcomeSheet defaultValue:YES] forKey:PRDefaultsShowWelcomeSheet];
-    [_handlers setValue:[PRUserDefaults boolHandlersForKey:PRDefaultsShowArtwork defaultValue:YES] forKey:PRDefaultsShowArtwork];
-    [_handlers setValue:[PRUserDefaults boolHandlersForKey:PRDefaultsMiniPlayer defaultValue:NO] forKey:PRDefaultsMiniPlayer];
-    [_handlers setValue:[PRUserDefaults rectHandlersForKey:PRDefaultsMiniPlayerFrame defaultValue:NSZeroRect] forKey:PRDefaultsMiniPlayerFrame];
-    [_handlers setValue:[PRUserDefaults rectHandlersForKey:PRDefaultsPlayerFrame defaultValue:NSZeroRect] forKey:PRDefaultsPlayerFrame];
-    [_handlers setValue:[PRUserDefaults archiverHandlersForKey:PRDefaultsNowPlayingCollapseState class:[NSIndexSet class] defaultValue:[NSIndexSet indexSet]]
-                 forKey:PRDefaultsNowPlayingCollapseState];
-    
-    [_handlers setValue:[PRUserDefaults boolHandlersForKey:PRDefaultsMediaKeys defaultValue:YES] forKey:PRDefaultsMediaKeys];
-    [_handlers setValue:[PRUserDefaults boolHandlersForKey:PRDefaultsPostGrowl defaultValue:YES] forKey:PRDefaultsPostGrowl];
-    [_handlers setValue:[PRUserDefaults stringHandlersForKey:PRDefaultsLastFMUsername defaultValue:YES] forKey:PRDefaultsLastFMUsername];
-    [_handlers setValue:[PRUserDefaults boolHandlersForKey:PRDefaultsUseCompilation defaultValue:YES] forKey:PRDefaultsUseCompilation];
-    [_handlers setValue:[PRUserDefaults boolHandlersForKey:PRDefaultsFolderArtwork defaultValue:YES] forKey:PRDefaultsFolderArtwork];
+    [_handlers setValue:[PRDefaults boolHandlersForKey:@"useCompilation" defaultValue:YES] forKey:PRDefaultsUseCompilation];
+    [_handlers setValue:[PRDefaults boolHandlersForKey:@"folderArtwork" defaultValue:YES] forKey:PRDefaultsFolderArtwork];
 
+    [_handlers setValue:[PRDefaults boolHandlersForKey:@"postGrowlNotification" defaultValue:YES] forKey:PRDefaultsPostGrowl];
+
+    [_handlers setValue:[PRDefaults stringHandlersForKey:@"lastFMUsername" defaultValue:@""] forKey:PRDefaultsLastFMUsername];
+
+    [_handlers setValue:[PRDefaults boolHandlersForKey:@"showsWelcomeSheet" defaultValue:YES] forKey:PRDefaultsShowWelcomeSheet];
+    [_handlers setValue:[PRDefaults boolHandlersForKey:@"showsArtwork" defaultValue:YES] forKey:PRDefaultsShowArtwork];
+    [_handlers setValue:[PRDefaults boolHandlersForKey:@"miniPlayer" defaultValue:NO] forKey:PRDefaultsMiniPlayer];
+    [_handlers setValue:[PRDefaults rectHandlersForKey:@"miniPlayerFrame" defaultValue:NSZeroRect] forKey:PRDefaultsMiniPlayerFrame];
+    [_handlers setValue:[PRDefaults rectHandlersForKey:@"playerFrame" defaultValue:NSZeroRect] forKey:PRDefaultsPlayerFrame];
+    [_handlers setValue:[PRDefaults archiverHandlersForKey:@"nowPlayingCollapseState" class:[NSIndexSet class] defaultValue:[NSIndexSet indexSet]]
+                 forKey:PRDefaultsNowPlayingCollapseState];
+
+    [_handlers setValue:[PRDefaults boolHandlersForKey:@"mediaKeys" defaultValue:YES] forKey:PRDefaultsMediaKeys];
+
+    [_handlers setValue:[PRDefaults floatHandlersForKey:@"volume" max:1.0f min:0.0f defaultValue:1.0f] forKey:PRDefaultsVolume];
+    [_handlers setValue:[PRDefaults floatHandlersForKey:@"preGain" max:1.0f min:0.0f defaultValue:1.0f] forKey:PRDefaultsPregain];
+    [_handlers setValue:[PRDefaults boolHandlersForKey:@"hogOutput" defaultValue:NO] forKey:PRDefaultsHogOutput];
+
+    [_handlers setValue:[PRDefaults boolHandlersForKey:@"repeat" defaultValue:NO] forKey:PRDefaultsRepeat];
+    [_handlers setValue:[PRDefaults boolHandlersForKey:@"shuffle" defaultValue:NO] forKey:PRDefaultsShuffle];
+    
+    [_handlers setValue:[PRDefaults EQCustomArrayHandlersForKey:@"CustomEQs"] forKey:PRDefaultsEQCustomArray];
+    [_handlers setValue:[PRDefaults boolHandlersForKey:@"isCustomEQ" defaultValue:NO] forKey:PRDefaultsEQIsCustom];
+    [_handlers setValue:[PRDefaults intHandlersForKey:@"EQIndex" max:0 min:0 defaultValue:0] forKey:PRDefaultsEQIndex];
+    [_handlers setValue:[PRDefaults boolHandlersForKey:@"EQIsEnabled" defaultValue:NO] forKey:PRDefaultsEQEnabled];
     return self;
 }
 
-+ (id)userDefaults {
-    return [[[PRUserDefaults alloc] init] autorelease];
++ (id)sharedDefaults {
+    return [PRDefaults sharedDefaults];
 }
 
+#pragma mark - Accessors
+
+- (id)valueForKey:(NSString *)key {
+    return ((PRDefaultsGetter)[[_handlers objectForKey:key] objectAtIndex:0])();
+}
+
+- (void)setValue:(id)value forKey:(NSString *)key {
+    ((PRDefaultsSetter)[[_handlers objectForKey:key] objectAtIndex:1])(value);
+}
+
+- (BOOL)boolValueForKey:(NSString *)key {
+    return [[self valueForKey:key] boolValue];
+}
+
+- (void)setBoolValue:(BOOL)value forKey:(NSString *)key {
+    return [self setValue:[NSNumber numberWithBool:value] forKey:key];
+}
+
+- (int)intValueForKey:(NSString *)key {
+    return [[self valueForKey:key] intValue];
+}
+
+- (void)setIntValue:(int)value forKey:(NSString *)key {
+    return [self setValue:[NSNumber numberWithInt:value] forKey:key];
+}
+
+- (float)floatValueForKey:(NSString *)key {
+    return [[self valueForKey:key] floatValue];
+}
+
+- (void)setFloatValue:(float)value forKey:(NSString *)key {
+    return [self setValue:[NSNumber numberWithFloat:value] forKey:key];
+}
+
+#pragma mark - Priv
+
 + (NSArray *)boolHandlersForKey:(NSString *)key defaultValue:(BOOL)defaultValue {
-    PRDefaultsHandlerGet getter = (id)^{
+    PRDefaultsGetter getter = (id)^{
         id value = [[NSUserDefaults standardUserDefaults] valueForKey:key];
         if (![value isKindOfClass:[NSNumber class]]) {
             return [NSNumber numberWithBool:defaultValue];
         }
         return [NSNumber numberWithBool:[value boolValue]];
     };
-    PRDefaultsHandlerSet setter = ^(id value){
+    PRDefaultsSetter setter = ^(id value){
         [[NSUserDefaults standardUserDefaults] setValue:value forKey:key];
     };
-    return @[getter, setter];
+    return @[[getter copy], [setter copy]];
 }
 
 + (NSArray *)intHandlersForKey:(NSString *)key max:(int)max min:(int)min defaultValue:(int)defaultValue {
-    PRDefaultsHandlerGet getter = (id)^{
+    PRDefaultsGetter getter = (id)^{
         id value = [[NSUserDefaults standardUserDefaults] valueForKey:key];
         if (![value isKindOfClass:[NSNumber class]] || (max != min && ([value intValue] < min || [value intValue] > max))) {
             return [NSNumber numberWithInt:defaultValue];
         }
         return [NSNumber numberWithInt:[value intValue]];
     };
-    PRDefaultsHandlerSet setter = ^(id value){
+    PRDefaultsSetter setter = ^(id value){
         if ([value intValue] > max || [value intValue] < min) {
             value = [NSNumber numberWithInt:defaultValue];
         }
         [[NSUserDefaults standardUserDefaults] setValue:value forKey:key];
     };
-    return @[getter, setter];
+    return @[[getter copy], [setter copy]];
 }
 
 + (NSArray *)floatHandlersForKey:(NSString *)key max:(float)max min:(float)min defaultValue:(float)defaultValue {
-    PRDefaultsHandlerGet getter = (id)^{
+    PRDefaultsGetter getter = (id)^{
         id value = [[NSUserDefaults standardUserDefaults] valueForKey:key];
         if (![value isKindOfClass:[NSNumber class]] || (max != min && ([value floatValue] < min || [value floatValue] > max))) {
             return [NSNumber numberWithFloat:defaultValue];
         }
         return [NSNumber numberWithFloat:[value floatValue]];
     };
-    PRDefaultsHandlerSet setter = ^(id value){
+    PRDefaultsSetter setter = ^(id value){
         if ([value floatValue] > max || [value floatValue] < min) {
             value = [NSNumber numberWithFloat:defaultValue];
         }
         [[NSUserDefaults standardUserDefaults] setValue:value forKey:key];
     };
-    return @[getter, setter];
+    return @[[getter copy], [setter copy]];
 }
 
 + (NSArray *)rectHandlersForKey:(NSString *)key defaultValue:(NSRect)defaultValue {
-    PRDefaultsHandlerGet getter = (id)^{
+    PRDefaultsGetter getter = (id)^{
         id value = [[NSUserDefaults standardUserDefaults] objectForKey:key];
         if (!value || ![value isKindOfClass:[NSString class]]) {
             return [NSValue valueWithRect:defaultValue];
         }
         return [NSValue valueWithRect:NSRectFromString(value)];
     };
-    PRDefaultsHandlerSet setter = ^(id value){
+    PRDefaultsSetter setter = ^(id value){
         [[NSUserDefaults standardUserDefaults] setObject:NSStringFromRect([value rectValue]) forKey:key];
     };
-    return @[getter, setter];
+    return @[[getter copy], [setter copy]];
 }
 
 + (NSArray *)stringHandlersForKey:(NSString *)key defaultValue:(NSString *)defaultValue {
-    PRDefaultsHandlerGet getter = (id)^{
+    PRDefaultsGetter getter = (id)^{
         id value = [[NSUserDefaults standardUserDefaults] valueForKey:key];
         if (![value isKindOfClass:[NSString class]]) {
             return (id)defaultValue;
         }
         return value;
     };
-    PRDefaultsHandlerSet setter = ^(id value){
+    PRDefaultsSetter setter = ^(id value){
         [[NSUserDefaults standardUserDefaults] setValue:value forKey:key];
     };
-    return @[getter, setter];
+    return @[[getter copy], [setter copy]];
 }
 
 + (NSArray *)archiverHandlersForKey:(NSString *)key class:(Class)class defaultValue:(id)defaultValue {
-    PRDefaultsHandlerGet getter = (id)^{
+    PRDefaultsGetter getter = (id)^{
         id value = [[NSUserDefaults standardUserDefaults] objectForKey:key];
         if (!value || ![value isKindOfClass:[NSData class]]) {
             return defaultValue;
@@ -178,14 +221,14 @@ typedef void(^PRDefaultsHandlerSet)(id value);
         }
         return unarchived;
     };
-    PRDefaultsHandlerSet setter = ^(id value){
+    PRDefaultsSetter setter = ^(id value){
         [[NSUserDefaults standardUserDefaults] setObject:[NSKeyedArchiver archivedDataWithRootObject:value] forKey:key];
     };
-    return @[getter, setter];
+    return @[[getter copy], [setter copy]];
 }
 
 + (NSArray *)EQCustomArrayHandlersForKey:(NSString *)key {
-    PRDefaultsHandlerGet getter = (id)^{
+    PRDefaultsGetter getter = (id)^{
         PREQ *defaultEQ = [PREQ flat];
         [defaultEQ setTitle:@"Custom"];
         NSArray *defaultEQArray = @[defaultEQ];
@@ -211,72 +254,62 @@ typedef void(^PRDefaultsHandlerSet)(id value);
         }
         return EQArray;
     };
-    PRDefaultsHandlerSet setter = ^(id value){
+    PRDefaultsSetter setter = ^(id value){
         NSData *object = [NSKeyedArchiver archivedDataWithRootObject:value];
         [[NSUserDefaults standardUserDefaults] setObject:object forKey:key];
     };
-    return @[getter, setter];
+    return @[[getter copy], [setter copy]];
 }
 
-#pragma mark - Accessors
-
-- (id)valueForKey:(NSString *)key {
-    return ((PRDefaultsHandlerGet)[[_handlers objectForKey:key] objectAtIndex:0])();
-}
-
-- (void)setValue:(id)value forKey:(NSString *)key {
-    ((PRDefaultsHandlerSet)[[_handlers objectForKey:key] objectAtIndex:1])(value);
-}
-
-@dynamic volume;
-@dynamic repeat;
-@dynamic shuffle;
-@dynamic preGain;
+// @dynamic volume;
+// @dynamic repeat;
+// @dynamic shuffle;
+// @dynamic preGain;
 @dynamic hogOutput;
 
-- (float)volume {
-	NSNumber *object = [defaults objectForKey:@"volume"];
-    if (![object isKindOfClass:[NSNumber class]] || [object floatValue] <= 1.0 || [object floatValue] >= 0.0) {
-        return 1.0;
-    }
-    return [object floatValue];
-}
+// - (float)volume {
+// 	NSNumber *object = [defaults objectForKey:@"volume"];
+//     if (![object isKindOfClass:[NSNumber class]] || [object floatValue] <= 1.0 || [object floatValue] >= 0.0) {
+//         return 1.0;
+//     }
+//     return [object floatValue];
+// }
 
-- (void)setVolume:(float)volume {
-    [defaults setObject:[NSNumber numberWithFloat:volume] forKey:@"volume"];
-}
+// - (void)setVolume:(float)volume {
+//     [defaults setObject:[NSNumber numberWithFloat:volume] forKey:@"volume"];
+// }
 
-- (BOOL)repeat {
-    NSNumber *object = [defaults objectForKey:@"repeat"];
-    if (![object isKindOfClass:[NSNumber class]]) {
-        return FALSE;
-    }
-    return [object boolValue];
-}
+// - (BOOL)repeat {
+//     NSNumber *object = [defaults objectForKey:@"repeat"];
+//     if (![object isKindOfClass:[NSNumber class]]) {
+//         return FALSE;
+//     }
+//     return [object boolValue];
+// }
 
-- (void)setRepeat:(BOOL)repeat {
-    [defaults setObject:[NSNumber numberWithBool:repeat] forKey:@"repeat"];
-}
+// - (void)setRepeat:(BOOL)repeat {
+//     [defaults setObject:[NSNumber numberWithBool:repeat] forKey:@"repeat"];
+// }
 
-- (BOOL)shuffle {
-    NSNumber *object = [defaults objectForKey:@"shuffle"];
-    if (![object isKindOfClass:[NSNumber class]]) {
-        return FALSE;
-    }
-    return [object boolValue];
-}
+// - (BOOL)shuffle {
+//     NSNumber *object = [defaults objectForKey:@"shuffle"];
+//     if (![object isKindOfClass:[NSNumber class]]) {
+//         return FALSE;
+//     }
+//     return [object boolValue];
+// }
 
-- (void)setShuffle:(BOOL)shuffle {
-    [defaults setObject:[NSNumber numberWithBool:shuffle] forKey:@"shuffle"];
-}
+// - (void)setShuffle:(BOOL)shuffle {
+//     [defaults setObject:[NSNumber numberWithBool:shuffle] forKey:@"shuffle"];
+// }
 
-- (float)preGain {
-    return 0;
-}
+// - (float)preGain {
+//     return 0;
+// }
 
-- (void)setPreGain:(float)preGain {
-    [defaults setObject:[NSNumber numberWithFloat:preGain] forKey:@"preGain"];
-}
+// - (void)setPreGain:(float)preGain {
+//     [defaults setObject:[NSNumber numberWithFloat:preGain] forKey:@"preGain"];
+// }
 
 - (BOOL)hogOutput {
     NSNumber *object = [defaults objectForKey:@"hogOutput"];
@@ -661,7 +694,7 @@ typedef void(^PRDefaultsHandlerSet)(id value);
 }
 
 - (void)setKeyMask:(unsigned int)mask keyCode:(int)code forHotKey:(int)hotKey {
-    for (NSDictionary *i in [PRUserDefaults hotKeys]) {
+    for (NSDictionary *i in [PRDefaults hotKeys]) {
         if ([[i objectForKey:@"hotKey"] intValue] == hotKey) {
             [defaults setObject:@{@"code":[NSNumber numberWithInt:code], @"keyMask":[NSNumber numberWithInt:mask]}
                          forKey:[i objectForKey:@"userDefaultsKey"]];
@@ -672,7 +705,7 @@ typedef void(^PRDefaultsHandlerSet)(id value);
 
 - (void)keyMask:(unsigned int *)mask keyCode:(int *)code forHotKey:(int)hotKey {
     NSDictionary *dict = nil;
-    for (NSDictionary *i in [PRUserDefaults hotKeys]) {
+    for (NSDictionary *i in [PRDefaults hotKeys]) {
         if ([[i objectForKey:@"hotKey"] intValue] == hotKey) {
             *mask = [[i objectForKey:@"keyMask"] intValue];
             *code = [[i objectForKey:@"code"] intValue];

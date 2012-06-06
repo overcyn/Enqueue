@@ -13,7 +13,7 @@
 #import "PRHistoryViewController.h"
 #import "PRTableViewController.h"
 #import "PRMainMenuController.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "NSWindow+Extensions.h"
 #import "PRTitleBarGradientView.h"
 
@@ -136,7 +136,7 @@
     
     // miniplayer
     [self setMiniPlayer:FALSE];
-    [self setMiniPlayer:[[PRUserDefaults userDefaults] miniPlayer]];
+    [self setMiniPlayer:[[PRDefaults sharedDefaults] miniPlayer]];
         
 	// Buttons
     for (NSDictionary *i in @[
@@ -227,24 +227,24 @@ miniPlayer;
 }
 
 - (BOOL)showsArtwork {
-    return [[PRUserDefaults userDefaults] showsArtwork];
+    return [[PRDefaults sharedDefaults] showsArtwork];
 }
 
 - (void)setShowsArtwork:(BOOL)showsArtwork {
-    [[PRUserDefaults userDefaults] setShowsArtwork:showsArtwork];
+    [[PRDefaults sharedDefaults] setShowsArtwork:showsArtwork];
     [self updateSplitView];
 }
 
 - (BOOL)miniPlayer {
-    return [[PRUserDefaults userDefaults] miniPlayer];
+    return [[PRDefaults sharedDefaults] miniPlayer];
 }
 
 - (void)setMiniPlayer:(BOOL)miniPlayer {
-    [[PRUserDefaults userDefaults] setMiniPlayer:miniPlayer];
+    [[PRDefaults sharedDefaults] setMiniPlayer:miniPlayer];
     
     NSRect winFrame;
     if ([self miniPlayer]) {
-        winFrame = [[PRUserDefaults userDefaults] miniPlayerFrame];
+        winFrame = [[PRDefaults sharedDefaults] miniPlayerFrame];
         if (NSEqualRects(winFrame, NSZeroRect)) {
             winFrame.origin.x = [[self window] frame].origin.x;
             winFrame.origin.y = [[self window] frame].origin.y;
@@ -255,7 +255,7 @@ miniPlayer;
         }
         winFrame.size.width = 215;        
     } else {
-        winFrame = [[PRUserDefaults userDefaults] playerFrame];
+        winFrame = [[PRDefaults sharedDefaults] playerFrame];
         if (NSEqualRects(winFrame, NSZeroRect)) {
             winFrame.origin.x = [[self window] frame].origin.x;
             winFrame.origin.y = [[self window] frame].origin.y;
@@ -390,7 +390,7 @@ miniPlayer;
         [centerSuperview removeFromSuperview];
         [_splitView addSubview:centerSuperview];
         
-        [_splitView setPosition:[[PRUserDefaults userDefaults] sidebarWidth] ofDividerAtIndex:0];
+        [_splitView setPosition:[[PRDefaults sharedDefaults] sidebarWidth] ofDividerAtIndex:0];
         
         // WINDOW
         [[self window] setMinSize:NSMakeSize(700+185, 500)];
@@ -427,8 +427,8 @@ miniPlayer;
     }
     
     if (![self miniPlayer]) {
-        [[controlsViewController albumArtView] setHidden:![[PRUserDefaults userDefaults] showsArtwork]];
-        if ([[PRUserDefaults userDefaults] showsArtwork]) {
+        [[controlsViewController albumArtView] setHidden:![[PRDefaults sharedDefaults] showsArtwork]];
+        if ([[PRDefaults sharedDefaults] showsArtwork]) {
             // size of nowPlayingView
             frame = [nowPlayingSuperview bounds];
             frame.size.height -= [nowPlayingSuperview frame].size.width;
@@ -558,8 +558,8 @@ miniPlayer;
     frame.size.height = [[self window] frame].size.height - 30 - 54 + 22;
     [_splitView setFrame:frame];
     
-    if ([[PRUserDefaults userDefaults] playerFrame].size.width - [nowPlayingSuperview frame].size.width < 700) {
-        [_splitView setPosition:[[PRUserDefaults userDefaults] playerFrame].size.width - 700 ofDividerAtIndex:0];
+    if ([[PRDefaults sharedDefaults] playerFrame].size.width - [nowPlayingSuperview frame].size.width < 700) {
+        [_splitView setPosition:[[PRDefaults sharedDefaults] playerFrame].size.width - 700 ofDividerAtIndex:0];
     }
 }
 
@@ -621,9 +621,9 @@ miniPlayer;
     }
     [self updateWindowButtons];
     if ([self miniPlayer]) {
-        [[PRUserDefaults userDefaults] setMiniPlayerFrame:[[self window] frame]];
+        [[PRDefaults sharedDefaults] setMiniPlayerFrame:[[self window] frame]];
     } else {
-        [[PRUserDefaults userDefaults] setPlayerFrame:[[self window] frame]];
+        [[PRDefaults sharedDefaults] setPlayerFrame:[[self window] frame]];
     }
 }
 
@@ -633,9 +633,9 @@ miniPlayer;
     }
     [self updateWindowButtons];
     if ([self miniPlayer]) {
-        [[PRUserDefaults userDefaults] setMiniPlayerFrame:[[self window] frame]];
+        [[PRDefaults sharedDefaults] setMiniPlayerFrame:[[self window] frame]];
     } else {
-        [[PRUserDefaults userDefaults] setPlayerFrame:[[self window] frame]];
+        [[PRDefaults sharedDefaults] setPlayerFrame:[[self window] frame]];
     }
 }
 
@@ -681,7 +681,7 @@ miniPlayer;
         }
     }
     [self updateSplitView];
-    [[PRUserDefaults userDefaults] setSidebarWidth:[nowPlayingSuperview frame].size.width];
+    [[PRDefaults sharedDefaults] setSidebarWidth:[nowPlayingSuperview frame].size.width];
 }
 
 - (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {

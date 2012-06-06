@@ -6,7 +6,7 @@
 #import "PRItunesImportOperation.h"
 #import "PRFolderMonitor.h"
 #import "PRTaskManager.h"
-#import "PRUserDefaults.h"
+#import "PRDefaults.h"
 #import "PRGrowl.h"
 #import "PRHotKeyController.h"
 #import "PRLastfm.h"
@@ -33,7 +33,7 @@
         [[PRLog sharedLog] presentFatalError:[self multipleInstancesError]];
     }
     
-    NSString *path = [[PRUserDefaults userDefaults] applicationSupportPath];
+    NSString *path = [[PRDefaults sharedDefaults] applicationSupportPath];
     if (![[[[NSFileManager alloc] init] autorelease] findOrCreateDirectoryAtPath:path error:nil]) {
         [[PRLog sharedLog] presentFatalError:[self couldNotCreateDirectoryError:path]];
     }
@@ -74,8 +74,8 @@
     
     PRTrialSheetController *trialSheet = [[PRTrialSheetController alloc] initWithCore:self]; 
     [trialSheet beginSheetModalForWindow:[_win window] completionHandler:^{[trialSheet release];}];
-    if ([[PRUserDefaults userDefaults] showWelcomeSheet]) {
-        [[PRUserDefaults userDefaults] setShowWelcomeSheet:FALSE];
+    if ([[PRDefaults sharedDefaults] showWelcomeSheet]) {
+        [[PRDefaults sharedDefaults] setShowWelcomeSheet:FALSE];
         PRWelcomeSheetController *welcomeSheet = [[PRWelcomeSheetController alloc] initWithCore:self];
         [welcomeSheet beginSheetModalForWindow:[_win window] completionHandler:^{[welcomeSheet release];}];
     }
