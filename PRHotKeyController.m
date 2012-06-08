@@ -9,7 +9,7 @@
 
 @interface PRHotKeyController ()
 - (void)updateHotKeys;
-+ (NSDictionary *)defaultsKeyDictionary;
++ (NSString *)defaultsKeyForHotKey:(PRHotKey)hotKey;
 @end
 
 

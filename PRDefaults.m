@@ -106,7 +106,7 @@ typedef void(^PRDefaultsSetter)(id value);
         PRDefaultsPreviousHotKey:[PRDefaults hotKeyHandlersForKey:@"playPreviousHotKey" defaultValue:@[mask, @123]],
         PRDefaultsIncreaseVolumeHotKey:[PRDefaults hotKeyHandlersForKey:@"increaseVolumeHotKey" defaultValue:@[mask, @126]],
         PRDefaultsDecreaseVolumeHotKey:[PRDefaults hotKeyHandlersForKey:@"decreaseVolumeHotKey" defaultValue:@[mask, @125]],
-        PRDefaultsRate1HotKey:[PRDefaults hotKeyHandlersForKey:@"rate0StarHotKey" defaultValue:@[mask, @17]],
+        PRDefaultsRate0HotKey:[PRDefaults hotKeyHandlersForKey:@"rate0StarHotKey" defaultValue:@[mask, @17]],
         PRDefaultsRate1HotKey:[PRDefaults hotKeyHandlersForKey:@"rate1StarHotKey" defaultValue:@[mask, @18]],
         PRDefaultsRate2HotKey:[PRDefaults hotKeyHandlersForKey:@"rate2StarHotKey" defaultValue:@[mask, @19]],
         PRDefaultsRate3HotKey:[PRDefaults hotKeyHandlersForKey:@"rate3StarHotKey" defaultValue:@[mask, @20]],

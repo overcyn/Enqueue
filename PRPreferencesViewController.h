@@ -18,18 +18,15 @@ typedef enum {
     IBOutlet NSButton *_generalButton;
     IBOutlet NSButton *_playbackButton;
     IBOutlet NSButton *_shortcutsButton;
-    IBOutlet NSButton *_lastfmButton;
     IBOutlet NSView *_generalView;
     IBOutlet NSView *_playbackView;
     IBOutlet NSView *_shortcutsView;
-    IBOutlet NSView *_lastfmView;
     IBOutlet NSView *_contentView;
     
     IBOutlet PRGradientView *_topBorder;
     IBOutlet PRGradientView *_generalBorder;
     IBOutlet PRGradientView *_playbackBorder;
     IBOutlet PRGradientView *_shortcutsBorder;
-    IBOutlet PRGradientView *_lastfmBorder;
     
     // General
     IBOutlet NSButton *sortWithAlbumArtist;
@@ -114,7 +111,6 @@ typedef enum {
 - (id)initWithCore:(PRCore *)core;
 
 /* Tabs */
-- (NSDictionary *)tabs;
 - (NSDictionary *)tabInfo;
 - (void)tabAction:(id)sender;
 

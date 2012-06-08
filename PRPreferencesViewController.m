@@ -93,8 +93,8 @@
     [rate5Star setDelegate:self];
     
     // Tabs
-    for (NSNumber *i in [[self tabs] allKeys]) {
-        NSButton *tab = [[self tabs] objectForKey:i];
+    for (NSNumber *i in [self tabInfo]) {
+        NSButton *tab = [[[self tabInfo] objectForKey:i] objectAtIndex:0];
         [tab setTarget:self];
         [tab setAction:@selector(tabAction:)];
         [tab setTag:[i intValue]];
@@ -112,14 +112,8 @@
     [EQPopUp setMenu:EQMenu];
     [[NSNotificationCenter defaultCenter] observeEQChanged:self sel:@selector(EQViewUpdate)];
     
-    for (PRGradientView *i in @[_EQDivider1, _EQDivider2, _EQDivider3,
-         _EQDivider4, _EQDivider5, _EQDivider6, 
-         _EQDivider7, _EQDivider8, _EQDivider9]) {
-        [i setTopBorder:[NSColor PRGridColor]];
-        [i setBotBorder:[NSColor PRGridHighlightColor]];
-    }
-    
-    for (PRGradientView *i in @[_generalBorder, _playbackBorder, _shortcutsBorder, _lastfmBorder, _topBorder]) {
+    for (PRGradientView *i in @[_EQDivider1, _EQDivider2, _EQDivider3, _EQDivider4, _EQDivider5, _EQDivider6,
+         _EQDivider7, _EQDivider8, _EQDivider9, _generalBorder, _playbackBorder, _shortcutsBorder, _topBorder]) {
         [i setTopBorder:[NSColor PRGridColor]];
         [i setBotBorder:[NSColor PRGridHighlightColor]];
     }
@@ -146,6 +140,8 @@
 	[NSNotificationCenter addObserver:self selector:@selector(updateUI) name:PRLastfmStateDidChangeNotification object:nil];
     
     [self updateUI];
+    [self updateHotKeys];
+
 }
 
 - (void)dealloc {
@@ -155,33 +151,11 @@
 
 #pragma mark - Tabs
 
-- (NSDictionary *)tabs {
-    return [NSDictionary dictionaryWithObjectsAndKeys:
-            _generalButton, [NSNumber numberWithInt:PRGeneralPrefMode], 
-            _playbackButton, [NSNumber numberWithInt:PRPlaybackPrefMode],
-            _shortcutsButton, [NSNumber numberWithInt:PRShortcutsPrefMode],
-            _lastfmButton, [NSNumber numberWithInt:PRLastfmPrefMode], nil];
-}
-
 - (NSDictionary *)tabInfo {
-    return [NSDictionary dictionaryWithObjectsAndKeys:
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             _generalButton, @"tab", 
-             _generalView, @"view",
-             [NSNumber numberWithFloat:231], @"height", nil], [NSNumber numberWithInt:PRGeneralPrefMode], 
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             _playbackButton, @"tab", 
-             _playbackView, @"view",
-             [NSNumber numberWithFloat:269], @"height", nil], [NSNumber numberWithInt:PRPlaybackPrefMode], 
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             _shortcutsButton, @"tab", 
-             _shortcutsView, @"view",
-             [NSNumber numberWithFloat:183], @"height", nil], [NSNumber numberWithInt:PRShortcutsPrefMode], 
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             _lastfmButton, @"tab", 
-             _lastfmView, @"view",
-             [NSNumber numberWithFloat:84], @"height", nil], [NSNumber numberWithInt:PRLastfmPrefMode], 
-            nil];
+    return @{
+        [NSNumber numberWithInt:PRGeneralPrefMode]:@[_generalButton, _generalView],
+        [NSNumber numberWithInt:PRPlaybackPrefMode]:@[_playbackButton, _playbackView],
+        [NSNumber numberWithInt:PRShortcutsPrefMode]:@[_shortcutsButton, _shortcutsView]};
 }
 
 - (void)tabAction:(id)sender {
@@ -193,9 +167,11 @@
 
 - (void)updateUI {
     // Tabs
-    for (NSNumber *i in [[self tabs] allKeys]) {
-        NSButton *tab = [[self tabs] objectForKey:i];
-        NSView *view = [[[self tabInfo] objectForKey:i] objectForKey:@"view"];
+    NSDictionary *tabInfo = [self tabInfo];
+    
+    for (NSNumber *i in tabInfo) {
+        NSButton *tab = [[tabInfo objectForKey:i] objectAtIndex:0];
+        NSView *view = [[tabInfo objectForKey:i] objectAtIndex:1];
         if ([i intValue] == _prefMode) {
             [tab setState:NSOnState];
             [_contentView addSubview:view];
@@ -261,7 +237,6 @@
         default:
             break;
     }
-    [self updateHotKeys];
 }
 
 #pragma mark - Equalizer
@@ -508,7 +483,7 @@
     if ([foldersTableView selectedRow] == -1) {
         return;
     }
-    [[core folderMonitor] removeFolder:[[folderMonitor monitoredFolders] objectAtIndex:[foldersTableView selectedRow]]];
+    [[core folderMonitor] removeFolder:[[[core folderMonitor] monitoredFolders] objectAtIndex:[foldersTableView selectedRow]]];
     [self updateUI];
 }
 
