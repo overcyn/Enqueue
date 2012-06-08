@@ -194,7 +194,7 @@ typedef void(^PRDefaultsSetter)(id value);
     PRDefaultsSetter setter = ^(id value){
         [[NSUserDefaults standardUserDefaults] setValue:value forKey:key];
     };
-    return @[[getter copy], [setter copy]];
+    return @[[[getter copy] autorelease], [[setter copy] autorelease]];
 }
 
 + (NSArray *)numberHandlersForKey:(NSString *)key max:(NSNumber *)max min:(NSNumber *)min defaultValue:(NSNumber *)defaultValue {
@@ -211,7 +211,7 @@ typedef void(^PRDefaultsSetter)(id value);
         }
         [[NSUserDefaults standardUserDefaults] setValue:value forKey:key];
     };
-    return @[[getter copy], [setter copy]];
+    return @[[[getter copy] autorelease], [[setter copy] autorelease]];
 }
 
 + (NSArray *)numberHandlersForKey:(NSString *)key defaultValue:(NSNumber *)defaultValue {
@@ -229,7 +229,7 @@ typedef void(^PRDefaultsSetter)(id value);
     PRDefaultsSetter setter = ^(id value){
         [[NSUserDefaults standardUserDefaults] setObject:NSStringFromRect([value rectValue]) forKey:key];
     };
-    return @[[getter copy], [setter copy]];
+    return @[[[getter copy] autorelease], [[setter copy] autorelease]];
 }
 
 + (NSArray *)stringHandlersForKey:(NSString *)key defaultValue:(NSString *)defaultValue {
@@ -243,7 +243,7 @@ typedef void(^PRDefaultsSetter)(id value);
     PRDefaultsSetter setter = ^(id value){
         [[NSUserDefaults standardUserDefaults] setValue:value forKey:key];
     };
-    return @[[getter copy], [setter copy]];
+    return @[[[getter copy] autorelease], [[setter copy] autorelease]];
 }
 
 + (NSArray *)archiverHandlersForKey:(NSString *)key class:(Class)class defaultValue:(id)defaultValue {
@@ -261,7 +261,7 @@ typedef void(^PRDefaultsSetter)(id value);
     PRDefaultsSetter setter = ^(id value){
         [[NSUserDefaults standardUserDefaults] setObject:[NSKeyedArchiver archivedDataWithRootObject:value] forKey:key];
     };
-    return @[[getter copy], [setter copy]];
+    return @[[[getter copy] autorelease], [[setter copy] autorelease]];
 }
 
 + (NSArray *)EQCustomArrayHandlersForKey:(NSString *)key {
@@ -295,7 +295,7 @@ typedef void(^PRDefaultsSetter)(id value);
         NSData *object = [NSKeyedArchiver archivedDataWithRootObject:value];
         [[NSUserDefaults standardUserDefaults] setObject:object forKey:key];
     };
-    return @[[getter copy], [setter copy]];
+    return @[[[getter copy] autorelease], [[setter copy] autorelease]];
 }
 
 + (NSArray *)monitoredFoldersHandlersForKey:(NSString *)key {
@@ -319,7 +319,7 @@ typedef void(^PRDefaultsSetter)(id value);
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:value];
         [[NSUserDefaults standardUserDefaults] setObject:data forKey:key];
     };
-    return @[[getter copy], [setter copy]];
+    return @[[[getter copy] autorelease], [[setter copy] autorelease]];
 }
 
 + (NSArray *)EQCurrentHandlers {
@@ -334,7 +334,7 @@ typedef void(^PRDefaultsSetter)(id value);
     PRDefaultsSetter setter = ^(id value){
         @throw NSInvalidArgumentException;
     };
-    return @[[getter copy], [setter copy]];
+    return @[[[getter copy] autorelease], [[setter copy] autorelease]];
 }
 
 + (NSArray *)EQIndexHandlersForKey:(NSString *)key {
@@ -355,7 +355,7 @@ typedef void(^PRDefaultsSetter)(id value);
     PRDefaultsSetter setter = ^(id value){
         [[NSUserDefaults standardUserDefaults] setValue:value forKey:key];
     };
-    return @[[getter copy], [setter copy]];
+    return @[[[getter copy] autorelease], [[setter copy] autorelease]];
 }
 
 + (NSArray *)hotKeyHandlersForKey:(NSString *)key defaultValue:(NSArray *)defaultValue {
@@ -371,7 +371,7 @@ typedef void(^PRDefaultsSetter)(id value);
         NSDictionary *object = @{@"keyMask":[value objectAtIndex:1], @"code":[value objectAtIndex:0]};
         [[NSUserDefaults standardUserDefaults] setObject:object forKey:key];
     };
-    return @[[getter copy], [setter copy]];
+    return @[[[getter copy] autorelease], [[setter copy] autorelease]];
 }
 
 @dynamic applicationSupportPath;
