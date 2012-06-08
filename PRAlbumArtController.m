@@ -61,7 +61,7 @@
     }
     
     // Artwork in Folder
-    if (![[PRDefaults sharedDefaults] folderArtwork]) {
+    if (![[PRDefaults sharedDefaults] boolForKey:PRDefaultsFolderArtwork]) {
         return nil;
     }
     string = [NSMutableString stringWithString:@"SELECT path FROM library WHERE file_id IN ("];
@@ -105,7 +105,7 @@
 
 - (NSImage *)artworkForArtist:(NSString *)artist {
 	NSString *string = [NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ COLLATE NOCASE2 = ?1",
-                        ([[PRDefaults sharedDefaults] useAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
+                        ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
     NSArray *results = [_db execute:string bindings:@{@1:artist} columns:@[PRColInteger]];
     NSMutableArray *items = [NSMutableArray array];
     for (NSArray *i in results) {
@@ -141,7 +141,7 @@
     }
     
     // Folder Artwork
-    if (![[PRDefaults sharedDefaults] folderArtwork]) {
+    if (![[PRDefaults sharedDefaults] boolForKey:PRDefaultsFolderArtwork]) {
         return @{@"files":indexSet, @"paths":@[]};
     }
     
@@ -162,7 +162,7 @@
 
 - (NSDictionary *)artworkInfoForArtist:(NSString *)artist {
     NSString *string = [NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ COLLATE NOCASE2 = ?1",
-                        ([[PRDefaults sharedDefaults] useAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
+                        ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
     NSArray *results = [_db execute:string bindings:@{@1:artist} columns:@[PRColInteger]];
     NSMutableArray *items = [NSMutableArray array];
     for (NSArray *i in results) {

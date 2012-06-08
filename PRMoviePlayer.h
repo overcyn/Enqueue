@@ -1,3 +1,6 @@
+/*
+    PRMovieQueueWaiting->PRMovieQueuePlayed, 
+*/
 #import <Cocoa/Cocoa.h>
 #import <AudioUnit/AudioUnit.h>
 @class PRMovie;
@@ -41,6 +44,7 @@ typedef enum {
 /* Accessors */
 @property (readonly) BOOL isPlaying;
 @property (readwrite) float volume;
+@property (readwrite) BOOL hogOutput;
 @property (readwrite) long currentTime;
 @property (readonly) long duration;
 @property (readonly) NSArray *devices;

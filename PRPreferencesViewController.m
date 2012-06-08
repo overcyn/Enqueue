@@ -28,14 +28,6 @@
     core = core_;
     db = [core db];
     now = [core now];
-    folderMonitor = [core folderMonitor];
-
-    // hotkeys
-    for (NSDictionary *i in [self hotkeyDictionary]) {
-        NSDictionary *hotkey = @{@"code":[i objectForKey:@"defaultCode"],@"keyMask":[i objectForKey:@"defaultKeyMask"]};
-        [[NSUserDefaults standardUserDefaults] registerDefaults:@{[i objectForKey:@"userDefaultsKey"]:hotkey}];
-    }
-    [[NSUserDefaults standardUserDefaults] synchronize];
 	return self;
 }
 
@@ -69,7 +61,7 @@
     [masterVolumePopUpButton setTarget:self];
     [masterVolumePopUpButton setAction:@selector(setMasterVolume:)];
     int tag;
-    switch ((int)[[PRDefaults sharedDefaults] floatValueForKey:PRDefaultsPregain]) {
+    switch ((int)[[PRDefaults sharedDefaults] floatForKey:PRDefaultsPregain]) {
         case -10:
             tag = 1;
             break;
@@ -88,61 +80,7 @@
     }
     [masterVolumePopUpButton selectItemWithTag:tag];
     
-    // Global Hotkeys
-    for (NSDictionary *i in [self hotkeyDictionary]) {
-        SRRecorderControl *recorder;
-        switch ([[i objectForKey:@"ID"] intValue]) {
-            case 1:
-                recorder = playPause;
-                break;
-            case 2:
-                recorder = playNext;
-                break;
-            case 3:
-                recorder = playPrevious;
-                break;
-            case 4:
-                recorder = increaseVolume;
-                break;
-            case 5:
-                recorder = decreaseVolume;
-                break;
-            case 6:
-                recorder = rate1Star;
-                break;
-            case 7:
-                recorder = rate2Star;
-                break;
-            case 8:
-                recorder = rate3Star;
-                break;
-            case 9:
-                recorder = rate4Star;
-                break;
-            case 10:
-                recorder = rate5Star;
-                break;
-            default:
-                recorder = nil;
-                break;
-        }
-        
-        NSDictionary *defaults = [[NSUserDefaults standardUserDefaults] dictionaryForKey:[i objectForKey:@"userDefaultsKey"]];
-        KeyCombo keyCombo;
-        keyCombo.flags = 0;
-        if ([[defaults objectForKey:@"keyMask"] intValue] & cmdKey) {
-            keyCombo.flags += NSCommandKeyMask;
-        }
-        if ([[defaults objectForKey:@"keyMask"] intValue] & optionKey) {
-            keyCombo.flags += NSAlternateKeyMask;
-        }
-        if ([[defaults objectForKey:@"keyMask"] intValue] & controlKey) {
-            keyCombo.flags += NSControlKeyMask;
-        }
-        keyCombo.code = [[defaults objectForKey:@"code"] intValue];
-        [recorder setKeyCombo:keyCombo];
-    }
-    
+    // Hotkeys
     [playPause setDelegate:self];
     [playNext setDelegate:self];
     [playPrevious setDelegate:self];
@@ -181,9 +119,7 @@
         [i setBotBorder:[NSColor PRGridHighlightColor]];
     }
     
-    for (PRGradientView *i in [NSArray arrayWithObjects:
-                               _generalBorder, _playbackBorder, 
-                               _shortcutsBorder, _lastfmBorder, _topBorder, nil]) {
+    for (PRGradientView *i in @[_generalBorder, _playbackBorder, _shortcutsBorder, _lastfmBorder, _topBorder]) {
         [i setTopBorder:[NSColor PRGridColor]];
         [i setBotBorder:[NSColor PRGridHighlightColor]];
     }
@@ -206,10 +142,8 @@
     [rescan setTarget:self];
     [rescan setAction:@selector(rescan)];
     [foldersTableView setDataSource:self];
-    [folderMonitor addObserver:self forKeyPath:@"monitoredFolders" options:0 context:nil];
     
 	[NSNotificationCenter addObserver:self selector:@selector(updateUI) name:PRLastfmStateDidChangeNotification object:nil];
-    [NSNotificationCenter addObserver:self selector:@selector(updateUI) name:PRHogOutputDidChangeNotification object:nil];
     
     [self updateUI];
 }
@@ -275,17 +209,17 @@
     }
     
     // Misc preferences
-    [_compilationsButton setState:[[PRDefaults sharedDefaults] useCompilation]];
-    [sortWithAlbumArtist setState:[[PRDefaults sharedDefaults] useAlbumArtist]];
-    [mediaKeys setState:[[PRDefaults sharedDefaults] mediaKeys]];
-    [folderArtwork setState:[[PRDefaults sharedDefaults] folderArtwork]];
-    [_hogButton setState:[[PRDefaults sharedDefaults] hogOutput]];
+    [_compilationsButton setState:[[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]];
+    [sortWithAlbumArtist setState:[[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist]];
+    [mediaKeys setState:[[core keys] isEnabled]];
+    [folderArtwork setState:[[PRDefaults sharedDefaults] boolForKey:PRDefaultsFolderArtwork]];
+    [_hogButton setState:[[[core now] mov] hogOutput]];
     
     // Folders
     [foldersTableView reloadData];
     
     // EQ
-    BOOL EQIsEnabled = [[PRDefaults sharedDefaults] EQIsEnabled];
+    BOOL EQIsEnabled = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQEnabled];
     for (NSNumber *i in [self EQSliders]) {
         NSSlider *slider = [[self EQSliders] objectForKey:i];
         [slider setEnabled:EQIsEnabled];
@@ -300,18 +234,11 @@
     [_lastfmConnectButton setTarget:[core lastfm]];
     switch ([[core lastfm] lastfmState]) {
         case PRLastfmConnectedState:;
-            NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
-                                        [NSFont systemFontOfSize:13], NSFontAttributeName, nil];
-            NSDictionary *attributes2 = [NSDictionary dictionaryWithObjectsAndKeys:
-                                         [NSFont boldSystemFontOfSize:13], NSFontAttributeName, nil];
-            NSMutableAttributedString *lastfmString = [[[NSMutableAttributedString alloc] initWithString:@"Signed in to Last.fm as " 
-                                                                                              attributes:attributes] autorelease];
-            NSAttributedString *username = [[[NSAttributedString alloc] initWithString:[[PRDefaults sharedDefaults] lastFMUsername]
-                                                                            attributes:attributes2] autorelease];
-            NSAttributedString *closing = [[[NSAttributedString alloc] initWithString:@"."
-                                                                        attributes:attributes] autorelease];
-            [lastfmString appendAttributedString:username];
-            [lastfmString appendAttributedString:closing];
+            NSMutableAttributedString *lastfmString = [[[NSMutableAttributedString alloc] initWithString:@"Signed in to Last.fm as ."
+                attributes:@{NSFontAttributeName:[NSFont systemFontOfSize:13]}] autorelease];
+            NSAttributedString *username = [[[NSAttributedString alloc] initWithString:[[core lastfm] username]
+                attributes:@{NSFontAttributeName:[NSFont boldSystemFontOfSize:13]}] autorelease];
+            [lastfmString insertAttributedString:username atIndex:[lastfmString length]-1];
             [_lastfmConnectField setAttributedStringValue:lastfmString];
             [_lastfmConnectButton setTitle:@"Logout"];
             [_lastfmConnectButton setAction:@selector(disconnect)];
@@ -334,12 +261,7 @@
         default:
             break;
     }
-}
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if (object == folderMonitor && [keyPath isEqualToString:@"monitoredFolders"]) {
-        [self updateUI];
-    }
+    [self updateHotKeys];
 }
 
 #pragma mark - Equalizer
@@ -361,7 +283,7 @@
 }
 
 - (void)EQButtonAction {
-    [[PRDefaults sharedDefaults] setEQIsEnabled:([EQButton state] == NSOnState)];
+    [[PRDefaults sharedDefaults] setBool:([EQButton state] == NSOnState) forKey:PRDefaultsEQEnabled];
     [self updateUI];
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
@@ -369,23 +291,23 @@
 - (void)EQSliderAction:(id)sender {
     float amp = [(NSSlider *)sender floatValue];
     PREQFreq freq = [[[[self EQSliders] allKeysForObject:sender] objectAtIndex:0] intValue];
-    int EQIndex = [[PRDefaults sharedDefaults] EQIndex];
-    BOOL isCustom = [[PRDefaults sharedDefaults] isCustomEQ];
-    NSMutableArray *customEQs = [NSMutableArray arrayWithArray:[[PRDefaults sharedDefaults] customEQs]];
+    int EQIndex = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIndex];
+    BOOL isCustom = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIsCustom];
+    NSMutableArray *customEQs = [NSMutableArray arrayWithArray:[[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCustomArray]];
     
     PREQ *EQ;
     if (isCustom) {
         EQ = [customEQs objectAtIndex:EQIndex];
         [EQ setAmp:amp forFreq:freq];
-        [[PRDefaults sharedDefaults] setCustomEQs:customEQs];
+        [[PRDefaults sharedDefaults] setValue:customEQs forKey:PRDefaultsEQCustomArray];
     } else {
         EQ = [[PREQ defaultEQs] objectAtIndex:EQIndex];
         [EQ setAmp:amp forFreq:freq];
         [EQ setTitle:@"Custom"];
         [customEQs replaceObjectAtIndex:0 withObject:EQ];
-        [[PRDefaults sharedDefaults] setCustomEQs:customEQs];
-        [[PRDefaults sharedDefaults] setIsCustomEQ:TRUE];
-        [[PRDefaults sharedDefaults] setEQIndex:0];
+        [[PRDefaults sharedDefaults] setValue:customEQs forKey:PRDefaultsEQCustomArray];
+        [[PRDefaults sharedDefaults] setBool:TRUE forKey:PRDefaultsEQIsCustom];
+        [[PRDefaults sharedDefaults] setInt:0 forKey:PRDefaultsEQIndex];
     }
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
@@ -401,74 +323,61 @@
     [alert layout];
     NSRect frame = [_EQSaveTextField frame];
     [_EQSaveTextField setFrame:frame];
-    
-     NSInteger result = [alert runModal];
-     
-     if (result == NSAlertFirstButtonReturn) {
-         // "Save"
-         int EQIndex = [[PRDefaults sharedDefaults] EQIndex];
-         BOOL isCustom = [[PRDefaults sharedDefaults] isCustomEQ];
-         NSMutableArray *customEQs = [NSMutableArray arrayWithArray:[[PRDefaults sharedDefaults] customEQs]];
-         
-         PREQ *newEQ;
-         if (isCustom) {
-             newEQ = [PREQ EQWithEQ:[customEQs objectAtIndex:EQIndex]];
-         } else {
-             newEQ = [PREQ EQWithEQ:[[PREQ defaultEQs] objectAtIndex:EQIndex]];
-         }
-         [newEQ setTitle:[_EQSaveTextField stringValue]];
-         [customEQs addObject:newEQ];
-         [[PRDefaults sharedDefaults] setCustomEQs:customEQs];
-         [[PRDefaults sharedDefaults] setEQIndex:[customEQs count]-1];
-         [[PRDefaults sharedDefaults] setIsCustomEQ:TRUE];
-         [[NSNotificationCenter defaultCenter] postEQChanged];
 
-     } else if ( result == NSAlertSecondButtonReturn ) {  // Accessory view: handle user-specified data
-         // "Cancel"
-         [self EQViewUpdate];
-     }
-     [alert release];
+    NSInteger result = [alert runModal];
+    if (result == NSAlertFirstButtonReturn) {
+        // "Save"
+        int EQIndex = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIndex];
+        BOOL isCustom = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIsCustom];
+        NSMutableArray *customEQs = [NSMutableArray arrayWithArray:[[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCustomArray]];
+
+        PREQ *newEQ = isCustom ? [PREQ EQWithEQ:[customEQs objectAtIndex:EQIndex]] : [PREQ EQWithEQ:[[PREQ defaultEQs] objectAtIndex:EQIndex]];
+        [newEQ setTitle:[_EQSaveTextField stringValue]];
+        [customEQs addObject:newEQ];
+        [[PRDefaults sharedDefaults] setValue:customEQs forKey:PRDefaultsEQCustomArray];
+        [[PRDefaults sharedDefaults] setInt:[customEQs count]-1 forKey:PRDefaultsEQIndex];
+        [[PRDefaults sharedDefaults] setBool:TRUE forKey:PRDefaultsEQIsCustom];
+        [[NSNotificationCenter defaultCenter] postEQChanged];
+    }
+    [alert release];
 }
 
 - (void)EQMenuActionDelete:(id)sender {
-    int EQIndex = [[PRDefaults sharedDefaults] EQIndex];
-    BOOL isCustom = [[PRDefaults sharedDefaults] isCustomEQ];
-    NSMutableArray *customEQs = [NSMutableArray arrayWithArray:[[PRDefaults sharedDefaults] customEQs]];
-    
+    int EQIndex = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIndex];
+    BOOL isCustom = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIsCustom];
     if (!isCustom || EQIndex == 0) {
         return;
     }
     
+    NSMutableArray *customEQs = [NSMutableArray arrayWithArray:[[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCustomArray]];
     [customEQs removeObjectAtIndex:EQIndex];
-    [[PRDefaults sharedDefaults] setCustomEQs:customEQs];
-    [[PRDefaults sharedDefaults] setEQIndex:0];
+    [[PRDefaults sharedDefaults] setValue:customEQs forKey:PRDefaultsEQCustomArray];
+    [[PRDefaults sharedDefaults] setInt:0 forKey:PRDefaultsEQIndex];
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
 
 - (void)EQMenuActionCustom:(id)sender {
-    [[PRDefaults sharedDefaults] setIsCustomEQ:TRUE];
-    [[PRDefaults sharedDefaults] setEQIndex:[sender tag]];
+    [[PRDefaults sharedDefaults] setBool:TRUE forKey:PRDefaultsEQIsCustom];
+    [[PRDefaults sharedDefaults] setInt:[sender tag] forKey:PRDefaultsEQIndex];
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
 
 - (void)EQMenuActionDefault:(id)sender {
-    [[PRDefaults sharedDefaults] setIsCustomEQ:FALSE];
-    [[PRDefaults sharedDefaults] setEQIndex:[sender tag]];
+    [[PRDefaults sharedDefaults] setBool:FALSE forKey:PRDefaultsEQIsCustom];
+    [[PRDefaults sharedDefaults] setInt:[sender tag] forKey:PRDefaultsEQIndex];
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
 
 - (void)EQViewUpdate {
-    int EQIndex = [[PRDefaults sharedDefaults] EQIndex];
-    BOOL isCustom = [[PRDefaults sharedDefaults] isCustomEQ];
+    int EQIndex = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIndex];
     PREQ *EQ;
-    if (isCustom) {
-        EQ = [[[PRDefaults sharedDefaults] customEQs] objectAtIndex:EQIndex];
+    if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIsCustom]) {
+        EQ = [[[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCustomArray] objectAtIndex:EQIndex];
     } else {
         EQ = [[PREQ defaultEQs] objectAtIndex:EQIndex];
     }
     for (NSNumber *i in [self EQSliders]) {
-        NSSlider *slider = [[self EQSliders] objectForKey:i];
-        [slider setFloatValue:[EQ ampForFreq:[i intValue]]];
+        [[[self EQSliders] objectForKey:i] setFloatValue:[EQ ampForFreq:[i intValue]]];
     }
     [self menuNeedsUpdate:EQMenu];
 }
@@ -479,8 +388,8 @@
 		[menu removeItem:i];
 	}
     
-    int EQIndex = [[PRDefaults sharedDefaults] EQIndex];
-    BOOL isCustom = [[PRDefaults sharedDefaults] isCustomEQ];
+    int EQIndex = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIndex];
+    BOOL isCustom = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIsCustom];
     
     NSMenuItem *item = [[[NSMenuItem alloc] initWithTitle:@"Save..." action:@selector(EQMenuActionSave:) keyEquivalent:@""] autorelease];
     [EQMenu addItem:item];
@@ -492,7 +401,7 @@
     NSMenuItem *selectedItem;
     [EQMenu addItem:[NSMenuItem separatorItem]];
     
-    NSArray *customEQs = [[PRDefaults sharedDefaults] customEQs];
+    NSArray *customEQs = [[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCustomArray];
     for (int i = 0; i < [customEQs count]; i++) {
         PREQ *EQ = [customEQs objectAtIndex:i];
         item = [[[NSMenuItem alloc] initWithTitle:[EQ title] action:@selector(EQMenuActionCustom:) keyEquivalent:@""] autorelease];
@@ -525,29 +434,30 @@
 #pragma mark - Misc Preferences
 
 - (void)toggleHogOutput {
-    [[PRDefaults sharedDefaults] setHogOutput:![[PRDefaults sharedDefaults] hogOutput]];
-    [NSNotificationCenter post:PRHogOutputDidChangeNotification];
+    [[[core now] mov] setHogOutput:[[[core now] mov] hogOutput]];
+    [self updateUI];
 }
 
 - (void)toggleUseAlbumArtist {
-    [[PRDefaults sharedDefaults] setUseAlbumArtist:![[PRDefaults sharedDefaults] useAlbumArtist]];
+    [[PRDefaults sharedDefaults] setBool:![[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist] forKey:PRDefaultsUseAlbumArtist];
     [self updateUI];
     [[NSNotificationCenter defaultCenter] postUseAlbumArtistChanged];
 }
 
 - (void)toggleCompilations {
-    [[PRDefaults sharedDefaults] setUseCompilation:![[PRDefaults sharedDefaults] useCompilation]];
+    [[PRDefaults sharedDefaults] setBool:![[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation] forKey:PRDefaultsUseCompilation];
     [self updateUI];
     [[NSNotificationCenter defaultCenter] postUseAlbumArtistChanged];
 }
 
 - (void)toggleMediaKeys {
-    [[PRDefaults sharedDefaults] setMediaKeys:![[PRDefaults sharedDefaults] mediaKeys]];
+    [[core keys] setEnabled:![[core keys] isEnabled]];
     [self updateUI];
 }
 
 - (void)toggleFolderArtwork {
-    [[PRDefaults sharedDefaults] setFolderArtwork:![[PRDefaults sharedDefaults] folderArtwork]];
+    [[PRDefaults sharedDefaults] setBool:![[PRDefaults sharedDefaults] boolForKey:PRDefaultsFolderArtwork]
+                                       forKey:PRDefaultsFolderArtwork];
     [self updateUI];
 }
 
@@ -570,7 +480,7 @@
             preGain = 0;
             break;
     }
-    [[PRDefaults sharedDefaults] setFloatValue:preGain forKey:PRDefaultsPregain];
+    [[PRDefaults sharedDefaults] setFloat:preGain forKey:PRDefaultsPregain];
     [[NSNotificationCenter defaultCenter] postPreGainChanged];
 }
 
@@ -583,162 +493,102 @@
 	[panel setCanCreateDirectories:NO];
 	[panel setTreatsFilePackagesAsDirectories:NO];
 	[panel setAllowsMultipleSelection:YES];
-    [panel beginSheetModalForWindow:[[self view] window]
-                  completionHandler:^(NSInteger result){[self importSheetDidEnd:panel returnCode:result context:nil];}];
+    [panel beginSheetModalForWindow:[[self view] window] completionHandler:^(NSInteger result){
+        if (result == NSCancelButton) {
+            return;
+        }
+        for (NSURL *i in [panel URLs]) {
+            [[core folderMonitor] addFolder:i];
+        }
+        [self updateUI];
+    }];
 }
 
 - (void)removeFolder {
     if ([foldersTableView selectedRow] == -1) {
         return;
     }
-    [folderMonitor removeFolder:[[folderMonitor monitoredFolders] objectAtIndex:[foldersTableView selectedRow]]];
+    [[core folderMonitor] removeFolder:[[folderMonitor monitoredFolders] objectAtIndex:[foldersTableView selectedRow]]];
+    [self updateUI];
 }
 
 - (void)rescan {
-    [folderMonitor rescan];
-}
-
-- (void)importSheetDidEnd:(NSOpenPanel*)openPanel returnCode:(NSInteger)returnCode context:(void*)context {
-	if (returnCode == NSCancelButton) {
-		return;
-	}
-    for (NSURL *i in [openPanel URLs]) {
-        [folderMonitor addFolder:i];
-    }
+    [[core folderMonitor] rescan];
 }
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
-    return [[folderMonitor monitoredFolders] count];
+    return [[[core folderMonitor] monitoredFolders] count];
 }
 
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)rowIndex {
-    return [[[folderMonitor monitoredFolders] objectAtIndex:rowIndex] path];
+    return [[[[core folderMonitor] monitoredFolders] objectAtIndex:rowIndex] path];
 }
 
-#pragma mark - Global Hotkeys
+#pragma mark - HotKeys
 
-#define HOTKEYREFKEY        @"hotKeyRef"
-#define IDKEY               @"ID"
-#define DEFAULTCODEKEY      @"defaultCode"
-#define DEFAULTKEYMASKKEY   @"defaultKeyMask"
-#define USERDEFAULTSKEY     @"userDefaultsKey"
+- (NSDictionary *)hotKeyDictionary {
+    return @{
+        [NSNumber numberWithInt:PRPlayPauseHotKey]:playPause,
+        [NSNumber numberWithInt:PRNextHotKey]:playNext,
+        [NSNumber numberWithInt:PRPreviousHotKey]:playPrevious,
+        [NSNumber numberWithInt:PRIncreaseVolumeHotKey]:increaseVolume,
+        [NSNumber numberWithInt:PRDecreaseVolumeHotKey]:decreaseVolume,
+        [NSNumber numberWithInt:PRRate1HotKey]:rate1Star,
+        [NSNumber numberWithInt:PRRate2HotKey]:rate2Star,
+        [NSNumber numberWithInt:PRRate3HotKey]:rate3Star,
+        [NSNumber numberWithInt:PRRate4HotKey]:rate4Star,
+        [NSNumber numberWithInt:PRRate5HotKey]:rate5Star};
+}
 
-- (NSArray *)hotkeyDictionary {
-    return @[[NSDictionary dictionaryWithObjectsAndKeys:
-             [NSNumber numberWithInt:1], @"ID",
-             [NSNumber numberWithInt:49], @"defaultCode",
-             [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
-             @"playPauseHotKey", @"userDefaultsKey",
-             nil],
-            
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSNumber numberWithInt:2], @"ID",
-             [NSNumber numberWithInt:124], @"defaultCode",
-             [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
-             @"playNextHotKey", @"userDefaultsKey",
-             nil],
-            
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSNumber numberWithInt:3], @"ID",
-             [NSNumber numberWithInt:123], @"defaultCode",
-             [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
-             @"playPreviousHotKey", @"userDefaultsKey",
-             nil],
-            
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSNumber numberWithInt:4], @"ID",
-             [NSNumber numberWithInt:126], @"defaultCode",
-             [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
-             @"increaseVolumeHotKey", @"userDefaultsKey",
-             nil],
-            
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSNumber numberWithInt:5], @"ID",
-             [NSNumber numberWithInt:125], @"defaultCode",
-             [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
-             @"decreaseVolumeHotKey", @"userDefaultsKey",
-             nil],
-            
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSNumber numberWithInt:6], @"ID",
-             [NSNumber numberWithInt:18], @"defaultCode",
-             [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
-             @"rate1StarHotKey", @"userDefaultsKey",
-             nil],
-            
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSValue valueWithPointer:&rate2StarHotKeyRef], @"hotKeyRef",
-             [NSNumber numberWithInt:7], @"ID",
-             [NSNumber numberWithInt:19], @"defaultCode",
-             [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
-             @"rate2StarHotKey", @"userDefaultsKey",
-             nil],
-            
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSNumber numberWithInt:8], @"ID",
-             [NSNumber numberWithInt:20], @"defaultCode",
-             [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
-             @"rate3StarHotKey", @"userDefaultsKey",
-             nil],
-            
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSNumber numberWithInt:9], @"ID",
-             [NSNumber numberWithInt:21], @"defaultCode",
-             [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
-             @"rate4StarHotKey", @"userDefaultsKey",
-             nil],
-            
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSNumber numberWithInt:10], @"ID",
-             [NSNumber numberWithInt:23], @"defaultCode",
-             [NSNumber numberWithInt:cmdKey+optionKey+controlKey], @"defaultKeyMask",
-             @"rate5StarHotKey", @"userDefaultsKey",
-             nil]
-    ];
+- (void)updateHotKeys {
+    NSDictionary *dict = [self hotKeyDictionary];
+    for (NSNumber *i in dict) {
+        unsigned int mask;
+        int code;
+        [[core hotKeys] mask:&mask code:&code forHotKey:[i intValue]];
+        
+        KeyCombo keyCombo;
+        keyCombo.flags = 0;
+        keyCombo.code = code;
+        if (mask & cmdKey) {
+            keyCombo.flags += NSCommandKeyMask;
+        }
+        if (mask & optionKey) {
+            keyCombo.flags += NSAlternateKeyMask;
+        }
+        if (mask & controlKey) {
+            keyCombo.flags += NSControlKeyMask;
+        }
+        if (mask & shiftKey) {
+            keyCombo.flags += NSShiftKeyMask;
+        }
+        [[dict objectForKey:i] setKeyCombo:keyCombo];
+    }
 }
 
 #pragma mark - SRRecorderControl Delegate
 
-- (void)shortcutRecorder:(SRRecorderControl *)recorder keyComboDidChange:(KeyCombo)newKeyCombo {    
-    int keymask = 0;
+- (void)shortcutRecorder:(SRRecorderControl *)recorder keyComboDidChange:(KeyCombo)newKeyCombo {
+    int mask = 0;
     if (newKeyCombo.flags & NSCommandKeyMask) {
-        keymask += cmdKey;
+        mask += cmdKey;
     }
     if (newKeyCombo.flags & NSAlternateKeyMask) {
-        keymask += optionKey;
+        mask += optionKey;
     }
     if (newKeyCombo.flags & NSControlKeyMask) {
-        keymask += controlKey;
+        mask += controlKey;
     }
     if (newKeyCombo.flags & NSShiftKeyMask) {
-        keymask += shiftKey;
+        mask += shiftKey;
     }
     
-    PRHotKey hotKey;
-    if (recorder == playPause) {
-        hotKey = PRPlayPauseHotKey;
-    } else if (recorder == playNext) {
-        hotKey = PRNextHotKey;
-    } else if (recorder == playPrevious) {
-        hotKey = PRPreviousHotKey;
-    } else if (recorder == increaseVolume) {
-        hotKey = PRIncreaseVolumeHotKey;
-    } else if (recorder == decreaseVolume) {
-        hotKey = PRDecreaseVolumetHotKey;
-    } else if (recorder == rate1Star) {
-        hotKey = PRRate1HotKey;
-    } else if (recorder == rate2Star) {
-        hotKey = PRRate2HotKey;
-    } else if (recorder == rate3Star) {
-        hotKey = PRRate3HotKey;
-    } else if (recorder == rate4Star) {
-        hotKey = PRRate4HotKey;
-    } else if (recorder == rate5Star) {
-        hotKey = PRRate5HotKey;
-    } else {
-        return;
+    NSDictionary *dict = [self hotKeyDictionary];
+    for (NSNumber *i in dict) {
+        if ([dict objectForKey:i] == recorder) {
+            [[core hotKeys] setMask:mask code:newKeyCombo.code forHotKey:[i intValue]];
+        }
     }
-    [[core hotKeys] setKeymask:keymask code:newKeyCombo.code forHotKey:hotKey];
 }
 
 @end

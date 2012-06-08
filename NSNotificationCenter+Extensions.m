@@ -13,7 +13,6 @@ NSString * const PRLibraryViewSelectionDidChangeNotification = @"PRLibraryViewSe
 
 NSString * const PRPreGainDidChangeNotification = @"PRPreGainDidChangeNotification";
 NSString * const PRUseAlbumArtistDidChangeNotification = @"PRUseAlbumArtistDidChangeNotification";
-NSString * const PRHogOutputDidChangeNotification = @"PRHogOutputDidChangeNotification";
 
 NSString * const PRIsPlayingDidChangeNotification = @"PRIsPlayingDidChangeNotification";
 NSString * const PRMovieDidFinishNotification = @"PRMovieDidFinishNotification";
@@ -95,7 +94,7 @@ NSString * const PREQChangedNote = @"PREQChangedNote";
 // Preferences
 
 - (void)postPreGainChanged {
-    [self postNotificationName:PRPreGainDidChangeNotification object:nil];
+   [self postNotificationName:PRPreGainDidChangeNotification object:nil];
 }
 
 - (void)postUseAlbumArtistChanged {

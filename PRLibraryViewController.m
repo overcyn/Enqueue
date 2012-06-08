@@ -12,6 +12,10 @@
 #import "PRStringFormatter.h"
 #import "PRCore.h"
 
+
+#define SEARCH_DELAY 0.25
+
+
 @interface PRLibraryViewController ()
 /* action */
 - (void)setLibraryViewModeAction:(id)sender;
@@ -275,14 +279,14 @@ infoViewVisible;
 
 #pragma mark - text field delegate
 
-#define SEARCH_DELAY 0.25
-
 - (void)controlTextDidChange:(NSNotification *)note {
     [_searchFieldLastEdit release];
     _searchFieldLastEdit = [[NSDate date] retain];
+
+    float delay = [[_searchField stringValue] length] != 0 ? SEARCH_DELAY : 0.0;
     [[NSOperationQueue currentQueue] addBlock:^{
         [self postSearchChangedAndRetry:TRUE];
-    } afterDelay:SEARCH_DELAY];
+    } afterDelay:delay];
 }
 
 - (void)postSearchChangedAndRetry:(BOOL)retry {

@@ -35,7 +35,7 @@
 
 - (void)playingChanged:(NSNotification *)notification {
     PRItem *item = [[_core now] currentItem];
-    if (![[PRDefaults sharedDefaults] postGrowlNotification] || !item || ![[[_core now] mov] isPlaying]) {
+    if (![[PRDefaults sharedDefaults] boolForKey:PRDefaultsPostGrowl] || !item || ![[[_core now] mov] isPlaying]) {
         return;
     }
     NSString *title = [[_db library] valueForItem:item attr:PRItemAttrTitle];
@@ -59,7 +59,7 @@
 
 - (void)currentFileDidChange:(NSNotification *)notification {
     PRItem *item = [[_core now] currentItem];
-    if (![[PRDefaults sharedDefaults] postGrowlNotification] || !item) {
+    if (![[PRDefaults sharedDefaults] boolForKey:PRDefaultsPostGrowl] || !item) {
         return;
     }
     

@@ -61,8 +61,12 @@
 
 #pragma mark - Accessors
 
-@synthesize invalidItems = _invalidItems, mov = _mov;
-@dynamic currentList, currentListItem, currentItem, currentIndex;
+@synthesize invalidItems = _invalidItems;
+@synthesize mov = _mov;
+@dynamic currentList;
+@dynamic currentListItem;
+@dynamic currentItem;
+@dynamic currentIndex;
 
 - (PRList *)currentList {
     return [[_db playlists] nowPlayingList];
@@ -86,23 +90,24 @@
 	return [[_db playlists] indexForListItem:[self currentListItem]];
 }
 
-@dynamic shuffle, repeat;
+@dynamic shuffle;
+@dynamic repeat;
 
 - (int)repeat {
-    return [[PRDefaults sharedDefaults] boolValueForKey:PRDefaultsRepeat];
+    return [[PRDefaults sharedDefaults] boolForKey:PRDefaultsRepeat];
 }
 
 - (void)setRepeat:(int)repeat {
-    [[PRDefaults sharedDefaults] setBoolValue:repeat forKey:PRDefaultsRepeat];
+    [[PRDefaults sharedDefaults] setBool:repeat forKey:PRDefaultsRepeat];
     [[NSNotificationCenter defaultCenter] postRepeatChanged];
 }
 
 - (BOOL)shuffle {
-	return [[PRDefaults sharedDefaults] boolValueForKey:PRDefaultsShuffle];
+	return [[PRDefaults sharedDefaults] boolForKey:PRDefaultsShuffle];
 }
 
 - (void)setShuffle:(BOOL)shuffle {
-	[[PRDefaults sharedDefaults] setBoolValue:shuffle forKey:PRDefaultsShuffle];
+	[[PRDefaults sharedDefaults] setBool:shuffle forKey:PRDefaultsShuffle];
     [[NSNotificationCenter defaultCenter] postShuffleChanged];
 }
 
@@ -339,6 +344,7 @@
     [[_db library] setValue:[[NSDate date] description] forItem:[self currentItem] attr:PRItemAttrLastPlayed];
     [[_db history] addItem:[self currentItem] withDate:[NSDate date]];
     
+    // essentially playNext but if not queued
     PRListItem *item = [self nextItem:TRUE];
     if (!item) {
         [self stop];

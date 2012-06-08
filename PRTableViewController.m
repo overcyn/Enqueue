@@ -508,7 +508,7 @@
 
 - (void)highlightItem:(PRItem *)item {
     NSString *artist;
-    if ([[PRDefaults sharedDefaults] useCompilation] && [[[db library] valueForItem:item attr:PRItemAttrCompilation] boolValue]) {
+    if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation] && [[[db library] valueForItem:item attr:PRItemAttrCompilation] boolValue]) {
         artist = compilationString;
     } else {
         artist = [[db library] artistValueForItem:item];
@@ -562,7 +562,7 @@
 - (void)highlightArtist:(NSString *)artist {
     [self browseToArtist:artist];
     PRItemAttr *attr;
-    if ([[PRDefaults sharedDefaults] useAlbumArtist]) {
+    if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist]) {
         attr = PRItemAttrArtistAlbumArtist;
     } else {
         attr = PRItemAttrArtist;

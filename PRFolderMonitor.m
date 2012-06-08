@@ -26,12 +26,12 @@
 @dynamic monitoredFolders;
 
 - (NSArray *)monitoredFolders {
-    return [[PRDefaults sharedDefaults] monitoredFolders];
+    return [[PRDefaults sharedDefaults] valueForKey:PRDefaultsMonitoredFolders];
 }
 
 - (void)setMonitoredFolders:(NSArray *)folders {
-    [[PRDefaults sharedDefaults] setMonitoredFolders:folders];
-    [[PRDefaults sharedDefaults] setLastEventStreamEventId:0];
+    [[PRDefaults sharedDefaults] setValue:folders forKey:PRDefaultsMonitoredFolders];
+    [[PRDefaults sharedDefaults] setValue:@0 forKey:PRDefaultsLastEventStreamEventId];
     [self monitor];
 }
 
@@ -72,7 +72,7 @@
         [paths addObject:[i path]];
     }
     // if no event id. add URLs and re-monitor
-    if ([[PRDefaults sharedDefaults] lastEventStreamEventId] == 0) {
+    if ([[[PRDefaults sharedDefaults] valueForKey:PRDefaultsLastEventStreamEventId] unsignedLongLongValue] == 0) {
         PRRescanOperation *op = [PRRescanOperation operationWithURLs:[self monitoredFolders] core:_core];
         [op setEventId:FSEventsGetCurrentEventId()];
         [op setMonitor:TRUE];
@@ -87,41 +87,8 @@
     context.release = NULL;
     context.copyDescription = NULL;
     stream = FSEventStreamCreate(NULL, &eventCallback, &context, (CFArrayRef)paths, 
-                                 [[PRDefaults sharedDefaults] lastEventStreamEventId], 5.0, kFSEventStreamCreateFlagNone);
-    FSEventStreamScheduleWithRunLoop(stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-    FSEventStreamStart(stream);
-}
-
-- (void)monitor2 {
-    // stop old event monitor
-    if (stream) {
-        FSEventStreamStop(stream);
-        FSEventStreamInvalidate(stream);
-        FSEventStreamRelease(stream);
-        stream = nil;
-    }
-    
-    // get new paths
-    if ([[self monitoredFolders] count] == 0) {
-        return;
-    }
-    NSMutableArray *paths = [NSMutableArray array];
-    for (NSURL *i in [self monitoredFolders]) {
-        [paths addObject:[i path]];
-    }
-    // if no event id. add URLs and re-monitor
-    if ([[PRDefaults sharedDefaults] lastEventStreamEventId] == 0) {
-        [[PRDefaults sharedDefaults] setLastEventStreamEventId:FSEventsGetCurrentEventId()];
-    }
-    // create and schedule new monitor
-    FSEventStreamContext context;
-    context.info = self;
-    context.version = 0;
-    context.retain = NULL;
-    context.release = NULL;
-    context.copyDescription = NULL;
-    stream = FSEventStreamCreate(NULL, &eventCallback, &context, (CFArrayRef)paths, 
-                                 [[PRDefaults sharedDefaults] lastEventStreamEventId], 5.0, kFSEventStreamCreateFlagNone);
+                                 [[[PRDefaults sharedDefaults] valueForKey:PRDefaultsLastEventStreamEventId] unsignedLongLongValue],
+                                 5.0, kFSEventStreamCreateFlagNone);
     FSEventStreamScheduleWithRunLoop(stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
     FSEventStreamStart(stream);
 }
@@ -159,8 +126,9 @@ void eventCallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, si
                 valid = TRUE;
             }
         }
-        if (!valid) {continue;}
-        
+        if (!valid) {
+            continue;
+        }
         [URLs addObject:URL];
     }
     PRRescanOperation *op = [PRRescanOperation operationWithURLs:URLs core:core];

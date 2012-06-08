@@ -47,7 +47,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 
 - (NSArray *)topSongs {
     NSString *stm;
-    if ([[PRDefaults sharedDefaults] useAlbumArtist]) {
+    if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist]) {
         stm = @"SELECT file_id, playCount, title, artistAlbumArtist FROM library "
         "WHERE playCount > 0 ORDER BY playCount DESC LIMIT 250";
     } else {
@@ -70,7 +70,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 
 - (NSArray *)topArtists {
     NSString *stm;
-    if ([[PRDefaults sharedDefaults] useAlbumArtist]) {
+    if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist]) {
         stm = @"SELECT file_id, sum(playCount), artistAlbumArtist FROM library "
         "GROUP BY artistAlbumArtist COLLATE NOCASE2 HAVING sum(playCount) > 0 AND artistAlbumArtist COLLATE NOCASE2 != '' "
         "ORDER BY 2 DESC, 3 DESC LIMIT 250";
@@ -94,7 +94,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 
 - (NSArray *)recentlyAdded {
     NSString *stm;
-    if ([[PRDefaults sharedDefaults] useAlbumArtist]) {
+    if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist]) {
         stm = @"SELECT file_id, dateAdded, count(album), artistAlbumArtist, album FROM library "
         "GROUP BY artistAlbumArtist COLLATE NOCASE2, album COLLATE NOCASE2 ORDER BY 2 DESC LIMIT 250";
     } else {
@@ -121,7 +121,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 
 - (NSArray *)recentlyPlayed {
     NSString *stm;
-    if ([[PRDefaults sharedDefaults] useAlbumArtist]) {
+    if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist]) {
         stm = @"SELECT library.file_id, date, title, artistAlbumArtist FROM history "
         "JOIN library ON history.file_id = library.file_id ORDER BY date DESC LIMIT 250";
     } else {

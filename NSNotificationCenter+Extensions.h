@@ -7,9 +7,6 @@ extern NSString * const PRLibraryViewSelectionDidChangeNotification;
 
 extern NSString * const PRLastfmStateDidChangeNotification;
 
-/* Preferences */
-extern NSString * const PRHogOutputDidChangeNotification;
-
 
 @interface NSNotificationCenter (Extensions)
 + (void)post:(NSString *)name;

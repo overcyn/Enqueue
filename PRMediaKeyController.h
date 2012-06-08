@@ -7,4 +7,5 @@
     SPMediaKeyTap *_tap;
 }
 - (id)initWithCore:(PRCore *)core;
+@property (readwrite, getter=isEnabled) BOOL enabled;
 @end

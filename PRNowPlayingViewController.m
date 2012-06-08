@@ -153,7 +153,7 @@
     [self updateTableView];
     
     // restore collapse state
-    NSIndexSet *collapseState = [[PRDefaults sharedDefaults] nowPlayingCollapseState];
+    NSIndexSet *collapseState = [[PRDefaults sharedDefaults] valueForKey:PRDefaultsNowPlayingCollapseState];
     [nowPlayingTableView collapseItem:nil];
     if ([collapseState lastIndex] < [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil]) {
         [collapseState enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
@@ -613,7 +613,7 @@
             [collapseState addIndex:i];
         }
     }
-    [[PRDefaults sharedDefaults] setNowPlayingCollapseState:collapseState];
+    [[PRDefaults sharedDefaults] setValue:collapseState forKey:PRDefaultsNowPlayingCollapseState];
 }
 
 #pragma mark - Misc Priv
@@ -993,7 +993,7 @@
         if ([album isEqualToString:@""]) {
             album = @"Unknown Album";
         }
-        if ([[[db library] valueForItem:it attr:PRItemAttrCompilation] boolValue] && [[PRDefaults sharedDefaults] useCompilation]) {
+        if ([[[db library] valueForItem:it attr:PRItemAttrCompilation] boolValue] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]) {
             artist = @"Compilation";
         }
         NSNumber *drawBorder = [NSNumber numberWithBool:[[item objectAtIndex:0] intValue] + 1 == [_albumCounts count] || [nowPlayingTableView isItemExpanded:item]];

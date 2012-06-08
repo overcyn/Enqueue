@@ -84,7 +84,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 }
 
 - (NSString *)username {
-    return [[PRDefaults sharedDefaults] lastFMUsername];
+    return [[PRDefaults sharedDefaults] valueForKey:PRDefaultsLastFMUsername];
 }
 
 - (NSString *)sessionKey {
@@ -99,7 +99,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 }
 
 - (void)setUsername:(NSString *)username {
-    [[PRDefaults sharedDefaults] setLastFMUsername:username];
+    [[PRDefaults sharedDefaults] setValue:username forKey:PRDefaultsLastFMUsername];
 }
 
 - (void)setSessionKey:(NSString *)sessionKey {

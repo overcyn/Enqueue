@@ -1,21 +1,21 @@
 /*
- Shuffle is implemented in the following manner: PRPlaybackOrder contains a list of recently played
- playlist_item_ids from oldest to newest. orderPosition indicates the current position in the 
- playlist history. Ordinarily this would be the last item in playbackorder. 
- 
-         <-- 0 : Marker
- 0  fileA
-         <-- 1
- 1  fileB
-         <-- 2
- 2  fileC
-         <-- 3
- 3  fileD
-         <-- 4 : Position
- count:4
- 
- orderPostion by default when not in history would be 4.
- orderMarker by default would be 0.
+    Shuffle is implemented in the following manner: PRPlaybackOrder contains a list of recently played
+    playlist_item_ids from oldest to newest. orderPosition indicates the current position in the 
+    playlist history. Ordinarily this would be the last item in playbackorder. 
+
+        <-- 0 : Marker
+    0  fileA
+        <-- 1
+    1  fileB
+        <-- 2
+    2  fileC
+        <-- 3
+    3  fileD
+        <-- 4 : Position
+    count:4
+
+    orderPostion by default when not in history would be 4.
+    orderMarker by default would be 0.
  */
 
 #import <Cocoa/Cocoa.h>

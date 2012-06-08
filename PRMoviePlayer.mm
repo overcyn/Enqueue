@@ -33,10 +33,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 @property (readonly) void *player;
 
 /* Notifications */
-- (void)preGainDidChange:(NSNotification *)notification;
-- (void)volumeDidChange:(NSNotification *)note;
 - (void)EQDidChange:(NSNotification *)note;
-- (void)hogOutputDidChange:(NSNotification *)note;
 
 /* Update */
 - (void)update;
@@ -59,12 +56,9 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     
     _UIUpdateTimer = [NSTimer timerWithTimeInterval:0.3 target:self selector:@selector(update) userInfo:nil repeats:YES];
     [[NSRunLoop mainRunLoop] addTimer:_UIUpdateTimer forMode:NSRunLoopCommonModes];
-        
-    [[NSNotificationCenter defaultCenter] observePreGainChanged:self sel:@selector(preGainDidChange:)];
+    
     [[NSNotificationCenter defaultCenter] observeEQChanged:self sel:@selector(EQDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(playingDidChange:)];
-    [[NSNotificationCenter defaultCenter] observeVolumeChanged:self sel:@selector(volumeDidChange:)];
-    [NSNotificationCenter addObserver:self selector:@selector(hogOutputDidChange:) name:PRHogOutputDidChangeNotification object:nil];
     
     [self updateEQ];
     [self updateHogOutput];
@@ -251,6 +245,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 @dynamic isPlaying;
 @dynamic volume;
+@dynamic hogOutput;
 @dynamic currentTime;
 @dynamic duration;
 @dynamic devices;
@@ -266,11 +261,12 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 }
 
 - (float)volume {
-    return [[PRDefaults sharedDefaults] floatValueForKey:PRDefaultsVolume];
+    return [[PRDefaults sharedDefaults] floatForKey:PRDefaultsVolume];
 }
 
 - (void)setVolume:(float)volume {
-    [[PRDefaults sharedDefaults] setFloatValue:volume forKey:PRDefaultsVolume];
+    [[PRDefaults sharedDefaults] setFloat:volume forKey:PRDefaultsVolume];
+    [self updateVolume];
     [[NSNotificationCenter defaultCenter] postVolumeChanged];
 }
 
@@ -288,6 +284,15 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
         volume = 0.0;
     }
     [self setVolume:volume];
+}
+
+- (BOOL)hogOutput {
+    return [[PRDefaults sharedDefaults] boolForKey:PRDefaultsHogOutput];
+}
+
+- (void)setHogOutput:(BOOL)hogOutput {
+    [[PRDefaults sharedDefaults] setBool:hogOutput forKey:PRDefaultsHogOutput];
+    [self updateHogOutput];
 }
 
 - (long)currentTime {
@@ -426,8 +431,8 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
             PLAYER->StopHoggingOutputDevice();
         }
     } else {
-        if ([[PRDefaults sharedDefaults] hogOutput] != PLAYER->OutputDeviceIsHogged()) {
-            if ([[PRDefaults sharedDefaults] hogOutput]) {
+        if ([self hogOutput] != PLAYER->OutputDeviceIsHogged()) {
+            if ([self hogOutput]) {
                 PLAYER->StartHoggingOutputDevice();
             } else {
                 PLAYER->StopHoggingOutputDevice();
@@ -437,7 +442,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 }
 
 - (void)updateEQ {
-    BOOL enabled = [[PRDefaults sharedDefaults] EQIsEnabled];
+    BOOL enabled = [[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCurrent] != nil;
     if (enabled && !_equalizer) {
         [self enableEQ];
     } else if (!enabled && _equalizer) {
@@ -448,12 +453,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 }
 
 - (void)modifyEQ {
-    PREQ *EQ;
-    if ([[PRDefaults sharedDefaults] isCustomEQ]) {
-        EQ = [[[PRDefaults sharedDefaults] customEQs] objectAtIndex:[[PRDefaults sharedDefaults] EQIndex]];
-    } else {
-        EQ = [[PREQ defaultEQs] objectAtIndex:[[PRDefaults sharedDefaults] EQIndex]];
-    }
+    PREQ *EQ = [[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCurrent];
     for (int i = 0; i < 10; i++) {
         float amp = [EQ ampForFreq:(PREQFreq)(i + 1)] + [EQ ampForFreq:PREQFreqPreamp];
         if (amp > 20) {
@@ -508,21 +508,9 @@ error:;
     [self updateHogOutput];
 }
 
-- (void)preGainDidChange:(NSNotification *)note {
-}
-
-- (void)volumeDidChange:(NSNotification *)note {
-    [self updateVolume];
-}
-
 - (void)EQDidChange:(NSNotification *)note {
     [self updateEQ];
 }
-
-- (void)hogOutputDidChange:(NSNotification *)note {
-    [self updateHogOutput];
-}
-
 
 @end
 

@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <ShortcutRecorder/SRRecorderControl.h>
 #import <Carbon/Carbon.h>
-@class PRDb, PRNowPlayingController, PRFolderMonitor, PRGradientView, PRCore;
+@class PRDb, PRNowPlayingController, PRGradientView, PRCore;
 
 
 typedef enum {
@@ -105,7 +105,6 @@ typedef enum {
     __weak PRCore *core;
     __weak PRDb *db;
     __weak PRNowPlayingController *now;
-    __weak PRFolderMonitor *folderMonitor;
 }
 /* Accessors */
 @property (readonly) PRDb *db;
@@ -121,7 +120,6 @@ typedef enum {
 
 /* Update */
 - (void)updateUI;
-- (void)importSheetDidEnd:(NSOpenPanel*)openPanel returnCode:(NSInteger)returnCode context:(void*)context;
 
 /* Equalizer */
 - (NSDictionary *)EQSliders;
@@ -147,6 +145,7 @@ typedef enum {
 - (void)removeFolder;
 - (void)rescan;
 
-/* Global Hotkeys */
-- (NSArray *)hotkeyDictionary;
+/* HotKeys */
+- (NSDictionary *)hotKeyDictionary;
+- (void)updateHotKeys;
 @end

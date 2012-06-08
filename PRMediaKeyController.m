@@ -14,13 +14,12 @@
     
     [[NSUserDefaults standardUserDefaults] registerDefaults:@{
         kMediaKeyUsingBundleIdentifiersDefaultsKey:[SPMediaKeyTap defaultMediaKeyUserBundleIdentifiers]}];
-    [_tap startWatchingMediaKeys];
+    [self setEnabled:[self isEnabled]];
     return self;
 }
 
 - (void)dealloc {
     [_tap stopWatchingMediaKeys];
-    
     [_tap release];
     [super dealloc];
 }
@@ -33,7 +32,7 @@
 	int keyFlags = ([event data1] & 0x0000FFFF);
 	int keyState = (((keyFlags & 0xFF00) >> 8)) == 0xA;
     
-	if (keyState == 1 && [[PRDefaults sharedDefaults] mediaKeys]) {
+	if (keyState == 1 && [self isEnabled]) {
 		switch (keyCode) {
         case NX_KEYTYPE_PLAY:
             [[_core now] playPause];
@@ -46,6 +45,21 @@
             return;
 		}
 	}
+}
+
+@dynamic enabled;
+
+- (BOOL)isEnabled {
+    return [[PRDefaults sharedDefaults] boolForKey:PRDefaultsMediaKeys];
+}
+
+- (void)setEnabled:(BOOL)enabled {
+    [[PRDefaults sharedDefaults] setBool:enabled forKey:PRDefaultsMediaKeys];
+    if (enabled) {
+        [_tap startWatchingMediaKeys];
+    } else {
+        [_tap stopWatchingMediaKeys];
+    }
 }
 
 @end

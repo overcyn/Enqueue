@@ -74,8 +74,8 @@
     
     PRTrialSheetController *trialSheet = [[PRTrialSheetController alloc] initWithCore:self]; 
     [trialSheet beginSheetModalForWindow:[_win window] completionHandler:^{[trialSheet release];}];
-    if ([[PRDefaults sharedDefaults] showWelcomeSheet]) {
-        [[PRDefaults sharedDefaults] setShowWelcomeSheet:FALSE];
+    if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsShowWelcomeSheet]) {
+        [[PRDefaults sharedDefaults] setBool:FALSE forKey:PRDefaultsShowWelcomeSheet];
         PRWelcomeSheetController *welcomeSheet = [[PRWelcomeSheetController alloc] initWithCore:self];
         [welcomeSheet beginSheetModalForWindow:[_win window] completionHandler:^{[welcomeSheet release];}];
     }

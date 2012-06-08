@@ -20,7 +20,7 @@
     NSString *artist = [[db library] artistValueForItem:item];
 	NSString *album = [[db library] valueForItem:item attr:PRItemAttrAlbum];
 	NSNumber *year = [[db library] valueForItem:item attr:PRItemAttrYear];
-    if ([[[db library] valueForItem:item attr:PRItemAttrCompilation] boolValue] && [[PRDefaults sharedDefaults] useCompilation]) {
+    if ([[[db library] valueForItem:item attr:PRItemAttrCompilation] boolValue] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]) {
         artist = @"Compilation";
     }
     
@@ -31,11 +31,11 @@
 	
 	// Make attributes for our strings		
 	NSDictionary *titleAttributes = @{NSFontAttributeName:[NSFont boldSystemFontOfSize:11],
-NSParagraphStyleAttributeName:[NSParagraphStyle centerAlignStyle],
-NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.2 alpha:1.0]};
+        NSParagraphStyleAttributeName:[NSParagraphStyle centerAlignStyle],
+        NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.2 alpha:1.0]};
 	NSDictionary *subtitleAttributes = @{NSFontAttributeName:[NSFont systemFontOfSize:11],
-NSParagraphStyleAttributeName:[NSParagraphStyle centerAlignStyle],
-NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.2 alpha:1.0]};
+        NSParagraphStyleAttributeName:[NSParagraphStyle centerAlignStyle],
+        NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.2 alpha:1.0]};
 	
 	// Make a Title string
 	NSString *title = album;

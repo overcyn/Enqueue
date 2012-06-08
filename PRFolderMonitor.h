@@ -17,7 +17,6 @@
 
 /* Action */
 - (void)monitor;
-- (void)monitor2;
 - (void)rescan;
 @end
 

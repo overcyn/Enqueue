@@ -4,11 +4,12 @@
 
 
 typedef enum {
-    PRPlayPauseHotKey = 1,
+    PRPlayPauseHotKey,
     PRNextHotKey,
     PRPreviousHotKey,
     PRIncreaseVolumeHotKey,
-    PRDecreaseVolumetHotKey,
+    PRDecreaseVolumeHotKey,
+    PRRate0HotKey,
     PRRate1HotKey,
     PRRate2HotKey,
     PRRate3HotKey,
@@ -22,8 +23,9 @@ typedef enum {
     __weak PRCore *_core;
 }
 - (id)initWithCore:(PRCore *)core;
-- (void)setKeymask:(unsigned int)keymask code:(int)code forHotKey:(PRHotKey)hotKey;
-- (void)updateHotKeys;
+- (void)mask:(unsigned int *)mask code:(int *)code forHotKey:(PRHotKey)hotKey;
+- (void)setMask:(unsigned int)mask code:(int)code forHotKey:(PRHotKey)hotKey;
 @end
+
 
 OSStatus hotKeyHandler(EventHandlerCallRef nextHandler, EventRef event, void *userData);

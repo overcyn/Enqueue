@@ -485,11 +485,11 @@ NSString * const compilationString = @"Compilations  ";
     NSString *sortColumnName;
     if ([sort isEqual:PRListSortIndex]) {
         sortColumnName = @"playlist_items.playlist_index";
-    } else if ([[PRDefaults sharedDefaults] useAlbumArtist] && [sort isEqual:PRItemAttrArtist]) {
+    } else if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist] && [sort isEqual:PRItemAttrArtist]) {
         sortColumnName = [PRLibrary columnNameForItemAttr:PRItemAttrArtistAlbumArtist];
     } else {
         if ([sort isEqual:PRListSortArtistAlbum]) {
-            if ([[PRDefaults sharedDefaults] useAlbumArtist]) {
+            if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist]) {
                 sort = PRItemAttrArtistAlbumArtist;
             } else {
                 sort = PRItemAttrArtist;
@@ -705,7 +705,7 @@ NSString * const compilationString = @"Compilations  ";
 
 - (BOOL)compilationForBrowser:(int)browser {
     return ([[[_db playlists] attrForBrowser:browser list:_list] isEqual:PRItemAttrArtist] &&
-            [[PRDefaults sharedDefaults] useCompilation]);
+            [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]);
 }
 
 - (NSString *)tableNameForBrowser:(int)browser {
@@ -726,7 +726,7 @@ NSString * const compilationString = @"Compilations  ";
     PRItemAttr *attr = [[_db playlists] attrForBrowser:browser list:list];
     if (!attr) {
         return @"";
-    } else if ([[PRDefaults sharedDefaults] useAlbumArtist] && [attr isEqual:PRItemAttrArtist]) {
+    } else if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist] && [attr isEqual:PRItemAttrArtist]) {
         return @"artistAlbumArtist";
     }
     return [PRLibrary columnNameForItemAttr:attr];

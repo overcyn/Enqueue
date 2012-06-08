@@ -90,9 +90,9 @@
     // Update lastEventStreamEventId
     [task setPercent:99];
     [[NSOperationQueue mainQueue] addBlockAndWait:^{
-        [[PRDefaults sharedDefaults] setLastEventStreamEventId:_eventId];
+        [[PRDefaults sharedDefaults] setValue:[NSNumber numberWithUnsignedLongLong:_eventId] forKey:PRDefaultsLastEventStreamEventId];
         if (_monitor) {
-            [[_core folderMonitor] monitor2];
+            [[_core folderMonitor] monitor];
         }
     }];
 
