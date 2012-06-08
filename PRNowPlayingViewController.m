@@ -1039,6 +1039,7 @@
 #pragma mark - PROutlineView Delegate
 
 - (BOOL)outlineView:(PROutlineView *)outlineView keyDown:(NSEvent *)event {
+    NSLog(@"OutlineView:%@",event);
     if ([[event characters] length] != 1) {
         return FALSE;
     }
@@ -1051,6 +1052,14 @@
             didHandle = TRUE;
         } else if (c == 0xd) {
             [self playSelected];
+            didHandle = TRUE;
+        }
+    } else if (flags == (NSNumericPadKeyMask | NSFunctionKeyMask)) {
+        if (c == 0xf703) {
+            [[_core now] playNext];
+            didHandle = TRUE;
+        } else if (c == 0xf702) {
+            [[_core now] playPrevious];
             didHandle = TRUE;
         }
     }
