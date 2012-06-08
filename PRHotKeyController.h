@@ -19,7 +19,7 @@ typedef enum {
 
 
 @interface PRHotKeyController : NSObject {
-    EventHotKeyRef _hotKeyRefs[10];
+    EventHotKeyRef _hotKeyRefs[11];
     __weak PRCore *_core;
 }
 - (id)initWithCore:(PRCore *)core;

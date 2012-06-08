@@ -111,7 +111,7 @@ typedef void(^PRDefaultsSetter)(id value);
         PRDefaultsRate2HotKey:[PRDefaults hotKeyHandlersForKey:@"rate2StarHotKey" defaultValue:@[mask, @19]],
         PRDefaultsRate3HotKey:[PRDefaults hotKeyHandlersForKey:@"rate3StarHotKey" defaultValue:@[mask, @20]],
         PRDefaultsRate4HotKey:[PRDefaults hotKeyHandlersForKey:@"rate4StarHotKey" defaultValue:@[mask, @21]],
-        PRDefaultsRate5HotKey:[PRDefaults hotKeyHandlersForKey:@"rate5StarHotKey" defaultValue:@[mask, @22]],
+        PRDefaultsRate5HotKey:[PRDefaults hotKeyHandlersForKey:@"rate5StarHotKey" defaultValue:@[mask, @23]],
 
         PRDefaultsVolume:[PRDefaults numberHandlersForKey:@"volume" max:@1.0f min:@0.0f defaultValue:@1.0f],
         PRDefaultsPregain:[PRDefaults numberHandlersForKey:@"preGain" max:@1.0f min:@0.0f defaultValue:@1.0f],

@@ -37,7 +37,7 @@
 
 - (void)updateHotKeys {
     for (int i = PRPlayPauseHotKey; i <= PRRate5HotKey; i++) {
-        UnregisterEventHotKey(_hotKeyRefs[i-1]);
+        UnregisterEventHotKey(_hotKeyRefs[i]);
         
         unsigned int mask;
         int code;
@@ -54,7 +54,7 @@
         EventHotKeyID hotKeyID;
         hotKeyID.signature = 's';
         hotKeyID.id = i;
-        RegisterEventHotKey(code, mask, hotKeyID, GetApplicationEventTarget(), 0, &_hotKeyRefs[i-i]);
+        RegisterEventHotKey(code, mask, hotKeyID, GetApplicationEventTarget(), 0, &_hotKeyRefs[i]);
     }
 }
 
