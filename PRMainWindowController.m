@@ -165,15 +165,9 @@
     [[nowPlayingViewController lastKeyView] setNextKeyView:[libraryViewController firstKeyView]];
     
 	// Update
-	[NSNotificationCenter addObserver:self 
-							 selector:@selector(updateUI) 
-								 name:PRCurrentListDidChangeNotification 
-							   object:nil];
+	[NSNotificationCenter addObserver:self selector:@selector(updateUI) name:PRCurrentListDidChangeNotification object:nil];
     if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
-		[NSNotificationCenter addObserver:self 
-								 selector:@selector(windowWillEnterFullScreen:) 
-									 name:NSWindowWillEnterFullScreenNotification 
-								   object:[self window]];
+		[NSNotificationCenter addObserver:self selector:@selector(windowWillEnterFullScreen:) name:NSWindowWillEnterFullScreenNotification object:[self window]];
 		[NSNotificationCenter addObserver:self 
 								 selector:@selector(windowWillExitFullScreen:)
 									 name:NSWindowWillExitFullScreenNotification

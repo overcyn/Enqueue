@@ -4,7 +4,7 @@
 @implementation PRHistoryDateFormatter
 
 - (id)init {
-    if (!(self == [super init])) {return nil;}
+    if (!(self = [super init])) {return nil;}
     _dateFormatter = [[NSDateFormatter alloc] init];
     [_dateFormatter setDateFormat:[NSDateFormatter dateFormatFromTemplate:@"MMM dd" options:0 locale:[NSLocale currentLocale]]];
     
