@@ -1039,7 +1039,6 @@
 #pragma mark - PROutlineView Delegate
 
 - (BOOL)outlineView:(PROutlineView *)outlineView keyDown:(NSEvent *)event {
-    NSLog(@"OutlineView:%@",event);
     if ([[event characters] length] != 1) {
         return FALSE;
     }

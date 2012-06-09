@@ -11,9 +11,7 @@
 
 @interface PRNowPlayingController ()
 /* Playback */
-- (void)playListItem:(PRListItem *)listItem withSel:(SEL)selector;
-- (void)playListItemIfNotQueued:(PRListItem *)listItem;
-- (void)playListItem:(PRListItem *)listItem;
+- (void)playListItem:(PRListItem *)listItem evenIfQueued:(BOOL)evenIfQueued;
 - (PRListItem *)nextItem:(BOOL)update;
 - (PRListItem *)previousItem:(BOOL)update;
 
@@ -136,11 +134,7 @@
 			[self playNext];
 		}
 	} else {
-        if ([_mov isPlaying]) {
-            [_mov pause];
-        } else {
-            [_mov unpause];
-        }
+        [_mov pauseUnpause];
 	}
 }
 
@@ -151,7 +145,7 @@
     [self clearHistory];
     [[_db playbackOrder] appendListItem:item];
     self.position += 1;
-    [self playListItem:item];
+    [self playListItem:item evenIfQueued:TRUE];
 }
 
 - (void)playNext {
@@ -160,7 +154,7 @@
         [self stop];
         return;
     }
-    [self playListItem:item];
+    [self playListItem:item evenIfQueued:TRUE];
 }
 
 - (void)playPrevious {
@@ -169,12 +163,12 @@
         [self stop];
         return;
     }
-    [self playListItem:item];
+    [self playListItem:item evenIfQueued:TRUE];
 }
 
 #pragma mark - Playback Priv
 
-- (void)playListItem:(PRListItem *)listItem withSel:(SEL)selector {
+- (void)playListItem:(PRListItem *)listItem evenIfQueued:(BOOL)evenIfQueued {
     if ([_invalidItems count] == [[_db playlists] countForList:[self currentList]]) {
         [self stop];
         return;
@@ -190,9 +184,8 @@
     }
     
     NSString *path = [[_db library] valueForItem:item attr:PRItemAttrPath];
-    if (![_mov performSelector:selector withObject:path]) {
-        // we delay posting playingFileChanged notification here because we recurse
-        // until currentPlaylistItem is valid or 0.
+    bool err = evenIfQueued ? [_mov play:path] : [_mov playIfNotQueued:path];
+    if (!err) {
         if (![_invalidItems containsObject:item]) {
             [_invalidItems addObject:item];
         }
@@ -200,14 +193,6 @@
         return;
     }
     [[NSNotificationCenter defaultCenter] postPlayingFileChanged];
-}
-
-- (void)playListItem:(PRListItem *)listItem {
-    [self playListItem:listItem withSel:@selector(play:)];
-}
-
-- (void)playListItemIfNotQueued:(PRListItem *)listItem {
-    [self playListItem:listItem withSel:@selector(playIfNotQueued:)];
 }
 
 - (PRListItem *)nextItem:(BOOL)update {
@@ -350,7 +335,7 @@
         [self stop];
         return;
     }
-    [self playListItemIfNotQueued:item];
+    [self playListItem:item evenIfQueued:FALSE];
 }
 
 - (void)movieAlmostFinished {
@@ -372,7 +357,8 @@
 
 #pragma mark - Order Priv
 
-@dynamic position, marker;
+@dynamic position;
+@dynamic marker;
 
 - (int)position {
     if (_position < 0 || _position > [[_db playbackOrder] count]) {

@@ -1,9 +1,28 @@
 /*
-    PRMovieQueueWaiting->PRMovieQueuePlayed, 
+     AudioPlayer states:
+     ... 
+        eStopped
+     DecodingStarted
+        ePending
+     RenderingStarted
+        ePaused, ePlaying
+     DecodingFinished
+        ePlaying, ePaused
+     RenderingFinished
+        eStopped
+     ...
+ 
+    Proof that _lastQueued is always accurate in the ePending state. AudioPlayer will only be in the ePending in 2 situations.
+    1. Immediately after Play() is called
+    2. A song is Enqueue()'d and the last song finishes.
+    In situation 1, _lastQueued is always cleared before Play()
+    In situation 2, Enqueue()'d is only called from queue: which also sets _lastQueued
+ 
+    Currently [PRMoviePlayer update] gets called twice because as soon as you queue up the next song DecodingStarted 
+    gets called which clears the flags and update gets called again.
 */
 #import <Cocoa/Cocoa.h>
 #import <AudioUnit/AudioUnit.h>
-@class PRMovie;
 
 
 enum {
@@ -11,11 +30,6 @@ enum {
     PRPlayingTransitionState,
     PRPausingTransitionState,
 };
-typedef enum {
-    PRMovieQueueEmpty,
-    PRMovieQueueWaiting,
-    PRMovieQueuePlayed,
-} PRMovieQueueState;
 
 
 @interface PRMoviePlayer : NSObject {
@@ -28,16 +42,14 @@ typedef enum {
     
     NSTimer	*_UIUpdateTimer;
     
-    PRMovieQueueState _queueState; // should only be accessed through accessor
+    NSString *_lastQueued;
 }
 /* Playback */
 - (BOOL)play:(NSString *)file;
 - (BOOL)queue:(NSString *)file;
 - (BOOL)playIfNotQueued:(NSString *)file;
-
 - (void)stop;
-- (void)unpause;
-- (void)pause;
+- (void)pauseUnpause;
 - (void)seekForward;
 - (void)seekBackward;
 

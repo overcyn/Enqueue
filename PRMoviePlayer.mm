@@ -11,12 +11,14 @@
 #import "CAAUParameter.h"
 #import "AUParamInfo.h"
 #import "PREQ.h"
+#import "NSObject+SPInvocationGrabbing.h"
 
 
-#define PLAYER (static_cast<AudioPlayer *>(player))
-volatile static uint32_t sPlayerFlags = 0;
+#define PLAYER                  (static_cast<AudioPlayer *>(player))
+#define ALMOST_FINISHED_FLAG    7
 
 
+volatile static uint32_t moviePlayerFlags = 0;
 static void decodingStarted(void *context, const AudioDecoder *decoder);
 static void renderingStarted(void *context, const AudioDecoder *decoder);
 static void decodingFinished(void *context, const AudioDecoder *decoder);
@@ -26,9 +28,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 @interface PRMoviePlayer ()
 /* Playback */
 - (void)transitionCallback:(NSTimer *)timer_;
-
-/* Accessors */
-@property (readonly) void *player;
 
 /* Notifications */
 - (void)EQDidChange:(NSNotification *)note;
@@ -87,6 +86,8 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     PLAYER->Pause();
     PLAYER->Stop();
     PLAYER->ClearQueuedDecoders();
+    [_lastQueued release];
+    _lastQueued = nil;
     
     // invalidate transition timer and reset volume
     [_transitionTimer invalidate];
@@ -101,10 +102,10 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     if (!decoder) {
 		return FALSE;
     }
-    decoder->SetDecodingStartedCallback(decodingStarted, self);
-    decoder->SetDecodingFinishedCallback(decodingFinished, self);
-    decoder->SetRenderingStartedCallback(renderingStarted, self);
-	decoder->SetRenderingFinishedCallback(renderingFinished, self);
+    decoder->SetDecodingStartedCallback(decodingStarted, player);
+    decoder->SetDecodingFinishedCallback(decodingFinished, player);
+    decoder->SetRenderingStartedCallback(renderingStarted, player);
+	decoder->SetRenderingFinishedCallback(renderingFinished, player);
     if (!decoder->Open() || !PLAYER->Enqueue(decoder)) {
         delete decoder;
         return FALSE;
@@ -119,28 +120,32 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     if (!decoder) {
 		return FALSE;
     }
-    decoder->SetDecodingStartedCallback(decodingStarted, self);
-    decoder->SetDecodingFinishedCallback(decodingFinished, self);
-    decoder->SetRenderingStartedCallback(renderingStarted, self);
-	decoder->SetRenderingFinishedCallback(renderingFinished, self);
+    decoder->SetDecodingStartedCallback(decodingStarted, player);
+    decoder->SetDecodingFinishedCallback(decodingFinished, player);
+    decoder->SetRenderingStartedCallback(renderingStarted, player);
+	decoder->SetRenderingFinishedCallback(renderingFinished, player);
     if (!decoder->Open() || !PLAYER->Enqueue(decoder)) {
         delete decoder;
         return FALSE;
     }
+    [_lastQueued release];
+    _lastQueued = [file retain];
     return TRUE;
 }
 
 - (BOOL)playIfNotQueued:(NSString *)file {
-    if (PLAYER->IsPlaying()) {
-        NSURL *URL = (NSURL *)PLAYER->GetPlayingURL();
-        if (!URL || ![[URL absoluteString] isEqualToString:file]) {
-            return [self play:file];
-        } else {
-            return TRUE;
-        }
-    } else {
-        return [self play:file];
+    NSString *queued = nil;
+    if (PLAYER->IsPending()) {
+        queued = _lastQueued;
+    } else if (PLAYER->IsPlaying()) {
+        queued = [(NSURL *)PLAYER->GetPlayingURL() absoluteString];
     }
+    if ([queued isEqualToString:file]) {
+        [_lastQueued release];
+        _lastQueued = nil;
+        return TRUE;
+    }
+    return [self play:file];
 }
 
 - (void)stop {
@@ -148,7 +153,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     [[NSNotificationCenter defaultCenter] postPlayingChanged];
 }
 
-- (void)pause {
+- (void)pauseUnpause {
     if ([self isPlaying]) {
         if (transitionState != PRPlayingTransitionState) {
             transitionVolume = 1;
@@ -156,11 +161,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
         transitionState = PRPausingTransitionState;
         PLAYER->SetVolume(transitionVolume * [self volume]);
         [self transitionCallback:nil];
-    }
-}
-
-- (void)unpause {
-    if (![self isPlaying]) {
+    } else {
         if (transitionState != PRPausingTransitionState) {
             transitionVolume = 0;
         }
@@ -168,8 +169,8 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
         PLAYER->SetVolume(transitionVolume * [self volume]);
         PLAYER->Play();
         [self transitionCallback:nil];
+        [[NSNotificationCenter defaultCenter] postPlayingChanged];
     }
-    [[NSNotificationCenter defaultCenter] postPlayingChanged];
 }
 
 - (void)seekForward {
@@ -255,22 +256,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     [[PRDefaults sharedDefaults] setFloat:volume forKey:PRDefaultsVolume];
     [self updateVolume];
     [[NSNotificationCenter defaultCenter] postVolumeChanged];
-}
-
-- (void)increaseVolume {
-    float volume = [self volume] + 0.1;
-    if (volume > 1.0) {
-        volume = 1.0;
-    }
-    [self setVolume:volume];
-}
-
-- (void)decreaseVolume {
-    float volume = [self volume] - 0.1;
-    if (volume < 0.0) {
-        volume = 0.0;
-    }
-    [self setVolume:volume];
 }
 
 - (BOOL)hogOutput {
@@ -361,19 +346,30 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 }
 
 - (NSString *)currentDevice {
-    
+    return nil;
 }
 
-#pragma mark - Accessors Private
+- (void)increaseVolume {
+    float volume = [self volume] + 0.1;
+    if (volume > 1.0) {
+        volume = 1.0;
+    }
+    [self setVolume:volume];
+}
 
-@synthesize player = player;
+- (void)decreaseVolume {
+    float volume = [self volume] - 0.1;
+    if (volume < 0.0) {
+        volume = 0.0;
+    }
+    [self setVolume:volume];
+}
 
 #pragma mark - Update Private
 
 - (void)update {
     [[NSNotificationCenter defaultCenter] postTimeChanged];
-    int timeLeft = [self duration] - [self currentTime];
-    if ([self isPlaying] && timeLeft < 1000 && !OSAtomicTestAndSetBarrier(7, &sPlayerFlags)) {
+    if ([self isPlaying] && ([self duration] - [self currentTime]) < 2000 && !OSAtomicTestAndSetBarrier(ALMOST_FINISHED_FLAG, &moviePlayerFlags) ) {
         [[NSNotificationCenter defaultCenter] postMovieAlmostFinished];
     }
 }
@@ -478,9 +474,8 @@ static void decodingStarted(void *context, const AudioDecoder *decoder) {
 //    NSLog(@"decodingStarted");
 //    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
     @autoreleasepool {
-        OSAtomicTestAndClearBarrier(7, &sPlayerFlags);
-        PRMoviePlayer *player = (PRMoviePlayer *)context;
-        static_cast<AudioPlayer *>([player player])->Play();
+        OSAtomicTestAndClear(ALMOST_FINISHED_FLAG, &moviePlayerFlags);
+        static_cast<AudioPlayer *>(context)->Play();
     }
 }
 
