@@ -13,7 +13,6 @@
 #import "PREQ.h"
 
 
-#define DSP_ENABLED 0
 #define PLAYER (static_cast<AudioPlayer *>(player))
 volatile static uint32_t sPlayerFlags = 0;
 
@@ -29,7 +28,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 - (void)transitionCallback:(NSTimer *)timer_;
 
 /* Accessors */
-@property (readwrite) PRMovieQueueState queueState;
 @property (readonly) void *player;
 
 /* Notifications */
@@ -63,7 +61,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     [self updateEQ];
     [self updateHogOutput];
     [self updateVolume];
-    [self setQueueState:PRMovieQueueEmpty];
     
     PLAYER->SetRingBufferCapacity(32768*4);
     PLAYER->SetRingBufferWriteChunkSize(4096);
@@ -87,7 +84,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 - (BOOL)play:(NSString *)file {
     // clear queue & stop
-    [self setQueueState:PRMovieQueueEmpty];
     PLAYER->Pause();
     PLAYER->Stop();
     PLAYER->ClearQueuedDecoders();
@@ -117,11 +113,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 }
 
 - (BOOL)queue:(NSString *)file {
-    if ([self queueState] == PRMovieQueueWaiting || [self queueState] == PRMovieQueuePlayed) {
-        return FALSE;
-    }
-    [self setQueueState:PRMovieQueueWaiting];
-    
     PLAYER->ClearQueuedDecoders();
     
     AudioDecoder *decoder = AudioDecoder::CreateDecoderForURL(reinterpret_cast<CFURLRef>([NSURL URLWithString:file]));
@@ -140,20 +131,16 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 }
 
 - (BOOL)playIfNotQueued:(NSString *)file {
-    BOOL success = FALSE;
-    int queueState = [self queueState];
-    [self setQueueState:PRMovieQueueEmpty];
-    if (queueState == PRMovieQueueEmpty || queueState == PRMovieQueueWaiting) {
-        success = [self play:file];
-    } else if (queueState == PRMovieQueuePlayed) {
+    if (PLAYER->IsPlaying()) {
         NSURL *URL = (NSURL *)PLAYER->GetPlayingURL();
         if (!URL || ![[URL absoluteString] isEqualToString:file]) {
-            success = [self play:file];
+            return [self play:file];
         } else {
-            success = TRUE;
+            return TRUE;
         }
+    } else {
+        return [self play:file];
     }
-    return success;
 }
 
 - (void)stop {
@@ -380,41 +367,13 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 #pragma mark - Accessors Private
 
 @synthesize player = player;
-@dynamic queueState;
-
-- (PRMovieQueueState)queueState {
-    if ((1 << 0) & sPlayerFlags) {
-        return PRMovieQueueEmpty;
-    } else if ((1 << 1) & sPlayerFlags) {
-        return PRMovieQueueWaiting;
-    } else if ((1 << 2) & sPlayerFlags) {
-        return PRMovieQueuePlayed;
-    }
-    return PRMovieQueueEmpty;
-}
-
-- (void)setQueueState:(PRMovieQueueState)queueState {
-    if (queueState == PRMovieQueueEmpty) {
-        OSAtomicTestAndSetBarrier(7, &sPlayerFlags);
-        OSAtomicTestAndClearBarrier(6, &sPlayerFlags);
-        OSAtomicTestAndClearBarrier(5, &sPlayerFlags);
-    } else if (queueState == PRMovieQueueWaiting) {
-        OSAtomicTestAndClearBarrier(7, &sPlayerFlags);
-        OSAtomicTestAndSetBarrier(6, &sPlayerFlags);
-        OSAtomicTestAndClearBarrier(5, &sPlayerFlags);
-    } else if (queueState == PRMovieQueuePlayed) {
-        OSAtomicTestAndClearBarrier(7, &sPlayerFlags);
-        OSAtomicTestAndClearBarrier(6, &sPlayerFlags);
-        OSAtomicTestAndSetBarrier(5, &sPlayerFlags);
-    }
-}
 
 #pragma mark - Update Private
 
 - (void)update {
     [[NSNotificationCenter defaultCenter] postTimeChanged];
     int timeLeft = [self duration] - [self currentTime];
-    if ([self queueState] == PRMovieQueueEmpty && [self isPlaying] && timeLeft < 2000) {
+    if ([self isPlaying] && timeLeft < 1000 && !OSAtomicTestAndSetBarrier(7, &sPlayerFlags)) {
         [[NSNotificationCenter defaultCenter] postMovieAlmostFinished];
     }
 }
@@ -519,11 +478,9 @@ static void decodingStarted(void *context, const AudioDecoder *decoder) {
 //    NSLog(@"decodingStarted");
 //    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
     @autoreleasepool {
+        OSAtomicTestAndClearBarrier(7, &sPlayerFlags);
         PRMoviePlayer *player = (PRMoviePlayer *)context;
         static_cast<AudioPlayer *>([player player])->Play();
-        if ([player queueState] == PRMovieQueueWaiting) {
-            [player setQueueState:PRMovieQueuePlayed];
-        }
     }
 }
 
