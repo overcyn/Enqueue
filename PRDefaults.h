@@ -44,6 +44,7 @@ extern NSString * const PRDefaultsVolume;                       // float (0 - 1)
 extern NSString * const PRDefaultsPregain;                      // float (0 - 1)
 extern NSString * const PRDefaultsHogOutput;                    // bool
 extern NSString * const PRDefaultsEQCurrent; 					// PREQ (readonly, fake)
+extern NSString * const PRDefaultsOutputDeviceUID; 				// NSString
 
 /* PRNowPlayingController */
 extern NSString * const PRDefaultsRepeat;                       // bool

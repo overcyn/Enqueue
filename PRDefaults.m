@@ -36,11 +36,11 @@ NSString * const PRDefaultsRate3HotKey = @"PRDefaultsRate3HotKey";
 NSString * const PRDefaultsRate4HotKey = @"PRDefaultsRate4HotKey";
 NSString * const PRDefaultsRate5HotKey = @"PRDefaultsRate5HotKey";
 
-
 NSString * const PRDefaultsVolume = @"PRDefaultsVolume";
 NSString * const PRDefaultsPregain = @"PRDefaultsPregain";
 NSString * const PRDefaultsHogOutput = @"PRDefaultsHogOutput";
 NSString * const PRDefaultsEQCurrent = @"PRDefaultsEQCurrent";
+NSString * const PRDefaultsOutputDeviceUID = @"PRDefaultsOutputDeviceUID";
 
 NSString * const PRDefaultsRepeat = @"PRDefaultsRepeat";
 NSString * const PRDefaultsShuffle = @"PRDefaultsShuffle";
@@ -117,6 +117,7 @@ typedef void(^PRDefaultsSetter)(id value);
         PRDefaultsPregain:[PRDefaults numberHandlersForKey:@"preGain" max:@1.0f min:@0.0f defaultValue:@1.0f],
         PRDefaultsHogOutput:[PRDefaults numberHandlersForKey:@"hogOutput" defaultValue:@FALSE],
         PRDefaultsEQCurrent:[PRDefaults EQCurrentHandlers],
+        PRDefaultsOutputDeviceUID:[PRDefaults stringHandlersForKey:PRDefaultsOutputDeviceUID defaultValue:nil],
 
         PRDefaultsRepeat:[PRDefaults numberHandlersForKey:@"repeat" defaultValue:@FALSE],
         PRDefaultsShuffle:[PRDefaults numberHandlersForKey:@"shuffle" defaultValue:@FALSE],

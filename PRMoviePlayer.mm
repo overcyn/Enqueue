@@ -21,12 +21,15 @@
 #define DEFAULT_BUFFER_CAPACITY     16384
 #define DEFAULT_BUFFER_CHUCK_SIZE   2048
 
-
 volatile static uint32_t moviePlayerFlags = 0;
 static void decodingStarted(void *context, const AudioDecoder *decoder);
 static void renderingStarted(void *context, const AudioDecoder *decoder);
 static void decodingFinished(void *context, const AudioDecoder *decoder);
 static void renderingFinished(void *context, const AudioDecoder *decoder);
+
+NSString * const PRDeviceKeyName = @"PRDeviceKeyName";
+NSString * const PRDeviceKeyManufacturer = @"PRDeviceKeyManufacturer";
+NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
 
 
 @interface PRMoviePlayer ()
@@ -38,8 +41,8 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 /* Update */
 - (void)update;
-- (void)updateVolume;
 - (void)updateHogOutput;
+- (void)updateDevice;
 - (void)updateEQ;
 - (void)modifyEQ;
 - (void)enableEQ;
@@ -63,13 +66,10 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     
     [self updateEQ];
     [self updateHogOutput];
-    [self updateVolume];
+    [self setVolume:[self volume]];
     
     PLAYER->SetRingBufferCapacity(DEFAULT_BUFFER_CAPACITY*16);
     PLAYER->SetRingBufferWriteChunkSize(DEFAULT_BUFFER_CHUCK_SIZE*2);
-    
-    [self devices];
-    
 	return self;
 }
 
@@ -256,7 +256,9 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 - (void)setVolume:(float)volume {
     [[PRDefaults sharedDefaults] setFloat:volume forKey:PRDefaultsVolume];
-    [self updateVolume];
+    if (_transitionState == PRNeitherTransitionState) {
+        PLAYER->SetVolume([self volume]);
+    }
     [[NSNotificationCenter defaultCenter] postVolumeChanged];
 }
 
@@ -312,43 +314,39 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
             (dataSize / sizeof(AudioStreamID)) < 1) {
             continue;
         }
-        char deviceName[64];
-        propertySize = sizeof(deviceName);
-        deviceAddress.mSelector = kAudioDevicePropertyDeviceName;
-        deviceAddress.mScope = kAudioObjectPropertyScopeGlobal;
-        deviceAddress.mElement = kAudioObjectPropertyElementMaster;
-        if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, deviceName) != noErr) {
+        CFStringRef name;
+        propertySize = sizeof(name);
+        deviceAddress.mSelector = kAudioDevicePropertyDeviceNameCFString;
+        if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, &name) != noErr) {
             continue;
         }
-        char manufacturerName[64];
-        propertySize = sizeof(manufacturerName);
-        deviceAddress.mSelector = kAudioDevicePropertyDeviceManufacturer;
-        deviceAddress.mScope = kAudioObjectPropertyScopeGlobal;
-        deviceAddress.mElement = kAudioObjectPropertyElementMaster;
-        if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, manufacturerName) != noErr) {
+        NSString *nameStr = [(NSString *)name autorelease];
+        CFStringRef manufacturer;
+        propertySize = sizeof(manufacturer);
+        deviceAddress.mSelector = kAudioDevicePropertyDeviceManufacturerCFString;
+        if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, &manufacturer) != noErr) {
             continue;
         }
-        CFStringRef uidString;
-        propertySize = sizeof(uidString);
+        NSString *manufacturerStr = [(NSString *)manufacturer autorelease];
+        CFStringRef UID;
+        propertySize = sizeof(UID);
         deviceAddress.mSelector = kAudioDevicePropertyDeviceUID;
-        deviceAddress.mScope = kAudioObjectPropertyScopeGlobal;
-        deviceAddress.mElement = kAudioObjectPropertyElementMaster;
-        if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, &uidString) != noErr) {
+        if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, &UID) != noErr) {
             continue;
         }
-        [devices addObject:[NSString stringWithString:(NSString *)uidString]];
-        CFRelease(uidString);
+        NSString *UIDStr = [(NSString *)UID autorelease];
+        [devices addObject:@{PRDeviceKeyName:nameStr, PRDeviceKeyManufacturer:manufacturerStr, PRDeviceKeyUID:UIDStr}];
     }
     free(deviceIDs);
     return devices;
 }
 
 - (void)setCurrentDevice:(NSString *)device {
-    
+    [[PRDefaults sharedDefaults] setValue:device forKey:PRDefaultsOutputDeviceUID];
 }
 
 - (NSString *)currentDevice {
-    return nil;
+    return [[PRDefaults sharedDefaults] valueForKey:PRDefaultsOutputDeviceUID];
 }
 
 - (void)increaseVolume {
@@ -376,13 +374,8 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     }
 }
 
-- (void)updateVolume {
-    if (_transitionState == PRNeitherTransitionState) {
-        PLAYER->SetVolume([self volume]);
-    }
-}
-
 - (void)updateHogOutput {
+    // only hog when playing
     if (![self isPlaying]) {
         if (PLAYER->OutputDeviceIsHogged()) {
             PLAYER->StopHoggingOutputDevice();
@@ -396,6 +389,11 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
             }
         }
     }
+}
+
+- (void)updateDevice {
+    NSString *currentDevice = [self currentDevice];
+    PLAYER->SetOutputDeviceUID((CFStringRef)currentDevice);
 }
 
 - (void)updateEQ {

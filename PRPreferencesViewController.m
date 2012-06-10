@@ -18,9 +18,6 @@
 
 @implementation PRPreferencesViewController
 
-@synthesize db;
-@synthesize now;
-
 #pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core_ {
@@ -139,6 +136,11 @@
     
 	[NSNotificationCenter addObserver:self selector:@selector(updateUI) name:PRLastfmStateDidChangeNotification object:nil];
     
+    _outputMenu = [[NSMenu alloc] init];
+    [_outputMenu setDelegate:self];
+    [_outputMenu setAutoenablesItems:FALSE];
+    [_outputPopUp setMenu:_outputMenu];
+    
     [self updateUI];
     [self updateHotKeys];
 
@@ -237,6 +239,8 @@
         default:
             break;
     }
+    
+    [self updateDeviceMenu];
 }
 
 #pragma mark - Equalizer
@@ -266,7 +270,7 @@
 - (void)EQSliderAction:(id)sender {
     float amp = [(NSSlider *)sender floatValue];
     PREQFreq freq = [[[[self EQSliders] allKeysForObject:sender] objectAtIndex:0] intValue];
-    int EQIndex = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIndex];
+    int EQIndex = [[PRDefaults sharedDefaults] intForKey:PRDefaultsEQIndex];
     BOOL isCustom = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIsCustom];
     NSMutableArray *customEQs = [NSMutableArray arrayWithArray:[[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCustomArray]];
     
@@ -302,7 +306,7 @@
     NSInteger result = [alert runModal];
     if (result == NSAlertFirstButtonReturn) {
         // "Save"
-        int EQIndex = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIndex];
+        int EQIndex = [[PRDefaults sharedDefaults] intForKey:PRDefaultsEQIndex];
         BOOL isCustom = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIsCustom];
         NSMutableArray *customEQs = [NSMutableArray arrayWithArray:[[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCustomArray]];
 
@@ -318,7 +322,7 @@
 }
 
 - (void)EQMenuActionDelete:(id)sender {
-    int EQIndex = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIndex];
+    int EQIndex = [[PRDefaults sharedDefaults] intForKey:PRDefaultsEQIndex];
     BOOL isCustom = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIsCustom];
     if (!isCustom || EQIndex == 0) {
         return;
@@ -344,7 +348,7 @@
 }
 
 - (void)EQViewUpdate {
-    int EQIndex = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIndex];
+    int EQIndex = [[PRDefaults sharedDefaults] intForKey:PRDefaultsEQIndex];
     PREQ *EQ;
     if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIsCustom]) {
         EQ = [[[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCustomArray] objectAtIndex:EQIndex];
@@ -357,13 +361,12 @@
     [self menuNeedsUpdate:EQMenu];
 }
 
-- (void)menuNeedsUpdate:(NSMenu *)menu {
-    // clear menu
-	for (NSMenuItem *i in [menu itemArray]) {
-		[menu removeItem:i];
+- (void)EQMenuNeedsUpdate {
+	for (NSMenuItem *i in [EQMenu itemArray]) {
+		[EQMenu removeItem:i];
 	}
     
-    int EQIndex = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIndex];
+    int EQIndex = [[PRDefaults sharedDefaults] intForKey:PRDefaultsEQIndex];
     BOOL isCustom = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIsCustom];
     
     NSMenuItem *item = [[[NSMenuItem alloc] initWithTitle:@"Save..." action:@selector(EQMenuActionSave:) keyEquivalent:@""] autorelease];
@@ -372,10 +375,9 @@
     item = [[[NSMenuItem alloc] initWithTitle:@"Delete" action:@selector(EQMenuActionDelete:) keyEquivalent:@""] autorelease];
     [item setEnabled:(isCustom && EQIndex != 0)];
     [EQMenu addItem:item];
-    
-    NSMenuItem *selectedItem;
     [EQMenu addItem:[NSMenuItem separatorItem]];
     
+    NSMenuItem *selectedItem = nil;
     NSArray *customEQs = [[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCustomArray];
     for (int i = 0; i < [customEQs count]; i++) {
         PREQ *EQ = [customEQs objectAtIndex:i];
@@ -398,18 +400,16 @@
             selectedItem = item;
         }
     }
-    
     for (NSMenuItem *i in [EQMenu itemArray]) {
 		[i setTarget:self];
 	}
-    
     [EQPopUp selectItem:selectedItem];
 }
 
 #pragma mark - Misc Preferences
 
 - (void)toggleHogOutput {
-    [[[core now] mov] setHogOutput:[[[core now] mov] hogOutput]];
+    [[[core now] mov] setHogOutput:![[[core now] mov] hogOutput]];
     [self updateUI];
 }
 
@@ -499,6 +499,37 @@
     return [[[[core folderMonitor] monitoredFolders] objectAtIndex:rowIndex] path];
 }
 
+#pragma mark - Devices
+
+- (void)updateDeviceMenu {
+    for (NSMenuItem *i in [_outputMenu itemArray]) {
+		[_outputMenu removeItem:i];
+	}
+    
+    NSMenuItem *item = [[[NSMenuItem alloc] initWithTitle:@"System Default" action:@selector(setDevice:) keyEquivalent:@""] autorelease];
+    NSMenuItem *selectedItem = item;
+    [item setRepresentedObject:nil];
+    [_outputMenu addItem:item];
+    NSString *currentDevice = [[[core now] mov] currentDevice];
+    for (NSDictionary *i in [[[core now] mov] devices]) {
+        NSMenuItem *item = [[[NSMenuItem alloc] initWithTitle:[i objectForKey:PRDeviceKeyName] action:@selector(setDevice:) keyEquivalent:@""] autorelease];
+        [item setRepresentedObject:[i objectForKey:PRDeviceKeyUID]];
+        [_outputMenu addItem:item];
+        if ([[i objectForKey:PRDeviceKeyUID] isEqualToString:currentDevice]) {
+            selectedItem = item;
+        }
+    }
+    
+    for (NSMenuItem *i in [_outputMenu itemArray]) {
+		[i setTarget:self];
+	}
+    [_outputPopUp selectItem:selectedItem];
+}
+
+- (void)setDevice:(id)sender {
+    [[[core now] mov] setCurrentDevice:[sender representedObject]];
+}
+
 #pragma mark - HotKeys
 
 - (NSDictionary *)hotKeyDictionary {
@@ -563,6 +594,16 @@
         if ([dict objectForKey:i] == recorder) {
             [[core hotKeys] setMask:mask code:newKeyCombo.code forHotKey:[i intValue]];
         }
+    }
+}
+
+#pragma mark - NSMenuDelegate
+
+- (void)menuNeedsUpdate:(NSMenu *)menu {
+    if (menu == EQMenu) {
+        [self EQMenuNeedsUpdate];
+    } else if (menu == _outputMenu) {
+        [self updateDeviceMenu];
     }
 }
 

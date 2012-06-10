@@ -8,7 +8,7 @@
 - (id)init {
     if (!(self = [super init])) {return nil;}
     _title = @"";
-    _amplitudes = [@[@0, @0, @0, @0, @0, @0, @0, @0, @0, @0] retain];
+    _amplitudes = [@[@0, @0, @0, @0, @0, @0, @0, @0, @0, @0, @0] retain];
     return self;
 }
 
@@ -64,26 +64,14 @@ amplitudes = _amplitudes;
 + (PREQ *)stairs {
     PREQ *stairs = [PREQ EQ];
     [stairs setTitle:@"Stairs"];
-    [stairs setAmplitudes:[NSArray arrayWithObjects:
-                           [NSNumber numberWithFloat:0], 
-                           [NSNumber numberWithFloat:-10], [NSNumber numberWithFloat:-10],
-                           [NSNumber numberWithFloat:-5], [NSNumber numberWithFloat:-5],
-                           [NSNumber numberWithFloat:0], [NSNumber numberWithFloat:0],
-                           [NSNumber numberWithFloat:5], [NSNumber numberWithFloat:5],
-                           [NSNumber numberWithFloat:10], [NSNumber numberWithFloat:10], nil]];
+    [stairs setAmplitudes:@[@0, @-10, @-10, @-5, @-5, @0, @0, @5, @5, @10, @10]];
     return stairs;
 }
 
 + (PREQ *)triangle {
     PREQ *stairs = [PREQ EQ];
     [stairs setTitle:@"Triangle"];
-    [stairs setAmplitudes:[NSArray arrayWithObjects:
-                           [NSNumber numberWithFloat:0], 
-                           [NSNumber numberWithFloat:-10], [NSNumber numberWithFloat:-5],
-                           [NSNumber numberWithFloat:0], [NSNumber numberWithFloat:5],
-                           [NSNumber numberWithFloat:10], [NSNumber numberWithFloat:10],
-                           [NSNumber numberWithFloat:5], [NSNumber numberWithFloat:0],
-                           [NSNumber numberWithFloat:-5], [NSNumber numberWithFloat:-10], nil]];
+    [stairs setAmplitudes:@[@0, @-10, @-5, @0, @5, @10, @10, @5, @0, @-5, @-10]];
     return stairs;
 }
 

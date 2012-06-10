@@ -72,6 +72,7 @@ typedef enum {
     
     IBOutlet NSButton *_hogButton;
     IBOutlet NSPopUpButton *_outputPopUp;
+    IBOutlet NSMenu *_outputMenu;
     
     // Shortcuts
     IBOutlet NSButton *mediaKeys;
@@ -86,27 +87,12 @@ typedef enum {
     IBOutlet SRRecorderControl *rate4Star;
     IBOutlet SRRecorderControl *rate5Star;
     
-    EventHotKeyRef playPauseHotKeyRef;
-    EventHotKeyRef playNextHotKeyRef;
-    EventHotKeyRef playPreviousHotKeyRef;
-    EventHotKeyRef increaseVolumeHotKeyRef;
-    EventHotKeyRef decreaseVolumeHotKeyRef;
-    EventHotKeyRef rate1StarHotKeyRef;
-    EventHotKeyRef rate2StarHotKeyRef;
-    EventHotKeyRef rate3StarHotKeyRef;
-    EventHotKeyRef rate4StarHotKeyRef;
-    EventHotKeyRef rate5StarHotKeyRef;
-    
     PRPrefMode _prefMode;
     
     __weak PRCore *core;
     __weak PRDb *db;
     __weak PRNowPlayingController *now;
 }
-/* Accessors */
-@property (readonly) PRDb *db;
-@property (readonly) PRNowPlayingController *now;
-
 /* Initialization */
 - (id)initWithCore:(PRCore *)core;
 
@@ -122,6 +108,7 @@ typedef enum {
 - (void)EQButtonAction;
 - (void)EQSliderAction:(id)sender;
 - (void)EQViewUpdate;
+- (void)EQMenuNeedsUpdate;
 
 - (void)EQMenuActionSave:(id)sender;
 - (void)EQMenuActionDelete:(id)sender;
@@ -140,6 +127,9 @@ typedef enum {
 - (void)addFolder;
 - (void)removeFolder;
 - (void)rescan;
+
+/* Devices */
+- (void)updateDeviceMenu;
 
 /* HotKeys */
 - (NSDictionary *)hotKeyDictionary;

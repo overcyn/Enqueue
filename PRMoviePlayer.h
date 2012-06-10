@@ -1,5 +1,5 @@
 /*
-     AudioPlayer states:
+     AudioPlayer states (this ignores queued decoders):
      ... 
         eStopped
      DecodingStarted
@@ -30,6 +30,10 @@ enum {
     PRPlayingTransitionState,
     PRPausingTransitionState,
 };
+
+extern NSString * const PRDeviceKeyName;
+extern NSString * const PRDeviceKeyManufacturer;
+extern NSString * const PRDeviceKeyUID;
 
 
 @interface PRMoviePlayer : NSObject {
