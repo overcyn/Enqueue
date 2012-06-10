@@ -33,13 +33,13 @@ enum {
 
 
 @interface PRMoviePlayer : NSObject {
-    void *player;
+    void *_player;
     AudioUnit _equalizer;
     NSTimer	*_UIUpdateTimer;
     NSString *_lastQueued;
     
-    float transitionVolume;
-    int transitionState;
+    float _transitionVolume;
+    int _transitionState;
     NSTimer *_transitionTimer;
 }
 /* Playback */

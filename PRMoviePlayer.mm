@@ -14,7 +14,7 @@
 #import "NSObject+SPInvocationGrabbing.h"
 
 
-#define PLAYER                  (static_cast<AudioPlayer *>(player))
+#define PLAYER                  (static_cast<AudioPlayer *>(_player))
 #define ALMOST_FINISHED_FLAG    7
 
 
@@ -27,7 +27,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 @interface PRMoviePlayer ()
 /* Playback */
-- (void)transitionCallback:(NSTimer *)timer_;
+- (void)transitionCallback:(NSTimer *)timer;
 
 /* Notifications */
 - (void)EQDidChange:(NSNotification *)note;
@@ -49,7 +49,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 - (id)init {
     if (!(self = [super init])) {return nil;}
-    player = new AudioPlayer();
+    _player = new AudioPlayer();
     
     _UIUpdateTimer = [NSTimer timerWithTimeInterval:0.3 target:self selector:@selector(update) userInfo:nil repeats:YES];
     [[NSRunLoop mainRunLoop] addTimer:_UIUpdateTimer forMode:NSRunLoopCommonModes];
@@ -93,7 +93,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     [_transitionTimer invalidate];
     [_transitionTimer release];
     _transitionTimer = nil;
-    transitionState = PRNeitherTransitionState;
+    _transitionState = PRNeitherTransitionState;
     [self setVolume:[self volume]];
     
 //    NSLog(@"capacity:%d, minchunksize:%d",PLAYER->GetRingBufferCapacity(), PLAYER->GetRingBufferWriteChunkSize());
@@ -102,10 +102,10 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     if (!decoder) {
 		return FALSE;
     }
-    decoder->SetDecodingStartedCallback(decodingStarted, player);
-    decoder->SetDecodingFinishedCallback(decodingFinished, player);
-    decoder->SetRenderingStartedCallback(renderingStarted, player);
-	decoder->SetRenderingFinishedCallback(renderingFinished, player);
+    decoder->SetDecodingStartedCallback(decodingStarted, PLAYER);
+    decoder->SetDecodingFinishedCallback(decodingFinished, PLAYER);
+    decoder->SetRenderingStartedCallback(renderingStarted, PLAYER);
+	decoder->SetRenderingFinishedCallback(renderingFinished, PLAYER);
     if (!decoder->Open() || !PLAYER->Enqueue(decoder)) {
         delete decoder;
         return FALSE;
@@ -120,10 +120,10 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     if (!decoder) {
 		return FALSE;
     }
-    decoder->SetDecodingStartedCallback(decodingStarted, player);
-    decoder->SetDecodingFinishedCallback(decodingFinished, player);
-    decoder->SetRenderingStartedCallback(renderingStarted, player);
-	decoder->SetRenderingFinishedCallback(renderingFinished, player);
+    decoder->SetDecodingStartedCallback(decodingStarted, PLAYER);
+    decoder->SetDecodingFinishedCallback(decodingFinished, PLAYER);
+    decoder->SetRenderingStartedCallback(renderingStarted, PLAYER);
+	decoder->SetRenderingFinishedCallback(renderingFinished, PLAYER);
     if (!decoder->Open() || !PLAYER->Enqueue(decoder)) {
         delete decoder;
         return FALSE;
@@ -155,18 +155,18 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 
 - (void)pauseUnpause {
     if ([self isPlaying]) {
-        if (transitionState != PRPlayingTransitionState) {
-            transitionVolume = 1;
+        if (_transitionState != PRPlayingTransitionState) {
+            _transitionVolume = 1;
         }
-        transitionState = PRPausingTransitionState;
-        PLAYER->SetVolume(transitionVolume * [self volume]);
+        _transitionState = PRPausingTransitionState;
+        PLAYER->SetVolume(_transitionVolume * [self volume]);
         [self transitionCallback:nil];
     } else {
-        if (transitionState != PRPausingTransitionState) {
-            transitionVolume = 0;
+        if (_transitionState != PRPausingTransitionState) {
+            _transitionVolume = 0;
         }
-        transitionState = PRPlayingTransitionState;
-        PLAYER->SetVolume(transitionVolume * [self volume]);
+        _transitionState = PRPlayingTransitionState;
+        PLAYER->SetVolume(_transitionVolume * [self volume]);
         PLAYER->Play();
         [self transitionCallback:nil];
         [[NSNotificationCenter defaultCenter] postPlayingChanged];
@@ -184,14 +184,14 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 #pragma mark - Playback Private
 
 - (void)transitionCallback:(NSTimer *)timer {
-    switch (transitionState) {
+    switch (_transitionState) {
         case PRNeitherTransitionState:
             break;
         case PRPlayingTransitionState:
-            transitionVolume += 0.1;
-            if (transitionVolume >= 1) {
-                transitionVolume = 1;
-                transitionState = PRNeitherTransitionState;
+            _transitionVolume += 0.1;
+            if (_transitionVolume >= 1) {
+                _transitionVolume = 1;
+                _transitionState = PRNeitherTransitionState;
             } else {
                 [_transitionTimer invalidate];
                 [_transitionTimer release];
@@ -202,13 +202,13 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
                                                            repeats:FALSE] retain];
                 [[NSRunLoop currentRunLoop] addTimer:_transitionTimer forMode:NSRunLoopCommonModes];
             }
-            PLAYER->SetVolume(transitionVolume * [self volume]);
+            PLAYER->SetVolume(_transitionVolume * [self volume]);
             break;
         case PRPausingTransitionState:
-            transitionVolume -= 0.1;
-            if (transitionVolume <= 0) {
-                transitionVolume = 0;
-                transitionState = PRNeitherTransitionState;
+            _transitionVolume -= 0.1;
+            if (_transitionVolume <= 0) {
+                _transitionVolume = 0;
+                _transitionState = PRNeitherTransitionState;
                 PLAYER->Pause();
                 [[NSNotificationCenter defaultCenter] postPlayingChanged];
             } else {
@@ -221,7 +221,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
                                                            repeats:FALSE] retain];
                 [[NSRunLoop currentRunLoop] addTimer:_transitionTimer forMode:NSRunLoopCommonModes];
             }
-            PLAYER->SetVolume(transitionVolume * [self volume]);
+            PLAYER->SetVolume(_transitionVolume * [self volume]);
             break;
         default:
             @throw NSInternalInconsistencyException;
@@ -240,9 +240,9 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 @dynamic currentDevice;
 
 - (BOOL)isPlaying {
-    if (transitionState == PRPausingTransitionState) {
+    if (_transitionState == PRPausingTransitionState) {
         return FALSE;
-    } else if (transitionState == PRPlayingTransitionState) {
+    } else if (_transitionState == PRPlayingTransitionState) {
         return TRUE;
     }
     return PLAYER->IsPlaying();
@@ -375,7 +375,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
 }
 
 - (void)updateVolume {
-    if (transitionState == PRNeitherTransitionState) {
+    if (_transitionState == PRNeitherTransitionState) {
         PLAYER->SetVolume([self volume]);
     }
 }
