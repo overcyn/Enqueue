@@ -62,7 +62,7 @@ extern NSString * const PRDeviceKeyUID;
 @property (readwrite) long currentTime;
 @property (readonly) long duration;
 @property (readonly) NSArray *devices;
-@property (readwrite, copy) NSString *currentDevice;
+@property (readwrite, retain) NSString *currentDevice;
 - (void)increaseVolume;
 - (void)decreaseVolume;
 @end

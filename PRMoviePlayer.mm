@@ -12,6 +12,7 @@
 #import "AUParamInfo.h"
 #import "PREQ.h"
 #import "NSObject+SPInvocationGrabbing.h"
+#import <QuickTime/QuickTime.h>
 
 
 #define PLAYER                      (static_cast<AudioPlayer *>(_player))
@@ -35,6 +36,9 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
 @interface PRMoviePlayer ()
 /* Playback */
 - (void)transitionCallback:(NSTimer *)timer;
+
+/* Accessors */
+- (NSString *)defaultDevice;
 
 /* Notifications */
 - (void)EQDidChange:(NSNotification *)note;
@@ -317,6 +321,8 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
         CFStringRef name;
         propertySize = sizeof(name);
         deviceAddress.mSelector = kAudioDevicePropertyDeviceNameCFString;
+        deviceAddress.mScope = kAudioDevicePropertyScopeOutput;
+        deviceAddress.mElement = kAudioObjectPropertyElementMaster;
         if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, &name) != noErr) {
             continue;
         }
@@ -324,6 +330,8 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
         CFStringRef manufacturer;
         propertySize = sizeof(manufacturer);
         deviceAddress.mSelector = kAudioDevicePropertyDeviceManufacturerCFString;
+        deviceAddress.mScope = kAudioDevicePropertyScopeOutput;
+        deviceAddress.mElement = kAudioObjectPropertyElementMaster;
         if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, &manufacturer) != noErr) {
             continue;
         }
@@ -331,6 +339,8 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
         CFStringRef UID;
         propertySize = sizeof(UID);
         deviceAddress.mSelector = kAudioDevicePropertyDeviceUID;
+        deviceAddress.mScope = kAudioDevicePropertyScopeOutput;
+        deviceAddress.mElement = kAudioObjectPropertyElementMaster;
         if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, &UID) != noErr) {
             continue;
         }
@@ -343,10 +353,36 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
 
 - (void)setCurrentDevice:(NSString *)device {
     [[PRDefaults sharedDefaults] setValue:device forKey:PRDefaultsOutputDeviceUID];
+    [self updateDevice];
 }
 
 - (NSString *)currentDevice {
-    return [[PRDefaults sharedDefaults] valueForKey:PRDefaultsOutputDeviceUID];
+    NSString *playerDevice = [self playerDevice];
+    NSString *savedDevice = [[PRDefaults sharedDefaults] valueForKey:PRDefaultsOutputDeviceUID];
+    NSString *defaultDevice = [self defaultDevice];
+    
+    // if cant get player device, return nil
+    if (!playerDevice) {
+        return nil;
+    }
+    
+    // if not default device, return current device
+    if (savedDevice) {
+        return playerDevice;
+    }
+    
+    // get default device. if failure, return current device
+    if (!defaultDevice) {
+        return playerDevice;
+    }
+    
+    // if default device, return nil
+    if ([defaultDevice isEqualToString:playerDevice]) {
+        return nil;
+    }
+    
+    // otherwise return current device
+    return playerDevice;
 }
 
 - (void)increaseVolume {
@@ -363,6 +399,37 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
         volume = 0.0;
     }
     [self setVolume:volume];
+}
+
+#pragma mark - Accessors Private
+
+- (NSString *)playerDevice {
+    CFStringRef playerDevice = nil;
+    if (!PLAYER->CreateOutputDeviceUID(playerDevice) || playerDevice == nil) {
+        return nil;
+    }
+    return [(NSString *)playerDevice autorelease];
+}
+
+- (NSString *)defaultDevice {
+    AudioObjectPropertyAddress propertyAddress;
+    propertyAddress.mSelector = kAudioHardwarePropertyDefaultOutputDevice;
+    propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
+    propertyAddress.mElement = kAudioObjectPropertyElementMaster;
+    AudioDeviceID defaultDeviceID;
+    UInt32 propSize = sizeof(defaultDeviceID);
+    if (AudioObjectGetPropertyData(kAudioObjectSystemObject, &propertyAddress, 0, NULL, &propSize, &defaultDeviceID) != noErr) {
+        return nil;
+    }
+    propertyAddress.mSelector = kAudioDevicePropertyDeviceUID;
+	propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
+    propertyAddress.mElement = kAudioObjectPropertyElementMaster;
+    CFStringRef deviceUID;
+	UInt32 dataSize = sizeof(deviceUID);
+	if (AudioObjectGetPropertyData(defaultDeviceID, &propertyAddress, 0, nullptr, &dataSize, &deviceUID) != noErr || deviceUID == nil) {
+		return nil;
+	}
+    return [(NSString *)deviceUID autorelease];
 }
 
 #pragma mark - Update Private
@@ -392,8 +459,36 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
 }
 
 - (void)updateDevice {
-    NSString *currentDevice = [self currentDevice];
-    PLAYER->SetOutputDeviceUID((CFStringRef)currentDevice);
+    NSString *playerDevice = [self playerDevice];
+    NSString *savedDevice = [[PRDefaults sharedDefaults] valueForKey:PRDefaultsOutputDeviceUID];
+    NSString *defaultDevice = [self defaultDevice];
+    
+    // if can't get player or default device, set to default device
+    if (!playerDevice || (!defaultDevice && !savedDevice)) {
+        PLAYER->SetOutputDeviceUID(nil);
+        [[NSNotificationCenter defaultCenter] postNotificationName:PRDeviceDidChangeNotification object:nil];
+        return;
+    }
+    
+    // if current device equal to saved device, nothing to do
+    if (savedDevice != nil ? [playerDevice isEqualToString:savedDevice] : [playerDevice isEqualToString:defaultDevice]) {
+        return;
+    }
+    
+    // otherwise try to set current device to saved device
+    if (PLAYER->SetOutputDeviceUID((CFStringRef)savedDevice)) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:PRDeviceDidChangeNotification object:nil];
+        return;
+    }
+    
+    // if failure try to set current device to default device
+    if (PLAYER->SetOutputDeviceUID(nil)) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:PRDeviceDidChangeNotification object:nil];
+        return;
+    }
+    
+    // if still failure just update the UI.
+    [[NSNotificationCenter defaultCenter] postNotificationName:PRDeviceDidChangeNotification object:nil];
 }
 
 - (void)updateEQ {

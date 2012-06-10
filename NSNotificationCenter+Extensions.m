@@ -27,6 +27,8 @@ NSString * const PRRepeatDidChangeNotification = @"PRRepeatDidChangeNotification
 NSString * const PRVolumeChangedNote = @"PRVolumeChangedNote";
 NSString * const PREQChangedNote = @"PREQChangedNote";
 
+NSString * const PRDeviceDidChangeNotification = @"PRDeviceDidChangeNotification";
+
 
 @implementation NSNotificationCenter (Extensions)
 

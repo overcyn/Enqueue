@@ -6,7 +6,7 @@ extern NSString * const PRCurrentListDidChangeNotification;
 extern NSString * const PRLibraryViewSelectionDidChangeNotification;
 
 extern NSString * const PRLastfmStateDidChangeNotification;
-
+extern NSString * const PRDeviceDidChangeNotification;
 
 @interface NSNotificationCenter (Extensions)
 + (void)post:(NSString *)name;
