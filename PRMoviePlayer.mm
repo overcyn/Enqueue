@@ -14,8 +14,12 @@
 #import "NSObject+SPInvocationGrabbing.h"
 
 
-#define PLAYER                  (static_cast<AudioPlayer *>(_player))
-#define ALMOST_FINISHED_FLAG    7
+#define PLAYER                      (static_cast<AudioPlayer *>(_player))
+#define ALMOST_FINISHED_FLAG        7
+#define TRANSITION_VOLUME_STEP      0.1
+#define TRANSITION_TIME_STEP        0.025
+#define DEFAULT_BUFFER_CAPACITY     16384
+#define DEFAULT_BUFFER_CHUCK_SIZE   2048
 
 
 volatile static uint32_t moviePlayerFlags = 0;
@@ -61,8 +65,8 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     [self updateHogOutput];
     [self updateVolume];
     
-    PLAYER->SetRingBufferCapacity(32768*4);
-    PLAYER->SetRingBufferWriteChunkSize(4096);
+    PLAYER->SetRingBufferCapacity(DEFAULT_BUFFER_CAPACITY*16);
+    PLAYER->SetRingBufferWriteChunkSize(DEFAULT_BUFFER_CHUCK_SIZE*2);
     
     [self devices];
     
@@ -95,8 +99,6 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
     _transitionTimer = nil;
     _transitionState = PRNeitherTransitionState;
     [self setVolume:[self volume]];
-    
-//    NSLog(@"capacity:%d, minchunksize:%d",PLAYER->GetRingBufferCapacity(), PLAYER->GetRingBufferWriteChunkSize());
     
     AudioDecoder *decoder = AudioDecoder::CreateDecoderForURL(reinterpret_cast<CFURLRef>([NSURL URLWithString:file]));
     if (!decoder) {
@@ -188,14 +190,14 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
         case PRNeitherTransitionState:
             break;
         case PRPlayingTransitionState:
-            _transitionVolume += 0.1;
+            _transitionVolume += TRANSITION_VOLUME_STEP;
             if (_transitionVolume >= 1) {
                 _transitionVolume = 1;
                 _transitionState = PRNeitherTransitionState;
             } else {
                 [_transitionTimer invalidate];
                 [_transitionTimer release];
-                _transitionTimer = [[NSTimer timerWithTimeInterval:0.025
+                _transitionTimer = [[NSTimer timerWithTimeInterval:TRANSITION_VOLUME_STEP
                                                             target:self
                                                           selector:@selector(transitionCallback:)
                                                           userInfo:nil
@@ -205,7 +207,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
             PLAYER->SetVolume(_transitionVolume * [self volume]);
             break;
         case PRPausingTransitionState:
-            _transitionVolume -= 0.1;
+            _transitionVolume -= TRANSITION_VOLUME_STEP;
             if (_transitionVolume <= 0) {
                 _transitionVolume = 0;
                 _transitionState = PRNeitherTransitionState;
@@ -214,7 +216,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder);
             } else {
                 [_transitionTimer invalidate];
                 [_transitionTimer release];
-                _transitionTimer = [[NSTimer timerWithTimeInterval:0.025
+                _transitionTimer = [[NSTimer timerWithTimeInterval:TRANSITION_VOLUME_STEP
                                                             target:self
                                                           selector:@selector(transitionCallback:)
                                                           userInfo:nil
