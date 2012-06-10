@@ -55,16 +55,15 @@
 
 - (void)drawInteriorWithFrame:(NSRect)frame inView:(NSView *)view {
     frame.origin.y -= 2;
-    NSAttributedString *attrTitle;
+    
     NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
-    [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.4]];
+    [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:1.0]];
     [shadow setShadowOffset:NSMakeSize(0.0, -1.0)];
-    NSDictionary *attr = [NSDictionary dictionaryWithObjectsAndKeys:
-                          [NSFont fontWithName:@"HelveticaNeue-Bold" size:12], NSFontAttributeName,
-                          [NSColor colorWithCalibratedWhite:0.15 alpha:1.0], NSForegroundColorAttributeName,
-                          [NSParagraphStyle centerAlignStyle], NSParagraphStyleAttributeName,
-                          shadow, NSShadowAttributeName, nil];
-    attrTitle = [[[NSAttributedString alloc] initWithString:[self title] attributes:attr] autorelease];
+    NSDictionary *attr = @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-Bold" size:12],
+        NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.10 alpha:1.0],
+        NSParagraphStyleAttributeName:[NSParagraphStyle centerAlignStyle],
+        NSShadowAttributeName:shadow};
+    NSAttributedString *attrTitle = [[[NSAttributedString alloc] initWithString:[self title] attributes:attr] autorelease];
     [self setAttributedTitle:attrTitle];
     [super drawInteriorWithFrame:frame inView:view];
 }
