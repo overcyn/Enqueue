@@ -134,14 +134,16 @@
     [rescan setAction:@selector(rescan)];
     [foldersTableView setDataSource:self];
     
-	[NSNotificationCenter addObserver:self selector:@selector(updateUI) name:PRLastfmStateDidChangeNotification object:nil];
-    
     _outputMenu = [[NSMenu alloc] init];
     [_outputMenu setDelegate:self];
     [_outputMenu setAutoenablesItems:FALSE];
     [_outputPopUp setMenu:_outputMenu];
     
+	[NSNotificationCenter addObserver:self selector:@selector(updateUI) name:PRLastfmStateDidChangeNotification object:nil];
+    [NSNotificationCenter addObserver:self selector:@selector(updateDeviceMenu) name:PRDeviceDidChangeNotification object:nil];
+    
     [self updateUI];
+    [self updateDeviceMenu];
     [self updateHotKeys];
 
 }
@@ -239,8 +241,6 @@
         default:
             break;
     }
-    
-    [self updateDeviceMenu];
 }
 
 #pragma mark - Equalizer
@@ -510,6 +510,8 @@
     NSMenuItem *selectedItem = item;
     [item setRepresentedObject:nil];
     [_outputMenu addItem:item];
+    [_outputMenu addItem:[NSMenuItem separatorItem]];
+    
     NSString *currentDevice = [[[core now] mov] currentDevice];
     for (NSDictionary *i in [[[core now] mov] devices]) {
         NSMenuItem *item = [[[NSMenuItem alloc] initWithTitle:[i objectForKey:PRDeviceKeyName] action:@selector(setDevice:) keyEquivalent:@""] autorelease];

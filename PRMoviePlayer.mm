@@ -28,29 +28,37 @@ static void renderingStarted(void *context, const AudioDecoder *decoder);
 static void decodingFinished(void *context, const AudioDecoder *decoder);
 static void renderingFinished(void *context, const AudioDecoder *decoder);
 
+OSStatus deviceListener(AudioObjectID inObjectID, UInt32 inNumberAddresses, const AudioObjectPropertyAddress inAddresses[], void *inClientData);
+
 NSString * const PRDeviceKeyName = @"PRDeviceKeyName";
 NSString * const PRDeviceKeyManufacturer = @"PRDeviceKeyManufacturer";
 NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
 
 
 @interface PRMoviePlayer ()
+/* Update */
+- (void)update;
+
+/* Notifications */
+- (void)playingDidChange:(NSNotification *)note;
+- (void)EQDidChange:(NSNotification *)note;
+
 /* Playback */
 - (void)transitionCallback:(NSTimer *)timer;
 
-/* Accessors */
-- (NSString *)defaultDevice;
-
-/* Notifications */
-- (void)EQDidChange:(NSNotification *)note;
-
-/* Update */
-- (void)update;
-- (void)updateHogOutput;
-- (void)updateDevice;
+/* EQ */
 - (void)updateEQ;
 - (void)modifyEQ;
 - (void)enableEQ;
 - (void)disableEQ;
+
+/* Device */
+- (NSString *)defaultDevice;
+- (NSString *)playerDevice;
+- (void)updateDevice;
+
+/* Hog Output */
+- (void)updateHogOutput;
 @end
 
 
@@ -67,6 +75,17 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
     
     [[NSNotificationCenter defaultCenter] observeEQChanged:self sel:@selector(EQDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(playingDidChange:)];
+    
+    AudioObjectPropertyAddress propertyAddress;
+    propertyAddress.mSelector = kAudioHardwarePropertyDefaultOutputDevice;
+    propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
+    propertyAddress.mElement = kAudioObjectPropertyElementMaster;
+    AudioObjectAddPropertyListener(kAudioObjectSystemObject, &propertyAddress, deviceListener, self);
+    
+    propertyAddress.mSelector = kAudioHardwarePropertyDevices;
+    propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
+    propertyAddress.mElement = kAudioObjectPropertyElementMaster;
+    AudioObjectAddPropertyListener(kAudioObjectSystemObject, &propertyAddress, deviceListener, self);
     
     [self updateEQ];
     [self updateHogOutput];
@@ -85,6 +104,85 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
     [_UIUpdateTimer release];
     [_transitionTimer release];
     [super dealloc];
+}
+
+#pragma mark - Accessors
+
+@dynamic isPlaying;
+@dynamic volume;
+@dynamic currentTime;
+@dynamic duration;
+
+- (BOOL)isPlaying {
+    if (_transitionState == PRPausingTransitionState) {
+        return FALSE;
+    } else if (_transitionState == PRPlayingTransitionState) {
+        return TRUE;
+    }
+    return PLAYER->IsPlaying();
+}
+
+- (float)volume {
+    return [[PRDefaults sharedDefaults] floatForKey:PRDefaultsVolume];
+}
+
+- (void)setVolume:(float)volume {
+    [[PRDefaults sharedDefaults] setFloat:volume forKey:PRDefaultsVolume];
+    if (_transitionState == PRNeitherTransitionState) {
+        PLAYER->SetVolume([self volume]);
+    }
+    [[NSNotificationCenter defaultCenter] postVolumeChanged];
+}
+
+- (long)currentTime {
+    CFTimeInterval timeInterval;
+    PLAYER->GetCurrentTime(timeInterval);
+    return timeInterval * 1000;
+}
+
+- (void)setCurrentTime:(long)currentTime {
+    PLAYER->SeekToTime(currentTime / 1000);
+}
+
+- (long)duration {
+    CFTimeInterval duration;
+    PLAYER->GetTotalTime(duration);
+    return duration * 1000;
+}
+
+- (void)increaseVolume {
+    float volume = [self volume] + 0.1;
+    if (volume > 1.0) {
+        volume = 1.0;
+    }
+    [self setVolume:volume];
+}
+
+- (void)decreaseVolume {
+    float volume = [self volume] - 0.1;
+    if (volume < 0.0) {
+        volume = 0.0;
+    }
+    [self setVolume:volume];
+}
+
+#pragma mark - Update Private
+
+- (void)update {
+    [[NSNotificationCenter defaultCenter] postTimeChanged];
+    if ([self isPlaying] && ([self duration] - [self currentTime]) < 2000 && !OSAtomicTestAndSetBarrier(ALMOST_FINISHED_FLAG, &moviePlayerFlags) ) {
+        [[NSNotificationCenter defaultCenter] postMovieAlmostFinished];
+    }
+}
+
+#pragma mark - Notifications
+
+- (void)playingDidChange:(NSNotification *)note {
+    [self updateHogOutput];
+}
+
+- (void)EQDidChange:(NSNotification *)note {
+    [self updateEQ];
 }
 
 #pragma mark - Playback
@@ -201,7 +299,7 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
             } else {
                 [_transitionTimer invalidate];
                 [_transitionTimer release];
-                _transitionTimer = [[NSTimer timerWithTimeInterval:TRANSITION_VOLUME_STEP
+                _transitionTimer = [[NSTimer timerWithTimeInterval:TRANSITION_TIME_STEP
                                                             target:self
                                                           selector:@selector(transitionCallback:)
                                                           userInfo:nil
@@ -220,7 +318,7 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
             } else {
                 [_transitionTimer invalidate];
                 [_transitionTimer release];
-                _transitionTimer = [[NSTimer timerWithTimeInterval:TRANSITION_VOLUME_STEP
+                _transitionTimer = [[NSTimer timerWithTimeInterval:TRANSITION_TIME_STEP
                                                             target:self
                                                           selector:@selector(transitionCallback:)
                                                           userInfo:nil
@@ -235,61 +333,73 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
     }
 }
 
-#pragma mark - Accessors
+#pragma mark - EQ Private
 
-@dynamic isPlaying;
-@dynamic volume;
-@dynamic hogOutput;
-@dynamic currentTime;
-@dynamic duration;
+- (void)updateEQ {
+    BOOL enabled = [[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCurrent] != nil;
+    if (enabled && !_equalizer) {
+        [self enableEQ];
+    } else if (!enabled && _equalizer) {
+        [self disableEQ];
+    } else if (enabled && _equalizer) {
+        [self modifyEQ];
+    }
+}
+
+- (void)modifyEQ {
+    PREQ *EQ = [[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCurrent];
+    for (int i = 0; i < 10; i++) {
+        float amp = [EQ ampForFreq:(PREQFreq)(i + 1)] + [EQ ampForFreq:PREQFreqPreamp];
+        if (amp > 20) {
+            amp = 20;
+        } else if (amp < -20) {
+            amp = -20;
+        }
+        OSStatus status = AudioUnitSetParameter(_equalizer, i, kAudioUnitScope_Global, 0, amp, 0);
+        if (status != 0) {
+            NSLog(@"EQ update failed:%d",(int)status);
+        }
+    }
+}
+
+- (void)enableEQ {
+    OSStatus status;
+    BOOL err = PLAYER->AddEffect(kAudioUnitSubType_GraphicEQ, kAudioUnitManufacturer_Apple, 0, 0, &_equalizer);
+    if (!err) {
+        NSLog(@"EQ addition failed");
+        goto error;
+    }
+    status = AudioUnitInitialize(_equalizer);
+    if (status != 0) {
+        NSLog(@"EQ initialization failed:%d",(int)status);
+        goto error;
+    }
+    status = AudioUnitSetParameter(_equalizer, kGraphicEQParam_NumberOfBands, kAudioUnitScope_Global, 0, 0, 0);
+    if (status != 0) {
+        NSLog(@"EQ set parameter failed:%d",(int)status);
+        goto error;
+    }
+    [self updateEQ];
+    return;
+    
+error:;
+    PLAYER->RemoveEffect(_equalizer);
+    _equalizer = nil;
+    return;
+}
+
+- (void)disableEQ {
+    BOOL err = PLAYER->RemoveEffect(_equalizer);
+    if (!err) {
+        NSLog(@"EQ removal failed");
+    }
+    _equalizer = nil;
+}
+
+#pragma mark - Devices
+
 @dynamic devices;
 @dynamic currentDevice;
-
-- (BOOL)isPlaying {
-    if (_transitionState == PRPausingTransitionState) {
-        return FALSE;
-    } else if (_transitionState == PRPlayingTransitionState) {
-        return TRUE;
-    }
-    return PLAYER->IsPlaying();
-}
-
-- (float)volume {
-    return [[PRDefaults sharedDefaults] floatForKey:PRDefaultsVolume];
-}
-
-- (void)setVolume:(float)volume {
-    [[PRDefaults sharedDefaults] setFloat:volume forKey:PRDefaultsVolume];
-    if (_transitionState == PRNeitherTransitionState) {
-        PLAYER->SetVolume([self volume]);
-    }
-    [[NSNotificationCenter defaultCenter] postVolumeChanged];
-}
-
-- (BOOL)hogOutput {
-    return [[PRDefaults sharedDefaults] boolForKey:PRDefaultsHogOutput];
-}
-
-- (void)setHogOutput:(BOOL)hogOutput {
-    [[PRDefaults sharedDefaults] setBool:hogOutput forKey:PRDefaultsHogOutput];
-    [self updateHogOutput];
-}
-
-- (long)currentTime {
-    CFTimeInterval timeInterval;
-    PLAYER->GetCurrentTime(timeInterval);
-    return timeInterval * 1000;
-}
-
-- (void)setCurrentTime:(long)currentTime {
-    PLAYER->SeekToTime(currentTime / 1000);
-}
-
-- (long)duration {
-    CFTimeInterval duration;
-    PLAYER->GetTotalTime(duration);
-    return duration * 1000;
-}
 
 - (NSArray *)devices {
     UInt32 propertySize;
@@ -385,23 +495,7 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
     return playerDevice;
 }
 
-- (void)increaseVolume {
-    float volume = [self volume] + 0.1;
-    if (volume > 1.0) {
-        volume = 1.0;
-    }
-    [self setVolume:volume];
-}
-
-- (void)decreaseVolume {
-    float volume = [self volume] - 0.1;
-    if (volume < 0.0) {
-        volume = 0.0;
-    }
-    [self setVolume:volume];
-}
-
-#pragma mark - Accessors Private
+#pragma mark - Devices Private
 
 - (NSString *)playerDevice {
     CFStringRef playerDevice = nil;
@@ -432,32 +526,6 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
     return [(NSString *)deviceUID autorelease];
 }
 
-#pragma mark - Update Private
-
-- (void)update {
-    [[NSNotificationCenter defaultCenter] postTimeChanged];
-    if ([self isPlaying] && ([self duration] - [self currentTime]) < 2000 && !OSAtomicTestAndSetBarrier(ALMOST_FINISHED_FLAG, &moviePlayerFlags) ) {
-        [[NSNotificationCenter defaultCenter] postMovieAlmostFinished];
-    }
-}
-
-- (void)updateHogOutput {
-    // only hog when playing
-    if (![self isPlaying]) {
-        if (PLAYER->OutputDeviceIsHogged()) {
-            PLAYER->StopHoggingOutputDevice();
-        }
-    } else {
-        if ([self hogOutput] != PLAYER->OutputDeviceIsHogged()) {
-            if ([self hogOutput]) {
-                PLAYER->StartHoggingOutputDevice();
-            } else {
-                PLAYER->StopHoggingOutputDevice();
-            }
-        }
-    }
-}
-
 - (void)updateDevice {
     NSString *playerDevice = [self playerDevice];
     NSString *savedDevice = [[PRDefaults sharedDefaults] valueForKey:PRDefaultsOutputDeviceUID];
@@ -470,8 +538,9 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
         return;
     }
     
-    // if current device equal to saved device, nothing to do
+    // if current device equal to saved device, nothing to do but must post notification anyways.
     if (savedDevice != nil ? [playerDevice isEqualToString:savedDevice] : [playerDevice isEqualToString:defaultDevice]) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:PRDeviceDidChangeNotification object:nil];
         return;
     }
     
@@ -491,79 +560,46 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
     [[NSNotificationCenter defaultCenter] postNotificationName:PRDeviceDidChangeNotification object:nil];
 }
 
-- (void)updateEQ {
-    BOOL enabled = [[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCurrent] != nil;
-    if (enabled && !_equalizer) {
-        [self enableEQ];
-    } else if (!enabled && _equalizer) {
-        [self disableEQ];
-    } else if (enabled && _equalizer) {
-        [self modifyEQ];
-    }
+#pragma mark - HogOutput
+
+@dynamic hogOutput;
+
+- (BOOL)hogOutput {
+    return [[PRDefaults sharedDefaults] boolForKey:PRDefaultsHogOutput];
 }
 
-- (void)modifyEQ {
-    PREQ *EQ = [[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCurrent];
-    for (int i = 0; i < 10; i++) {
-        float amp = [EQ ampForFreq:(PREQFreq)(i + 1)] + [EQ ampForFreq:PREQFreqPreamp];
-        if (amp > 20) {
-            amp = 20;
-        } else if (amp < -20) {
-            amp = -20;
-        }
-        OSStatus status = AudioUnitSetParameter(_equalizer, i, kAudioUnitScope_Global, 0, amp, 0);
-        if (status != 0) {
-            NSLog(@"EQ update failed:%d",(int)status);
-        }
-    }
-}
-
-- (void)enableEQ {
-    OSStatus status;
-    BOOL err = PLAYER->AddEffect(kAudioUnitSubType_GraphicEQ, kAudioUnitManufacturer_Apple, 0, 0, &_equalizer);
-    if (!err) {
-        NSLog(@"EQ addition failed");
-        goto error;
-    }
-    status = AudioUnitInitialize(_equalizer);
-    if (status != 0) {
-        NSLog(@"EQ initialization failed:%d",(int)status);
-        goto error;
-    }
-    status = AudioUnitSetParameter(_equalizer, kGraphicEQParam_NumberOfBands, kAudioUnitScope_Global, 0, 0, 0);
-    if (status != 0) {
-        NSLog(@"EQ set parameter failed:%d",(int)status);
-        goto error;
-    }
-    [self updateEQ];
-    return;
-    
-error:;
-    PLAYER->RemoveEffect(_equalizer);
-    _equalizer = nil;
-    return;
-}
-
-- (void)disableEQ {
-    BOOL err = PLAYER->RemoveEffect(_equalizer);
-    if (!err) {
-        NSLog(@"EQ removal failed");
-    }
-    _equalizer = nil;
-}
-
-#pragma mark - Notifications
-
-- (void)playingDidChange:(NSNotification *)note {
+- (void)setHogOutput:(BOOL)hogOutput {
+    [[PRDefaults sharedDefaults] setBool:hogOutput forKey:PRDefaultsHogOutput];
     [self updateHogOutput];
 }
 
-- (void)EQDidChange:(NSNotification *)note {
-    [self updateEQ];
+#pragma mark - HogOutput Private
+
+- (void)updateHogOutput {
+    // only hog when playing
+    if (![self isPlaying]) {
+        if (PLAYER->OutputDeviceIsHogged()) {
+            PLAYER->StopHoggingOutputDevice();
+        }
+    } else {
+        if ([self hogOutput] != PLAYER->OutputDeviceIsHogged()) {
+            if ([self hogOutput]) {
+                PLAYER->StartHoggingOutputDevice();
+            } else {
+                PLAYER->StopHoggingOutputDevice();
+            }
+        }
+    }
 }
 
 @end
 
+
+OSStatus deviceListener(AudioObjectID inObjectID, UInt32 inNumberAddresses, const AudioObjectPropertyAddress inAddresses[], void *inClientData) {
+    NSLog(@"blah");
+    [(PRMoviePlayer *)inClientData updateDevice];
+    return noErr;
+}
 
 static void decodingStarted(void *context, const AudioDecoder *decoder) {
 //    NSLog(@"decodingStarted");

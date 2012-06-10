@@ -46,6 +46,14 @@ extern NSString * const PRDeviceKeyUID;
     int _transitionState;
     NSTimer *_transitionTimer;
 }
+/* Accessors */
+@property (readonly) BOOL isPlaying;
+@property (readwrite) float volume;
+@property (readwrite) long currentTime;
+@property (readonly) long duration;
+- (void)increaseVolume;
+- (void)decreaseVolume;
+
 /* Playback */
 - (BOOL)play:(NSString *)file;
 - (BOOL)queue:(NSString *)file;
@@ -55,14 +63,10 @@ extern NSString * const PRDeviceKeyUID;
 - (void)seekForward;
 - (void)seekBackward;
 
-/* Accessors */
-@property (readonly) BOOL isPlaying;
-@property (readwrite) float volume;
-@property (readwrite) BOOL hogOutput;
-@property (readwrite) long currentTime;
-@property (readonly) long duration;
+/* Device */
 @property (readonly) NSArray *devices;
 @property (readwrite, retain) NSString *currentDevice;
-- (void)increaseVolume;
-- (void)decreaseVolume;
+
+/* HogOutput */
+@property (readwrite) BOOL hogOutput;
 @end
