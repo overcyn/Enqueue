@@ -15,12 +15,8 @@
     frame2.origin.x += 0.5;
     frame2.size.width -= 1;
     
-    NSBezierPath *path;
-    if (!_rounded) {
-        path = [NSBezierPath bezierPathWithRoundedRect:frame2 xRadius:0 yRadius:0];
-    } else {
-        path = [NSBezierPath bezierPathWithRoundedRect:frame2 xRadius:2 yRadius:2];
-    }
+    float radius = _rounded ? 2.0 : 0.0;
+    NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:frame2 xRadius:_rounded yRadius:_rounded];
     
     // Draw background
     NSGradient *gradient;
