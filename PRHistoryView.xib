@@ -19,6 +19,8 @@
 			<string>NSImageView</string>
 			<string>NSScrollView</string>
 			<string>NSScroller</string>
+			<string>NSSegmentedCell</string>
+			<string>NSSegmentedControl</string>
 			<string>NSTableColumn</string>
 			<string>NSTableView</string>
 			<string>NSTextFieldCell</string>
@@ -58,7 +60,7 @@
 								<reference key="NSNextKeyView" ref="38395041"/>
 							</object>
 						</array>
-						<string key="NSFrameSize">{355, 349}</string>
+						<string key="NSFrameSize">{340, 349}</string>
 						<reference key="NSSuperview" ref="473759011"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="917134816"/>
@@ -112,6 +114,46 @@
 						<reference key="NSNextResponder" ref="645776018"/>
 						<int key="NSvFlags">277</int>
 						<array class="NSMutableArray" key="NSSubviews">
+							<object class="NSSegmentedControl" id="485706382">
+								<reference key="NSNextResponder" ref="757373700"/>
+								<int key="NSvFlags">269</int>
+								<string key="NSFrame">{{101, 330}, {447, 25}}</string>
+								<reference key="NSSuperview" ref="757373700"/>
+								<reference key="NSWindow"/>
+								<reference key="NSNextKeyView" ref="694249888"/>
+								<string key="NSReuseIdentifierKey">_NS:9</string>
+								<bool key="NSEnabled">YES</bool>
+								<object class="NSSegmentedCell" key="NSCell" id="796956791">
+									<int key="NSCellFlags">67108864</int>
+									<int key="NSCellFlags2">0</int>
+									<object class="NSFont" key="NSSupport">
+										<string key="NSName">LucidaGrande</string>
+										<double key="NSSize">13</double>
+										<int key="NSfFlags">1044</int>
+									</object>
+									<string key="NSCellIdentifier">_NS:9</string>
+									<reference key="NSControlView" ref="485706382"/>
+									<array class="NSMutableArray" key="NSSegmentImages">
+										<object class="NSSegmentItem">
+											<double key="NSSegmentItemWidth">147</double>
+											<string key="NSSegmentItemLabel"/>
+											<int key="NSSegmentItemImageScaling">0</int>
+										</object>
+										<object class="NSSegmentItem">
+											<double key="NSSegmentItemWidth">146</double>
+											<string key="NSSegmentItemLabel"/>
+											<int key="NSSegmentItemTag">1</int>
+											<bool key="NSSegmentItemSelected">YES</bool>
+											<int key="NSSegmentItemImageScaling">0</int>
+										</object>
+										<object class="NSSegmentItem">
+											<double key="NSSegmentItemWidth">146</double>
+											<int key="NSSegmentItemImageScaling">0</int>
+										</object>
+									</array>
+									<int key="NSSelectedSegment">1</int>
+								</object>
+							</object>
 							<object class="NSButton" id="782719880">
 								<reference key="NSNextResponder" ref="757373700"/>
 								<int key="NSvFlags">268</int>
@@ -405,7 +447,7 @@
 						<string key="NSFrameSize">{650, 369}</string>
 						<reference key="NSSuperview" ref="645776018"/>
 						<reference key="NSWindow"/>
-						<reference key="NSNextKeyView" ref="694249888"/>
+						<reference key="NSNextKeyView" ref="485706382"/>
 						<string key="NSClassName">PRBackgroundView</string>
 					</object>
 				</array>
@@ -562,6 +604,7 @@
 							<reference ref="782719880"/>
 							<reference ref="736912263"/>
 							<reference ref="623306025"/>
+							<reference ref="485706382"/>
 						</array>
 						<reference key="parent" ref="645776018"/>
 					</object>
@@ -676,6 +719,19 @@
 						<reference key="object" ref="244110155"/>
 						<reference key="parent" ref="623306025"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">390</int>
+						<reference key="object" ref="485706382"/>
+						<array class="NSMutableArray" key="children">
+							<reference ref="796956791"/>
+						</array>
+						<reference key="parent" ref="757373700"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">391</int>
+						<reference key="object" ref="796956791"/>
+						<reference key="parent" ref="485706382"/>
+					</object>
 				</array>
 			</object>
 			<dictionary class="NSMutableDictionary" key="flattenedProperties">
@@ -741,12 +797,14 @@
 				<string key="380.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="387.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 				<string key="388.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="390.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
+				<string key="391.IBPluginDependency">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			</dictionary>
 			<dictionary class="NSMutableDictionary" key="unlocalizedProperties"/>
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">389</int>
+			<int key="maxID">391</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -780,7 +838,6 @@
 					<dictionary class="NSMutableDictionary" key="outlets">
 						<string key="_placeholder">NSImageView</string>
 						<string key="background">NSView</string>
-						<string key="divider">PRGradientView</string>
 						<string key="divider2">PRGradientView</string>
 						<string key="recentlyAddedButton">NSButton</string>
 						<string key="recentlyPlayedButton">NSButton</string>
@@ -796,10 +853,6 @@
 						<object class="IBToOneOutletInfo" key="background">
 							<string key="name">background</string>
 							<string key="candidateClassName">NSView</string>
-						</object>
-						<object class="IBToOneOutletInfo" key="divider">
-							<string key="name">divider</string>
-							<string key="candidateClassName">PRGradientView</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="divider2">
 							<string key="name">divider2</string>

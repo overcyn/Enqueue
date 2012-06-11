@@ -1,7 +1,5 @@
-@interface PREnableLogger : NSObject 
-{
-}
 
+
+@interface PREnableLogger : NSObject
 + (void)enableLogger;
-
 @end

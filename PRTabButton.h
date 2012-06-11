@@ -1,7 +1,5 @@
 #import <AppKit/AppKit.h>
 
 
-@interface PRTabButton : NSButton {
-    
-}
+@interface PRTabButton : NSButton
 @end
