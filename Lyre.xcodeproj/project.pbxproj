@@ -192,6 +192,7 @@
 		67CFB4491423FDB40045108D /* NSOperationQueue+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67CFB4481423FDB40045108D /* NSOperationQueue+Extensions.m */; };
 		67D27AB5129C692A00845FEB /* PRBorderlessTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D27AB4129C692A00845FEB /* PRBorderlessTextField.m */; };
 		67D2F1A3141B76A700F7AB71 /* PRLightAlbumArt.png in Resources */ = {isa = PBXBuildFile; fileRef = 67D2F1A2141B76A700F7AB71 /* PRLightAlbumArt.png */; };
+		67D4110D158586C4007C2E04 /* PRAppleScriptController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D4110C158586C4007C2E04 /* PRAppleScriptController.m */; };
 		67D5208D128C04A4000D6AAC /* PRAlbumTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D5208C128C04A4000D6AAC /* PRAlbumTableView.m */; };
 		67D732A6132FBB4700AB2D14 /* PRScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D732A5132FBB4700AB2D14 /* PRScrollView.m */; };
 		67D911DF147107D6001C9DE8 /* SPMediaKeyTap.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911DD147107D6001C9DE8 /* SPMediaKeyTap.m */; };
@@ -288,7 +289,7 @@
 		6702717D126AFC6F002E929F /* PRSizeFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRSizeFormatter.m; sourceTree = "<group>"; };
 		6706FCC412B9A08200C9B075 /* NSFileManager+DirectoryLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+DirectoryLocations.h"; sourceTree = "<group>"; };
 		6706FCC512B9A08200C9B075 /* NSFileManager+DirectoryLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+DirectoryLocations.m"; sourceTree = "<group>"; };
-		6706FCF612B9C7BF00C9B075 /* PRDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; path = PRDefaults.h; sourceTree = "<group>"; };
+		6706FCF612B9C7BF00C9B075 /* PRDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRDefaults.h; sourceTree = "<group>"; };
 		6706FCF712B9C7BF00C9B075 /* PRDefaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRDefaults.m; sourceTree = "<group>"; };
 		6706FDF512BB897B00C9B075 /* PRAlbumArtController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRAlbumArtController.h; sourceTree = "<group>"; };
 		6706FDF612BB897B00C9B075 /* PRAlbumArtController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRAlbumArtController.m; sourceTree = "<group>"; };
@@ -560,6 +561,8 @@
 		67D27AB3129C692A00845FEB /* PRBorderlessTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBorderlessTextField.h; sourceTree = "<group>"; };
 		67D27AB4129C692A00845FEB /* PRBorderlessTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRBorderlessTextField.m; sourceTree = "<group>"; };
 		67D2F1A2141B76A700F7AB71 /* PRLightAlbumArt.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRLightAlbumArt.png; path = Icons/PRLightAlbumArt.png; sourceTree = "<group>"; };
+		67D4110B158586C4007C2E04 /* PRAppleScriptController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRAppleScriptController.h; sourceTree = "<group>"; };
+		67D4110C158586C4007C2E04 /* PRAppleScriptController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRAppleScriptController.m; sourceTree = "<group>"; };
 		67D5208B128C04A4000D6AAC /* PRAlbumTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRAlbumTableView.h; sourceTree = "<group>"; };
 		67D5208C128C04A4000D6AAC /* PRAlbumTableView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRAlbumTableView.m; sourceTree = "<group>"; };
 		67D732A4132FBB4700AB2D14 /* PRScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRScrollView.h; sourceTree = "<group>"; };
@@ -693,6 +696,7 @@
 				673E4AB31385510900DD8260 /* Growl */,
 				673E4ACF13858CB000DD8260 /* LastFm */,
 				6706FCF512B9C64400C9B075 /* Defaults */,
+				67D41109158586A0007C2E04 /* AppleScript */,
 				67FCEE0B133EA04800765EE1 /* Log */,
 			);
 			name = Core;
@@ -1508,6 +1512,15 @@
 			name = "Now Playing";
 			sourceTree = "<group>";
 		};
+		67D41109158586A0007C2E04 /* AppleScript */ = {
+			isa = PBXGroup;
+			children = (
+				67D4110B158586C4007C2E04 /* PRAppleScriptController.h */,
+				67D4110C158586C4007C2E04 /* PRAppleScriptController.m */,
+			);
+			name = AppleScript;
+			sourceTree = "<group>";
+		};
 		67D911DB147107AB001C9DE8 /* SPMediaKeyTap */ = {
 			isa = PBXGroup;
 			children = (
@@ -1883,6 +1896,7 @@
 				670C465415681E7200409097 /* NSAttributedString+Extensions.m in Sources */,
 				670C46581568825900409097 /* PRHistoryDateFormatter.m in Sources */,
 				670C465B15688E6000409097 /* PRHotKeyController.m in Sources */,
+				67D4110D158586C4007C2E04 /* PRAppleScriptController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
