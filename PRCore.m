@@ -61,8 +61,8 @@
     [_win showWindow:nil];
 	[_opQueue setSuspended:FALSE];
     
-    PRTrialSheetController *trialSheet = [[PRTrialSheetController alloc] initWithCore:self]; 
-    [trialSheet beginSheetModalForWindow:[_win window] completionHandler:^{}];
+//    PRTrialSheetController *trialSheet = [[PRTrialSheetController alloc] initWithCore:self]; 
+//    [trialSheet beginSheetModalForWindow:[_win window] completionHandler:^{}];
     if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsShowWelcomeSheet]) {
         [[PRDefaults sharedDefaults] setBool:FALSE forKey:PRDefaultsShowWelcomeSheet];
         PRWelcomeSheetController *welcomeSheet = [[PRWelcomeSheetController alloc] initWithCore:self];
