@@ -47,21 +47,9 @@
     
     [NSNotificationCenter removeObserver:self];
     
-    [mainMenuController release];
-    [libraryViewController release];
-    [preferencesViewController release];
-    [playlistsViewController release];
-    [historyViewController release];
-    [nowPlayingViewController release];
-    [controlsViewController release];
-    [super dealloc];
 }
 
 - (void)awakeFromNib {
-    [centerSuperview retain];
-    [controlsSuperview retain];
-    [_splitView retain];
-    [nowPlayingSuperview retain];
     
     // Main Menu
     mainMenuController = [[PRMainMenuController alloc] initWithCore:_core];

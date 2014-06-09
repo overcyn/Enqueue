@@ -5,7 +5,7 @@
 @implementation NSAttributedString (Extensions)
 
 + (NSMutableDictionary *)defaultUIAttributes {
-    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
+    NSShadow *shadow = [[NSShadow alloc] init];
     [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.6]];
     [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
     return [NSMutableDictionary dictionaryWithDictionary:@{

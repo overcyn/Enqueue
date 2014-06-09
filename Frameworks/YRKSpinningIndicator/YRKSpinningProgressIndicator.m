@@ -37,11 +37,8 @@
 }
 
 - (void) dealloc {
-    [_foreColor release];
-    [_backColor release];
     if (_isAnimating) [self stopAnimation:self];
     
-    [super dealloc];
 }
 
 - (void)viewDidMoveToWindow
@@ -109,7 +106,6 @@
             CGContextRotateCTM(currentContext, 6.282185/_numFins);
             alpha -= 1.0/_numFins;
         }
-        [path release];
     }
     else {
         float lineWidth = 1 + (0.01 * theMaxSize);
@@ -120,12 +116,10 @@
         [path setLineWidth:lineWidth];
         [path appendBezierPathWithOvalInRect:NSMakeRect(-circleRadius, -circleRadius, circleRadius*2, circleRadius*2)];
         [path stroke];
-        [path release];
         path = [[NSBezierPath alloc] init];
         [path appendBezierPathWithArcWithCenter:circleCenter radius:circleRadius startAngle:90 endAngle:90-(360*(_currentValue/_maxValue)) clockwise:YES];
         [path lineToPoint:circleCenter] ;
         [path fill];
-        [path release];
     }
 
     [NSGraphicsContext restoreGraphicsState];
@@ -208,11 +202,11 @@
             [_animationThread start];
         }
         else {
-            _animationTimer = [[NSTimer timerWithTimeInterval:(NSTimeInterval)0.05
+            _animationTimer = [NSTimer timerWithTimeInterval:(NSTimeInterval)0.05
                                                        target:self
                                                      selector:@selector(updateFrame:)
                                                      userInfo:nil
-                                                      repeats:YES] retain];
+                                                      repeats:YES];
             
             [[NSRunLoop currentRunLoop] addTimer:_animationTimer forMode:NSRunLoopCommonModes];
             [[NSRunLoop currentRunLoop] addTimer:_animationTimer forMode:NSDefaultRunLoopMode];
@@ -229,13 +223,11 @@
 		if (![_animationThread isFinished]) {
 			[[NSRunLoop currentRunLoop] runMode:NSModalPanelRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
 		}
-		[_animationThread release];
         _animationThread = nil;
 	}
     else if (_animationTimer) {
         // we were using timer-based animation
         [_animationTimer invalidate];
-        [_animationTimer release];
         _animationTimer = nil;
     }
     [self setNeedsDisplay:YES];
@@ -256,13 +248,12 @@
 
 - (NSColor *)color
 {
-    return [[_foreColor retain] autorelease];
+    return _foreColor;
 }
 
 - (void)setColor:(NSColor *)value
 {
     if (_foreColor != value) {
-        [_foreColor release];
         _foreColor = [value copy];
         [self setNeedsDisplay:YES];
     }
@@ -270,13 +261,12 @@
 
 - (NSColor *)backgroundColor
 {
-    return [[_backColor retain] autorelease];
+    return _backColor;
 }
 
 - (void)setBackgroundColor:(NSColor *)value
 {
     if (_backColor != value) {
-        [_backColor release];
         _backColor = [value copy];
         [self setNeedsDisplay:YES];
     }

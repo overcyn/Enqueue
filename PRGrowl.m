@@ -30,7 +30,6 @@
 - (void)dealloc {
     [GrowlApplicationBridge setGrowlDelegate:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [super dealloc];
 }
 
 - (void)playingChanged:(NSNotification *)notification {
@@ -42,7 +41,7 @@
     NSString *artist = [[_db library] artistValueForItem:item];
     NSString *album = [[_db library] valueForItem:item attr:PRItemAttrAlbum];
     NSNumber *time = [[_db library] valueForItem:item attr:PRItemAttrTime];
-    NSString *formattedTime = [[[[PRTimeFormatter alloc] init] autorelease] stringForObjectValue:time];
+    NSString *formattedTime = [[[PRTimeFormatter alloc] init] stringForObjectValue:time];
     NSData *artwork = [[[[_core db] albumArtController] artworkForItem:item] TIFFRepresentation];
     if (!artwork) {
         artwork = [[NSImage imageNamed:@"PRLightAlbumArt.png"] TIFFRepresentation];
@@ -67,7 +66,7 @@
     NSString *artist = [[_db library] artistValueForItem:item];
     NSString *album = [[_db library] valueForItem:item attr:PRItemAttrAlbum];
     NSNumber *time = [[_db library] valueForItem:item attr:PRItemAttrTime];
-    NSString *formattedTime = [[[[PRTimeFormatter alloc] init] autorelease] stringForObjectValue:time];
+    NSString *formattedTime = [[[PRTimeFormatter alloc] init] stringForObjectValue:time];
     NSData *artwork = [[[[_core db] albumArtController] artworkForItem:item] TIFFRepresentation];
     if (!artwork) {
         artwork = [[NSImage imageNamed:@"PRLightAlbumArt.png"] TIFFRepresentation];

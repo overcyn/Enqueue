@@ -79,7 +79,7 @@
 }
 
 - (void)loadView {
-    PRGradientView *background = [[[PRGradientView alloc] initWithFrame:NSMakeRect(0, 0, 210, 500)] autorelease];
+    PRGradientView *background = [[PRGradientView alloc] initWithFrame:NSMakeRect(0, 0, 210, 500)];
     [background setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
     [background setColor:[NSColor PRSidebarBackgroundColor]];
     [background setAltColor:[NSColor colorWithDeviceWhite:0.92 alpha:1.0]];
@@ -95,7 +95,7 @@
     [scrollview setHasVerticalScroller:YES];
     [[self view] addSubview:scrollview];
     
-    NSTableColumn *column = [[[NSTableColumn alloc] initWithIdentifier:@"column"] autorelease];
+    NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:@"column"];
     nowPlayingTableView = [[PROutlineView alloc] initWithFrame:[scrollview bounds]];
     [nowPlayingTableView setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
     [nowPlayingTableView setFocusRingType:NSFocusRingTypeNone];
@@ -400,7 +400,7 @@
 - (void)saveAsPlaylist:(id)sender {
     int playlist = [[sender representedObject] intValue];
     NSString *title = [[db playlists] titleForList:[NSNumber numberWithInt:playlist]];
-    NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+    NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Save"];
     [alert addButtonWithTitle:@"Cancel"];
     [alert setMessageText:[NSString stringWithFormat:@"Are you sure you want to save this as \"%@\"?", title]];
@@ -441,12 +441,9 @@
     [_parentItems removeAllObjects];
     [_childItems removeAllObjects];
     
-    [_albumCounts release];
-    _albumCounts = [[[db nowPlayingViewSource] albumCounts] retain];
-    [_dbRowForAlbum release];
-    _dbRowForAlbum = [[NSMutableArray array] retain];
-    [_albumIndexes release];
-    _albumIndexes = [[NSMutableIndexSet indexSet] retain];
+    _albumCounts = [[db nowPlayingViewSource] albumCounts];
+    _dbRowForAlbum = [NSMutableArray array];
+    _albumIndexes = [NSMutableIndexSet indexSet];
     
     int dbRow = 1;
     [_dbRowForAlbum addObject:[NSNumber numberWithInt:dbRow]];
@@ -464,15 +461,15 @@
     for (NSMenuItem *i in [menu itemArray]) {
         [menu removeItem:i];
     }
-    NSMenuItem *menuItem = [[[NSMenuItem alloc] init] autorelease];
+    NSMenuItem *menuItem = [[NSMenuItem alloc] init];
     [menuItem setImage:[NSImage imageNamed:@"Settings"]];
     [menu addItem:menuItem];
     
-    menuItem = [[[NSMenuItem alloc] initWithTitle:@"Save as..." action:nil keyEquivalent:@""] autorelease];
+    menuItem = [[NSMenuItem alloc] initWithTitle:@"Save as..." action:nil keyEquivalent:@""];
     [menuItem setEnabled:FALSE];
     [menu addItem:menuItem];
     
-    menuItem = [[[NSMenuItem alloc] initWithTitle:@" New Playlist          " action:@selector(saveAsNewPlaylist:) keyEquivalent:@""] autorelease];
+    menuItem = [[NSMenuItem alloc] initWithTitle:@" New Playlist          " action:@selector(saveAsNewPlaylist:) keyEquivalent:@""];
     [menuItem setImage:[NSImage imageNamed:@"Add"]];
     [menu addItem:menuItem];
     
@@ -482,7 +479,7 @@
             continue;
         }
         NSString *playlistTitle = [NSString stringWithFormat:@" %@", [[db playlists] titleForList:i]];
-        menuItem = [[[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(saveAsPlaylist:) keyEquivalent:@""] autorelease];
+        menuItem = [[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(saveAsPlaylist:) keyEquivalent:@""];
         [menuItem setRepresentedObject:i];
         [menuItem setImage:[NSImage imageNamed:@"ListViewTemplate"]];
         [menu addItem:menuItem];
@@ -503,7 +500,7 @@
     unichar c[1] = {NSCarriageReturnCharacter};
     __weak PRNowPlayingViewController *weakSelf = self;
     
-    NSMenuItem *item = [[[NSMenuItem alloc] init] autorelease];
+    NSMenuItem *item = [[NSMenuItem alloc] init];
     [item setTitle:@"Play"];
     [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
     [item setKeyEquivalentModifierMask:0];
@@ -527,25 +524,25 @@
         dbRow = [dbRows indexGreaterThanIndex:dbRow];
     }
     if (addToQueue) {
-        NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"Add to Queue" action:@selector(addSelectedToQueue) keyEquivalent:@""] autorelease];
+        NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Add to Queue" action:@selector(addSelectedToQueue) keyEquivalent:@""];
         [menuItem setTarget:self];
         [_contextMenu addItem:menuItem];
     }
     if (removeFromQueue) {
-        NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"Remove From Queue" action:@selector(removeSelectedFromQueue) keyEquivalent:@""] autorelease];
+        NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Remove From Queue" action:@selector(removeSelectedFromQueue) keyEquivalent:@""];
         [menuItem setTarget:self];
         [_contextMenu addItem:menuItem];
     }
     if ([queue count] != 0) {
-        NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"Clear Queue" action:@selector(clearQueue) keyEquivalent:@""] autorelease];
+        NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Clear Queue" action:@selector(clearQueue) keyEquivalent:@""];
         [menuItem setTarget:self];
         [_contextMenu addItem:menuItem];
     }
     [_contextMenu addItem:[NSMenuItem separatorItem]];
     
     // Add To Playlist
-    NSMenuItem *playlistMenuItem = [[[NSMenuItem alloc] initWithTitle:@"Add to Playlist" action:nil keyEquivalent:@""] autorelease];
-    NSMenu *playlistMenu_ = [[[NSMenu alloc] init] autorelease];
+    NSMenuItem *playlistMenuItem = [[NSMenuItem alloc] initWithTitle:@"Add to Playlist" action:nil keyEquivalent:@""];
+    NSMenu *playlistMenu_ = [[NSMenu alloc] init];
     [playlistMenuItem setSubmenu:playlistMenu_];
     [_contextMenu addItem:playlistMenuItem];
     
@@ -555,7 +552,7 @@
             continue;
         }
         NSString *playlistTitle = [NSString stringWithFormat:@" %@", [[db playlists] titleForList:i]];
-        NSMenuItem *tempMenuItem = [[[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(addToPlaylist:) keyEquivalent:@""] autorelease];
+        NSMenuItem *tempMenuItem = [[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(addToPlaylist:) keyEquivalent:@""];
         [tempMenuItem setImage:[NSImage imageNamed:@"ListViewTemplate"]];
         [tempMenuItem setRepresentedObject:i];
         [tempMenuItem setTarget:self];
@@ -564,16 +561,16 @@
     [_contextMenu addItem:[NSMenuItem separatorItem]];
     
     // Other
-    NSMenuItem *menuItem = [[[NSMenuItem alloc] initWithTitle:@"Show in Library" action:@selector(showSelectedInLibrary) keyEquivalent:@""] autorelease];
+    NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Show in Library" action:@selector(showSelectedInLibrary) keyEquivalent:@""];
     [menuItem setTarget:self];
     [_contextMenu addItem:menuItem];
-    menuItem = [[[NSMenuItem alloc] initWithTitle:@"Reveal in Finder" action:@selector(revealSelectedInFinder) keyEquivalent:@""] autorelease];
+    menuItem = [[NSMenuItem alloc] initWithTitle:@"Reveal in Finder" action:@selector(revealSelectedInFinder) keyEquivalent:@""];
     [menuItem setTarget:self];
     [_contextMenu addItem:menuItem];
     [_contextMenu addItem:[NSMenuItem separatorItem]];
     
     c[0] = NSDeleteCharacter;;
-    item = [[[NSMenuItem alloc] initWithTitle:@"Remove" action:@selector(removeSelected) keyEquivalent:[NSString stringWithCharacters:c length:1]] autorelease];
+    item = [[NSMenuItem alloc] initWithTitle:@"Remove" action:@selector(removeSelected) keyEquivalent:[NSString stringWithCharacters:c length:1]];
     [item setTarget:self];
     [item setKeyEquivalentModifierMask:0];
     [_contextMenu addItem:item];
@@ -1010,8 +1007,8 @@
             icon = [NSImage imageNamed:@"Exclamation Point"];
             invertedIcon = [NSImage imageNamed:@"Exclamation Point"];
         } else {
-            icon = [[[NSImage alloc] init] autorelease];
-            invertedIcon = [[[NSImage alloc] init] autorelease];
+            icon = [[NSImage alloc] init];
+            invertedIcon = [[NSImage alloc] init];
         }
         PRListItem *listItem = [[db playlists] listItemAtIndex:row inList:[now currentList]];
         NSUInteger queueIndex = [[[db queue] queueArray] indexOfObject:listItem];

@@ -21,7 +21,7 @@
 	IBOutlet NSTextField *_currentTime;
 	IBOutlet NSTextField *duration;
 	
-	IBOutlet NSImageView *albumArtView;
+	IBOutlet NSImageView *__weak albumArtView;
     
     IBOutlet NSButton *_volumeButton;
     IBOutlet NSSlider *_volumeSlider;
@@ -40,7 +40,7 @@
 - (id)initWithCore:(PRCore *)core_;
 
 /* Accessors */
-@property (readonly) NSImageView *albumArtView;
+@property (weak, readonly) NSImageView *albumArtView;
 
 /* Update */
 - (void)updateLayout;

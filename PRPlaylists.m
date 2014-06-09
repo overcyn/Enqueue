@@ -234,7 +234,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 + (NSNumber *)internalForListType:(PRListType *)listType {
     static NSDictionary *dict = nil;
     if (!dict) {
-        dict = [@{PRListTypeLibrary:@0,PRListTypeNowPlaying:@1, PRListTypeStatic:@2, PRListTypeSmart:@3} retain];
+        dict = @{PRListTypeLibrary:@0,PRListTypeNowPlaying:@1, PRListTypeStatic:@2, PRListTypeSmart:@3};
     }
     return [dict objectForKey:listType];
 }
@@ -242,7 +242,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 + (PRListType *)listTypeForInternal:(NSNumber *)internal {
     static NSDictionary *dict = nil;
     if (!dict) {
-        dict = [@{@0:PRListTypeLibrary, @1:PRListTypeNowPlaying, @2:PRListTypeStatic, @3:PRListTypeSmart} retain];
+        dict = @{@0:PRListTypeLibrary, @1:PRListTypeNowPlaying, @2:PRListTypeStatic, @3:PRListTypeSmart};
     }
     return [dict objectForKey:internal];
 }
@@ -634,7 +634,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     NSArray *results = [db execute:@"SELECT playlist_index FROM playlist_items WHERE file_id = ?2 AND playlist_id = ?1"
                           bindings:@{@1:list, @2:item}
                            columns: @[PRColInteger]];
-    NSMutableIndexSet *mutableIndexes= [[[NSMutableIndexSet alloc] init] autorelease];
+    NSMutableIndexSet *mutableIndexes= [[NSMutableIndexSet alloc] init];
     for (NSArray *i in results) {
         [mutableIndexes addIndex:[[i objectAtIndex:0] intValue]];
     }

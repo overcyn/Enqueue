@@ -16,7 +16,7 @@
 
 /* Accessors */
 @property (readonly) NSString *statement;
-@property (nonatomic, retain) NSDictionary *bindings;
+@property (nonatomic, strong) NSDictionary *bindings;
 @property (readonly) NSArray *columns;
 
 /* Action */

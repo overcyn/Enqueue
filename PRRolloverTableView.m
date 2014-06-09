@@ -18,8 +18,6 @@
 
 - (void)dealloc {
 	[self removeTrackingArea:trackingArea];
-    [trackingArea release];
-	[super dealloc];
 }
 
 #pragma mark - Accessors

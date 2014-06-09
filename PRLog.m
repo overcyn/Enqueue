@@ -10,7 +10,7 @@ NSString * const PRSQLiteErrorDomain = @"PRSQLiteErrorDomain";
 #pragma mark - Initialization
 
 + (PRLog *)sharedLog {
-    return [[[PRLog alloc] init] autorelease];
+    return [[PRLog alloc] init];
 }
 
 #pragma mark - Action

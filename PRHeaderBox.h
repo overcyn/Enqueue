@@ -5,5 +5,5 @@
 @interface PRHeaderBox : NSBox {
     id _trackingDelegate;
 }
-@property (readwrite, retain) id trackingDelegate;
+@property (readwrite, strong) id trackingDelegate;
 @end

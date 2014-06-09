@@ -28,9 +28,9 @@
 
 // UI
 @property (nonatomic) BOOL ascending;
-@property (nonatomic, assign) PRItemAttr *sortAttr;
-@property (nonatomic, assign) NSArray *columnInfo;
-@property (nonatomic, readonly) NSIndexSet *selectedIndexes;
+@property (nonatomic, weak) PRItemAttr *sortAttr;
+@property (nonatomic, weak) NSArray *columnInfo;
+@property (weak, nonatomic, readonly) NSIndexSet *selectedIndexes;
 
 - (void)toggleColumn:(NSTableColumn *)column;
 - (void)toggleBrowser:(PRItemAttr *)attr;

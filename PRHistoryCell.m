@@ -54,10 +54,10 @@
         NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
         NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.3 alpha:1.0]};
     
-    NSMutableAttributedString *str = [[[NSMutableAttributedString alloc] initWithString:title attributes:titleAttr] autorelease];
+    NSMutableAttributedString *str = [[NSMutableAttributedString alloc] initWithString:title attributes:titleAttr];
     if (subtitle) {
         subtitle = [NSString stringWithFormat:@"  —  %@",subtitle];
-        [str appendAttributedString:[[[NSMutableAttributedString alloc] initWithString:subtitle attributes:subtitleAttr] autorelease]];
+        [str appendAttributedString:[[NSMutableAttributedString alloc] initWithString:subtitle attributes:subtitleAttr]];
     }
     
     NSSize titleSize = [title sizeWithAttributes:titleAttr];

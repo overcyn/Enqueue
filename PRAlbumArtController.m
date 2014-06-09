@@ -26,10 +26,6 @@
 	return self;
 }
 
-- (void)dealloc {
-    [_fileManager release];
-    [super dealloc];
-}
 
 #pragma mark - Accessors
 
@@ -51,7 +47,7 @@
         BOOL isDirectory;
         BOOL fileExists = [_fileManager fileExistsAtPath:[self cachedArtworkPathForItem:item] isDirectory:&isDirectory];
         if (fileExists && !isDirectory) {
-            NSImage *albumArt = [[[NSImage alloc] initWithContentsOfFile:[self cachedArtworkPathForItem:item]] autorelease];
+            NSImage *albumArt = [[NSImage alloc] initWithContentsOfFile:[self cachedArtworkPathForItem:item]];
             if (!albumArt || ![albumArt isValid]) {
                 [self clearArtworkForItem:item];
             } else {
@@ -93,7 +89,7 @@
             if ([pathExtension caseInsensitiveCompare:@"jpg"] == NSOrderedSame ||
                 [pathExtension caseInsensitiveCompare:@"jpeg"] == NSOrderedSame ||
                 [pathExtension caseInsensitiveCompare:@"png"] == NSOrderedSame) {
-                NSImage *albumArt = [[[NSImage alloc] initWithContentsOfFile:[directoryURL path]] autorelease];
+                NSImage *albumArt = [[NSImage alloc] initWithContentsOfFile:[directoryURL path]];
                 if (albumArt && [albumArt isValid]) {
                     return albumArt;
                 }
@@ -181,7 +177,7 @@
         BOOL isDirectory;
         BOOL fileExists = [_fileManager fileExistsAtPath:[self cachedArtworkPathForItem:item] isDirectory:&isDirectory];
         if (fileExists && !isDirectory) {
-            NSImage *albumArt = [[[NSImage alloc] initWithContentsOfFile:[self cachedArtworkPathForItem:item]] autorelease];
+            NSImage *albumArt = [[NSImage alloc] initWithContentsOfFile:[self cachedArtworkPathForItem:item]];
             if (albumArt || [albumArt isValid]) {
                 return albumArt;
             } 
@@ -210,7 +206,7 @@
             if ([pathExtension caseInsensitiveCompare:@"jpg"] == NSOrderedSame ||
                 [pathExtension caseInsensitiveCompare:@"jpeg"] == NSOrderedSame ||
                 [pathExtension caseInsensitiveCompare:@"png"] == NSOrderedSame) {
-                NSImage *albumArt = [[[NSImage alloc] initWithContentsOfFile:[content path]] autorelease];
+                NSImage *albumArt = [[NSImage alloc] initWithContentsOfFile:[content path]];
                 if (albumArt && [albumArt isValid]) {
                     return albumArt;
                 }

@@ -134,7 +134,6 @@ using namespace TagLib;
             [tags setObject:[NSNumber numberWithBool:TRUE] forKey:PRItemAttrArtwork];
             [info setArt:art];
         }
-        [art release];
     }
     // Title
     if ([[tags objectForKey:PRItemAttrTitle] isEqualToString:@""]) {
@@ -668,7 +667,7 @@ using namespace TagLib;
 #pragma mark - Properties
 
 + (NSDate *)lastModifiedForFileAtPath:(NSString *)path {
-    NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
+    NSFileManager *fileManager = [[NSFileManager alloc] init];
 	NSDictionary *fileAttributes = [fileManager attributesOfItemAtPath:path error:nil];
     if (fileAttributes) {
         return [fileAttributes objectForKey:NSFileModificationDate];
@@ -699,7 +698,7 @@ using namespace TagLib;
 }
 
 + (NSDate *)lastModifiedForURL:(NSURL *)URL {
-    NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
+    NSFileManager *fileManager = [[NSFileManager alloc] init];
 	NSDictionary *fileAttributes = [fileManager attributesOfItemAtPath:[URL path] error:nil];
     if (fileAttributes) {
         return [fileAttributes objectForKey:NSFileModificationDate];

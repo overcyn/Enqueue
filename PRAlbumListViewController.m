@@ -28,13 +28,6 @@
 	return self;
 }
 
-- (void)dealloc {
-    [tableIndexes release];
-    [albumCountArray release];
-    [albumSumCountArray release];
-    [_cachedArtwork release];
-    [super dealloc];
-}
 
 - (void)awakeFromNib {
 	[super awakeFromNib];
@@ -73,17 +66,15 @@
 #pragma mark - Update
 
 - (void)reloadData:(BOOL)force {		
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    @autoreleasepool {
     
 	// update libSrc
-    int tables = [[db libraryViewSource] refreshWithList:_currentList force:force];
+        int tables = [[db libraryViewSource] refreshWithList:_currentList force:force];
 	
-    // update albumCountArray, tableIndexes & libraryCount
+        // update albumCountArray, tableIndexes & libraryCount
 	libraryCount = 0;
-    [albumCountArray release];
-    albumCountArray = [[[db libraryViewSource] albumCounts] retain];
-    [tableIndexes release];
-	tableIndexes = [[NSMutableIndexSet indexSet] retain];
+        albumCountArray = [[db libraryViewSource] albumCounts];
+	tableIndexes = [NSMutableIndexSet indexSet];
 	for (NSNumber *i in albumCountArray) {
 		[tableIndexes addIndexesInRange:NSMakeRange(libraryCount, [i intValue])];
 		if ([i intValue] < 10) {
@@ -95,40 +86,39 @@
 	
 	// update albumSumCountArray
 	int count = 0;
-    [albumSumCountArray release];
 	albumSumCountArray = [[NSMutableArray alloc] initWithArray:albumCountArray];
 	for (int i = 0; i < [albumSumCountArray count]; i++) {
 		count = count + [[albumSumCountArray objectAtIndex:i] intValue];
 		[albumSumCountArray replaceObjectAtIndex:i withObject:[NSNumber numberWithInt:count]];
 	}
-    
-    // update cachedArt
-    if (force) {
-        [_cachedArtwork removeAllObjects];
-    }
-    
-    // reload tables
-    _updatingTableViewSelection = FALSE;
-    if ((tables & PRLibraryView) == PRLibraryView) {
-        [libraryTableView reloadData];
-        [albumTableView reloadData];
-    }
-    if ((tables & PRBrowser1View) == PRBrowser1View) {
-        [browser1TableView reloadData];
-    }
-    if ((tables & PRBrowser2View) == PRBrowser2View) {    
-        [browser2TableView reloadData];
-    }
-    if ((tables & PRBrowser3View) == PRBrowser3View) {
-        [browser3TableView reloadData];
-    }
-    [browser1TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:1] byExtendingSelection:FALSE];
-    [browser2TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:2] byExtendingSelection:FALSE];
-    [browser3TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:3] byExtendingSelection:FALSE];
-    _updatingTableViewSelection = TRUE;
+        
+        // update cachedArt
+        if (force) {
+            [_cachedArtwork removeAllObjects];
+        }
+        
+        // reload tables
+        _updatingTableViewSelection = FALSE;
+        if ((tables & PRLibraryView) == PRLibraryView) {
+            [libraryTableView reloadData];
+            [albumTableView reloadData];
+        }
+        if ((tables & PRBrowser1View) == PRBrowser1View) {
+            [browser1TableView reloadData];
+        }
+        if ((tables & PRBrowser2View) == PRBrowser2View) {    
+            [browser2TableView reloadData];
+        }
+        if ((tables & PRBrowser3View) == PRBrowser3View) {
+            [browser3TableView reloadData];
+        }
+        [browser1TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:1] byExtendingSelection:FALSE];
+        [browser2TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:2] byExtendingSelection:FALSE];
+        [browser3TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:3] byExtendingSelection:FALSE];
+        _updatingTableViewSelection = TRUE;
 	
 	[NSNotificationCenter post:PRLibraryViewSelectionDidChangeNotification];
-    [pool drain];
+    }
 }
 
 #pragma mark - Action
@@ -256,15 +246,15 @@
 }
 
 - (void)cacheArtworkForItem:(PRItem *)item artworkInfo:(NSDictionary *)artworkInfo dirtyRect:(NSRect)dirtyRect {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    NSImage *icon = [[db albumArtController] artworkForArtworkInfo:artworkInfo];;    
-    if (!icon) {
-        icon = [NSImage imageNamed:@"PRLightAlbumArt"];
+    @autoreleasepool {
+        NSImage *icon = [[db albumArtController] artworkForArtworkInfo:artworkInfo];;    
+        if (!icon) {
+            icon = [NSImage imageNamed:@"PRLightAlbumArt"];
+        }
+        [_cachedArtwork setObject:icon forKey:item];
+        
+        [[NSOperationQueue mainQueue] addBlock:^{[albumTableView setNeedsDisplayInRect:dirtyRect];}];
     }
-    [_cachedArtwork setObject:icon forKey:item];
-    
-    [[NSOperationQueue mainQueue] addBlock:^{[albumTableView setNeedsDisplayInRect:dirtyRect];}];
-    [pool drain];
 }
 
 #pragma mark - TableView DragAndDrop
@@ -339,7 +329,7 @@
 - (void)tableViewSelectionDidChange:(NSNotification *)notification {
 	if ([notification object] == libraryTableView) {
 		int index = 0;
-		NSMutableIndexSet *selectionIndexes = [[[NSMutableIndexSet alloc] initWithIndexSet:[libraryTableView selectedRowIndexes]] autorelease];
+		NSMutableIndexSet *selectionIndexes = [[NSMutableIndexSet alloc] initWithIndexSet:[libraryTableView selectedRowIndexes]];
 		while ([selectionIndexes indexGreaterThanOrEqualToIndex:index] != NSNotFound) {
 			if ([self dbRowForTableRow:index] == -1) {
 				[selectionIndexes removeIndex:index];

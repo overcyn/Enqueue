@@ -3,7 +3,7 @@
 
 
 @interface PRAlbumTableView2 : PRAlbumTableView {
-	id nextResponder__;
+	id __unsafe_unretained nextResponder__;
 }
-@property (readwrite, assign) id nextResponder__;
+@property (readwrite, unsafe_unretained) id nextResponder__;
 @end

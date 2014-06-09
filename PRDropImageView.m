@@ -79,14 +79,14 @@
 
     NSImage *newImage = nil;
     if ([desiredType isEqualToString:NSTIFFPboardType]) {
-        newImage = [[[NSImage alloc] initWithData:carriedData] autorelease];
+        newImage = [[NSImage alloc] initWithData:carriedData];
     } else if ([desiredType isEqualToString:NSFilenamesPboardType]) {
         NSArray *fileArray = [paste propertyListForType:@"NSFilenamesPboardType"];
         if ([fileArray count] < 1) {
             return FALSE;
         }
         NSString *path = [fileArray objectAtIndex:0];
-        newImage = [[[NSImage alloc] initWithContentsOfFile:path] autorelease];
+        newImage = [[NSImage alloc] initWithContentsOfFile:path];
     } else {
         return FALSE;
     }

@@ -151,7 +151,6 @@
 
 - (void)dealloc {
 	[NSNotificationCenter removeObserver:self];
-	[super dealloc];
 }
 
 #pragma mark - Tabs
@@ -214,16 +213,17 @@
     // last.fm
     [_lastfmConnectButton setTarget:[core lastfm]];
     switch ([[core lastfm] lastfmState]) {
-        case PRLastfmConnectedState:;
-            NSMutableAttributedString *lastfmString = [[[NSMutableAttributedString alloc] initWithString:@"Signed in to Last.fm as ."
-                attributes:@{NSFontAttributeName:[NSFont systemFontOfSize:13]}] autorelease];
-            NSAttributedString *username = [[[NSAttributedString alloc] initWithString:[[core lastfm] username]
-                attributes:@{NSFontAttributeName:[NSFont boldSystemFontOfSize:13]}] autorelease];
+        case PRLastfmConnectedState: {;
+            NSMutableAttributedString *lastfmString = [[NSMutableAttributedString alloc] initWithString:@"Signed in to Last.fm as ."
+                attributes:@{NSFontAttributeName:[NSFont systemFontOfSize:13]}];
+            NSAttributedString *username = [[NSAttributedString alloc] initWithString:[[core lastfm] username]
+                attributes:@{NSFontAttributeName:[NSFont boldSystemFontOfSize:13]}];
             [lastfmString insertAttributedString:username atIndex:[lastfmString length]-1];
             [_lastfmConnectField setAttributedStringValue:lastfmString];
             [_lastfmConnectButton setTitle:@"Logout"];
             [_lastfmConnectButton setAction:@selector(disconnect)];
             break;
+        }
         case PRLastfmDisconnectedState:
             [_lastfmConnectField setStringValue:@"Click below to connect with your Last.fm Account."];
             [_lastfmConnectButton setTitle:@"Sign In"];
@@ -319,7 +319,6 @@
         [[PRDefaults sharedDefaults] setBool:TRUE forKey:PRDefaultsEQIsCustom];
         [[NSNotificationCenter defaultCenter] postEQChanged];
     }
-    [alert release];
 }
 
 - (void)EQMenuActionDelete:(id)sender {
@@ -370,10 +369,10 @@
     int EQIndex = [[PRDefaults sharedDefaults] intForKey:PRDefaultsEQIndex];
     BOOL isCustom = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIsCustom];
     
-    NSMenuItem *item = [[[NSMenuItem alloc] initWithTitle:@"Save..." action:@selector(EQMenuActionSave:) keyEquivalent:@""] autorelease];
+    NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:@"Save..." action:@selector(EQMenuActionSave:) keyEquivalent:@""];
     [EQMenu addItem:item];
 
-    item = [[[NSMenuItem alloc] initWithTitle:@"Delete" action:@selector(EQMenuActionDelete:) keyEquivalent:@""] autorelease];
+    item = [[NSMenuItem alloc] initWithTitle:@"Delete" action:@selector(EQMenuActionDelete:) keyEquivalent:@""];
     [item setEnabled:(isCustom && EQIndex != 0)];
     [EQMenu addItem:item];
     [EQMenu addItem:[NSMenuItem separatorItem]];
@@ -382,7 +381,7 @@
     NSArray *customEQs = [[PRDefaults sharedDefaults] valueForKey:PRDefaultsEQCustomArray];
     for (int i = 0; i < [customEQs count]; i++) {
         PREQ *EQ = [customEQs objectAtIndex:i];
-        item = [[[NSMenuItem alloc] initWithTitle:[EQ title] action:@selector(EQMenuActionCustom:) keyEquivalent:@""] autorelease];
+        item = [[NSMenuItem alloc] initWithTitle:[EQ title] action:@selector(EQMenuActionCustom:) keyEquivalent:@""];
         [item setTag:i];
         [EQMenu addItem:item];
         if (isCustom && i == EQIndex) {
@@ -394,7 +393,7 @@
     NSArray *defaultEQs = [PREQ defaultEQs];
     for (int i = 0; i < [defaultEQs count]; i++) {
         PREQ *EQ = [defaultEQs objectAtIndex:i];
-        item = [[[NSMenuItem alloc] initWithTitle:[EQ title] action:@selector(EQMenuActionDefault:) keyEquivalent:@""] autorelease];
+        item = [[NSMenuItem alloc] initWithTitle:[EQ title] action:@selector(EQMenuActionDefault:) keyEquivalent:@""];
         [item setTag:i];
         [EQMenu addItem:item];
         if (!isCustom && i == EQIndex) {
@@ -507,7 +506,7 @@
 		[_outputMenu removeItem:i];
 	}
     
-    NSMenuItem *item = [[[NSMenuItem alloc] initWithTitle:@"System Default" action:@selector(setDevice:) keyEquivalent:@""] autorelease];
+    NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:@"System Default" action:@selector(setDevice:) keyEquivalent:@""];
     NSMenuItem *selectedItem = item;
     [item setRepresentedObject:nil];
     [_outputMenu addItem:item];
@@ -515,7 +514,7 @@
     
     NSString *currentDevice = [[[core now] mov] currentDevice];
     for (NSDictionary *i in [[[core now] mov] devices]) {
-        NSMenuItem *item = [[[NSMenuItem alloc] initWithTitle:[i objectForKey:PRDeviceKeyName] action:@selector(setDevice:) keyEquivalent:@""] autorelease];
+        NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:[i objectForKey:PRDeviceKeyName] action:@selector(setDevice:) keyEquivalent:@""];
         [item setRepresentedObject:[i objectForKey:PRDeviceKeyUID]];
         [_outputMenu addItem:item];
         if ([[i objectForKey:PRDeviceKeyUID] isEqualToString:currentDevice]) {

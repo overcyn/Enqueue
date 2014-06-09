@@ -5,7 +5,7 @@
 - (void)setActionBlock:(void (^)(void))blk {
     [self setTarget:self];
     [self setAction:@selector(executeActionBlock)];
-    [self setRepresentedObject:[[blk copy] autorelease]];
+    [self setRepresentedObject:[blk copy]];
 }
 
 - (void)executeActionBlock {

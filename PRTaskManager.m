@@ -18,10 +18,6 @@
     return self;
 }
 
-- (void)dealloc {
-    [_tasks release];
-    [super dealloc];
-}
 
 - (void)addTask:(PRTask *)task {
     if (![_tasks containsObject:task]) {

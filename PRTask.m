@@ -13,13 +13,9 @@
 }
 
 + (PRTask *)task {
-    return [[[PRTask alloc] init] autorelease];
+    return [[PRTask alloc] init];
 }
 
-- (void)dealloc {
-    [_title release];
-    [super dealloc];
-}
 
 #pragma mark - Accessors
 

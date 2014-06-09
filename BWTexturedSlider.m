@@ -221,11 +221,5 @@ static float imageInset = 25;
 //	return [super resignFirstResponder];
 //}
 
-- (void)dealloc
-{
-	[minButton release];
-	[maxButton release];
-	[super dealloc];
-}
 
 @end

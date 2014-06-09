@@ -20,8 +20,6 @@
 
 - (void)dealloc {
     [_tap stopWatchingMediaKeys];
-    [_tap release];
-    [super dealloc];
 }
 
 - (void)mediaKeyTap:(SPMediaKeyTap *)keyTap receivedMediaKeyEvent:(NSEvent *)event {

@@ -28,13 +28,13 @@
 - (id)init {
     if (!(self = [super init])) {return nil;}
     // Prevent multiple instances of application
-    _connection = [[NSConnection connectionWithReceivePort:[NSPort port] sendPort:[NSPort port]] retain];
+    _connection = [NSConnection connectionWithReceivePort:[NSPort port] sendPort:[NSPort port]];
     if (![_connection registerName:@"enqueue"]) {
         [[PRLog sharedLog] presentFatalError:[self multipleInstancesError]];
     }
     
     NSString *path = [[PRDefaults sharedDefaults] applicationSupportPath];
-    if (![[[[NSFileManager alloc] init] autorelease] findOrCreateDirectoryAtPath:path error:nil]) {
+    if (![[[NSFileManager alloc] init] findOrCreateDirectoryAtPath:path error:nil]) {
         [[PRLog sharedLog] presentFatalError:[self couldNotCreateDirectoryError:path]];
     }
     
@@ -55,17 +55,6 @@
 
 - (void)dealloc {
     [_connection invalidate];
-    [_connection release];
-    [_db release];
-    [_now release];
-    [_win release];
-    [_opQueue release];
-    [_folderMonitor release];
-    [_taskManager release];
-    [_growl release];
-    [_lastfm release];
-    [_keys release];
-    [super dealloc];
 }
 
 - (void)awakeFromNib {
@@ -73,11 +62,11 @@
 	[_opQueue setSuspended:FALSE];
     
     PRTrialSheetController *trialSheet = [[PRTrialSheetController alloc] initWithCore:self]; 
-    [trialSheet beginSheetModalForWindow:[_win window] completionHandler:^{[trialSheet release];}];
+    [trialSheet beginSheetModalForWindow:[_win window] completionHandler:^{}];
     if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsShowWelcomeSheet]) {
         [[PRDefaults sharedDefaults] setBool:FALSE forKey:PRDefaultsShowWelcomeSheet];
         PRWelcomeSheetController *welcomeSheet = [[PRWelcomeSheetController alloc] initWithCore:self];
-        [welcomeSheet beginSheetModalForWindow:[_win window] completionHandler:^{[welcomeSheet release];}];
+        [welcomeSheet beginSheetModalForWindow:[_win window] completionHandler:^{}];
     }
 }
 
@@ -99,7 +88,7 @@ hotKeys = _hotKeys;
 - (void)itunesImport:(id)sender {
     NSString *folderPath = [[NSHomeDirectory() stringByAppendingPathComponent:@"Music"] stringByAppendingPathComponent:@"iTunes"];;
     NSString *filePath = [folderPath stringByAppendingPathComponent:@"iTunes Music Library.xml"];
-    if ([[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:filePath]) {
+    if ([[[NSFileManager alloc] init] fileExistsAtPath:filePath]) {
         PRItunesImportOperation *op = [PRItunesImportOperation operationWithURL:[NSURL fileURLWithPath:filePath] core:self];
         [_opQueue addOperation:op];
     } else {
@@ -134,7 +123,7 @@ hotKeys = _hotKeys;
         for (NSURL *i in [panel URLs]) {
             [paths addObject:[i path]];
         }
-        PRImportOperation *op = [[[PRImportOperation alloc] initWithURLs:[panel URLs] core:self] autorelease];
+        PRImportOperation *op = [[PRImportOperation alloc] initWithURLs:[panel URLs] core:self];
         [_opQueue addOperation:op];
     };
     [panel beginSheetModalForWindow:[_win window] completionHandler:handler];

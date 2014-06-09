@@ -47,13 +47,10 @@
 	return self;
 }
 
-- (void)dealloc {
-    [super dealloc];
-}
 
 - (void)awakeFromNib {
 	// Time
-    [controlSlider setCell:[[[PRSliderCell alloc] init] autorelease]];
+    [controlSlider setCell:[[PRSliderCell alloc] init]];
 	[controlSlider setMinValue:0.0];
     [controlSlider setTarget:self];
     [controlSlider setAction:@selector(setCurrentTime:)];
@@ -89,15 +86,15 @@
     [_volumeButton setAction:@selector(mute)];
     
     // UI
-    NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+    NSGradient *gradient = [[NSGradient alloc] initWithColorsAndLocations:
                              [NSColor colorWithCalibratedWhite:0.75 alpha:1.0], 0.0,
                              [NSColor colorWithCalibratedWhite:0.5 alpha:1.0], 1.0,
-                             nil] autorelease];
+                             nil];
     [gradientView setVerticalGradient:gradient];
-    gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+    gradient = [[NSGradient alloc] initWithColorsAndLocations:
                  [NSColor colorWithCalibratedWhite:0.96 alpha:1.0], 0.0,
                  [NSColor colorWithCalibratedWhite:0.75 alpha:1.0], 1.0,
-                 nil] autorelease];
+                 nil];
     [gradientView setAltVerticalGradient:gradient];
     [gradientView setTopBorder:[NSColor colorWithCalibratedWhite:0.55 alpha:1.0]];
     [gradientView setTopBorder2:[NSColor colorWithCalibratedWhite:1.0 alpha:0.5]];
@@ -418,18 +415,18 @@
         }
         
         if (![[core win] miniPlayer]) {
-            NSMutableAttributedString *attrString = [[[NSMutableAttributedString alloc] initWithString:title attributes:titleAttrs] autorelease];
-            [attrString appendAttributedString:[[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" - %@ - %@",album,artist]
-                                                                                attributes:albumAttrs] autorelease]];
+            NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithString:title attributes:titleAttrs];
+            [attrString appendAttributedString:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" - %@ - %@",album,artist]
+                                                                                attributes:albumAttrs]];
             [titleButton setAttrString:attrString];
             [titleButton setAltAttrString:attrString];
             [_artistAlbumField setStringValue:@""];
         } else {
-            NSAttributedString *attrString = [[[NSAttributedString alloc] initWithString:title attributes:titleAttrs] autorelease];
+            NSAttributedString *attrString = [[NSAttributedString alloc] initWithString:title attributes:titleAttrs];
             [titleButton setAttrString:attrString];
             
             NSString *string = [NSString stringWithFormat:@"%@ - %@",album,artist];
-            attrString = [[[NSAttributedString alloc] initWithString:string attributes:albumAttrs] autorelease];
+            attrString = [[NSAttributedString alloc] initWithString:string attributes:albumAttrs];
             [_artistAlbumField setAttributedStringValue:attrString];
         }
     } else {
@@ -454,7 +451,7 @@
     NSImage *image = [[now mov] isPlaying] ? [NSImage imageNamed:@"PauseButton"] : [NSImage imageNamed:@"PlayButton"];
     [playPause setImage:image];
     
-    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
+    NSShadow *shadow = [[NSShadow alloc] init];
 	[shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.3]];
 	[shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
     NSDictionary *attributes = @{
@@ -462,23 +459,23 @@
         NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.3 alpha:1.0],
         NSParagraphStyleAttributeName:[NSParagraphStyle rightAlignStyle],
         NSShadowAttributeName:shadow};
-    NSString *currentTime_ = [[[[PRTimeFormatter alloc] init] autorelease] stringForObjectValue:[NSNumber numberWithLong:[[now mov] currentTime]]];
+    NSString *currentTime_ = [[[PRTimeFormatter alloc] init] stringForObjectValue:[NSNumber numberWithLong:[[now mov] currentTime]]];
     NSDictionary *attributes2 = @{
         NSFontAttributeName:[NSFont fontWithName:@"LucidaGrande" size:10],
         NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.3 alpha:1.0],
         NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
         NSShadowAttributeName:shadow};
-    NSString *duration_ = [[[[PRTimeFormatter alloc] init] autorelease] stringForObjectValue:[NSNumber numberWithLong:[[now mov] duration]]];
+    NSString *duration_ = [[[PRTimeFormatter alloc] init] stringForObjectValue:[NSNumber numberWithLong:[[now mov] duration]]];
     
     if (![[core win] miniPlayer]) {
         NSString *string = [NSString stringWithFormat:@"%@ / %@",currentTime_, duration_];
-        NSAttributedString *attrString = [[[NSAttributedString alloc] initWithString:string attributes:attributes] autorelease];
+        NSAttributedString *attrString = [[NSAttributedString alloc] initWithString:string attributes:attributes];
         [duration setAttributedStringValue:attrString];
         [_currentTime setStringValue:@""];
     } else {
-        NSAttributedString *attrString = [[[NSAttributedString alloc] initWithString:currentTime_ attributes:attributes] autorelease];
+        NSAttributedString *attrString = [[NSAttributedString alloc] initWithString:currentTime_ attributes:attributes];
         [_currentTime setAttributedStringValue:attrString];
-        attrString = [[[NSAttributedString alloc] initWithString:duration_ attributes:attributes2] autorelease];
+        attrString = [[NSAttributedString alloc] initWithString:duration_ attributes:attributes2];
         [duration setAttributedStringValue:attrString];
     }
 }
@@ -512,11 +509,11 @@
     PRTask *task = [[[core taskManager] tasks] objectAtIndex:0];
 
     NSDictionary *attributes = [NSAttributedString defaultUIAttributes];
-    NSAttributedString *attributedString = [[[NSAttributedString alloc] initWithString:[task title] attributes:attributes] autorelease];
+    NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:[task title] attributes:attributes];
     [_progressTextField setAttributedStringValue:attributedString];
     
     NSString *string = [NSString stringWithFormat:@"%d%%", [task percent]];
-    attributedString = [[[NSAttributedString alloc] initWithString:string attributes:attributes] autorelease];
+    attributedString = [[NSAttributedString alloc] initWithString:string attributes:attributes];
     [_progressPercentTextField setAttributedStringValue:attributedString];
 }
 

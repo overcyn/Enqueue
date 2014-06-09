@@ -28,168 +28,163 @@
     _db = [core db];
     _tempFileCount = 0;
     _fileTrackIdDictionary = [[NSMutableDictionary alloc] init];
-    iTunesURL = [URL_ retain];
+    iTunesURL = URL_;
     return self;
 }
 
 + (id)operationWithURL:(NSURL *)URL core:(PRCore *)core {
-    return [[[PRItunesImportOperation alloc] initWithURL:URL core:core] autorelease];
+    return [[PRItunesImportOperation alloc] initWithURL:URL core:core];
 }
 
-- (void)dealloc {
-    [iTunesURL release];
-    [_fileTrackIdDictionary release];
-    [super dealloc];
-}
 
 - (void)main {
     NSLog(@"begin itunesimport");
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    PRTask *task = [PRTask task];
-    [task setTitle:@"Importing iTunes..."];
-    [[_core taskManager] addTask:task];
-    
-    // Get tracks
-    NSString *errorDescription;
-    NSUInteger format;
-    NSData *plistXML = [[[[NSFileManager alloc] init] autorelease] contentsAtPath:[iTunesURL path]];
-    NSDictionary *plist = (NSDictionary *)[NSPropertyListSerialization propertyListFromData:plistXML
-                                                                           mutabilityOption:NSPropertyListImmutable
-                                                                                     format:&format
-                                                                           errorDescription:&errorDescription];
-    NSMutableArray *tracks = [NSMutableArray arrayWithArray:[[plist objectForKey:@"Tracks"] allValues]];
-    // Sort and remove invalid tracks
-    NSMutableIndexSet *indexesToRemove = [NSMutableIndexSet indexSet];
-    for (int i = 0; i < [tracks count]; i++) {
-        NSDictionary *track = [tracks objectAtIndex:i];
-        if ([[track objectForKey:@"Movie"] boolValue] ||
-            [[track objectForKey:@"Podcast"] boolValue] ||
-            [[track objectForKey:@"iTunesU"] boolValue] ||
-            [[track objectForKey:@"Books"] boolValue] ||
-            [[track objectForKey:@"Audiobooks"] boolValue] ||
-            [[track objectForKey:@"TV Shows"] boolValue] ||
-            ![track objectForKey:@"Location"] ||
-            ![track objectForKey:@"Track ID"] ||
-            ![NSURL URLWithString:[track objectForKey:@"Location"]]) {
-            [indexesToRemove addIndex:i];
+    @autoreleasepool {
+        PRTask *task = [PRTask task];
+        [task setTitle:@"Importing iTunes..."];
+        [[_core taskManager] addTask:task];
+        
+        // Get tracks
+        NSString *errorDescription;
+        NSUInteger format;
+        NSData *plistXML = [[[NSFileManager alloc] init] contentsAtPath:[iTunesURL path]];
+        NSDictionary *plist = (NSDictionary *)[NSPropertyListSerialization propertyListFromData:plistXML
+                                                                               mutabilityOption:NSPropertyListImmutable
+                                                                                         format:&format
+                                                                               errorDescription:&errorDescription];
+        NSMutableArray *tracks = [NSMutableArray arrayWithArray:[[plist objectForKey:@"Tracks"] allValues]];
+        // Sort and remove invalid tracks
+        NSMutableIndexSet *indexesToRemove = [NSMutableIndexSet indexSet];
+        for (int i = 0; i < [tracks count]; i++) {
+            NSDictionary *track = [tracks objectAtIndex:i];
+            if ([[track objectForKey:@"Movie"] boolValue] ||
+                [[track objectForKey:@"Podcast"] boolValue] ||
+                [[track objectForKey:@"iTunesU"] boolValue] ||
+                [[track objectForKey:@"Books"] boolValue] ||
+                [[track objectForKey:@"Audiobooks"] boolValue] ||
+                [[track objectForKey:@"TV Shows"] boolValue] ||
+                ![track objectForKey:@"Location"] ||
+                ![track objectForKey:@"Track ID"] ||
+                ![NSURL URLWithString:[track objectForKey:@"Location"]]) {
+                [indexesToRemove addIndex:i];
+            }
         }
-    }
-    [tracks removeObjectsAtIndexes:indexesToRemove];
-    [tracks sortUsingSelector:@selector(trackSort:)];
-    
-    // Add tracks
-    int index = 0; 
-    NSEnumerator *enumerator = [tracks objectEnumerator];
-    NSArray *nextTracks = nil;
-    while ((nextTracks = [enumerator nextXObjects:300])) {
-        index += 300;
-        [task setPercent:(int)(((float)index/(float)[tracks count]) * 90)];
-        [self addTracks:nextTracks];
-        if ([task shouldCancel]) {goto end;}
-    }
-    
-    // Add playlists
-    index = 0;
-    for (NSDictionary *i in [plist objectForKey:@"Playlists"]) {
-        index += 1;
-        [task setPercent:((float)index/(float)[[plist objectForKey:@"Playlists"] count]) * 9 + 90];
-        [self addPlaylist:i];
-        if ([task shouldCancel]) {goto end;}
-    }
+        [tracks removeObjectsAtIndexes:indexesToRemove];
+        [tracks sortUsingSelector:@selector(trackSort:)];
+        
+        // Add tracks
+        int index = 0; 
+        NSEnumerator *enumerator = [tracks objectEnumerator];
+        NSArray *nextTracks = nil;
+        while ((nextTracks = [enumerator nextXObjects:300])) {
+            index += 300;
+            [task setPercent:(int)(((float)index/(float)[tracks count]) * 90)];
+            [self addTracks:nextTracks];
+            if ([task shouldCancel]) {goto end;}
+        }
+        
+        // Add playlists
+        index = 0;
+        for (NSDictionary *i in [plist objectForKey:@"Playlists"]) {
+            index += 1;
+            [task setPercent:((float)index/(float)[[plist objectForKey:@"Playlists"] count]) * 9 + 90];
+            [self addPlaylist:i];
+            if ([task shouldCancel]) {goto end;}
+        }
 end:;
-    [[_core taskManager] removeTask:task];
-    [pool drain];
+        [[_core taskManager] removeTask:task];
+    }
     NSLog(@"end itunesimport");
 }
 
 - (void)addTracks:(NSArray *)tracks {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    @autoreleasepool {
     // Filter out existing files
-    NSMutableIndexSet *toRemove = [NSMutableIndexSet indexSet];
-    void (^blk)(void) = ^{
-        for (int i = 0; i < [tracks count]; i++) {
-            NSURL *u = [NSURL URLWithString:[[tracks objectAtIndex:i] objectForKey:@"Location"]];
-            NSArray *similar = [[_db library] itemsWithSimilarURL:u]; 
-            for (NSNumber *j in similar) {
-                // If similar file is equivalent to current URL, set them to be merged
-                NSString *uStr = [[_db library] valueForItem:j attr:PRItemAttrPath];
-                if ([uStr isEqualToString:[u absoluteString]] || [[NSFileManager defaultManager] itemAtURL:u equalsItemAtURL:[NSURL URLWithString:uStr]]) {
-                    [_fileTrackIdDictionary setValue:j forKey:[[tracks objectAtIndex:i] objectForKey:@"Track ID"]];
-                    [toRemove addIndex:i];
-                    break;
+        NSMutableIndexSet *toRemove = [NSMutableIndexSet indexSet];
+        void (^blk)(void) = ^{
+            for (int i = 0; i < [tracks count]; i++) {
+                NSURL *u = [NSURL URLWithString:[[tracks objectAtIndex:i] objectForKey:@"Location"]];
+                NSArray *similar = [[_db library] itemsWithSimilarURL:u]; 
+                for (NSNumber *j in similar) {
+                    // If similar file is equivalent to current URL, set them to be merged
+                    NSString *uStr = [[_db library] valueForItem:j attr:PRItemAttrPath];
+                    if ([uStr isEqualToString:[u absoluteString]] || [[NSFileManager defaultManager] itemAtURL:u equalsItemAtURL:[NSURL URLWithString:uStr]]) {
+                        [_fileTrackIdDictionary setValue:j forKey:[[tracks objectAtIndex:i] objectForKey:@"Track ID"]];
+                        [toRemove addIndex:i];
+                        break;
+                    }
                 }
             }
-        }
-    };
-    [[NSOperationQueue mainQueue] addBlockAndWait:blk];
-    // Filter out duplicate files
-    NSMutableArray *URLs = [NSMutableArray array];
-    for (int i = 0; i < [tracks count]; i++) {
-        NSURL *u = [NSURL URLWithString:[[tracks objectAtIndex:i] objectForKey:@"Location"]];
-        NSString *name = nil;
-        BOOL err = [u getResourceValue:&name forKey:NSURLNameKey error:nil];
-        if (!err || !name || [URLs containsObject:name]) {
-            [toRemove addIndex:i];
-            continue;
-        }
-        [URLs addObject:name];
-    }
-    // Get info
-    [[_db albumArtController] clearTempArtwork];
-    NSMutableArray *infoArray = [NSMutableArray array];
-    for (int i = 0; i < [tracks count]; i++) {
-        @autoreleasepool {
-            if ([toRemove containsIndex:i]) {
+        };
+        [[NSOperationQueue mainQueue] addBlockAndWait:blk];
+        // Filter out duplicate files
+        NSMutableArray *URLs = [NSMutableArray array];
+        for (int i = 0; i < [tracks count]; i++) {
+            NSURL *u = [NSURL URLWithString:[[tracks objectAtIndex:i] objectForKey:@"Location"]];
+            NSString *name = nil;
+            BOOL err = [u getResourceValue:&name forKey:NSURLNameKey error:nil];
+            if (!err || !name || [URLs containsObject:name]) {
+                [toRemove addIndex:i];
                 continue;
             }
-            NSDictionary *track = [tracks objectAtIndex:i];
-            NSURL *URL = [NSURL URLWithString:[track objectForKey:@"Location"]];
-            PRFileInfo *info = [PRTagger infoForURL:URL];
-            if (!info) {
-                continue;
-            }
-            if ([track objectForKey:@"Play Date UTC"]) {
-                [[info attributes] setObject:[[track objectForKey:@"Play Date UTC"] description] forKey:PRItemAttrLastPlayed];
-            }
-            if ([track objectForKey:@"Play Count"]) {
-                [[info attributes] setObject:[track objectForKey:@"Play Count"] forKey:PRItemAttrPlayCount];
-            }
-            if ([track objectForKey:@"Rating"]) {
-                [[info attributes] setObject:[track objectForKey:@"Rating"] forKey:PRItemAttrRating];
-            }
-            if ([track objectForKey:@"Date Added"]) {
-                [[info attributes] setObject:[[track objectForKey:@"Date Added"] description] forKey:PRItemAttrDateAdded];
-            } else {
-                [[info attributes] setObject:[[NSDate date] description] forKey:PRItemAttrDateAdded];
-            }
-            [info setTrackid:[[track objectForKey:@"Track ID"] intValue]];
-            // Artwork
-            if ([info art]) {
-                [info setTempArt:[[_db albumArtController] saveTempArtwork:[info art]]];
-                [info setArt:nil];
-            }
-            [infoArray addObject:info];
+            [URLs addObject:name];
         }
-    }
-    // Add files
-    blk = ^{
-        [_db begin];
-        for (PRFileInfo *i in infoArray) {
+        // Get info
+        [[_db albumArtController] clearTempArtwork];
+        NSMutableArray *infoArray = [NSMutableArray array];
+        for (int i = 0; i < [tracks count]; i++) {
+            @autoreleasepool {
+                if ([toRemove containsIndex:i]) {
+                    continue;
+                }
+                NSDictionary *track = [tracks objectAtIndex:i];
+                NSURL *URL = [NSURL URLWithString:[track objectForKey:@"Location"]];
+                PRFileInfo *info = [PRTagger infoForURL:URL];
+                if (!info) {
+                    continue;
+                }
+                if ([track objectForKey:@"Play Date UTC"]) {
+                    [[info attributes] setObject:[[track objectForKey:@"Play Date UTC"] description] forKey:PRItemAttrLastPlayed];
+                }
+                if ([track objectForKey:@"Play Count"]) {
+                    [[info attributes] setObject:[track objectForKey:@"Play Count"] forKey:PRItemAttrPlayCount];
+                }
+                if ([track objectForKey:@"Rating"]) {
+                    [[info attributes] setObject:[track objectForKey:@"Rating"] forKey:PRItemAttrRating];
+                }
+                if ([track objectForKey:@"Date Added"]) {
+                    [[info attributes] setObject:[[track objectForKey:@"Date Added"] description] forKey:PRItemAttrDateAdded];
+                } else {
+                    [[info attributes] setObject:[[NSDate date] description] forKey:PRItemAttrDateAdded];
+                }
+                [info setTrackid:[[track objectForKey:@"Track ID"] intValue]];
+                // Artwork
+                if ([info art]) {
+                    [info setTempArt:[[_db albumArtController] saveTempArtwork:[info art]]];
+                    [info setArt:nil];
+                }
+                [infoArray addObject:info];
+            }
+        }
+        // Add files
+        blk = ^{
+            [_db begin];
+            for (PRFileInfo *i in infoArray) {
 			PRItem *item = [[_db library] addItemWithAttrs:[i attributes]];
-            [i setItem:item];
-            NSNumber *trackId = [NSNumber numberWithInt:[i trackid]];
-            [_fileTrackIdDictionary setObject:item forKey:trackId];
-        }
-        [_db commit];
-        [[NSNotificationCenter defaultCenter] postLibraryChanged];
-    };
-    [[NSOperationQueue mainQueue] addBlockAndWait:blk];
-    // Artwork
-    for (PRFileInfo *i in infoArray) {
-        if (![i tempArt]) {continue;}
+                [i setItem:item];
+                NSNumber *trackId = [NSNumber numberWithInt:[i trackid]];
+                [_fileTrackIdDictionary setObject:item forKey:trackId];
+            }
+            [_db commit];
+            [[NSNotificationCenter defaultCenter] postLibraryChanged];
+        };
+        [[NSOperationQueue mainQueue] addBlockAndWait:blk];
+        // Artwork
+        for (PRFileInfo *i in infoArray) {
+            if (![i tempArt]) {continue;}
 		[[_db albumArtController] setTempArtwork:[i tempArt] forItem:[i item]];
+        }
     }
-    [pool drain];
 }
 
 - (void)addPlaylist:(NSDictionary *)playlist {

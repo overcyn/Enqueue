@@ -18,35 +18,35 @@
 
 - (void)main {
     NSLog(@"begin import");
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    PRTask *task = [PRTask task];
-    [task setTitle:@"Adding Files..."];
-    [[_core taskManager] addTask:task];
-    
+    @autoreleasepool {
+        PRTask *task = [PRTask task];
+        [task setTitle:@"Adding Files..."];
+        [[_core taskManager] addTask:task];
+        
 //    // if single m3u file
 //    if ([_URLs count] == 1 && [[[[_URLs objectAtIndex:0] path] pathExtension] caseInsensitiveCompare:@"m3u"] == NSOrderedSame) {
 //        [self addM3UFile:[_URLs objectAtIndex:0] depth:0];
 //        goto end;
 //    }
-    
-    // Filter and add/update files
-    NSArray *files;
-    PRDirectoryEnumerator *dirEnum = [PRDirectoryEnumerator enumeratorWithURLs:_URLs];
-    int filesPerTransaction = 50;
-    while ((files = [dirEnum nextXObjects:filesPerTransaction])) {
-        [task setPercent:(int)([dirEnum progress] * 90)];
-        [self filterURLs:files];
-        if ([task shouldCancel]) {
-            goto end;
+        
+        // Filter and add/update files
+        NSArray *files;
+        PRDirectoryEnumerator *dirEnum = [PRDirectoryEnumerator enumeratorWithURLs:_URLs];
+        int filesPerTransaction = 50;
+        while ((files = [dirEnum nextXObjects:filesPerTransaction])) {
+            [task setPercent:(int)([dirEnum progress] * 90)];
+            [self filterURLs:files];
+            if ([task shouldCancel]) {
+                goto end;
+            }
+            if (filesPerTransaction < 1000) {
+                filesPerTransaction += 200;
+            }
         }
-        if (filesPerTransaction < 1000) {
-            filesPerTransaction += 200;
-        }
-    }
-    
+        
 end:;
-    [[_core taskManager] removeTask:task];
-    [pool drain];
+        [[_core taskManager] removeTask:task];
+    }
     NSLog(@"end import");
 }
 

@@ -12,7 +12,7 @@
         }
     }
     
-    NSMutableParagraphStyle *style = [[[NSMutableParagraphStyle alloc] init] autorelease];
+    NSMutableParagraphStyle *style = [[NSMutableParagraphStyle alloc] init];
 	[style setLineBreakMode:NSLineBreakByTruncatingTail];
     [style setAlignment:[self alignment]];
     NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:

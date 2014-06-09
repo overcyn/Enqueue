@@ -9,9 +9,7 @@
     if (attrString == _attrString) {
         return;
     }
-    [_attrString release];
     _attrString = attrString;
-    [_attrString retain];
     
     [[self window] invalidateCursorRectsForView:self];
     [self updateTrackingAreas];
@@ -25,9 +23,7 @@
     if (altAttrString == _altAttrString) {
         return;
     }
-    [_altAttrString release];
     _altAttrString = altAttrString;
-    [_altAttrString retain];
     
     [[self window] invalidateCursorRectsForView:self];
     [self updateTrackingAreas];
@@ -44,7 +40,6 @@
 - (void)updateTrackingAreas {
     if (_trackingArea) {
         [self removeTrackingArea:_trackingArea];
-        [_trackingArea release];
     }
     
     NSRect rect = [self titleRect];

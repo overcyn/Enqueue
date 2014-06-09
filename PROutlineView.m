@@ -117,11 +117,11 @@
         }
         _hoverRow = mouseoverRow;
         [autoexpand_timer invalidate];
-        autoexpand_timer = [[NSTimer scheduledTimerWithTimeInterval:0.3
+        autoexpand_timer = [NSTimer scheduledTimerWithTimeInterval:0.3
                                                              target:self
                                                            selector:@selector(_scheduleAutoExpandTimerForItemDelayed:)
                                                            userInfo:nil
-                                                            repeats:NO] retain];
+                                                            repeats:NO];
     }
 }
 

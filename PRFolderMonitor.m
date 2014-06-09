@@ -81,7 +81,7 @@
     }
     // create and schedule new monitor
     FSEventStreamContext context;
-    context.info = self;
+    context.info = (__bridge void *)(self);
     context.version = 0;
     context.retain = NULL;
     context.release = NULL;
@@ -106,7 +106,7 @@ void eventCallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, si
                    const FSEventStreamEventId eventIds[]) {
     PRFolderMonitor *folderMonitor = (__bridge PRFolderMonitor *)clientCallBackInfo;
     PRCore *core = [folderMonitor core];
-    NSFileManager *fm = [[[NSFileManager alloc] init] autorelease];
+    NSFileManager *fm = [[NSFileManager alloc] init];
     char **paths = eventPaths;
     NSLog(@"-");
     NSMutableArray *URLs = [NSMutableArray array];

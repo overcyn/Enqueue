@@ -4,7 +4,7 @@
 
 - (id)initWithItem:(PRItem *)item {
     if (!(self = [super init])) {return nil;}
-    _item = [item retain];
+    _item = item;
     _startDate = nil;
     _playDate = nil;
     _playTime = 0;
@@ -12,22 +12,15 @@
     return self;
 }
 
-- (void)dealloc {
-    [_item release];
-    [_startDate release];
-    [_playDate release];
-    [super dealloc];
-}
 
 - (void)play {
     if (!_startDate) {
-        _startDate = [[NSDate date] retain];
+        _startDate = [NSDate date];
     }
     if (_playing) {
         return;
     }
-    [_playDate release];
-    _playDate = [[NSDate date] retain];
+    _playDate = [NSDate date];
     
     _playing = TRUE;
 }

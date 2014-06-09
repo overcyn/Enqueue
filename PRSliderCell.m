@@ -11,14 +11,14 @@
     frame.size.width -= 20;
     frame.origin.x += 10;
     NSColor *color = [NSColor colorWithDeviceRed:218./255. green:223./255. blue:230./255. alpha:1.0];
-    NSGradient *fillGradient = [[[NSGradient alloc] initWithColorsAndLocations:
+    NSGradient *fillGradient = [[NSGradient alloc] initWithColorsAndLocations:
                                  [color blendedColorWithFraction:0.1 ofColor:[NSColor blackColor]], 0.0,
                                  [color blendedColorWithFraction:0.3 ofColor:[NSColor blackColor]], 0.5, 
                                  [color blendedColorWithFraction:0.25 ofColor:[NSColor blackColor]], 1.0, 
-                                 nil] autorelease];
-    NSGradient *backGradient = [[[NSGradient alloc] initWithColorsAndLocations:
+                                 nil];
+    NSGradient *backGradient = [[NSGradient alloc] initWithColorsAndLocations:
                                  [color blendedColorWithFraction:0.1 ofColor:[NSColor blackColor]], 0.0,
-                                 nil] autorelease];
+                                 nil];
     
     NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:frame xRadius:3 yRadius:3];
     [path addClip];

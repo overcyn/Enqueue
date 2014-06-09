@@ -38,11 +38,6 @@
 	return self;
 }
 
-- (void)dealloc {
-    [dataSource release];
-    [_dateFormatter release];
-    [super dealloc];
-}
 
 - (void)awakeFromNib {
     [(PRScrollView *)[self view] setMinimumSize:NSMakeSize(650, 2267)];
@@ -73,7 +68,7 @@
     [divider2 setTopBorder:[NSColor PRGridColor]];
     [divider2 setBotBorder:[NSColor PRGridHighlightColor]];
     
-    [[[tableView tableColumns] objectAtIndex:0] setDataCell:[[[PRHistoryCell alloc] init] autorelease]];
+    [[[tableView tableColumns] objectAtIndex:0] setDataCell:[[PRHistoryCell alloc] init]];
     [tableView setRowHeight:HISTORY_ROW_HEIGHT];
     
     [self update];
@@ -95,19 +90,18 @@
 #pragma mark - Update
 
 - (void)update {
-    [dataSource release];
     switch (historyMode) {
         case PRTopArtistsHistoryMode:
-            dataSource = [[[_db history] topArtists] retain];
+            dataSource = [[_db history] topArtists];
             break;
         case PRTopSongsHistoryMode:
-            dataSource = [[[_db history] topSongs] retain];
+            dataSource = [[_db history] topSongs];
             break;
         case PRRecentlyAddedHistoryMode:
-            dataSource = [[[_db history] recentlyAdded] retain];
+            dataSource = [[_db history] recentlyAdded];
             break;
         case PRRecentlyPlayedHistoryMode:
-            dataSource = [[[_db history] recentlyPlayed] retain];
+            dataSource = [[_db history] recentlyPlayed];
             break;
         default:
             @throw NSInternalInconsistencyException;

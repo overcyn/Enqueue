@@ -17,15 +17,15 @@
     // Background
     NSGradient *gradient;
     if (highlighted) {
-        gradient = [[[NSGradient alloc] initWithColorsAndLocations: 
-                     [[NSColor colorWithCalibratedRed:59./255 green:128./255 blue:223./255 alpha:1.0] blendedColorWithFraction:0.1 ofColor:[NSColor whiteColor]], 1.0, nil] autorelease];
+        gradient = [[NSGradient alloc] initWithColorsAndLocations: 
+                     [[NSColor colorWithCalibratedRed:59./255 green:128./255 blue:223./255 alpha:1.0] blendedColorWithFraction:0.1 ofColor:[NSColor whiteColor]], 1.0, nil];
     } else if ([self isHighlighted]) {
-        gradient = [[[NSGradient alloc] initWithColorsAndLocations: 
-                     [NSColor colorWithDeviceWhite:0.8 alpha:1.0], 1.0, nil] autorelease];
+        gradient = [[NSGradient alloc] initWithColorsAndLocations: 
+                     [NSColor colorWithDeviceWhite:0.8 alpha:1.0], 1.0, nil];
     } else {
-        gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+        gradient = [[NSGradient alloc] initWithColorsAndLocations:
                      [NSColor colorWithCalibratedWhite:0.90 alpha:1.0], 0.0, 
-                     [NSColor colorWithCalibratedWhite:0.87 alpha:1.0], 1.0, nil] autorelease];
+                     [NSColor colorWithCalibratedWhite:0.87 alpha:1.0], 1.0, nil];
     }
     [gradient drawInRect:cellFrame angle:90];
     

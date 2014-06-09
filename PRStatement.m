@@ -15,11 +15,11 @@
 - (id)initWithString:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns db:(PRDb *)db {
     if (!(self = [super init])) {return nil;}
     _sqlite3 = [db sqlDb];
-    _statement = [string retain];
+    _statement = string;
     if (!columns) {
         _columns = [[NSArray alloc] init];
     } else {
-        _columns = [columns retain];
+        _columns = columns;
     }
     
     // Prepare statement
@@ -45,15 +45,11 @@
 }
 
 + (PRStatement *)statement:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns db:(PRDb *)db {
-    return [[[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:db] autorelease];
+    return [[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:db];
 }
 
 - (void)dealloc {
     sqlite3_finalize(_stmt);
-    [_bindings release];
-    [_statement release];
-    [_columns release];
-    [super dealloc];
 }
 
 - (NSString *)description {
@@ -68,9 +64,8 @@
     if (!bindings) {
         bindings = [[NSDictionary alloc] init];
     } else {
-        bindings = [bindings retain];
+        bindings = bindings;
     }
-    [_bindings release];
     _bindings = bindings;
     
     sqlite3_reset(_stmt);
@@ -135,7 +130,7 @@
     while (l) {
         int e = sqlite3_step(_stmt);
         switch (e) {
-            case SQLITE_ROW:
+            case SQLITE_ROW: {
                 if (sqlite3_column_count(_stmt) != [_columns count]) {
                     if (!crash) {return nil;}
                     [PRException raise:PRDbInconsistencyException format:@"Mismatch column count - self:%@ expected:%d receieved:%@",
@@ -157,19 +152,16 @@
                         value = [[NSData alloc] initWithBytes:sqlite3_column_blob(_stmt, i) length:sqlite3_column_bytes(_stmt, i)];
                     } else {
                         if (!crash) {
-                            [column release];
                             return nil;
                         }
-                        [column release];
                         [PRException raise:PRDbInconsistencyException format:@"Unknown column type - self:%@", self];
                         return nil;
                     }
                     [column addObject:value];
-                    [value release];
                 }
                 [result addObject:column];
-                [column release];
                 break;
+            }
             case SQLITE_BUSY:
                 usleep(50);
                 break;

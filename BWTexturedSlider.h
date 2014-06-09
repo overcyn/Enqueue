@@ -9,8 +9,8 @@
 }
 
 @property (nonatomic) int indicatorIndex;
-@property (retain) NSButton *minButton;
-@property (retain) NSButton *maxButton;
+@property (strong) NSButton *minButton;
+@property (strong) NSButton *maxButton;
 
 //- (int)trackHeight;
 //- (void)setTrackHeight:(int)newTrackHeight;

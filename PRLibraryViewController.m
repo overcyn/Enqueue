@@ -39,7 +39,7 @@
 }
 
 - (void)loadView {
-    NSView *view = [[[NSView alloc] initWithFrame:NSMakeRect(0, 0, 500, 500)] autorelease];
+    NSView *view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 500, 500)];
     [view setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
     [self setView:view];
     
@@ -93,7 +93,7 @@
         [_searchField setFocusRingType:NSFocusRingTypeNone];
     }
     [[_searchField cell] setControlSize:NSSmallControlSize];
-    PRStringFormatter *stringFormatter = [[[PRStringFormatter alloc] init] autorelease];
+    PRStringFormatter *stringFormatter = [[PRStringFormatter alloc] init];
     [stringFormatter setMaxLength:80];
     [_searchField setFormatter:stringFormatter];
     [_headerView addSubview:_searchField];
@@ -126,8 +126,6 @@ infoViewVisible;
     if ([list isEqual:_currentList]) {
         return;
     }
-    [list retain];
-    [_currentList release];
     _currentList = list;
     [self setLibraryViewMode:[[_db playlists] viewModeForList:_currentList]];
     [self updateSearch];
@@ -241,7 +239,7 @@ infoViewVisible;
 
 - (void)menuNeedsUpdate:(NSMenu *)menu {
     [menu removeAllItems];
-    NSMenuItem *item = [[[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""] autorelease];
+    NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
     NSImage *image;
     if ([self libraryViewMode] == PRListMode) {
         image = [NSImage imageNamed:@"List.png"];
@@ -251,16 +249,16 @@ infoViewVisible;
     [item setImage:image];
     [item setEnabled:TRUE];
     [menu addItem:item];
-    item = [[[NSMenuItem alloc] initWithTitle:@"View As..." action:nil keyEquivalent:@""] autorelease];
+    item = [[NSMenuItem alloc] initWithTitle:@"View As..." action:nil keyEquivalent:@""];
     [item setEnabled:FALSE];
     [menu addItem:item];
-    item = [[[NSMenuItem alloc] initWithTitle:@"List" action:@selector(setLibraryViewModeAction:) keyEquivalent:@""] autorelease];
+    item = [[NSMenuItem alloc] initWithTitle:@"List" action:@selector(setLibraryViewModeAction:) keyEquivalent:@""];
     [item setTag:PRListMode];
     if ([self libraryViewMode] == PRListMode) {
         [item setState:NSOnState];
     }
     [menu addItem:item];
-    item = [[[NSMenuItem alloc] initWithTitle:@"Album List" action:@selector(setLibraryViewModeAction:) keyEquivalent:@""] autorelease];
+    item = [[NSMenuItem alloc] initWithTitle:@"Album List" action:@selector(setLibraryViewModeAction:) keyEquivalent:@""];
     [item setTag:PRAlbumListMode];
     if ([self libraryViewMode] == PRAlbumListMode) {
         [item setState:NSOnState];
@@ -268,7 +266,7 @@ infoViewVisible;
     [menu addItem:item];
     
     [menu addItem:[NSMenuItem separatorItem]];
-    item = [[[NSMenuItem alloc] initWithTitle:@"Browser" action:nil keyEquivalent:@""] autorelease];
+    item = [[NSMenuItem alloc] initWithTitle:@"Browser" action:nil keyEquivalent:@""];
     [item setSubmenu:[_currentViewController browserHeaderMenu]];
     [menu addItem:item];
     
@@ -280,8 +278,7 @@ infoViewVisible;
 #pragma mark - text field delegate
 
 - (void)controlTextDidChange:(NSNotification *)note {
-    [_searchFieldLastEdit release];
-    _searchFieldLastEdit = [[NSDate date] retain];
+    _searchFieldLastEdit = [NSDate date];
 
     float delay = [[_searchField stringValue] length] != 0 ? SEARCH_DELAY : 0.0;
     [[NSOperationQueue currentQueue] addBlock:^{

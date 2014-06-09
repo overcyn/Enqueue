@@ -44,9 +44,9 @@
 - (id)initWithCore:(PRCore *)core;
 
 /* Accessors */
-@property (nonatomic, assign) PRList *currentList;
-@property (readonly) NSDictionary *info;
-@property (readonly) NSArray *selection;
+@property (nonatomic, weak) PRList *currentList;
+@property (weak, readonly) NSDictionary *info;
+@property (weak, readonly) NSArray *selection;
 
 /* Action */
 // These methods will change the browser selection but not the currentList.

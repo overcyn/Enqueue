@@ -64,8 +64,8 @@ extern NSString * const PRDeviceKeyUID;
 - (void)seekBackward;
 
 /* Device */
-@property (readonly) NSArray *devices;
-@property (readwrite, retain) NSString *currentDevice;
+@property (weak, readonly) NSArray *devices;
+@property (readwrite, strong) NSString *currentDevice;
 
 /* HogOutput */
 @property (readwrite) BOOL hogOutput;

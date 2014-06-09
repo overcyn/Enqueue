@@ -39,341 +39,333 @@
     return self;
 }
 
-- (void)dealloc {
-    [libraryMenu release];
-    [headerMenu release];
-    [browserHeaderMenu release];
-    [db release];
-    [now release];   
-    [super dealloc];
-}
 
 - (void)awakeFromNib {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    @autoreleasepool {
     
 	// BrowserSplitView
-	[verticalBrowserSplitView setDelegate:self];
-	[horizontalBrowserSplitView setDelegate:self];
-	[horizontalBrowserSubSplitview setDelegate:self];
+		[verticalBrowserSplitView setDelegate:self];
+		[horizontalBrowserSplitView setDelegate:self];
+		[horizontalBrowserSubSplitview setDelegate:self];
     
-	// LibraryTableView
-	[libraryTableView setTarget:self];
-	[libraryTableView setDoubleAction:@selector(play)];
-	[libraryTableView registerForDraggedTypes:@[PRFilePboardType]];
-	[libraryTableView setVerticalMotionCanBeginDrag:FALSE];
-	[libraryTableView setDataSource:self];
-	[libraryTableView setDelegate:self];
+		// LibraryTableView
+		[libraryTableView setTarget:self];
+		[libraryTableView setDoubleAction:@selector(play)];
+		[libraryTableView registerForDraggedTypes:@[PRFilePboardType]];
+		[libraryTableView setVerticalMotionCanBeginDrag:FALSE];
+		[libraryTableView setDataSource:self];
+		[libraryTableView setDelegate:self];
     [self setNextResponder:[libraryTableView nextResponder]];
     [libraryTableView setNextResponder:self];
-	
-	// LibraryTableView TableColumns
+		
+		// LibraryTableView TableColumns
     NSTableColumn *tableColumn;
     NSMutableArray *tableColumns = [NSMutableArray array];
-    PRStringFormatter *stringFormatter = [[[PRStringFormatter alloc] init] autorelease];
-    PRNumberFormatter *numberFormatter = [[[PRNumberFormatter alloc] init] autorelease];
-    PRSizeFormatter *sizeFormatter = [[[PRSizeFormatter alloc] init] autorelease];
-    PRTimeFormatter *timeFormatter = [[[PRTimeFormatter alloc] init] autorelease];
-    PRBitRateFormatter *bitRateFormatter = [[[PRBitRateFormatter alloc] init] autorelease];
-    PRKindFormatter *kindFormatter = [[[PRKindFormatter alloc] init] autorelease];
-    PRDateFormatter *dateFormatter = [[[PRDateFormatter alloc] init] autorelease];
+    PRStringFormatter *stringFormatter = [[PRStringFormatter alloc] init];
+    PRNumberFormatter *numberFormatter = [[PRNumberFormatter alloc] init];
+    PRSizeFormatter *sizeFormatter = [[PRSizeFormatter alloc] init];
+    PRTimeFormatter *timeFormatter = [[PRTimeFormatter alloc] init];
+    PRBitRateFormatter *bitRateFormatter = [[PRBitRateFormatter alloc] init];
+    PRKindFormatter *kindFormatter = [[PRKindFormatter alloc] init];
+    PRDateFormatter *dateFormatter = [[PRDateFormatter alloc] init];
     
     // Playlist Index
-    tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRListSortIndex] autorelease];
+    tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRListSortIndex];
     [tableColumn setWidth:40];
     [tableColumn setMinWidth:40];
     [tableColumn setMaxWidth:40];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
     [[tableColumn headerCell] setStringValue:@"#"];
     [[tableColumn headerCell] setAlignment:NSCenterTextAlignment];
-    [tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
+    [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setAlignment:NSCenterTextAlignment];
     [tableColumn setEditable:FALSE];
     [tableColumns addObject:tableColumn];
     
-	// Path
-    tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrPath] autorelease];
+		// Path
+    tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrPath];
     [tableColumn setWidth:200];
     [tableColumn setMinWidth:50];
     [tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Path"];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
-	[tableColumn setEditable:FALSE];
-	[tableColumns addObject:tableColumn];
-	
-	// Title
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrTitle] autorelease];
-	[tableColumn setWidth:300];
-	[tableColumn setMinWidth:50];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Title"];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Path"];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
+		[tableColumn setEditable:FALSE];
+		[tableColumns addObject:tableColumn];
+		
+		// Title
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrTitle];
+		[tableColumn setWidth:300];
+		[tableColumn setMinWidth:50];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Title"];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:stringFormatter];
-	[tableColumn setEditable:TRUE];
-	[tableColumns addObject:tableColumn];
-	
-	// Artist
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrArtist] autorelease];
-	[tableColumn setWidth:200];
-	[tableColumn setMinWidth:50];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Artist"];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
+		[tableColumn setEditable:TRUE];
+		[tableColumns addObject:tableColumn];
+		
+		// Artist
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrArtist];
+		[tableColumn setWidth:200];
+		[tableColumn setMinWidth:50];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Artist"];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:stringFormatter];
-	[tableColumn setEditable:TRUE];
-	[tableColumns addObject:tableColumn];
-	
-	// Album
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrAlbum] autorelease];
-	[tableColumn setWidth:200];
-	[tableColumn setMinWidth:50];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Album"];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
+		[tableColumn setEditable:TRUE];
+		[tableColumns addObject:tableColumn];
+		
+		// Album
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrAlbum];
+		[tableColumn setWidth:200];
+		[tableColumn setMinWidth:50];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Album"];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:stringFormatter];
-	[tableColumn setEditable:TRUE];
-	[tableColumns addObject:tableColumn];
-	
-	// AlbumArtist
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrAlbumArtist] autorelease];
-	[tableColumn setWidth:200];
-	[tableColumn setMinWidth:50];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Album Artist"];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
+		[tableColumn setEditable:TRUE];
+		[tableColumns addObject:tableColumn];
+		
+		// AlbumArtist
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrAlbumArtist];
+		[tableColumn setWidth:200];
+		[tableColumn setMinWidth:50];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Album Artist"];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:stringFormatter];
-	[tableColumn setEditable:TRUE];
-	[tableColumns addObject:tableColumn];
-	
-	// Composer
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrComposer] autorelease];
-	[tableColumn setWidth:200];
-	[tableColumn setMinWidth:50];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Composer"];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
+		[tableColumn setEditable:TRUE];
+		[tableColumns addObject:tableColumn];
+		
+		// Composer
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrComposer];
+		[tableColumn setWidth:200];
+		[tableColumn setMinWidth:50];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Composer"];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:stringFormatter];
-	[tableColumn setEditable:TRUE];
-	[tableColumns addObject:tableColumn];
-	
-	// Genre
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrGenre] autorelease];
-	[tableColumn setWidth:200];
-	[tableColumn setMinWidth:50];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Genre"];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
+		[tableColumn setEditable:TRUE];
+		[tableColumns addObject:tableColumn];
+		
+		// Genre
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrGenre];
+		[tableColumn setWidth:200];
+		[tableColumn setMinWidth:50];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Genre"];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:stringFormatter];
-	[tableColumn setEditable:TRUE];
-	[tableColumns addObject:tableColumn];
-	
-	// Year
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrYear] autorelease];
-	[tableColumn setWidth:40];
-	[tableColumn setMinWidth:40];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Year"];
-	[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
-	[[tableColumn dataCell] setFormatter:numberFormatter];
-	[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setEditable:TRUE];
-	[tableColumns addObject:tableColumn];
-	
+		[tableColumn setEditable:TRUE];
+		[tableColumns addObject:tableColumn];
+		
+		// Year
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrYear];
+		[tableColumn setWidth:40];
+		[tableColumn setMinWidth:40];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Year"];
+		[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
+		[[tableColumn dataCell] setFormatter:numberFormatter];
+		[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setEditable:TRUE];
+		[tableColumns addObject:tableColumn];
+		
     // Comments
-    tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrComments] autorelease];
-	[tableColumn setWidth:200];
-	[tableColumn setMinWidth:50];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Comments"];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
+    tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrComments];
+		[tableColumn setWidth:200];
+		[tableColumn setMinWidth:50];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Comments"];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:stringFormatter];
-	[tableColumn setEditable:TRUE];
-	[tableColumns addObject:tableColumn];
+		[tableColumn setEditable:TRUE];
+		[tableColumns addObject:tableColumn];
     
-	// BPM
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrBPM] autorelease];
-	[tableColumn setWidth:40];
-	[tableColumn setMinWidth:40];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"BPM"];
-	[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
-	[[tableColumn dataCell] setFormatter:numberFormatter];
-	[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setEditable:TRUE];
-	[tableColumns addObject:tableColumn];
-	
+		// BPM
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrBPM];
+		[tableColumn setWidth:40];
+		[tableColumn setMinWidth:40];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"BPM"];
+		[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
+		[[tableColumn dataCell] setFormatter:numberFormatter];
+		[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setEditable:TRUE];
+		[tableColumns addObject:tableColumn];
+		
     // Track
-    tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrTrackNumber] autorelease];
-	[tableColumn setWidth:40];
-	[tableColumn setMinWidth:40];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Track #"];
-	[[tableColumn headerCell] setAlignment:NSCenterTextAlignment];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
-	[[tableColumn dataCell] setFormatter:numberFormatter];
-	[[tableColumn dataCell] setAlignment:NSCenterTextAlignment];
-	[tableColumn setEditable:TRUE];
-	[tableColumns addObject:tableColumn];
-	
-	// Disc
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrDiscNumber] autorelease];
-	[tableColumn setWidth:40];
-	[tableColumn setMinWidth:40];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Disc #"];
-	[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
-	[[tableColumn dataCell] setFormatter:numberFormatter];
-	[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setEditable:TRUE];
-	[tableColumns addObject:tableColumn];
-	
-	// PlayCount
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrPlayCount] autorelease];
-	[tableColumn setWidth:40];
-	[tableColumn setMinWidth:40];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Plays"];
-	[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
-	[[tableColumn dataCell] setFormatter:numberFormatter];
-	[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setEditable:FALSE];
-	[tableColumns addObject:tableColumn];
-	
-	// DateAdded
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrDateAdded] autorelease];
-	[tableColumn setWidth:200];
-	[tableColumn setMinWidth:40];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Date Added"];
-	[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
+    tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrTrackNumber];
+		[tableColumn setWidth:40];
+		[tableColumn setMinWidth:40];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Track #"];
+		[[tableColumn headerCell] setAlignment:NSCenterTextAlignment];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
+		[[tableColumn dataCell] setFormatter:numberFormatter];
+		[[tableColumn dataCell] setAlignment:NSCenterTextAlignment];
+		[tableColumn setEditable:TRUE];
+		[tableColumns addObject:tableColumn];
+		
+		// Disc
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrDiscNumber];
+		[tableColumn setWidth:40];
+		[tableColumn setMinWidth:40];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Disc #"];
+		[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
+		[[tableColumn dataCell] setFormatter:numberFormatter];
+		[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setEditable:TRUE];
+		[tableColumns addObject:tableColumn];
+		
+		// PlayCount
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrPlayCount];
+		[tableColumn setWidth:40];
+		[tableColumn setMinWidth:40];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Plays"];
+		[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
+		[[tableColumn dataCell] setFormatter:numberFormatter];
+		[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setEditable:FALSE];
+		[tableColumns addObject:tableColumn];
+		
+		// DateAdded
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrDateAdded];
+		[tableColumn setWidth:200];
+		[tableColumn setMinWidth:40];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Date Added"];
+		[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:dateFormatter];
-	[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setEditable:FALSE];
-	[tableColumns addObject:tableColumn];
-	
-	// LastPlayed
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrLastPlayed] autorelease];
-	[tableColumn setWidth:200];
-	[tableColumn setMinWidth:40];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Last Played"];
-	[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
+		[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setEditable:FALSE];
+		[tableColumns addObject:tableColumn];
+		
+		// LastPlayed
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrLastPlayed];
+		[tableColumn setWidth:200];
+		[tableColumn setMinWidth:40];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Last Played"];
+		[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:dateFormatter];
-	[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setEditable:FALSE];
-	[tableColumns addObject:tableColumn];
-	
-	// Size
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrSize] autorelease];
-	[tableColumn setWidth:100];
-	[tableColumn setMinWidth:40];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Size"];
-	[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
-	[[tableColumn dataCell] setFormatter:sizeFormatter];
-	[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setEditable:FALSE];
-	[tableColumns addObject:tableColumn];
-	
-	// Kind
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrKind] autorelease];
-	[tableColumn setWidth:200];
-	[tableColumn setMinWidth:40];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Kind"];
-	[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
+		[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setEditable:FALSE];
+		[tableColumns addObject:tableColumn];
+		
+		// Size
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrSize];
+		[tableColumn setWidth:100];
+		[tableColumn setMinWidth:40];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Size"];
+		[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
+		[[tableColumn dataCell] setFormatter:sizeFormatter];
+		[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setEditable:FALSE];
+		[tableColumns addObject:tableColumn];
+		
+		// Kind
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrKind];
+		[tableColumn setWidth:200];
+		[tableColumn setMinWidth:40];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Kind"];
+		[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:kindFormatter];
-	[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setEditable:FALSE];
-	[tableColumns addObject:tableColumn];
-	
-	// Time
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrTime] autorelease];
-	[tableColumn setWidth:40];
-	[tableColumn setMinWidth:40];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Time"];
-	[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
-	[[tableColumn dataCell] setFormatter:timeFormatter];
-	[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setEditable:FALSE];
-	[tableColumns addObject:tableColumn];
-	
-	// Bitrate
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrBitrate] autorelease];
-	[tableColumn setWidth:40];
-	[tableColumn setMinWidth:40];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Bitrate"];
-	[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
+		[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setEditable:FALSE];
+		[tableColumns addObject:tableColumn];
+		
+		// Time
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrTime];
+		[tableColumn setWidth:40];
+		[tableColumn setMinWidth:40];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Time"];
+		[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
+		[[tableColumn dataCell] setFormatter:timeFormatter];
+		[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setEditable:FALSE];
+		[tableColumns addObject:tableColumn];
+		
+		// Bitrate
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrBitrate];
+		[tableColumn setWidth:40];
+		[tableColumn setMinWidth:40];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Bitrate"];
+		[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:bitRateFormatter];
-	[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setEditable:FALSE];
-	[tableColumns addObject:tableColumn];
-	
-	// Channels
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrChannels] autorelease];
-	[tableColumn setWidth:40];
-	[tableColumn setMinWidth:40];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Channels"];
-	[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
-	[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setEditable:FALSE];
-	[tableColumns addObject:tableColumn];
-	
-	// SampleRate
-	tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrSampleRate] autorelease];
-	[tableColumn setWidth:40];
-	[tableColumn setMinWidth:40];
-	[tableColumn setMaxWidth:1000];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
-	[[tableColumn headerCell] setStringValue:@"Sample Rate"];
-	[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setDataCell:[[[PRCenteredTextFieldCell alloc] init] autorelease]];
-	[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-	[tableColumn setEditable:FALSE];
-	[tableColumns addObject:tableColumn];
+		[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setEditable:FALSE];
+		[tableColumns addObject:tableColumn];
+		
+		// Channels
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrChannels];
+		[tableColumn setWidth:40];
+		[tableColumn setMinWidth:40];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Channels"];
+		[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
+		[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setEditable:FALSE];
+		[tableColumns addObject:tableColumn];
+		
+		// SampleRate
+		tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrSampleRate];
+		[tableColumn setWidth:40];
+		[tableColumn setMinWidth:40];
+		[tableColumn setMaxWidth:1000];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
+		[[tableColumn headerCell] setStringValue:@"Sample Rate"];
+		[[tableColumn headerCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
+		[[tableColumn dataCell] setAlignment:NSRightTextAlignment];
+		[tableColumn setEditable:FALSE];
+		[tableColumns addObject:tableColumn];
     
     // Rating
-    tableColumn = [[[NSTableColumn alloc] initWithIdentifier:PRItemAttrRating] autorelease];
+    tableColumn = [[NSTableColumn alloc] initWithIdentifier:PRItemAttrRating];
     [tableColumn setWidth:75];
     [tableColumn setMinWidth:75];
     [tableColumn setMaxWidth:75];
-    [tableColumn setHeaderCell:[[[PRTableHeaderCell alloc] init] autorelease]];
+    [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
     [[tableColumn headerCell] setStringValue:@"Rating"];
     [[tableColumn headerCell] setAlignment:NSLeftTextAlignment];
-    PRRatingCell *ratingCell = [[[PRRatingCell alloc] init] autorelease];
+    PRRatingCell *ratingCell = [[PRRatingCell alloc] init];
     [ratingCell setSegmentCount:6];
     [ratingCell setWidth:3 forSegment:0];
     [ratingCell setWidth:13 forSegment:1];
@@ -386,61 +378,61 @@
     [tableColumn setDataCell:ratingCell];
     [tableColumn setEditable:FALSE];
     [tableColumns addObject:tableColumn];
-	
-	for (NSTableColumn *i in tableColumns) {
-		[i setHidden:TRUE];
-		NSTextFieldCell *cell = [i dataCell];
-		[cell setFont:[NSFont systemFontOfSize:11]];
-		[cell setTruncatesLastVisibleLine:TRUE];
-		[cell setWraps:FALSE];
-		[cell setLineBreakMode:NSLineBreakByTruncatingTail];
-		[cell setEditable:TRUE];
-		[libraryTableView addTableColumn:i];
-	}
-	
-	// LibraryTableView Context menu
-	libraryMenu = [[NSMenu alloc] init];
-	[libraryMenu setDelegate:self];
-	[libraryTableView setMenu:libraryMenu];
-	
-	// LibraryTableView Header Context Menu
-	headerMenu = [[NSMenu alloc] init];
-	[headerMenu setDelegate:self];
-	[[libraryTableView headerView] setMenu:headerMenu];
-	
-	// BrowserTableView Context Menu
-	browserHeaderMenu = [[NSMenu alloc] init];
-	[browserHeaderMenu setDelegate:self];
-	[[horizontalBrowser1TableView headerView] setMenu:browserHeaderMenu];
-	[[horizontalBrowser2TableView headerView] setMenu:browserHeaderMenu];
-	[[horizontalBrowser3TableView headerView] setMenu:browserHeaderMenu];
+		
+		for (NSTableColumn *i in tableColumns) {
+			[i setHidden:TRUE];
+			NSTextFieldCell *cell = [i dataCell];
+			[cell setFont:[NSFont systemFontOfSize:11]];
+			[cell setTruncatesLastVisibleLine:TRUE];
+			[cell setWraps:FALSE];
+			[cell setLineBreakMode:NSLineBreakByTruncatingTail];
+			[cell setEditable:TRUE];
+			[libraryTableView addTableColumn:i];
+		}
+		
+		// LibraryTableView Context menu
+		libraryMenu = [[NSMenu alloc] init];
+		[libraryMenu setDelegate:self];
+		[libraryTableView setMenu:libraryMenu];
+		
+		// LibraryTableView Header Context Menu
+		headerMenu = [[NSMenu alloc] init];
+		[headerMenu setDelegate:self];
+		[[libraryTableView headerView] setMenu:headerMenu];
+		
+		// BrowserTableView Context Menu
+		browserHeaderMenu = [[NSMenu alloc] init];
+		[browserHeaderMenu setDelegate:self];
+		[[horizontalBrowser1TableView headerView] setMenu:browserHeaderMenu];
+		[[horizontalBrowser2TableView headerView] setMenu:browserHeaderMenu];
+		[[horizontalBrowser3TableView headerView] setMenu:browserHeaderMenu];
     [[verticalBrowser1TableView headerView] setMenu:browserHeaderMenu];
     
-    [[[horizontalBrowser1TableView superview] superview] retain];
-    [[[horizontalBrowser2TableView superview] superview] retain];
-    [[[horizontalBrowser3TableView superview] superview] retain];
+    [[horizontalBrowser1TableView superview] superview];
+    [[horizontalBrowser2TableView superview] superview];
+    [[horizontalBrowser3TableView superview] superview];
     
-	// BrowserTableView
-	[horizontalBrowser1TableView setTarget:self];
-	[horizontalBrowser1TableView setDoubleAction:@selector(playBrowser:)];
-	[horizontalBrowser1TableView setDataSource:self];
-	[horizontalBrowser1TableView setDelegate:self];
-	
-	[horizontalBrowser2TableView setTarget:self];
-	[horizontalBrowser2TableView setDoubleAction:@selector(playBrowser:)];
-	[horizontalBrowser2TableView setDataSource:self];
-	[horizontalBrowser2TableView setDelegate:self];
-	
-	[horizontalBrowser3TableView setTarget:self];
-	[horizontalBrowser3TableView setDoubleAction:@selector(playBrowser:)];
-	[horizontalBrowser3TableView setDataSource:self];
-	[horizontalBrowser3TableView setDelegate:self];
+		// BrowserTableView
+		[horizontalBrowser1TableView setTarget:self];
+		[horizontalBrowser1TableView setDoubleAction:@selector(playBrowser:)];
+		[horizontalBrowser1TableView setDataSource:self];
+		[horizontalBrowser1TableView setDelegate:self];
+		
+		[horizontalBrowser2TableView setTarget:self];
+		[horizontalBrowser2TableView setDoubleAction:@selector(playBrowser:)];
+		[horizontalBrowser2TableView setDataSource:self];
+		[horizontalBrowser2TableView setDelegate:self];
+		
+		[horizontalBrowser3TableView setTarget:self];
+		[horizontalBrowser3TableView setDoubleAction:@selector(playBrowser:)];
+		[horizontalBrowser3TableView setDataSource:self];
+		[horizontalBrowser3TableView setDelegate:self];
     
     [verticalBrowser1TableView setTarget:self];
-	[verticalBrowser1TableView setDoubleAction:@selector(playBrowser:)];
-	[verticalBrowser1TableView setDataSource:self];
-	[verticalBrowser1TableView setDelegate:self];
-	
+		[verticalBrowser1TableView setDoubleAction:@selector(playBrowser:)];
+		[verticalBrowser1TableView setDataSource:self];
+		[verticalBrowser1TableView setDelegate:self];
+		
     // Key Views
     [[self firstKeyView] setNextKeyView:horizontalBrowser1TableView];
     [horizontalBrowser1TableView setNextKeyView:horizontalBrowser2TableView];
@@ -449,7 +441,7 @@
     [verticalBrowser1TableView setNextKeyView:libraryTableView];
     [libraryTableView setNextKeyView:[self lastKeyView]];
     
-	// Update
+		// Update
     [[NSNotificationCenter defaultCenter] observeLibraryChanged:self sel:@selector(libraryDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(playlistDidChange:)];
     [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(tagsDidChange:)];
@@ -457,7 +449,7 @@
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistFilesChanged:)];
     [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(playingFileChanged:)];
     
-    [pool drain];
+    }
 }
 
 #pragma mark - Accessors
@@ -469,8 +461,6 @@
 }
 
 - (void)setCurrentList:(PRList *)list {
-    [list retain];
-    [_currentList release];
     _currentList = list;
     
 	if (list) {        
@@ -639,7 +629,7 @@
         if ([indexes count] != 1) {
             message = [NSString stringWithFormat:@"Do you want to remove the %lu selected songs from your library?", (unsigned long)[indexes count]];
         }
-        NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+        NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"Remove"];
         [alert addButtonWithTitle:@"Cancel"];
         [alert setMessageText:message];
@@ -1045,8 +1035,8 @@
     int browserPosition = [[db playlists] verticalForList:_currentList];
     __weak PRTableViewController *weakSelf = self;
     
-    NSMenu *menu = [[[NSMenu alloc] init] autorelease];
-    NSMenuItem *item = [[[NSMenuItem alloc] init] autorelease];
+    NSMenu *menu = [[NSMenu alloc] init];
+    NSMenuItem *item = [[NSMenuItem alloc] init];
     [item setTitle:@"Hidden"];
     [item setActionBlock:^{[weakSelf setBrowserPosition:PRBrowserPositionHidden];}];
     if (browserPosition == PRBrowserPositionHidden) {
@@ -1054,7 +1044,7 @@
     }
     [menu addItem:item];
     
-    item = [[[NSMenuItem alloc] init] autorelease];
+    item = [[NSMenuItem alloc] init];
     [item setTitle:@"On Top"];
     [item setActionBlock:^{[weakSelf setBrowserPosition:PRBrowserPositionHorizontal];}];
     if (browserPosition == PRBrowserPositionHorizontal) {
@@ -1062,7 +1052,7 @@
     }
     [menu addItem:item];
     
-    item = [[[NSMenuItem alloc] init] autorelease];
+    item = [[NSMenuItem alloc] init];
     [item setTitle:@"On Left"];
     [item setActionBlock:^{[weakSelf setBrowserPosition:PRBrowserPositionVertical];}];
     if (browserPosition == PRBrowserPositionVertical) {
@@ -1077,7 +1067,7 @@
         PRItemAttr *attr2 = [[db playlists] attrForBrowser:2 list:_currentList];
         PRItemAttr *attr3 = [[db playlists] attrForBrowser:3 list:_currentList];
         for (PRItemAttr *i in @[PRItemAttrGenre, PRItemAttrComposer, PRItemAttrArtist, PRItemAttrAlbum]) {
-            item = [[[NSMenuItem alloc] init] autorelease];
+            item = [[NSMenuItem alloc] init];
             [item setTitle:[PRLibrary titleForItemAttr:i]];
             [item setActionBlock:^{[weakSelf toggleBrowser:i];}];
             if ([attr1 isEqual:i] || [attr2 isEqual:i] || [attr3 isEqual:i]) {
@@ -1102,21 +1092,21 @@
     unichar c[1] = {NSCarriageReturnCharacter};
     
     // Play
-    NSMenuItem *item = [[[NSMenuItem alloc] init] autorelease];
+    NSMenuItem *item = [[NSMenuItem alloc] init];
     [item setTitle:@"Play"];
     [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
     [item setKeyEquivalentModifierMask:0];
     [item setActionBlock:^{[weakSelf playIndexes:[weakSelf selectedIndexes]];}];
     [libraryMenu addItem:item];
     
-    item = [[[NSMenuItem alloc] init] autorelease];
+    item = [[NSMenuItem alloc] init];
     [item setTitle:@"Play Next"];
     [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
     [item setKeyEquivalentModifierMask:NSAlternateKeyMask];
     [item setActionBlock:^{[weakSelf appendNextIndexes:[weakSelf selectedIndexes]];}];
     [libraryMenu addItem:item];
     
-    item = [[[NSMenuItem alloc] init] autorelease];
+    item = [[NSMenuItem alloc] init];
     [item setTitle:@"Append"];
     [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
     [item setKeyEquivalentModifierMask:NSShiftKeyMask];
@@ -1125,25 +1115,25 @@
     [libraryMenu addItem:[NSMenuItem separatorItem]];
     
     // Add to Playlist
-    NSMenu *playlistMenu = [[[NSMenu alloc] init] autorelease];
+    NSMenu *playlistMenu = [[NSMenu alloc] init];
     for (PRList *i in [[db playlists] lists]) {
         if (![[[db playlists] typeForList:i] isEqual:PRListTypeStatic]) {
             continue;
         }
-        item = [[[NSMenuItem alloc] init] autorelease];
+        item = [[NSMenuItem alloc] init];
         [item setTitle:[NSString stringWithFormat:@" %@",[[db playlists] titleForList:i]]];
         [item setImage:[NSImage imageNamed:@"ListViewTemplate"]];
         [item setActionBlock:^{[weakSelf appendIndexes:[weakSelf selectedIndexes] toList:i];}];
         [playlistMenu addItem:item];
     }
-    NSMenuItem *playlistMenuItem = [[[NSMenuItem alloc] init] autorelease];
+    NSMenuItem *playlistMenuItem = [[NSMenuItem alloc] init];
     [playlistMenuItem setTitle:@"Add to Playlist"];
     [playlistMenuItem setSubmenu:playlistMenu];
     [libraryMenu addItem:playlistMenuItem];
     [libraryMenu addItem:[NSMenuItem separatorItem]];
     
     // Misc
-    item = [[[NSMenuItem alloc] init] autorelease];
+    item = [[NSMenuItem alloc] init];
     [item setTitle:@"Reveal in Finder"];
     [item setActionBlock:^{[weakSelf revealIndexes:[weakSelf selectedIndexes]];}];
     [libraryMenu addItem:item];
@@ -1151,7 +1141,7 @@
     
     // Delete
     c[0] = NSDeleteCharacter;
-    item = [[[NSMenuItem alloc] init] autorelease];
+    item = [[NSMenuItem alloc] init];
     [item setTitle:@"Delete"];
     if (![[[db playlists] typeForList:_currentList] isEqual:PRListTypeLibrary]) {
         [item setTitle:@"Remove"];
@@ -1168,20 +1158,20 @@
 	}
     __weak PRTableViewController *weakSelf = self;
     
-    NSMenuItem *menuItem = [[[NSMenuItem alloc] init] autorelease];
+    NSMenuItem *menuItem = [[NSMenuItem alloc] init];
 	[menuItem setTitle:@"Browser"];
     [menuItem setSubmenu:[self browserHeaderMenu]];
 	[headerMenu addItem:menuItem];
     [headerMenu addItem:[NSMenuItem separatorItem]];
 	
 	// Columns	
-	NSSortDescriptor *sortDescriptor = [[[NSSortDescriptor alloc] initWithKey:@"headerCell.stringValue" ascending:TRUE] autorelease];
+	NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"headerCell.stringValue" ascending:TRUE];
 	NSArray *sortedTableColumns = [[libraryTableView tableColumns] sortedArrayUsingDescriptors:@[sortDescriptor]];
 	for (NSTableColumn *i in sortedTableColumns) {
         if ([[i identifier] isEqual:PRListSortIndex]) {
             continue;
         }
-		menuItem = [[[NSMenuItem alloc] init] autorelease];
+		menuItem = [[NSMenuItem alloc] init];
 		[menuItem setTitle:[[i headerCell] stringValue]];
 		if (![i isHidden]) {
 			[menuItem setState:NSOnState];
@@ -1369,7 +1359,7 @@
     // PRIndexesPboardType
     NSIndexSet *indexes = [NSIndexSet indexSet];
     if (tableView == libraryTableView && [[self sortAttr] isEqual:PRListSortIndex]) {
-        indexes = [[[NSIndexSet alloc] initWithIndexSet:[self dbRowIndexesForTableRowIndexes:rowIndexes]] autorelease];
+        indexes = [[NSIndexSet alloc] initWithIndexSet:[self dbRowIndexesForTableRowIndexes:rowIndexes]];
     }
     
     // Write to Pboard

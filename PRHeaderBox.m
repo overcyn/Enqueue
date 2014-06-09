@@ -16,7 +16,7 @@
     [NSGraphicsContext saveGraphicsState];
     NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:frame xRadius:4 yRadius:4];
     
-    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
+    NSShadow *shadow = [[NSShadow alloc] init];
     [shadow setShadowOffset:NSMakeSize(0.0, -1.0)];
     [shadow setShadowBlurRadius:1];
     [shadow setShadowColor:[NSColor colorWithCalibratedWhite:1.0 alpha:0.3]];	
@@ -28,13 +28,13 @@
     
     // fill
     NSColor *color = [NSColor colorWithDeviceRed:218./255. green:223./255. blue:230./255. alpha:1.0];
-    NSGradient *gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+    NSGradient *gradient = [[NSGradient alloc] initWithColorsAndLocations:
                              [color blendedColorWithFraction:0.5 ofColor:[NSColor whiteColor]], 0.0,
-                             [color blendedColorWithFraction:0.2 ofColor:[NSColor blackColor]], 1.0, nil] autorelease];
+                             [color blendedColorWithFraction:0.2 ofColor:[NSColor blackColor]], 1.0, nil];
     [gradient drawInBezierPath:path angle:-90.0];
     
     // border
-    shadow = [[[NSShadow alloc] init] autorelease];
+    shadow = [[NSShadow alloc] init];
     [shadow setShadowOffset:NSMakeSize(0.0, -1.0)];
     [shadow setShadowBlurRadius:1];
     [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.3]];	

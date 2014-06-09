@@ -39,7 +39,7 @@ typedef enum {
 /* Accessors */
 @property (readonly) NSView *headerView;
 @property (readonly) PRTableViewController *currentViewController;
-@property (retain) PRList *currentList;
+@property (strong) PRList *currentList;
 @property PRLibraryViewMode libraryViewMode;
 @property BOOL infoViewVisible;
 - (void)toggleInfoViewVisible;

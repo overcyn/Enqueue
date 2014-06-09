@@ -6,30 +6,6 @@
 
 #pragma mark - Initialization
 
-- (void)dealloc {
-    [_color release];
-    [_horizontalGradient release];
-    [_verticalGradient release];
-    [_topGradient release];
-    [_botGradient release];
-    [_leftGradient release];
-    [_rightGradient release];
-    
-    [_altColor release];
-    [_altHorizontalGradient release];
-    [_altVerticalGradient release];
-    [_altTopGradient release];
-    [_altBotGradient release];
-    [_altLeftGradient release];
-    [_altRightGradient release];
-    
-    [_topBorder release];
-    [_botBorder release];
-    [_leftBorder release];
-    [_rightBorder release];
-    
-    [super dealloc];
-}
 
 #pragma mark - Properties
 
@@ -106,11 +82,11 @@
         [tempHorizontalGradient drawInRect:bounds angle:0.0];
     }
     if (tempTopGradient && tempBotGradient) {
-        NSGradient *gradient_ = [[[NSGradient alloc] initWithStartingColor:tempTopGradient endingColor:tempBotGradient] autorelease];
+        NSGradient *gradient_ = [[NSGradient alloc] initWithStartingColor:tempTopGradient endingColor:tempBotGradient];
         [gradient_ drawInRect:bounds angle:-90.0];
     }
     if (tempLeftGradient && tempRightGradient) {
-        NSGradient *gradient_ = [[[NSGradient alloc] initWithStartingColor:tempLeftGradient endingColor:tempRightGradient] autorelease];
+        NSGradient *gradient_ = [[NSGradient alloc] initWithStartingColor:tempLeftGradient endingColor:tempRightGradient];
         [gradient_ drawInRect:bounds angle:0.0];
     }
     if (_botBorder2) {

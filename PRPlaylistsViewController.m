@@ -29,8 +29,6 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [stringFormatter release];
-    [super dealloc];
 }
 
 - (void)awakeFromNib {
@@ -77,12 +75,12 @@
 }
 
 - (void)newStaticPlaylist {
-    NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+    NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Save"];
     [alert addButtonWithTitle:@"Cancel"];
     [alert setMessageText:@"New Playlist Title:"];
     [alert setInformativeText:@""];
-    [alert setAccessoryView:[[[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 400, 0)] autorelease]];
+    [alert setAccessoryView:[[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 400, 0)]];
     [(NSTextField *)[alert accessoryView] setStringValue:@"Untitled Playlist"];
     [alert setAlertStyle:NSWarningAlertStyle];
     [alert layout];
@@ -105,12 +103,12 @@
 }
 
 - (void)newSmartPlaylist {
-	NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+	NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Save"];
     [alert addButtonWithTitle:@"Cancel"];
     [alert setMessageText:@"New Smart Playlist Title:"];
     [alert setInformativeText:@""];
-    [alert setAccessoryView:[[[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 400, 0)] autorelease]];
+    [alert setAccessoryView:[[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 400, 0)]];
     [(NSTextField *)[alert accessoryView] setStringValue:@"Untitled Playlist"];
     [alert setAlertStyle:NSWarningAlertStyle];
     [alert layout];
@@ -133,12 +131,12 @@
 }
 
 - (void)duplicatePlaylist:(PRPlaylist)playlist {
-    NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+    NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Save"];
     [alert addButtonWithTitle:@"Cancel"];
     [alert setMessageText:@"New playlist title:"];
     [alert setInformativeText:@""];
-    [alert setAccessoryView:[[[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 400, 0)] autorelease]];
+    [alert setAccessoryView:[[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 400, 0)]];
     NSString *title = @"";
     PRListType *type = [[db playlists] typeForList:[PRList numberWithInt:playlist]];
     if ([type isEqual:PRListTypeStatic]) {
@@ -171,7 +169,7 @@
 }
 
 - (void)deletePlaylist:(PRPlaylist)playlist {
-    NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+    NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Delete"];
     [alert addButtonWithTitle:@"Cancel"];
     [alert setMessageText:[NSString stringWithFormat:@"Delete playlist '%@'?", [[db playlists] valueForList:[NSNumber numberWithInt:playlist] attr:PRListAttrTitle]]];
@@ -222,8 +220,7 @@
 
 - (void)update {
     [newPlaylistButton setState:NSOffState];
-    [_datasource release];
-    _datasource = [[[db playlists] playlistsViewSource] retain];
+    _datasource = [[db playlists] playlistsViewSource];
     [tableView reloadData];
     int rows = [self numberOfRowsInTableView:tableView];
     if (rows < 5) {

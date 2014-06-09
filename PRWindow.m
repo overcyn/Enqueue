@@ -42,16 +42,16 @@
 	NSRect controlRect = NSMakeRect(0, windowRect.size.height - 30, windowRect.size.width, 30);
 	NSGradient *gradient;
     if ([[self window] isMainWindow]) {
-        gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+        gradient = [[NSGradient alloc] initWithColorsAndLocations:
 					 [NSColor colorWithCalibratedWhite:0.92 alpha:1.0], 0.0, 
 					 [NSColor colorWithCalibratedWhite:0.65 alpha:1.0], 1.0,
-					 nil] autorelease];
+					 nil];
     } else {
-        gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+        gradient = [[NSGradient alloc] initWithColorsAndLocations:
 					 [NSColor colorWithCalibratedWhite:0.99 alpha:1.0], 0.0, 
 					 [NSColor colorWithCalibratedWhite:0.96 alpha:1.0], 0.3, 
 					 [NSColor colorWithCalibratedWhite:0.83 alpha:1.0], 1.0,
-					 nil] autorelease];
+					 nil];
     }
 	[gradient drawInRect:controlRect angle:-90.0];
 	[[NSColor colorWithCalibratedWhite:1.0 alpha:0.6] set];

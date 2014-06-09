@@ -12,7 +12,7 @@
 #pragma mark - Initialization
 
 + (id)operationWithCore:(PRCore *)core {
-    return [[[PRFullRescanOperation alloc] initWithCore:core] autorelease];
+    return [[PRFullRescanOperation alloc] initWithCore:core];
 }
 
 - (id)initWithCore:(PRCore *)core {
@@ -25,39 +25,39 @@
 
 - (void)main {
     NSLog(@"begin fullrescan");
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    PRTask *task = [PRTask task];
-    [task setTitle:@"Rescanning Library..."];
-    [[_core taskManager] addTask:task];
-    
-    int count = [[[[[_core db] execute:@"SELECT count(file_id) FROM library" bindings:nil columns:@[PRColInteger]] objectAtIndex:0] objectAtIndex:0] intValue];
-    if (count == 0) {
-        count = 1;
-    }
-    
-    int offset = 0;
-    while (TRUE) {
-        [task setPercent:((float)offset*90)/count];
+    @autoreleasepool {
+        PRTask *task = [PRTask task];
+        [task setTitle:@"Rescanning Library..."];
+        [[_core taskManager] addTask:task];
         
-        __block NSArray *rlt;
-        [[NSOperationQueue mainQueue] addBlockAndWait:^{
-            rlt = [[_core db] execute:@"SELECT file_id, path FROM library ORDER BY file_id LIMIT 200 OFFSET ?1"
-                             bindings:@{@1:[NSNumber numberWithInt:offset]}
-                              columns:@[PRColInteger, PRColString]];
-        }];
-        if ([rlt count] == 0) {
-            break;
+        int count = [[[[[_core db] execute:@"SELECT count(file_id) FROM library" bindings:nil columns:@[PRColInteger]] objectAtIndex:0] objectAtIndex:0] intValue];
+        if (count == 0) {
+            count = 1;
         }
-        [self updateFiles:rlt];
-        offset += 200;
-        if ([task shouldCancel]) {
-            goto end;
+        
+        int offset = 0;
+        while (TRUE) {
+            [task setPercent:((float)offset*90)/count];
+            
+            __block NSArray *rlt;
+            [[NSOperationQueue mainQueue] addBlockAndWait:^{
+                rlt = [[_core db] execute:@"SELECT file_id, path FROM library ORDER BY file_id LIMIT 200 OFFSET ?1"
+                                 bindings:@{@1:[NSNumber numberWithInt:offset]}
+                                  columns:@[PRColInteger, PRColString]];
+            }];
+            if ([rlt count] == 0) {
+                break;
+            }
+            [self updateFiles:rlt];
+            offset += 200;
+            if ([task shouldCancel]) {
+                goto end;
+            }
         }
-    }
-    
+        
 end:;
-    [[_core taskManager] removeTask:task];
-    [pool drain];
+        [[_core taskManager] removeTask:task];
+    }
     NSLog(@"end fullrescan");
 }
 

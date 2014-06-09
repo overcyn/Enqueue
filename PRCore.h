@@ -4,7 +4,7 @@ PRMediaKeyController, PRHotKeyController;
 
 
 @interface PRCore : NSObject <NSApplicationDelegate> {
-    IBOutlet NSMenu *_mainMenu;
+    IBOutlet NSMenu *__weak _mainMenu;
     NSConnection *_connection;
     
 	PRDb *_db;
@@ -25,7 +25,7 @@ PRMediaKeyController, PRHotKeyController;
 @property (readonly) NSOperationQueue *opQueue;
 @property (readonly) PRFolderMonitor *folderMonitor;
 @property (readonly) PRTaskManager *taskManager;
-@property (readonly) NSMenu *mainMenu;
+@property (weak, readonly) NSMenu *mainMenu;
 @property (readonly) PRLastfm *lastfm;
 @property (readonly) PRMediaKeyController *keys;
 @property (readonly) PRHotKeyController *hotKeys;

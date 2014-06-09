@@ -42,7 +42,7 @@
     
     // drawBorder
     [NSGraphicsContext saveGraphicsState];
-    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
+    NSShadow *shadow = [[NSShadow alloc] init];
     [shadow setShadowOffset:NSMakeSize(0.0, -1.5)];
     [shadow setShadowBlurRadius:4];
     [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.9]];	

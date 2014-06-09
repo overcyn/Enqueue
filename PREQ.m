@@ -8,12 +8,12 @@
 - (id)init {
     if (!(self = [super init])) {return nil;}
     _title = @"";
-    _amplitudes = [@[@0, @0, @0, @0, @0, @0, @0, @0, @0, @0, @0] retain];
+    _amplitudes = @[@0, @0, @0, @0, @0, @0, @0, @0, @0, @0, @0];
     return self;
 }
 
 + (PREQ *)EQ {
-    return [[[PREQ alloc] init] autorelease];
+    return [[PREQ alloc] init];
 }
 
 + (PREQ *)EQWithEQ:(PREQ *)EQ_ {
@@ -23,11 +23,6 @@
     return EQ;
 }
 
-- (void)dealloc {
-    [_title release];
-    [_amplitudes release];
-    [super dealloc];
-}
 
 #pragma mark - Accessors
 
@@ -37,8 +32,7 @@ amplitudes = _amplitudes;
 - (void)setAmp:(float)amp forFreq:(PREQFreq)freq {
     NSMutableArray *a = [NSMutableArray arrayWithArray:_amplitudes];
     [a replaceObjectAtIndex:freq withObject:[NSNumber numberWithFloat:amp]];
-    [_amplitudes release];
-    _amplitudes = [[NSArray arrayWithArray:a] retain];
+    _amplitudes = [NSArray arrayWithArray:a];
 }
 
 - (float)ampForFreq:(PREQFreq)freq {
@@ -88,7 +82,7 @@ amplitudes = _amplitudes;
     if (!title || ![title isKindOfClass:[NSString class]]) {
         title = @"";
     }
-    _title = [title retain];
+    _title = title;
     
     id amplitudes = [coder decodeObjectForKey:@"amplitudes"];
     if (!amplitudes || ![amplitudes isKindOfClass:[NSArray class]] || [amplitudes count] != 11) {
@@ -99,7 +93,7 @@ amplitudes = _amplitudes;
             amplitudes = [[PREQ flat] amplitudes];
         }
     }
-    _amplitudes = [amplitudes retain];
+    _amplitudes = amplitudes;
     return self;
 }
 

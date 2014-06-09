@@ -147,31 +147,28 @@
     return self;
 }
 
-- (void)dealloc {
-    [super dealloc];
-}
 
 #pragma mark - Accessors
 
 - (NSMenu *)dockMenu {
-    NSMenu *menu = [[[NSMenu alloc] initWithTitle:@"dockmenu"] autorelease];
+    NSMenu *menu = [[NSMenu alloc] initWithTitle:@"dockmenu"];
     NSMenuItem *item;
     NSString *title;
     
     if ([[core now] currentItem]) {
         title = [[[core db] library] valueForItem:[[core now] currentItem] attr:PRItemAttrTitle];
         title = [NSString stringWithFormat:@"♫ %@",title];
-        item = [[[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""] autorelease];
+        item = [[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""];
         [item setEnabled:FALSE];
         [menu addItem:item];
         
         title = [[[core db] library] artistValueForItem:[[core now] currentItem]];
-        item = [[[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""] autorelease];
+        item = [[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""];
         [item setEnabled:FALSE];
         [menu addItem:item];
         
         title = [[[core db] library] valueForItem:[[core now] currentItem] attr:PRItemAttrAlbum];
-        item = [[[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""] autorelease];
+        item = [[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""];
         [item setEnabled:FALSE];
         [menu addItem:item];
         
@@ -179,26 +176,26 @@
     }
     
     title = [[[core now] mov] isPlaying] ? @"Pause" : @"Play";
-    item = [[[NSMenuItem alloc] initWithTitle:title action:@selector(playPause) keyEquivalent:@""] autorelease];
+    item = [[NSMenuItem alloc] initWithTitle:title action:@selector(playPause) keyEquivalent:@""];
     [item setTarget:[core now]];
     [menu addItem:item];
 
-    item = [[[NSMenuItem alloc] initWithTitle:@"Next" action:@selector(playNext) keyEquivalent:@""] autorelease];
+    item = [[NSMenuItem alloc] initWithTitle:@"Next" action:@selector(playNext) keyEquivalent:@""];
     [item setTarget:[core now]];
     [menu addItem:item];
     
-    item = [[[NSMenuItem alloc] initWithTitle:@"Previous" action:@selector(playPrevious) keyEquivalent:@""] autorelease];
+    item = [[NSMenuItem alloc] initWithTitle:@"Previous" action:@selector(playPrevious) keyEquivalent:@""];
     [item setTarget:[core now]];
     [menu addItem:item];
     
     [menu addItem:[NSMenuItem separatorItem]];
     
-    item = [[[NSMenuItem alloc] initWithTitle:@"Shuffle" action:@selector(toggleShuffle) keyEquivalent:@""] autorelease];
+    item = [[NSMenuItem alloc] initWithTitle:@"Shuffle" action:@selector(toggleShuffle) keyEquivalent:@""];
     [item setTarget:[core now]];
     [item setState:[[core now] shuffle]];
     [menu addItem:item];
     
-    item = [[[NSMenuItem alloc] initWithTitle:@"Repeat" action:@selector(toggleRepeat) keyEquivalent:@""] autorelease];
+    item = [[NSMenuItem alloc] initWithTitle:@"Repeat" action:@selector(toggleRepeat) keyEquivalent:@""];
     [item setTarget:[core now]];
     [item setState:[[core now] repeat]];
     [menu addItem:item];

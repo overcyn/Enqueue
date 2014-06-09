@@ -7,11 +7,11 @@
 #include <libkern/OSAtomic.h>
 #include <SFBAudioEngine/AudioPlayer.h>
 #include <SFBAudioEngine/AudioDecoder.h>
-#import <CoreAudio/CoreAudio.h>
 #import "CAAUParameter.h"
 #import "AUParamInfo.h"
 #import "PREQ.h"
 #import "NSObject+SPInvocationGrabbing.h"
+#import <CoreAudio/CoreAudio.h>
 #import <QuickTime/QuickTime.h>
 
 
@@ -75,17 +75,17 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
     
     [[NSNotificationCenter defaultCenter] observeEQChanged:self sel:@selector(EQDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(playingDidChange:)];
-    
-    AudioObjectPropertyAddress propertyAddress;
-    propertyAddress.mSelector = kAudioHardwarePropertyDefaultOutputDevice;
-    propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
-    propertyAddress.mElement = kAudioObjectPropertyElementMaster;
-    AudioObjectAddPropertyListener(kAudioObjectSystemObject, &propertyAddress, deviceListener, self);
-    
-    propertyAddress.mSelector = kAudioHardwarePropertyDevices;
-    propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
-    propertyAddress.mElement = kAudioObjectPropertyElementMaster;
-    AudioObjectAddPropertyListener(kAudioObjectSystemObject, &propertyAddress, deviceListener, self);
+    // KD:
+//    AudioObjectPropertyAddress propertyAddress;
+//    propertyAddress.mSelector = kAudioHardwarePropertyDefaultOutputDevice;
+//    propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
+//    propertyAddress.mElement = kAudioObjectPropertyElementMaster;
+//    AudioObjectAddPropertyListener(kAudioObjectSystemObject, &propertyAddress, deviceListener, self);
+//    
+//    propertyAddress.mSelector = kAudioHardwarePropertyDevices;
+//    propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
+//    propertyAddress.mElement = kAudioObjectPropertyElementMaster;
+//    AudioObjectAddPropertyListener(kAudioObjectSystemObject, &propertyAddress, deviceListener, self);
     
     [self updateEQ];
     [self updateHogOutput];
@@ -101,9 +101,6 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
     [_transitionTimer invalidate];
     
     delete PLAYER;
-    [_UIUpdateTimer release];
-    [_transitionTimer release];
-    [super dealloc];
 }
 
 #pragma mark - Accessors
@@ -192,12 +189,10 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
     PLAYER->Pause();
     PLAYER->Stop();
     PLAYER->ClearQueuedDecoders();
-    [_lastQueued release];
     _lastQueued = nil;
     
     // invalidate transition timer and reset volume
     [_transitionTimer invalidate];
-    [_transitionTimer release];
     _transitionTimer = nil;
     _transitionState = PRNeitherTransitionState;
     [self setVolume:[self volume]];
@@ -232,8 +227,7 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
         delete decoder;
         return FALSE;
     }
-    [_lastQueued release];
-    _lastQueued = [file retain];
+    _lastQueued = file;
     return TRUE;
 }
 
@@ -245,7 +239,6 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
         queued = [(__bridge NSURL *)PLAYER->GetPlayingURL() absoluteString];
     }
     if ([queued isEqualToString:file]) {
-        [_lastQueued release];
         _lastQueued = nil;
         return TRUE;
     }
@@ -298,12 +291,11 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
                 _transitionState = PRNeitherTransitionState;
             } else {
                 [_transitionTimer invalidate];
-                [_transitionTimer release];
-                _transitionTimer = [[NSTimer timerWithTimeInterval:TRANSITION_TIME_STEP
+                _transitionTimer = [NSTimer timerWithTimeInterval:TRANSITION_TIME_STEP
                                                             target:self
                                                           selector:@selector(transitionCallback:)
                                                           userInfo:nil
-                                                           repeats:FALSE] retain];
+                                                           repeats:FALSE];
                 [[NSRunLoop currentRunLoop] addTimer:_transitionTimer forMode:NSRunLoopCommonModes];
             }
             PLAYER->SetVolume(_transitionVolume * [self volume]);
@@ -317,12 +309,11 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
                 [[NSNotificationCenter defaultCenter] postPlayingChanged];
             } else {
                 [_transitionTimer invalidate];
-                [_transitionTimer release];
-                _transitionTimer = [[NSTimer timerWithTimeInterval:TRANSITION_TIME_STEP
+                _transitionTimer = [NSTimer timerWithTimeInterval:TRANSITION_TIME_STEP
                                                             target:self
                                                           selector:@selector(transitionCallback:)
                                                           userInfo:nil
-                                                           repeats:FALSE] retain];
+                                                           repeats:FALSE];
                 [[NSRunLoop currentRunLoop] addTimer:_transitionTimer forMode:NSRunLoopCommonModes];
             }
             PLAYER->SetVolume(_transitionVolume * [self volume]);

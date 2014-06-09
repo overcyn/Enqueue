@@ -17,7 +17,7 @@
             if (i == j) {
                 continue;
             }
-            if ([[[[NSFileManager alloc] init] autorelease] itemAtURL:[URLs objectAtIndex:j] containsItemAtURL:[URLs objectAtIndex:i]]) {
+            if ([[[NSFileManager alloc] init] itemAtURL:[URLs objectAtIndex:j] containsItemAtURL:[URLs objectAtIndex:i]]) {
                 isTop = FALSE;
                 break;
             }
@@ -28,7 +28,7 @@
     }
     
     _subDirs = [[NSMutableArray alloc] init];
-    _URLEnumerator = [[topDirs objectEnumerator] retain];
+    _URLEnumerator = [topDirs objectEnumerator];
     _dirEnumerator = nil;
     _fileManager = [[NSFileManager alloc] init];
     
@@ -48,16 +48,9 @@
 }
 
 + (PRDirectoryEnumerator *)enumeratorWithURLs:(NSArray *)URLs {
-    return [[[PRDirectoryEnumerator alloc] initWithURLs:URLs] autorelease];
+    return [[PRDirectoryEnumerator alloc] initWithURLs:URLs];
 }
 
-- (void)dealloc {
-    [_subDirs release];
-    [_URLEnumerator release];
-    [_dirEnumerator release];
-    [_fileManager release];
-    [super dealloc];
-}
 
 #pragma mark - Action
 
@@ -89,7 +82,6 @@
             } 
         }
     }
-    [_dirEnumerator release];
     _dirEnumerator = nil;
     
     // if no directory enumerator, or ran out of items.
@@ -101,14 +93,14 @@
             continue;
         }
         if (dir) {
-            _dirEnumerator = [[_fileManager enumeratorAtURL:URL 
+            _dirEnumerator = [_fileManager enumeratorAtURL:URL 
                                  includingPropertiesForKeys:[NSArray arrayWithObjects:
                                                              NSURLIsRegularFileKey,
                                                              NSURLFileAllocatedSizeKey,
                                                              NSURLContentModificationDateKey, 
                                                              NSURLVolumeURLKey, nil] 
                                                     options:0 
-                                               errorHandler:nil] retain];
+                                               errorHandler:nil];
             return [self nextObject];
         } else {
             NSURL *volume = nil;

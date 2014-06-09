@@ -42,9 +42,9 @@
 /* Accessors */
 @property (readonly) NSArray *invalidItems;
 @property (readonly) PRMoviePlayer *mov;
-@property (readonly) PRList *currentList;
-@property (readonly) PRListItem *currentListItem;
-@property (readonly) PRItem *currentItem;
+@property (weak, readonly) PRList *currentList;
+@property (weak, readonly) PRListItem *currentListItem;
+@property (weak, readonly) PRItem *currentItem;
 @property (readonly) int currentIndex;
 
 @property (readwrite) BOOL shuffle;

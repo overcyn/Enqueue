@@ -76,10 +76,10 @@ extern NSString * const PRDefaultsEQEnabled;                    // bool
 - (NSRect)rectForKey:(NSString *)key;
 - (void)setRect:(NSRect)value forKey:(NSString *)key;
 
-@property (readonly) NSString *applicationSupportPath;
-@property (readonly) NSString *libraryPath;
-@property (readonly) NSString *backupPath;
-@property (readonly) NSString *cachedAlbumArtPath;
-@property (readonly) NSString *downloadedAlbumArtPath;
-@property (readonly) NSString *tempArtPath;
+@property (weak, readonly) NSString *applicationSupportPath;
+@property (weak, readonly) NSString *libraryPath;
+@property (weak, readonly) NSString *backupPath;
+@property (weak, readonly) NSString *cachedAlbumArtPath;
+@property (weak, readonly) NSString *downloadedAlbumArtPath;
+@property (weak, readonly) NSString *tempArtPath;
 @end

@@ -77,12 +77,12 @@
     int days = [[[self class] date] timeIntervalSinceNow] / (60 * 60 * 24);
     NSString *daysString = [NSString stringWithFormat:@"%d",days];
     
-    NSMutableAttributedString *string = [[[NSMutableAttributedString alloc] init] autorelease];
-    [string appendAttributedString:[[[NSAttributedString alloc] initWithString:@"30 Day Trial" attributes:boldAttr] autorelease]];
-    [string appendAttributedString:[[[NSAttributedString alloc] initWithString:@"\n\n" attributes:shortAttr] autorelease]];
-    [string appendAttributedString:[[[NSAttributedString alloc] initWithString:@"Enqueue is now available for purchase in the Mac App Store. \n\nThis release will stop working in " attributes:regularAttr] autorelease]];
-    [string appendAttributedString:[[[NSAttributedString alloc] initWithString:daysString attributes:boldRedAttr] autorelease]];
-    [string appendAttributedString:[[[NSAttributedString alloc] initWithString:@" days." attributes:regularAttr] autorelease]];
+    NSMutableAttributedString *string = [[NSMutableAttributedString alloc] init];
+    [string appendAttributedString:[[NSAttributedString alloc] initWithString:@"30 Day Trial" attributes:boldAttr]];
+    [string appendAttributedString:[[NSAttributedString alloc] initWithString:@"\n\n" attributes:shortAttr]];
+    [string appendAttributedString:[[NSAttributedString alloc] initWithString:@"Enqueue is now available for purchase in the Mac App Store. \n\nThis release will stop working in " attributes:regularAttr]];
+    [string appendAttributedString:[[NSAttributedString alloc] initWithString:daysString attributes:boldRedAttr]];
+    [string appendAttributedString:[[NSAttributedString alloc] initWithString:@" days." attributes:regularAttr]];
     [_label setAttributedStringValue:string];
 }
 

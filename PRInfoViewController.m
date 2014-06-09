@@ -79,15 +79,6 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [_numberFormatter release];
-    [_stringFormatter release];
-    [_pathFormatter release];
-    [_kindFormatter release];
-	[_sizeFormatter release];
-	[_dateFormatter release];
-	[_timeFormatter release];
-	[_bitrateFormatter release];
-    [super dealloc];
 }
 
 - (void)awakeFromNib {
@@ -190,8 +181,7 @@
 #pragma mark - Update
 
 - (void)update {
-    [_selection release];
-	_selection = [[[[[_core win] libraryViewController] currentViewController] selection] retain];
+	_selection = [[[[_core win] libraryViewController] currentViewController] selection];
     
     [ratingControl setHidden:([_selection count] == 0)];
     
@@ -288,7 +278,7 @@
 		[PRTagger updateTagsForItem:i database:_db];
     }
 	// postItemsChanged clears _selection so we save prior selection so we can highlight
-	NSArray *selection = [[_selection retain] autorelease];
+	NSArray *selection = _selection;
     [[NSNotificationCenter defaultCenter] postItemsChanged:_selection];
 	[[[[_core win] libraryViewController] currentViewController] highlightFiles:selection];
 }

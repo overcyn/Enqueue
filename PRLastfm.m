@@ -58,7 +58,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
         EMGenericKeychainItem *keychain = [EMGenericKeychainItem genericKeychainItemForService:@"Last.fm (com.enqueue.enqueue)" withUsername:[self username]];
         if (keychain && [keychain password]) {
             connected = TRUE;
-            _cachedSessionKey = [[keychain password] retain];
+            _cachedSessionKey = [keychain password];
         }
     }
     if (connected) {
@@ -71,11 +71,6 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     return self;
 }
 
-- (void)dealloc {
-    [_cachedSessionKey release];
-    [_file release];
-    [super dealloc];
-}
 
 #pragma mark - Accessors
 
@@ -103,8 +98,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 }
 
 - (void)setSessionKey:(NSString *)sessionKey {
-    [_cachedSessionKey release];
-    _cachedSessionKey = [sessionKey retain];
+    _cachedSessionKey = sessionKey;
     if ([[self username] length] == 0) {
         return;
     }
@@ -130,7 +124,6 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     if (_file) {
         [self scrobble:_file];
     }
-    [_file release];
     _file = nil;
     if ([[_core now] currentItem]) {
         _file = [[PRLastfmFile alloc] initWithItem:[[_core now] currentItem]];
@@ -162,8 +155,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
                              @"sk":[self sessionKey]}];
 	
 	// Send request
-    [_currentRequest release];
-    _currentRequest = [request retain];
+    _currentRequest = request;
     [NSURLConnection send:request onCompletion:nil];
 }
 
@@ -191,8 +183,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
                              @"sk":[self sessionKey],}];
 	
 	// Send request
-    [_currentRequest release];
-    _currentRequest = [request retain];
+    _currentRequest = request;
     [NSURLConnection send:request onCompletion:^(NSURLResponse *response, NSData *data, NSError *error) {
         [self fileScrobbled:data];
     }];
@@ -202,14 +193,14 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     if (!data) {
         return;
     }
-    NSXMLDocument *XMLDocument = [[[NSXMLDocument alloc] initWithData:data options:0 error:nil] autorelease];
+    NSXMLDocument *XMLDocument = [[NSXMLDocument alloc] initWithData:data options:0 error:nil];
     NSXMLElement *root = [XMLDocument rootElement];
     if (![[[root attributeForName:@"status"] stringValue] isEqualToString:@"ok"]) {
         NSArray *errors = [root elementsForName:@"error"];
         if ([errors count] > 0 && [[[[errors objectAtIndex:0] attributeForName:@"code"] stringValue] isEqualToString:@"9"]) {
             NSLog(@"Last.fm Disconnected");
             [self disconnect];
-            NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+            NSAlert *alert = [[NSAlert alloc] init];
             [alert addButtonWithTitle:@"OK"];
             [alert setMessageText:@"You have been disconnected from Last.fm"];
             [alert setInformativeText:@"If this warning persists please contact support."];
@@ -231,8 +222,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
                              @"api_key":PRLastfmAPIKey}];
     
     // Send Request
-    [_currentRequest release];
-    _currentRequest = [request retain];
+    _currentRequest = request;
     [NSURLConnection send:request onCompletion:^(NSURLResponse *response, NSData *data, NSError *error) {
         [self tokenGotten:data request:request];
     }];
@@ -247,7 +237,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
         return;
     }
     // Get token
-    NSXMLDocument *XMLDocument = [[[NSXMLDocument alloc] initWithData:data options:0 error:nil] autorelease];
+    NSXMLDocument *XMLDocument = [[NSXMLDocument alloc] initWithData:data options:0 error:nil];
     if (![[[[XMLDocument rootElement] attributeForName:@"status"] stringValue] isEqualToString:@"ok"]) {
         [self disconnect];
         return;
@@ -293,7 +283,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
         [self disconnect];
         return;
     }
-    NSXMLDocument *XMLDocument = [[[NSXMLDocument alloc] initWithData:data options:0 error:nil] autorelease];
+    NSXMLDocument *XMLDocument = [[NSXMLDocument alloc] initWithData:data options:0 error:nil];
     if (![[[[XMLDocument rootElement] attributeForName:@"status"] stringValue] isEqualToString:@"ok"]) {
         return;
     }
@@ -302,14 +292,12 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     [self setUsername:username];
     [self setSessionKey:key];
     [self setLastfmState:PRLastfmConnectedState];
-    [_currentRequest release];
     _currentRequest = nil;
 }
 
 - (void)disconnect {
     [self setUsername:@""];
     [self setSessionKey:@""];
-    [_currentRequest release];
     _currentRequest = nil;
     [self setLastfmState:PRLastfmDisconnectedState];
 }

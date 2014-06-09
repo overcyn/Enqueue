@@ -14,18 +14,18 @@
 
 - (void)main {
     NSLog(@"begin vacuum");
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    _task = [PRTask task];
-    [_task setTitle:@"Analyzing Library..."];
-    [[_core taskManager] addTask:_task];
-    
-    [[NSOperationQueue mainQueue] addBlockAndWait:^{
-        [[_core db] execute:@"VACUUM"];
-        [[_core db] execute:@"ANALYZE"];
-    }];
-    
-    [[_core taskManager] removeTask:_task];
-    [pool drain];
+    @autoreleasepool {
+        _task = [PRTask task];
+        [_task setTitle:@"Analyzing Library..."];
+        [[_core taskManager] addTask:_task];
+        
+        [[NSOperationQueue mainQueue] addBlockAndWait:^{
+            [[_core db] execute:@"VACUUM"];
+            [[_core db] execute:@"ANALYZE"];
+        }];
+        
+        [[_core taskManager] removeTask:_task];
+    }
     NSLog(@"end vacuum");
 }
 

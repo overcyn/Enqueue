@@ -21,23 +21,19 @@
 #pragma mark - Initialization
 
 + (id)operationWithURLs:(NSArray *)URLs core:(PRCore *)core {
-    return [[[PRRescanOperation alloc] initWithURLs:URLs core:core] autorelease];
+    return [[PRRescanOperation alloc] initWithURLs:URLs core:core];
 }
 
 - (id)initWithURLs:(NSArray *)URLs core:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
     _core = core;
     _db = [_core db];
-    _URLs = [URLs retain];
+    _URLs = URLs;
     _eventId = 0;
     _monitor = FALSE;
 	return self;
 }
 
-- (void)dealloc {
-    [_URLs release];
-    [super dealloc];
-}
 
 #pragma mark - Accessors
 
@@ -105,35 +101,35 @@
 
 // Array of dictionaries containing NSURL, size, lastmodified, caseSensitive
 - (void)filterURLs:(NSArray *)URLs {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    NSMutableArray *toUpdate = [NSMutableArray array];
-    NSMutableArray *toAdd = [NSMutableArray array];
-    [[NSOperationQueue mainQueue] addBlockAndWait:^{
-        for (NSDictionary *i in URLs) {
-            NSURL *URL = [i objectForKey:@"URL"];
-            // Find similar (case insensitive compare) files to current URL and merge them.
-            [self mergeSimilar:URL];
-            // Find existing files. Add if none. Update if Size or LastModified changed.
-            NSArray *array = [[_db library] itemsWithValue:[URL absoluteString] forAttr:PRItemAttrPath];
-            if ([array count] == 0) {
-                [toAdd addObject:URL];
-            } else {
-                PRItem *item = [array objectAtIndex:0];
-                NSNumber *size = [i objectForKey:@"size"];
-                NSString *last = [[i objectForKey:@"lastModified"] description];
-                NSNumber *size2 = [[_db library] valueForItem:item attr:PRItemAttrSize];
-                NSString *last2 = [[_db library] valueForItem:item attr:PRItemAttrLastModified];
-                if ([size isEqualToNumber:size2] && [last isEqualToString:last2]) {
-                    [self setFileExists:item];
+    @autoreleasepool {
+        NSMutableArray *toUpdate = [NSMutableArray array];
+        NSMutableArray *toAdd = [NSMutableArray array];
+        [[NSOperationQueue mainQueue] addBlockAndWait:^{
+            for (NSDictionary *i in URLs) {
+                NSURL *URL = [i objectForKey:@"URL"];
+                // Find similar (case insensitive compare) files to current URL and merge them.
+                [self mergeSimilar:URL];
+                // Find existing files. Add if none. Update if Size or LastModified changed.
+                NSArray *array = [[_db library] itemsWithValue:[URL absoluteString] forAttr:PRItemAttrPath];
+                if ([array count] == 0) {
+                    [toAdd addObject:URL];
                 } else {
-                    [toUpdate addObject:[NSDictionary dictionaryWithObjectsAndKeys:item, @"file", URL, @"URL", nil]];
+                    PRItem *item = [array objectAtIndex:0];
+                    NSNumber *size = [i objectForKey:@"size"];
+                    NSString *last = [[i objectForKey:@"lastModified"] description];
+                    NSNumber *size2 = [[_db library] valueForItem:item attr:PRItemAttrSize];
+                    NSString *last2 = [[_db library] valueForItem:item attr:PRItemAttrLastModified];
+                    if ([size isEqualToNumber:size2] && [last isEqualToString:last2]) {
+                        [self setFileExists:item];
+                    } else {
+                        [toUpdate addObject:[NSDictionary dictionaryWithObjectsAndKeys:item, @"file", URL, @"URL", nil]];
+                    }
                 }
             }
-        }
-    }];
-    [self addURLs:toAdd];
-    [self updateFiles:toUpdate];
-    [pool drain];
+        }];
+        [self addURLs:toAdd];
+        [self updateFiles:toUpdate];
+    }
 }
 
 - (void)mergeSimilar:(NSURL *)URL {

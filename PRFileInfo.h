@@ -9,10 +9,10 @@
     int _trackid; // used by iTunesImport
 }
 
-@property (readwrite, retain) NSMutableDictionary *attributes;
-@property (readwrite, retain) NSImage *art;
+@property (readwrite, strong) NSMutableDictionary *attributes;
+@property (readwrite, strong) NSImage *art;
 @property (readwrite) int tempArt;
-@property (readwrite, retain) PRItem *item;
+@property (readwrite, strong) PRItem *item;
 @property (readwrite) int trackid;
 
 - (id)init;

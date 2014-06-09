@@ -37,10 +37,10 @@ NSString * const compilationString = @"Compilations  ";
     _db = db;
     _compilation = TRUE;
     _prevSourceString = @"";
-    _prevSourceBindings = [@{} retain];
-    _prevBrowser1Bindings = [@{} retain];
-    _prevBrowser2Bindings = [@{} retain];
-    _prevBrowser3Bindings = [@{} retain];
+    _prevSourceBindings = @{};
+    _prevBrowser1Bindings = @{};
+    _prevBrowser2Bindings = @{};
+    _prevBrowser3Bindings = @{};
     _cachedLibraryStatement = @"";
     _cachedBrowser1Statement = @"";
     _cachedBrowser2Statement = @"";
@@ -92,33 +92,12 @@ NSString * const compilationString = @"Compilations  ";
     return TRUE;
 }
 
-- (void)dealloc {
-    [_list release];
-    [_prevSourceString release];
-    [_prevSourceBindings release];
-    [_prevBrowser1Statement release];
-    [_prevBrowser1Bindings release];
-    [_prevBrowser2Statement release];
-    [_prevBrowser2Bindings release];
-    [_prevBrowser3Statement release];
-    [_prevBrowser3Bindings release];
-    [_cachedLibraryStatement release];
-    [_cachedBrowser1Statement release];
-    [_cachedBrowser2Statement release];
-    [_cachedBrowser3Statement release];
-    [_cachedAttrs release];
-    [_cachedAttrValues release];
-    [_cachedStatement release];
-    [super dealloc];
-}
 
 #pragma mark - Update
 
 - (int)refreshWithList:(PRList *)list force:(BOOL)force {
-    [_cachedAttrValues release];
     _cachedAttrValues = nil;
-    [_list release];
-    _list = [list retain];
+    _list = list;
     _force = force;
     
     int tables = 0;
@@ -151,8 +130,7 @@ NSString * const compilationString = @"Compilations  ";
     if (![string isEqualToString:_cachedLibraryStatement] || _force) {
         [_db execute:@"DELETE FROM libraryCache"];
         [_db execute:string];
-        [_cachedLibraryStatement release];
-        _cachedLibraryStatement = [string retain];
+        _cachedLibraryStatement = string;
     }
     
     // Cache browser 1
@@ -166,8 +144,7 @@ NSString * const compilationString = @"Compilations  ";
     if ([grouping length] > 0 && (![stm isEqualToString:_cachedBrowser1Statement] || _force)) {
         [_db execute:@"DELETE FROM browser1Cache"];
         [_db execute:stm];
-        [_cachedBrowser1Statement release];
-        _cachedBrowser1Statement = [stm retain];
+        _cachedBrowser1Statement = stm;
     }
     
     // Cache browser 2
@@ -181,8 +158,7 @@ NSString * const compilationString = @"Compilations  ";
     if ([grouping length] > 0 && (![stm isEqualToString:_cachedBrowser2Statement] || _force)) {
         [_db execute:@"DELETE FROM browser2Cache"];
         [_db execute:stm];
-        [_cachedBrowser2Statement release];
-        _cachedBrowser2Statement = [stm retain];
+        _cachedBrowser2Statement = stm;
     }
     
     // Cache browser 3
@@ -196,8 +172,7 @@ NSString * const compilationString = @"Compilations  ";
     if ([grouping length] > 0 && (![stm isEqualToString:_cachedBrowser3Statement] || _force)) {
         [_db execute:@"DELETE FROM browser3Cache"];
         [_db execute:stm];
-        [_cachedBrowser3Statement release];
-        _cachedBrowser3Statement = [stm retain];
+        _cachedBrowser3Statement = stm;
     }
     
     // Cache Compilation
@@ -284,10 +259,8 @@ NSString * const compilationString = @"Compilations  ";
     if (!_force && [string isEqualToString:_prevSourceString] && [bindings isEqualToDictionary:_prevSourceBindings]) {
         return FALSE;
     }
-    [_prevSourceString release];
-    [_prevSourceBindings release];
-    _prevSourceString = [string retain];
-    _prevSourceBindings = [bindings retain];
+    _prevSourceString = string;
+    _prevSourceBindings = bindings;
 
     // Repopulate libraryViewSource
     [_db execute:@"DELETE FROM libraryViewSource"];
@@ -326,10 +299,8 @@ NSString * const compilationString = @"Compilations  ";
     // Do nothing if no grouping
     NSString *grouping = [self groupingStringForList:_list browser:browser];
 	if ([grouping length] == 0) {
-        [*prevBrowserStatement release];
-        [*prevBrowserBindings release];
-        *prevBrowserStatement = [@"" retain];
-        *prevBrowserBindings = [@{} retain];
+        *prevBrowserStatement = @"";
+        *prevBrowserBindings = @{};
 		return TRUE;
 	}
     
@@ -418,10 +389,8 @@ NSString * const compilationString = @"Compilations  ";
         [bindings isEqualToDictionary:*prevBrowserBindings]) {
         return FALSE;
     }
-    [*prevBrowserStatement release];
-    [*prevBrowserBindings release];
-    *prevBrowserStatement = [statement retain];
-    *prevBrowserBindings = [bindings retain];
+    *prevBrowserStatement = statement;
+    *prevBrowserBindings = bindings;
     
 	// Execute
     if (useCache && [_list isEqual:[[_db playlists] libraryList]]) {
@@ -468,7 +437,7 @@ NSString * const compilationString = @"Compilations  ";
 }
 
 - (NSString *)searchStringForList:(PRList *)list {
-    NSMutableString *string = [[[NSMutableString alloc] init] autorelease];
+    NSMutableString *string = [[NSMutableString alloc] init];
     // Library view mode
 	int libraryViewMode = [[_db playlists] viewModeForList:_list];
     PRListSort *sort;
@@ -557,8 +526,7 @@ NSString * const compilationString = @"Compilations  ";
         if (![temp containsObject:attr]) {
             temp = [temp arrayByAddingObject:attr];
         }
-        [_cachedAttrs release];
-        _cachedAttrs = [temp retain];
+        _cachedAttrs = temp;
         NSMutableString *string = [NSMutableString stringWithString:@"SELECT "];
         NSMutableArray *columns = [NSMutableArray array];
         for (PRItemAttr *i in _cachedAttrs) {
@@ -567,14 +535,12 @@ NSString * const compilationString = @"Compilations  ";
         }
         [string deleteCharactersInRange:NSMakeRange([string length] - 2, 2)];
         [string appendString:@" FROM libraryViewSource JOIN library ON libraryViewSource.file_id = library.file_id WHERE row = ?1"];
-        [_cachedStatement release];
         _cachedStatement = [[PRStatement alloc] initWithString:string bindings:nil columns:columns db:_db];
     }
     [_cachedStatement setBindings:@{@1:[NSNumber numberWithInt:row]}];
     NSArray *result = [[_cachedStatement execute] objectAtIndex:0];
     _cachedRow = row;
-    [_cachedAttrValues release];
-    _cachedAttrValues = [result retain];
+    _cachedAttrValues = result;
     return [result objectAtIndex:[_cachedAttrs indexOfObject:attr]];
 }
 

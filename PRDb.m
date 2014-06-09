@@ -54,7 +54,7 @@ NSString * const PRColData = @"PRColData";
     _cachedStatements = [[NSMutableDictionary alloc] init];
     transaction = 0;
 
-    BOOL e = ([[[[NSFileManager alloc] init] autorelease] fileExistsAtPath:[[PRDefaults sharedDefaults] libraryPath] isDirectory:nil] &&
+    BOOL e = ([[[NSFileManager alloc] init] fileExistsAtPath:[[PRDefaults sharedDefaults] libraryPath] isDirectory:nil] &&
               [self open] && [self update] && [self initialize]);
     if (!e) {
         NSLog(@"create");
@@ -76,16 +76,6 @@ NSString * const PRColData = @"PRColData";
     return self;
 }
 
-- (void)dealloc {
-    [history release];
-    [library release];
-    [playlists release];
-    [libraryViewSource release];
-    [nowPlayingViewSource release];
-    [albumArtController release];
-    [playbackOrder release];
-    [super dealloc];
-}
 
 #pragma mark - Initialization Priv
 
@@ -221,7 +211,7 @@ NSString * const PRColData = @"PRColData";
 }
 
 - (BOOL)move:(NSError **)err {
-    NSFileManager *fileManager = [[[NSFileManager alloc] init] autorelease];
+    NSFileManager *fileManager = [[NSFileManager alloc] init];
     BOOL libraryExists = [fileManager fileExistsAtPath:[[PRDefaults sharedDefaults] libraryPath]];
     BOOL artExists = [fileManager fileExistsAtPath:[[PRDefaults sharedDefaults] cachedAlbumArtPath]];
     if (!libraryExists && !artExists && err) {
@@ -318,7 +308,6 @@ NSString * const PRColData = @"PRColData";
 - (NSArray *)execute:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns {
     PRStatement *stmt = [[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:self];
     id rlt = [stmt execute];
-    [stmt release];
     return rlt;
 }
 
@@ -342,7 +331,6 @@ NSString * const PRColData = @"PRColData";
 - (NSArray *)attempt:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns {
     PRStatement *stmt = [[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:self];
     id rlt = [stmt attempt];
-    [stmt release];
     return rlt;
 }
 

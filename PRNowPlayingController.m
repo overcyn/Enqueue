@@ -51,10 +51,6 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [_currentListItem release];
-    [_invalidItems release];
-    [_mov release];
-    [super dealloc];
 }
 
 #pragma mark - Accessors
@@ -121,7 +117,6 @@
 
 - (void)stop {
 	[_mov stop];
-    [_currentListItem release];
     _currentListItem = nil;
     [[NSNotificationCenter defaultCenter] postPlayingFileChanged];
 	[self clearHistory];
@@ -174,8 +169,7 @@
         return;
     }
     PRItem *item = [[_db playlists] itemForListItem:listItem];
-    [_currentListItem release];
-    _currentListItem = [listItem retain];
+    _currentListItem = listItem;
     
     // update tags
     BOOL updated = [PRTagger updateTagsForItem:item database:_db];

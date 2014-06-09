@@ -20,7 +20,7 @@
     }
     
     [NSGraphicsContext saveGraphicsState];
-    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
+    NSShadow *shadow = [[NSShadow alloc] init];
     [shadow setShadowColor:[NSColor redColor]];
     [shadow setShadowBlurRadius:0.0];
     [shadow setShadowOffset:NSMakeSize(0.0, 3.0)];
@@ -29,17 +29,17 @@
     // Draw background
     NSGradient *gradient;
     if ([self isHighlighted]) {
-        gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+        gradient = [[NSGradient alloc] initWithColorsAndLocations:
                      [NSColor colorWithCalibratedWhite:0.94 alpha:1.0],0.0,
                      [NSColor colorWithCalibratedWhite:0.89 alpha:1.0],0.4,
                      [NSColor colorWithCalibratedWhite:0.85 alpha:1.0],1.0, 
-                     nil] autorelease];
+                     nil];
     } else {
-        gradient = [[[NSGradient alloc] initWithColorsAndLocations:
+        gradient = [[NSGradient alloc] initWithColorsAndLocations:
                      [NSColor colorWithCalibratedWhite:0.99 alpha:1.0],0.0,
                      [NSColor colorWithCalibratedWhite:0.99 alpha:1.0],0.2,
                      [NSColor colorWithCalibratedWhite:0.92 alpha:1.0], 0.8, 
-                     nil] autorelease];
+                     nil];
     }
     [gradient drawInBezierPath:path angle:90.0];
     [NSGraphicsContext restoreGraphicsState];
@@ -55,7 +55,7 @@
 - (void)drawInteriorWithFrame:(NSRect)frame inView:(NSView *)view {
     frame.origin.y -= 2;
     NSAttributedString *attrTitle;
-    NSShadow *shadow = [[[NSShadow alloc] init] autorelease];
+    NSShadow *shadow = [[NSShadow alloc] init];
     [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.9]];
     [shadow setShadowOffset:NSMakeSize(0.0, -1.0)];
     NSDictionary *attr = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -63,7 +63,7 @@
                           [NSColor colorWithCalibratedWhite:0.15 alpha:1.0], NSForegroundColorAttributeName,
                           [NSParagraphStyle centerAlignStyle], NSParagraphStyleAttributeName,
                           shadow, NSShadowAttributeName, nil];
-    attrTitle = [[[NSAttributedString alloc] initWithString:[self title] attributes:attr] autorelease];
+    attrTitle = [[NSAttributedString alloc] initWithString:[self title] attributes:attr];
     [self setAttributedTitle:attrTitle];
     [super drawInteriorWithFrame:frame inView:view];
 }

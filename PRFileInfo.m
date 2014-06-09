@@ -22,7 +22,7 @@
 }
 
 + (PRFileInfo *)fileInfo {
-    return [[[PRFileInfo alloc] init] autorelease];
+    return [[PRFileInfo alloc] init];
 }
 
 @end
