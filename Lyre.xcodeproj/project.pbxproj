@@ -1926,6 +1926,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CODE_SIGN_IDENTITY = "";
 				COPY_PHASE_STRIP = NO;
@@ -1953,7 +1954,7 @@
 					"\"$(SRCROOT)\"",
 					"\"$(SRCROOT)/Frameworks\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-DSQLITE_ENABLE_FTS3",
@@ -1971,6 +1972,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CODE_SIGN_IDENTITY = "";
 				COPY_PHASE_STRIP = YES;
@@ -1997,7 +1999,7 @@
 					"\"$(SRCROOT)\"",
 					"\"$(SRCROOT)/Frameworks\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-DSQLITE_ENABLE_FTS3",
