@@ -559,7 +559,7 @@ BOOL no_case_begins(void *udp, int lenA, const void *strA, int lenB, const void 
         CFStringAppendCharacters(stringA, uniCharA, lenA/2);
         CFStringAppendCharacters(stringB, uniCharB, lenB/2);
         if (CFStringGetLength(stringB) <= CFStringGetLength(stringA)) {
-            if ([(NSString *)stringA compare:(NSString *)stringB options:kCFCompareCaseInsensitive range:NSMakeRange(0, CFStringGetLength(stringB))] == 0) {
+            if ([(__bridge NSString *)stringA compare:(__bridge NSString *)stringB options:kCFCompareCaseInsensitive range:NSMakeRange(0, CFStringGetLength(stringB))] == 0) {
                 return TRUE;
             }
         }
@@ -572,7 +572,7 @@ BOOL no_case_begins(void *udp, int lenA, const void *strA, int lenB, const void 
     if (CFStringGetLength(stringB) > CFStringGetLength(stringA)) {
         return FALSE;
     }
-    return [(NSString *)stringA compare:(NSString *)stringB options:kCFCompareCaseInsensitive range:NSMakeRange(0, [(NSString *)stringB length])] == 0;
+    return [(__bridge NSString *)stringA compare:(__bridge NSString *)stringB options:kCFCompareCaseInsensitive range:NSMakeRange(0, [(__bridge NSString *)stringB length])] == 0;
 }
 
 CFRange PRFormatString(UniChar *string, int length) 

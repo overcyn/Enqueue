@@ -21,7 +21,6 @@
 #import "NSArray+Extensions.h"
 #import "NSIndexSet+Extensions.h"
 #import "NSNotificationCenter+Extensions.h"
-#import "MAZeroingWeakRef.h"
 
 
 #define CONTROLKEY @"control"
@@ -329,66 +328,55 @@
     if (!array) {
         array = [[NSMutableArray alloc] init];
         
-        typedef struct {
-            NSTextField *control;
-            PRItemAttr *itemAttr;
-			NSFormatter *formatter;
-            NSString *nullValuePlaceholder;
-            NSString *multipleValuePlaceholder;
-            NSString *noSelectionPlaceholder;
-			int kind;
-        } properties;
+        NSArray *properties = @[
+            @[titleField, PRItemAttrTitle, _stringFormatter, [NSNull null], [NSNull null], @"No Selection", @(STRINGKIND)],
+			@[artistField, PRItemAttrArtist, _stringFormatter, [NSNull null], [NSNull null], [NSNull null], @(STRINGKIND)],
+			@[albumArtistField, PRItemAttrAlbumArtist, _stringFormatter, [NSNull null], [NSNull null], [NSNull null], @(STRINGKIND)],
+			@[albumField, PRItemAttrAlbum, _stringFormatter, [NSNull null], [NSNull null], [NSNull null], @(STRINGKIND)],
+			@[yearField, PRItemAttrYear, _numberFormatter, [NSNull null], [NSNull null], [NSNull null], @(NUMBERKIND)],
+			@[bpmField, PRItemAttrBPM, _numberFormatter, [NSNull null], [NSNull null], [NSNull null], @(NUMBERKIND)],
+			@[trackField, PRItemAttrTrackNumber, _numberFormatter, [NSNull null], [NSNull null], [NSNull null], @(NUMBERKIND)],
+			@[trackCountField, PRItemAttrTrackCount, _numberFormatter, [NSNull null], [NSNull null], [NSNull null], @(NUMBERKIND)],
+			@[discField, PRItemAttrDiscNumber, _numberFormatter, [NSNull null], [NSNull null], [NSNull null], @(NUMBERKIND)],
+			@[discCountField, PRItemAttrDiscCount, _numberFormatter, [NSNull null], [NSNull null], [NSNull null], @(NUMBERKIND)],
+			@[composerField, PRItemAttrComposer, _stringFormatter, [NSNull null], [NSNull null], [NSNull null], @(STRINGKIND)],
+			@[commentsField, PRItemAttrComments, _stringFormatter, [NSNull null], [NSNull null], [NSNull null], @(STRINGKIND)],
+			@[genreField, PRItemAttrGenre, _stringFormatter, [NSNull null], [NSNull null], [NSNull null], @(STRINGKIND)],
+			@[_lyricsField, PRItemAttrLyrics, [NSNull null], [NSNull null], [NSNull null], [NSNull null], @(STRINGKIND)],
+			@[_pathField, PRItemAttrPath, _pathFormatter, [NSNull null], [NSNull null], [NSNull null], @(NONEKIND)],
+			@[_kindField, PRItemAttrKind, _kindFormatter, [NSNull null], [NSNull null], @"No Selection", @(NONEKIND)],
+			@[_sizeField, PRItemAttrSize, _sizeFormatter, [NSNull null], [NSNull null], [NSNull null], @(NONEKIND)],
+			@[_lastModifiedField, PRItemAttrLastModified, _dateFormatter, [NSNull null], [NSNull null], [NSNull null], @(NONEKIND)],
+			@[_dateAddedField, PRItemAttrDateAdded, _dateFormatter, [NSNull null], [NSNull null], [NSNull null], @(NONEKIND)],
+			@[_lengthField, PRItemAttrTime, _timeFormatter, [NSNull null], [NSNull null], [NSNull null], @(NONEKIND)],
+			@[_bitrateField, PRItemAttrBitrate, _bitrateFormatter, [NSNull null], [NSNull null], [NSNull null], @(NONEKIND)],
+			@[_channelsField, PRItemAttrChannels, _numberFormatter, [NSNull null], [NSNull null], [NSNull null], @(NONEKIND)],
+			@[_sampleRateField, PRItemAttrSampleRate, _numberFormatter, [NSNull null], [NSNull null], [NSNull null], @(NONEKIND)],
+			@[_playCountField, PRItemAttrPlayCount, _numberFormatter, [NSNull null], [NSNull null], [NSNull null], @(NONEKIND)],
+			@[_lastPlayedField, PRItemAttrLastPlayed, _dateFormatter, [NSNull null], [NSNull null], [NSNull null], @(NONEKIND)],
+        ];
         
-        int count = 14;
-        properties p[] = {            
-            {titleField, PRItemAttrTitle, _stringFormatter, nil, nil, @"No Selection", STRINGKIND},
-			{artistField, PRItemAttrArtist, _stringFormatter, nil, nil, nil, STRINGKIND},
-			{albumArtistField, PRItemAttrAlbumArtist, _stringFormatter, nil, nil, nil, STRINGKIND},
-			{albumField, PRItemAttrAlbum, _stringFormatter, nil, nil, nil, STRINGKIND},
-			{yearField, PRItemAttrYear, _numberFormatter, nil, nil, nil, NUMBERKIND},
-			{bpmField, PRItemAttrBPM, _numberFormatter, nil, nil, nil, NUMBERKIND},
-			{trackField, PRItemAttrTrackNumber, _numberFormatter, nil, nil, nil, NUMBERKIND},
-			{trackCountField, PRItemAttrTrackCount, _numberFormatter, nil, nil, nil, NUMBERKIND},
-			{discField, PRItemAttrDiscNumber, _numberFormatter, nil, nil, nil, NUMBERKIND},
-			{discCountField, PRItemAttrDiscCount, _numberFormatter, nil, nil, nil, NUMBERKIND},
-			{composerField, PRItemAttrComposer, _stringFormatter, nil, nil, nil, STRINGKIND},
-			{commentsField, PRItemAttrComments, _stringFormatter, nil, nil, nil, STRINGKIND},
-			{genreField, PRItemAttrGenre, _stringFormatter, nil, nil, nil, STRINGKIND},
-			{_lyricsField, PRItemAttrLyrics, nil, nil, nil, nil, STRINGKIND},
-			{_pathField, PRItemAttrPath, _pathFormatter, nil, nil, nil, NONEKIND},
-			{_kindField, PRItemAttrKind, _kindFormatter, nil, nil, @"No Selection", NONEKIND},
-			{_sizeField, PRItemAttrSize, _sizeFormatter, nil, nil, nil, NONEKIND},
-			{_lastModifiedField, PRItemAttrLastModified, _dateFormatter, nil, nil, nil, NONEKIND},
-			{_dateAddedField, PRItemAttrDateAdded, _dateFormatter, nil, nil, nil, NONEKIND},
-			{_lengthField, PRItemAttrTime, _timeFormatter, nil, nil, nil, NONEKIND},
-			{_bitrateField, PRItemAttrBitrate, _bitrateFormatter, nil, nil, nil, NONEKIND},
-			{_channelsField, PRItemAttrChannels, _numberFormatter, nil, nil, nil, NONEKIND},
-			{_sampleRateField, PRItemAttrSampleRate, _numberFormatter, nil, nil, nil, NONEKIND},
-			{_playCountField, PRItemAttrPlayCount, _numberFormatter, nil, nil, nil, NONEKIND},
-			{_lastPlayedField, PRItemAttrLastPlayed, _dateFormatter, nil, nil, nil, NONEKIND},
-        };
-        
-        for (int i = 0; i < count; i++) {
-			if (!p[i].formatter) {
-				p[i].formatter = (id)[NSNull null];
+        for (NSArray *p in properties) {
+            NSString *nullValuePlaceholder = [p objectAtIndex:3];
+			if ((id)nullValuePlaceholder == [NSNull null]) {
+				nullValuePlaceholder = @"None";
 			}
-			if (!p[i].nullValuePlaceholder) {
-				p[i].nullValuePlaceholder = @"None";
+            NSString *multipleValuePlaceholder = [p objectAtIndex:4];
+			if ((id)multipleValuePlaceholder == [NSNull null]) {
+				multipleValuePlaceholder = @"Multiple Values";
 			}
-			if (!p[i].multipleValuePlaceholder) {
-				p[i].multipleValuePlaceholder = @"Multiple Values";
-			}
-			if (!p[i].noSelectionPlaceholder) {
-				p[i].noSelectionPlaceholder = @"-";
+            NSString *noSelectionPlaceholder = [p objectAtIndex:5];
+			if ((id)noSelectionPlaceholder == [NSNull null]) {
+				noSelectionPlaceholder = @"-";
 			}
 			NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-			[dict setValue:p[i].control forKey:CONTROLKEY];
-			[dict setValue:p[i].itemAttr forKey:ITEMATTRKEY];
-			[dict setValue:p[i].formatter forKey:FORMATTERKEY];
-			[dict setValue:p[i].nullValuePlaceholder forKey:NULLVALUEPLACEHOLDERKEY];
-			[dict setValue:p[i].multipleValuePlaceholder forKey:MULTIPLEVALUEPLACEHOLDERKEY];
-			[dict setValue:p[i].noSelectionPlaceholder forKey:NOSELECTIONPLACEHOLDERKEY];
-			[dict setValue:[NSNumber numberWithInt:p[i].kind] forKey:KINDKEY];
+			[dict setValue:[p objectAtIndex:0] forKey:CONTROLKEY];
+			[dict setValue:[p objectAtIndex:1] forKey:ITEMATTRKEY];
+			[dict setValue:[p objectAtIndex:2] forKey:FORMATTERKEY];
+			[dict setValue:nullValuePlaceholder  forKey:NULLVALUEPLACEHOLDERKEY];
+			[dict setValue:multipleValuePlaceholder forKey:MULTIPLEVALUEPLACEHOLDERKEY];
+			[dict setValue:noSelectionPlaceholder forKey:NOSELECTIONPLACEHOLDERKEY];
+			[dict setValue:[p objectAtIndex:6] forKey:KINDKEY];
             [array addObject:dict];
         }
     }

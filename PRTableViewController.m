@@ -27,7 +27,6 @@
 #import "NSTableView+Extensions.h"
 #import "NSString+Extensions.h"
 #import "sqlite_str.h"
-#import "MAZeroingWeakRef.h"
 #import <Carbon/Carbon.h>
 
 
@@ -648,8 +647,8 @@
         [alert setAlertStyle:NSWarningAlertStyle];
         [alert beginSheetModalForWindow:[[self view] window] 
                           modalDelegate:self 
-                         didEndSelector:@selector(deleteAlertDidEnd:returnCode:contextInfo:) 
-                            contextInfo:[indexes retain]];
+                         didEndSelector:@selector(deleteAlertDidEnd:returnCode:contextInfo:)
+                            contextInfo:(__bridge_retained void *)indexes];
     }
 }
 
@@ -668,10 +667,10 @@
 }
 
 - (void)deleteAlertDidEnd:(NSAlert *)alert returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
+    NSIndexSet *indexes = (__bridge_transfer NSIndexSet *)contextInfo;
     if (returnCode != NSAlertFirstButtonReturn) {
         return;
     }
-    NSIndexSet *indexes = [(NSIndexSet *)contextInfo autorelease];
     NSMutableArray *items = [NSMutableArray array];
     [indexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
         [items addObject:[[db libraryViewSource] itemForRow:[self dbRowForTableRow:idx]]];
@@ -1044,12 +1043,12 @@
 
 - (NSMenu *)browserHeaderMenu {
     int browserPosition = [[db playlists] verticalForList:_currentList];
-    MAZeroingWeakRef *selfRef = [MAZeroingWeakRef refWithTarget:self];
+    __weak PRTableViewController *weakSelf = self;
     
     NSMenu *menu = [[[NSMenu alloc] init] autorelease];
     NSMenuItem *item = [[[NSMenuItem alloc] init] autorelease];
     [item setTitle:@"Hidden"];
-    [item setActionBlock:^{[[selfRef target] setBrowserPosition:PRBrowserPositionHidden];}];
+    [item setActionBlock:^{[weakSelf setBrowserPosition:PRBrowserPositionHidden];}];
     if (browserPosition == PRBrowserPositionHidden) {
         [item setState:NSOnState];
     }
@@ -1057,7 +1056,7 @@
     
     item = [[[NSMenuItem alloc] init] autorelease];
     [item setTitle:@"On Top"];
-    [item setActionBlock:^{[[selfRef target] setBrowserPosition:PRBrowserPositionHorizontal];}];
+    [item setActionBlock:^{[weakSelf setBrowserPosition:PRBrowserPositionHorizontal];}];
     if (browserPosition == PRBrowserPositionHorizontal) {
         [item setState:NSOnState];
     }
@@ -1065,7 +1064,7 @@
     
     item = [[[NSMenuItem alloc] init] autorelease];
     [item setTitle:@"On Left"];
-    [item setActionBlock:^{[[selfRef target] setBrowserPosition:PRBrowserPositionVertical];}];
+    [item setActionBlock:^{[weakSelf setBrowserPosition:PRBrowserPositionVertical];}];
     if (browserPosition == PRBrowserPositionVertical) {
         [item setState:NSOnState];
     }
@@ -1080,7 +1079,7 @@
         for (PRItemAttr *i in @[PRItemAttrGenre, PRItemAttrComposer, PRItemAttrArtist, PRItemAttrAlbum]) {
             item = [[[NSMenuItem alloc] init] autorelease];
             [item setTitle:[PRLibrary titleForItemAttr:i]];
-            [item setActionBlock:^{[[selfRef target] toggleBrowser:i];}];
+            [item setActionBlock:^{[weakSelf toggleBrowser:i];}];
             if ([attr1 isEqual:i] || [attr2 isEqual:i] || [attr3 isEqual:i]) {
                 [item setState:NSOnState];
             }
@@ -1099,7 +1098,7 @@
     for (NSMenuItem *i in [libraryMenu itemArray]) {
 		[libraryMenu removeItem:i];
 	}
-    MAZeroingWeakRef *selfRef = [MAZeroingWeakRef refWithTarget:self];
+    __weak PRTableViewController *weakSelf = self;
     unichar c[1] = {NSCarriageReturnCharacter};
     
     // Play
@@ -1107,21 +1106,21 @@
     [item setTitle:@"Play"];
     [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
     [item setKeyEquivalentModifierMask:0];
-    [item setActionBlock:^{[[selfRef target] playIndexes:[[selfRef target] selectedIndexes]];}];
+    [item setActionBlock:^{[weakSelf playIndexes:[weakSelf selectedIndexes]];}];
     [libraryMenu addItem:item];
     
     item = [[[NSMenuItem alloc] init] autorelease];
     [item setTitle:@"Play Next"];
     [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
     [item setKeyEquivalentModifierMask:NSAlternateKeyMask];
-    [item setActionBlock:^{[[selfRef target] appendNextIndexes:[[selfRef target] selectedIndexes]];}];
+    [item setActionBlock:^{[weakSelf appendNextIndexes:[weakSelf selectedIndexes]];}];
     [libraryMenu addItem:item];
     
     item = [[[NSMenuItem alloc] init] autorelease];
     [item setTitle:@"Append"];
     [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
     [item setKeyEquivalentModifierMask:NSShiftKeyMask];
-    [item setActionBlock:^{[[selfRef target] appendIndexes:[[selfRef target] selectedIndexes]];}];
+    [item setActionBlock:^{[weakSelf appendIndexes:[weakSelf selectedIndexes]];}];
     [libraryMenu addItem:item];    
     [libraryMenu addItem:[NSMenuItem separatorItem]];
     
@@ -1134,7 +1133,7 @@
         item = [[[NSMenuItem alloc] init] autorelease];
         [item setTitle:[NSString stringWithFormat:@" %@",[[db playlists] titleForList:i]]];
         [item setImage:[NSImage imageNamed:@"ListViewTemplate"]];
-        [item setActionBlock:^{[[selfRef target] appendIndexes:[[selfRef target] selectedIndexes] toList:i];}];
+        [item setActionBlock:^{[weakSelf appendIndexes:[weakSelf selectedIndexes] toList:i];}];
         [playlistMenu addItem:item];
     }
     NSMenuItem *playlistMenuItem = [[[NSMenuItem alloc] init] autorelease];
@@ -1146,7 +1145,7 @@
     // Misc
     item = [[[NSMenuItem alloc] init] autorelease];
     [item setTitle:@"Reveal in Finder"];
-    [item setActionBlock:^{[[selfRef target] revealIndexes:[[selfRef target] selectedIndexes]];}];
+    [item setActionBlock:^{[weakSelf revealIndexes:[weakSelf selectedIndexes]];}];
     [libraryMenu addItem:item];
     [libraryMenu addItem:[NSMenuItem separatorItem]];
     
@@ -1159,7 +1158,7 @@
     }
     [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
     [item setKeyEquivalentModifierMask:0];
-    [item setActionBlock:^{[[selfRef target] deleteIndexes:[[selfRef target] selectedIndexes]];}];
+    [item setActionBlock:^{[weakSelf deleteIndexes:[weakSelf selectedIndexes]];}];
     [libraryMenu addItem:item];
 }
 
@@ -1167,7 +1166,7 @@
 	for (NSMenuItem *i in [headerMenu itemArray]) {
 		[headerMenu removeItem:i];
 	}
-	MAZeroingWeakRef *selfRef = [MAZeroingWeakRef refWithTarget:self];
+    __weak PRTableViewController *weakSelf = self;
     
     NSMenuItem *menuItem = [[[NSMenuItem alloc] init] autorelease];
 	[menuItem setTitle:@"Browser"];
@@ -1187,7 +1186,7 @@
 		if (![i isHidden]) {
 			[menuItem setState:NSOnState];
 		}
-		[menuItem setActionBlock:^{[[selfRef target] toggleColumn:i];}];
+		[menuItem setActionBlock:^{[weakSelf toggleColumn:i];}];
 		[headerMenu addItem:menuItem];
 	}
 }

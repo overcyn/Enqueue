@@ -155,20 +155,19 @@
     NSRect frame = [[[alert accessoryView] superview] frame];
     frame.size.height = 24;
     [[[alert accessoryView] superview] setFrame:frame];
-    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(duplicateHandler:code:context:) contextInfo:[[NSNumber alloc] initWithInt:playlist]];
+    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(duplicateHandler:code:context:) contextInfo:(__bridge_retained void *)@(playlist)];
 }
 
 - (void)duplicateHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context  {
+    NSNumber *l = (__bridge_transfer NSNumber *)context;
     if (code != NSAlertFirstButtonReturn) {
-        [(NSNumber *)context release];
         return;
     }
     PRList *list = [[db playlists] addStaticList];
     [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:list attr:PRListAttrTitle];
-    [[db playlists] copyItemsFromList:(NSNumber *)context toList:list];
+    [[db playlists] copyItemsFromList:l toList:list];
     [[NSNotificationCenter defaultCenter] postListsDidChange];
     [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
-    [(NSNumber *)context release];
 }
 
 - (void)deletePlaylist:(PRPlaylist)playlist {
@@ -179,18 +178,17 @@
     [alert setInformativeText:@"This action cannot be undone."];
     [alert setAlertStyle:NSWarningAlertStyle];
     [alert layout];
-    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(deleteHandler:code:context:) contextInfo:[[NSNumber alloc] initWithInt:playlist]];
+    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(deleteHandler:code:context:) contextInfo:(__bridge_retained void *)@(playlist)];
 }
 
 - (void)deleteHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context  {
+    NSNumber *l = (__bridge_transfer NSNumber *)context;
     if (code != NSAlertFirstButtonReturn) {
-        [(NSNumber *)context release];
         return;
     }
     [[[_core win] libraryViewController] setCurrentList:[[[_core db] playlists] libraryList]];
-    [[db playlists] removeList:(NSNumber *)context];
+    [[db playlists] removeList:l];
     [[NSNotificationCenter defaultCenter] postListsDidChange];
-    [(NSNumber *)context release];
 }
 
 - (void)renamePlaylist:(PRPlaylist)playlist {

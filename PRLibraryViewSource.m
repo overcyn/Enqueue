@@ -38,9 +38,9 @@ NSString * const compilationString = @"Compilations  ";
     _compilation = TRUE;
     _prevSourceString = @"";
     _prevSourceBindings = [@{} retain];
-    prevBrowser1Bindings = [@{} retain];
-    prevBrowser2Bindings = [@{} retain];
-    prevBrowser3Bindings = [@{} retain];
+    _prevBrowser1Bindings = [@{} retain];
+    _prevBrowser2Bindings = [@{} retain];
+    _prevBrowser3Bindings = [@{} retain];
     _cachedLibraryStatement = @"";
     _cachedBrowser1Statement = @"";
     _cachedBrowser2Statement = @"";
@@ -96,12 +96,12 @@ NSString * const compilationString = @"Compilations  ";
     [_list release];
     [_prevSourceString release];
     [_prevSourceBindings release];
-    [prevBrowser1Statement release];
-    [prevBrowser1Bindings release];
-    [prevBrowser2Statement release];
-    [prevBrowser2Bindings release];
-    [prevBrowser3Statement release];
-    [prevBrowser3Bindings release];
+    [_prevBrowser1Statement release];
+    [_prevBrowser1Bindings release];
+    [_prevBrowser2Statement release];
+    [_prevBrowser2Bindings release];
+    [_prevBrowser3Statement release];
+    [_prevBrowser3Bindings release];
     [_cachedLibraryStatement release];
     [_cachedBrowser1Statement release];
     [_cachedBrowser2Statement release];
@@ -302,23 +302,23 @@ NSString * const compilationString = @"Compilations  ";
 - (BOOL)populateBrowser:(int)browser {
     NSString *cacheTableName;
 	NSString *destinationTableName;
-    NSString **prevBrowserStatement;
-    NSDictionary **prevBrowserBindings;
+    NSString * __strong *prevBrowserStatement;
+    NSDictionary * __strong *prevBrowserBindings;
 	if (browser == 1) {
         cacheTableName = @"browser1Cache";
         destinationTableName = browser1ViewSource;
-        prevBrowserStatement = &prevBrowser1Statement;
-        prevBrowserBindings = &prevBrowser1Bindings;
+        prevBrowserStatement = &_prevBrowser1Statement;
+        prevBrowserBindings = &_prevBrowser1Bindings;
 	} else if (browser == 2) {
         cacheTableName = @"browser2Cache";
         destinationTableName = browser2ViewSource;
-        prevBrowserStatement = &prevBrowser2Statement;
-        prevBrowserBindings = &prevBrowser2Bindings;
+        prevBrowserStatement = &_prevBrowser2Statement;
+        prevBrowserBindings = &_prevBrowser2Bindings;
 	} else if (browser == 3) {
         cacheTableName = @"browser3Cache";
         destinationTableName = browser3ViewSource;
-        prevBrowserStatement = &prevBrowser3Statement;
-        prevBrowserBindings = &prevBrowser3Bindings;
+        prevBrowserStatement = &_prevBrowser3Statement;
+        prevBrowserBindings = &_prevBrowser3Bindings;
 	} else {
         @throw NSInvalidArgumentException;
     }

@@ -44,9 +44,7 @@
             rlt = [[_core db] execute:@"SELECT file_id, path FROM library ORDER BY file_id LIMIT 200 OFFSET ?1"
                              bindings:@{@1:[NSNumber numberWithInt:offset]}
                               columns:@[PRColInteger, PRColString]];
-            [rlt retain];
         }];
-        [rlt autorelease];
         if ([rlt count] == 0) {
             break;
         }
@@ -64,44 +62,44 @@ end:;
 }
 
 - (void)updateFiles:(NSArray *)array {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    [[[_core db] albumArtController] clearTempArtwork];
-    // get updated attributes
-    NSMutableArray *infoArray = [NSMutableArray array];
-    for (NSArray *i in array) {
-        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-        PRFileInfo *info = [PRTagger infoForURL:[NSURL URLWithString:[i objectAtIndex:1]]];
-        if (!info) {
-            [pool drain]; continue;
+    @autoreleasepool {
+        [[[_core db] albumArtController] clearTempArtwork];
+        // get updated attributes
+        NSMutableArray *infoArray = [NSMutableArray array];
+        for (NSArray *i in array) {
+            @autoreleasepool {
+                PRFileInfo *info = [PRTagger infoForURL:[NSURL URLWithString:[i objectAtIndex:1]]];
+                if (!info) {
+                    continue;
+                }
+                [info setItem:[i objectAtIndex:0]];
+                if ([info art]) {
+                    [info setTempArt:[[[_core db] albumArtController] saveTempArtwork:[info art]]];
+                    [info setArt:nil];
+                }
+                [infoArray addObject:info];
+            }
         }
-        [info setItem:[i objectAtIndex:0]];
-        if ([info art]) {
-            [info setTempArt:[[[_core db] albumArtController] saveTempArtwork:[info art]]];
-            [info setArt:nil];
-        }
-        [infoArray addObject:info];
-        [pool drain];
-    }
-    [[NSOperationQueue mainQueue] addBlockAndWait:^{
-        [[_core db] begin];
-        // set updated attributes
-        NSMutableArray *updated = [NSMutableArray array];
+        [[NSOperationQueue mainQueue] addBlockAndWait:^{
+            [[_core db] begin];
+            // set updated attributes
+            NSMutableArray *updated = [NSMutableArray array];
+            for (PRFileInfo *i in infoArray) {
+                [[[_core db] library] setAttrs:[i attributes] forItem:[i item]];
+                [updated addObject:[i item]];
+            }
+            [[_core db] commit];
+            // post notifications
+            if ([infoArray count] > 0) {
+                [[NSNotificationCenter defaultCenter] postItemsChanged:updated];
+            }
+        }];
+        // set art
         for (PRFileInfo *i in infoArray) {
-            [[[_core db] library] setAttrs:[i attributes] forItem:[i item]];
-            [updated addObject:[i item]];
+            if (![i item]) {continue;}
+            [[[_core db] albumArtController] setTempArtwork:[i tempArt] forItem:[i item]];
         }
-        [[_core db] commit];
-        // post notifications
-        if ([infoArray count] > 0) {
-            [[NSNotificationCenter defaultCenter] postItemsChanged:updated];
-        }
-    }];
-    // set art
-    for (PRFileInfo *i in infoArray) {
-        if (![i item]) {continue;}
-		[[[_core db] albumArtController] setTempArtwork:[i tempArt] forItem:[i item]];
-    }    
-	[pool drain];
+    }
 }
 
 @end

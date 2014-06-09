@@ -47,11 +47,11 @@
                               columns:@[PRColInteger, PRColString]];
             [rlt retain];
         }];
-        [rlt autorelease];
         if ([rlt count] == 0) {
             break;
         }
         [self updateFiles:rlt];
+        [rlt release];
         offset += 200;
         if ([task shouldCancel]) {
             goto end;

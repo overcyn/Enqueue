@@ -187,44 +187,28 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 #pragma mark - Misc
 
 + (NSArray *)listAttrProperties {
-    static NSMutableArray *array = nil; 
+    static NSArray *array = nil; 
     if (!array) {
-        array = [[NSMutableArray alloc] init];
-        
-        typedef struct {
-            PRListAttr *listAttr;
-            PRCol *columnType;
-            NSString *columnName;
-        } properties;
-        
-        int count = 18;
-        properties p[] = {
-            {PRListAttrTitle, PRColString, @"title"},
-            {PRListAttrType, PRColInteger, @"type"},
-            {PRListAttrRules, PRColData, @"rules"},
-            {PRListAttrListViewInfo, PRColData, @"listViewColumnInfo"},
-            {PRListAttrListViewSortAttr, PRColInteger, @"listViewSortColumn"},
-            {PRListAttrListViewAscending, PRColInteger, @"listViewAscending"},
-            {PRListAttrAlbumListViewInfo, PRColData, @"albumListViewColumnInfo"},
-            {PRListAttrAlbumListViewSortAttr, PRColInteger, @"albumListViewSortColumn"},
-            {PRListAttrAlbumListViewAscending, PRColInteger, @"albumListViewAscending"},
-            {PRListAttrSearch, PRColString, @"search"},
-            {PRListAttrBrowser1Attr, PRColInteger, @"browser_1_attribute"},
-            {PRListAttrBrowser2Attr, PRColInteger, @"browser_2_attribute"},
-            {PRListAttrBrowser3Attr, PRColInteger, @"browser_3_attribute"},
-            {PRListAttrBrowser1Selection, PRColData, @"browser_1_selection"},
-            {PRListAttrBrowser2Selection, PRColData, @"browser_2_selection"},
-            {PRListAttrBrowser3Selection, PRColData, @"browser_3_selection"},
-            {PRListAttrBrowserInfo, PRColData, @"browserInfo"},
-            {PRListAttrViewMode, PRColInteger, @"libraryViewMode"},
-        };
-        
-        for (int i = 0; i < count; i++) {
-            [array addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                              p[i].listAttr, @"listAttr", 
-                              p[i].columnName, @"columnName", 
-                              p[i].columnType, @"columnType", nil]];
-        }
+        array = @[
+            @{@"listAttr":PRListAttrTitle, @"columnName":PRColString, @"columnType":@"title"},
+            @{@"listAttr":PRListAttrType, @"columnName":PRColInteger, @"columnType":@"type"},
+            @{@"listAttr":PRListAttrRules, @"columnName":PRColData, @"columnType":@"rules"},
+            @{@"listAttr":PRListAttrListViewInfo, @"columnName":PRColData, @"columnType":@"listViewColumnInfo"},
+            @{@"listAttr":PRListAttrListViewSortAttr, @"columnName":PRColInteger, @"columnType":@"listViewSortColumn"},
+            @{@"listAttr":PRListAttrListViewAscending, @"columnName":PRColInteger, @"columnType":@"listViewAscending"},
+            @{@"listAttr":PRListAttrAlbumListViewInfo, @"columnName":PRColData, @"columnType":@"albumListViewColumnInfo"},
+            @{@"listAttr":PRListAttrAlbumListViewSortAttr, @"columnName":PRColInteger, @"columnType":@"albumListViewSortColumn"},
+            @{@"listAttr":PRListAttrAlbumListViewAscending, @"columnName":PRColInteger, @"columnType":@"albumListViewAscending"},
+            @{@"listAttr":PRListAttrSearch, @"columnName":PRColString, @"columnType":@"search"},
+            @{@"listAttr":PRListAttrBrowser1Attr, @"columnName":PRColInteger, @"columnType":@"browser_1_attribute"},
+            @{@"listAttr":PRListAttrBrowser2Attr, @"columnName":PRColInteger, @"columnType":@"browser_2_attribute"},
+            @{@"listAttr":PRListAttrBrowser3Attr, @"columnName":PRColInteger, @"columnType":@"browser_3_attribute"},
+            @{@"listAttr":PRListAttrBrowser1Selection, @"columnName":PRColData, @"columnType":@"browser_1_selection"},
+            @{@"listAttr":PRListAttrBrowser2Selection, @"columnName":PRColData, @"columnType":@"browser_2_selection"},
+            @{@"listAttr":PRListAttrBrowser3Selection, @"columnName":PRColData, @"columnType":@"browser_3_selection"},
+            @{@"listAttr":PRListAttrBrowserInfo, @"columnName":PRColData, @"columnType":@"browserInfo"},
+            @{@"listAttr":PRListAttrViewMode, @"columnName":PRColInteger, @"columnType":@"libraryViewMode"},
+        ];
     }
     return array;
 }

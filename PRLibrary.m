@@ -326,63 +326,43 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 #pragma mark - Misc
 
 + (NSArray *)itemAttrProperties {
-    static NSMutableArray *array = nil;
+    static NSArray *array = nil;
     if (!array) {
-        array = [[NSMutableArray alloc] init];
-        
-        typedef struct {
-            PRItemAttr *itemAttr;
-            PRCol *columnType;
-            NSString *columnName;
-            NSString *title;
-            int internal;
-        } properties;
-        
-        int count = 30;
-        properties p[] = {
-            {PRItemAttrPath, PRColString, @"path", @"Path", 25},
-            {PRItemAttrSize, PRColInteger, @"size", @"Size", 18},
-            {PRItemAttrKind, PRColInteger, @"kind", @"Kind", 19},
-            {PRItemAttrTime, PRColInteger, @"time", @"Time", 20},
-            {PRItemAttrBitrate, PRColInteger, @"bitrate", @"Bitrate", 21},
-            {PRItemAttrChannels, PRColInteger, @"channels", @"Channels", 22},
-            {PRItemAttrSampleRate, PRColInteger, @"sampleRate", @"Sample Rate", 23},
-            {PRItemAttrCheckSum, PRColData, @"checkSum", @"Check Sum", 27},
-            {PRItemAttrLastModified, PRColString, @"lastModified", @"Last Modified", 28},
+        array = @[
+            @{@"itemAttr":PRItemAttrPath, @"columnName":PRColString, @"columnType":@"path", @"title":@"Path", @"internal":@25},
+            @{@"itemAttr":PRItemAttrSize, @"columnName":PRColInteger, @"columnType":@"size", @"title":@"Size", @"internal":@18},
+            @{@"itemAttr":PRItemAttrKind, @"columnName":PRColInteger, @"columnType":@"kind", @"title":@"Kind", @"internal":@19},
+            @{@"itemAttr":PRItemAttrTime, @"columnName":PRColInteger, @"columnType":@"time", @"title":@"Time", @"internal":@20},
+            @{@"itemAttr":PRItemAttrBitrate, @"columnName":PRColInteger, @"columnType":@"bitrate", @"title":@"Bitrate", @"internal":@21},
+            @{@"itemAttr":PRItemAttrChannels, @"columnName":PRColInteger, @"columnType":@"channels", @"title":@"Channels", @"internal":@22},
+            @{@"itemAttr":PRItemAttrSampleRate, @"columnName":PRColInteger, @"columnType":@"sampleRate", @"title":@"Sample Rate", @"internal":@23},
+            @{@"itemAttr":PRItemAttrCheckSum, @"columnName":PRColData, @"columnType":@"checkSum", @"title":@"Check Sum", @"internal":@27},
+            @{@"itemAttr":PRItemAttrLastModified, @"columnName":PRColString, @"columnType":@"lastModified", @"title":@"Last Modified", @"internal":@28},
             
-            {PRItemAttrTitle, PRColString, @"title", @"Title", 1},
-            {PRItemAttrArtist, PRColString, @"artist", @"Artist", 2},
-            {PRItemAttrAlbum, PRColString, @"album", @"Album", 3},
-            {PRItemAttrBPM, PRColInteger, @"BPM", @"BPM", 4},
-            {PRItemAttrYear, PRColInteger, @"year", @"Year", 5},
-            {PRItemAttrTrackNumber, PRColInteger, @"trackNumber", @"Track", 6},
-            {PRItemAttrTrackCount, PRColInteger, @"trackCount", @"Track Count", 7},
-            {PRItemAttrComposer, PRColString, @"composer", @"Composer", 8},
-            {PRItemAttrDiscNumber, PRColInteger, @"discNumber", @"Disc", 9},
-            {PRItemAttrDiscCount, PRColInteger, @"discCount", @"Disc Count", 10},
-            {PRItemAttrComments, PRColString, @"comments", @"Comments", 11},
-            {PRItemAttrAlbumArtist, PRColString, @"albumArtist", @"Album Artist", 12},
-            {PRItemAttrGenre, PRColString, @"genre", @"Genre", 13},
-            {PRItemAttrCompilation, PRColInteger, @"compilation", @"Compilation", 29},
-            {PRItemAttrLyrics, PRColString, @"lyrics", @"Lyrics", 30},
+            @{@"itemAttr":PRItemAttrTitle, @"columnName":PRColString, @"columnType":@"title", @"title":@"Title", @"internal":@1},
+            @{@"itemAttr":PRItemAttrArtist, @"columnName":PRColString, @"columnType":@"artist", @"title":@"Artist", @"internal":@2},
+            @{@"itemAttr":PRItemAttrAlbum, @"columnName":PRColString, @"columnType":@"album", @"title":@"Album", @"internal":@3},
+            @{@"itemAttr":PRItemAttrBPM, @"columnName":PRColInteger, @"columnType":@"BPM", @"title":@"BPM", @"internal":@4},
+            @{@"itemAttr":PRItemAttrYear, @"columnName":PRColInteger, @"columnType":@"year", @"title":@"Year", @"internal":@5},
+            @{@"itemAttr":PRItemAttrTrackNumber, @"columnName":PRColInteger, @"columnType":@"trackNumber", @"title":@"Track", @"internal":@6},
+            @{@"itemAttr":PRItemAttrTrackCount, @"columnName":PRColInteger, @"columnType":@"trackCount", @"title":@"Track Count", @"internal":@7},
+            @{@"itemAttr":PRItemAttrComposer, @"columnName":PRColString, @"columnType":@"composer", @"title":@"Composer", @"internal":@8},
+            @{@"itemAttr":PRItemAttrDiscNumber, @"columnName":PRColInteger, @"columnType":@"discNumber", @"title":@"Disc", @"internal":@9},
+            @{@"itemAttr":PRItemAttrDiscCount, @"columnName":PRColInteger, @"columnType":@"discCount", @"title":@"Disc Count", @"internal":@10},
+            @{@"itemAttr":PRItemAttrComments, @"columnName":PRColString, @"columnType":@"comments", @"title":@"Comments", @"internal":@11},
+            @{@"itemAttr":PRItemAttrAlbumArtist, @"columnName":PRColString, @"columnType":@"albumArtist", @"title":@"Album Artist", @"internal":@12},
+            @{@"itemAttr":PRItemAttrGenre, @"columnName":PRColString, @"columnType":@"genre", @"title":@"Genre", @"internal":@13},
+            @{@"itemAttr":PRItemAttrCompilation, @"columnName":PRColInteger, @"columnType":@"compilation", @"title":@"Compilation", @"internal":@29},
+            @{@"itemAttr":PRItemAttrLyrics, @"columnName":PRColString, @"columnType":@"lyrics", @"title":@"Lyrics", @"internal":@30},
             
-            {PRItemAttrArtwork, PRColInteger, @"albumArt", @"Artwork", 24},
-            {PRItemAttrArtistAlbumArtist, PRColString, @"artistAlbumArtist", @"Artist / Album Artist", 26},
+            @{@"itemAttr":PRItemAttrArtwork, @"columnName":PRColInteger, @"columnType":@"albumArt", @"title":@"Artwork", @"internal":@24},
+            @{@"itemAttr":PRItemAttrArtistAlbumArtist, @"columnName":PRColString, @"columnType":@"artistAlbumArtist", @"title":@"Artist / Album Artist", @"internal":@26},
             
-            {PRItemAttrDateAdded, PRColString, @"dateAdded", @"Date Added", 14},
-            {PRItemAttrLastPlayed, PRColString, @"lastPlayed", @"Last Played", 15},
-            {PRItemAttrPlayCount, PRColInteger, @"playCount", @"Play Count", 16},
-            {PRItemAttrRating, PRColInteger, @"rating", @"Rating", 17},
-        };
-        
-        for (int i = 0; i < count; i++) {
-            [array addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                              p[i].itemAttr, @"itemAttr", 
-                              p[i].columnName, @"columnName", 
-                              p[i].columnType, @"columnType", 
-                              p[i].title, @"title", 
-                              [NSNumber numberWithInt:p[i].internal], @"internal", nil]];
-        }
+            @{@"itemAttr":PRItemAttrDateAdded, @"columnName":PRColString, @"columnType":@"dateAdded", @"title":@"Date Added", @"internal":@14},
+            @{@"itemAttr":PRItemAttrLastPlayed, @"columnName":PRColString, @"columnType":@"lastPlayed", @"title":@"Last Played", @"internal":@15},
+            @{@"itemAttr":PRItemAttrPlayCount, @"columnName":PRColInteger, @"columnType":@"playCount", @"title":@"Play Count", @"internal":@16},
+            @{@"itemAttr":PRItemAttrRating, @"columnName":PRColInteger, @"columnType":@"rating", @"title":@"Rating", @"internal":@17},
+        ];
     }
     return array;
 }

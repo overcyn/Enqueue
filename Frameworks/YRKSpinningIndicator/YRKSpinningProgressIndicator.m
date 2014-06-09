@@ -155,28 +155,24 @@
 
 - (void)animateInBackgroundThread
 {
-	NSAutoreleasePool *animationPool = [[NSAutoreleasePool alloc] init];
-	
-	// Set up the animation speed to subtly change with size > 32.
-	// int animationDelay = 38000 + (2000 * ([self bounds].size.height / 32));
-    
-    // Set the rev per minute here
-    int omega = 60; // RPM
-    int animationDelay = 60*1000000/omega/_numFins;
-	int poolFlushCounter = 0;
-    
-	do {
-		[self updateFrame:nil];
-		usleep(animationDelay);
-		poolFlushCounter++;
-		if (poolFlushCounter > 256) {
-			[animationPool drain];
-			animationPool = [[NSAutoreleasePool alloc] init];
-			poolFlushCounter = 0;
-		}
-	} while (![[NSThread currentThread] isCancelled]); 
-    
-	[animationPool release];
+    @autoreleasepool {
+        // Set up the animation speed to subtly change with size > 32.
+        // int animationDelay = 38000 + (2000 * ([self bounds].size.height / 32));
+        
+        // Set the rev per minute here
+        int omega = 60; // RPM
+        int animationDelay = 60*1000000/omega/_numFins;
+        int poolFlushCounter = 0;
+        
+        do {
+            [self updateFrame:nil];
+            usleep(animationDelay);
+            poolFlushCounter++;
+            if (poolFlushCounter > 256) {
+                poolFlushCounter = 0;
+            }
+        } while (![[NSThread currentThread] isCancelled]); 
+    }
 }
 
 - (void)startAnimation:(id)sender

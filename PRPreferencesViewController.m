@@ -6,6 +6,7 @@
 #import "PRGradientView.h"
 #import "PRHotKeyController.h"
 #import "PRLastfm.h"
+#import "PRMediaKeyController.h"
 #import "PRMoviePlayer.h"
 #import "PRNowPlayingController.h"
 #import "PRScrollView.h"

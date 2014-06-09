@@ -29,12 +29,12 @@ typedef enum {
     // info about last refresh so as not to unnecessarily repopulate tables
     NSString *_prevSourceString;
     NSDictionary *_prevSourceBindings;
-    NSString *prevBrowser1Statement;
-    NSDictionary *prevBrowser1Bindings;
-    NSString *prevBrowser2Statement;
-    NSDictionary *prevBrowser2Bindings;
-    NSString *prevBrowser3Statement;
-    NSDictionary *prevBrowser3Bindings;
+    NSString *_prevBrowser1Statement;
+    NSDictionary *_prevBrowser1Bindings;
+    NSString *_prevBrowser2Statement;
+    NSDictionary *_prevBrowser2Bindings;
+    NSString *_prevBrowser3Statement;
+    NSDictionary *_prevBrowser3Bindings;
     
     // cache for basic library with no browser selection or search
     NSString *_cachedLibraryStatement;

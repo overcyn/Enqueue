@@ -86,7 +86,7 @@
     context.retain = NULL;
     context.release = NULL;
     context.copyDescription = NULL;
-    stream = FSEventStreamCreate(NULL, &eventCallback, &context, (CFArrayRef)paths, 
+    stream = FSEventStreamCreate(NULL, &eventCallback, &context, (__bridge CFArrayRef)paths,
                                  [[[PRDefaults sharedDefaults] valueForKey:PRDefaultsLastEventStreamEventId] unsignedLongLongValue],
                                  5.0, kFSEventStreamCreateFlagNone);
     FSEventStreamScheduleWithRunLoop(stream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
@@ -104,7 +104,7 @@
 void eventCallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, size_t numEvents,
                    void *eventPaths, const FSEventStreamEventFlags eventFlags[],
                    const FSEventStreamEventId eventIds[]) {
-    PRFolderMonitor *folderMonitor = (PRFolderMonitor *)clientCallBackInfo;
+    PRFolderMonitor *folderMonitor = (__bridge PRFolderMonitor *)clientCallBackInfo;
     PRCore *core = [folderMonitor core];
     NSFileManager *fm = [[[NSFileManager alloc] init] autorelease];
     char **paths = eventPaths;

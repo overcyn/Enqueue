@@ -195,17 +195,12 @@
 		67D4110D158586C4007C2E04 /* PRAppleScriptController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D4110C158586C4007C2E04 /* PRAppleScriptController.m */; };
 		67D5208D128C04A4000D6AAC /* PRAlbumTableView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D5208C128C04A4000D6AAC /* PRAlbumTableView.m */; };
 		67D732A6132FBB4700AB2D14 /* PRScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D732A5132FBB4700AB2D14 /* PRScrollView.m */; };
-		67D911DF147107D6001C9DE8 /* SPMediaKeyTap.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911DD147107D6001C9DE8 /* SPMediaKeyTap.m */; };
-		67D911E0147107D6001C9DE8 /* SPMediaKeyTapDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911DE147107D6001C9DE8 /* SPMediaKeyTapDelegate.m */; };
-		67D911E3147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911E2147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.m */; };
+		67D911DF147107D6001C9DE8 /* SPMediaKeyTap.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911DD147107D6001C9DE8 /* SPMediaKeyTap.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		67D911E0147107D6001C9DE8 /* SPMediaKeyTapDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911DE147107D6001C9DE8 /* SPMediaKeyTapDelegate.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		67D911E3147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911E2147107DF001C9DE8 /* NSObject+SPInvocationGrabbing.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		67D911E71471087B001C9DE8 /* PRMediaKeyController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911E61471087B001C9DE8 /* PRMediaKeyController.m */; };
 		67DAC8161456387900E120B6 /* EMKeychainItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DAC8151456387900E120B6 /* EMKeychainItem.m */; };
 		67DC10891489D12100A76236 /* PRPathFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC10881489D12100A76236 /* PRPathFormatter.m */; };
-		67DDC70014FA0F0800E361B0 /* MANotificationCenterAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DDC6F614FA0F0800E361B0 /* MANotificationCenterAdditions.m */; };
-		67DDC70114FA0F0800E361B0 /* MAWeakArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DDC6F814FA0F0800E361B0 /* MAWeakArray.m */; };
-		67DDC70214FA0F0800E361B0 /* MAWeakDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DDC6FA14FA0F0800E361B0 /* MAWeakDictionary.m */; };
-		67DDC70314FA0F0800E361B0 /* MAZeroingWeakProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DDC6FC14FA0F0800E361B0 /* MAZeroingWeakProxy.m */; };
-		67DDC70414FA0F0800E361B0 /* MAZeroingWeakRef.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DDC6FE14FA0F0800E361B0 /* MAZeroingWeakRef.m */; };
 		67DDC70F14FA169B00E361B0 /* NSMenuItem+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */; };
 		67DE033A147B07A600BBB0F6 /* PRFileInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE0339147B07A600BBB0F6 /* PRFileInfo.m */; };
 		67DE13351516E37D00E94F28 /* PRAlertWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE13341516E37D00E94F28 /* PRAlertWindowController.m */; };
@@ -578,17 +573,6 @@
 		67DAC8151456387900E120B6 /* EMKeychainItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EMKeychainItem.m; path = Frameworks/EMKeychainItem/EMKeychainItem.m; sourceTree = "<group>"; };
 		67DC10871489D12100A76236 /* PRPathFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRPathFormatter.h; sourceTree = "<group>"; };
 		67DC10881489D12100A76236 /* PRPathFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRPathFormatter.m; sourceTree = "<group>"; };
-		67DDC6F514FA0F0800E361B0 /* MANotificationCenterAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MANotificationCenterAdditions.h; path = Frameworks/ZeroingWeakRef/MANotificationCenterAdditions.h; sourceTree = "<group>"; };
-		67DDC6F614FA0F0800E361B0 /* MANotificationCenterAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MANotificationCenterAdditions.m; path = Frameworks/ZeroingWeakRef/MANotificationCenterAdditions.m; sourceTree = "<group>"; };
-		67DDC6F714FA0F0800E361B0 /* MAWeakArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MAWeakArray.h; path = Frameworks/ZeroingWeakRef/MAWeakArray.h; sourceTree = "<group>"; };
-		67DDC6F814FA0F0800E361B0 /* MAWeakArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MAWeakArray.m; path = Frameworks/ZeroingWeakRef/MAWeakArray.m; sourceTree = "<group>"; };
-		67DDC6F914FA0F0800E361B0 /* MAWeakDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MAWeakDictionary.h; path = Frameworks/ZeroingWeakRef/MAWeakDictionary.h; sourceTree = "<group>"; };
-		67DDC6FA14FA0F0800E361B0 /* MAWeakDictionary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MAWeakDictionary.m; path = Frameworks/ZeroingWeakRef/MAWeakDictionary.m; sourceTree = "<group>"; };
-		67DDC6FB14FA0F0800E361B0 /* MAZeroingWeakProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MAZeroingWeakProxy.h; path = Frameworks/ZeroingWeakRef/MAZeroingWeakProxy.h; sourceTree = "<group>"; };
-		67DDC6FC14FA0F0800E361B0 /* MAZeroingWeakProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MAZeroingWeakProxy.m; path = Frameworks/ZeroingWeakRef/MAZeroingWeakProxy.m; sourceTree = "<group>"; };
-		67DDC6FD14FA0F0800E361B0 /* MAZeroingWeakRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MAZeroingWeakRef.h; path = Frameworks/ZeroingWeakRef/MAZeroingWeakRef.h; sourceTree = "<group>"; };
-		67DDC6FE14FA0F0800E361B0 /* MAZeroingWeakRef.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MAZeroingWeakRef.m; path = Frameworks/ZeroingWeakRef/MAZeroingWeakRef.m; sourceTree = "<group>"; };
-		67DDC6FF14FA0F0800E361B0 /* MAZeroingWeakRefNativeZWRNotAllowedTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MAZeroingWeakRefNativeZWRNotAllowedTable.h; path = Frameworks/ZeroingWeakRef/MAZeroingWeakRefNativeZWRNotAllowedTable.h; sourceTree = "<group>"; };
 		67DDC70D14FA169B00E361B0 /* NSMenuItem+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMenuItem+Extensions.h"; sourceTree = "<group>"; };
 		67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMenuItem+Extensions.m"; sourceTree = "<group>"; };
 		67DE0338147B07A600BBB0F6 /* PRFileInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRFileInfo.h; sourceTree = "<group>"; };
@@ -1400,7 +1384,6 @@
 		67A1E9821328CAFD007B81E3 /* Other */ = {
 			isa = PBXGroup;
 			children = (
-				67DDC6F014FA09A700E361B0 /* ZeroingWeakReference */,
 				67D911DB147107AB001C9DE8 /* SPMediaKeyTap */,
 				673540F7145CB744004044F1 /* Core Audio Public Utilities */,
 				678D5D78138D519F00A55E5D /* YRKSpinningIndicator */,
@@ -1544,24 +1527,6 @@
 			name = "Keyboard Shortcuts";
 			sourceTree = "<group>";
 		};
-		67DDC6F014FA09A700E361B0 /* ZeroingWeakReference */ = {
-			isa = PBXGroup;
-			children = (
-				67DDC6F514FA0F0800E361B0 /* MANotificationCenterAdditions.h */,
-				67DDC6F614FA0F0800E361B0 /* MANotificationCenterAdditions.m */,
-				67DDC6F714FA0F0800E361B0 /* MAWeakArray.h */,
-				67DDC6F814FA0F0800E361B0 /* MAWeakArray.m */,
-				67DDC6F914FA0F0800E361B0 /* MAWeakDictionary.h */,
-				67DDC6FA14FA0F0800E361B0 /* MAWeakDictionary.m */,
-				67DDC6FB14FA0F0800E361B0 /* MAZeroingWeakProxy.h */,
-				67DDC6FC14FA0F0800E361B0 /* MAZeroingWeakProxy.m */,
-				67DDC6FD14FA0F0800E361B0 /* MAZeroingWeakRef.h */,
-				67DDC6FE14FA0F0800E361B0 /* MAZeroingWeakRef.m */,
-				67DDC6FF14FA0F0800E361B0 /* MAZeroingWeakRefNativeZWRNotAllowedTable.h */,
-			);
-			name = ZeroingWeakReference;
-			sourceTree = "<group>";
-		};
 		67EA12F7145B346900309876 /* NowPlaying */ = {
 			isa = PBXGroup;
 			children = (
@@ -1638,7 +1603,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0450;
+				LastUpgradeCheck = 0510;
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Lyre" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1878,11 +1843,6 @@
 				67F1491B149973B30028B7DD /* PRUpdate060Operation.m in Sources */,
 				673B011014B2C08F00407A36 /* PRSidebarImageView.m in Sources */,
 				677AE06D14C79D4700159E6F /* PRTrialSheetController.m in Sources */,
-				67DDC70014FA0F0800E361B0 /* MANotificationCenterAdditions.m in Sources */,
-				67DDC70114FA0F0800E361B0 /* MAWeakArray.m in Sources */,
-				67DDC70214FA0F0800E361B0 /* MAWeakDictionary.m in Sources */,
-				67DDC70314FA0F0800E361B0 /* MAZeroingWeakProxy.m in Sources */,
-				67DDC70414FA0F0800E361B0 /* MAZeroingWeakRef.m in Sources */,
 				67DDC70F14FA169B00E361B0 /* NSMenuItem+Extensions.m in Sources */,
 				67A7A2BB150BDC56005E91C0 /* PRFirstResponderGradientView.m in Sources */,
 				67A7A2BF150BDC68005E91C0 /* PRTitleBarGradientView.m in Sources */,
@@ -1926,7 +1886,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CODE_SIGN_IDENTITY = "";
 				COPY_PHASE_STRIP = NO;
@@ -1972,7 +1931,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CODE_SIGN_IDENTITY = "";
 				COPY_PHASE_STRIP = YES;
@@ -2016,7 +1974,6 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -2025,7 +1982,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "";
 				PROVISIONING_PROFILE = "";
 				SDKROOT = macosx;
@@ -2035,7 +1992,6 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				CODE_SIGN_IDENTITY = "3rd Party Mac Developer Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;

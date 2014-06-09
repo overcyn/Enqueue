@@ -156,7 +156,7 @@ using namespace TagLib;
 }
 
 + (NSMutableDictionary *)tagsForURL:(NSURL *)URL {
-    AudioMetadata *metadata = AudioMetadata::CreateMetadataForURL((CFURLRef)URL);
+    AudioMetadata *metadata = AudioMetadata::CreateMetadataForURL((__bridge CFURLRef)URL);
     if (!metadata) {
         return nil;
     }
@@ -196,35 +196,36 @@ using namespace TagLib;
         return [NSNumber numberWithInt:kind];
     };
     NSString *(^formatStr)(CFStringRef) = ^(CFStringRef a){
-        NSString *b = (NSString *)a;
+        NSString *b = (__bridge NSString *)a;
         if ([b length] > 255) {
             return [b substringToIndex:255];
         }
         return b;
     };
     NSString *(^formatLongStr)(CFStringRef) = ^(CFStringRef a){
-        NSString *b = (NSString *)a;
+        NSString *b = (__bridge NSString *)a;
         if ([b length] > 10000) {
             return [b substringToIndex:10000];
         }
         return b;
     };
     NSNumber *(^formatInt)(CFNumberRef) = ^(CFNumberRef a){
-        NSNumber *b = (NSNumber *)a;
+        NSNumber *b = (__bridge NSNumber *)a;
         if ([b intValue] < 0 || [b intValue] > 9999) {
             return [NSNumber numberWithInt:0];
         }
         return b;
     };
     NSNumber *(^formatTime)(CFNumberRef) = ^(CFNumberRef a){
-        NSNumber *b = (NSNumber *)a;
+        NSNumber *b = (__bridge NSNumber *)a;
         return [NSNumber numberWithInt:[b intValue] * 1000];
     };
     NSNumber *(^formatLongInt)(CFNumberRef) = ^(CFNumberRef a){
-        return (NSNumber *)a;
+        return (__bridge NSNumber *)a;
     };
     NSNumber *(^formatYear)(CFStringRef) = ^(CFStringRef a){
-        return (NSNumber *)formatInt((CFNumberRef)[NSNumber numberWithInt:[(NSString *)a intValue]]);
+        NSNumber *number = @([(__bridge NSString *)a intValue]);
+        return formatInt((__bridge CFNumberRef)number);
     };
     NSNumber *(^formatBool)(CFBooleanRef) = ^(CFBooleanRef a){
         if (!a) {

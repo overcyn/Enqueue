@@ -47,8 +47,8 @@ NSString * const PRSQLiteErrorDomain = @"PRSQLiteErrorDomain";
     
     CFRunLoopRef runLoop = CFRunLoopGetMain();
     CFArrayRef allModes = CFRunLoopCopyAllModes(runLoop);
-    for (NSString *mode in (NSArray *)allModes) {
-        CFRunLoopRunInMode((CFStringRef)mode, 0.001, false);
+    for (NSString *mode in (__bridge NSArray *)allModes) {
+        CFRunLoopRunInMode((__bridge CFStringRef)mode, 0.001, false);
     }
     CFRelease(allModes);
 }

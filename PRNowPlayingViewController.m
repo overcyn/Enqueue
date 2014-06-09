@@ -24,7 +24,6 @@
 #import "NSTableView+Extensions.h"
 #import "NSColor+Extensions.h"
 #import "PRViewController.h"
-#import "MAZeroingWeakRef.h"
 
 
 @interface PRNowPlayingViewController () 
@@ -408,14 +407,14 @@
     [alert setInformativeText:@"Existing playlist contents will be removed."];
     [alert setAlertStyle:NSWarningAlertStyle];
     
-    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(saveAsPlaylistHandler:code:context:) contextInfo:[NSNumber numberWithInt:playlist]];
+    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(saveAsPlaylistHandler:code:context:) contextInfo:(__bridge_retained void *)@(playlist)];
 }
 
 - (void)saveAsPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context {
+    PRList *list = (__bridge_transfer PRList *)context;
     if (code != NSAlertFirstButtonReturn) {
         return;
     }
-    PRList *list = context;
     [[db playlists] clearList:list];
     [[db playlists] copyItemsFromList:[now currentList] toList:list];
     [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
@@ -502,13 +501,13 @@
         return;
     }
     unichar c[1] = {NSCarriageReturnCharacter};
-    MAZeroingWeakRef *selfRef = [MAZeroingWeakRef refWithTarget:self];
+    __weak PRNowPlayingViewController *weakSelf = self;
     
     NSMenuItem *item = [[[NSMenuItem alloc] init] autorelease];
     [item setTitle:@"Play"];
     [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
     [item setKeyEquivalentModifierMask:0];
-    [item setActionBlock:^{[[selfRef target] playSelected];}];
+    [item setActionBlock:^{[weakSelf playSelected];}];
     [_contextMenu addItem:item];
     
     // Queue

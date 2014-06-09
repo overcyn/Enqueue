@@ -7,7 +7,7 @@
 #include <libkern/OSAtomic.h>
 #include <SFBAudioEngine/AudioPlayer.h>
 #include <SFBAudioEngine/AudioDecoder.h>
-#include <CoreAudio/CoreAudio.h>
+#import <CoreAudio/CoreAudio.h>
 #import "CAAUParameter.h"
 #import "AUParamInfo.h"
 #import "PREQ.h"
@@ -202,7 +202,7 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
     _transitionState = PRNeitherTransitionState;
     [self setVolume:[self volume]];
     
-    AudioDecoder *decoder = AudioDecoder::CreateDecoderForURL(reinterpret_cast<CFURLRef>([NSURL URLWithString:file]));
+    AudioDecoder *decoder = AudioDecoder::CreateDecoderForURL((__bridge CFURLRef)([NSURL URLWithString:file]));
     if (!decoder) {
 		return FALSE;
     }
@@ -220,7 +220,7 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
 - (BOOL)queue:(NSString *)file {
     PLAYER->ClearQueuedDecoders();
     
-    AudioDecoder *decoder = AudioDecoder::CreateDecoderForURL(reinterpret_cast<CFURLRef>([NSURL URLWithString:file]));
+    AudioDecoder *decoder = AudioDecoder::CreateDecoderForURL((__bridge CFURLRef)([NSURL URLWithString:file]));
     if (!decoder) {
 		return FALSE;
     }
@@ -242,7 +242,7 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
     if (PLAYER->IsPending()) {
         queued = _lastQueued;
     } else if (PLAYER->IsPlaying()) {
-        queued = [(NSURL *)PLAYER->GetPlayingURL() absoluteString];
+        queued = [(__bridge NSURL *)PLAYER->GetPlayingURL() absoluteString];
     }
     if ([queued isEqualToString:file]) {
         [_lastQueued release];
@@ -436,7 +436,7 @@ error:;
         if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, &name) != noErr) {
             continue;
         }
-        NSString *nameStr = [(NSString *)name autorelease];
+        NSString *nameStr = (__bridge_transfer NSString *)name;
         CFStringRef manufacturer;
         propertySize = sizeof(manufacturer);
         deviceAddress.mSelector = kAudioDevicePropertyDeviceManufacturerCFString;
@@ -445,7 +445,7 @@ error:;
         if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, &manufacturer) != noErr) {
             continue;
         }
-        NSString *manufacturerStr = [(NSString *)manufacturer autorelease];
+        NSString *manufacturerStr = (__bridge_transfer NSString *)manufacturer;
         CFStringRef UID;
         propertySize = sizeof(UID);
         deviceAddress.mSelector = kAudioDevicePropertyDeviceUID;
@@ -454,7 +454,7 @@ error:;
         if (AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, &UID) != noErr) {
             continue;
         }
-        NSString *UIDStr = [(NSString *)UID autorelease];
+        NSString *UIDStr = (__bridge_transfer NSString *)UID;
         [devices addObject:@{PRDeviceKeyName:nameStr, PRDeviceKeyManufacturer:manufacturerStr, PRDeviceKeyUID:UIDStr}];
     }
     free(deviceIDs);
@@ -502,7 +502,7 @@ error:;
     if (!PLAYER->CreateOutputDeviceUID(playerDevice) || playerDevice == nil) {
         return nil;
     }
-    return [(NSString *)playerDevice autorelease];
+    return (__bridge_transfer NSString *)playerDevice;
 }
 
 - (NSString *)defaultDevice {
@@ -523,7 +523,7 @@ error:;
 	if (AudioObjectGetPropertyData(defaultDeviceID, &propertyAddress, 0, nullptr, &dataSize, &deviceUID) != noErr || deviceUID == nil) {
 		return nil;
 	}
-    return [(NSString *)deviceUID autorelease];
+    return (__bridge_transfer NSString *)deviceUID;
 }
 
 - (void)updateDevice {
@@ -545,7 +545,7 @@ error:;
     }
     
     // otherwise try to set current device to saved device
-    if (PLAYER->SetOutputDeviceUID((CFStringRef)savedDevice)) {
+    if (PLAYER->SetOutputDeviceUID((__bridge CFStringRef)savedDevice)) {
         [[NSNotificationCenter defaultCenter] postNotificationName:PRDeviceDidChangeNotification object:nil];
         return;
     }
@@ -597,7 +597,7 @@ error:;
 
 OSStatus deviceListener(AudioObjectID inObjectID, UInt32 inNumberAddresses, const AudioObjectPropertyAddress inAddresses[], void *inClientData) {
     NSLog(@"blah");
-    [(PRMoviePlayer *)inClientData updateDevice];
+    [(__bridge PRMoviePlayer *)inClientData updateDevice];
     return noErr;
 }
 

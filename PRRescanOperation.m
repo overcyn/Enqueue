@@ -47,58 +47,59 @@
 
 - (void)main {
     NSLog(@"begin folderrescan");
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    PRTask *task = [PRTask task];
-    [task setTitle:@"Rescanning Folders..."];
-    [[_core taskManager] addTask:task];
-    
-    // Get Monitored files
-    [[NSOperationQueue mainQueue] addBlockAndWait:^{
-        [_db execute:@"DROP TABLE IF EXISTS tmp_tbl_monitored_files"];
-        [_db execute:@"CREATE TEMP TABLE tmp_tbl_monitored_files (file_id INTEGER UNIQUE NOT NULL, path TEXT NOT NULL, exist INTEGER DEFAULT 0)"];
-        for (NSURL *i in _URLs) {
-            [_db execute:@"INSERT OR IGNORE INTO tmp_tbl_monitored_files (file_id, path) SELECT file_id, path FROM library WHERE hfs_begins(?1, path)"
-                bindings:@{@1:[i absoluteString]}
-                 columns:nil];
+    @autoreleasepool {
+        PRTask *task = [PRTask task];
+        [task setTitle:@"Rescanning Folders..."];
+        [[_core taskManager] addTask:task];
+        
+        // Get Monitored files
+        [[NSOperationQueue mainQueue] addBlockAndWait:^{
+            [_db execute:@"DROP TABLE IF EXISTS tmp_tbl_monitored_files"];
+            [_db execute:@"CREATE TEMP TABLE tmp_tbl_monitored_files (file_id INTEGER UNIQUE NOT NULL, path TEXT NOT NULL, exist INTEGER DEFAULT 0)"];
+            for (NSURL *i in _URLs) {
+                [_db execute:@"INSERT OR IGNORE INTO tmp_tbl_monitored_files (file_id, path) SELECT file_id, path FROM library WHERE hfs_begins(?1, path)"
+                    bindings:@{@1:[i absoluteString]}
+                     columns:nil];
+            }
+        }];
+        
+        // Filter and add/update files
+        NSArray *files;
+        PRDirectoryEnumerator *dirEnum = [PRDirectoryEnumerator enumeratorWithURLs:_URLs];
+        while ((files = [dirEnum nextXObjects:100])) {
+            [task setPercent:(int)([dirEnum progress] * 90)];
+            [self filterURLs:files];
+            if ([task shouldCancel]) {
+                break;
+            }
         }
-    }];
-    
-    // Filter and add/update files
-    NSArray *files;
-    PRDirectoryEnumerator *dirEnum = [PRDirectoryEnumerator enumeratorWithURLs:_URLs];
-    while ((files = [dirEnum nextXObjects:100])) {
-        [task setPercent:(int)([dirEnum progress] * 90)];
-        [self filterURLs:files];
-        if ([task shouldCancel]) {
-            goto end;
+        
+        if (![task shouldCancel]) {
+            // Remove files
+            [task setPercent:95];
+            NSMutableArray *toRemove = [NSMutableArray array];
+            [[NSOperationQueue mainQueue] addBlockAndWait:^{
+                NSArray *rlt = [_db execute:@"SELECT file_id FROM tmp_tbl_monitored_files WHERE exist = 0"
+                                   bindings:nil
+                                    columns:@[PRColInteger]];
+                for (NSArray *i in rlt) {
+                    [toRemove addObject:[i objectAtIndex:0]];
+                }
+            }];
+            [self removeFiles:toRemove];
+            
+            // Update lastEventStreamEventId
+            [task setPercent:99];
+            [[NSOperationQueue mainQueue] addBlockAndWait:^{
+                [[PRDefaults sharedDefaults] setValue:[NSNumber numberWithUnsignedLongLong:_eventId] forKey:PRDefaultsLastEventStreamEventId];
+                if (_monitor) {
+                    [[_core folderMonitor] monitor];
+                }
+            }];
         }
+        
+        [[_core taskManager] removeTask:task];
     }
-    
-    // Remove files
-    [task setPercent:95];
-    NSMutableArray *toRemove = [NSMutableArray array];
-    [[NSOperationQueue mainQueue] addBlockAndWait:^{
-        NSArray *rlt = [_db execute:@"SELECT file_id FROM tmp_tbl_monitored_files WHERE exist = 0"
-                           bindings:nil 
-                            columns:@[PRColInteger]];
-        for (NSArray *i in rlt) {
-            [toRemove addObject:[i objectAtIndex:0]];
-        }
-    }];
-    [self removeFiles:toRemove];
-    
-    // Update lastEventStreamEventId
-    [task setPercent:99];
-    [[NSOperationQueue mainQueue] addBlockAndWait:^{
-        [[PRDefaults sharedDefaults] setValue:[NSNumber numberWithUnsignedLongLong:_eventId] forKey:PRDefaultsLastEventStreamEventId];
-        if (_monitor) {
-            [[_core folderMonitor] monitor];
-        }
-    }];
-
-end:;
-    [[_core taskManager] removeTask:task];
-    [pool drain];
     NSLog(@"end folderrescan");
 }
 
@@ -164,18 +165,18 @@ end:;
     // Get info for URLs
     NSMutableArray *infoArray = [NSMutableArray array];
     for (int i = 0; i < [URLs count]; i++) {
-        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-        PRFileInfo *info = [PRTagger infoForURL:[URLs objectAtIndex:i]];
-        if (!info) {
-            [pool drain]; continue;
+        @autoreleasepool {
+            PRFileInfo *info = [PRTagger infoForURL:[URLs objectAtIndex:i]];
+            if (!info) {
+                continue;
+            }
+            [[info attributes] setObject:[[NSDate date] description] forKey:PRItemAttrDateAdded];
+            if ([info art]) {
+                [info setTempArt:[[_db albumArtController] saveTempArtwork:[info art]]];
+                [info setArt:nil];
+            }
+            [infoArray addObject:info];
         }
-        [[info attributes] setObject:[[NSDate date] description] forKey:PRItemAttrDateAdded];
-        if ([info art]) {
-            [info setTempArt:[[_db albumArtController] saveTempArtwork:[info art]]];
-            [info setArt:nil];
-        }
-        [infoArray addObject:info];
-        [pool drain];
     }
     [[NSOperationQueue mainQueue] addBlockAndWait:^{
         [_db begin];
@@ -219,18 +220,18 @@ end:;
     // get updated attributes
     NSMutableArray *infoArray = [NSMutableArray array];
     for (NSDictionary *i in files) {
-        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-        PRFileInfo *info = [PRTagger infoForURL:[i objectForKey:@"URL"]];
-        if (!info) {
-            [pool drain]; continue;
+        @autoreleasepool {
+            PRFileInfo *info = [PRTagger infoForURL:[i objectForKey:@"URL"]];
+            if (!info) {
+                continue;
+            }
+            [info setItem:[i objectForKey:@"file"]];
+            if ([info art]) {
+                [info setTempArt:[[_db albumArtController] saveTempArtwork:[info art]]];
+                [info setArt:nil];
+            }
+            [infoArray addObject:info];
         }
-        [info setItem:[i objectForKey:@"file"]];
-        if ([info art]) {
-            [info setTempArt:[[_db albumArtController] saveTempArtwork:[info art]]];
-            [info setArt:nil];
-        }
-        [infoArray addObject:info];
-        [pool drain];
     }
     [[NSOperationQueue mainQueue] addBlockAndWait:^{
         [_db begin];

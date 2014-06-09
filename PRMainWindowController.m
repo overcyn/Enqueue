@@ -152,7 +152,6 @@
     }
     
     // artwork
-    [[[controlsViewController albumArtView] retain] autorelease];
     [[controlsViewController albumArtView] removeFromSuperview];
     [nowPlayingSuperview addSubview:[controlsViewController albumArtView]];
     

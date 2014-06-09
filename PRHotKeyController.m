@@ -49,7 +49,7 @@
         EventTypeSpec eventType;
         eventType.eventClass=kEventClassKeyboard;
         eventType.eventKind=kEventHotKeyPressed;
-        InstallApplicationEventHandler(&hotKeyHandler, 1, &eventType, _core, NULL);
+        InstallApplicationEventHandler(&hotKeyHandler, 1, &eventType, (__bridge void *)_core, NULL);
         
         EventHotKeyID hotKeyID;
         hotKeyID.signature = 's';
@@ -77,7 +77,7 @@
 
 
 OSStatus hotKeyHandler(EventHandlerCallRef nextHandler, EventRef event, void *userData) {
-    PRCore *core = userData;
+    PRCore *core = (__bridge PRCore *)userData;
     EventHotKeyID hotkey;
     GetEventParameter(event, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(hotkey), NULL, &hotkey);
     switch (hotkey.id) {

@@ -138,39 +138,38 @@ end:;
     [[_db albumArtController] clearTempArtwork];
     NSMutableArray *infoArray = [NSMutableArray array];
     for (int i = 0; i < [tracks count]; i++) {
-        NSAutoreleasePool *pool2 = [[NSAutoreleasePool alloc] init];
-        if ([toRemove containsIndex:i]) {
-            goto end;
+        @autoreleasepool {
+            if ([toRemove containsIndex:i]) {
+                continue;
+            }
+            NSDictionary *track = [tracks objectAtIndex:i];
+            NSURL *URL = [NSURL URLWithString:[track objectForKey:@"Location"]];
+            PRFileInfo *info = [PRTagger infoForURL:URL];
+            if (!info) {
+                continue;
+            }
+            if ([track objectForKey:@"Play Date UTC"]) {
+                [[info attributes] setObject:[[track objectForKey:@"Play Date UTC"] description] forKey:PRItemAttrLastPlayed];
+            }
+            if ([track objectForKey:@"Play Count"]) {
+                [[info attributes] setObject:[track objectForKey:@"Play Count"] forKey:PRItemAttrPlayCount];
+            }
+            if ([track objectForKey:@"Rating"]) {
+                [[info attributes] setObject:[track objectForKey:@"Rating"] forKey:PRItemAttrRating];
+            }
+            if ([track objectForKey:@"Date Added"]) {
+                [[info attributes] setObject:[[track objectForKey:@"Date Added"] description] forKey:PRItemAttrDateAdded];
+            } else {
+                [[info attributes] setObject:[[NSDate date] description] forKey:PRItemAttrDateAdded];
+            }
+            [info setTrackid:[[track objectForKey:@"Track ID"] intValue]];
+            // Artwork
+            if ([info art]) {
+                [info setTempArt:[[_db albumArtController] saveTempArtwork:[info art]]];
+                [info setArt:nil];
+            }
+            [infoArray addObject:info];
         }
-        NSDictionary *track = [tracks objectAtIndex:i];
-        NSURL *URL = [NSURL URLWithString:[track objectForKey:@"Location"]];
-        PRFileInfo *info = [PRTagger infoForURL:URL];
-        if (!info) {
-            goto end;
-        }
-        if ([track objectForKey:@"Play Date UTC"]) {
-            [[info attributes] setObject:[[track objectForKey:@"Play Date UTC"] description] forKey:PRItemAttrLastPlayed];
-        }
-        if ([track objectForKey:@"Play Count"]) {
-            [[info attributes] setObject:[track objectForKey:@"Play Count"] forKey:PRItemAttrPlayCount];
-        }
-        if ([track objectForKey:@"Rating"]) {
-            [[info attributes] setObject:[track objectForKey:@"Rating"] forKey:PRItemAttrRating];
-        }
-        if ([track objectForKey:@"Date Added"]) {
-            [[info attributes] setObject:[[track objectForKey:@"Date Added"] description] forKey:PRItemAttrDateAdded];
-        } else {
-            [[info attributes] setObject:[[NSDate date] description] forKey:PRItemAttrDateAdded];
-        }
-        [info setTrackid:[[track objectForKey:@"Track ID"] intValue]];
-        // Artwork
-        if ([info art]) {
-            [info setTempArt:[[_db albumArtController] saveTempArtwork:[info art]]];
-            [info setArt:nil];
-        }
-        [infoArray addObject:info];
-    end:
-        [pool2 drain];
     }
     // Add files
     blk = ^{
