@@ -36,7 +36,22 @@ NSString * const PRColData = @"PRColData";
 @end
 
 
-@implementation PRDb
+@implementation PRDb {
+    sqlite3 *sqlDb;
+    PRHistory *history;
+    PRLibrary *library;
+    PRPlaylists *playlists;
+    PRQueue *queue;
+    PRLibraryViewSource *libraryViewSource;
+    PRNowPlayingViewSource *nowPlayingViewSource;
+    PRPlaybackOrder *playbackOrder;
+    PRAlbumArtController *albumArtController;
+    
+    int transaction;
+    NSMutableDictionary *_cachedStatements;
+    
+    __weak PRCore *_core;
+}
 
 #pragma mark - Initialization
 

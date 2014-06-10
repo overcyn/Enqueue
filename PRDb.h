@@ -1,7 +1,16 @@
 #import <Cocoa/Cocoa.h>
 #include "sqlite3.h"
-@class PRHistory, PRLibrary, PRPlaylists, PRLibraryViewSource, PRNowPlayingViewSource, PRAlbumArtController,
-PRPlaybackOrder, PRQueue, PRStatement, PRCore;
+
+@class PRHistory;
+@class PRLibrary;
+@class PRPlaylists;
+@class PRLibraryViewSource;
+@class PRNowPlayingViewSource;
+@class PRAlbumArtController;
+@class PRPlaybackOrder;
+@class PRQueue;
+@class PRStatement;
+@class PRCore;
 
 
 extern NSString * const PRFilePboardType;
@@ -14,22 +23,7 @@ extern NSString * const PRColString;
 extern NSString * const PRColData;
 
 
-@interface PRDb : NSObject {
-	sqlite3 *sqlDb;
-	PRHistory *history;
-	PRLibrary *library;
-	PRPlaylists *playlists;
-    PRQueue *queue;
-	PRLibraryViewSource *libraryViewSource;
-	PRNowPlayingViewSource *nowPlayingViewSource;
-    PRPlaybackOrder *playbackOrder;
-	PRAlbumArtController *albumArtController;
-    
-    int transaction;
-    NSMutableDictionary *_cachedStatements;
-    
-    __weak PRCore *_core;
-}
+@interface PRDb : NSObject
 /* Initialization */
 - (id)initWithCore:(PRCore *)core;
 
