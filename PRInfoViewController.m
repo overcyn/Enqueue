@@ -1,26 +1,26 @@
 #import "PRInfoViewController.h"
-#import "PRLibraryViewController.h"
-#import "PRLibrary.h"
-#import "PRAlbumArtController.h"
-#import "PRDb.h"
-#import "PRRatingCell.h"
-#import "PRGradientView.h"
-#import "PRNumberFormatter.h"
-#import "PRStringFormatter.h"
-#import "PRCore.h"
-#import "PRTableViewController.h"
-#import "PRMainWindowController.h"
-#import "PRLibraryViewController.h"
-#import "PRPathFormatter.h"
-#import "PRKindFormatter.h"
-#import "PRSizeFormatter.h"
-#import "PRDateFormatter.h"
-#import "PRTimeFormatter.h"
-#import "PRBitRateFormatter.h"
-#import "PRTagger.h"
 #import "NSArray+Extensions.h"
 #import "NSIndexSet+Extensions.h"
 #import "NSNotificationCenter+Extensions.h"
+#import "PRAlbumArtController.h"
+#import "PRBitRateFormatter.h"
+#import "PRCore.h"
+#import "PRDateFormatter.h"
+#import "PRDb.h"
+#import "PRGradientView.h"
+#import "PRKindFormatter.h"
+#import "PRLibrary.h"
+#import "PRLibraryViewController.h"
+#import "PRLibraryViewController.h"
+#import "PRMainWindowController.h"
+#import "PRNumberFormatter.h"
+#import "PRPathFormatter.h"
+#import "PRRatingCell.h"
+#import "PRSizeFormatter.h"
+#import "PRStringFormatter.h"
+#import "PRTableViewController.h"
+#import "PRTagger.h"
+#import "PRTimeFormatter.h"
 
 
 #define CONTROLKEY @"control"
@@ -35,26 +35,71 @@
 #define NUMBERKIND 2
 
 
-@interface PRInfoViewController ()
-/* Tab Control */
-- (void)updateTabControl;
-- (NSDictionary *)tabs;
-- (void)tabAction:(id)sender;
-
-/* Update */
-- (void)update;
-
-/* Accessors */
-- (void)setValue:(id)value forAttribute:(PRItemAttr *)attribute;
-- (id)valueForAttribute:(PRItemAttr *)attr;
-- (void)toggleCompilation;
-
-/* Misc */
-- (NSArray *)tagControls;
-@end
-
-
-@implementation PRInfoViewController
+@implementation PRInfoViewController {
+    __weak PRCore *_core;
+    __weak PRDb *_db;
+    
+    IBOutlet NSTextField *titleField;
+    IBOutlet NSTextField *artistField;  
+    IBOutlet NSTextField *albumArtistField; 
+    IBOutlet NSTextField *albumField;
+    IBOutlet NSTextField *yearField;
+    IBOutlet NSTextField *bpmField; 
+    IBOutlet NSTextField *trackField;   
+    IBOutlet NSTextField *trackCountField;      
+    IBOutlet NSTextField *discField;
+    IBOutlet NSTextField *discCountField;
+    IBOutlet NSTextField *composerField;    
+    IBOutlet NSTextField *commentsField;
+    IBOutlet NSTextField *genreField;
+    IBOutlet NSButton *_compilationButton;
+    
+    IBOutlet NSTextField *_pathField;
+    IBOutlet NSTextField *_kindField;
+    IBOutlet NSTextField *_sizeField;
+    IBOutlet NSTextField *_lastModifiedField;
+    IBOutlet NSTextField *_dateAddedField;
+    IBOutlet NSTextField *_lengthField;
+    IBOutlet NSTextField *_bitrateField;
+    IBOutlet NSTextField *_channelsField;
+    IBOutlet NSTextField *_sampleRateField;
+    IBOutlet NSTextField *_playCountField;
+    IBOutlet NSTextField *_lastPlayedField;
+    
+    IBOutlet NSTextField *_lyricsField;
+    
+    IBOutlet NSSegmentedControl *ratingControl;
+    IBOutlet NSImageView *albumArtView;
+    
+    IBOutlet NSButton *_tagsButton;
+    IBOutlet NSButton *_propertiesButton;
+    IBOutlet NSButton *_lyricsButton;
+    IBOutlet NSButton *_artworkButton;
+    
+    IBOutlet NSView *_tagsView;
+    IBOutlet NSView *_propertiesView;
+    IBOutlet NSView *_lyricsView;
+    IBOutlet NSView *_artworkView;
+    
+    IBOutlet PRGradientView *_border;
+        
+    PRInfoMode _mode;
+    
+    NSArray *_controls;
+    NSArray *_propertyControls;
+    NSArray *labels;
+    PRBitRateFormatter *_bitrateFormatter;
+    PRDateFormatter *_dateFormatter;
+    PRSizeFormatter *_sizeFormatter;
+    PRPathFormatter *_pathFormatter;
+    PRKindFormatter *_kindFormatter;
+    PRTimeFormatter *_timeFormatter;
+    PRNumberFormatter *_numberFormatter;
+    PRStringFormatter *_stringFormatter;
+    
+    NSArray *_selection;
+    BOOL _didChange;
+}
 
 #pragma mark - Initialization
 
@@ -134,25 +179,11 @@
 
 #pragma mark - Tab Control
 
-- (NSDictionary *)tabs {
-    return [NSArray arrayWithObjects:
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSNumber numberWithInt:PRInfoModeTags], @"mode", 
-             _tagsView, @"view", 
-             _tagsButton, @"button", nil], 
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSNumber numberWithInt:PRInfoModeProperties], @"mode", 
-             _propertiesView, @"view", 
-             _propertiesButton, @"button", nil],
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSNumber numberWithInt:PRInfoModeLyrics], @"mode", 
-             _lyricsView, @"view", 
-             _lyricsButton, @"button", nil],
-            [NSDictionary dictionaryWithObjectsAndKeys:
-             [NSNumber numberWithInt:PRInfoModeArtwork], @"mode", 
-             _artworkView, @"view", 
-             _artworkButton, @"button", nil],
-            nil];
+- (NSArray *)tabs {
+    return @[@{@"mode":@(PRInfoModeTags), @"view":_tagsView, @"button":_tagsButton},
+             @{@"mode":@(PRInfoModeProperties), @"view":_propertiesView, @"button":_propertiesButton},
+             @{@"mode":@(PRInfoModeLyrics), @"view":_lyricsView, @"button":_lyricsButton},
+             @{@"mode":@(PRInfoModeArtwork), @"view":_artworkView, @"button":_artworkButton}];
 }
 
 - (void)updateTabControl {

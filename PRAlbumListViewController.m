@@ -92,31 +92,31 @@
 		[albumSumCountArray replaceObjectAtIndex:i withObject:[NSNumber numberWithInt:count]];
 	}
         
-        // update cachedArt
-        if (force) {
-            [_cachedArtwork removeAllObjects];
-        }
-        
-        // reload tables
-        _updatingTableViewSelection = FALSE;
-        if ((tables & PRLibraryView) == PRLibraryView) {
-            [libraryTableView reloadData];
-            [albumTableView reloadData];
-        }
-        if ((tables & PRBrowser1View) == PRBrowser1View) {
-            [browser1TableView reloadData];
-        }
-        if ((tables & PRBrowser2View) == PRBrowser2View) {    
-            [browser2TableView reloadData];
-        }
-        if ((tables & PRBrowser3View) == PRBrowser3View) {
-            [browser3TableView reloadData];
-        }
-        [browser1TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:1] byExtendingSelection:FALSE];
-        [browser2TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:2] byExtendingSelection:FALSE];
-        [browser3TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:3] byExtendingSelection:FALSE];
-        _updatingTableViewSelection = TRUE;
-	
+    // update cachedArt
+    if (force) {
+        [_cachedArtwork removeAllObjects];
+    }
+    
+    // reload tables
+    _updatingTableViewSelection = FALSE;
+    if ((tables & PRLibraryView) == PRLibraryView) {
+        [libraryTableView reloadData];
+        [albumTableView reloadData];
+    }
+    if ((tables & PRBrowser1View) == PRBrowser1View) {
+        [browser1TableView reloadData];
+    }
+    if ((tables & PRBrowser2View) == PRBrowser2View) {    
+        [browser2TableView reloadData];
+    }
+    if ((tables & PRBrowser3View) == PRBrowser3View) {
+        [browser3TableView reloadData];
+    }
+    [browser1TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:1] byExtendingSelection:FALSE];
+    [browser2TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:2] byExtendingSelection:FALSE];
+    [browser3TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:3] byExtendingSelection:FALSE];
+    _updatingTableViewSelection = TRUE;
+
 	[NSNotificationCenter post:PRLibraryViewSelectionDidChangeNotification];
     }
 }

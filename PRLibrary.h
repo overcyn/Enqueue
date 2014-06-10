@@ -1,5 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import "PRDb.h"
+
 @class PRDb;
 
 
@@ -43,9 +44,7 @@ extern PRItemAttr * const PRItemAttrPlayCount;
 extern PRItemAttr * const PRItemAttrRating;
 
 
-@interface PRLibrary : NSObject {
-	PRDb *db;
-}
+@interface PRLibrary : NSObject
 /* Initialization */
 - (id)initWithDb:(PRDb *)db_;
 - (void)create;

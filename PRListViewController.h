@@ -3,8 +3,4 @@
 
 
 @interface PRListViewController : PRTableViewController
-{
-	
-}
-
 @end

@@ -15,7 +15,6 @@
     frame2.origin.x += 0.5;
     frame2.size.width -= 1;
     
-    float radius = _rounded ? 2.0 : 0.0;
     NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:frame2 xRadius:_rounded yRadius:_rounded];
     
     // Draw background

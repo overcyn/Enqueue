@@ -1014,9 +1014,9 @@
         NSUInteger queueIndex = [[[db queue] queueArray] indexOfObject:listItem];
         NSNumber *badge;
         if (queueIndex != NSNotFound) {
-            badge = [NSNumber numberWithInt:queueIndex + 1];
+            badge = @(queueIndex + 1);
         } else {
-            badge = [NSNumber numberWithInt:0];
+            badge = @0;
         }
         return @{@"title":title, @"icon":icon, @"invertedIcon":invertedIcon, @"badge":badge, @"item":item, @"target":self};
     }
@@ -1025,9 +1025,9 @@
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item {
     NSArray *newItem;
     if (!item) {
-        newItem = [NSArray arrayWithObjects:[NSNumber numberWithInt:index], nil];
+        newItem = @[@(index)];
     } else {
-        newItem = [NSArray arrayWithObjects:[item objectAtIndex:0], [NSNumber numberWithInt:index], nil];
+        newItem = @[item[0], @(index)];
     }
     return [self itemForItem:newItem];
 }

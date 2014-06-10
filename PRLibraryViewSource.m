@@ -638,7 +638,7 @@ NSString * const compilationString = @"Compilations  ";
 	}
     NSString *browserTableName = [self tableNameForBrowser:browser];
 	NSMutableString *string = [NSMutableString stringWithFormat:@"SELECT row FROM %@ WHERE value COLLATE NOCASE2 IN (", browserTableName];
-	for (NSString *i in selectionArray) {
+	for (NSInteger i = 0; i < [selectionArray count]; i++) {
 		[string appendString:@"?, "];
 	}
     [string deleteCharactersInRange:NSMakeRange([string length] - 2, 2)];

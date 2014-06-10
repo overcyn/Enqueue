@@ -1,32 +1,27 @@
 #import "PRNowPlayingController.h"
-#import "PRLibrary.h"
-#import "PRPlaylists.h"
-#import "PRPlaybackOrder.h"
-#import "PRHistory.h"
 #import "PRDb.h"
-#import "PRMoviePlayer.h"
-#import "PRQueue.h"
 #import "PRDefaults.h"
+#import "PRHistory.h"
+#import "PRLibrary.h"
+#import "PRMoviePlayer.h"
+#import "PRPlaybackOrder.h"
+#import "PRPlaylists.h"
+#import "PRQueue.h"
 #import "PRTagger.h"
 
-@interface PRNowPlayingController ()
-/* Playback */
-- (void)playListItem:(PRListItem *)listItem evenIfQueued:(BOOL)evenIfQueued;
-- (PRListItem *)nextItem:(BOOL)update;
-- (PRListItem *)previousItem:(BOOL)update;
 
-/* Update */
-- (void)movieDidFinish;
-- (void)movieAlmostFinished;
+@implementation PRNowPlayingController {
+    PRListItem *_currentListItem;
+    NSMutableArray *_invalidItems;
+    int _position; // current position in playback history. usually count of playbackorder
+    int _marker; // position in history AFTER which not to random from
+    
+    long _random; // next random number
+    
+    PRMoviePlayer *_mov;
 
-/* Order */
-@property (readwrite) int position;
-@property (readwrite) int marker;
-- (void)clearHistory;
-@end
-
-
-@implementation PRNowPlayingController
+    __weak PRDb *_db;
+}
 
 #pragma mark - Initialization
 
@@ -57,10 +52,6 @@
 
 @synthesize invalidItems = _invalidItems;
 @synthesize mov = _mov;
-@dynamic currentList;
-@dynamic currentListItem;
-@dynamic currentItem;
-@dynamic currentIndex;
 
 - (PRList *)currentList {
     return [[_db playlists] nowPlayingList];
@@ -83,9 +74,6 @@
 	}
 	return [[_db playlists] indexForListItem:[self currentListItem]];
 }
-
-@dynamic shuffle;
-@dynamic repeat;
 
 - (int)repeat {
     return [[PRDefaults sharedDefaults] boolForKey:PRDefaultsRepeat];
@@ -315,7 +303,7 @@
     }
 }
 
-#pragma mark - Update Priv
+#pragma mark - Notifications
 
 - (void)movieDidFinish {
 	int playCount = [[[_db library] valueForItem:[self currentItem] attr:PRItemAttrPlayCount] intValue];
@@ -325,20 +313,19 @@
     
     // essentially playNext but if not queued
     PRListItem *item = [self nextItem:TRUE];
-    if (!item) {
+    if (item) {
+        [self playListItem:item evenIfQueued:FALSE];
+    } else {
         [self stop];
-        return;
     }
-    [self playListItem:item evenIfQueued:FALSE];
 }
 
 - (void)movieAlmostFinished {
     PRListItem *item = [self nextItem:FALSE];
-    if (!item) {
-        return;
+    if (item) {
+        NSString *path = [[_db library] valueForItem:[[_db playlists] itemForListItem:item] attr:PRItemAttrPath];
+        [_mov queue:path];
     }
-    NSString *path = [[_db library] valueForItem:[[_db playlists] itemForListItem:item] attr:PRItemAttrPath];
-    [_mov queue:path];
 }
 
 - (void)playlistDidChange:(NSNotification *)notification {
@@ -350,9 +337,6 @@
 }
 
 #pragma mark - Order Priv
-
-@dynamic position;
-@dynamic marker;
 
 - (int)position {
     if (_position < 0 || _position > [[_db playbackOrder] count]) {

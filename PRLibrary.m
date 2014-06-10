@@ -1,10 +1,11 @@
 #import "PRLibrary.h"
-#import "PRDb.h"
-#import "PRPlaylists.h"
 #import "PRAlbumArtController.h"
+#import "PRDb.h"
 #import "PRDefaults.h"
-#import "PRTagger.h"
 #import "PRFileInfo.h"
+#import "PRPlaylists.h"
+#import "PRTagger.h"
+
 
 PRItemAttr * const PRItemAttrPath = @"PRItemAttrPath";
 PRItemAttr * const PRItemAttrSize = @"PRItemAttrSize";
@@ -119,73 +120,69 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     "WHERE file_id = NEW.file_id; END ";
 
 
-@interface PRLibrary ()
-/* Update */
-- (BOOL)propagateItemDelete;
-@end
-
-
-@implementation PRLibrary
+@implementation PRLibrary {
+    PRDb *_db;
+}
 
 #pragma mark - Initialization
 
-- (id)initWithDb:(PRDb *)db_ {
+- (id)initWithDb:(PRDb *)db {
     if (!(self = [super init])) {return nil;}
-    db = db_;
+    _db = db;
 	return self;
 }
 
 - (void)create {
-    [db execute:PR_TBL_LIBRARY_SQL];
-    [db execute:PR_IDX_PATH_SQL];
-    [db execute:PR_IDX_ALBUM_SQL];
-    [db execute:PR_IDX_ARTIST_SQL];
-    [db execute:PR_IDX_GENRE_SQL];
-    [db execute:PR_IDX_ARTIST_ALBUM_ARTIST_SQL];
-    [db execute:PR_IDX_COMPILATION_SQL];
+    [_db execute:PR_TBL_LIBRARY_SQL];
+    [_db execute:PR_IDX_PATH_SQL];
+    [_db execute:PR_IDX_ALBUM_SQL];
+    [_db execute:PR_IDX_ARTIST_SQL];
+    [_db execute:PR_IDX_GENRE_SQL];
+    [_db execute:PR_IDX_ARTIST_ALBUM_ARTIST_SQL];
+    [_db execute:PR_IDX_COMPILATION_SQL];
 }
 
 - (BOOL)initialize {
     NSArray *columns = @[PRColString];
-    NSArray *result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'library'" bindings:nil columns:columns];
+    NSArray *result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'library'" bindings:nil columns:columns];
     if ([result count] != 1 || !([[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_LIBRARY_SQL] || 
         [[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_LIBRARY_SQL2])) {
         return FALSE;
     }
     
-    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_path'" bindings:nil columns:columns];
+    result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_path'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_PATH_SQL]) {
         return FALSE;
     }
     
-    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_album'" bindings:nil columns:columns];
+    result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_album'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_ALBUM_SQL]) {
         return FALSE;
     }
     
-    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_artist'" bindings:nil columns:columns];
+    result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_artist'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_ARTIST_SQL]) {
         return FALSE;
     }
     
-    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_genre'" bindings:nil columns:columns];
+    result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_genre'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_GENRE_SQL]) {
         return FALSE;
     }
     
-    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_artistAlbumArtist'" bindings:nil columns:columns];
+    result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_artistAlbumArtist'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_ARTIST_ALBUM_ARTIST_SQL]) {
         return FALSE;
     }
     
-    result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_compilation'" bindings:nil columns:columns];
+    result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_compilation'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_COMPILATION_SQL]) {
         return FALSE;
     }
 
-    [db execute:PR_TRG_ARTIST_ALBUM_ARTIST_SQL];
-    [db execute:PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL];
-    [db execute:@"UPDATE library SET artistAlbumArtist = coalesce(nullif(albumArtist, ''), artist) "
+    [_db execute:PR_TRG_ARTIST_ALBUM_ARTIST_SQL];
+    [_db execute:PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL];
+    [_db execute:@"UPDATE library SET artistAlbumArtist = coalesce(nullif(albumArtist, ''), artist) "
         "WHERE artistAlbumArtist != coalesce(nullif(albumArtist, ''), artist)"];
     return TRUE;
 }
@@ -193,13 +190,13 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 #pragma mark - Update
 
 - (BOOL)propagateItemDelete {
-    return [[db playlists] cleanPlaylistItems] && [[db playlists] propagateListItemDelete];
+    return [[_db playlists] cleanPlaylistItems] && [[_db playlists] propagateListItemDelete];
 }
 
 #pragma mark - Accessors
 
 - (BOOL)containsItem:(PRItem *)item {
-    NSArray *rlt = [db execute:@"SELECT count(*) FROM library WHERE file_id = ?1"
+    NSArray *rlt = [_db execute:@"SELECT count(*) FROM library WHERE file_id = ?1"
                       bindings:@{@1:item}
                        columns:@[PRColInteger]];
     return [[[rlt objectAtIndex:0] objectAtIndex:0] intValue] > 0;
@@ -221,24 +218,24 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     [stm2 deleteCharactersInRange:NSMakeRange([stm2 length] - 2, 1)];
     [stm2 appendFormat:@") "];
     [stm appendString:stm2];
-    [db execute:stm bindings:bnd columns:nil];
-    return [PRItem numberWithUnsignedLongLong:[db lastInsertRowid]];
+    [_db execute:stm bindings:bnd columns:nil];
+    return [PRItem numberWithUnsignedLongLong:[_db lastInsertRowid]];
 }
 
 - (void)removeItems:(NSArray *)items {
     NSMutableString *stm = [NSMutableString stringWithString:@"DELETE FROM library WHERE file_id IN ("];
     for (PRItem *i in items) {
         [stm appendString:[NSString stringWithFormat:@"%llu, ", [i unsignedLongLongValue]]];
-        [[db albumArtController] clearArtworkForItem:i];
+        [[_db albumArtController] clearArtworkForItem:i];
     }
     [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 2)];
     [stm appendString:@")"];
-    [db execute:stm];
+    [_db execute:stm];
     [self propagateItemDelete];
 }
 
 - (id)valueForItem:(PRItem *)item attr:(PRItemAttr *)attr {
-    NSArray *rlt = [db execute:[NSString stringWithFormat:@"SELECT %@ FROM library WHERE file_id = ?1", [PRLibrary columnNameForItemAttr:attr]]
+    NSArray *rlt = [_db execute:[NSString stringWithFormat:@"SELECT %@ FROM library WHERE file_id = ?1", [PRLibrary columnNameForItemAttr:attr]]
                       bindings:@{@1:item}
                        columns:@[[PRLibrary columnTypeForItemAttr:attr]]];
     if ([rlt count] != 1) {
@@ -248,7 +245,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 }
 
 - (void)setValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr {
-    [db execute:[NSString stringWithFormat:@"UPDATE library SET %@ = ?1 WHERE file_id = ?2", [PRLibrary columnNameForItemAttr:attr]]
+    [_db execute:[NSString stringWithFormat:@"UPDATE library SET %@ = ?1 WHERE file_id = ?2", [PRLibrary columnNameForItemAttr:attr]]
        bindings:@{@1:value, @2:item}
         columns:nil];
 }
@@ -262,7 +259,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     }
     [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
     [string appendString:@"FROM library WHERE file_id = ?1"];
-    NSArray *results = [db execute:string bindings:@{@1:item} columns:columns];
+    NSArray *results = [_db execute:string bindings:@{@1:item} columns:columns];
     if ([results count] != 1) {
         [PRException raise:PRDbInconsistencyException format:@""];
     }
@@ -286,7 +283,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
     [string appendFormat:@"WHERE file_id = ?%d", bindingIndex];
     [bindings setObject:item forKey:[NSNumber numberWithInt:bindingIndex]];
-    [db execute:string bindings:bindings columns:nil];
+    [_db execute:string bindings:bindings columns:nil];
 }
 
 - (NSString *)artistValueForItem:(PRItem *)item {
@@ -302,7 +299,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 }
 
 - (NSArray *)itemsWithSimilarURL:(NSURL *)URL {
-    NSArray *rlt = [db execute:@"SELECT file_id FROM library WHERE path = ?1 COLLATE hfs_compare" 
+    NSArray *rlt = [_db execute:@"SELECT file_id FROM library WHERE path = ?1 COLLATE hfs_compare" 
                       bindings:@{@1:[URL absoluteString]}
                        columns:@[PRColInteger]];
     NSMutableArray *array = [NSMutableArray array];
@@ -313,7 +310,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 }
 
 - (NSArray *)itemsWithValue:(id)value forAttr:(PRItemAttr *)attr {
-    NSArray *result = [db execute:[NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ = ?1", [PRLibrary columnNameForItemAttr:attr]]
+    NSArray *result = [_db execute:[NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ = ?1", [PRLibrary columnNameForItemAttr:attr]]
                          bindings:@{@1:value}
                           columns:@[PRColInteger]];
     NSMutableArray *items = [NSMutableArray array];

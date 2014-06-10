@@ -1,6 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import "PRLibrary.h"
 #import "PRDb.h"
+
 @class PRDb;
 
 
@@ -61,9 +62,7 @@ typedef enum {
 } PRSort;
 
 
-@interface PRPlaylists : NSObject {
-	__weak PRDb *db;
-}
+@interface PRPlaylists : NSObject
 // Initialization
 - (id)initWithDb:(PRDb *)db;
 - (void)create;

@@ -1,20 +1,20 @@
 #import "PRCore.h"
+#import "PRAlbumArtController.h"
 #import "PRDb.h"
+#import "PRDefaults.h"
 #import "PRHistory.h"
 #import "PRLibrary.h"
-#import "PRPlaylists.h"
-#import "PRQueue.h"
 #import "PRLibraryViewSource.h"
 #import "PRNowPlayingViewSource.h"
-#import "PRAlbumArtController.h"
 #import "PRPlaybackOrder.h"
-#include <string.h>
-#include <ctype.h>
-#include "PRDefaults.h"
-#include <sys/file.h>
-#import "PRUpdate060Operation.h"
+#import "PRPlaylists.h"
+#import "PRQueue.h"
 #import "PRStatement.h"
+#import "PRUpdate060Operation.h"
 #import "sqlite_str.h"
+#include <ctype.h>
+#include <string.h>
+#include <sys/file.h>
 
 
 NSString * const PRFilePboardType = @"PRFilePboardType";
@@ -24,16 +24,6 @@ NSString * const PRColFloat = @"PRColFloat";
 NSString * const PRColInteger = @"PRColInteger";
 NSString * const PRColString = @"PRColString";
 NSString * const PRColData = @"PRColData";
-
-
-@interface PRDb ()
-/* Initialization */
-- (BOOL)open;
-- (void)create;
-- (BOOL)update;
-- (BOOL)initialize;
-- (BOOL)move:(NSError **)err;
-@end
 
 
 @implementation PRDb {

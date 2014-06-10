@@ -21,30 +21,23 @@
 #import <Cocoa/Cocoa.h>
 #import "PRPlaylists.h"
 #import "PRLibrary.h"
-@class PRDb, PRPlaybackOrder, PRHistory, PRMoviePlayer;
+
+@class PRDb;
+@class PRPlaybackOrder;
+@class PRHistory; 
+@class PRMoviePlayer;
 
 
-@interface PRNowPlayingController : NSObject {
-    PRListItem *_currentListItem;
-    NSMutableArray *_invalidItems;
-	int _position; // current position in playback history. usually count of playbackorder
-	int _marker; // position in history AFTER which not to random from
-    
-    long _random; // next random number
-    
-	PRMoviePlayer *_mov;
-
-	__weak PRDb *_db;
-}
+@interface PRNowPlayingController : NSObject
 /* Initialization */
 - (id)initWithDb:(PRDb *)db;
 
 /* Accessors */
 @property (readonly) NSArray *invalidItems;
 @property (readonly) PRMoviePlayer *mov;
-@property (weak, readonly) PRList *currentList;
-@property (weak, readonly) PRListItem *currentListItem;
-@property (weak, readonly) PRItem *currentItem;
+@property (readonly) PRList *currentList;
+@property (readonly) PRListItem *currentListItem;
+@property (readonly) PRItem *currentItem;
 @property (readonly) int currentIndex;
 
 @property (readwrite) BOOL shuffle;
