@@ -1,27 +1,40 @@
 #import "PRCore.h"
+#import "NSFileManager+DirectoryLocations.h"
 #import "PRDb.h"
-#import "PRNowPlayingController.h"
-#import "PRMainWindowController.h"
-#import "PRImportOperation.h"
-#import "PRItunesImportOperation.h"
-#import "PRFolderMonitor.h"
-#import "PRTaskManager.h"
 #import "PRDefaults.h"
+#import "PREnableLogger.h"
+#import "PRFolderMonitor.h"
+#import "PRFullRescanOperation.h"
 #import "PRGrowl.h"
 #import "PRHotKeyController.h"
+#import "PRImportOperation.h"
+#import "PRItunesImportOperation.h"
 #import "PRLastfm.h"
-#import "PRVacuumOperation.h"
 #import "PRMainMenuController.h"
+#import "PRMainWindowController.h"
 #import "PRMediaKeyController.h"
-#import "PRFullRescanOperation.h"
+#import "PRNowPlayingController.h"
+#import "PRTaskManager.h"
 #import "PRTrialSheetController.h"
+#import "PRVacuumOperation.h"
 #import "PRWelcomeSheetController.h"
-#import "NSFileManager+DirectoryLocations.h"
-#include "PREnableLogger.h"
 
 
-
-@implementation PRCore
+@implementation PRCore {
+    IBOutlet NSMenu *__weak _mainMenu;
+    NSConnection *_connection;
+    
+    PRDb *_db;
+    PRNowPlayingController *_now;
+    PRMainWindowController *_win;
+    NSOperationQueue *_opQueue;
+    PRFolderMonitor *_folderMonitor;
+    PRTaskManager *_taskManager;
+    PRGrowl *_growl;
+    PRLastfm *_lastfm;
+    PRMediaKeyController *_keys;
+    PRHotKeyController *_hotKeys;
+}
 
 #pragma mark - Initialization
 
@@ -30,12 +43,16 @@
     // Prevent multiple instances of application
     _connection = [NSConnection connectionWithReceivePort:[NSPort port] sendPort:[NSPort port]];
     if (![_connection registerName:@"enqueue"]) {
-        [[PRLog sharedLog] presentFatalError:[self multipleInstancesError]];
+        NSDictionary *userInfo = @{NSLocalizedDescriptionKey:@"Another instance of Enqueue appears to be running.", 
+            NSLocalizedRecoverySuggestionErrorKey:@"Close the other instance and try again."};
+        [[PRLog sharedLog] presentFatalError:[NSError errorWithDomain:PREnqueueErrorDomain code:0 userInfo:userInfo]];
     }
     
     NSString *path = [[PRDefaults sharedDefaults] applicationSupportPath];
     if (![[[NSFileManager alloc] init] findOrCreateDirectoryAtPath:path error:nil]) {
-        [[PRLog sharedLog] presentFatalError:[self couldNotCreateDirectoryError:path]];
+        NSDictionary *userInfo = @{NSLocalizedDescriptionKey:@"Enqueue could not create the following directory and must close.", 
+            NSLocalizedRecoverySuggestionErrorKey:path};
+        [[PRLog sharedLog] presentFatalError:[NSError errorWithDomain:PREnqueueErrorDomain code:0 userInfo:userInfo]];
     }
     
     _opQueue = [[NSOperationQueue alloc] init];
@@ -63,6 +80,7 @@
     
 //    PRTrialSheetController *trialSheet = [[PRTrialSheetController alloc] initWithCore:self]; 
 //    [trialSheet beginSheetModalForWindow:[_win window] completionHandler:^{}];
+    
     if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsShowWelcomeSheet]) {
         [[PRDefaults sharedDefaults] setBool:FALSE forKey:PRDefaultsShowWelcomeSheet];
         PRWelcomeSheetController *welcomeSheet = [[PRWelcomeSheetController alloc] initWithCore:self];
@@ -72,16 +90,16 @@
 
 #pragma mark - Accessors
 
-@synthesize db = _db, 
-now = _now, 
-win = _win, 
-opQueue = _opQueue, 
-folderMonitor = _folderMonitor, 
-taskManager = _taskManager, 
-mainMenu = _mainMenu, 
-lastfm = _lastfm,
-keys = _keys,
-hotKeys = _hotKeys;
+@synthesize db = _db;
+@synthesize now = _now;
+@synthesize win = _win;
+@synthesize opQueue = _opQueue;
+@synthesize folderMonitor = _folderMonitor;
+@synthesize taskManager = _taskManager;
+@synthesize mainMenu = _mainMenu;
+@synthesize lastfm = _lastfm;
+@synthesize keys = _keys;
+@synthesize hotKeys = _hotKeys;
 
 #pragma mark - Action
 
@@ -129,9 +147,10 @@ hotKeys = _hotKeys;
     [panel beginSheetModalForWindow:[_win window] completionHandler:handler];
 }
 
-#pragma mark - NSApplication Delegate
+#pragma mark - NSApplicationDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
+    // no-op
 }
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag {
@@ -160,28 +179,7 @@ hotKeys = _hotKeys;
 }
 
 - (NSMenu *)applicationDockMenu:(NSApplication *)sender {
-    NSMenu *menu = [[_win mainMenuController] dockMenu];
-    if (menu) {
-        return menu;
-    }
-    return nil;
-}
-
-#pragma mark - Error
-
-- (NSError *)multipleInstancesError {
-    NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                              @"Another instance of Enqueue appears to be running.", NSLocalizedDescriptionKey,
-                              @"Close the other instance and try again.", NSLocalizedRecoverySuggestionErrorKey, nil];
-    return [NSError errorWithDomain:PREnqueueErrorDomain code:0 userInfo:userInfo];
-}
-
-- (NSError *)couldNotCreateDirectoryError:(NSString *)directory; {
-    NSDictionary *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
-                              @"Enqueue could not create the following directory and must close.", NSLocalizedDescriptionKey,
-                              directory, NSLocalizedRecoverySuggestionErrorKey,
-                              nil];
-    return [NSError errorWithDomain:PREnqueueErrorDomain code:0 userInfo:userInfo];
+    return [[_win mainMenuController] dockMenu];
 }
 
 @end

@@ -1,23 +1,17 @@
 #import <Cocoa/Cocoa.h>
-@class PRDb, PRNowPlayingController, PRMainWindowController, PRFolderMonitor, PRTaskManager, PRGrowl, PRLastfm,
-PRMediaKeyController, PRHotKeyController;
+
+@class PRDb; 
+@class PRNowPlayingController; 
+@class PRMainWindowController; 
+@class PRFolderMonitor; 
+@class PRTaskManager; 
+@class PRGrowl; 
+@class PRLastfm; 
+@class PRMediaKeyController; 
+@class PRHotKeyController;
 
 
-@interface PRCore : NSObject <NSApplicationDelegate> {
-    IBOutlet NSMenu *__weak _mainMenu;
-    NSConnection *_connection;
-    
-	PRDb *_db;
-	PRNowPlayingController *_now;
-	PRMainWindowController *_win;
-	NSOperationQueue *_opQueue;
-    PRFolderMonitor *_folderMonitor;
-    PRTaskManager *_taskManager;
-    PRGrowl *_growl;
-    PRLastfm *_lastfm;
-    PRMediaKeyController *_keys;
-    PRHotKeyController *_hotKeys;
-}
+@interface PRCore : NSObject <NSApplicationDelegate>
 /* Accessors */
 @property (readonly) PRDb *db;
 @property (readonly) PRMainWindowController *win;
@@ -33,8 +27,4 @@ PRMediaKeyController, PRHotKeyController;
 /* Actions */
 - (void)itunesImport:(id)sender;
 - (IBAction)showOpenPanel:(id)sender;
-
-/* Error */
-- (NSError *)multipleInstancesError;
-- (NSError *)couldNotCreateDirectoryError:(NSString *)directory;
 @end
