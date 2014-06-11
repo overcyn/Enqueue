@@ -1648,7 +1648,7 @@ using namespace TagLib;
 }
 
 + (void)setTag:(id)tag forAttribute:(PRItemAttr *)attr ID3v1Tag:(ID3v1::Tag *)id3v1tag {
-    int intValue;
+    int intValue = 0;
     String stringValue;
     if ([tag isKindOfClass:[NSNumber class]]) {
         intValue = [tag intValue];
