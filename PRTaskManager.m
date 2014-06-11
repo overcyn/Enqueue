@@ -50,7 +50,7 @@
 
 - (void)cancel {
     PRTask *task = [_tasks objectAtIndex:0];
-    [task setShouldCancel:TRUE];
+    [task setShouldCancel:YES];
 }
 
 @end

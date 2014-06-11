@@ -5,8 +5,8 @@
 
 - (id)init {
     if (!(self = [super init])) {return nil;}
-    _showDots = FALSE;
-    _editing = FALSE;
+    _showDots = NO;
+    _editing = NO;
     return self;
 }
 
@@ -44,7 +44,7 @@
             }
         }
     }
-    [icon setFlipped:TRUE];
+    [icon setFlipped:YES];
     [icon drawInRect:frame fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
 }
 
@@ -66,7 +66,7 @@
 }
 
 - (BOOL)startTrackingAt:(NSPoint)startPoint inView:(NSView *)controlView {    
-    _editing = TRUE;
+    _editing = YES;
     for (int i = 0; i < [self segmentCount]; i++) {
         if (NSPointInRect(startPoint, [self frameForSegment:i])) {
             [self setSelectedSegment:i];
@@ -108,7 +108,7 @@
         }
     }
     
-    _editing = FALSE;
+    _editing = NO;
     [super stopTracking:lastPoint at:currentPoint inView:controlView mouseIsUp:flag];
 }
 

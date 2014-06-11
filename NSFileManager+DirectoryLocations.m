@@ -30,9 +30,9 @@ NSString * const DirectoryLocationDomain = @"DirectoryLocationDomain";
 	exists = [self fileExistsAtPath:path
 						isDirectory:&isDirectory];
 	if (exists && isDirectory) {
-		return TRUE;
+		return YES;
 	} else if (exists && !isDirectory) {
-		return FALSE;
+		return NO;
 	} else {
 		return [self createDirectoryAtPath:path
 			   withIntermediateDirectories:YES

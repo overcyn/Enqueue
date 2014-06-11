@@ -86,13 +86,13 @@ NSString * const PRColData = @"PRColData";
 
 - (BOOL)open {
     if (sqlite3_initialize() != SQLITE_OK) {
-        return FALSE;
+        return NO;
     }
     sqlite3_close(sqlDb);
 
     return (SQLITE_OK == sqlite3_open_v2([[[PRDefaults sharedDefaults] libraryPath] fileSystemRepresentation], &sqlDb,
                                          SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, NULL) &&
-            SQLITE_OK == sqlite3_extended_result_codes(sqlDb, TRUE) &&
+            SQLITE_OK == sqlite3_extended_result_codes(sqlDb, YES) &&
             SQLITE_OK == sqlite3_exec(sqlDb, "PRAGMA foreign_keys = ON", NULL, NULL, NULL) &&
             SQLITE_OK == sqlite3_create_collation(sqlDb, "NOCASE2", SQLITE_UTF16, NULL, no_case) &&
             SQLITE_OK == sqlite3_create_function_v2(sqlDb, "hfs_begins", 2, SQLITE_UTF16, NULL, hfs_begins, NULL, NULL, NULL) &&
@@ -112,7 +112,7 @@ NSString * const PRColData = @"PRColData";
 - (BOOL)update {
     NSArray *result = [self attempt:@"SELECT version FROM schema_version" bindings:nil columns:@[PRColInteger]];
     if (!result || [result count] != 1) {
-        return FALSE;
+        return NO;
     }
     int version = [[[result objectAtIndex:0] objectAtIndex:0] intValue];
     if (version == 1) {
@@ -134,7 +134,7 @@ NSString * const PRColData = @"PRColData";
                   [self attempt:@"UPDATE schema_version SET version = 2"]);
         [self commit];
         if (!e) {
-            return FALSE;
+            return NO;
         }
         version = 2;
     }
@@ -148,7 +148,7 @@ NSString * const PRColData = @"PRColData";
                   [self attempt:@"UPDATE schema_version SET version = 3"]);
         [self commit];
         if (!e) {
-            return FALSE;
+            return NO;
         }
         version = 3;
     }
@@ -159,7 +159,7 @@ NSString * const PRColData = @"PRColData";
                   [self attempt:@"UPDATE schema_version SET version = 4"]);
         [self commit];
         if (!e) {
-            return FALSE;
+            return NO;
         }
         version = 4;
     }
@@ -170,7 +170,7 @@ NSString * const PRColData = @"PRColData";
                   [self attempt:@"UPDATE schema_version SET version = 5"]);
         [self commit];
         if (!e) {
-            return FALSE;
+            return NO;
         }
         version = 5;
     }
@@ -183,7 +183,7 @@ NSString * const PRColData = @"PRColData";
         [[_core opQueue] addOperation:[PRUpdate060Operation operationWithCore:_core]];
         [self commit];
         if (!e) {
-            return FALSE;
+            return NO;
         }
 //        version = 6;
     }
@@ -191,15 +191,15 @@ NSString * const PRColData = @"PRColData";
 //    if (version == 6) {
 //        [self begin];
 //        e = [self attempt:@"REINDEX NOCASE2"];
-//        if (!e) {return FALSE;}
+//        if (!e) {return NO;}
 //        
 //        e = [self attempt:@"ALTER TABLE library ADD COLUMN resolvedYear INT NOT NULL DEFAULT 0 "];
-//        if (!e) {return FALSE;}
+//        if (!e) {return NO;}
 //        [self commit];
 //        version = 7;
 //    }
      
-    return TRUE;
+    return YES;
 }
 
 - (void)create {
@@ -221,12 +221,12 @@ NSString * const PRColData = @"PRColData";
     BOOL artExists = [fileManager fileExistsAtPath:[[PRDefaults sharedDefaults] cachedAlbumArtPath]];
     if (!libraryExists && !artExists && err) {
         *err = nil;
-        return TRUE;
+        return YES;
     }
     
     NSString *folder;
     int i = 1;
-    while (TRUE) {
+    while (YES) {
         NSString *folderName;
         NSString *date = [[NSDate date] descriptionWithCalendarFormat:@"%Y-%m-%d" timeZone:nil locale:nil];
         if (i == 1) {
@@ -242,14 +242,14 @@ NSString * const PRColData = @"PRColData";
         i++;
         if (i >= 50) {
             *err = [self databaseCouldNotBeMovedError];
-            return FALSE;
+            return NO;
         }
     }
     
-    int e = [fileManager createDirectoryAtPath:folder withIntermediateDirectories:TRUE attributes:nil error:nil];
+    int e = [fileManager createDirectoryAtPath:folder withIntermediateDirectories:YES attributes:nil error:nil];
     if (!e && err) {
         *err = [self databaseCouldNotBeMovedError];
-        return FALSE;
+        return NO;
     }
     
     NSString *library_ = [[PRDefaults sharedDefaults] libraryPath];
@@ -257,7 +257,7 @@ NSString * const PRColData = @"PRColData";
     e = [fileManager moveItemAtPath:library_ toPath:newLibrary error:nil];
     if (!e && err) {
         *err = [self databaseCouldNotBeMovedError];
-        return FALSE;
+        return NO;
     }
     
     NSString *art = [[PRDefaults sharedDefaults] cachedAlbumArtPath];
@@ -265,13 +265,13 @@ NSString * const PRColData = @"PRColData";
     e = [fileManager moveItemAtPath:art toPath:newArt error:nil];
     if (!e && err) {
         *err = [self databaseCouldNotBeMovedError];
-        return FALSE;
+        return NO;
     }
     
     if (err) {
         *err = [self databaseWasMovedError:folder];
     }
-    return TRUE;
+    return YES;
 }
 
 #pragma mark - Accessors

@@ -56,8 +56,8 @@
     [topArtistsButton setAction:@selector(historyModeButtonAction:)];
     [recentlyAddedButton setAction:@selector(historyModeButtonAction:)];
     [recentlyPlayedButton setAction:@selector(historyModeButtonAction:)];
-    [(PRTabButtonCell *)[topArtistsButton cell] setRounded:TRUE];
-    [(PRTabButtonCell *)[recentlyPlayedButton cell] setRounded:TRUE];
+    [(PRTabButtonCell *)[topArtistsButton cell] setRounded:YES];
+    [(PRTabButtonCell *)[recentlyPlayedButton cell] setRounded:YES];
       
     [tableView setDelegate:self];
     [tableView setIntercellSpacing:NSMakeSize(0, 0)];
@@ -216,7 +216,7 @@
 #pragma mark - NSTableView Delegate
 
 - (BOOL)tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)rowIndex {
-    return FALSE;
+    return NO;
 }
 
 - (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)column row:(NSInteger)row {
@@ -225,7 +225,7 @@
 }
 
 - (BOOL)tableView:(NSTableView *)tableView shouldShowCellExpansionForTableColumn:(NSTableColumn *)column row:(NSInteger)row {
-    return FALSE;
+    return NO;
 }
 
 @end

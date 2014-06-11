@@ -55,7 +55,7 @@
     [_hogButton setAction:@selector(toggleHogOutput)];
     
     // masterVolume
-    [masterVolumePopUpButton setEnabled:FALSE];
+    [masterVolumePopUpButton setEnabled:NO];
     [masterVolumePopUpButton setTarget:self];
     [masterVolumePopUpButton setAction:@selector(setMasterVolume:)];
     int tag;
@@ -98,15 +98,15 @@
         [tab setTag:[i intValue]];
     }
     _prefMode = PRGeneralPrefMode;
-    [(PRTabButtonCell *)[_generalButton cell] setRounded:TRUE];
-    [(PRTabButtonCell *)[_shortcutsButton cell] setRounded:TRUE];
+    [(PRTabButtonCell *)[_generalButton cell] setRounded:YES];
+    [(PRTabButtonCell *)[_shortcutsButton cell] setRounded:YES];
     
     // EQ
     [EQButton setTarget:self];
     [EQButton setAction:@selector(EQButtonAction)];
     EQMenu = [[NSMenu alloc] init];
     [EQMenu setDelegate:self];
-    [EQMenu setAutoenablesItems:FALSE];
+    [EQMenu setAutoenablesItems:NO];
     [EQPopUp setMenu:EQMenu];
     [[NSNotificationCenter defaultCenter] observeEQChanged:self sel:@selector(EQViewUpdate)];
     
@@ -137,7 +137,7 @@
     
     _outputMenu = [[NSMenu alloc] init];
     [_outputMenu setDelegate:self];
-    [_outputMenu setAutoenablesItems:FALSE];
+    [_outputMenu setAutoenablesItems:NO];
     [_outputPopUp setMenu:_outputMenu];
     
     [NSNotificationCenter addObserver:self selector:@selector(updateUI) name:PRLastfmStateDidChangeNotification object:nil];
@@ -286,7 +286,7 @@
         [EQ setTitle:@"Custom"];
         [customEQs replaceObjectAtIndex:0 withObject:EQ];
         [[PRDefaults sharedDefaults] setValue:customEQs forKey:PRDefaultsEQCustomArray];
-        [[PRDefaults sharedDefaults] setBool:TRUE forKey:PRDefaultsEQIsCustom];
+        [[PRDefaults sharedDefaults] setBool:YES forKey:PRDefaultsEQIsCustom];
         [[PRDefaults sharedDefaults] setInt:0 forKey:PRDefaultsEQIndex];
     }
     [[NSNotificationCenter defaultCenter] postEQChanged];
@@ -316,7 +316,7 @@
         [customEQs addObject:newEQ];
         [[PRDefaults sharedDefaults] setValue:customEQs forKey:PRDefaultsEQCustomArray];
         [[PRDefaults sharedDefaults] setInt:[customEQs count]-1 forKey:PRDefaultsEQIndex];
-        [[PRDefaults sharedDefaults] setBool:TRUE forKey:PRDefaultsEQIsCustom];
+        [[PRDefaults sharedDefaults] setBool:YES forKey:PRDefaultsEQIsCustom];
         [[NSNotificationCenter defaultCenter] postEQChanged];
     }
 }
@@ -336,13 +336,13 @@
 }
 
 - (void)EQMenuActionCustom:(id)sender {
-    [[PRDefaults sharedDefaults] setBool:TRUE forKey:PRDefaultsEQIsCustom];
+    [[PRDefaults sharedDefaults] setBool:YES forKey:PRDefaultsEQIsCustom];
     [[PRDefaults sharedDefaults] setInt:[sender tag] forKey:PRDefaultsEQIndex];
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }
 
 - (void)EQMenuActionDefault:(id)sender {
-    [[PRDefaults sharedDefaults] setBool:FALSE forKey:PRDefaultsEQIsCustom];
+    [[PRDefaults sharedDefaults] setBool:NO forKey:PRDefaultsEQIsCustom];
     [[PRDefaults sharedDefaults] setInt:[sender tag] forKey:PRDefaultsEQIndex];
     [[NSNotificationCenter defaultCenter] postEQChanged];
 }

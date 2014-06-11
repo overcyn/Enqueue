@@ -31,7 +31,7 @@
 }
 
 - (BOOL)getObjectValue:(id *)obj forString:(NSString *)string errorDescription:(NSString **)error {
-    return FALSE;
+    return NO;
 }
 
 @end

@@ -57,7 +57,7 @@
     
     _opQueue = [[NSOperationQueue alloc] init];
     [_opQueue setMaxConcurrentOperationCount:1];
-    [_opQueue setSuspended:TRUE];
+    [_opQueue setSuspended:YES];
     _taskManager = [[PRTaskManager alloc] init];
     _db = [[PRDb alloc] initWithCore:self];
     _now = [[PRNowPlayingController alloc] initWithDb:_db]; // requires: db
@@ -76,13 +76,13 @@
 
 - (void)awakeFromNib {
     [_win showWindow:nil];
-    [_opQueue setSuspended:FALSE];
+    [_opQueue setSuspended:NO];
     
 //    PRTrialSheetController *trialSheet = [[PRTrialSheetController alloc] initWithCore:self]; 
 //    [trialSheet beginSheetModalForWindow:[_win window] completionHandler:^{}];
     
     if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsShowWelcomeSheet]) {
-        [[PRDefaults sharedDefaults] setBool:FALSE forKey:PRDefaultsShowWelcomeSheet];
+        [[PRDefaults sharedDefaults] setBool:NO forKey:PRDefaultsShowWelcomeSheet];
         PRWelcomeSheetController *welcomeSheet = [[PRWelcomeSheetController alloc] initWithCore:self];
         [welcomeSheet beginSheetModalForWindow:[_win window] completionHandler:^{}];
     }
@@ -157,7 +157,7 @@
     if (!flag) {
         [[_win window] makeKeyAndOrderFront:nil];
     }
-    return TRUE;
+    return YES;
 }
 
 - (BOOL)application:(NSApplication *)application openFile:(NSString *)filename {
@@ -165,7 +165,7 @@
     NSArray *URLs = @[[NSURL fileURLWithPath:filename]];
     PRImportOperation *op = [PRImportOperation operationWithURLs:URLs core:self];
     [_opQueue addOperation:op];
-    return TRUE;
+    return YES;
 }
 
 - (void)application:(NSApplication *)application openFiles:(NSArray *)filenames {

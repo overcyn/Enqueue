@@ -25,7 +25,7 @@
     if (_didLoadWindow) {
         return;
     }
-    _didLoadWindow = TRUE;
+    _didLoadWindow = YES;
     
     // Window
     NSWindow *window = [[NSPanel alloc] initWithContentRect:NSMakeRect(0, 0, 320, 165) 
@@ -62,9 +62,9 @@
     [window setInitialFirstResponder:_ignore];
     
     _label = [[NSTextField alloc] initWithFrame:NSMakeRect(27, 50, 266, 98)];
-    [_label setEditable:FALSE];
-    [_label setDrawsBackground:FALSE];
-    [_label setBordered:FALSE];
+    [_label setEditable:NO];
+    [_label setDrawsBackground:NO];
+    [_label setBordered:NO];
     [[window contentView] addSubview:_label];
     
     NSDictionary *regularAttr = [NSDictionary dictionary];

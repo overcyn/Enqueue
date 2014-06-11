@@ -419,11 +419,11 @@ void hfs_begins(sqlite3_context *ctx, int num_values, sqlite3_value **values)
             }
         }
         if (c1 == 0) {
-            sqlite3_result_int(ctx, TRUE);
+            sqlite3_result_int(ctx, YES);
             return;
         }
         if (c1 != c2) {
-            sqlite3_result_int(ctx, FALSE);
+            sqlite3_result_int(ctx, NO);
             return;
         }
     }
@@ -536,11 +536,11 @@ BOOL no_case_begins(void *udp, int lenA, const void *strA, int lenB, const void 
 	CFRange rangeB = PRFormatString(uniCharB, lenB/2);
 	
     if (rangeA.length == 0 && rangeB.length == 0) {
-        return FALSE;
+        return NO;
     } else if (rangeA.length == 0) {
-        return FALSE;
+        return NO;
     } else if (rangeB.length == 0) {
-        return FALSE;
+        return NO;
     }
     
     static CFMutableStringRef stringA = 0;
@@ -560,7 +560,7 @@ BOOL no_case_begins(void *udp, int lenA, const void *strA, int lenB, const void 
         CFStringAppendCharacters(stringB, uniCharB, lenB/2);
         if (CFStringGetLength(stringB) <= CFStringGetLength(stringA)) {
             if ([(__bridge NSString *)stringA compare:(__bridge NSString *)stringB options:kCFCompareCaseInsensitive range:NSMakeRange(0, CFStringGetLength(stringB))] == 0) {
-                return TRUE;
+                return YES;
             }
         }
     }
@@ -570,7 +570,7 @@ BOOL no_case_begins(void *udp, int lenA, const void *strA, int lenB, const void 
     CFStringAppendCharacters(stringA, uniCharA+rangeA.location, rangeA.length);
     CFStringAppendCharacters(stringB, uniCharB+rangeB.location, rangeB.length);
     if (CFStringGetLength(stringB) > CFStringGetLength(stringA)) {
-        return FALSE;
+        return NO;
     }
     return [(__bridge NSString *)stringA compare:(__bridge NSString *)stringB options:kCFCompareCaseInsensitive range:NSMakeRange(0, [(__bridge NSString *)stringB length])] == 0;
 }

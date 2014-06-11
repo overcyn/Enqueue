@@ -13,7 +13,7 @@
                                                userInfo:nil];
     [self addTrackingArea:trackingArea];
     mouseOverRow = -1;
-    trackMouseWithinCell = FALSE;
+    trackMouseWithinCell = NO;
 }
 
 - (void)dealloc {

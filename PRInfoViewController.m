@@ -159,7 +159,7 @@
     }
     
     // rating
-    [((PRRatingCell *)[ratingControl cell]) setShowDots:TRUE];
+    [((PRRatingCell *)[ratingControl cell]) setShowDots:YES];
     
     [self update];
     [self updateTabControl];
@@ -254,19 +254,19 @@
         [_compilationButton setState:NSMixedState];
     } else if (compilation == NSNoSelectionMarker) {
         [_compilationButton setState:NSOffState];
-    } else if ([compilation boolValue] == TRUE) {
+    } else if ([compilation boolValue] == YES) {
         [_compilationButton setState:NSOnState];
-    } else if ([compilation boolValue] == FALSE) {
+    } else if ([compilation boolValue] == NO) {
         [_compilationButton setState:NSOffState];
     }
     [_compilationButton setEnabled:(compilation != NSNoSelectionMarker)];
     
-    _didChange = FALSE;
+    _didChange = NO;
 }
 
 - (void)controlTextDidEndEditing:(NSNotification *)notification {
     if (!_didChange) {
-        _didChange = FALSE;
+        _didChange = NO;
         return;
     }
     NSTextField *field = [notification object];
@@ -291,7 +291,7 @@
 }
 
 - (void)controlTextDidChange:(NSNotification *)note {
-    _didChange = TRUE;
+    _didChange = YES;
 }
 
 #pragma mark - Accessors

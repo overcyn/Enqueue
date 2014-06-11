@@ -6,7 +6,7 @@
 
 - (BOOL)acceptsFirstResponder
 {
-    return FALSE;
+    return NO;
 }
 
 - (void)keyDown:(NSEvent *)event

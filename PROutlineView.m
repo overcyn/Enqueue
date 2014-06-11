@@ -27,7 +27,7 @@
     int row = [self rowAtPoint:p];
     if (![[self selectedRowIndexes] containsIndex:row]) {
         NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:row];
-        [self selectRowIndexes:indexes byExtendingSelection:FALSE];
+        [self selectRowIndexes:indexes byExtendingSelection:NO];
     }
     [super rightMouseDown:event];
 }
@@ -48,7 +48,7 @@
     NSPoint p = [self convertPoint:[event locationInWindow] fromView:nil];
     int row = [self rowAtPoint:p];
     if (NSPointInRect(p, [self frameOfOutlineCellAtRow:row])) {
-        [self selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
+        [self selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
         [super mouseDown:event];
         return;
     }
@@ -61,7 +61,7 @@
         } else {
             indexes = [NSIndexSet indexSetWithIndex:row];
         }
-        [self selectRowIndexes:indexes byExtendingSelection:FALSE];
+        [self selectRowIndexes:indexes byExtendingSelection:NO];
     }
     
     //    if (([event modifierFlags] & NSControlKeyMask) == NSControlKeyMask &&
@@ -72,7 +72,7 @@
 }
 
 - (void)keyDown:(NSEvent *)event {
-    BOOL didHandle = FALSE;
+    BOOL didHandle = NO;
     if ([self delegate] && 
         [[self delegate] conformsToProtocol:@protocol(PROutlineViewDelegate)] && 
         [[self delegate] respondsToSelector:@selector(outlineView:keyDown:)]) {
@@ -104,7 +104,7 @@
                event:theEvent 
           pasteboard:pboard 
               source:sourceObject 
-           slideBack:FALSE];
+           slideBack:NO];
 }
 
 // Auto Expand Delay: Cyberduck outline view
@@ -250,7 +250,7 @@
 
 // Disable round highlight on highlighted parent row during drag and drop
 - (BOOL)_shouldHighlightParentRows {
-    return FALSE;
+    return NO;
 }
 
 #pragma mark - Layout

@@ -12,13 +12,13 @@
     NSMutableArray *topDirs = [NSMutableArray array];
     int count = [URLs count];
     for (int i = 0; i < count; i++) {
-        BOOL isTop = TRUE;
+        BOOL isTop = YES;
         for (int j = 0; j < count; j++) {
             if (i == j) {
                 continue;
             }
             if ([[[NSFileManager alloc] init] itemAtURL:[URLs objectAtIndex:j] containsItemAtURL:[URLs objectAtIndex:i]]) {
-                isTop = FALSE;
+                isTop = NO;
                 break;
             }
         }

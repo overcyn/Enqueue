@@ -147,44 +147,44 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     NSArray *result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'library'" bindings:nil columns:columns];
     if ([result count] != 1 || !([[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_LIBRARY_SQL] || 
         [[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_LIBRARY_SQL2])) {
-        return FALSE;
+        return NO;
     }
     
     result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_path'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_PATH_SQL]) {
-        return FALSE;
+        return NO;
     }
     
     result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_album'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_ALBUM_SQL]) {
-        return FALSE;
+        return NO;
     }
     
     result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_artist'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_ARTIST_SQL]) {
-        return FALSE;
+        return NO;
     }
     
     result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_genre'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_GENRE_SQL]) {
-        return FALSE;
+        return NO;
     }
     
     result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_artistAlbumArtist'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_ARTIST_ALBUM_ARTIST_SQL]) {
-        return FALSE;
+        return NO;
     }
     
     result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_compilation'" bindings:nil columns:columns];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_COMPILATION_SQL]) {
-        return FALSE;
+        return NO;
     }
 
     [_db execute:PR_TRG_ARTIST_ALBUM_ARTIST_SQL];
     [_db execute:PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL];
     [_db execute:@"UPDATE library SET artistAlbumArtist = coalesce(nullif(albumArtist, ''), artist) "
         "WHERE artistAlbumArtist != coalesce(nullif(albumArtist, ''), artist)"];
-    return TRUE;
+    return YES;
 }
 
 #pragma mark - Update

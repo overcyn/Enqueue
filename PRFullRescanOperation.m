@@ -36,7 +36,7 @@
         }
         
         int offset = 0;
-        while (TRUE) {
+        while (YES) {
             [task setPercent:((float)offset*90)/count];
             
             __block NSArray *rlt;

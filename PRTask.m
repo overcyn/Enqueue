@@ -7,8 +7,8 @@
 
 - (id)init {
     if (!(self = [super init])) {return nil;}
-    _shouldCancel = FALSE;
-    _background = TRUE;
+    _shouldCancel = NO;
+    _background = YES;
     return self;
 }
 

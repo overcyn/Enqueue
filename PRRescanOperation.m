@@ -30,7 +30,7 @@
     _db = [_core db];
     _URLs = URLs;
     _eventId = 0;
-    _monitor = FALSE;
+    _monitor = NO;
     return self;
 }
 
@@ -135,12 +135,12 @@
 - (void)mergeSimilar:(NSURL *)URL {
     NSArray *similar = [[_db library] itemsWithSimilarURL:URL]; 
     NSMutableArray *toMerge = [NSMutableArray array];
-    BOOL exact = FALSE;
+    BOOL exact = NO;
     // Find all files at URL
     for (NSNumber *i in similar) {
         NSString *URLString = [[_db library] valueForItem:i attr:PRItemAttrPath];
         if ([URLString isEqualToString:[URL absoluteString]]) {
-            exact = TRUE;
+            exact = YES;
             [toMerge insertObject:i atIndex:0];
         } else {
             NSURL *URL2 = [NSURL URLWithString:URLString];

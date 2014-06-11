@@ -16,7 +16,7 @@ NSString * const PRSQLiteErrorDomain = @"PRSQLiteErrorDomain";
 #pragma mark - Action
 
 - (void)presentError:(NSError *)error {
-    [self performSelectorOnMainThread:@selector(presentError_:) withObject:error waitUntilDone:TRUE];
+    [self performSelectorOnMainThread:@selector(presentError_:) withObject:error waitUntilDone:YES];
 }
 
 - (void)presentError_:(NSError *)error {

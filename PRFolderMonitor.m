@@ -75,7 +75,7 @@
     if ([[[PRDefaults sharedDefaults] valueForKey:PRDefaultsLastEventStreamEventId] unsignedLongLongValue] == 0) {
         PRRescanOperation *op = [PRRescanOperation operationWithURLs:[self monitoredFolders] core:_core];
         [op setEventId:FSEventsGetCurrentEventId()];
-        [op setMonitor:TRUE];
+        [op setMonitor:YES];
         [[_core opQueue] addOperation:op];
         return;
     }
@@ -120,10 +120,10 @@ void eventCallback(ConstFSEventStreamRef streamRef, void *clientCallBackInfo, si
         }
         
         // if not in monitored folders
-        BOOL valid = FALSE;
+        BOOL valid = NO;
         for (NSURL *j in [folderMonitor monitoredFolders]) {
             if ([fm itemAtURL:j containsItemAtURL:URL] || [fm itemAtURL:j equalsItemAtURL:URL]) {
-                valid = TRUE;
+                valid = YES;
             }
         }
         if (!valid) {

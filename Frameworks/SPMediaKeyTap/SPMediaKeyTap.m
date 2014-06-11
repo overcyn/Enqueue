@@ -197,7 +197,7 @@ static CGEventRef tapEventCallback2(CGEventTapProxy proxy, CGEventType type, CGE
 
     if(type == kCGEventTapDisabledByTimeout) {
 		NSLog(@"Media key event tap was disabled by timeout");
-		CGEventTapEnable(self->_eventPort, TRUE);
+		CGEventTapEnable(self->_eventPort, YES);
 		return event;
 	} else if(type == kCGEventTapDisabledByUserInput) {
 		// Was disabled manually by -[pauseTapOnTapThread]

@@ -20,7 +20,7 @@
 
 - (BOOL)getObjectValue:(id *)object forString:(NSString *)string errorDescription:(NSString **)error {
     *object = string;
-    return TRUE;
+    return YES;
 }
 
 - (BOOL)isPartialStringValid:(NSString **)partialStringPtr

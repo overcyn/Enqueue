@@ -35,7 +35,7 @@ NSString * const compilationString = @"Compilations  ";
 - (id)initWithDb:(PRDb *)db {
     if (!(self = [super init])) {return nil;}
     _db = db;
-    _compilation = TRUE;
+    _compilation = YES;
     _prevSourceString = @"";
     _prevSourceBindings = @{};
     _prevBrowser1Bindings = @{};
@@ -89,7 +89,7 @@ NSString * const compilationString = @"Compilations  ";
     [_db execute:@"CREATE TEMP TABLE browser3Cache "
      "(row INTEGER NOT NULL PRIMARY KEY, "
      "value TEXT NOT NULL)"];
-    return TRUE;
+    return YES;
 }
 
 
@@ -121,7 +121,7 @@ NSString * const compilationString = @"Compilations  ";
 
 - (BOOL)populateCaches {
     if (![_list isEqual:[[_db playlists] libraryList]]) {
-        return TRUE;
+        return YES;
     }
     
     // Cache library
@@ -180,11 +180,11 @@ NSString * const compilationString = @"Compilations  ";
                        bindings:nil
                         columns:@[PRColInteger]];
     _cachedCompilation = ([rlt count] != 0);
-    return TRUE;
+    return YES;
 }
 
 - (BOOL)populateLibrary {
-    BOOL useCache = TRUE;
+    BOOL useCache = YES;
     int bindingIndex = 1;
     NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
     NSMutableString *string;
@@ -192,7 +192,7 @@ NSString * const compilationString = @"Compilations  ";
         string = [NSMutableString stringWithFormat:
                   @"INSERT INTO libraryViewSource (file_id) SELECT file_id FROM library WHERE 1=1 AND "];
     } else {
-        useCache = FALSE;
+        useCache = NO;
         string = [NSMutableString stringWithFormat:
                   @"INSERT INTO libraryViewSource (file_id) SELECT playlist_items.file_id "
                   "FROM playlist_items JOIN library ON playlist_items.file_id = library.file_id "
@@ -207,7 +207,7 @@ NSString * const compilationString = @"Compilations  ";
         NSString *grouping = [self groupingStringForList:_list browser:i];
         NSArray *selection = [[_db playlists] selectionForBrowser:i list:_list];
         if ([selection count] != 0 && [grouping length] != 0) {
-            useCache = FALSE;
+            useCache = NO;
             // copy rows from library_view_source into temp table that match selection
             [string appendFormat:@"(%@ COLLATE NOCASE2 IN (", grouping];
             for (NSString *i in selection) {
@@ -232,7 +232,7 @@ NSString * const compilationString = @"Compilations  ";
     // Search
     NSString *search = [[_db playlists] searchForList:_list];
     if (search && [search length] != 0) {
-        useCache = FALSE;
+        useCache = NO;
         [string appendString:@"(1 = 1 "];
         NSArray *searchTerms = [search componentsSeparatedByString:@" "];
         for (NSString *term in searchTerms) {
@@ -257,7 +257,7 @@ NSString * const compilationString = @"Compilations  ";
     [string appendString:[self searchStringForList:_list]];
     
     if (!_force && [string isEqualToString:_prevSourceString] && [bindings isEqualToDictionary:_prevSourceBindings]) {
-        return FALSE;
+        return NO;
     }
     _prevSourceString = string;
     _prevSourceBindings = bindings;
@@ -269,7 +269,7 @@ NSString * const compilationString = @"Compilations  ";
     } else {
         [_db execute:string bindings:bindings columns:nil];
     }
-    return TRUE;
+    return YES;
 }
 
 - (BOOL)populateBrowser:(int)browser {
@@ -301,11 +301,11 @@ NSString * const compilationString = @"Compilations  ";
     if ([grouping length] == 0) {
         *prevBrowserStatement = @"";
         *prevBrowserBindings = @{};
-        return TRUE;
+        return YES;
     }
     
     // Populate browser
-    BOOL useCache = TRUE;
+    BOOL useCache = YES;
     int bindingIndex = 1;
     NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
     NSMutableString *statement;
@@ -348,7 +348,7 @@ NSString * const compilationString = @"Compilations  ";
             }
             
             [statement appendString:@") AND "];
-            useCache = FALSE;
+            useCache = NO;
         }
     }
     
@@ -371,7 +371,7 @@ NSString * const compilationString = @"Compilations  ";
             bindingIndex++;
         }
         [statement appendString:@") AND "];
-        useCache = FALSE;
+        useCache = NO;
     }
     
     // Filter for empty
@@ -387,7 +387,7 @@ NSString * const compilationString = @"Compilations  ";
     if (!_force &&
         [statement isEqualToString:*prevBrowserStatement] &&
         [bindings isEqualToDictionary:*prevBrowserBindings]) {
-        return FALSE;
+        return NO;
     }
     *prevBrowserStatement = statement;
     *prevBrowserBindings = bindings;
@@ -433,7 +433,7 @@ NSString * const compilationString = @"Compilations  ";
         [selection removeObjectsAtIndexes:indexesToRemove];
         [[_db playlists] setSelection:[NSArray arrayWithArray:selection] forBrowser:browser list:_list];
     }
-    return TRUE;
+    return YES;
 }
 
 - (NSString *)searchStringForList:(PRList *)list {

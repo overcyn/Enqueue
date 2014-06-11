@@ -13,7 +13,7 @@
     [[self window] makeFirstResponder:self];
     int row = [self rowAtPoint:[self convertPoint:[event locationInWindow] fromView:nil]];
     if (![[self selectedRowIndexes] containsIndex:row]) {
-        [self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:FALSE];
+        [self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
     }
     return [super menuForEvent:event];
 }
@@ -29,7 +29,7 @@
     }
     int row = [self rowAtPoint:[self convertPoint:[event locationInWindow] fromView:nil]];
     if (![[self selectedRowIndexes] containsIndex:row]) {
-        [self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:FALSE];
+        [self selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
     }
     [super mouseDown:event];
 }
@@ -44,7 +44,7 @@
         }
         return;
     }
-    BOOL didHandle = FALSE;
+    BOOL didHandle = NO;
     if ([self delegate] && 
         [[self delegate] conformsToProtocol:@protocol(PRTableViewDelegate)] && 
         [[self delegate] respondsToSelector:@selector(tableView:keyDown:)]) {
@@ -76,7 +76,7 @@
                event:theEvent 
           pasteboard:pboard 
               source:sourceObject 
-           slideBack:TRUE];
+           slideBack:YES];
 }
 
 #pragma mark - Editing

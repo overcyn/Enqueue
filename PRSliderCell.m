@@ -36,7 +36,7 @@
     // border
     [[NSColor colorWithCalibratedWhite:0.0 alpha:0.80] set];
     [path stroke];
-    [[self controlView] setNeedsDisplay:TRUE];
+    [[self controlView] setNeedsDisplay:YES];
 }
 
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView*)controlView {

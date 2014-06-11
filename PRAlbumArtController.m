@@ -240,7 +240,7 @@
         return 0;
     }
     NSString *path = [self tempArtPathForTempValue:tempValue];
-    if (![data writeToFile:path atomically:TRUE]) {
+    if (![data writeToFile:path atomically:YES]) {
         return 0;
     }
     return tempValue;

@@ -109,7 +109,7 @@
     [menuItem setTarget:nil];
     [menuItem setAction:@selector(toggleFullScreen:)];
     if (floor(NSAppKitVersionNumber) <= NSAppKitVersionNumber10_6) {
-        [menuItem setHidden:TRUE];
+        [menuItem setHidden:YES];
     }
     
     menuItem = [viewMenu itemWithTag:7];
@@ -159,17 +159,17 @@
         title = [[[core db] library] valueForItem:[[core now] currentItem] attr:PRItemAttrTitle];
         title = [NSString stringWithFormat:@"♫ %@",title];
         item = [[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""];
-        [item setEnabled:FALSE];
+        [item setEnabled:NO];
         [menu addItem:item];
         
         title = [[[core db] library] artistValueForItem:[[core now] currentItem]];
         item = [[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""];
-        [item setEnabled:FALSE];
+        [item setEnabled:NO];
         [menu addItem:item];
         
         title = [[[core db] library] valueForItem:[[core now] currentItem] attr:PRItemAttrAlbum];
         item = [[NSMenuItem alloc] initWithTitle:title action:nil keyEquivalent:@""];
-        [item setEnabled:FALSE];
+        [item setEnabled:NO];
         [menu addItem:item];
         
         [menu addItem:[NSMenuItem separatorItem]];
@@ -294,7 +294,7 @@
     [[controlsMenu itemWithTag:7] setState:[[core now] repeat]];
 
     NSMenu *browser = [[[[core win] libraryViewController] currentViewController] browserHeaderMenu];
-    [browser setAutoenablesItems:FALSE];
+    [browser setAutoenablesItems:NO];
     [[viewMenu itemWithTitle:@"Browser"] setSubmenu:browser];
     [[viewMenu itemWithTitle:@"Browser"] setEnabled:([[core win] currentMode] == PRLibraryMode && ![[core win] miniPlayer])];
 }
@@ -302,7 +302,7 @@
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     for (NSMenuItem *i in @[[viewMenu itemWithTag:1], [viewMenu itemWithTag:2], [viewMenu itemWithTag:4]]) {
         if (menuItem == i && [[core win] currentMode] != PRLibraryMode) {
-            return FALSE;
+            return NO;
         }
     }
     
@@ -322,7 +322,7 @@
     } else if (menuItem == [viewMenu itemWithTag:7]) {
         return ![[[core win] window] isFullScreen];
     }
-    return TRUE;
+    return YES;
 }
 
 @end

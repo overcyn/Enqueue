@@ -28,9 +28,9 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
                           bindings:nil 
                            columns:@[PRColString]];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_HISTORY_SQL]) {
-        return FALSE;
+        return NO;
     }
-    return TRUE;
+    return YES;
 }
 
 #pragma mark - Accessors
@@ -147,7 +147,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 #pragma mark - Update
 
 - (BOOL)confirmFileDelete_error:(NSError **)error {
-    return TRUE;
+    return YES;
 }
 
 @end

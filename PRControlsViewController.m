@@ -372,8 +372,8 @@
     }
     
     if ([[core win] miniPlayer]) {
-        [_progressTextField setHidden:TRUE];
-        [_progressButton setHidden:TRUE];
+        [_progressTextField setHidden:YES];
+        [_progressButton setHidden:YES];
     } else {
         [_progressTextField setHidden:_progressHidden];
         [_progressButton setHidden:_progressHidden];

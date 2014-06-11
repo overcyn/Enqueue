@@ -33,7 +33,7 @@
                      fromRect:NSZeroRect 
                     operation:NSCompositeSourceOver 
                      fraction:1.0 
-               respectFlipped:TRUE 
+               respectFlipped:YES 
                         hints:nil];
     }
 }

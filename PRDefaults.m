@@ -77,30 +77,30 @@ typedef void(^PRDefaultsSetter)(id value);
 - (id)init {
     if (!(self = [super init])) {return nil;}
     defaults = [NSUserDefaults standardUserDefaults];
-    [defaults setBool:TRUE forKey:@"NSDisabledCharacterPaletteMenuItem"];
+    [defaults setBool:YES forKey:@"NSDisabledCharacterPaletteMenuItem"];
     
     NSNumber *mask = [NSNumber numberWithUnsignedInt:cmdKey+optionKey+controlKey];
     _handlers = @{
-        PRDefaultsUseAlbumArtist:[PRDefaults numberHandlersForKey:@"usesAlbumArt" defaultValue:@TRUE],
-        PRDefaultsUseCompilation:[PRDefaults numberHandlersForKey:@"useCompilation" defaultValue:@TRUE],
-        PRDefaultsFolderArtwork:[PRDefaults numberHandlersForKey:@"folderArtwork" defaultValue:@TRUE],
+        PRDefaultsUseAlbumArtist:[PRDefaults numberHandlersForKey:@"usesAlbumArt" defaultValue:@YES],
+        PRDefaultsUseCompilation:[PRDefaults numberHandlersForKey:@"useCompilation" defaultValue:@YES],
+        PRDefaultsFolderArtwork:[PRDefaults numberHandlersForKey:@"folderArtwork" defaultValue:@YES],
 
         PRDefaultsMonitoredFolders:[PRDefaults monitoredFoldersHandlersForKey:@"monitoredFolders"],
-        PRDefaultsLastEventStreamEventId:[PRDefaults numberHandlersForKey:@"lastEventStreamEventIdea" defaultValue:@TRUE],
+        PRDefaultsLastEventStreamEventId:[PRDefaults numberHandlersForKey:@"lastEventStreamEventIdea" defaultValue:@YES],
 
-        PRDefaultsPostGrowl:[PRDefaults numberHandlersForKey:@"postGrowlNotification" defaultValue:@TRUE],
+        PRDefaultsPostGrowl:[PRDefaults numberHandlersForKey:@"postGrowlNotification" defaultValue:@YES],
 
         PRDefaultsLastFMUsername:[PRDefaults stringHandlersForKey:@"lastFMUsername" defaultValue:@""],
 
-        PRDefaultsShowWelcomeSheet:[PRDefaults numberHandlersForKey:@"showsWelcomeSheet" defaultValue:@TRUE],
-        PRDefaultsShowArtwork:[PRDefaults numberHandlersForKey:@"showsArtwork" defaultValue:@TRUE],
-        PRDefaultsMiniPlayer:[PRDefaults numberHandlersForKey:@"miniPlayer" defaultValue:@TRUE],
+        PRDefaultsShowWelcomeSheet:[PRDefaults numberHandlersForKey:@"showsWelcomeSheet" defaultValue:@YES],
+        PRDefaultsShowArtwork:[PRDefaults numberHandlersForKey:@"showsArtwork" defaultValue:@YES],
+        PRDefaultsMiniPlayer:[PRDefaults numberHandlersForKey:@"miniPlayer" defaultValue:@YES],
         PRDefaultsMiniPlayerFrame:[PRDefaults rectHandlersForKey:@"miniPlayerFrame" defaultValue:NSZeroRect],
         PRDefaultsPlayerFrame:[PRDefaults rectHandlersForKey:@"playerFrame" defaultValue:NSZeroRect],
         PRDefaultsSidebarWidth:[PRDefaults numberHandlersForKey:@"sidebarWidth" defaultValue:@185.0f],
         PRDefaultsNowPlayingCollapseState:[PRDefaults archiverHandlersForKey:@"nowPlayingCollapseState" class:[NSIndexSet class] defaultValue:[NSIndexSet indexSet]],
 
-        PRDefaultsMediaKeys:[PRDefaults numberHandlersForKey:@"mediaKeys" defaultValue:@TRUE],
+        PRDefaultsMediaKeys:[PRDefaults numberHandlersForKey:@"mediaKeys" defaultValue:@YES],
         PRDefaultsPlayPauseHotKey:[PRDefaults hotKeyHandlersForKey:@"playPauseHotKey" defaultValue:@[mask, @49]],
         PRDefaultsNextHotKey:[PRDefaults hotKeyHandlersForKey:@"playNextHotKey" defaultValue:@[mask, @124]],
         PRDefaultsPreviousHotKey:[PRDefaults hotKeyHandlersForKey:@"playPreviousHotKey" defaultValue:@[mask, @123]],
@@ -115,17 +115,17 @@ typedef void(^PRDefaultsSetter)(id value);
 
         PRDefaultsVolume:[PRDefaults numberHandlersForKey:@"volume" max:@1.0f min:@0.0f defaultValue:@1.0f],
         PRDefaultsPregain:[PRDefaults numberHandlersForKey:@"preGain" max:@1.0f min:@0.0f defaultValue:@1.0f],
-        PRDefaultsHogOutput:[PRDefaults numberHandlersForKey:@"hogOutput" defaultValue:@FALSE],
+        PRDefaultsHogOutput:[PRDefaults numberHandlersForKey:@"hogOutput" defaultValue:@NO],
         PRDefaultsEQCurrent:[PRDefaults EQCurrentHandlers],
         PRDefaultsOutputDeviceUID:[PRDefaults stringHandlersForKey:PRDefaultsOutputDeviceUID defaultValue:nil],
 
-        PRDefaultsRepeat:[PRDefaults numberHandlersForKey:@"repeat" defaultValue:@FALSE],
-        PRDefaultsShuffle:[PRDefaults numberHandlersForKey:@"shuffle" defaultValue:@FALSE],
+        PRDefaultsRepeat:[PRDefaults numberHandlersForKey:@"repeat" defaultValue:@NO],
+        PRDefaultsShuffle:[PRDefaults numberHandlersForKey:@"shuffle" defaultValue:@NO],
         
         PRDefaultsEQCustomArray:[PRDefaults EQCustomArrayHandlersForKey:@"CustomEQs"],
-        PRDefaultsEQIsCustom:[PRDefaults numberHandlersForKey:@"isCustomEQ" defaultValue:@FALSE],
+        PRDefaultsEQIsCustom:[PRDefaults numberHandlersForKey:@"isCustomEQ" defaultValue:@NO],
         PRDefaultsEQIndex:[PRDefaults EQIndexHandlersForKey:@"EQIndex"],
-        PRDefaultsEQEnabled:[PRDefaults numberHandlersForKey:@"EQIsEnabled" defaultValue:@FALSE]};
+        PRDefaultsEQEnabled:[PRDefaults numberHandlersForKey:@"EQIsEnabled" defaultValue:@NO]};
     return self;
 }
 

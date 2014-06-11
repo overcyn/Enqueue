@@ -17,20 +17,20 @@
        originalSelectedRange:(NSRange)origSelRange
             errorDescription:(NSString **)error {
     NSCharacterSet *decimalCharacterSet = [NSCharacterSet characterSetWithCharactersInString:@"0123456789"];
-    BOOL nonNumericCharacter = FALSE;
+    BOOL nonNumericCharacter = NO;
     for (int i = 0; i < [*partialStringPtr length]; i++) {
         if (![decimalCharacterSet characterIsMember:[*partialStringPtr characterAtIndex:i]]) {
-            nonNumericCharacter = TRUE;
+            nonNumericCharacter = YES;
             break;
         }
     }
     
     if (!nonNumericCharacter && [*partialStringPtr length] <= 4) {
-        return TRUE;
+        return YES;
     } else {
         *partialStringPtr = [NSString stringWithString:origString];
         *proposedSelRangePtr = origSelRange;
-        return FALSE;
+        return NO;
     }
 }
 

@@ -6,23 +6,23 @@
 
 - (BOOL)becomeFirstResponder {
     if ([self isEditable]) {
-        [self setBordered:TRUE];
-        [self setDrawsBackground:TRUE];
+        [self setBordered:YES];
+        [self setDrawsBackground:YES];
     }
     return [super becomeFirstResponder];
 }
 
 - (void)textDidEndEditing:(NSNotification *)note {
     [super textDidEndEditing:note];
-    [self setDrawsBackground:FALSE];
-    [self setBordered:FALSE];
+    [self setDrawsBackground:NO];
+    [self setBordered:NO];
     [self validateEditing];
     [self abortEditing];
 }
 
 - (void)cancelOperation:(id)sender {
-    [self setDrawsBackground:FALSE];
-    [self setBordered:FALSE];
+    [self setDrawsBackground:NO];
+    [self setBordered:NO];
     [self abortEditing];
 }
 

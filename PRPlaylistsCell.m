@@ -169,7 +169,7 @@
 
 - (NSText *)setUpFieldEditorAttributes:(NSText *)fieldEditor {
     [super setUpFieldEditorAttributes:fieldEditor];
-    [fieldEditor setDrawsBackground:FALSE];
+    [fieldEditor setDrawsBackground:NO];
     [self setFont:[NSFont fontWithName:@"HelveticaNeue-Medium" size:15]];
     
 //    if ([fieldEditor isKindOfClass:[NSTextView class]]) {

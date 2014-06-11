@@ -27,7 +27,7 @@
     // Inset the cell frame to give everything a little horizontal padding
     NSRect insetRect = NSInsetRect(theCellFrame, 10, 9);
     NSSize iconSize = NSMakeSize(150, 150);
-    [icon setFlipped:TRUE];
+    [icon setFlipped:YES];
     
     // Make attributes for our strings        
     NSDictionary *titleAttributes = @{NSFontAttributeName:[NSFont boldSystemFontOfSize:11],

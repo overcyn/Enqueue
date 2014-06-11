@@ -22,13 +22,13 @@
     
     [importItunesButton setTarget:self];
     [importItunesButton setAction:@selector(importItunes)];
-    [importItunesButton setShowsBorderOnlyWhileMouseInside:TRUE];
+    [importItunesButton setShowsBorderOnlyWhileMouseInside:YES];
     [openFilesButton setTarget:self];
     [openFilesButton setAction:@selector(openFiles)];
-    [openFilesButton setShowsBorderOnlyWhileMouseInside:TRUE];
+    [openFilesButton setShowsBorderOnlyWhileMouseInside:YES];
     [monitorFoldersButton setTarget:self];
     [monitorFoldersButton setAction:@selector(monitorFolders)];
-    [monitorFoldersButton setShowsBorderOnlyWhileMouseInside:TRUE];
+    [monitorFoldersButton setShowsBorderOnlyWhileMouseInside:YES];
     [closeButton setTarget:self];
     [closeButton setAction:@selector(endSheet)];
 }

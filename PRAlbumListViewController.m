@@ -19,8 +19,8 @@
     _core = core;
     db = [core db];
     now = [core now];
-    refreshing = FALSE;
-    _updatingTableViewSelection = TRUE;
+    refreshing = NO;
+    _updatingTableViewSelection = YES;
     _currentList = nil;
     
     _cachedArtwork = [[NSCache alloc] init];
@@ -97,7 +97,7 @@
     }
     
     // reload tables
-    _updatingTableViewSelection = FALSE;
+    _updatingTableViewSelection = NO;
     if ((tables & PRLibraryView) == PRLibraryView) {
         [libraryTableView reloadData];
         [albumTableView reloadData];
@@ -111,10 +111,10 @@
     if ((tables & PRBrowser3View) == PRBrowser3View) {
         [browser3TableView reloadData];
     }
-    [browser1TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:1] byExtendingSelection:FALSE];
-    [browser2TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:2] byExtendingSelection:FALSE];
-    [browser3TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:3] byExtendingSelection:FALSE];
-    _updatingTableViewSelection = TRUE;
+    [browser1TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:1] byExtendingSelection:NO];
+    [browser2TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:2] byExtendingSelection:NO];
+    [browser3TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:3] byExtendingSelection:NO];
+    _updatingTableViewSelection = YES;
 
     [NSNotificationCenter post:PRLibraryViewSelectionDidChangeNotification];
     }
@@ -124,7 +124,7 @@
 
 - (void)selectAlbum {
     if ([albumTableView clickedRow] == -1) {
-        [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
+        [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
         return;
     }    
     int row = [albumTableView clickedRow];
@@ -132,7 +132,7 @@
     NSPoint point = rectOfRow.origin;
     point.x += rectOfRow.size.width + 5;
     int rowAtPoint = [libraryTableView rowAtPoint:point];
-    [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:rowAtPoint] byExtendingSelection:FALSE];
+    [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:rowAtPoint] byExtendingSelection:NO];
 }
 
 - (void)playAlbum {
@@ -276,15 +276,15 @@
         
         // archive files and save to pasteboard
         if ([files count] == 0) {
-            return FALSE;
+            return NO;
         }
         NSData *data = [NSKeyedArchiver archivedDataWithRootObject:files];
         [pboard declareTypes:@[PRFilePboardType] owner:self];
         [pboard setData:data forType:PRFilePboardType];
-        return TRUE;
+        return YES;
     } else if (tableView == libraryTableView) {
         if ([self dbRowForTableRow:[rowIndexes firstIndex]] == -1) {
-            return FALSE;
+            return NO;
         }
         return [super tableView:tableView writeRowsWithIndexes:rowIndexes toPasteboard:pboard];
     }
@@ -302,12 +302,12 @@
         if ([[self sortAttr] isEqual:PRListSortArtistAlbum]) {
             [self setAscending:[self ascending]];
         } else {
-            [self setAscending:TRUE];
+            [self setAscending:YES];
         }
         [self setSortAttr:PRListSortArtistAlbum];
         [self loadTableColumns];
-        [self reloadData:FALSE];
-        [tableView selectColumnIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
+        [self reloadData:NO];
+        [tableView selectColumnIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
         return;
     }
     [super tableView:tableView didClickTableColumn:tableColumn];
@@ -335,7 +335,7 @@
             }
             index++;
         }
-        [libraryTableView selectRowIndexes:selectionIndexes byExtendingSelection:FALSE];
+        [libraryTableView selectRowIndexes:selectionIndexes byExtendingSelection:NO];
     }
     [super tableViewSelectionDidChange:notification];
 }
@@ -368,7 +368,7 @@
     } else if (tableView == albumTableView) {
         return (row + 1) != [self numberOfRowsInTableView:albumTableView];
     } else {
-        return FALSE;
+        return NO;
     }
 }
 

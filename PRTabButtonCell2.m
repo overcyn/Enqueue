@@ -13,7 +13,7 @@
     frame2.size.width -= 1;
     
     NSBezierPath *path;
-    if (FALSE) {
+    if (NO) {
         path = [NSBezierPath bezierPathWithRoundedRect:frame2 xRadius:0 yRadius:0];
     } else {
         path = [NSBezierPath bezierPathWithRoundedRect:frame2 xRadius:2 yRadius:2];

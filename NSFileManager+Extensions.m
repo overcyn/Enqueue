@@ -5,27 +5,27 @@
 - (BOOL)itemAtURL:(NSURL *)u1 containsItemAtURL:(NSURL *)u2 {
     FSRef ref, ref2;
     BOOL err = CFURLGetFSRef((CFURLRef)u1, &ref);
-    if (!err) {return FALSE;}
+    if (!err) {return NO;}
     err = CFURLGetFSRef((CFURLRef)u2, &ref2);
-    if (!err) {return FALSE;}
+    if (!err) {return NO;}
     
-    while (TRUE) {        
+    while (YES) {        
         // Get parent ref
         FSRef parentRef;
         OSErr e = FSGetCatalogInfo(&ref2, kFSCatInfoNone, NULL, NULL, NULL, &parentRef);
-        if (e != noErr) {return FALSE;}
+        if (e != noErr) {return NO;}
         ref2 = parentRef;
         
         // Check if parent ref is valid
         e = FSGetCatalogInfo(&ref2, kFSCatInfoNone, nil, nil, nil, nil );
-        if (e != noErr) {return FALSE;}
+        if (e != noErr) {return NO;}
         
         // Compare refs
         if (FSCompareFSRefs(&ref, &ref2) == noErr) {
-            return TRUE;
+            return YES;
         }
     }
-    return FALSE;
+    return NO;
 
 }
 
@@ -35,7 +35,7 @@
     BOOL err = [u1 getResourceValue:&name1 forKey:NSURLNameKey error:nil];
     BOOL err2 = [u2 getResourceValue:&name2 forKey:NSURLNameKey error:nil];
     if (!err || !err2 || !name1 || !name2) {
-        return FALSE;
+        return NO;
     }
     return [name1 isEqualToString:name2];
 }

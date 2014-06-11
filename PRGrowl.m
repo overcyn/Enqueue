@@ -52,7 +52,7 @@
                            notificationName:@"Playing Song"
                                    iconData:artwork
                                    priority:0
-                                   isSticky:FALSE
+                                   isSticky:NO
                                clickContext:nil];
 }
 
@@ -77,7 +77,7 @@
                            notificationName:@"Playing Song"
                                    iconData:artwork
                                    priority:0
-                                   isSticky:FALSE
+                                   isSticky:NO
                                clickContext:nil];
 }
 

@@ -88,21 +88,21 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
                       bindings:nil 
                        columns:@[PRColString]];
     if ([rlt count] != 1 || ![[[rlt objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_PLAYLISTS_SQL]) {
-        return FALSE;
+        return NO;
     }
     
     rlt = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'playlist_items'"
              bindings:nil 
               columns:@[PRColString]];
     if ([rlt count] != 1 || ![[[rlt objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_PLAYLIST_ITEMS_SQL]) {
-        return FALSE;
+        return NO;
     }
     
     rlt = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'index_playlistItems'"
              bindings:nil 
               columns:@[PRColString]];
     if ([rlt count] != 1 || ![[[rlt objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_IDX_PLAYLIST_ITEMS_SQL]) {
-        return FALSE;
+        return NO;
     }
     
     // Create library if it doesnt exist
@@ -131,11 +131,11 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     // Clean up
     [self cleanPlaylists];
     [self cleanPlaylistItems];
-    return TRUE;
+    return YES;
 }
 
 - (BOOL)cleanPlaylists {
-    return TRUE;
+    return YES;
 }
 
 - (BOOL)cleanPlaylistItems {
@@ -181,7 +181,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
             [_db commit];
         }
     }
-    return TRUE;
+    return YES;
 }
 
 #pragma mark - Misc

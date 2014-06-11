@@ -58,7 +58,7 @@
     // Pane view
     _paneSuperview = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 500, 140)];
     [_paneSuperview setAutoresizingMask:NSViewWidthSizable | NSViewMaxYMargin];
-    _infoViewVisible = FALSE;
+    _infoViewVisible = NO;
     
     infoViewController = [[PRInfoViewController alloc] initWithCore:_core];
     [[infoViewController view] setFrame:[_paneSuperview bounds]];
@@ -67,11 +67,11 @@
     // Header view
     _libraryPopUpButtonMenu = [[NSMenu alloc] init];
     [_libraryPopUpButtonMenu setDelegate:self];
-    [_libraryPopUpButtonMenu setAutoenablesItems:FALSE];
+    [_libraryPopUpButtonMenu setAutoenablesItems:NO];
     
     _headerView = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 250, 30)];
     _infoButton = [[NSButton alloc] initWithFrame:NSMakeRect(0, 3, 25, 27)];
-    [_infoButton setBordered:FALSE];
+    [_infoButton setBordered:NO];
     [_infoButton setTarget:self];
     [_infoButton setAction:@selector(toggleInfoViewVisible)];
     [_infoButton setButtonType:NSMomentaryChangeButton];
@@ -80,8 +80,8 @@
     
     _libraryPopUpButton = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(24, 4, 35, 26)];
     [_libraryPopUpButton setMenu:_libraryPopUpButtonMenu];
-    [_libraryPopUpButton setBordered:FALSE];
-    [_libraryPopUpButton setPullsDown:TRUE];
+    [_libraryPopUpButton setBordered:NO];
+    [_libraryPopUpButton setPullsDown:YES];
     [_libraryPopUpButton setToolTip:@"Change the layout of the library."];
     [[_libraryPopUpButton cell] setArrowPosition:NSPopUpNoArrow];
     [_headerView addSubview:_libraryPopUpButton];
@@ -247,10 +247,10 @@ infoViewVisible;
         image = [NSImage imageNamed:@"AlbumList.png"];
     }
     [item setImage:image];
-    [item setEnabled:TRUE];
+    [item setEnabled:YES];
     [menu addItem:item];
     item = [[NSMenuItem alloc] initWithTitle:@"View As..." action:nil keyEquivalent:@""];
-    [item setEnabled:FALSE];
+    [item setEnabled:NO];
     [menu addItem:item];
     item = [[NSMenuItem alloc] initWithTitle:@"List" action:@selector(setLibraryViewModeAction:) keyEquivalent:@""];
     [item setTag:PRListMode];
@@ -282,7 +282,7 @@ infoViewVisible;
 
     float delay = [[_searchField stringValue] length] != 0 ? SEARCH_DELAY : 0.0;
     [[NSOperationQueue currentQueue] addBlock:^{
-        [self postSearchChangedAndRetry:TRUE];
+        [self postSearchChangedAndRetry:YES];
     } afterDelay:delay];
 }
 
@@ -297,7 +297,7 @@ infoViewVisible;
     if (fabs([_searchFieldLastEdit timeIntervalSinceNow]) < SEARCH_DELAY) {
         if (retry) {
             [[NSOperationQueue currentQueue] addBlock:^{
-                [self postSearchChangedAndRetry:FALSE];
+                [self postSearchChangedAndRetry:NO];
             } afterDelay:SEARCH_DELAY];
         }
         return;

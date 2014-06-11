@@ -112,7 +112,7 @@
 
 - (void)playPause {
     if ([self currentIndex] == 0) {
-        PRListItem *item = [self nextItem:TRUE];
+        PRListItem *item = [self nextItem:YES];
         if (item) {
             [self playNext];
         }
@@ -128,25 +128,25 @@
     [self clearHistory];
     [[_db playbackOrder] appendListItem:item];
     self.position += 1;
-    [self playListItem:item evenIfQueued:TRUE];
+    [self playListItem:item evenIfQueued:YES];
 }
 
 - (void)playNext {
-    PRListItem *item = [self nextItem:TRUE];
+    PRListItem *item = [self nextItem:YES];
     if (!item) {
         [self stop];
         return;
     }
-    [self playListItem:item evenIfQueued:TRUE];
+    [self playListItem:item evenIfQueued:YES];
 }
 
 - (void)playPrevious {
-    PRListItem *item = [self previousItem:TRUE];
+    PRListItem *item = [self previousItem:YES];
     if (!item) {
         [self stop];
         return;
     }
-    [self playListItem:item evenIfQueued:TRUE];
+    [self playListItem:item evenIfQueued:YES];
 }
 
 #pragma mark - Playback Priv
@@ -312,16 +312,16 @@
     [[_db history] addItem:[self currentItem] withDate:[NSDate date]];
     
     // essentially playNext but if not queued
-    PRListItem *item = [self nextItem:TRUE];
+    PRListItem *item = [self nextItem:YES];
     if (item) {
-        [self playListItem:item evenIfQueued:FALSE];
+        [self playListItem:item evenIfQueued:NO];
     } else {
         [self stop];
     }
 }
 
 - (void)movieAlmostFinished {
-    PRListItem *item = [self nextItem:FALSE];
+    PRListItem *item = [self nextItem:NO];
     if (item) {
         NSString *path = [[_db library] valueForItem:[[_db playlists] itemForListItem:item] attr:PRItemAttrPath];
         [_mov queue:path];

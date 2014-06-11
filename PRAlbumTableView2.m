@@ -9,7 +9,7 @@
     if ([self nextResponder__] != self && [self nextResponder__] != nil) {
         [[self window] makeFirstResponder:nextResponder__];
     }
-    return TRUE;
+    return YES;
 }
 
 @end

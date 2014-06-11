@@ -6,8 +6,8 @@
     if (!(self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil])) {return nil;}
     _firstKeyView = [[NSView alloc] init];
     _lastKeyView = [[NSView alloc] init];
-    [_firstKeyView setHidden:TRUE];
-    [_lastKeyView setHidden:TRUE];
+    [_firstKeyView setHidden:YES];
+    [_lastKeyView setHidden:YES];
     return self;
 }
 
@@ -15,8 +15,8 @@
     if (!(self = [super init])) {return nil;}
     _firstKeyView = [[NSView alloc] init];
     _lastKeyView = [[NSView alloc] init];
-    [_firstKeyView setHidden:TRUE];
-    [_lastKeyView setHidden:TRUE];
+    [_firstKeyView setHidden:YES];
+    [_lastKeyView setHidden:YES];
     return self;
 }
 

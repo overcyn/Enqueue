@@ -8,7 +8,7 @@
     _startDate = nil;
     _playDate = nil;
     _playTime = 0;
-    _playing = FALSE;
+    _playing = NO;
     return self;
 }
 
@@ -22,7 +22,7 @@
     }
     _playDate = [NSDate date];
     
-    _playing = TRUE;
+    _playing = YES;
 }
 
 - (void)pause {
@@ -30,7 +30,7 @@
         return;
     }
     _playTime += [[NSDate date] timeIntervalSinceDate:_playDate];
-    _playing = FALSE;
+    _playing = NO;
 }
 
 @synthesize item = _item;

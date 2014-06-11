@@ -28,17 +28,17 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
                          bindings:nil 
                           columns:@[PRColString]];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_PLAYBACK_ORDER_SQL]) {
-        return FALSE;
+        return NO;
     }    
     [db execute:@"DELETE FROM playback_order"];
-    return TRUE;
+    return YES;
 }
 
 #pragma mark - Validation
 
 - (BOOL)clean {
     [db execute:@"DELETE FROM playback_order"];
-    return TRUE;
+    return YES;
 }
 
 #pragma mark - Accessors
@@ -91,7 +91,7 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
 
 - (BOOL)confirmPlaylistItemDelete:(NSError **)error {
     [self clean];
-    return TRUE;
+    return YES;
 }
 
 @end

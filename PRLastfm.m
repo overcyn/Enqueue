@@ -53,11 +53,11 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     _db = [core db];
     _file = nil;
     // Get cached session key if exists
-    BOOL connected = FALSE;
+    BOOL connected = NO;
     if ([[self username] length] != 0) {
         EMGenericKeychainItem *keychain = [EMGenericKeychainItem genericKeychainItemForService:@"Last.fm (com.enqueue.enqueue)" withUsername:[self username]];
         if (keychain && [keychain password]) {
-            connected = TRUE;
+            connected = YES;
             _cachedSessionKey = [keychain password];
         }
     }

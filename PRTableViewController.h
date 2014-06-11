@@ -30,9 +30,9 @@
     
     IBOutlet NSSplitView *horizontalBrowserSplitView;
     IBOutlet NSSplitView *horizontalBrowserSubSplitview;
-    IBOutlet PRTableView *horizontalBrowser1TableView;
-    IBOutlet PRTableView *horizontalBrowser2TableView;
-    IBOutlet PRTableView *horizontalBrowser3TableView;
+    PRTableView *horizontalBrowser1TableView;
+    PRTableView *horizontalBrowser2TableView;
+    PRTableView *horizontalBrowser3TableView;
     IBOutlet NSView *horizontalBrowserLibrarySuperview;
     
     IBOutlet NSSplitView *verticalBrowserSplitView;

@@ -23,12 +23,12 @@
     }
     
     // Prepare statement
-    BOOL l = TRUE;
+    BOOL l = YES;
     while (l) {
         int e = sqlite3_prepare_v2(_sqlite3, [_statement UTF8String], -1, &_stmt, NULL);
         switch (e) {
             case SQLITE_OK:
-                l = FALSE;
+                l = NO;
                 break;
             case SQLITE_BUSY:
             case SQLITE_LOCKED:
@@ -71,7 +71,7 @@
     sqlite3_reset(_stmt);
     
     for (NSNumber *key in [_bindings allKeys]) {
-        BOOL l = TRUE;
+        BOOL l = YES;
         while (l) {
             id object = [_bindings objectForKey:key];
             int e;
@@ -92,7 +92,7 @@
             
             switch (e) {
                 case SQLITE_OK:
-                    l = FALSE;
+                    l = NO;
                     break;
                 case SQLITE_LOCKED:
                 case SQLITE_BUSY:
@@ -110,11 +110,11 @@
 #pragma mark - Action
 
 - (NSArray *)execute {
-    return [self execute_:TRUE];
+    return [self execute_:YES];
 }
 
 - (NSArray *)attempt {
-    return [self execute_:FALSE];
+    return [self execute_:NO];
 }
 
 #pragma mark - action
@@ -126,7 +126,7 @@
 //    }
     
     NSMutableArray *result = [NSMutableArray array];
-    BOOL l = TRUE;
+    BOOL l = YES;
     while (l) {
         int e = sqlite3_step(_stmt);
         switch (e) {
@@ -170,7 +170,7 @@
                 sqlite3_reset(_stmt);
                 break;
             case SQLITE_DONE:
-                l = FALSE;
+                l = NO;
                 break;
             default:
                 if (!crash) {return nil;}

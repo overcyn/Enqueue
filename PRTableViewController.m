@@ -53,7 +53,7 @@
     [libraryTableView setTarget:self];
     [libraryTableView setDoubleAction:@selector(play)];
     [libraryTableView registerForDraggedTypes:@[PRFilePboardType]];
-    [libraryTableView setVerticalMotionCanBeginDrag:FALSE];
+    [libraryTableView setVerticalMotionCanBeginDrag:NO];
     [libraryTableView setDataSource:self];
     [libraryTableView setDelegate:self];
     [self setNextResponder:[libraryTableView nextResponder]];
@@ -80,7 +80,7 @@
     [[tableColumn headerCell] setAlignment:NSCenterTextAlignment];
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setAlignment:NSCenterTextAlignment];
-    [tableColumn setEditable:FALSE];
+    [tableColumn setEditable:NO];
     [tableColumns addObject:tableColumn];
     
     // Path
@@ -91,7 +91,7 @@
     [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
     [[tableColumn headerCell] setStringValue:@"Path"];
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
-    [tableColumn setEditable:FALSE];
+    [tableColumn setEditable:NO];
     [tableColumns addObject:tableColumn];
 
     // Title
@@ -103,7 +103,7 @@
     [[tableColumn headerCell] setStringValue:@"Title"];
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:stringFormatter];
-    [tableColumn setEditable:TRUE];
+    [tableColumn setEditable:YES];
     [tableColumns addObject:tableColumn];
 
     // Artist
@@ -115,7 +115,7 @@
     [[tableColumn headerCell] setStringValue:@"Artist"];
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:stringFormatter];
-    [tableColumn setEditable:TRUE];
+    [tableColumn setEditable:YES];
     [tableColumns addObject:tableColumn];
 
     // Album
@@ -127,7 +127,7 @@
     [[tableColumn headerCell] setStringValue:@"Album"];
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:stringFormatter];
-    [tableColumn setEditable:TRUE];
+    [tableColumn setEditable:YES];
     [tableColumns addObject:tableColumn];
 
     // AlbumArtist
@@ -139,7 +139,7 @@
     [[tableColumn headerCell] setStringValue:@"Album Artist"];
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:stringFormatter];
-    [tableColumn setEditable:TRUE];
+    [tableColumn setEditable:YES];
     [tableColumns addObject:tableColumn];
 
     // Composer
@@ -151,7 +151,7 @@
     [[tableColumn headerCell] setStringValue:@"Composer"];
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:stringFormatter];
-    [tableColumn setEditable:TRUE];
+    [tableColumn setEditable:YES];
     [tableColumns addObject:tableColumn];
 
     // Genre
@@ -163,7 +163,7 @@
     [[tableColumn headerCell] setStringValue:@"Genre"];
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:stringFormatter];
-    [tableColumn setEditable:TRUE];
+    [tableColumn setEditable:YES];
     [tableColumns addObject:tableColumn];
 
     // Year
@@ -177,7 +177,7 @@
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:numberFormatter];
     [[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-    [tableColumn setEditable:TRUE];
+    [tableColumn setEditable:YES];
     [tableColumns addObject:tableColumn];
 
     // Comments
@@ -189,7 +189,7 @@
     [[tableColumn headerCell] setStringValue:@"Comments"];
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:stringFormatter];
-    [tableColumn setEditable:TRUE];
+    [tableColumn setEditable:YES];
     [tableColumns addObject:tableColumn];
 
     // BPM
@@ -203,7 +203,7 @@
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:numberFormatter];
     [[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-    [tableColumn setEditable:TRUE];
+    [tableColumn setEditable:YES];
     [tableColumns addObject:tableColumn];
 
     // Track
@@ -217,7 +217,7 @@
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:numberFormatter];
     [[tableColumn dataCell] setAlignment:NSCenterTextAlignment];
-    [tableColumn setEditable:TRUE];
+    [tableColumn setEditable:YES];
     [tableColumns addObject:tableColumn];
 
     // Disc
@@ -231,7 +231,7 @@
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:numberFormatter];
     [[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-    [tableColumn setEditable:TRUE];
+    [tableColumn setEditable:YES];
     [tableColumns addObject:tableColumn];
 
     // PlayCount
@@ -245,7 +245,7 @@
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:numberFormatter];
     [[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-    [tableColumn setEditable:FALSE];
+    [tableColumn setEditable:NO];
     [tableColumns addObject:tableColumn];
 
     // DateAdded
@@ -259,7 +259,7 @@
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:dateFormatter];
     [[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-    [tableColumn setEditable:FALSE];
+    [tableColumn setEditable:NO];
     [tableColumns addObject:tableColumn];
 
     // LastPlayed
@@ -273,7 +273,7 @@
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:dateFormatter];
     [[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-    [tableColumn setEditable:FALSE];
+    [tableColumn setEditable:NO];
     [tableColumns addObject:tableColumn];
 
     // Size
@@ -287,7 +287,7 @@
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:sizeFormatter];
     [[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-    [tableColumn setEditable:FALSE];
+    [tableColumn setEditable:NO];
     [tableColumns addObject:tableColumn];
 
     // Kind
@@ -301,7 +301,7 @@
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:kindFormatter];
     [[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-    [tableColumn setEditable:FALSE];
+    [tableColumn setEditable:NO];
     [tableColumns addObject:tableColumn];
 
     // Time
@@ -315,7 +315,7 @@
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:timeFormatter];
     [[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-    [tableColumn setEditable:FALSE];
+    [tableColumn setEditable:NO];
     [tableColumns addObject:tableColumn];
 
     // Bitrate
@@ -329,7 +329,7 @@
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:bitRateFormatter];
     [[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-    [tableColumn setEditable:FALSE];
+    [tableColumn setEditable:NO];
     [tableColumns addObject:tableColumn];
 
     // Channels
@@ -342,7 +342,7 @@
     [[tableColumn headerCell] setAlignment:NSRightTextAlignment];
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-    [tableColumn setEditable:FALSE];
+    [tableColumn setEditable:NO];
     [tableColumns addObject:tableColumn];
 
     // SampleRate
@@ -355,7 +355,7 @@
     [[tableColumn headerCell] setAlignment:NSRightTextAlignment];
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setAlignment:NSRightTextAlignment];
-    [tableColumn setEditable:FALSE];
+    [tableColumn setEditable:NO];
     [tableColumns addObject:tableColumn];
 
     // Rating
@@ -377,17 +377,17 @@
     [ratingCell setControlSize:NSSmallControlSize];
     [ratingCell setSegmentStyle: NSSegmentStyleTexturedRounded];
     [tableColumn setDataCell:ratingCell];
-    [tableColumn setEditable:FALSE];
+    [tableColumn setEditable:NO];
     [tableColumns addObject:tableColumn];
 
     for (NSTableColumn *i in tableColumns) {
-        [i setHidden:TRUE];
+        [i setHidden:YES];
         NSTextFieldCell *cell = [i dataCell];
         [cell setFont:[NSFont systemFontOfSize:11]];
-        [cell setTruncatesLastVisibleLine:TRUE];
-        [cell setWraps:FALSE];
+        [cell setTruncatesLastVisibleLine:YES];
+        [cell setWraps:NO];
         [cell setLineBreakMode:NSLineBreakByTruncatingTail];
-        [cell setEditable:TRUE];
+        [cell setEditable:YES];
         [libraryTableView addTableColumn:i];
     }
 
@@ -419,8 +419,8 @@
         
         NSTextFieldCell *cell = [[PRCenteredTextFieldCell alloc] init];
         [cell setFont:[NSFont systemFontOfSize:11]];
-        [cell setTruncatesLastVisibleLine:TRUE];
-        [cell setWraps:FALSE];
+        [cell setTruncatesLastVisibleLine:YES];
+        [cell setWraps:NO];
         [cell setLineBreakMode:NSLineBreakByTruncatingTail];
         
         NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:@""];
@@ -476,8 +476,8 @@
     if (list) {        
         [self loadTableColumns];
         [self loadBrowser];
-        [self reloadData:TRUE];
-        [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
+        [self reloadData:YES];
+        [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
         [libraryTableView scrollRowToVisiblePretty:0];
         [browser1TableView scrollRowToVisiblePretty:[browser1TableView selectedRow]];
         [browser2TableView scrollRowToVisiblePretty:[browser2TableView selectedRow]];
@@ -517,7 +517,7 @@
     int dbRow = [[db libraryViewSource] rowForItem:item];
     if (dbRow != -1) {
         int tableRow = [self tableRowForDbRow:dbRow];
-        [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:tableRow] byExtendingSelection:FALSE];
+        [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:tableRow] byExtendingSelection:NO];
         [libraryTableView scrollRowToVisiblePretty:tableRow];
     }
 }
@@ -553,7 +553,7 @@
     }
     if ([dbRows count] > 0) {
         NSIndexSet *tableRows = [self tableRowIndexesForDbRowIndexes:dbRows];
-        [libraryTableView selectRowIndexes:tableRows byExtendingSelection:FALSE];
+        [libraryTableView selectRowIndexes:tableRows byExtendingSelection:NO];
         [libraryTableView scrollRowToVisiblePretty:[tableRows firstIndex]];
     }
 }
@@ -570,7 +570,7 @@
     if (row == -1 || row == 0) {
         return;
     }
-    [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:FALSE];
+    [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
     [libraryTableView scrollRowToVisiblePretty:row];
 }
 
@@ -633,7 +633,7 @@
         [[db playlists] removeItemsAtIndexes:indexesToDelete fromList:_currentList];
         
         [[NSNotificationCenter defaultCenter] postListItemsDidChange:_currentList];
-        [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
+        [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
     } else {
         NSString *message = @"Do you want to remove the selected song from your library?";
         if ([indexes count] != 1) {
@@ -681,7 +681,7 @@
     [[db library] removeItems:items];
     [[NSNotificationCenter defaultCenter] postLibraryChanged];
     [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
-    [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:FALSE];    
+    [libraryTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];    
 }
 
 - (void)appendAll {
@@ -727,7 +727,7 @@
 - (void)reloadData:(BOOL)force {
     int tables = [[db libraryViewSource] refreshWithList:_currentList force:force];
     
-    _updatingTableViewSelection = FALSE;
+    _updatingTableViewSelection = NO;
     if ((tables & PRLibraryView) == PRLibraryView) {
         [libraryTableView reloadData];
     }
@@ -740,10 +740,10 @@
     if ((tables & PRBrowser3View) == PRBrowser3View) {
         [browser3TableView reloadData];
     }
-    [browser1TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:1] byExtendingSelection:FALSE];
-    [browser2TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:2] byExtendingSelection:FALSE];
-    [browser3TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:3] byExtendingSelection:FALSE];
-    _updatingTableViewSelection = TRUE;
+    [browser1TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:1] byExtendingSelection:NO];
+    [browser2TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:2] byExtendingSelection:NO];
+    [browser3TableView selectRowIndexes:[[db libraryViewSource] selectionForBrowser:3] byExtendingSelection:NO];
+    _updatingTableViewSelection = YES;
     
     [NSNotificationCenter post:PRLibraryViewSelectionDidChangeNotification];
 }
@@ -758,13 +758,13 @@
 
 - (void)libraryDidChange:(NSNotification *)note {
     if (_currentList) {
-        [self reloadData:TRUE];
+        [self reloadData:YES];
     }
 }
 
 - (void)tagsDidChange:(NSNotification *)note {
     if (_currentList) {
-        [self reloadData:TRUE];
+        [self reloadData:YES];
     }
 }
 
@@ -772,8 +772,8 @@
     if (!_currentList || ![[[note userInfo] valueForKey:@"playlist"] isEqual:_currentList]) {
         return;
     }
-    [self reloadData:FALSE];
-    [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
+    [self reloadData:NO];
+    [libraryTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
     [libraryTableView scrollRowToVisible:[libraryTableView selectedRow]];
     [browser1TableView scrollRowToVisible:[browser1TableView selectedRow]];
     [browser2TableView scrollRowToVisible:[browser2TableView selectedRow]];
@@ -782,7 +782,7 @@
 
 - (void)playlistFilesChanged:(NSNotification *)note {
     if (_currentList && [[[note userInfo] valueForKey:@"playlist"] isEqual:_currentList]) {
-        [self reloadData:TRUE];
+        [self reloadData:YES];
     }
 }
 
@@ -897,7 +897,7 @@
 }
 
 - (void)loadBrowser {
-    refreshing = TRUE;
+    refreshing = YES;
     [verticalBrowserSplitView removeFromSuperview];
     [horizontalBrowserSplitView removeFromSuperview];
     [libraryScrollView removeFromSuperview];
@@ -958,7 +958,7 @@
         }
         [[[[[self tableViewForBrowser:i] tableColumns] objectAtIndex:0] headerCell] setStringValue:title];
     }
-    refreshing = FALSE;
+    refreshing = NO;
 }
 
 - (void)saveBrowser {
@@ -976,7 +976,7 @@
 }
 
 - (void)loadTableColumns {
-    refreshing = TRUE;
+    refreshing = YES;
     // set column attributes
     NSArray *columnsInfo = [self columnInfo];
     for (int i = 0; i < [columnsInfo count]; i++) {
@@ -994,7 +994,7 @@
     
     // highlight sort table column
     [self highlightTableColumn:[self tableColumnForAttr:[self sortAttr]] ascending:[self ascending]];
-    refreshing = FALSE;
+    refreshing = NO;
 }
 
 - (void)saveTableColumns {  
@@ -1167,7 +1167,7 @@
     [headerMenu addItem:[NSMenuItem separatorItem]];
     
     // Columns  
-    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"headerCell.stringValue" ascending:TRUE];
+    NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"headerCell.stringValue" ascending:YES];
     NSArray *sortedTableColumns = [[libraryTableView tableColumns] sortedArrayUsingDescriptors:@[sortDescriptor]];
     for (NSTableColumn *i in sortedTableColumns) {
         if ([[i identifier] isEqual:PRListSortIndex]) {
@@ -1355,7 +1355,7 @@
             currentIndex++;
         }
     } else {
-        return FALSE;
+        return NO;
     }
     
     // PRIndexesPboardType
@@ -1369,7 +1369,7 @@
             forType:PRFilePboardType];
     [pboard setData:[NSKeyedArchiver archivedDataWithRootObject:indexes]
             forType:PRIndexesPboardType];
-    return TRUE;
+    return YES;
 }
 
 - (NSDragOperation)tableView:(NSTableView*)tableView validateDrop:(id <NSDraggingInfo>)info proposedRow:(NSInteger)row proposedDropOperation:(NSTableViewDropOperation)op {
@@ -1401,7 +1401,7 @@
 - (BOOL)tableView:(NSTableView *)tableView acceptDrop:(id <NSDraggingInfo>)info row:(NSInteger)row dropOperation:(NSTableViewDropOperation)operation {
     NSPasteboard *pboard = [info draggingPasteboard];    
     if ([info draggingSource] != libraryTableView) {
-        return FALSE;
+        return NO;
     }
     NSIndexSet *indexes = [NSKeyedUnarchiver unarchiveObjectWithData:[pboard dataForType:PRIndexesPboardType]];
     
@@ -1415,8 +1415,8 @@
     // select
     int index = [[db playlists] indexForListItem:listItem];
     NSIndexSet *indexesToSelect = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange([self tableRowForDbRow:index], [indexes count])];
-    [libraryTableView selectRowIndexes:indexesToSelect byExtendingSelection:FALSE];
-    return TRUE;
+    [libraryTableView selectRowIndexes:indexesToSelect byExtendingSelection:NO];
+    return YES;
 }
 
 #pragma mark - TableView Delegate
@@ -1442,7 +1442,7 @@
     for (int i = startRow; i <= end; i++) {
         NSString *value = [self tableView:tableView objectValueForTableColumn:column row:i];
         if ([value noCaseBegins:string]) {
-            _lastLibraryTypeSelectFailure = FALSE;
+            _lastLibraryTypeSelectFailure = NO;
             return i;
         }
         if (i == end && endRow < startRow && end != endRow) {
@@ -1450,7 +1450,7 @@
             end = endRow;
         }
     }
-    _lastLibraryTypeSelectFailure = TRUE;
+    _lastLibraryTypeSelectFailure = YES;
     return startRow;
 }
 
@@ -1468,9 +1468,9 @@
 
 - (BOOL)tableView:(NSTableView *)tableView shouldReorderColumn:(NSInteger)columnIndex toColumn:(NSInteger)newColumnIndex {
     if (tableView == libraryTableView && [[[db playlists] typeForList:_currentList] isEqual:PRListTypeStatic] && newColumnIndex == 0) {
-        return FALSE;
+        return NO;
     } else {
-        return TRUE;
+        return YES;
     }
 }
 
@@ -1482,11 +1482,11 @@
         [self setAscending:![self ascending]];
     } else {
         [self setSortAttr:[tableColumn identifier]];
-        [self setAscending:TRUE];
+        [self setAscending:YES];
     }
     [self loadTableColumns];
-    [self reloadData:FALSE];
-    [tableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
+    [self reloadData:NO];
+    [tableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
 }
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification {
@@ -1532,9 +1532,9 @@
 
 - (BOOL)tableView:(PRTableView *)tableView keyDown:(NSEvent *)event {
     if ([[event characters] length] != 1) {
-        return FALSE;
+        return NO;
     }
-    BOOL didHandle = FALSE;
+    BOOL didHandle = NO;
     NSUInteger flags = [NSEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
     UniChar c = [[event characters] characterAtIndex:0];
     if (flags == 0) {
@@ -1542,14 +1542,14 @@
             if (tableView == libraryTableView) {
                 [self deleteIndexes:[libraryTableView selectedRowIndexes]];
             }
-            didHandle = TRUE;
+            didHandle = YES;
         } else if (c == 0xd) {
             if (tableView == libraryTableView) {
                 [self playIndexes:[libraryTableView selectedRowIndexes]];
             } else {
                 [self playBrowser:nil];
             }
-            didHandle = TRUE;
+            didHandle = YES;
         }
     } else if (flags == NSShiftKeyMask) {
         if (c == 0xd) {
@@ -1558,7 +1558,7 @@
             } else {
                 [self appendAll];
             }
-            didHandle = TRUE;
+            didHandle = YES;
         }
     } else if (flags == NSAlternateKeyMask) {
         if (c == 0xd) {
@@ -1567,7 +1567,7 @@
             } else {
                 [self appendNextAll];
             }
-            didHandle = TRUE;
+            didHandle = YES;
         }
     }
     return didHandle;
@@ -1581,13 +1581,13 @@
     } else if (splitView == verticalBrowserSplitView) {
         return subview == verticalBrowserLibrarySuperview;
     } else if (splitView == horizontalBrowserSubSplitview) {
-        return FALSE;
+        return NO;
     }
     @throw NSInvalidArgumentException;
 }
 
 - (BOOL)splitView:(NSSplitView *)splitView shouldHideDividerAtIndex:(NSInteger)dividerIndex {
-    return TRUE;
+    return YES;
 }
 
 - (void)splitViewDidResizeSubviews:(NSNotification *)notification {

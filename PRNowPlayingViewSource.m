@@ -20,7 +20,7 @@
 - (BOOL)initialize {
     [_db execute:@"CREATE TEMP TABLE now_playing_view_source ("
      "row INTEGER NOT NULL PRIMARY KEY, file_id INTEGER NOT NULL)"];
-    return TRUE;
+    return YES;
 }
 
 #pragma mark - Update
@@ -77,8 +77,8 @@
         BOOL albumSame = [albumString noCaseCompare:albumString2] == NSOrderedSame;
         BOOL artistSame = [artistString noCaseCompare:artistString2] == NSOrderedSame;
         if (![[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]) {
-            compilation = FALSE;
-            compilation2 = FALSE;
+            compilation = NO;
+            compilation2 = NO;
         }
         if (compilation != compilation2 || (compilation && !albumSame) || (!compilation && (!albumSame || !artistSame))) {
             [array addObject:[NSNumber numberWithInt:count]];

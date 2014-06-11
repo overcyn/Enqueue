@@ -73,7 +73,6 @@
 }
 
 - (void)awakeFromNib {
-    
     // Main Menu
     _mainMenuController = [[PRMainMenuController alloc] initWithCore:_core];
     
@@ -320,7 +319,7 @@
         [centerSuperview removeFromSuperview];
         
         // WINDOW
-        [[self window] setFrame:winFrame display:TRUE animate:FALSE];
+        [[self window] setFrame:winFrame display:YES animate:NO];
         [[self window] setMinSize:NSMakeSize(215, 140)]; // min 140 / 400
         [[self window] setMaxSize:NSMakeSize(215, 10000)];
         [controlsSuperview setAutoresizingMask:NSViewMaxYMargin|NSViewWidthSizable];
@@ -351,7 +350,7 @@
         [centerSuperview removeFromSuperview];
         
         // WINDOW
-        [[self window] setFrame:winFrame display:TRUE animate:FALSE];
+        [[self window] setFrame:winFrame display:YES animate:NO];
         [[self window] setMinSize:NSMakeSize(215, 140)]; // min 140 / 400
         [[self window] setMaxSize:NSMakeSize(215, 10000)];
         [controlsSuperview setAutoresizingMask:NSViewMaxYMargin|NSViewWidthSizable];
@@ -393,7 +392,7 @@
         // WINDOW
         [[self window] setMinSize:NSMakeSize(700+185, 500)];
         [[self window] setMaxSize:NSMakeSize(10000, 10000)];
-        [[self window] setFrame:winFrame display:TRUE animate:FALSE];
+        [[self window] setFrame:winFrame display:YES animate:NO];
         [controlsSuperview setAutoresizingMask:NSViewMaxYMargin|NSViewWidthSizable];
         [_splitView setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
         [nowPlayingSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewHeightSizable];
@@ -450,7 +449,7 @@
             [[_nowPlayingViewController view] setFrame:frame];
         }
     } else {
-        [[_controlsViewController albumArtView] setHidden:TRUE];
+        [[_controlsViewController albumArtView] setHidden:YES];
         
         // size of nowPlayingView
         frame = [nowPlayingSuperview bounds];
@@ -549,7 +548,7 @@
 }
 
 - (void)windowWillExitFullScreen:(NSNotification *)notification {
-    _resizingSplitView = TRUE;
+    _resizingSplitView = YES;
 //    [_splitView setDelegate:nil];
     NSRect frame = [_splitView frame];
     frame.size.height = [[self window] frame].size.height - 30 - 54 + 22;
@@ -568,16 +567,16 @@
     }
     [self updateSplitView];
 //    [_splitView setDelegate:self];
-    _resizingSplitView = FALSE;
+    _resizingSplitView = NO;
 }
 
 - (BOOL)windowShouldClose:(id)sender {
     if (sender == [self window]) {
         [[self window] orderOut:self];
-        [NSApp addWindowsItem:[self window] title:@"Enqueue" filename:FALSE];
-        return FALSE;
+        [NSApp addWindowsItem:[self window] title:@"Enqueue" filename:NO];
+        return NO;
     }
-    return TRUE;
+    return YES;
 }
 
 - (NSRect)window:(NSWindow *)window willPositionSheet:(NSWindow *)sheet usingRect:(NSRect)rect {
@@ -596,12 +595,12 @@
         if (frameSize.height < 170) {
             frameSize.height = 140;
             if ([[self window] frame].size.height != 140) {
-                _windowWillResize = TRUE;
+                _windowWillResize = YES;
             }
         } else if (frameSize.height < 400) {
             frameSize.height = 400;
             if ([[self window] frame].size.height == 140) {
-                _windowWillResize = TRUE;
+                _windowWillResize = YES;
             }
         }
     }
@@ -611,7 +610,7 @@
 - (void)windowDidResize:(NSNotification *)notification {
     if (_windowWillResize) {
         [self updateLayoutWithFrame:[[self window] frame]];
-        _windowWillResize = FALSE;
+        _windowWillResize = NO;
     }
     if ([[self window] styleMask] & NSFullScreenWindowMask) {
         return;
@@ -632,23 +631,23 @@
 
 - (BOOL)window:(NSWindow *)window keyDown:(NSEvent *)event {
     if ([[event characters] length] != 1) {
-        return FALSE;
+        return NO;
     }
-    BOOL didHandle = FALSE;
+    BOOL didHandle = NO;
     NSUInteger flags = [NSEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
     UniChar c = [[event characters] characterAtIndex:0];
     if (flags == 0) {
         if (c == 0x20) {
             [[_core now] playPause];
-            didHandle = TRUE;
+            didHandle = YES;
         }
     } else if (flags == (NSNumericPadKeyMask | NSFunctionKeyMask)) {
         if (c == 0xf703) {
             [[_core now] playNext];
-            didHandle = TRUE;
+            didHandle = YES;
         } else if (c == 0xf702) {
             [[_core now] playPrevious];
-            didHandle = TRUE;
+            didHandle = YES;
         }
     }
     return didHandle;
@@ -664,7 +663,7 @@
         if (!([[self window] styleMask] & NSFullScreenWindowMask)) {
             NSRect frame = [[self window] frame];
             frame.size.width = [nowPlayingSuperview frame].size.width + 700;
-            [[self window] setFrame:frame display:TRUE];
+            [[self window] setFrame:frame display:YES];
         } else {
             [_splitView setPosition:[self window].frame.size.width-700 ofDividerAtIndex:0];
         }
@@ -675,9 +674,9 @@
 
 - (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {
     if (subview == nowPlayingSuperview) {
-        return FALSE;
+        return NO;
     }
-    return TRUE;
+    return YES;
 }
 
 - (CGFloat)splitView:(NSSplitView *)splitView constrainSplitPosition:(CGFloat)proposedPosition ofSubviewAt:(NSInteger)dividerIndex {

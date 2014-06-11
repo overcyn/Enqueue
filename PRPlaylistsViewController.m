@@ -42,7 +42,7 @@
     [tableView setDelegate:self];
     [tableView setTarget:self];
     [tableView setDoubleAction:@selector(tableViewAction)];
-    [tableView setTrackMouseWithinCell:TRUE];
+    [tableView setTrackMouseWithinCell:YES];
     [[[[tableView tableColumns] objectAtIndex:0] dataCell] setFormatter:stringFormatter];
     
     [divider setBotBorder2:[NSColor PRTabBorderColor]];
@@ -192,7 +192,7 @@
 - (void)renamePlaylist:(PRPlaylist)playlist {
     int row = [self rowForPlaylist:playlist];
     if (row != -1) {
-        [tableView editColumn:0 row:row withEvent:nil select:TRUE];
+        [tableView editColumn:0 row:row withEvent:nil select:YES];
     }
 }
 
@@ -305,10 +305,10 @@
     
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithDictionary:[aCell objectValue]];
     if ([(PRRolloverTableView *)aTableView mouseOverRow] == rowIndex) {
-        [dictionary setObject:@TRUE forKey:@"mouseOver"];
+        [dictionary setObject:@YES forKey:@"mouseOver"];
         [dictionary setObject:[NSValue valueWithPoint:[(PRRolloverTableView *)aTableView pointInCell]] forKey:@"point"];
     } else {
-        [dictionary setObject:@FALSE forKey:@"mouseOver"];
+        [dictionary setObject:@NO forKey:@"mouseOver"];
         [dictionary setObject:[NSValue valueWithPoint:NSMakePoint(0, 0)] forKey:@"point"];
     }
     
@@ -317,11 +317,11 @@
 }
 
 - (BOOL)tableView:(NSTableView *)tableView shouldShowCellExpansionForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    return FALSE;
+    return NO;
 }
 
 - (BOOL)tableView:(NSTableView *)tableView shouldTrackCell:(NSCell *)cell forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    return TRUE;
+    return YES;
 }
 
 #pragma mark - Misc

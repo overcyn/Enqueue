@@ -11,7 +11,7 @@
 @implementation PRScrollView
 
 - (void)awakeFromNib {
-    [self setPostsFrameChangedNotifications:TRUE];
+    [self setPostsFrameChangedNotifications:YES];
     [[NSNotificationCenter defaultCenter] addObserver:self 
                                              selector:@selector(viewFrameDidChange:) 
                                                  name:NSViewFrameDidChangeNotification

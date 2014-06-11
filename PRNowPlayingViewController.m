@@ -89,9 +89,9 @@
     scrollview = [[NSScrollView alloc] initWithFrame:NSMakeRect(0, 0, 210, 501)];
     [scrollview setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
     [scrollview setFocusRingType:NSFocusRingTypeNone];
-    [scrollview setDrawsBackground:FALSE];
+    [scrollview setDrawsBackground:NO];
     [scrollview setBorderType:NSNoBorder];
-    [scrollview setAutohidesScrollers:TRUE];
+    [scrollview setAutohidesScrollers:YES];
     [scrollview setHasVerticalScroller:YES];
     [[self view] addSubview:scrollview];
     
@@ -101,15 +101,15 @@
     [nowPlayingTableView setFocusRingType:NSFocusRingTypeNone];
     [nowPlayingTableView setBackgroundColor:[NSColor transparent]];
     [nowPlayingTableView setHeaderView:nil];
-    [nowPlayingTableView setAllowsMultipleSelection:TRUE];
+    [nowPlayingTableView setAllowsMultipleSelection:YES];
     [nowPlayingTableView setDoubleAction:@selector(play)];
     [nowPlayingTableView setIntercellSpacing:NSMakeSize(0, 0)];
     [nowPlayingTableView setTarget:self];
     [nowPlayingTableView setDataSource:self];
     [nowPlayingTableView setDelegate:self]; 
     [nowPlayingTableView registerForDraggedTypes:@[PRFilePboardType]];
-    [nowPlayingTableView setVerticalMotionCanBeginDrag:FALSE];
-    [nowPlayingTableView setAutoresizesOutlineColumn:FALSE];
+    [nowPlayingTableView setVerticalMotionCanBeginDrag:NO];
+    [nowPlayingTableView setAutoresizesOutlineColumn:NO];
     [nowPlayingTableView addTableColumn:column];
     [nowPlayingTableView setOutlineTableColumn:column];
     [scrollview setDocumentView:nowPlayingTableView];
@@ -118,19 +118,19 @@
     _headerView = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 50, 30)];
     
     _playlistMenu = [[NSMenu alloc] init];
-    [_playlistMenu setAutoenablesItems:FALSE];
+    [_playlistMenu setAutoenablesItems:NO];
     [_playlistMenu setDelegate:self];
     _menuButton = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(18, 3, 25, 25)];
     [[_menuButton cell] setArrowPosition:NSPopUpNoArrow];
     [_menuButton setMenu:_playlistMenu];
-    [_menuButton setPullsDown:TRUE];
-    [_menuButton setBordered:FALSE];
+    [_menuButton setPullsDown:YES];
+    [_menuButton setBordered:NO];
     [_menuButton setToolTip:@"Save the Now Playing playlist."];
     [_headerView addSubview:_menuButton];
     
     _clearButton = [[NSButton alloc] initWithFrame:NSMakeRect(1, 3, 25, 25)];
     [_clearButton setImage:[NSImage imageNamed:@"Trash"]];
-    [_clearButton setBordered:FALSE];
+    [_clearButton setBordered:NO];
     [_clearButton setTarget:self];
     [_clearButton setAction:@selector(clearPlaylist)];
     [_clearButton setButtonType:NSMomentaryChangeButton];
@@ -140,7 +140,7 @@
     // context menu
     _contextMenu = [[NSMenu alloc] init];
     [_contextMenu setDelegate:self];
-    [_contextMenu setAutoenablesItems:FALSE];
+    [_contextMenu setAutoenablesItems:NO];
     [nowPlayingTableView setMenu:_contextMenu];
     
     // key views
@@ -233,7 +233,7 @@
     }
     
     // Checks if adding single album
-    BOOL singleAlbum = TRUE;
+    BOOL singleAlbum = YES;
     if ([files count] > 1) {
         NSString *artist = [[db library] artistValueForItem:[files objectAtIndex:0]];
         NSString *album = [[db library] valueForItem:[files objectAtIndex:0] attr:PRItemAttrAlbum];
@@ -241,14 +241,14 @@
             NSString *nextArtist = [[db library] artistValueForItem:i];
             NSString *nextAlbum = [[db library] valueForItem:i attr:PRItemAttrAlbum];
             if (![artist isEqualToString:nextArtist] || ![album isEqualToString:nextAlbum]) {
-                singleAlbum = FALSE;
+                singleAlbum = NO;
             }
         }
     }
     
     [[db playlists] addItems:files atIndex:dbRow toList:[now currentList]];
     [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
-    [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
+    [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
     [nowPlayingTableView collapseItem:nil];
     
     albumCount = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
@@ -293,12 +293,12 @@
     
     int albumCount = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
     NSMutableArray *array = [NSMutableArray array];
-    BOOL prevAlbumMissing = FALSE;
+    BOOL prevAlbumMissing = NO;
     for (int i = 0; i < albumCount; i++) {
         NSArray *item = [self itemForItem:[NSArray arrayWithObjects:[NSNumber numberWithInt:i], nil]];
         NSRange range = [self dbRangeForParentItem:item];
         if (range.length == [dbRows countOfIndexesInRange:range]) {
-            prevAlbumMissing = TRUE;
+            prevAlbumMissing = YES;
             continue;
         } else {
             PRItem *item_ = [[db playlists] itemAtIndex:range.location forList:[now currentList]];
@@ -313,7 +313,7 @@
                                       album, @"album", nil];
                 [array addObject:info];
             }
-            prevAlbumMissing = FALSE;
+            prevAlbumMissing = NO;
         }
     }
     
@@ -322,7 +322,7 @@
     }
     [[db playlists] removeItemsAtIndexes:dbRows fromList:[now currentList]];
     [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
-    [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
+    [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
     
     for (int i = 0; i < [array count]; i++) {
         if ([[[array objectAtIndex:i] objectForKey:@"expanded"] boolValue]) {
@@ -388,7 +388,7 @@
     id item = [nowPlayingTableView itemAtRow:[nowPlayingTableView clickedRow]];
     [self playItem:item];
     int row = [nowPlayingTableView rowForItem:item];
-    [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:FALSE];
+    [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
 }
 
 #pragma mark - Action Menu Priv
@@ -466,7 +466,7 @@
     [menu addItem:menuItem];
     
     menuItem = [[NSMenuItem alloc] initWithTitle:@"Save as..." action:nil keyEquivalent:@""];
-    [menuItem setEnabled:FALSE];
+    [menuItem setEnabled:NO];
     [menu addItem:menuItem];
     
     menuItem = [[NSMenuItem alloc] initWithTitle:@" New Playlist          " action:@selector(saveAsNewPlaylist:) keyEquivalent:@""];
@@ -508,8 +508,8 @@
     [_contextMenu addItem:item];
     
     // Queue
-    BOOL addToQueue = FALSE;
-    BOOL removeFromQueue = FALSE;
+    BOOL addToQueue = NO;
+    BOOL removeFromQueue = NO;
     
     NSArray *queue = [[db queue] queueArray];
     NSIndexSet *dbRows = [self selectedDbRows];
@@ -517,9 +517,9 @@
     while (dbRow != NSNotFound) {
         PRListItem *listItem = [[db playlists] listItemAtIndex:dbRow inList:[now currentList]];
         if ([queue containsObject:listItem]) {
-            removeFromQueue = TRUE;
+            removeFromQueue = YES;
         } else {
-            addToQueue = TRUE;
+            addToQueue = YES;
         }
         dbRow = [dbRows indexGreaterThanIndex:dbRow];
     }
@@ -707,11 +707,11 @@
 }
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView shouldShowCellExpansionForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
-    return FALSE;
+    return NO;
 }
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView shouldTrackCell:(NSCell *)cell forTableColumn:(NSTableColumn *)tableColumn item:(id)item {
-    return TRUE;
+    return YES;
 }
 
 - (NSCell *)outlineView:(NSOutlineView *)outlineView dataCellForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
@@ -731,7 +731,7 @@
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:[self selectedDbRows]];
     [pboard declareTypes:@[PRFilePboardType] owner:self];
     [pboard setData:data forType:PRFilePboardType];
-    return TRUE;
+    return YES;
 }
 
 - (NSDragOperation)outlineView:(NSOutlineView *)view validateDrop:(id<NSDraggingInfo>)info proposedItem:(id)item_ proposedChildIndex:(NSInteger)index {
@@ -773,7 +773,7 @@
         NSMutableArray *tempAlbums = [NSMutableArray array];
         NSString *prevArtist = @"";
         NSString *prevAlbum = @"";
-        BOOL prevAlbumMissing = FALSE;
+        BOOL prevAlbumMissing = NO;
         for (int i = 0; i < albumCount; i++) {
             NSArray *item = [self itemForItem:[NSArray arrayWithObjects:[NSNumber numberWithInt:i], nil]];
             NSRange range = [self dbRangeForParentItem:item];
@@ -790,7 +790,7 @@
                 }
             }
             if (range.length - [dbIndexesToMove countOfIndexesInRange:range] == 0) {
-                prevAlbumMissing = TRUE;
+                prevAlbumMissing = YES;
                 continue;
             }
             PRListItem *listItem = [[db playlists] itemAtIndex:range.location forList:[now currentList]];
@@ -799,7 +799,7 @@
             BOOL shouldMergeWithPrevAlbum = prevAlbumMissing && [artist noCaseCompare:prevArtist] == NSOrderedSame && [album noCaseCompare:prevAlbum] == NSOrderedSame;
             prevArtist = artist;
             prevAlbum = album;
-            prevAlbumMissing = FALSE;
+            prevAlbumMissing = NO;
             int oldLocation = location;
             location += range.length - [dbIndexesToMove countOfIndexesInRange:range];
             if (shouldMergeWithPrevAlbum) {
@@ -838,7 +838,7 @@
         // Move dbIndexesToMove to dbIndexToInsert
         [[db playlists] moveItemsAtIndexes:dbIndexesToMove toIndex:dbIndexToInsert inList:[now currentList]];
         [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
-        [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
+        [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
         [nowPlayingTableView collapseItem:nil];
         
         // Collapse/uncollapse using beforeArray and afterArray;
@@ -897,7 +897,7 @@
         }
         
         // Checks if adding single album
-        BOOL singleAlbum = TRUE;
+        BOOL singleAlbum = YES;
         if ([files count] > 1) {
             NSString *artist = [[db library] artistValueForItem:[files objectAtIndex:0]];
             NSString *album = [[db library] valueForItem:[files objectAtIndex:0] attr:PRItemAttrAlbum];
@@ -905,14 +905,14 @@
                 NSString *nextArtist = [[db library] artistValueForItem:i];
                 NSString *nextAlbum = [[db library] valueForItem:i attr:PRItemAttrAlbum];
                 if (![artist isEqualToString:nextArtist] || ![album isEqualToString:nextAlbum]) {
-                    singleAlbum = FALSE;
+                    singleAlbum = NO;
                 }
             }
         }
         
         [[db playlists] addItems:files atIndex:dbRow toList:[now currentList]];
         [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
-        [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
+        [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
         [nowPlayingTableView collapseItem:nil];
         
         albumCount = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
@@ -938,12 +938,12 @@
             [nowPlayingTableView expandItem:item];
         }
     }
-    return TRUE;
+    return YES;
 }
 
 - (void)draggedImage:(NSImage *)anImage endedAt:(NSPoint)aPoint operation:(NSDragOperation)operation {
     [[NSCursor arrowCursor] set];
-    if (operation == 0 && !NSMouseInRect([nowPlayingTableView convertPointFromBase:[[nowPlayingTableView window] convertScreenToBase:dropPoint]], [nowPlayingTableView bounds], TRUE)) {
+    if (operation == 0 && !NSMouseInRect([nowPlayingTableView convertPointFromBase:[[nowPlayingTableView window] convertScreenToBase:dropPoint]], [nowPlayingTableView bounds], YES)) {
         NSShowAnimationEffect(NSAnimationEffectDisappearingItemDefault, dropPoint, NSZeroSize, nil, nil, nil);
         [self removeSelected];
     }
@@ -951,7 +951,7 @@
 
 - (void)draggedImage:(NSImage *)anImage movedTo:(NSPoint)point {
     dropPoint = [NSEvent mouseLocation];
-    if (!NSMouseInRect([nowPlayingTableView convertPointFromBase:[[nowPlayingTableView window] convertScreenToBase:dropPoint]], [nowPlayingTableView bounds], TRUE)) {
+    if (!NSMouseInRect([nowPlayingTableView convertPointFromBase:[[nowPlayingTableView window] convertScreenToBase:dropPoint]], [nowPlayingTableView bounds], YES)) {
         [[NSCursor disappearingItemCursor] set];
     } else {
         [[NSCursor arrowCursor] set];
@@ -962,9 +962,9 @@
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item {
     if ([(NSArray *)item count] == 1) {
-        return TRUE;
+        return YES;
     }
-    return FALSE;
+    return NO;
 }
 
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
@@ -1036,26 +1036,26 @@
 
 - (BOOL)outlineView:(PROutlineView *)outlineView keyDown:(NSEvent *)event {
     if ([[event characters] length] != 1) {
-        return FALSE;
+        return NO;
     }
-    BOOL didHandle = FALSE;
+    BOOL didHandle = NO;
     NSUInteger flags = [NSEvent modifierFlags] & NSDeviceIndependentModifierFlagsMask;
     UniChar c = [[event characters] characterAtIndex:0];
     if (flags == 0) {
         if (c == 0x7F || c == 0xf728) {
             [self removeSelected];
-            didHandle = TRUE;
+            didHandle = YES;
         } else if (c == 0xd) {
             [self playSelected];
-            didHandle = TRUE;
+            didHandle = YES;
         }
     } else if (flags == (NSNumericPadKeyMask | NSFunctionKeyMask)) {
         if (c == 0xf703) {
             [[_core now] playNext];
-            didHandle = TRUE;
+            didHandle = YES;
         } else if (c == 0xf702) {
             [[_core now] playPrevious];
-            didHandle = TRUE;
+            didHandle = YES;
         }
     }
     return didHandle;

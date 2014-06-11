@@ -27,9 +27,9 @@ NSString * const PR_TBL_QUEUE_SQL = @"CREATE TABLE queue ("
                            bindings:nil 
                             columns:@[PRColString]];
     if ([results count] != 1 || ![[[results objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_QUEUE_SQL]) {
-        return FALSE;
+        return NO;
     }
-    return TRUE;
+    return YES;
 }
 
 #pragma mark - Accessors

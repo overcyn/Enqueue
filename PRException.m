@@ -8,7 +8,7 @@ NSString * const PRDbInconsistencyException = @"PRDbInconsistencyException";
 
 - (void)raise {
     [self performSelectorInBackground:@selector(raise_) withObject:nil];
-    while (TRUE) {
+    while (YES) {
         sleep(1000);
     }
 }

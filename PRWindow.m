@@ -61,11 +61,11 @@
 }
 
 - (BOOL)_isTitleHidden {
-    return TRUE;
+    return YES;
 }
 
 - (void)keyDown:(NSEvent *)event{
-    BOOL didHandle = FALSE;
+    BOOL didHandle = NO;
     if ([self delegate] && 
         [[self delegate] respondsToSelector:@selector(window:keyDown:)]) {
         didHandle = [(id<PRWindowDelegate>)[self delegate] window:self keyDown:event];

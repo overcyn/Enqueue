@@ -12,8 +12,8 @@
     _core = core;
     now = [core now];
     db = [core db];
-    refreshing = FALSE;
-    _updatingTableViewSelection = TRUE;
+    refreshing = NO;
+    _updatingTableViewSelection = YES;
     _currentList = nil;
     return self;
 }

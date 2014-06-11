@@ -6,7 +6,7 @@
 
 - (id)init {
     if (!(self = [super init])) {return nil;}
-    focusRing = FALSE;
+    focusRing = NO;
     return self;
 }
 
@@ -26,12 +26,12 @@
 }
 
 - (BOOL)acceptsFirstResponder {
-    return TRUE;
+    return YES;
 }
 
 - (BOOL)becomeFirstResponder {
-    [self setNeedsDisplay:TRUE];
-    return TRUE;
+    [self setNeedsDisplay:YES];
+    return YES;
 }
 
 - (void)keyDown:(NSEvent *)event {
@@ -42,14 +42,14 @@
     if ([[event characters] characterAtIndex:0] == 0x7F ||
         [[event characters] characterAtIndex:0] == 0xf728) {
         [self setObjectValue:nil];
-        [self setNeedsDisplay:TRUE];
+        [self setNeedsDisplay:YES];
     } else {
         [super keyDown:event];
     }
 }
 
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {
-    focusRing = TRUE;
+    focusRing = YES;
     [self setNeedsDisplay:focusRing];
     [[NSCursor dragCopyCursor] set];
     
@@ -61,20 +61,20 @@
 }
 
 - (void)draggingExited:(id <NSDraggingInfo>)sender {
-    focusRing = FALSE;
-    [self setNeedsDisplay:TRUE];
+    focusRing = NO;
+    [self setNeedsDisplay:YES];
     [[NSCursor arrowCursor] set];
 }
 
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
-    focusRing = FALSE;
+    focusRing = NO;
     [[NSCursor arrowCursor] set];
     
     NSPasteboard *paste = [sender draggingPasteboard];
     NSString *desiredType = [paste availableTypeFromArray:[NSArray arrayWithObjects:NSTIFFPboardType, NSFilenamesPboardType, nil]];
     NSData *carriedData = [paste dataForType:desiredType];
     if (!carriedData) {
-        return FALSE;
+        return NO;
     }
 
     NSImage *newImage = nil;
@@ -83,20 +83,20 @@
     } else if ([desiredType isEqualToString:NSFilenamesPboardType]) {
         NSArray *fileArray = [paste propertyListForType:@"NSFilenamesPboardType"];
         if ([fileArray count] < 1) {
-            return FALSE;
+            return NO;
         }
         NSString *path = [fileArray objectAtIndex:0];
         newImage = [[NSImage alloc] initWithContentsOfFile:path];
     } else {
-        return FALSE;
+        return NO;
     }
     
     if (!newImage) {
-        return FALSE;
+        return NO;
     }
     [self setObjectValue:newImage];
-    [self setNeedsDisplay:TRUE];
-    return TRUE;
+    [self setNeedsDisplay:YES];
+    return YES;
 }
 
 @end
