@@ -2,7 +2,7 @@
 
 
 @interface PRSynchronizedScrollView : NSScrollView {
-	 NSScrollView *synchronizedScrollView;
+     NSScrollView *synchronizedScrollView;
 }
 - (void)setSynchronizedScrollView:(NSScrollView*)scrollview;
 - (void)stopSynchronizing;

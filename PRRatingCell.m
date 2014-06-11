@@ -4,10 +4,10 @@
 @implementation PRRatingCell
 
 - (id)init {
-	if (!(self = [super init])) {return nil;}
+    if (!(self = [super init])) {return nil;}
     _showDots = FALSE;
     _editing = FALSE;
-	return self;
+    return self;
 }
 
 @synthesize showDots = _showDots;
@@ -24,55 +24,55 @@
     if ([self objectValue] == nil) {
         return;
     }
-	NSImage *icon;
-	if (segment == 0) {
-		icon = [NSImage imageNamed:@"PREmptyIcon"];
-	} else if (segment <= [self selectedSegment]) {
-		if (([self isHighlighted] || _editing) && !_showDots) {
-			icon = [NSImage imageNamed:@"PRLightRatingIcon"];
-		} else {
-			icon = [NSImage imageNamed:@"PRRatingIcon"];
-		}
-	} else {
-		if (([self isHighlighted] || _editing) && !_showDots) {
-			icon = [NSImage imageNamed:@"PRLightEmptyRatingIcon"];
-		} else {
-			if (_showDots) {
-				icon = [NSImage imageNamed:@"PREmptyRatingIcon"];
-			} else {
-				icon = [NSImage imageNamed:@"PREmptyIcon"];
-			}
-		}
-	}
-	[icon setFlipped:TRUE];
-	[icon drawInRect:frame fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+    NSImage *icon;
+    if (segment == 0) {
+        icon = [NSImage imageNamed:@"PREmptyIcon"];
+    } else if (segment <= [self selectedSegment]) {
+        if (([self isHighlighted] || _editing) && !_showDots) {
+            icon = [NSImage imageNamed:@"PRLightRatingIcon"];
+        } else {
+            icon = [NSImage imageNamed:@"PRRatingIcon"];
+        }
+    } else {
+        if (([self isHighlighted] || _editing) && !_showDots) {
+            icon = [NSImage imageNamed:@"PRLightEmptyRatingIcon"];
+        } else {
+            if (_showDots) {
+                icon = [NSImage imageNamed:@"PREmptyRatingIcon"];
+            } else {
+                icon = [NSImage imageNamed:@"PREmptyIcon"];
+            }
+        }
+    }
+    [icon setFlipped:TRUE];
+    [icon drawInRect:frame fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
 }
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
     if ([self objectValue] == nil) {
         return;
     }
-	NSRect frame = NSMakeRect(cellFrame.origin.x + 2, cellFrame.origin.y + 1, 0, 15);
-	for (int i = 0; i < [self segmentCount]; i++) {
-		frame.size.width = [self widthForSegment:i] + 2;
-		[self drawSegment:i inFrame:frame withView:controlView];
-		frame.origin.x = frame.origin.x + frame.size.width - 1;
-	}
+    NSRect frame = NSMakeRect(cellFrame.origin.x + 2, cellFrame.origin.y + 1, 0, 15);
+    for (int i = 0; i < [self segmentCount]; i++) {
+        frame.size.width = [self widthForSegment:i] + 2;
+        [self drawSegment:i inFrame:frame withView:controlView];
+        frame.origin.x = frame.origin.x + frame.size.width - 1;
+    }
 }
 
 - (BOOL)trackMouse:(NSEvent *)event_ inRect:(NSRect)cellFrame ofView:(NSView *)controlView untilMouseUp:(BOOL)untilMouseUp {
     _cellFrame = cellFrame;
-	return [super trackMouse:event_ inRect:cellFrame ofView:controlView untilMouseUp:untilMouseUp];
+    return [super trackMouse:event_ inRect:cellFrame ofView:controlView untilMouseUp:untilMouseUp];
 }
 
 - (BOOL)startTrackingAt:(NSPoint)startPoint inView:(NSView *)controlView {    
-	_editing = TRUE;
-	for (int i = 0; i < [self segmentCount]; i++) {
-		if (NSPointInRect(startPoint, [self frameForSegment:i])) {
-			[self setSelectedSegment:i];
-		}
-	}
-	return [super startTrackingAt:startPoint inView:controlView];
+    _editing = TRUE;
+    for (int i = 0; i < [self segmentCount]; i++) {
+        if (NSPointInRect(startPoint, [self frameForSegment:i])) {
+            [self setSelectedSegment:i];
+        }
+    }
+    return [super startTrackingAt:startPoint inView:controlView];
 }
 
 - (BOOL)continueTracking:(NSPoint)lastPoint at:(NSPoint)currentPoint inView:(NSView *)controlView {
@@ -84,13 +84,13 @@
         currentPoint.x = [self frameForSegment:6].origin.x - 1;
     }
     
-	for (int i = 0; i < [self segmentCount]; i++) {
-		if (NSPointInRect(currentPoint, [self frameForSegment:i])) {
-			[self setSelectedSegment:i];
-		}
-	}
-	
-	return [super continueTracking:lastPoint at:currentPoint inView:controlView];
+    for (int i = 0; i < [self segmentCount]; i++) {
+        if (NSPointInRect(currentPoint, [self frameForSegment:i])) {
+            [self setSelectedSegment:i];
+        }
+    }
+    
+    return [super continueTracking:lastPoint at:currentPoint inView:controlView];
 }
 
 - (void)stopTracking:(NSPoint)lastPoint at:(NSPoint)currentPoint inView:(NSView *)controlView mouseIsUp:(BOOL)flag {
@@ -102,26 +102,26 @@
         currentPoint.x = [self frameForSegment:6].origin.x - 1;
     }
     
-	for (int i = 0; i < [self segmentCount]; i++) {
-		if (NSPointInRect(currentPoint, [self frameForSegment:i])) {
+    for (int i = 0; i < [self segmentCount]; i++) {
+        if (NSPointInRect(currentPoint, [self frameForSegment:i])) {
             [self setObjectValue:[NSNumber numberWithInt:i]];
-		}
-	}
-	
-	_editing = FALSE;
-	[super stopTracking:lastPoint at:currentPoint inView:controlView mouseIsUp:flag];
+        }
+    }
+    
+    _editing = FALSE;
+    [super stopTracking:lastPoint at:currentPoint inView:controlView mouseIsUp:flag];
 }
 
 - (NSRect)frameForSegment:(BOOL)segment {
-	NSRect frame = NSMakeRect(_cellFrame.origin.x + 2, _cellFrame.origin.y + 1, 0, 15);
-	for (int i = 0; i < [self segmentCount]; i++) {
-		frame.size.width = [self widthForSegment:i] + 2;
-		if (i == segment) {
-			break;
-		}	
-		frame.origin.x = frame.origin.x + frame.size.width - 1;
-	}
-	return frame;
+    NSRect frame = NSMakeRect(_cellFrame.origin.x + 2, _cellFrame.origin.y + 1, 0, 15);
+    for (int i = 0; i < [self segmentCount]; i++) {
+        frame.size.width = [self widthForSegment:i] + 2;
+        if (i == segment) {
+            break;
+        }    
+        frame.origin.x = frame.origin.x + frame.size.width - 1;
+    }
+    return frame;
 }
 
 @end

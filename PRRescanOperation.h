@@ -6,7 +6,7 @@
     __weak PRCore *_core;
     __weak PRDb *_db;
     
-	NSArray *_URLs;
+    NSArray *_URLs;
     FSEventStreamEventId _eventId;
     BOOL _monitor;
 }

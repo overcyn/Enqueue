@@ -44,18 +44,18 @@
     core = core_;
     db = [core_ db];
     now = [core_ now];
-	return self;
+    return self;
 }
 
 
 - (void)awakeFromNib {
-	// Time
+    // Time
     [controlSlider setCell:[[PRSliderCell alloc] init]];
-	[controlSlider setMinValue:0.0];
+    [controlSlider setMinValue:0.0];
     [controlSlider setTarget:self];
     [controlSlider setAction:@selector(setCurrentTime:)];
-	    
-	// Buttons
+        
+    // Buttons
     [playPause setTarget:now];
     [playPause setAction:@selector(playPause)];
     [previous setTarget:now];
@@ -100,7 +100,7 @@
     [gradientView setTopBorder2:[NSColor colorWithCalibratedWhite:1.0 alpha:0.5]];
     
     // Task Manager
-	[[core taskManager] addObserver:self forKeyPath:@"tasks" options:0 context:nil];
+    [[core taskManager] addObserver:self forKeyPath:@"tasks" options:0 context:nil];
     [_progressDivider setColor:[NSColor colorWithCalibratedWhite:0.0 alpha:0.3]];
     [_progressDivider setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.8]];
     [_progressButton setTarget:[core taskManager]];
@@ -116,7 +116,7 @@
     [[NSNotificationCenter defaultCenter] observeVolumeChanged:self sel:@selector(updateVolume)];
     
     _progressHidden = [[[core taskManager] tasks] count] == 0; // set initial value so it doesn't immediately update
-	[self updateControls];
+    [self updateControls];
     [self updateLayout];
     [self updateVolume];
     [self updateProgress];
@@ -389,7 +389,7 @@
     [_currentTime setHidden:([now currentIndex] == 0)];
     [titleButton setHidden:([now currentIndex] == 0)];
     [controlSlider setHidden:([now currentIndex] == 0)];
-	
+    
     NSImage *shuffleImage = [now shuffle] ? [NSImage imageNamed:@"ShuffleAlt"] : [NSImage imageNamed:@"Shuffle"];
     NSImage *repeatImage = [now repeat] ? [NSImage imageNamed:@"RepeatAlt"]: [NSImage imageNamed:@"Repeat"];
     [shuffle setImage:shuffleImage];
@@ -435,9 +435,9 @@
         
     // AlbumArt
     NSImage *albumArt;
-	if ([now currentIndex] != 0) {
-		albumArt = [[db albumArtController] artworkForItem:[now currentItem]] ?: [NSImage imageNamed:@"PREmptyAlbumArt.png"];
-	} else {
+    if ([now currentIndex] != 0) {
+        albumArt = [[db albumArtController] artworkForItem:[now currentItem]] ?: [NSImage imageNamed:@"PREmptyAlbumArt.png"];
+    } else {
         albumArt = [NSImage imageNamed:@"PRNothingPlaying.png"];
     }
     [albumArtView setImage:albumArt];
@@ -452,8 +452,8 @@
     [playPause setImage:image];
     
     NSShadow *shadow = [[NSShadow alloc] init];
-	[shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.3]];
-	[shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
+    [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.3]];
+    [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
     NSDictionary *attributes = @{
         NSFontAttributeName:[NSFont fontWithName:@"LucidaGrande" size:10],
         NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.3 alpha:1.0],

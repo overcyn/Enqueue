@@ -23,8 +23,8 @@
     NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:frame xRadius:3 yRadius:3];
     
     // background
-	cellFrame = frame;
-	[backGradient drawInRect:cellFrame angle:90.0];
+    cellFrame = frame;
+    [backGradient drawInRect:cellFrame angle:90.0];
 
     // fill
     NSRect fillRect;
@@ -50,7 +50,7 @@
 }
 
 - (BOOL)_usesCustomTrackImage {
-	return YES;
+    return YES;
 }
 
 @end

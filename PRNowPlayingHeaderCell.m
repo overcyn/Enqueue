@@ -10,8 +10,8 @@
     BOOL highlighted = [self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder]
         && [[[self controlView] window] isMainWindow];
     
-	NSString *title = [[self objectValue] objectForKey:@"title"];
-	NSString *subtitle = [[self objectValue] objectForKey:@"subtitle"];
+    NSString *title = [[self objectValue] objectForKey:@"title"];
+    NSString *subtitle = [[self objectValue] objectForKey:@"subtitle"];
     BOOL drawBorder = [[[self objectValue] objectForKey:@"drawBorder"] boolValue];
     
     // Background
@@ -44,7 +44,7 @@
         [NSBezierPath fillRect:rect];
     }
 
-	// Text Attributes	
+    // Text Attributes    
     NSMutableDictionary *titleAttrs = [NSAttributedString defaultBoldUIAttributes];
     NSMutableDictionary *subtitleAttrs = [NSAttributedString defaultUIAttributes];
     NSColor *titleColor = highlighted ? [NSColor whiteColor] : [NSColor colorWithDeviceWhite:0.25 alpha:1.0];
@@ -55,18 +55,18 @@
     }
     [titleAttrs setObject:titleColor forKey:NSForegroundColorAttributeName];
     [subtitleAttrs setObject:subTitleColor forKey:NSForegroundColorAttributeName];
-	
-	// Text
-	NSSize titleSize = [title sizeWithAttributes:titleAttrs];
-	NSSize subtitleSize = [subtitle sizeWithAttributes:subtitleAttrs];
+    
+    // Text
+    NSSize titleSize = [title sizeWithAttributes:titleAttrs];
+    NSSize subtitleSize = [subtitle sizeWithAttributes:subtitleAttrs];
     float height = titleSize.height + subtitleSize.height + 3;
-	NSRect textBox = NSMakeRect(cellFrame.origin.x + 21, cellFrame.origin.y + cellFrame.size.height * .5 - height * 0.5,
+    NSRect textBox = NSMakeRect(cellFrame.origin.x + 21, cellFrame.origin.y + cellFrame.size.height * .5 - height * 0.5,
                                 cellFrame.size.width - 24, height);
     NSRect titleBox = NSMakeRect(textBox.origin.x, textBox.origin.y + textBox.size.height*.5 - titleSize.height,
                                  textBox.size.width, titleSize.height);
     NSRect subtitleBox = NSMakeRect(textBox.origin.x, textBox.origin.y + textBox.size.height*.5,
                                     textBox.size.width, subtitleSize.height);
-	[title drawInRect:titleBox withAttributes:titleAttrs];
+    [title drawInRect:titleBox withAttributes:titleAttrs];
     [subtitle drawInRect:subtitleBox withAttributes:subtitleAttrs];
 }
 

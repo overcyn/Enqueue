@@ -31,12 +31,12 @@
     
     @autoreleasepool {
     
-		NSDictionary *dict = [self objectValue];
-		NSString *title = [dict objectForKey:@"title"];
-		NSString *subtitle = [dict objectForKey:@"subtitle"];
-		NSImage *icon = [dict objectForKey:@"icon"];
-		NSSize iconSize = NSMakeSize(14, 14);
-		[icon setFlipped:YES];
+        NSDictionary *dict = [self objectValue];
+        NSString *title = [dict objectForKey:@"title"];
+        NSString *subtitle = [dict objectForKey:@"subtitle"];
+        NSImage *icon = [dict objectForKey:@"icon"];
+        NSSize iconSize = NSMakeSize(14, 14);
+        [icon setFlipped:YES];
     
     // Draw dropdown button
     NSRect rect = theCellFrame;
@@ -79,32 +79,32 @@
          NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.5 alpha:1.0]};
     
     // Inset the cell frame to give everything a little horizontal padding
-		NSRect insetRect = NSInsetRect(theCellFrame, 0, 0);
+        NSRect insetRect = NSInsetRect(theCellFrame, 0, 0);
     
-		// get the size of the string for layout
-		NSSize titleSize = [title sizeWithAttributes:titleAttributes];
+        // get the size of the string for layout
+        NSSize titleSize = [title sizeWithAttributes:titleAttributes];
     NSSize subtitleSize = [subtitle sizeWithAttributes:subtitleAttributes];
-		
-		// Vertical padding between the lines of text 	
-		// Horizontal padding between icon and text
-		float verticalPadding = 0.0;
-		float horizontalPadding = 10;
-		
-		// Icon box: center the icon vertically inside of the inset rect
-		NSRect iconBox = NSMakeRect(insetRect.origin.x + 0.08,
-									floor(insetRect.origin.y + insetRect.size.height*.5 - iconSize.height*.5),
-									iconSize.width, iconSize.height);
-		
-		// Make a box for our text
-		// Place it next to the icon with horizontal padding
-		// Size it horizontally to fill out the rest of the inset rect
-		// Center it vertically inside of the inset rect
-		float aCombinedHeight = titleSize.height + subtitleSize.height + verticalPadding;
-		
-		NSRect aTextBox = NSMakeRect(iconBox.origin.x + iconBox.size.width + horizontalPadding,
-									 insetRect.origin.y + insetRect.size.height * .5 - aCombinedHeight * .5 - 2,
-									 insetRect.size.width - iconSize.width - horizontalPadding,
-									 aCombinedHeight);
+        
+        // Vertical padding between the lines of text     
+        // Horizontal padding between icon and text
+        float verticalPadding = 0.0;
+        float horizontalPadding = 10;
+        
+        // Icon box: center the icon vertically inside of the inset rect
+        NSRect iconBox = NSMakeRect(insetRect.origin.x + 0.08,
+                                    floor(insetRect.origin.y + insetRect.size.height*.5 - iconSize.height*.5),
+                                    iconSize.width, iconSize.height);
+        
+        // Make a box for our text
+        // Place it next to the icon with horizontal padding
+        // Size it horizontally to fill out the rest of the inset rect
+        // Center it vertically inside of the inset rect
+        float aCombinedHeight = titleSize.height + subtitleSize.height + verticalPadding;
+        
+        NSRect aTextBox = NSMakeRect(iconBox.origin.x + iconBox.size.width + horizontalPadding,
+                                     insetRect.origin.y + insetRect.size.height * .5 - aCombinedHeight * .5 - 2,
+                                     insetRect.size.width - iconSize.width - horizontalPadding,
+                                     aCombinedHeight);
     NSRect aTitleBox = NSMakeRect(aTextBox.origin.x, 
                                   aTextBox.origin.y + aTextBox.size.height / 2 - titleSize.height + 4,
                                   aTextBox.size.width, titleSize.height);
@@ -120,7 +120,7 @@
     
     [title drawInRect:aTitleBox withAttributes:titleAttributes];
     [subtitle drawInRect:aSubtitleBox withAttributes:subtitleAttributes];
-		[icon drawInRect:iconBox fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+        [icon drawInRect:iconBox fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
     
     }
 }

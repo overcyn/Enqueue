@@ -14,9 +14,9 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 #pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db {
-	if (!(self = [super init])) {return nil;}
+    if (!(self = [super init])) {return nil;}
     _db = db;
-	return self;
+    return self;
 }
 
 - (void)create {
@@ -37,7 +37,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
  
 - (void)addItem:(PRItem *)item withDate:(NSDate *)date {
     [_db execute:@"INSERT INTO history (file_id, date) VALUES (?1, ?2)"
-		bindings:@{@1:item, @2:[[NSDate date] description]}
+        bindings:@{@1:item, @2:[[NSDate date] description]}
          columns:nil];
 }
 
@@ -60,11 +60,11 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
     for (NSArray *i in rlt) {
         [topSongs addObject:@{
          @"file":[i objectAtIndex:0],
-		 @"count":[i objectAtIndex:1],
-		 @"title":[i objectAtIndex:2],
-		 @"artist":[i objectAtIndex:3],
-		 @"max":[[rlt objectAtIndex:0] objectAtIndex:1]}];
-	}
+         @"count":[i objectAtIndex:1],
+         @"title":[i objectAtIndex:2],
+         @"artist":[i objectAtIndex:3],
+         @"max":[[rlt objectAtIndex:0] objectAtIndex:1]}];
+    }
     return topSongs;
 }
 

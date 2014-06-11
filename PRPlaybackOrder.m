@@ -14,9 +14,9 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
 #pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db_ {
-	if (!(self = [super init])) {return nil;}
-	db = db_;
-	return self;
+    if (!(self = [super init])) {return nil;}
+    db = db_;
+    return self;
 }
 
 - (void)create {
@@ -25,11 +25,11 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
 
 - (BOOL)initialize {   
     NSArray *result = [db execute:@"SELECT sql FROM sqlite_master WHERE name = 'playback_order'"
-						 bindings:nil 
-						  columns:@[PRColString]];
+                         bindings:nil 
+                          columns:@[PRColString]];
     if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_PLAYBACK_ORDER_SQL]) {
         return FALSE;
-    }	
+    }    
     [db execute:@"DELETE FROM playback_order"];
     return TRUE;
 }
@@ -84,7 +84,7 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
     for (NSArray *i in rlt) {
         [playlistItems addObject:[i objectAtIndex:0]];
     }
-	return playlistItems;
+    return playlistItems;
 }
 
 #pragma mark - Update

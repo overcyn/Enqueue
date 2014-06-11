@@ -19,7 +19,7 @@
     NSShadow *shadow = [[NSShadow alloc] init];
     [shadow setShadowOffset:NSMakeSize(0.0, -1.0)];
     [shadow setShadowBlurRadius:1];
-    [shadow setShadowColor:[NSColor colorWithCalibratedWhite:1.0 alpha:0.3]];	
+    [shadow setShadowColor:[NSColor colorWithCalibratedWhite:1.0 alpha:0.3]];    
     [shadow set];
     
     // outer shadow
@@ -37,7 +37,7 @@
     shadow = [[NSShadow alloc] init];
     [shadow setShadowOffset:NSMakeSize(0.0, -1.0)];
     [shadow setShadowBlurRadius:1];
-    [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.3]];	
+    [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.3]];    
     [shadow set];
     
     [path addClip];

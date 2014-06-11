@@ -3,7 +3,7 @@
 
 
 @interface PRPlaybackOrder : NSObject {
-	PRDb *db;
+    PRDb *db;
 }
 /* Initialization */
 - (id)initWithDb:(PRDb *)sqlDb;

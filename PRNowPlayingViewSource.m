@@ -8,9 +8,9 @@
 #pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db_ {
-	if (!(self = [super init])) {return nil;}
+    if (!(self = [super init])) {return nil;}
     _db = db_;
-	return self;
+    return self;
 }
 
 - (void)create {

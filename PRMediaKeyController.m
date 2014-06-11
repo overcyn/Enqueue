@@ -26,12 +26,12 @@
     if ([event type] != NSSystemDefined || [event subtype] != SPSystemDefinedEventMediaKeys) {
         return;
     }
-	int keyCode = (([event data1] & 0xFFFF0000) >> 16);
-	int keyFlags = ([event data1] & 0x0000FFFF);
-	int keyState = (((keyFlags & 0xFF00) >> 8)) == 0xA;
+    int keyCode = (([event data1] & 0xFFFF0000) >> 16);
+    int keyFlags = ([event data1] & 0x0000FFFF);
+    int keyState = (((keyFlags & 0xFF00) >> 8)) == 0xA;
     
-	if (keyState == 1 && [self isEnabled]) {
-		switch (keyCode) {
+    if (keyState == 1 && [self isEnabled]) {
+        switch (keyCode) {
         case NX_KEYTYPE_PLAY:
             [[_core now] playPause];
             return;
@@ -41,8 +41,8 @@
         case NX_KEYTYPE_REWIND:
             [[_core now] playPrevious];
             return;
-		}
-	}
+        }
+    }
 }
 
 @dynamic enabled;

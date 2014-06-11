@@ -17,14 +17,14 @@
 #pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core {
-	if (!(self = [super initWithNibName:@"PRPlaylistsView" bundle:nil])) {return nil;}
+    if (!(self = [super initWithNibName:@"PRPlaylistsView" bundle:nil])) {return nil;}
     _core = core;
     win = [core win];
     db = [core db];
     smartPlaylistEditorViewController = nil;
     stringFormatter = [[PRStringFormatter alloc] init];
     [stringFormatter setMaxLength:80];
-	return self;
+    return self;
 }
 
 - (void)dealloc {
@@ -52,14 +52,14 @@
     [divider2 setTopBorder:[NSColor PRGridColor]];
     [divider2 setBotBorder:[NSColor PRGridHighlightColor]];
     
-	// buttons
-	[newSmartPlaylistButton setTarget:self];
-	[newSmartPlaylistButton setAction:@selector(newSmartPlaylist)];
-	[newPlaylistButton setTarget:self];
-	[newPlaylistButton setAction:@selector(newStaticPlaylist)];
+    // buttons
+    [newSmartPlaylistButton setTarget:self];
+    [newSmartPlaylistButton setAction:@selector(newSmartPlaylist)];
+    [newPlaylistButton setTarget:self];
+    [newPlaylistButton setAction:@selector(newStaticPlaylist)];
         
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(update)];
-	[[NSNotificationCenter defaultCenter] observePlaylistsChanged:self sel:@selector(update)];
+    [[NSNotificationCenter defaultCenter] observePlaylistsChanged:self sel:@selector(update)];
     [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(update)];
     [self update];
 }
@@ -103,7 +103,7 @@
 }
 
 - (void)newSmartPlaylist {
-	NSAlert *alert = [[NSAlert alloc] init];
+    NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Save"];
     [alert addButtonWithTitle:@"Cancel"];
     [alert setMessageText:@"New Smart Playlist Title:"];
@@ -295,7 +295,7 @@
 #pragma mark - NSTableView Delegate
 
 - (NSIndexSet *)tableView:(NSTableView *)tableView selectionIndexesForProposedSelection:(NSIndexSet *)proposedSelectionIndexes {
-	return [NSIndexSet indexSet];
+    return [NSIndexSet indexSet];
 }
 
 - (void)tableView:(NSTableView *)aTableView willDisplayCell:(id)aCell forTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex {
@@ -304,7 +304,7 @@
     }
     
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithDictionary:[aCell objectValue]];
-	if ([(PRRolloverTableView *)aTableView mouseOverRow] == rowIndex) {
+    if ([(PRRolloverTableView *)aTableView mouseOverRow] == rowIndex) {
         [dictionary setObject:@TRUE forKey:@"mouseOver"];
         [dictionary setObject:[NSValue valueWithPoint:[(PRRolloverTableView *)aTableView pointInCell]] forKey:@"point"];
     } else {

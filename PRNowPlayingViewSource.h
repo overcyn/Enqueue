@@ -5,7 +5,7 @@
 
 
 @interface PRNowPlayingViewSource : NSObject {
-	__weak PRDb *_db;
+    __weak PRDb *_db;
 }
 /* Initialization */
 - (id)initWithDb:(PRDb *)db_;

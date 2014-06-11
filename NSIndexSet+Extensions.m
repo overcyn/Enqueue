@@ -9,15 +9,15 @@
 
 - (NSUInteger)indexAtPosition:(NSUInteger)position {
     NSUInteger count = 0;
-	NSUInteger index = [self firstIndex];
-	while (index != NSNotFound) {
-		count++;
-		if (count == position) {
-			return index;
-		}
-		index = [self indexGreaterThanIndex:index];
-	}
-	return NSNotFound;
+    NSUInteger index = [self firstIndex];
+    while (index != NSNotFound) {
+        count++;
+        if (count == position) {
+            return index;
+        }
+        index = [self indexGreaterThanIndex:index];
+    }
+    return NSNotFound;
 }
 
 + (NSIndexSet *)indexSetWithArray:(NSArray *)array {

@@ -340,17 +340,17 @@ NSString * const PRColData = @"PRColData";
 }
 
 - (NSArray *)explain:(NSString *)string {
-	return [self explain:string bindings:nil columns:nil];
+    return [self explain:string bindings:nil columns:nil];
 }
 
 - (NSArray *)explain:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns {
-	NSArray *explain = [self execute:[NSString stringWithFormat:@"EXPLAIN %@",string]
-							bindings:bindings
-							 columns:@[PRColInteger,PRColInteger,PRColInteger,PRColInteger,PRColInteger,PRColInteger,PRColInteger,PRColInteger]];
-	NSDate *date = [NSDate date];
-	NSArray *rlt = [self execute:string bindings:bindings columns:columns];
-	NSLog(@"time:%f string:%@ explain:%@",[date timeIntervalSinceNow],string, explain);
-	return rlt;
+    NSArray *explain = [self execute:[NSString stringWithFormat:@"EXPLAIN %@",string]
+                            bindings:bindings
+                             columns:@[PRColInteger,PRColInteger,PRColInteger,PRColInteger,PRColInteger,PRColInteger,PRColInteger,PRColInteger]];
+    NSDate *date = [NSDate date];
+    NSArray *rlt = [self execute:string bindings:bindings columns:columns];
+    NSLog(@"time:%f string:%@ explain:%@",[date timeIntervalSinceNow],string, explain);
+    return rlt;
 }
 
 #pragma mark - Error

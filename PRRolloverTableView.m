@@ -6,18 +6,18 @@
 #pragma mark - Initialization
 
 - (void)awakeFromNib {
-	[[self window] setAcceptsMouseMovedEvents:YES];
+    [[self window] setAcceptsMouseMovedEvents:YES];
     trackingArea = [[NSTrackingArea alloc] initWithRect:[self frame] 
                                                 options:NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInActiveApp | NSTrackingEnabledDuringMouseDrag
                                                   owner:self 
                                                userInfo:nil];
     [self addTrackingArea:trackingArea];
-	mouseOverRow = -1;
+    mouseOverRow = -1;
     trackMouseWithinCell = FALSE;
 }
 
 - (void)dealloc {
-	[self removeTrackingArea:trackingArea];
+    [self removeTrackingArea:trackingArea];
 }
 
 #pragma mark - Accessors
@@ -29,19 +29,19 @@
 #pragma mark - Update
 
 - (void)mouseEntered:(NSEvent *)theEvent {
-	
+    
 }
 
 - (void)mouseMoved:(NSEvent *)theEvent {
-	id myDelegate = [self delegate];
-	if (!myDelegate)
-		return; // No delegate, no need to track the mouse.
-	if (![myDelegate respondsToSelector:@selector(tableView:willDisplayCell:forTableColumn:row:)])
-		return; // If the delegate doesn't modify the drawing, don't track.
+    id myDelegate = [self delegate];
+    if (!myDelegate)
+        return; // No delegate, no need to track the mouse.
+    if (![myDelegate respondsToSelector:@selector(tableView:willDisplayCell:forTableColumn:row:)])
+        return; // If the delegate doesn't modify the drawing, don't track.
     
-	NSPoint point = [self convertPoint:[[self window] convertScreenToBase:[NSEvent mouseLocation]] fromView:nil];
+    NSPoint point = [self convertPoint:[[self window] convertScreenToBase:[NSEvent mouseLocation]] fromView:nil];
     int lastMouseOverRow = mouseOverRow;
-	mouseOverRow = [self rowAtPoint:point];
+    mouseOverRow = [self rowAtPoint:point];
     pointInCell = point;
     
     if (!NSPointInRect(point, [self rectOfRow:mouseOverRow])) {
@@ -59,8 +59,8 @@
 }
 
 - (void)mouseExited:(NSEvent *)theEvent {
-	[self setNeedsDisplayInRect:[self rectOfRow:mouseOverRow]];
-	mouseOverRow = -1;
+    [self setNeedsDisplayInRect:[self rectOfRow:mouseOverRow]];
+    mouseOverRow = -1;
 }
 
 - (void)updateTrackingArea {
@@ -103,8 +103,8 @@
 }
 
 // Draw custom higlights
-- (void)highlightSelectionInClipRect:(NSRect)theClipRect {	
-	
+- (void)highlightSelectionInClipRect:(NSRect)theClipRect {    
+    
 }
 
 @end

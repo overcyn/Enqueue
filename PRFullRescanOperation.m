@@ -18,7 +18,7 @@
 - (id)initWithCore:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
     _core = core;
-	return self;
+    return self;
 }
 
 #pragma mark - Action

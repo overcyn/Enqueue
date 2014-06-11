@@ -5,15 +5,15 @@
 @implementation PRShadowImageCell
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {    
-	NSImage *image = [self objectValue];
+    NSImage *image = [self objectValue];
     NSRect inRect2 = NSInsetRect(cellFrame, 9, 9);
-	NSRect inRect = NSMakeRect(inRect2.origin.x + 2, 
+    NSRect inRect = NSMakeRect(inRect2.origin.x + 2, 
                                inRect2.origin.y + 2, 
                                inRect2.size.width - 4, 
                                inRect2.size.height - 4);
-	
-	// draw image
-	if (![image isKindOfClass:[NSImage class]]) {
+    
+    // draw image
+    if (![image isKindOfClass:[NSImage class]]) {
         return;
     }
     [image setFlipped:FALSE];
@@ -45,7 +45,7 @@
     NSShadow *shadow = [[NSShadow alloc] init];
     [shadow setShadowOffset:NSMakeSize(0.0, -1.5)];
     [shadow setShadowBlurRadius:4];
-    [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.9]];	
+    [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.9]];    
     [shadow set];
     [[NSColor whiteColor] set];
     [NSBezierPath fillRect:borderRect];

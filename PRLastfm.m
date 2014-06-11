@@ -153,8 +153,8 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
                              @"duration":[NSString stringWithFormat:@"%li", (long)[time longValue]/1000],
                              @"api_key":PRLastfmAPIKey,
                              @"sk":[self sessionKey]}];
-	
-	// Send request
+    
+    // Send request
     _currentRequest = request;
     [NSURLConnection send:request onCompletion:nil];
 }
@@ -181,8 +181,8 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
                              @"track[0]":title,
                              @"api_key":PRLastfmAPIKey,
                              @"sk":[self sessionKey],}];
-	
-	// Send request
+    
+    // Send request
     _currentRequest = request;
     [NSURLConnection send:request onCompletion:^(NSURLResponse *response, NSData *data, NSError *error) {
         [self fileScrobbled:data];
@@ -315,13 +315,13 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     NSMutableString *body = [NSMutableString string];
     for (NSString *i in [parameters allKeys]) {
         NSMutableString *escaped = [NSMutableString stringWithString:[parameters objectForKey:i]];
-		[escaped replaceOccurrencesOfString:@"%" withString:@"%25" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
-		[escaped replaceOccurrencesOfString:@"&" withString:@"%26" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
-		[escaped replaceOccurrencesOfString:@"=" withString:@"%3D" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
-		[escaped replaceOccurrencesOfString:@"+" withString:@"%2B" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
-		[escaped replaceOccurrencesOfString:@"/" withString:@"%2F" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
-		[escaped replaceOccurrencesOfString:@"?" withString:@"%3F" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
-		[escaped replaceOccurrencesOfString:@"#" withString:@"%23" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+        [escaped replaceOccurrencesOfString:@"%" withString:@"%25" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+        [escaped replaceOccurrencesOfString:@"&" withString:@"%26" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+        [escaped replaceOccurrencesOfString:@"=" withString:@"%3D" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+        [escaped replaceOccurrencesOfString:@"+" withString:@"%2B" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+        [escaped replaceOccurrencesOfString:@"/" withString:@"%2F" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+        [escaped replaceOccurrencesOfString:@"?" withString:@"%3F" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
+        [escaped replaceOccurrencesOfString:@"#" withString:@"%23" options:NSLiteralSearch range:NSMakeRange(0, [escaped length])];
         [body appendFormat:@"%@=%@&", i, escaped];
     }
     [body deleteCharactersInRange:NSMakeRange([body length] - 1, 1)];

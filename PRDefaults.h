@@ -7,8 +7,8 @@ extern NSString * const PRDefaultsUseCompilation;               // bool
 extern NSString * const PRDefaultsFolderArtwork;                // bool
 
 /* PRFolderMonitor */
-extern NSString * const PRDefaultsMonitoredFolders;				// @[NSString, ...]
-extern NSString * const PRDefaultsLastEventStreamEventId;		// FSEventStreamEventId
+extern NSString * const PRDefaultsMonitoredFolders;                // @[NSString, ...]
+extern NSString * const PRDefaultsLastEventStreamEventId;        // FSEventStreamEventId
 
 /* PRGrowl */
 extern NSString * const PRDefaultsPostGrowl;                    // bool
@@ -43,8 +43,8 @@ extern NSString * const PRDefaultsRate5HotKey;
 extern NSString * const PRDefaultsVolume;                       // float (0 - 1)
 extern NSString * const PRDefaultsPregain;                      // float (0 - 1)
 extern NSString * const PRDefaultsHogOutput;                    // bool
-extern NSString * const PRDefaultsEQCurrent; 					// PREQ (readonly, fake)
-extern NSString * const PRDefaultsOutputDeviceUID; 				// NSString
+extern NSString * const PRDefaultsEQCurrent;                     // PREQ (readonly, fake)
+extern NSString * const PRDefaultsOutputDeviceUID;                 // NSString
 
 /* PRNowPlayingController */
 extern NSString * const PRDefaultsRepeat;                       // bool
@@ -58,7 +58,7 @@ extern NSString * const PRDefaultsEQEnabled;                    // bool
 
 
 @interface PRDefaults : NSObject {
-	NSUserDefaults *defaults;
+    NSUserDefaults *defaults;
     NSDictionary *_handlers; // @{key:@[PRDefaultsGetter, PRDefaultsSetter], ...}
 }
 /* Initialization */

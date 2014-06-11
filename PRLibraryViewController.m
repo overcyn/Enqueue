@@ -50,7 +50,7 @@
     
     listViewController = [[PRListViewController alloc] initWithCore:_core];
     [[listViewController view] setFrame:[_centerSuperview bounds]];
-	[_centerSuperview addSubview:[listViewController view]];
+    [_centerSuperview addSubview:[listViewController view]];
     _currentViewController = listViewController;
     
     albumListViewController = [[PRAlbumListViewController alloc] initWithCore:_core];
@@ -134,7 +134,7 @@ infoViewVisible;
 }
 
 - (PRLibraryViewMode)libraryViewMode {
-	if (_currentViewController == listViewController) {
+    if (_currentViewController == listViewController) {
         return PRListMode;
     } else if (_currentViewController == albumListViewController) {
         return PRAlbumListMode;
@@ -144,23 +144,23 @@ infoViewVisible;
 }
 
 - (void)setLibraryViewMode:(PRLibraryViewMode)libraryViewMode {
-	[listViewController setCurrentList:nil];
-	[albumListViewController setCurrentList:nil];
+    [listViewController setCurrentList:nil];
+    [albumListViewController setCurrentList:nil];
     
     [[_db playlists] setViewMode:libraryViewMode forList:_currentList];
     
-	id oldViewController = _currentViewController;
-	if (libraryViewMode == PRListMode) {
-		_currentViewController = listViewController;
-	} else if (libraryViewMode == PRAlbumListMode) {
-		_currentViewController = albumListViewController;
-	} else {
+    id oldViewController = _currentViewController;
+    if (libraryViewMode == PRListMode) {
+        _currentViewController = listViewController;
+    } else if (libraryViewMode == PRAlbumListMode) {
+        _currentViewController = albumListViewController;
+    } else {
         @throw NSInvalidArgumentException;
     }
-	
-	[[_currentViewController view] setFrame:[_centerSuperview bounds]];
-	[_centerSuperview replaceSubview:[oldViewController view] with:[_currentViewController view]];    
-	[_currentViewController setCurrentList:_currentList];
+    
+    [[_currentViewController view] setFrame:[_centerSuperview bounds]];
+    [_centerSuperview replaceSubview:[oldViewController view] with:[_currentViewController view]];    
+    [_currentViewController setCurrentList:_currentList];
     [self menuNeedsUpdate:_libraryPopUpButtonMenu];
     [[self firstKeyView] setNextKeyView:[_currentViewController firstKeyView]];
     [[_currentViewController lastKeyView] setNextKeyView:_searchField];
@@ -288,9 +288,9 @@ infoViewVisible;
 
 - (void)postSearchChangedAndRetry:(BOOL)retry {
     NSString *search = [_searchField stringValue];
-	if (!search) {
-		search = @"";
-	}
+    if (!search) {
+        search = @"";
+    }
     if ([[[_db playlists] valueForList:_currentList attr:PRListAttrSearch] isEqual:search]) {
         return;
     }

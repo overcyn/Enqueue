@@ -9,12 +9,12 @@
     BOOL highlighted = [self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder]
         && [[[self controlView] window] isMainWindow];
     
-	NSDictionary *dict = [self objectValue];
-	NSString *title = [dict objectForKey:@"title"];
+    NSDictionary *dict = [self objectValue];
+    NSString *title = [dict objectForKey:@"title"];
     NSNumber *badge = [dict objectForKey:@"badge"];
-	NSImage *icon = [dict objectForKey:@"icon"];
+    NSImage *icon = [dict objectForKey:@"icon"];
     NSImage *invertedIcon = [dict objectForKey:@"invertedIcon"];
-	
+    
     // Layout
     float horizontalPadding = 3;
     NSSize iconSize = NSMakeSize(15, 15);
@@ -43,22 +43,22 @@
         [icon setFlipped:TRUE];
         [icon drawInRect:iconRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
     }
-	
-	// Text
+    
+    // Text
     NSShadow *shadow = [[NSShadow alloc] init];
-	[shadow setShadowColor:[NSColor colorWithDeviceWhite:0.95 alpha:1.0]];
-	[shadow setShadowOffset:NSMakeSize(1.1, -1.3)];
+    [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.95 alpha:1.0]];
+    [shadow setShadowOffset:NSMakeSize(1.1, -1.3)];
     NSColor *color = highlighted ? [NSColor whiteColor] : [NSColor colorWithCalibratedWhite:0.10 alpha:1];
     NSDictionary *attributes = @{
         NSFontAttributeName:[NSFont systemFontOfSize:11.0],
         NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
         NSForegroundColorAttributeName:color};
     float height = [title sizeWithAttributes:attributes].height;
-	NSRect textRect = NSMakeRect(iconRect.origin.x + iconRect.size.width + horizontalPadding,
+    NSRect textRect = NSMakeRect(iconRect.origin.x + iconRect.size.width + horizontalPadding,
                                  cellFrame.origin.y + cellFrame.size.height/2 - height/2,
                                  cellFrame.size.width - iconRect.size.width - horizontalPadding - 5,
                                  height);
-	[title drawInRect:textRect withAttributes:attributes];
+    [title drawInRect:textRect withAttributes:attributes];
 }
 
 @end

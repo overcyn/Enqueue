@@ -7,8 +7,8 @@
 @interface PRNowPlayingViewController : PRViewController <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, NSTextFieldDelegate, PROutlineViewDelegate> {
     __weak PRCore *_core;
     __weak PRMainWindowController *win;
-	__weak PRDb *db;
-	__weak PRNowPlayingController *now;
+    __weak PRDb *db;
+    __weak PRNowPlayingController *now;
     
     PROutlineView *nowPlayingTableView;
     NSScrollView *scrollview;

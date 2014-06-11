@@ -4,13 +4,13 @@
 
 
 @interface PRAlbumListViewController : PRTableViewController {
-	IBOutlet PRSynchronizedScrollView *albumScrollView;
-	IBOutlet PRAlbumTableView2 *albumTableView;
-	
-	int libraryCount; // number of rows in libraryTableView
-	NSMutableIndexSet *tableIndexes; // rows in library table view which are filled
-	NSArray *albumCountArray; // array of album counts
-	NSMutableArray *albumSumCountArray; // array of sum of album counts
+    IBOutlet PRSynchronizedScrollView *albumScrollView;
+    IBOutlet PRAlbumTableView2 *albumTableView;
+    
+    int libraryCount; // number of rows in libraryTableView
+    NSMutableIndexSet *tableIndexes; // rows in library table view which are filled
+    NSArray *albumCountArray; // array of album counts
+    NSMutableArray *albumSumCountArray; // array of sum of album counts
     
     NSCache *_cachedArtwork;
 }

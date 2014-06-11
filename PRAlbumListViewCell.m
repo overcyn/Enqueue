@@ -9,8 +9,8 @@
 @implementation PRAlbumListViewCell
 
 - (void)drawInteriorWithFrame:(NSRect)theCellFrame inView:(NSView *)theControlView {
-	NSDictionary *dict = [self objectValue];
-	PRDb *db = [dict objectForKey:@"db"];
+    NSDictionary *dict = [self objectValue];
+    PRDb *db = [dict objectForKey:@"db"];
     PRItem *item = [dict objectForKey:@"file"];
     NSImage *icon = [dict objectForKey:@"icon"];
     if (!icon || ![icon isValid]) {
@@ -18,29 +18,29 @@
     }
     
     NSString *artist = [[db library] artistValueForItem:item];
-	NSString *album = [[db library] valueForItem:item attr:PRItemAttrAlbum];
-	NSNumber *year = [[db library] valueForItem:item attr:PRItemAttrYear];
+    NSString *album = [[db library] valueForItem:item attr:PRItemAttrAlbum];
+    NSNumber *year = [[db library] valueForItem:item attr:PRItemAttrYear];
     if ([[[db library] valueForItem:item attr:PRItemAttrCompilation] boolValue] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]) {
         artist = @"Compilation";
     }
     
-	// Inset the cell frame to give everything a little horizontal padding
-	NSRect insetRect = NSInsetRect(theCellFrame, 10, 9);
-	NSSize iconSize = NSMakeSize(150, 150);
+    // Inset the cell frame to give everything a little horizontal padding
+    NSRect insetRect = NSInsetRect(theCellFrame, 10, 9);
+    NSSize iconSize = NSMakeSize(150, 150);
     [icon setFlipped:TRUE];
-	
-	// Make attributes for our strings		
-	NSDictionary *titleAttributes = @{NSFontAttributeName:[NSFont boldSystemFontOfSize:11],
+    
+    // Make attributes for our strings        
+    NSDictionary *titleAttributes = @{NSFontAttributeName:[NSFont boldSystemFontOfSize:11],
         NSParagraphStyleAttributeName:[NSParagraphStyle centerAlignStyle],
         NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.2 alpha:1.0]};
-	NSDictionary *subtitleAttributes = @{NSFontAttributeName:[NSFont systemFontOfSize:11],
+    NSDictionary *subtitleAttributes = @{NSFontAttributeName:[NSFont systemFontOfSize:11],
         NSParagraphStyleAttributeName:[NSParagraphStyle centerAlignStyle],
         NSForegroundColorAttributeName:[NSColor colorWithCalibratedWhite:0.2 alpha:1.0]};
-	
-	// Make a Title string
-	NSString *title = album;
+    
+    // Make a Title string
+    NSString *title = album;
     NSString *subtitle = artist;
-	NSString *subSubtitle = [year stringValue];
+    NSString *subSubtitle = [year stringValue];
     if ([title isEqualToString:@""]) {
         title = @"Unknown Album";
     }
@@ -50,32 +50,32 @@
     if ([subSubtitle isEqualToString:@"0"]) {
         subSubtitle = @"";
     }
-	
-	// get the size of the string for layout
-	NSSize titleSize = [title sizeWithAttributes:titleAttributes];
-	NSSize subtitleSize = [subtitle sizeWithAttributes:subtitleAttributes];
-	NSSize subSubtitleSize = [subSubtitle sizeWithAttributes:subtitleAttributes];
-	
-	// Vertical padding between the lines of text
+    
+    // get the size of the string for layout
+    NSSize titleSize = [title sizeWithAttributes:titleAttributes];
+    NSSize subtitleSize = [subtitle sizeWithAttributes:subtitleAttributes];
+    NSSize subSubtitleSize = [subSubtitle sizeWithAttributes:subtitleAttributes];
+    
+    // Vertical padding between the lines of text
     // Horizontal padding between icon and text
-	float verticalPadding = 0.0;
-	float subVerticalPadding = 1.0;
-	
-	// Icon box: center the icon vertically inside of the inset rect
-	NSRect iconBox = NSMakeRect(insetRect.origin.x, insetRect.origin.y, iconSize.width, iconSize.height);
-	
-	// Make a box for our text
-	// Place it next to the icon with horizontal padding
-	// Size it horizontally to fill out the rest of the inset rect
-	// Center it vertically inside of the inset rect
-	float combinedHeight = titleSize.height + subtitleSize.height + subSubtitleSize.height + 2 * subVerticalPadding;
+    float verticalPadding = 0.0;
+    float subVerticalPadding = 1.0;
+    
+    // Icon box: center the icon vertically inside of the inset rect
+    NSRect iconBox = NSMakeRect(insetRect.origin.x, insetRect.origin.y, iconSize.width, iconSize.height);
+    
+    // Make a box for our text
+    // Place it next to the icon with horizontal padding
+    // Size it horizontally to fill out the rest of the inset rect
+    // Center it vertically inside of the inset rect
+    float combinedHeight = titleSize.height + subtitleSize.height + subSubtitleSize.height + 2 * subVerticalPadding;
     
     NSRect textBox = NSMakeRect(insetRect.origin.x, insetRect.origin.y + iconBox.size.height + verticalPadding,
                                 iconSize.width, combinedHeight);
     
-	// Now split the text box in half and put the title box in the top half and subtitle box in bottom half
-	NSRect titleBox = NSMakeRect(textBox.origin.x, textBox.origin.y, textBox.size.width, titleSize.height);
-	NSRect subtitleBox = NSMakeRect(textBox.origin.x, textBox.origin.y + titleSize.height + subVerticalPadding,
+    // Now split the text box in half and put the title box in the top half and subtitle box in bottom half
+    NSRect titleBox = NSMakeRect(textBox.origin.x, textBox.origin.y, textBox.size.width, titleSize.height);
+    NSRect subtitleBox = NSMakeRect(textBox.origin.x, textBox.origin.y + titleSize.height + subVerticalPadding,
                                     textBox.size.width, subtitleSize.height);
     
     NSImage *image = icon;
@@ -104,14 +104,14 @@
     NSShadow *shadow = [[NSShadow alloc] init];
     [shadow setShadowOffset:NSMakeSize(0.0, -2.0)];
     [shadow setShadowBlurRadius:5];
-    [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.4]];	
+    [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.4]];    
     [shadow set];
     [image drawInRect:drawnRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0]; 
     [NSGraphicsContext restoreGraphicsState];
     
-	// draw the text
-	[title drawInRect:titleBox withAttributes:titleAttributes];
-	[subtitle drawInRect:subtitleBox withAttributes:subtitleAttributes];
+    // draw the text
+    [title drawInRect:titleBox withAttributes:titleAttributes];
+    [subtitle drawInRect:subtitleBox withAttributes:subtitleAttributes];
 }
 
 - (NSRect)expansionFrameWithFrame:(NSRect)cellFrame inView:(NSView *)view {

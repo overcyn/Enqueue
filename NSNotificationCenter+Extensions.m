@@ -41,7 +41,7 @@ NSString * const PRDeviceDidChangeNotification = @"PRDeviceDidChangeNotification
 }
 
 + (void)addObserver:(id)observer selector:(SEL)selector name:(NSString *)name object:(id)object {
-	[[NSNotificationCenter defaultCenter] addObserver:observer selector:selector name:name object:object];
+    [[NSNotificationCenter defaultCenter] addObserver:observer selector:selector name:name object:object];
 }
 
 + (void)removeObserver:(id)observer {

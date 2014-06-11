@@ -39,13 +39,13 @@
         [super keyDown:event];
         return;
     }
-	if ([[event characters] characterAtIndex:0] == 0x7F ||
+    if ([[event characters] characterAtIndex:0] == 0x7F ||
         [[event characters] characterAtIndex:0] == 0xf728) {
         [self setObjectValue:nil];
         [self setNeedsDisplay:TRUE];
     } else {
-		[super keyDown:event];
-	}
+        [super keyDown:event];
+    }
 }
 
 - (NSDragOperation)draggingEntered:(id <NSDraggingInfo>)sender {

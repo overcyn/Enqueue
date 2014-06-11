@@ -170,7 +170,7 @@ end:;
         blk = ^{
             [_db begin];
             for (PRFileInfo *i in infoArray) {
-			PRItem *item = [[_db library] addItemWithAttrs:[i attributes]];
+            PRItem *item = [[_db library] addItemWithAttrs:[i attributes]];
                 [i setItem:item];
                 NSNumber *trackId = [NSNumber numberWithInt:[i trackid]];
                 [_fileTrackIdDictionary setObject:item forKey:trackId];
@@ -182,7 +182,7 @@ end:;
         // Artwork
         for (PRFileInfo *i in infoArray) {
             if (![i tempArt]) {continue;}
-		[[_db albumArtController] setTempArtwork:[i tempArt] forItem:[i item]];
+        [[_db albumArtController] setTempArtwork:[i tempArt] forItem:[i item]];
         }
     }
 }

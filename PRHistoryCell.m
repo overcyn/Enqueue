@@ -7,12 +7,12 @@
 @implementation PRHistoryCell
 
 - (void)drawWithFrame:(NSRect)frame inView:(NSView *)controlView {
-	NSDictionary *dict = [self objectValue];
-	NSString *title = [dict objectForKey:@"title"];
-	NSString *subtitle = [dict objectForKey:@"subtitle"];
+    NSDictionary *dict = [self objectValue];
+    NSString *title = [dict objectForKey:@"title"];
+    NSString *subtitle = [dict objectForKey:@"subtitle"];
     NSString *subSubTitle = [dict objectForKey:@"subSubTitle"];
     float value = [[dict objectForKey:@"value"] floatValue];
-	float max = [[dict objectForKey:@"max"] floatValue];
+    float max = [[dict objectForKey:@"max"] floatValue];
     
     // Border
     [[NSColor PRGridColor] set];

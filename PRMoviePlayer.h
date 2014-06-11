@@ -39,7 +39,7 @@ extern NSString * const PRDeviceKeyUID;
 @interface PRMoviePlayer : NSObject {
     void *_player;
     AudioUnit _equalizer;
-    NSTimer	*_UIUpdateTimer;
+    NSTimer    *_UIUpdateTimer;
     NSString *_lastQueued;
     
     float _transitionVolume;

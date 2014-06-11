@@ -59,11 +59,11 @@
 #pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core {
-	if (!(self = [super initWithWindowNibName:@"PRMainWindow"])) {return nil;}
+    if (!(self = [super initWithWindowNibName:@"PRMainWindow"])) {return nil;}
     _core = core;
     _db = [core db];
     _currentMode = PRLibraryMode;
-	return self;
+    return self;
 }
 
 - (void)dealloc {
@@ -77,39 +77,39 @@
     // Main Menu
     _mainMenuController = [[PRMainMenuController alloc] initWithCore:_core];
     
-	// Window
+    // Window
     [[[self window] contentView] setWantsLayer:YES];
     [[self window] setDelegate:self];
     
     // Toolbar View
-	NSRect frame = [_headerView frame];
-	frame.origin.x = [[self window] frame].size.width - frame.size.width + 5;
-	frame.origin.y = [[self window] frame].size.height - frame.size.height;
-	[_headerView setFrame:frame];
-	
-	frame = [_toolbarSubview frame];
-	frame.origin.x = 0;
-	frame.origin.y = [[self window] frame].size.height - frame.size.height;
-	[_toolbarSubview setFrame:frame];
-	
-	frame = [_sidebarHeaderView frame];
-	frame.origin.x = 0;
-	frame.origin.y = [[self window] frame].size.height - frame.size.height;
-	[_sidebarHeaderView setFrame:frame];
-	
-	_titlebarView = [[PRTitleBarGradientView alloc] init];
-	[_titlebarView setAutoresizingMask:NSViewWidthSizable | NSViewMinYMargin];
-	frame = [_toolbarSubview frame];
-	frame.origin.x = 100;
-	frame.size.width = [[self window] frame].size.width - 100;
-	frame.size.height = 30;
-	frame.origin.y = [[self window] frame].size.height - 30;
-	[_titlebarView setFrame:frame];
-	
-	[[[[self window] contentView] superview] addSubview:_headerView];
-	[[[[self window] contentView] superview] addSubview:_toolbarSubview];
-	[[[[self window] contentView] superview] addSubview:_sidebarHeaderView];
-	[[[[self window] contentView] superview] addSubview:_titlebarView];
+    NSRect frame = [_headerView frame];
+    frame.origin.x = [[self window] frame].size.width - frame.size.width + 5;
+    frame.origin.y = [[self window] frame].size.height - frame.size.height;
+    [_headerView setFrame:frame];
+    
+    frame = [_toolbarSubview frame];
+    frame.origin.x = 0;
+    frame.origin.y = [[self window] frame].size.height - frame.size.height;
+    [_toolbarSubview setFrame:frame];
+    
+    frame = [_sidebarHeaderView frame];
+    frame.origin.x = 0;
+    frame.origin.y = [[self window] frame].size.height - frame.size.height;
+    [_sidebarHeaderView setFrame:frame];
+    
+    _titlebarView = [[PRTitleBarGradientView alloc] init];
+    [_titlebarView setAutoresizingMask:NSViewWidthSizable | NSViewMinYMargin];
+    frame = [_toolbarSubview frame];
+    frame.origin.x = 100;
+    frame.size.width = [[self window] frame].size.width - 100;
+    frame.size.height = 30;
+    frame.origin.y = [[self window] frame].size.height - 30;
+    [_titlebarView setFrame:frame];
+    
+    [[[[self window] contentView] superview] addSubview:_headerView];
+    [[[[self window] contentView] superview] addSubview:_toolbarSubview];
+    [[[[self window] contentView] superview] addSubview:_sidebarHeaderView];
+    [[[[self window] contentView] superview] addSubview:_titlebarView];
 
     // Window Buttons
     if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
@@ -126,14 +126,14 @@
     // ViewControllers
     _libraryViewController = [[PRLibraryViewController alloc] initWithCore:_core];
     _preferencesViewController = [[PRPreferencesViewController alloc] initWithCore:_core];
-	_playlistsViewController = [[PRPlaylistsViewController alloc] initWithCore:_core];
+    _playlistsViewController = [[PRPlaylistsViewController alloc] initWithCore:_core];
     _historyViewController = [[PRHistoryViewController alloc] initWithDb:_db mainWindowController:self];
     
     _nowPlayingViewController = [[PRNowPlayingViewController alloc] initWithCore:_core];
     [[_nowPlayingViewController view] setFrame:[nowPlayingSuperview bounds]];
     [nowPlayingSuperview addSubview:[_nowPlayingViewController view]];
     [_sidebarHeaderView addSubview:[_nowPlayingViewController headerView]];
-	
+    
     _controlsViewController = [[PRControlsViewController alloc] initWithCore:_core];
     [[_controlsViewController view] setFrame:[controlsSuperview bounds]];
     [controlsSuperview addSubview:[_controlsViewController view]];
@@ -148,8 +148,8 @@
     
     // miniplayer
     [self setMiniPlayer:[self miniPlayer]];
-        
-	// Buttons
+    
+    // Buttons
     for (NSDictionary *i in @[
          @{@"button":libraryButton, @"tag":[NSNumber numberWithInt:PRLibraryMode]},
          @{@"button":playlistsButton, @"tag":[NSNumber numberWithInt:PRPlaylistsMode]},
@@ -175,11 +175,11 @@
     [[_libraryViewController lastKeyView] setNextKeyView:[_nowPlayingViewController firstKeyView]];
     [[_nowPlayingViewController lastKeyView] setNextKeyView:[_libraryViewController firstKeyView]];
     
-	// Update
-	[NSNotificationCenter addObserver:self selector:@selector(updateUI) name:PRCurrentListDidChangeNotification object:nil];
+    // Update
+    [NSNotificationCenter addObserver:self selector:@selector(updateUI) name:PRCurrentListDidChangeNotification object:nil];
     if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
-		[NSNotificationCenter addObserver:self selector:@selector(windowWillEnterFullScreen:) name:NSWindowWillEnterFullScreenNotification object:[self window]];
-		[NSNotificationCenter addObserver:self selector:@selector(windowWillExitFullScreen:) name:NSWindowWillExitFullScreenNotification object:[self window]];
+        [NSNotificationCenter addObserver:self selector:@selector(windowWillEnterFullScreen:) name:NSWindowWillEnterFullScreenNotification object:[self window]];
+        [NSNotificationCenter addObserver:self selector:@selector(windowWillExitFullScreen:) name:NSWindowWillExitFullScreenNotification object:[self window]];
     }
 }
 
@@ -197,27 +197,27 @@
 - (void)setCurrentMode:(PRMode)mode {
     _currentMode = mode;
     id newViewController;
-	switch (_currentMode) {
-		case PRLibraryMode:
-			newViewController = _libraryViewController;
-			break;
-		case PRPlaylistsMode:
-			newViewController = _playlistsViewController;
-			break;
-		case PRHistoryMode:
-			newViewController = _historyViewController;
-			[_historyViewController update];
-			break;
-		case PRPreferencesMode:
-			newViewController = _preferencesViewController;
-			break;
-		default:
+    switch (_currentMode) {
+        case PRLibraryMode:
+            newViewController = _libraryViewController;
+            break;
+        case PRPlaylistsMode:
+            newViewController = _playlistsViewController;
+            break;
+        case PRHistoryMode:
+            newViewController = _historyViewController;
+            [_historyViewController update];
+            break;
+        case PRPreferencesMode:
+            newViewController = _preferencesViewController;
+            break;
+        default:
             [PRException raise:NSInternalInconsistencyException format:@"Invalid Mode"];return;
-			break;
-	}
+            break;
+    }
     [[newViewController view] setFrame:[centerSuperview bounds]];
-	[centerSuperview replaceSubview:[_currentViewController view] with:[newViewController view]];
-	_currentViewController = newViewController;
+    [centerSuperview replaceSubview:[_currentViewController view] with:[newViewController view]];
+    _currentViewController = newViewController;
     [self updateUI];
 }
 
@@ -281,9 +281,9 @@
         [i setHidden:[self miniPlayer]];
     }
     [_sidebarHeaderView setHidden:([self miniPlayer] && winFrame.size.height == 140)];
-	[_toolbarSubview setHidden:[self miniPlayer]];
-	[_headerView setHidden:[self miniPlayer]];
-	
+    [_toolbarSubview setHidden:[self miniPlayer]];
+    [_headerView setHidden:[self miniPlayer]];
+    
     if ([self miniPlayer] && winFrame.size.height != 140) {
         // FULLSCREEN
         if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6 && [[self window] collectionBehavior] & NSWindowCollectionBehaviorFullScreenPrimary) {
@@ -411,9 +411,9 @@
     frame.origin.x = [nowPlayingSuperview frame].size.width - 6;
     frame.size.width = [[self window] frame].size.width - [nowPlayingSuperview frame].size.width + 54;
     [_toolbarSubview setFrame:frame];
-	
-	frame = [_sidebarHeaderView frame];
-	frame.origin.x = [nowPlayingSuperview frame].size.width - 53;
+    
+    frame = [_sidebarHeaderView frame];
+    frame.origin.x = [nowPlayingSuperview frame].size.width - 53;
     frame.size.width = [[self window] frame].size.width - [nowPlayingSuperview frame].size.width + 54;
     [_sidebarHeaderView setFrame:frame];
     
@@ -459,26 +459,26 @@
     // Header buttons
     NSButton *button;
     switch (_currentMode) {
-		case PRLibraryMode:
+        case PRLibraryMode:
             if ([[_libraryViewController currentList] isEqual:[[_db playlists] libraryList]]) {
                 button = libraryButton;
             } else {
                 button = playlistsButton;
             }
-			break;
-		case PRPlaylistsMode:
+            break;
+        case PRPlaylistsMode:
             button = playlistsButton;
-			break;
-		case PRHistoryMode:
+            break;
+        case PRHistoryMode:
             button = historyButton;
-			break;
-		case PRPreferencesMode:
+            break;
+        case PRPreferencesMode:
             button = preferencesButton;
-			break;
-		default:
+            break;
+        default:
             button = libraryButton;
-			break;
-	}
+            break;
+    }
     for (NSButton *i in @[libraryButton,playlistsButton,historyButton,preferencesButton]) {
         [i setState:NSOffState];
     }
@@ -516,18 +516,18 @@
 #pragma mark - Update Priv
 
 - (int)libraryViewMode {
-	if (_currentMode != PRLibraryMode) {
-		return -1;
-	} else {
-		return [_libraryViewController libraryViewMode];
-	}
+    if (_currentMode != PRLibraryMode) {
+        return -1;
+    } else {
+        return [_libraryViewController libraryViewMode];
+    }
 }
 
 - (void)setLibraryViewMode:(int)libraryViewMode {
-	if (_currentMode != PRLibraryMode) {
-		return;
-	}
-	[_libraryViewController setLibraryViewMode:libraryViewMode];
+    if (_currentMode != PRLibraryMode) {
+        return;
+    }
+    [_libraryViewController setLibraryViewMode:libraryViewMode];
 }
 
 - (void)headerButtonAction:(id)sender {

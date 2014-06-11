@@ -29,13 +29,13 @@
 #pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db mainWindowController:(PRMainWindowController *)win {
-	if (!(self = [super initWithNibName:@"PRHistoryView" bundle:nil])) {return nil;}
+    if (!(self = [super initWithNibName:@"PRHistoryView" bundle:nil])) {return nil;}
     _db = db;
     _win = win;
     historyMode = PRTopArtistsHistoryMode;
     
     _dateFormatter = [[PRHistoryDateFormatter alloc] init];
-	return self;
+    return self;
 }
 
 
@@ -155,9 +155,9 @@
 }
 
 - (void)tableViewAction:(id)sender {
-	if ([sender clickedRow] == -1) {
-		return;
-	}
+    if ([sender clickedRow] == -1) {
+        return;
+    }
     [_win setCurrentMode:PRLibraryMode];
     [[_win libraryViewController] setCurrentList:[[_db playlists] libraryList]];
     if (historyMode == PRTopArtistsHistoryMode) {
@@ -175,7 +175,7 @@
     if (tableView_ != tableView) {
         return 0;
     }
-	return [dataSource count];
+    return [dataSource count];
 }
 
 - (id)tableView:(NSTableView *)tableView_ objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
@@ -210,13 +210,13 @@
     } else {
         @throw NSInternalInconsistencyException;
     }
-	return nil;
+    return nil;
 }
 
 #pragma mark - NSTableView Delegate
 
 - (BOOL)tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)rowIndex {
-	return FALSE;
+    return FALSE;
 }
 
 - (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)column row:(NSInteger)row {

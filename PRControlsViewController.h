@@ -5,23 +5,23 @@
 @interface PRControlsViewController : NSViewController {
     __weak PRCore *core;
     __weak PRDb *db;
-	__weak PRNowPlayingController *now;
+    __weak PRNowPlayingController *now;
     
-	IBOutlet NSButton *playPause;
-	IBOutlet NSButton *next;
-	IBOutlet NSButton *previous;
-	IBOutlet NSButton *shuffle;
-	IBOutlet NSButton *repeat;	
-	
+    IBOutlet NSButton *playPause;
+    IBOutlet NSButton *next;
+    IBOutlet NSButton *previous;
+    IBOutlet NSButton *shuffle;
+    IBOutlet NSButton *repeat;    
+    
     IBOutlet PRHeaderBox *_box;
     IBOutlet PRHyperlinkButton *titleButton;
     IBOutlet NSTextField *_artistAlbumField;
     
     IBOutlet NSSlider *controlSlider;
-	IBOutlet NSTextField *_currentTime;
-	IBOutlet NSTextField *duration;
-	
-	IBOutlet NSImageView *__weak albumArtView;
+    IBOutlet NSTextField *_currentTime;
+    IBOutlet NSTextField *duration;
+    
+    IBOutlet NSImageView *__weak albumArtView;
     
     IBOutlet NSButton *_volumeButton;
     IBOutlet NSSlider *_volumeSlider;

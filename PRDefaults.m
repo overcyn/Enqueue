@@ -401,13 +401,13 @@ typedef void(^PRDefaultsSetter)(id value);
 }
 
 - (NSString *)cachedAlbumArtPath {
-	NSString *albumArtPath = [[self libraryPath] stringByDeletingLastPathComponent];
-	return [albumArtPath stringByAppendingPathComponent:@"Cached Album Art"];
+    NSString *albumArtPath = [[self libraryPath] stringByDeletingLastPathComponent];
+    return [albumArtPath stringByAppendingPathComponent:@"Cached Album Art"];
 }
 
 - (NSString *)downloadedAlbumArtPath {
-	NSString *albumArtPath = [[self libraryPath] stringByDeletingLastPathComponent];
-	return [albumArtPath stringByAppendingPathComponent:@"Downloaded Album Art"];
+    NSString *albumArtPath = [[self libraryPath] stringByDeletingLastPathComponent];
+    return [albumArtPath stringByAppendingPathComponent:@"Downloaded Album Art"];
 }
 
 - (NSString *)tempArtPath {

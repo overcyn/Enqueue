@@ -41,7 +41,7 @@
     [[NSNotificationCenter defaultCenter] observeMovieFinished:self sel:@selector(movieDidFinish)];
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistDidChange:)];
     [[NSNotificationCenter defaultCenter] observeMovieAlmostFinished:self sel:@selector(movieAlmostFinished)];
-	return self;
+    return self;
 }
 
 - (void)dealloc {
@@ -63,16 +63,16 @@
 
 - (PRItem *)currentItem {
     if ([self currentIndex] == 0) {
-		return nil;
-	} 
+        return nil;
+    } 
     return [[_db playlists] itemAtIndex:[self currentIndex] forList:[self currentList]];
 }
 
 - (int)currentIndex {
-	if (![self currentListItem]) {
+    if (![self currentListItem]) {
         return 0;
-	}
-	return [[_db playlists] indexForListItem:[self currentListItem]];
+    }
+    return [[_db playlists] indexForListItem:[self currentListItem]];
 }
 
 - (int)repeat {
@@ -85,40 +85,40 @@
 }
 
 - (BOOL)shuffle {
-	return [[PRDefaults sharedDefaults] boolForKey:PRDefaultsShuffle];
+    return [[PRDefaults sharedDefaults] boolForKey:PRDefaultsShuffle];
 }
 
 - (void)setShuffle:(BOOL)shuffle {
-	[[PRDefaults sharedDefaults] setBool:shuffle forKey:PRDefaultsShuffle];
+    [[PRDefaults sharedDefaults] setBool:shuffle forKey:PRDefaultsShuffle];
     [[NSNotificationCenter defaultCenter] postShuffleChanged];
 }
 
 - (void)toggleRepeat {
-	[self setRepeat:![self repeat]];
+    [self setRepeat:![self repeat]];
 }
 
 - (void)toggleShuffle {
-	[self setShuffle:![self shuffle]];
+    [self setShuffle:![self shuffle]];
 }
 
 #pragma mark - Playback
 
 - (void)stop {
-	[_mov stop];
+    [_mov stop];
     _currentListItem = nil;
     [[NSNotificationCenter defaultCenter] postPlayingFileChanged];
-	[self clearHistory];
+    [self clearHistory];
 }
 
 - (void)playPause {
-	if ([self currentIndex] == 0) {
-		PRListItem *item = [self nextItem:TRUE];
-		if (item) {
-			[self playNext];
-		}
-	} else {
+    if ([self currentIndex] == 0) {
+        PRListItem *item = [self nextItem:TRUE];
+        if (item) {
+            [self playNext];
+        }
+    } else {
         [_mov pauseUnpause];
-	}
+    }
 }
 
 - (void)playItemAtIndex:(int)index {
@@ -220,13 +220,13 @@
     
     // SHUFFLE
     // if inside history
-	if ([self position] < [[_db playbackOrder] count]) {
+    if ([self position] < [[_db playbackOrder] count]) {
         PRListItem *item = [[_db playbackOrder] listItemAtIndex:[self position] + 1];
         if (update) {
             [self setPosition:[self position] + 1];
         }
         return item;
-	}
+    }
     
     // not inside history
     NSArray *availableSongs = [[_db playbackOrder] listItemsInList:[self currentList] notInPlaybackOrderAfterIndex:[self marker]];
@@ -306,7 +306,7 @@
 #pragma mark - Notifications
 
 - (void)movieDidFinish {
-	int playCount = [[[_db library] valueForItem:[self currentItem] attr:PRItemAttrPlayCount] intValue];
+    int playCount = [[[_db library] valueForItem:[self currentItem] attr:PRItemAttrPlayCount] intValue];
     [[_db library] setValue:[NSNumber numberWithInt:playCount+1] forItem:[self currentItem] attr:PRItemAttrPlayCount];
     [[_db library] setValue:[[NSDate date] description] forItem:[self currentItem] attr:PRItemAttrLastPlayed];
     [[_db history] addItem:[self currentItem] withDate:[NSDate date]];
@@ -363,9 +363,9 @@
 }
 
 - (void)clearHistory {
-	[[_db playbackOrder] clear];
-	_position = 0;
-	_marker = 0;
+    [[_db playbackOrder] clear];
+    _position = 0;
+    _marker = 0;
 }
 
 @end

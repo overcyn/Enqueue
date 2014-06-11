@@ -9,8 +9,8 @@ PRStringFormatter, PRSmartPlaylistEditorViewController;
     IBOutlet PRRolloverTableView *tableView;
     IBOutlet PRGradientView *divider;
     IBOutlet PRGradientView *divider2;
-	IBOutlet NSButton *newPlaylistButton;
-	IBOutlet NSButton *newSmartPlaylistButton;
+    IBOutlet NSButton *newPlaylistButton;
+    IBOutlet NSButton *newSmartPlaylistButton;
     IBOutlet NSButton *tabButton0;
     IBOutlet NSImageView *_placeholder;
     
@@ -19,7 +19,7 @@ PRStringFormatter, PRSmartPlaylistEditorViewController;
     
     PRCore *_core;
     PRDb *db;
-	PRMainWindowController *win;
+    PRMainWindowController *win;
     PRSmartPlaylistEditorViewController *smartPlaylistEditorViewController;
 }
 /* Initialization */

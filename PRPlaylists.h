@@ -48,17 +48,17 @@ typedef int PRPlaylist;
 typedef int PRPlaylistItem;
 
 typedef enum {
-	PRLibraryPlaylistType = 0,
+    PRLibraryPlaylistType = 0,
     PRNowPlayingPlaylistType = 1,
-	PRStaticPlaylistType = 2,
-	PRSmartPlaylistType = 3,
+    PRStaticPlaylistType = 2,
+    PRSmartPlaylistType = 3,
     PRDuplicatePlaylistType = 4,
     PRMissingPlaylistType = 5,
 } PRPlaylistType;
 
 typedef enum {
-	PRArtistAlbumSort = -1,
-	PRPlaylistIndexSort = -2,
+    PRArtistAlbumSort = -1,
+    PRPlaylistIndexSort = -2,
 } PRSort;
 
 

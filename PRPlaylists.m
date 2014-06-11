@@ -73,8 +73,8 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 
 - (id)initWithDb:(PRDb *)db {
     if (!(self = [super init])) {return nil;}
-	_db = db;
-	return self;
+    _db = db;
+    return self;
 }
 
 - (void)create {
@@ -117,8 +117,8 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
         [self setAttr:PRItemAttrArtist forBrowser:2 list:list];
         [self setAttr:PRItemAttrAlbum forBrowser:3 list:list];
     }
-	
-	// Create now playing playlist if it doesnt exist
+    
+    // Create now playing playlist if it doesnt exist
     rlt = [_db execute:@"SELECT playlist_id FROM playlists WHERE type=1" 
              bindings:nil 
               columns:[NSArray arrayWithObjects:PRColInteger, nil]];
@@ -434,13 +434,13 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     [_db execute:@"CREATE TEMP TABLE IF NOT EXISTS indexesToRemove (index2 INTEGER PRIMARY KEY)"];
     
     // fill temp table with indexes to remove
-	NSInteger index = [indexes firstIndex];
-	while (index != NSNotFound) {
+    NSInteger index = [indexes firstIndex];
+    while (index != NSNotFound) {
         [_db execute:@"INSERT INTO indexesToRemove (index2) VALUES (?1)"
            bindings:@{@1:[NSNumber numberWithInt:index]}
             columns:nil];
         index = [indexes indexGreaterThanIndex:index];
-	}
+    }
     
     // Delete files at indexes
     [_db execute:@"DELETE FROM playlist_items WHERE playlist_id = ?1 "
@@ -491,44 +491,44 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 }
 
 - (void)moveItemsAtIndexes:(NSIndexSet *)indexes toIndex:(int)index inList:(PRList *)list {
-	[_db begin];
-	// Get array of playlist_item_ids ordered by playlists_index
+    [_db begin];
+    // Get array of playlist_item_ids ordered by playlists_index
     NSArray *playlistItemIDArray = [_db execute:@"SELECT playlist_item_id FROM playlist_items WHERE playlist_id = ?1 ORDER BY playlist_index"
                                       bindings:@{@1:list}
                                        columns:@[PRColInteger]];
     
-	// Set playlist_id = -1 for all files
+    // Set playlist_id = -1 for all files
     [_db execute:@"UPDATE playlist_items SET playlist_id = ?1 WHERE playlist_id = ?2"
        bindings:@{@1:[self libraryList], @2:list}
         columns:nil];
     
-	// Update each playlistItemID with new playlistIndex
-	int newPlaylistIndex;
-	index = index - [indexes countOfIndexesInRange:NSMakeRange(1, index - 1)];
-	int count = 1;
-	int count2 = index;
-	
-	for (int i = 0; i < [playlistItemIDArray count]; i++) {
-		int playlistItemID = [[[playlistItemIDArray objectAtIndex:i] objectAtIndex:0] intValue];
-		if (count == index) {
-			count = index + [indexes count];
-		}
-		if ([indexes containsIndex:i+1]) {
-			newPlaylistIndex = count2++;
-		} else {
-			newPlaylistIndex = count++;
-		}
-		
+    // Update each playlistItemID with new playlistIndex
+    int newPlaylistIndex;
+    index = index - [indexes countOfIndexesInRange:NSMakeRange(1, index - 1)];
+    int count = 1;
+    int count2 = index;
+    
+    for (int i = 0; i < [playlistItemIDArray count]; i++) {
+        int playlistItemID = [[[playlistItemIDArray objectAtIndex:i] objectAtIndex:0] intValue];
+        if (count == index) {
+            count = index + [indexes count];
+        }
+        if ([indexes containsIndex:i+1]) {
+            newPlaylistIndex = count2++;
+        } else {
+            newPlaylistIndex = count++;
+        }
+        
         [_db execute:@"UPDATE playlist_items SET playlist_id = ?1, playlist_index = ?2 WHERE playlist_item_id = ?3"
            bindings:@{@1:list, @2:[NSNumber numberWithInt:newPlaylistIndex], @3:[NSNumber numberWithInt:playlistItemID]}
             columns:nil];
-	}
-	[_db commit];
+    }
+    [_db commit];
 }
 
 - (void)appendItemsFromLibraryViewSourceToList:(PRList *)list {
     [_db begin];
-	// create temp table
+    // create temp table
     [_db execute:[NSString stringWithFormat:@"CREATE TEMP TABLE temp_table "
                  "(playlist_index INTEGER PRIMARY KEY, "
                  "file_id INTEGER, "
@@ -670,7 +670,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 
 - (NSMutableDictionary *)browserInfoForList:(PRList *)list {
     NSData *data = [self valueForList:list attr:PRListAttrBrowserInfo];
-	NSDictionary *info = [NSPropertyListSerialization propertyListFromData:data mutabilityOption:0 format:nil errorDescription:nil];
+    NSDictionary *info = [NSPropertyListSerialization propertyListFromData:data mutabilityOption:0 format:nil errorDescription:nil];
     if (!info || ![info isKindOfClass:[NSDictionary class]] ||
         ([info objectForKey:@"isVertical"] && ![[info objectForKey:@"isVertical"] isKindOfClass:[NSNumber class]]) ||
         ([info objectForKey:@"verticalBrowser3Width"] && ![[info objectForKey:@"verticalBrowser3Width"] isKindOfClass:[NSNumber class]]) ||

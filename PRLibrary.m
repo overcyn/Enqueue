@@ -129,7 +129,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 - (id)initWithDb:(PRDb *)db {
     if (!(self = [super init])) {return nil;}
     _db = db;
-	return self;
+    return self;
 }
 
 - (void)create {

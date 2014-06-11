@@ -3,9 +3,9 @@
 
 
 @interface PRItunesImportOperation : NSOperation {
-	__weak PRCore *_core;
-	__weak PRDb *_db;
-	
+    __weak PRCore *_core;
+    __weak PRDb *_db;
+    
     NSURL *iTunesURL;
     NSMutableDictionary *_fileTrackIdDictionary;
     int _tempFileCount;

@@ -76,7 +76,7 @@
 
 - (void)awakeFromNib {
     [_win showWindow:nil];
-	[_opQueue setSuspended:FALSE];
+    [_opQueue setSuspended:FALSE];
     
 //    PRTrialSheetController *trialSheet = [[PRTrialSheetController alloc] initWithCore:self]; 
 //    [trialSheet beginSheetModalForWindow:[_win window] completionHandler:^{}];
@@ -161,7 +161,7 @@
 }
 
 - (BOOL)application:(NSApplication *)application openFile:(NSString *)filename {
-	NSLog(@"openingFiles:%@",filename);
+    NSLog(@"openingFiles:%@",filename);
     NSArray *URLs = @[[NSURL fileURLWithPath:filename]];
     PRImportOperation *op = [PRImportOperation operationWithURLs:URLs core:self];
     [_opQueue addOperation:op];
@@ -169,7 +169,7 @@
 }
 
 - (void)application:(NSApplication *)application openFiles:(NSArray *)filenames {
-	NSLog(@"openingFiles:%@",filenames);
+    NSLog(@"openingFiles:%@",filenames);
     NSMutableArray *URLs = [NSMutableArray array];
     for (NSString *i in filenames) {
         [URLs addObject:[NSURL fileURLWithPath:i]];

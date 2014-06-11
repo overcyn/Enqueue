@@ -2,9 +2,9 @@
 
 
 @interface PRRatingCell : NSSegmentedCell {
-	BOOL _showDots;
-	NSRect _cellFrame;
-	BOOL _editing;
+    BOOL _showDots;
+    NSRect _cellFrame;
+    BOOL _editing;
 }
 // Accessors
 @property (readwrite) BOOL showDots;

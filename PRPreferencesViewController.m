@@ -26,7 +26,7 @@
     core = core_;
     db = [core db];
     now = [core now];
-	return self;
+    return self;
 }
 
 - (void)awakeFromNib {
@@ -140,7 +140,7 @@
     [_outputMenu setAutoenablesItems:FALSE];
     [_outputPopUp setMenu:_outputMenu];
     
-	[NSNotificationCenter addObserver:self selector:@selector(updateUI) name:PRLastfmStateDidChangeNotification object:nil];
+    [NSNotificationCenter addObserver:self selector:@selector(updateUI) name:PRLastfmStateDidChangeNotification object:nil];
     [NSNotificationCenter addObserver:self selector:@selector(updateDeviceMenu) name:PRDeviceDidChangeNotification object:nil];
     
     [self updateUI];
@@ -150,7 +150,7 @@
 }
 
 - (void)dealloc {
-	[NSNotificationCenter removeObserver:self];
+    [NSNotificationCenter removeObserver:self];
 }
 
 #pragma mark - Tabs
@@ -362,9 +362,9 @@
 }
 
 - (void)EQMenuNeedsUpdate {
-	for (NSMenuItem *i in [EQMenu itemArray]) {
-		[EQMenu removeItem:i];
-	}
+    for (NSMenuItem *i in [EQMenu itemArray]) {
+        [EQMenu removeItem:i];
+    }
     
     int EQIndex = [[PRDefaults sharedDefaults] intForKey:PRDefaultsEQIndex];
     BOOL isCustom = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsEQIsCustom];
@@ -401,8 +401,8 @@
         }
     }
     for (NSMenuItem *i in [EQMenu itemArray]) {
-		[i setTarget:self];
-	}
+        [i setTarget:self];
+    }
     [EQPopUp selectItem:selectedItem];
 }
 
@@ -463,11 +463,11 @@
 
 - (void)addFolder {
     NSOpenPanel *panel = [NSOpenPanel openPanel];
-	[panel setCanChooseFiles:NO];
-	[panel setCanChooseDirectories:YES];
-	[panel setCanCreateDirectories:NO];
-	[panel setTreatsFilePackagesAsDirectories:NO];
-	[panel setAllowsMultipleSelection:YES];
+    [panel setCanChooseFiles:NO];
+    [panel setCanChooseDirectories:YES];
+    [panel setCanCreateDirectories:NO];
+    [panel setTreatsFilePackagesAsDirectories:NO];
+    [panel setAllowsMultipleSelection:YES];
     [panel beginSheetModalForWindow:[[self view] window] completionHandler:^(NSInteger result){
         if (result == NSCancelButton) {
             return;
@@ -503,8 +503,8 @@
 
 - (void)updateDeviceMenu {
     for (NSMenuItem *i in [_outputMenu itemArray]) {
-		[_outputMenu removeItem:i];
-	}
+        [_outputMenu removeItem:i];
+    }
     
     NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:@"System Default" action:@selector(setDevice:) keyEquivalent:@""];
     NSMenuItem *selectedItem = item;
@@ -523,8 +523,8 @@
     }
     
     for (NSMenuItem *i in [_outputMenu itemArray]) {
-		[i setTarget:self];
-	}
+        [i setTarget:self];
+    }
     [_outputPopUp selectItem:selectedItem];
 }
 

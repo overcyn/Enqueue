@@ -31,7 +31,7 @@
     _URLs = URLs;
     _eventId = 0;
     _monitor = FALSE;
-	return self;
+    return self;
 }
 
 
@@ -247,7 +247,7 @@
     // set art
     for (PRFileInfo *i in infoArray) {
         if (![i item]) {continue;}
-		[[_db albumArtController] setTempArtwork:[i tempArt] forItem:[i item]];
+        [[_db albumArtController] setTempArtwork:[i tempArt] forItem:[i item]];
     }
 }
 

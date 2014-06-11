@@ -11,20 +11,20 @@
 
 - (void)keyDown:(NSEvent *)event
 {
-	PRNowPlayingController *now = [(PRCore *)[NSApp delegate] now];
+    PRNowPlayingController *now = [(PRCore *)[NSApp delegate] now];
     if ([[event characters] length] != 1) {
         [super keyDown:event];
         return;
     }
-	if ([[event characters] characterAtIndex:0] == 0xf703) {
-		[now playNext];
-	} else if ([[event characters] characterAtIndex:0] == 0xf702) {
-		[now playPrevious];
-	} else if ([[event characters] characterAtIndex:0] == 0x20) {
-		[now playPause];
+    if ([[event characters] characterAtIndex:0] == 0xf703) {
+        [now playNext];
+    } else if ([[event characters] characterAtIndex:0] == 0xf702) {
+        [now playPrevious];
+    } else if ([[event characters] characterAtIndex:0] == 0x20) {
+        [now playPause];
     } else {
-		[super keyDown:event];
-	}
+        [super keyDown:event];
+    }
 }
 
 // Disable default highlight color
@@ -35,8 +35,8 @@
 
 // Draw custom higlights
 - (void)highlightSelectionInClipRect:(NSRect)theClipRect
-{	
-	
+{    
+    
 }
 
 @end

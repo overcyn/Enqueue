@@ -4,7 +4,7 @@
 @interface PRRolloverTableView : PRTableView2 {
     NSTrackingArea *trackingArea;    
     BOOL trackMouseWithinCell;
-	int mouseOverRow;
+    int mouseOverRow;
     NSPoint pointInCell;
 }
 // Accessors

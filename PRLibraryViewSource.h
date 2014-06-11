@@ -17,8 +17,8 @@ typedef enum {
 
 
 @interface PRLibraryViewSource : NSObject {
-	__weak PRDb *_db;
-	
+    __weak PRDb *_db;
+    
     // state of current/last refresh
     PRList *_list;
     BOOL _force;

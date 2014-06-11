@@ -4,8 +4,8 @@
 
 
 @interface PRAlbumArtController : NSObject {
-	__weak PRDb *_db;
-	
+    __weak PRDb *_db;
+    
     int _tempIndex;
     NSFileManager *_fileManager;
 }

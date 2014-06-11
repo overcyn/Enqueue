@@ -5,31 +5,31 @@
 
 
 typedef enum {
-	PRListMode,
-	PRAlbumListMode,
+    PRListMode,
+    PRAlbumListMode,
 } PRLibraryViewMode;
 
 
 @interface PRLibraryViewController : PRViewController <NSMenuDelegate, NSTextFieldDelegate> {
     __weak PRCore *_core;
-	__weak PRDb *_db;
+    __weak PRDb *_db;
     
-	NSView *_centerSuperview;
-	NSView *_paneSuperview;
+    NSView *_centerSuperview;
+    NSView *_paneSuperview;
     NSView *_headerView;
     NSButton *_infoButton;
     NSPopUpButton *_libraryPopUpButton;
     NSSearchField *_searchField;
-	
+    
     NSMenu *_libraryPopUpButtonMenu;
     
-	PRInfoViewController *infoViewController;
-	PRListViewController *listViewController;
-	PRAlbumListViewController *albumListViewController;
-	
+    PRInfoViewController *infoViewController;
+    PRListViewController *listViewController;
+    PRAlbumListViewController *albumListViewController;
+    
     NSDate *_searchFieldLastEdit;
     
-	BOOL _infoViewVisible;
+    BOOL _infoViewVisible;
     PRList *_currentList;
     __weak PRTableViewController *_currentViewController;
 }

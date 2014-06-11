@@ -15,21 +15,21 @@
 #pragma mark - Responder
 
 - (NSMenu *)menuForEvent:(NSEvent *)theEvent {
-	if ([[self selectedRowIndexes] count] == 0) {
-		return nil;
-	}
-	return [super menuForEvent:theEvent];
+    if ([[self selectedRowIndexes] count] == 0) {
+        return nil;
+    }
+    return [super menuForEvent:theEvent];
 }
 
 - (void)rightMouseDown:(NSEvent *)event {
     [[self window] makeFirstResponder:self];
-	NSPoint p = [self convertPoint:[event locationInWindow] fromView:nil];
-	int row = [self rowAtPoint:p];
-	if (![[self selectedRowIndexes] containsIndex:row]) {
+    NSPoint p = [self convertPoint:[event locationInWindow] fromView:nil];
+    int row = [self rowAtPoint:p];
+    if (![[self selectedRowIndexes] containsIndex:row]) {
         NSIndexSet *indexes = [NSIndexSet indexSetWithIndex:row];
-		[self selectRowIndexes:indexes byExtendingSelection:FALSE];
-	}
-	[super rightMouseDown:event];
+        [self selectRowIndexes:indexes byExtendingSelection:FALSE];
+    }
+    [super rightMouseDown:event];
 }
 
 - (void)mouseDown:(NSEvent *)event {
@@ -38,37 +38,37 @@
         return;
     }
     
-	if ((([event modifierFlags] & NSShiftKeyMask) == NSShiftKeyMask) ||
-		(([event modifierFlags] & NSControlKeyMask) == NSControlKeyMask) ||
-		(([event modifierFlags] & NSCommandKeyMask) == NSCommandKeyMask)) {
-		[super mouseDown:event];
-		return;
-	}
-	
-	NSPoint p = [self convertPoint:[event locationInWindow] fromView:nil];
-	int row = [self rowAtPoint:p];
+    if ((([event modifierFlags] & NSShiftKeyMask) == NSShiftKeyMask) ||
+        (([event modifierFlags] & NSControlKeyMask) == NSControlKeyMask) ||
+        (([event modifierFlags] & NSCommandKeyMask) == NSCommandKeyMask)) {
+        [super mouseDown:event];
+        return;
+    }
+    
+    NSPoint p = [self convertPoint:[event locationInWindow] fromView:nil];
+    int row = [self rowAtPoint:p];
     if (NSPointInRect(p, [self frameOfOutlineCellAtRow:row])) {
         [self selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:FALSE];
         [super mouseDown:event];
         return;
     }
     
-    //	int column = [self columnAtPoint:p];
-	if (![[self selectedRowIndexes] containsIndex:row]) {
+    //    int column = [self columnAtPoint:p];
+    if (![[self selectedRowIndexes] containsIndex:row]) {
         NSIndexSet *indexes;
-		if ([[self delegate] respondsToSelector:@selector(outlineView:selectionIndexesForProposedSelection:)]) {
+        if ([[self delegate] respondsToSelector:@selector(outlineView:selectionIndexesForProposedSelection:)]) {
             indexes = [[self delegate] outlineView:self selectionIndexesForProposedSelection:[NSIndexSet indexSetWithIndex:row]];
-		} else {
-			indexes = [NSIndexSet indexSetWithIndex:row];
-		}
-		[self selectRowIndexes:indexes byExtendingSelection:FALSE];
-	}
+        } else {
+            indexes = [NSIndexSet indexSetWithIndex:row];
+        }
+        [self selectRowIndexes:indexes byExtendingSelection:FALSE];
+    }
     
-    //	if (([event modifierFlags] & NSControlKeyMask) == NSControlKeyMask &&
-    //		[[self selectedRowIndexes] count] == 0) {
-    //		return;
-    //	}
-	[super mouseDown:event];
+    //    if (([event modifierFlags] & NSControlKeyMask) == NSControlKeyMask &&
+    //        [[self selectedRowIndexes] count] == 0) {
+    //        return;
+    //    }
+    [super mouseDown:event];
 }
 
 - (void)keyDown:(NSEvent *)event {
@@ -154,15 +154,15 @@
 
 // Draw custom highlights
 - (void)highlightSelectionInClipRect:(NSRect)theClipRect {
-	// this method is asking us to draw the hightlights for 
-	// all of the selected rows that are visible inside theClipRect
-	NSRange	visibleRowIndexes = [self rowsInRect:theClipRect];
-	NSIndexSet *selectedRowIndexes = [self selectedRowIndexes];
-	int	row = visibleRowIndexes.location;
-	int endRow = row + visibleRowIndexes.length;
-	// draw highlight for the visible, selected rows
+    // this method is asking us to draw the hightlights for 
+    // all of the selected rows that are visible inside theClipRect
+    NSRange    visibleRowIndexes = [self rowsInRect:theClipRect];
+    NSIndexSet *selectedRowIndexes = [self selectedRowIndexes];
+    int    row = visibleRowIndexes.location;
+    int endRow = row + visibleRowIndexes.length;
+    // draw highlight for the visible, selected rows
     for (; row < endRow; row++) {
-		if(![selectedRowIndexes containsIndex:row]) {
+        if(![selectedRowIndexes containsIndex:row]) {
             continue;
         }
         NSColor *color;
@@ -181,7 +181,7 @@
         rowRect.size.height = 1;
         [[color blendedColorWithFraction:0.3 ofColor:[NSColor whiteColor]] set];
         [[NSBezierPath bezierPathWithRect:rowRect] fill];
-	}
+    }
 }
 
 // Draw custom context menu highlight
@@ -201,51 +201,51 @@
 
 // Draw custom drop highlights
 - (void)_drawDropHighlightBetweenUpperRow:(int)theUpperRowIndex andLowerRow:(int)theLowerRowIndex onRow:(int)theRow atOffset:(float)theOffset {
-	NSRect aHighlightRect;
-	float aYPosition = 0;
-	
-	// if the lower row index is the first row
-	// get the rect of the lowerRowIndex and draw above it
-	if(theUpperRowIndex < 0) {
-		aHighlightRect = [self rectOfRow:theLowerRowIndex];
-		aYPosition = aHighlightRect.origin.y;
-	}
-	// in all other cases draw below theUpperRowIndex
-	else {
-		aHighlightRect = [self rectOfRow:theUpperRowIndex];
-		aYPosition = aHighlightRect.origin.y + aHighlightRect.size.height;
-	}
-	
-	// accent rect will be where we draw the little circle
-	float anAccentRectSize = 6;
-	float anAccentRectXOffset = 2;
-	NSRect anAccentRect = NSMakeRect(aHighlightRect.origin.x + anAccentRectXOffset, 
-									 aYPosition - anAccentRectSize*.5, 
-									 anAccentRectSize, 
-									 anAccentRectSize);
-	
-	// make points to define the line starting after the accent circle, extending the width of the row
-	NSPoint aStartPoint = NSMakePoint(aHighlightRect.origin.x + anAccentRect.origin.x + anAccentRect.size.width, aYPosition);
-	NSPoint anEndPoint = NSMakePoint(aHighlightRect.origin.x + aHighlightRect.size.width, aYPosition);
-	
-	// lock focus for drawing
-	[self lockFocus];
-	
-	// make a bezier path, add the circle and line
-	NSBezierPath *aHighlightPath = [NSBezierPath bezierPath];
-	[aHighlightPath appendBezierPathWithOvalInRect:anAccentRect];
-	[aHighlightPath moveToPoint:aStartPoint];
-	[aHighlightPath lineToPoint:anEndPoint];
-	
-	// fill with white for the accent circle and stroke the path with black
-	[[NSColor whiteColor] set];
-	[aHighlightPath fill];
-	[aHighlightPath setLineWidth:2.0];
-	[[NSColor blackColor] set];
-	[aHighlightPath stroke];
-	
-	// unlock focus
-	[self unlockFocus];
+    NSRect aHighlightRect;
+    float aYPosition = 0;
+    
+    // if the lower row index is the first row
+    // get the rect of the lowerRowIndex and draw above it
+    if(theUpperRowIndex < 0) {
+        aHighlightRect = [self rectOfRow:theLowerRowIndex];
+        aYPosition = aHighlightRect.origin.y;
+    }
+    // in all other cases draw below theUpperRowIndex
+    else {
+        aHighlightRect = [self rectOfRow:theUpperRowIndex];
+        aYPosition = aHighlightRect.origin.y + aHighlightRect.size.height;
+    }
+    
+    // accent rect will be where we draw the little circle
+    float anAccentRectSize = 6;
+    float anAccentRectXOffset = 2;
+    NSRect anAccentRect = NSMakeRect(aHighlightRect.origin.x + anAccentRectXOffset, 
+                                     aYPosition - anAccentRectSize*.5, 
+                                     anAccentRectSize, 
+                                     anAccentRectSize);
+    
+    // make points to define the line starting after the accent circle, extending the width of the row
+    NSPoint aStartPoint = NSMakePoint(aHighlightRect.origin.x + anAccentRect.origin.x + anAccentRect.size.width, aYPosition);
+    NSPoint anEndPoint = NSMakePoint(aHighlightRect.origin.x + aHighlightRect.size.width, aYPosition);
+    
+    // lock focus for drawing
+    [self lockFocus];
+    
+    // make a bezier path, add the circle and line
+    NSBezierPath *aHighlightPath = [NSBezierPath bezierPath];
+    [aHighlightPath appendBezierPathWithOvalInRect:anAccentRect];
+    [aHighlightPath moveToPoint:aStartPoint];
+    [aHighlightPath lineToPoint:anEndPoint];
+    
+    // fill with white for the accent circle and stroke the path with black
+    [[NSColor whiteColor] set];
+    [aHighlightPath fill];
+    [aHighlightPath setLineWidth:2.0];
+    [[NSColor blackColor] set];
+    [aHighlightPath stroke];
+    
+    // unlock focus
+    [self unlockFocus];
 }
 
 // Disable round highlight on highlighted parent row during drag and drop

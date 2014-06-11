@@ -134,7 +134,7 @@
                 if (sqlite3_column_count(_stmt) != [_columns count]) {
                     if (!crash) {return nil;}
                     [PRException raise:PRDbInconsistencyException format:@"Mismatch column count - self:%@ expected:%d receieved:%@",
-					 self, sqlite3_column_count(_stmt), _columns];
+                     self, sqlite3_column_count(_stmt), _columns];
                 }
                 NSMutableArray *column = [[NSMutableArray alloc] init];
                 for (int i = 0; i < [_columns count]; i++) {
