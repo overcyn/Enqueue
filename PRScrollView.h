@@ -1,8 +1,6 @@
 #import <Foundation/Foundation.h>
 
 
-@interface PRScrollView : NSScrollView {
-    NSSize _minimumSize;
-}
+@interface PRScrollView : NSScrollView
 @property (readwrite) NSSize minimumSize;
 @end

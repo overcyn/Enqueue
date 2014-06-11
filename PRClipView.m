@@ -6,6 +6,9 @@
 
 - (void)drawRect:(NSRect)dirtyRect {
     [super drawRect:dirtyRect];
+    [[NSColor PRBackgroundColor] set];
+    [NSBezierPath fillRect:dirtyRect];
+    
     [[NSBezierPath bezierPathWithRect:dirtyRect] addClip];
     
     // hacky hack. draws elastic portion of scroll view. duplicates drawing of prbackgroundview.

@@ -1,26 +1,16 @@
 #import "PRScrollView.h"
-#import "NSColor+Extensions.h"
 #import "PRClipView.h"
 
 
-@interface PRScrollView ()
-- (void)viewFrameDidChange:(NSNotification *)notification;
-@end
-
-
-@implementation PRScrollView
+@implementation PRScrollView {
+    NSSize _minimumSize;
+}
 
 - (void)awakeFromNib {
     [self setPostsFrameChangedNotifications:YES];
-    [[NSNotificationCenter defaultCenter] addObserver:self 
-                                             selector:@selector(viewFrameDidChange:) 
-                                                 name:NSViewFrameDidChangeNotification
-                                               object:self];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(viewFrameDidChange:) name:NSViewFrameDidChangeNotification object:self];
     [self setContentView:[[PRClipView alloc] init]];
-    [self setBackgroundColor:[NSColor PRBackgroundColor]];
 }
-
-@dynamic minimumSize;
 
 - (NSSize)minimumSize {
     return _minimumSize;

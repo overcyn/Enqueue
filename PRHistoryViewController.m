@@ -40,9 +40,10 @@
 
 
 - (void)awakeFromNib {
-    [(PRScrollView *)[self view] setMinimumSize:NSMakeSize(650, 2267)];
-    [(PRScrollView *)[self view] setDocumentView:[background superview]];
-    [(NSScrollView *)[self view] scrollToTop];
+    PRScrollView *view = (PRScrollView *)[self view];
+    [view setMinimumSize:NSMakeSize(650, 2267)];
+    [view setDocumentView:[background superview]];
+    [view scrollToTop];
         
     [topSongsButton setTag:PRTopSongsHistoryMode];
     [topArtistsButton setTag:PRTopArtistsHistoryMode];
