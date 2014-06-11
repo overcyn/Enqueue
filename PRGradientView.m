@@ -4,6 +4,12 @@
 
 @implementation PRGradientView
 
+- (void)dealloc {
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center addObserver:self selector:@selector(windowDidBecomeMain:) name:NSWindowDidBecomeMainNotification object:[self window]];
+    [center addObserver:self selector:@selector(windowDidResignMain:) name:NSWindowDidResignMainNotification object:[self window]];
+}
+
 #pragma mark - Properties
 
 @synthesize color = _color;
@@ -29,7 +35,17 @@
 @synthesize topBorder2 = _topBorder2;
 @synthesize botBorder2 = _botBorder2;
 
-#pragma mark - Drawing
+#pragma mark - NSView
+
+- (void)viewWillMoveToWindow:(NSWindow *)window {
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center removeObserver:self name:NSWindowDidBecomeMainNotification object:[self window]];
+    [center removeObserver:self name:NSWindowDidResignMainNotification object:[self window]];
+    if (window) {
+        [center addObserver:self selector:@selector(windowDidBecomeMain:) name:NSWindowDidBecomeMainNotification object:window];
+        [center addObserver:self selector:@selector(windowDidResignMain:) name:NSWindowDidResignMainNotification object:window];
+    }
+}
 
 - (void)drawRect:(NSRect)dirtyRect {
     NSRect bounds = [self bounds];
@@ -110,6 +126,16 @@
         [_topBorder set];
         [NSBezierPath fillRect:[NSBezierPath topBorderOfRect:bounds]];
     }
+}
+
+#pragma mark - Notification
+
+- (void)windowDidBecomeMain:(NSNotification *)notification {
+    [self setNeedsDisplay:YES];
+}
+
+- (void)windowDidResignMain:(NSNotification *)notification {
+    [self setNeedsDisplay:YES];
 }
 
 @end

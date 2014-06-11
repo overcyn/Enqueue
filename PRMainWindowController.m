@@ -539,7 +539,7 @@
     [self setCurrentMode:[sender tag]];
 }
 
-#pragma mark - Window Delegate
+#pragma mark - NSWindowDelegate
 
 - (void)windowWillEnterFullScreen:(NSNotification *)notification {
     NSRect frame = [_splitView frame];
