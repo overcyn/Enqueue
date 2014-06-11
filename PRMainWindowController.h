@@ -1,8 +1,14 @@
 #import <Cocoa/Cocoa.h>
 #import "PRPlaylists.h"
-@class PRCore, PRDb, PRPlaylists, PRNowPlayingController, PRFolderMonitor,PRNowPlayingViewController, 
-PRControlsViewController, PRLibraryViewController, PRPreferencesViewController, PRPlaylistsViewController, 
-PRHistoryViewController, PRGradientView, PRMainMenuController, PRTitleBarGradientView;
+
+@class PRCore; 
+@class PRNowPlayingViewController; 
+@class PRControlsViewController; 
+@class PRLibraryViewController; 
+@class PRPreferencesViewController; 
+@class PRPlaylistsViewController; 
+@class PRHistoryViewController; 
+@class PRMainMenuController; 
 
 
 typedef enum {
@@ -14,39 +20,7 @@ typedef enum {
 } PRMode;
 
 
-@interface PRMainWindowController : NSWindowController <NSWindowDelegate, NSMenuDelegate, NSSplitViewDelegate> {
-    __weak PRCore *_core;
-    __weak PRDb *_db;
-    
-    IBOutlet NSView *centerSuperview;
-    IBOutlet NSView *controlsSuperview;
-    IBOutlet NSView *nowPlayingSuperview;
-    IBOutlet NSButton *libraryButton;
-    IBOutlet NSButton *playlistsButton; 
-    IBOutlet NSButton *historyButton;
-    IBOutlet NSButton *preferencesButton;
-    IBOutlet NSSplitView *_splitView;
-    
-	PRTitleBarGradientView *_titlebarView;
-    IBOutlet NSView *_sidebarHeaderView;
-    IBOutlet NSView *_headerView;
-    IBOutlet NSView *_toolbarSubview;
-    IBOutlet PRGradientView *_verticalDivider;
-    
-    PRMainMenuController *mainMenuController;
-    PRLibraryViewController *libraryViewController;	
-    PRHistoryViewController *historyViewController;
-    PRPlaylistsViewController *playlistsViewController;
-    PRPreferencesViewController *preferencesViewController;	
-    PRNowPlayingViewController *nowPlayingViewController;
-    PRControlsViewController *controlsViewController;
-    
-    PRMode _currentMode;
-    id _currentViewController;
-    
-    BOOL _resizingSplitView;
-    BOOL _windowWillResize;
-}
+@interface PRMainWindowController : NSWindowController
 /* Initialization */
 - (id)initWithCore:(PRCore *)core;
 

@@ -1,35 +1,60 @@
 #import "PRMainWindowController.h"
-#import <Quartz/Quartz.h>
-#import "PRCore.h"
+#import "NSWindow+Extensions.h"
 #import "PRControlsViewController.h"
+#import "PRCore.h"
 #import "PRDb.h"
+#import "PRDefaults.h"
 #import "PRGradientView.h"
+#import "PRHistoryViewController.h"
 #import "PRLibraryViewController.h"
+#import "PRMainMenuController.h"
 #import "PRNowPlayingController.h"
 #import "PRNowPlayingViewController.h"
 #import "PRPlaylists.h"
 #import "PRPlaylistsViewController.h"
 #import "PRPreferencesViewController.h"
-#import "PRHistoryViewController.h"
 #import "PRTableViewController.h"
-#import "PRMainMenuController.h"
-#import "PRDefaults.h"
-#import "NSWindow+Extensions.h"
 #import "PRTitleBarGradientView.h"
+#import <Quartz/Quartz.h>
 
 
-@interface PRMainWindowController ()
-/* Update */
-- (void)windowWillEnterFullScreen:(NSNotification *)notification;
-- (void)windowWillExitFullScreen:(NSNotification *)notification;
-
-/* Accessors */
-- (int)libraryViewMode;
-- (void)setLibraryViewMode:(int)libraryViewMode;
+@interface PRMainWindowController () <NSWindowDelegate, NSMenuDelegate, NSSplitViewDelegate>
 @end
 
 
-@implementation PRMainWindowController
+@implementation PRMainWindowController {
+    __weak PRCore *_core;
+    __weak PRDb *_db;
+    
+    IBOutlet NSView *centerSuperview;
+    IBOutlet NSView *controlsSuperview;
+    IBOutlet NSView *nowPlayingSuperview;
+    IBOutlet NSButton *libraryButton;
+    IBOutlet NSButton *playlistsButton; 
+    IBOutlet NSButton *historyButton;
+    IBOutlet NSButton *preferencesButton;
+    IBOutlet NSSplitView *_splitView;
+    
+    PRTitleBarGradientView *_titlebarView;
+    IBOutlet NSView *_sidebarHeaderView;
+    IBOutlet NSView *_headerView;
+    IBOutlet NSView *_toolbarSubview;
+    IBOutlet PRGradientView *_verticalDivider;
+    
+    PRMainMenuController *_mainMenuController;
+    PRLibraryViewController *_libraryViewController; 
+    PRHistoryViewController *_historyViewController;
+    PRPlaylistsViewController *_playlistsViewController;
+    PRPreferencesViewController *_preferencesViewController; 
+    PRNowPlayingViewController *_nowPlayingViewController;
+    PRControlsViewController *_controlsViewController;
+    
+    PRMode _currentMode;
+    id _currentViewController;
+    
+    BOOL _resizingSplitView;
+    BOOL _windowWillResize;
+}
 
 #pragma mark - Initialization
 
@@ -44,15 +69,13 @@
 - (void)dealloc {
     [_splitView setDelegate:nil];
     [[self window] setDelegate:nil];
-    
     [NSNotificationCenter removeObserver:self];
-    
 }
 
 - (void)awakeFromNib {
     
     // Main Menu
-    mainMenuController = [[PRMainMenuController alloc] initWithCore:_core];
+    _mainMenuController = [[PRMainMenuController alloc] initWithCore:_core];
     
 	// Window
     [[[self window] contentView] setWantsLayer:YES];
@@ -101,27 +124,27 @@
     [_verticalDivider setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.8]];
     
     // ViewControllers
-    libraryViewController = [[PRLibraryViewController alloc] initWithCore:_core];
-    preferencesViewController = [[PRPreferencesViewController alloc] initWithCore:_core];
-	playlistsViewController = [[PRPlaylistsViewController alloc] initWithCore:_core];
-    historyViewController = [[PRHistoryViewController alloc] initWithDb:_db mainWindowController:self];
+    _libraryViewController = [[PRLibraryViewController alloc] initWithCore:_core];
+    _preferencesViewController = [[PRPreferencesViewController alloc] initWithCore:_core];
+	_playlistsViewController = [[PRPlaylistsViewController alloc] initWithCore:_core];
+    _historyViewController = [[PRHistoryViewController alloc] initWithDb:_db mainWindowController:self];
     
-    nowPlayingViewController = [[PRNowPlayingViewController alloc] initWithCore:_core];
-    [[nowPlayingViewController view] setFrame:[nowPlayingSuperview bounds]];
-    [nowPlayingSuperview addSubview:[nowPlayingViewController view]];
-    [_sidebarHeaderView addSubview:[nowPlayingViewController headerView]];
+    _nowPlayingViewController = [[PRNowPlayingViewController alloc] initWithCore:_core];
+    [[_nowPlayingViewController view] setFrame:[nowPlayingSuperview bounds]];
+    [nowPlayingSuperview addSubview:[_nowPlayingViewController view]];
+    [_sidebarHeaderView addSubview:[_nowPlayingViewController headerView]];
 	
-    controlsViewController = [[PRControlsViewController alloc] initWithCore:_core];
-    [[controlsViewController view] setFrame:[controlsSuperview bounds]];
-    [controlsSuperview addSubview:[controlsViewController view]];
+    _controlsViewController = [[PRControlsViewController alloc] initWithCore:_core];
+    [[_controlsViewController view] setFrame:[controlsSuperview bounds]];
+    [controlsSuperview addSubview:[_controlsViewController view]];
     
     // Initialize currentViewController
-    [[libraryViewController view] setFrame:[centerSuperview bounds]];
-    [centerSuperview addSubview:[libraryViewController view]];
-    _currentViewController = libraryViewController;
-    [libraryViewController setCurrentList:[[_db playlists] libraryList]];
+    [[_libraryViewController view] setFrame:[centerSuperview bounds]];
+    [centerSuperview addSubview:[_libraryViewController view]];
+    _currentViewController = _libraryViewController;
+    [_libraryViewController setCurrentList:[[_db playlists] libraryList]];
     [self setCurrentMode:PRLibraryMode];
-    [_headerView addSubview:[libraryViewController headerView]];
+    [_headerView addSubview:[_libraryViewController headerView]];
     
     // miniplayer
     [self setMiniPlayer:[self miniPlayer]];
@@ -141,16 +164,16 @@
     }
     
     // artwork
-    [[controlsViewController albumArtView] removeFromSuperview];
-    [nowPlayingSuperview addSubview:[controlsViewController albumArtView]];
+    [[_controlsViewController albumArtView] removeFromSuperview];
+    [nowPlayingSuperview addSubview:[_controlsViewController albumArtView]];
     
     // SplitView
     [_splitView setDelegate:self];
     
     // Key Views
-    [[self window] setInitialFirstResponder:[libraryViewController firstKeyView]];
-    [[libraryViewController lastKeyView] setNextKeyView:[nowPlayingViewController firstKeyView]];
-    [[nowPlayingViewController lastKeyView] setNextKeyView:[libraryViewController firstKeyView]];
+    [[self window] setInitialFirstResponder:[_libraryViewController firstKeyView]];
+    [[_libraryViewController lastKeyView] setNextKeyView:[_nowPlayingViewController firstKeyView]];
+    [[_nowPlayingViewController lastKeyView] setNextKeyView:[_libraryViewController firstKeyView]];
     
 	// Update
 	[NSNotificationCenter addObserver:self selector:@selector(updateUI) name:PRCurrentListDidChangeNotification object:nil];
@@ -162,37 +185,31 @@
 
 #pragma mark - Accessors
 
-@synthesize mainMenuController, 
-libraryViewController, 
-historyViewController, 
-playlistsViewController, 
-preferencesViewController, 
-nowPlayingViewController, 
-controlsViewController;
-@dynamic currentMode;
-@dynamic showsArtwork;
-@dynamic miniPlayer;
-
-- (PRMode)currentMode {
-    return _currentMode;
-}
+@synthesize mainMenuController = _mainMenuController; 
+@synthesize libraryViewController = _libraryViewController;
+@synthesize historyViewController = _historyViewController;
+@synthesize playlistsViewController = _playlistsViewController;
+@synthesize preferencesViewController = _preferencesViewController;
+@synthesize nowPlayingViewController = _nowPlayingViewController;
+@synthesize controlsViewController = _controlsViewController;
+@synthesize currentMode = _currentMode;
 
 - (void)setCurrentMode:(PRMode)mode {
     _currentMode = mode;
     id newViewController;
 	switch (_currentMode) {
 		case PRLibraryMode:
-			newViewController = libraryViewController;
+			newViewController = _libraryViewController;
 			break;
 		case PRPlaylistsMode:
-			newViewController = playlistsViewController;
+			newViewController = _playlistsViewController;
 			break;
 		case PRHistoryMode:
-			newViewController = historyViewController;
-			[historyViewController update];
+			newViewController = _historyViewController;
+			[_historyViewController update];
 			break;
 		case PRPreferencesMode:
-			newViewController = preferencesViewController;
+			newViewController = _preferencesViewController;
 			break;
 		default:
             [PRException raise:NSInternalInconsistencyException format:@"Invalid Mode"];return;
@@ -281,7 +298,7 @@ controlsViewController;
         frame.size.width = winFrame.size.width;
         [controlsSuperview setFrame:frame];
         [controlsSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewMaxYMargin];
-        [[self controlsViewController] updateLayout];
+        [_controlsViewController updateLayout];
         
         // SPLIT VIEW
         [_splitView removeFromSuperview];
@@ -319,7 +336,7 @@ controlsViewController;
         frame.size.width = winFrame.size.width;
         [controlsSuperview setFrame:frame];
         [controlsSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewMaxYMargin];
-        [[self controlsViewController] updateLayout];
+        [_controlsViewController updateLayout];
         
         // SPLIT VIEW
         [_splitView removeFromSuperview];
@@ -349,7 +366,7 @@ controlsViewController;
         frame.size.width = winFrame.size.width;
         [controlsSuperview setFrame:frame];
         [controlsSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewMaxYMargin];
-        [[self controlsViewController] updateLayout];
+        [_controlsViewController updateLayout];
         
         // SPLIT VIEW
         [[[self window] contentView] addSubview:_splitView];
@@ -405,7 +422,7 @@ controlsViewController;
     }
     
     if (![self miniPlayer]) {
-        [[controlsViewController albumArtView] setHidden:![self showsArtwork]];
+        [[_controlsViewController albumArtView] setHidden:![self showsArtwork]];
         if ([self showsArtwork]) {
             // size of nowPlayingView
             frame = [nowPlayingSuperview bounds];
@@ -417,24 +434,24 @@ controlsViewController;
                 frame.size.height = [nowPlayingSuperview frame].size.height - 500;
             }
             frame.origin.y = [nowPlayingSuperview frame].size.height - frame.size.height;
-            [[nowPlayingViewController view] setFrame:frame];
+            [[_nowPlayingViewController view] setFrame:frame];
             
             // size of albumArt
             frame.origin.x = -1;
             frame.origin.y = -2;
             frame.size.width = [nowPlayingSuperview frame].size.width + 2;
-            frame.size.height = [nowPlayingSuperview frame].size.height - [[nowPlayingViewController view] frame].size.height + 2;
-            [[controlsViewController albumArtView] setFrame:frame];
+            frame.size.height = [nowPlayingSuperview frame].size.height - [[_nowPlayingViewController view] frame].size.height + 2;
+            [[_controlsViewController albumArtView] setFrame:frame];
         } else {
             frame = [nowPlayingSuperview bounds];
-            [[nowPlayingViewController view] setFrame:frame];
+            [[_nowPlayingViewController view] setFrame:frame];
         }
     } else {
-        [[controlsViewController albumArtView] setHidden:TRUE];
+        [[_controlsViewController albumArtView] setHidden:TRUE];
         
         // size of nowPlayingView
         frame = [nowPlayingSuperview bounds];
-        [[nowPlayingViewController view] setFrame:frame];
+        [[_nowPlayingViewController view] setFrame:frame];
     }
 }
 
@@ -443,7 +460,7 @@ controlsViewController;
     NSButton *button;
     switch (_currentMode) {
 		case PRLibraryMode:
-            if ([[libraryViewController currentList] isEqual:[[_db playlists] libraryList]]) {
+            if ([[_libraryViewController currentList] isEqual:[[_db playlists] libraryList]]) {
                 button = libraryButton;
             } else {
                 button = playlistsButton;
@@ -502,7 +519,7 @@ controlsViewController;
 	if (_currentMode != PRLibraryMode) {
 		return -1;
 	} else {
-		return [libraryViewController libraryViewMode];
+		return [_libraryViewController libraryViewMode];
 	}
 }
 
@@ -510,12 +527,12 @@ controlsViewController;
 	if (_currentMode != PRLibraryMode) {
 		return;
 	}
-	[libraryViewController setLibraryViewMode:libraryViewMode];
+	[_libraryViewController setLibraryViewMode:libraryViewMode];
 }
 
 - (void)headerButtonAction:(id)sender {
     if ([sender tag] == PRLibraryMode) {
-        [[self libraryViewController] setCurrentList:[[_db playlists] libraryList]];
+        [_libraryViewController setCurrentList:[[_db playlists] libraryList]];
     }
     [self setCurrentMode:[sender tag]];
 }
