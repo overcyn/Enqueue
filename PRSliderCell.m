@@ -42,13 +42,12 @@
 
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView*)controlView {
     cellFrame = [self drawingRectForBounds:cellFrame];
-    [controlView lockFocus];
     [self drawBarInside:cellFrame flipped:[controlView isFlipped]];
     [self drawKnob];
-    [controlView unlockFocus];
 }
 
 - (void)drawKnob:(NSRect)rect {
+    // no-op
 }
 
 - (BOOL)_usesCustomTrackImage {

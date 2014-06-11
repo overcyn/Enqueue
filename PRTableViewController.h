@@ -39,6 +39,10 @@
     IBOutlet PRTableView *verticalBrowser1TableView;
     IBOutlet NSView *verticalBrowserLibrarySuperview;
     
+    NSScrollView *_horizontalBrowser1ScrollView;
+    NSScrollView *_horizontalBrowser2ScrollView;
+    NSScrollView *_horizontalBrowser3ScrollView;
+    
     NSMenu *libraryMenu;
     NSMenu *headerMenu;
     NSMenu *browserHeaderMenu;

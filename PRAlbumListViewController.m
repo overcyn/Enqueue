@@ -28,7 +28,6 @@
 	return self;
 }
 
-
 - (void)awakeFromNib {
 	[super awakeFromNib];
 	

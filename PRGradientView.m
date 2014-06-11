@@ -4,9 +4,6 @@
 
 @implementation PRGradientView
 
-#pragma mark - Initialization
-
-
 #pragma mark - Properties
 
 @synthesize color = _color;
@@ -34,7 +31,7 @@
 
 #pragma mark - Drawing
 
-- (void)drawRect:(NSRect)rect {   
+- (void)drawRect:(NSRect)dirtyRect {
     NSRect bounds = [self bounds];
         
     NSColor *tempColor = _color;
@@ -73,7 +70,7 @@
 
     if (tempColor) {
         [tempColor set];
-        [NSBezierPath fillRect:rect];
+        [NSBezierPath fillRect:bounds];
     } 
     if (tempVerticalGradient) {
         [tempVerticalGradient drawInRect:bounds angle:-90.0];

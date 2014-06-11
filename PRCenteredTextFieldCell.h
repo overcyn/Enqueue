@@ -1,7 +1,5 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface PRCenteredTextFieldCell : NSTextFieldCell {
-    
-}
+@interface PRCenteredTextFieldCell : NSTextFieldCell
 @end

@@ -55,6 +55,7 @@
     mainMenuController = [[PRMainMenuController alloc] initWithCore:_core];
     
 	// Window
+    [[[self window] contentView] setWantsLayer:YES];
     [[self window] setDelegate:self];
     
     // Toolbar View
