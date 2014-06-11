@@ -192,7 +192,10 @@
 @synthesize preferencesViewController = _preferencesViewController;
 @synthesize nowPlayingViewController = _nowPlayingViewController;
 @synthesize controlsViewController = _controlsViewController;
-@synthesize currentMode = _currentMode;
+
+- (PRMode)currentMode {
+    return _currentMode;
+}
 
 - (void)setCurrentMode:(PRMode)mode {
     _currentMode = mode;
