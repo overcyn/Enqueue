@@ -1,6 +1,9 @@
 #import "PRHeaderBox.h"
 
-@implementation PRHeaderBox
+
+@implementation PRHeaderBox {
+    id _trackingDelegate;
+}
 
 @synthesize trackingDelegate = _trackingDelegate;
 

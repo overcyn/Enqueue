@@ -1,9 +1,7 @@
-#import <AppKit/AppKit.h>
 #import <Cocoa/Cocoa.h>
 
 
-@interface PRHeaderBox : NSBox {
-    id _trackingDelegate;
-}
+// View that draws background for the now playing display.
+@interface PRHeaderBox : NSBox
 @property (readwrite, strong) id trackingDelegate;
 @end

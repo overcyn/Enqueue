@@ -1,10 +1,7 @@
-#import <AppKit/AppKit.h>
+#import <Cocoa/Cocoa.h>
 
 
-@interface PRViewController : NSViewController {
-    NSView *_firstKeyView;
-    NSView *_lastKeyView;
-}
+@interface PRViewController : NSViewController
 @property (readonly) NSView *firstKeyView;
 @property (readonly) NSView *lastKeyView;
 @end

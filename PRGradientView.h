@@ -1,30 +1,8 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface PRGradientView : NSView {
-    NSColor *_color;
-    NSGradient *_horizontalGradient;
-    NSGradient *_verticalGradient;
-    NSColor *_topGradient;
-    NSColor *_botGradient;
-    NSColor *_leftGradient;
-    NSColor *_rightGradient;
-    
-    NSColor *_altColor;
-    NSGradient *_altHorizontalGradient;
-    NSGradient *_altVerticalGradient;
-    NSColor *_altTopGradient;
-    NSColor *_altBotGradient;
-    NSColor *_altLeftGradient;
-    NSColor *_altRightGradient;
-
-    NSColor *_topBorder;
-    NSColor *_botBorder;
-    NSColor *_leftBorder;
-    NSColor *_rightBorder;
-    NSColor *_topBorder2;
-    NSColor *_botBorder2;
-}
+// View that draws gradients and borders
+@interface PRGradientView : NSView
 /* Accessors */
 @property (readwrite, copy) NSColor *color;
 @property (readwrite, copy) NSGradient *horizontalGradient;
