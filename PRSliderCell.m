@@ -21,7 +21,6 @@
                                  nil];
     
     NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:frame xRadius:3 yRadius:3];
-    [path addClip];
     
     // background
 	cellFrame = frame;
