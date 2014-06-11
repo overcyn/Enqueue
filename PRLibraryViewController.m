@@ -1,40 +1,53 @@
 #import "PRLibraryViewController.h"
-#import "PRInfoViewController.h"
-#import "PRListViewController.h"
 #import "PRAlbumListViewController.h"
+#import "PRCore.h"
 #import "PRDb.h"
+#import "PRInfoViewController.h"
 #import "PRLibrary.h"
-#import "PRPlaylists.h"
-#import "PRNowPlayingController.h"
 #import "PRLibraryViewSource.h"
-#import "PRTimeFormatter2.h"
+#import "PRListViewController.h"
+#import "PRNowPlayingController.h"
+#import "PRPlaylists.h"
 #import "PRSizeFormatter.h"
 #import "PRStringFormatter.h"
-#import "PRCore.h"
+#import "PRTimeFormatter2.h"
 
 
 #define SEARCH_DELAY 0.25
 
 
-@interface PRLibraryViewController ()
-/* action */
-- (void)setLibraryViewModeAction:(id)sender;
-/* update */
-- (void)updateLayout;
-- (void)updateSearch;
-- (void)postSearchChangedAndRetry:(BOOL)retry;
+@interface PRLibraryViewController () <NSMenuDelegate, NSTextFieldDelegate>
 @end
 
-
-@implementation PRLibraryViewController
+@implementation PRLibraryViewController {
+    __weak PRCore *_core;
+    
+    NSView *_centerSuperview;
+    NSView *_paneSuperview;
+    NSView *_headerView;
+    NSButton *_infoButton;
+    NSPopUpButton *_libraryPopUpButton;
+    NSSearchField *_searchField;
+    
+    NSMenu *_libraryPopUpButtonMenu;
+    
+    PRInfoViewController *infoViewController;
+    PRListViewController *listViewController;
+    PRAlbumListViewController *albumListViewController;
+    
+    NSDate *_searchFieldLastEdit;
+    
+    BOOL _infoViewVisible;
+    PRList *_currentList;
+    __weak PRTableViewController *_currentViewController;
+}
 
 #pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
     _core = core;
-    _db = [_core db];
-    _currentList = [[_db playlists] libraryList];
+    _currentList = [[[_core db] playlists] libraryList];
     return self;
 }
 
@@ -101,7 +114,7 @@
     // Initialization
     [self updateLayout];
     _currentList = nil;
-    [self setCurrentList:[[_db playlists] libraryList]];
+    [self setCurrentList:[[[_core db] playlists] libraryList]];
     
     // Key View
     [_searchField setNextKeyView:[self lastKeyView]];
@@ -112,22 +125,19 @@
 
 #pragma mark - Accessors
 
-@synthesize currentViewController = _currentViewController,
-headerView = _headerView;
-@dynamic libraryViewMode,
-currentList,
-infoViewVisible;
+@synthesize currentViewController = _currentViewController;
+@synthesize headerView = _headerView;
 
 - (PRList *)currentList {
     return _currentList;
 }
 
-- (void)setCurrentList:(NSNumber *)list {
+- (void)setCurrentList:(PRList *)list {
     if ([list isEqual:_currentList]) {
         return;
     }
     _currentList = list;
-    [self setLibraryViewMode:[[_db playlists] viewModeForList:_currentList]];
+    [self setLibraryViewMode:[[[_core db] playlists] viewModeForList:_currentList]];
     [self updateSearch];
     [self menuNeedsUpdate:_libraryPopUpButtonMenu];
     [NSNotificationCenter post:PRCurrentListDidChangeNotification];
@@ -147,7 +157,7 @@ infoViewVisible;
     [listViewController setCurrentList:nil];
     [albumListViewController setCurrentList:nil];
     
-    [[_db playlists] setViewMode:libraryViewMode forList:_currentList];
+    [[[_core db] playlists] setViewMode:libraryViewMode forList:_currentList];
     
     id oldViewController = _currentViewController;
     if (libraryViewMode == PRListMode) {
@@ -188,13 +198,13 @@ infoViewVisible;
     [[_searchField window] makeFirstResponder:_searchField];
 }
 
-#pragma mark - action
+#pragma mark - Action Priv
 
 - (void)setLibraryViewModeAction:(id)sender {
     [self setLibraryViewMode:[sender tag]];
 }
 
-#pragma mark - update
+#pragma mark - Update
 
 - (void)updateLayout {
     if (_infoViewVisible) {
@@ -231,11 +241,11 @@ infoViewVisible;
 }
 
 - (void)updateSearch {
-    NSString *search = [[_db playlists] valueForList:_currentList attr:PRListAttrSearch];
+    NSString *search = [[[_core db] playlists] valueForList:_currentList attr:PRListAttrSearch];
     [_searchField setStringValue:search];
 }
 
-#pragma mark - menu delegate
+#pragma mark - NSMenuDelegate
 
 - (void)menuNeedsUpdate:(NSMenu *)menu {
     [menu removeAllItems];
@@ -275,7 +285,7 @@ infoViewVisible;
     }
 }
 
-#pragma mark - text field delegate
+#pragma mark - NSTextFieldDelegate
 
 - (void)controlTextDidChange:(NSNotification *)note {
     _searchFieldLastEdit = [NSDate date];
@@ -286,12 +296,14 @@ infoViewVisible;
     } afterDelay:delay];
 }
 
+#pragma mark - Priv
+
 - (void)postSearchChangedAndRetry:(BOOL)retry {
     NSString *search = [_searchField stringValue];
     if (!search) {
         search = @"";
     }
-    if ([[[_db playlists] valueForList:_currentList attr:PRListAttrSearch] isEqual:search]) {
+    if ([[[[_core db] playlists] valueForList:_currentList attr:PRListAttrSearch] isEqual:search]) {
         return;
     }
     if (fabs([_searchFieldLastEdit timeIntervalSinceNow]) < SEARCH_DELAY) {
@@ -302,7 +314,7 @@ infoViewVisible;
         }
         return;
     }
-    [[_db playlists] setValue:search forList:_currentList attr:PRListAttrSearch];
+    [[[_core db] playlists] setValue:search forList:_currentList attr:PRListAttrSearch];
     [[NSNotificationCenter defaultCenter] postListDidChange:_currentList];
 }
 

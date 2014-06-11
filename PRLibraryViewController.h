@@ -1,7 +1,15 @@
-#import <Cocoa/Cocoa.h>
-#import "PRPlaylists.h"
 #import "PRViewController.h"
-@class PRInfoViewController, PRTableViewController, PRListViewController, PRDb, PRSmartPlaylistEditorViewController, PRStaticPlaylistEditorViewController, PRAlbumListViewController, PRGradientView, PRCore;
+#import "PRPlaylists.h"
+
+@class PRAlbumListViewController;
+@class PRCore;
+@class PRDb;
+@class PRGradientView;
+@class PRInfoViewController;
+@class PRListViewController;
+@class PRSmartPlaylistEditorViewController;
+@class PRStaticPlaylistEditorViewController;
+@class PRTableViewController;
 
 
 typedef enum {
@@ -10,29 +18,7 @@ typedef enum {
 } PRLibraryViewMode;
 
 
-@interface PRLibraryViewController : PRViewController <NSMenuDelegate, NSTextFieldDelegate> {
-    __weak PRCore *_core;
-    __weak PRDb *_db;
-    
-    NSView *_centerSuperview;
-    NSView *_paneSuperview;
-    NSView *_headerView;
-    NSButton *_infoButton;
-    NSPopUpButton *_libraryPopUpButton;
-    NSSearchField *_searchField;
-    
-    NSMenu *_libraryPopUpButtonMenu;
-    
-    PRInfoViewController *infoViewController;
-    PRListViewController *listViewController;
-    PRAlbumListViewController *albumListViewController;
-    
-    NSDate *_searchFieldLastEdit;
-    
-    BOOL _infoViewVisible;
-    PRList *_currentList;
-    __weak PRTableViewController *_currentViewController;
-}
+@interface PRLibraryViewController : PRViewController
 /* Initialization */
 - (id)initWithCore:(PRCore *)core;
 
