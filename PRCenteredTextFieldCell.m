@@ -3,6 +3,40 @@
 
 @implementation PRCenteredTextFieldCell
 
+- (id)init {
+    if (!(self = [super init])) {return nil;}
+    [self _setup];
+    return self;
+}
+
+- (id)initTextCell:(NSString *)string {
+    if (!(self = [super initTextCell:string])) {return nil;}
+    [self _setup];
+    return self;
+}
+
+- (id)initImageCell:(NSImage *)image {
+    if (!(self = [super initImageCell:image])) {return nil;}
+    [self _setup];
+    return self;
+}
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    if (!(self = [super initWithCoder:decoder])) {return nil;}
+    [self _setup];
+    return self;
+}
+
+- (void)_setup {
+    [self setFont:[NSFont systemFontOfSize:11]];
+    [self setTruncatesLastVisibleLine:YES];
+    [self setWraps:NO];
+    [self setLineBreakMode:NSLineBreakByTruncatingTail];
+    [self setEditable:YES];
+}
+
+#pragma mark - 
+
 - (NSRect)titleRectForBounds:(NSRect)theRect {
     NSRect titleFrame = [super titleRectForBounds:theRect];
     NSSize titleSize = [[self attributedStringValue] size];

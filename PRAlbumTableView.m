@@ -2,6 +2,7 @@
 #import "PRAlbumListViewController.h"
 #import "PRTableViewController+Private.h"
 
+
 @implementation PRAlbumTableView
 
 - (void)drawGridInClipRect:(NSRect)rect {

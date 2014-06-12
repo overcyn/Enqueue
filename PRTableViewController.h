@@ -21,39 +21,39 @@
 
 @interface PRTableViewController : PRViewController <NSSplitViewDelegate, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate, PRTableViewDelegate> {
     __weak PRCore *_core;
-    __weak PRDb *db;
-    __weak PRNowPlayingController *now;
+    __weak PRDb *_db;
+    __weak PRNowPlayingController *_now;
     
-    IBOutlet PRTableView *libraryTableView;
-    IBOutlet NSView *libraryScrollView;
-    IBOutlet NSScrollView *libraryScrollView2;
+    PRTableView *_detailTableView;
+    NSView *_detailView;
+    NSScrollView *_detailScrollView;
     
-    IBOutlet NSSplitView *horizontalBrowserSplitView;
-    IBOutlet NSSplitView *horizontalBrowserSubSplitview;
-    PRTableView *horizontalBrowser1TableView;
-    PRTableView *horizontalBrowser2TableView;
-    PRTableView *horizontalBrowser3TableView;
-    IBOutlet NSView *horizontalBrowserLibrarySuperview;
+    NSSplitView *_horizontalBrowserSplitView;
+    NSSplitView *_horizontalBrowserSubSplitView;
+    PRTableView *_horizontalBrowser1TableView;
+    PRTableView *_horizontalBrowser2TableView;
+    PRTableView *_horizontalBrowser3TableView;
+    NSView *_horizontalBrowserDetailSuperView;
     
-    IBOutlet NSSplitView *verticalBrowserSplitView;
-    IBOutlet PRTableView *verticalBrowser1TableView;
-    IBOutlet NSView *verticalBrowserLibrarySuperview;
+    NSSplitView *_verticalBrowserSplitView;
+    PRTableView *_verticalBrowser1TableView;
+    NSView *_verticalBrowserDetailSuperView;
     
     NSScrollView *_horizontalBrowser1ScrollView;
     NSScrollView *_horizontalBrowser2ScrollView;
     NSScrollView *_horizontalBrowser3ScrollView;
     
-    NSMenu *libraryMenu;
-    NSMenu *headerMenu;
-    NSMenu *browserHeaderMenu;
+    NSMenu *_libraryMenu;
+    NSMenu *_headerMenu;
+    NSMenu *_browserHeaderMenu;
     
-    NSTableView *browser1TableView;
-    NSTableView *browser2TableView;
-    NSTableView *browser3TableView;
+    NSTableView *_browser1TableView;
+    NSTableView *_browser2TableView;
+    NSTableView *_browser3TableView;
     
     PRList *_currentList;
     BOOL _updatingTableViewSelection; // True during reloadData: so tableViewSelectionDidChange doesn't trigger
-    BOOL refreshing;
+    BOOL _refreshing;
     
     BOOL _lastLibraryTypeSelectFailure; // Optimization for type select. TRUE if last search was unsuccessful.
 }

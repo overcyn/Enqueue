@@ -3,10 +3,6 @@
 
 
 @interface PRAlbumTableView : PRTableView <NSTableViewDelegate, NSTableViewDataSource>
-{
-
-}
-
 @end
 
 

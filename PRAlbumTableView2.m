@@ -1,13 +1,15 @@
 #import "PRAlbumTableView2.h"
 
 
-@implementation PRAlbumTableView2
+@implementation PRAlbumTableView2 {
+    __weak NSResponder *_actualResponder;
+}
 
-@synthesize nextResponder__;
+@synthesize actualResponder = _actualResponder;
 
 - (BOOL)becomeFirstResponder {
-    if ([self nextResponder__] != self && [self nextResponder__] != nil) {
-        [[self window] makeFirstResponder:nextResponder__];
+    if (_actualResponder != self && _actualResponder != nil) {
+        [[self window] makeFirstResponder:_actualResponder];
     }
     return YES;
 }
