@@ -1465,11 +1465,7 @@
 }
 
 - (BOOL)tableView:(NSTableView *)tableView shouldReorderColumn:(NSInteger)columnIndex toColumn:(NSInteger)newColumnIndex {
-    if (tableView == _detailTableView && [[[_db playlists] typeForList:_currentList] isEqual:PRListTypeStatic] && newColumnIndex == 0) {
-        return NO;
-    } else {
-        return YES;
-    }
+    return !(tableView != _detailTableView || ([[[_db playlists] typeForList:_currentList] isEqual:PRListTypeStatic] && columnIndex == 0));
 }
 
 - (void)tableView:(NSTableView *)tableView didClickTableColumn:(NSTableColumn *)tableColumn {
