@@ -76,6 +76,7 @@
         [_detailTableView setDoubleAction:@selector(play)];
         [_detailTableView registerForDraggedTypes:@[PRFilePboardType]];
         [_detailTableView setVerticalMotionCanBeginDrag:NO];
+        [_detailTableView setAllowsMultipleSelection:YES];
         [_detailTableView setDataSource:self];
         [_detailTableView setDelegate:self];
         [_detailScrollView setDocumentView:_detailTableView];

@@ -34,6 +34,7 @@
     [_detailTableView setDoubleAction:@selector(play)];
     [_detailTableView registerForDraggedTypes:@[PRFilePboardType]];
     [_detailTableView setVerticalMotionCanBeginDrag:NO];
+    [_detailTableView setAllowsMultipleSelection:YES];
     [_detailTableView setDataSource:self];
     [_detailTableView setDelegate:self];
     [scrollView setDocumentView:_detailTableView];

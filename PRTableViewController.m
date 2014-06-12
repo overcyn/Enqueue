@@ -418,6 +418,7 @@
         [tableView setDelegate:self];
         [tableView setFocusRingType:NSFocusRingTypeNone];
         [tableView setBackgroundColor:[NSColor PRBrowserBackgroundColor]];
+        [tableView setAllowsMultipleSelection:YES];
         [scrollView setDocumentView:tableView];
         
         NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:@""];

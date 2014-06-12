@@ -52,10 +52,10 @@
     NSTableView *_browser3TableView;
     
     PRList *_currentList;
-    BOOL _updatingTableViewSelection; // True during reloadData: so tableViewSelectionDidChange doesn't trigger
+    BOOL _updatingTableViewSelection; // YES during reloadData: so tableViewSelectionDidChange doesn't trigger
     BOOL _refreshing;
     
-    BOOL _lastLibraryTypeSelectFailure; // Optimization for type select. TRUE if last search was unsuccessful.
+    BOOL _lastLibraryTypeSelectFailure; // Optimization for type select. YES if last search was unsuccessful.
 }
 
 /* Initialization */
