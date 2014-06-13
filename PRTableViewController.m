@@ -198,7 +198,7 @@
     [tableColumn setMinWidth:40];
     [tableColumn setMaxWidth:1000];
     [tableColumn setHeaderCell:[[PRTableHeaderCell alloc] init]];
-    [[tableColumn headerCell] setStringValue:@"Track #"];
+    [[tableColumn headerCell] setStringValue:@"Track"];
     [[tableColumn headerCell] setAlignment:NSCenterTextAlignment];
     [tableColumn setDataCell:[[PRCenteredTextFieldCell alloc] init]];
     [[tableColumn dataCell] setFormatter:numberFormatter];
@@ -400,6 +400,7 @@
         [scrollView setDocumentView:tableView];
         
         NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:@""];
+        [column setResizingMask:NSTableColumnAutoresizingMask];
         [column setDataCell:[[PRCenteredTextFieldCell alloc] init]];
         [column setEditable:NO];
         [tableView addTableColumn:column];

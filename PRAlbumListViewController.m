@@ -11,6 +11,7 @@
 #import "NSIndexSet+Extensions.h"
 #import "PRCore.h"
 
+
 @implementation PRAlbumListViewController {
     PRSynchronizedScrollView *_artworkScrollView;
     PRAlbumTableView2 *_artworkTableView;
@@ -41,11 +42,10 @@
 
 - (void)loadView {
     {
-        _detailView = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 287, 100)];
-        [_detailView setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
+        _detailView = [[NSView alloc] init];
         
-        _artworkScrollView = [[PRSynchronizedScrollView alloc] initWithFrame:NSMakeRect(0,0,187,100)];
-        [_artworkScrollView setAutoresizingMask:kCALayerMaxXMargin|kCALayerHeightSizable|kCALayerWidthSizable];
+        _artworkScrollView = [[PRSynchronizedScrollView alloc] init];
+        [_artworkScrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
         [_detailView addSubview:_artworkScrollView];
         
         _artworkTableView = [[PRAlbumTableView2 alloc] initWithFrame:[_artworkScrollView bounds]];
@@ -54,18 +54,15 @@
         
         NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:@"0"];
         [[column headerCell] setStringValue:@"Album by Artist"];
-        [column setWidth:184];
-        [column setMaxWidth:184];
-        [column setMinWidth:184];
+        [column setResizingMask:NSTableColumnAutoresizingMask];
         [column setEditable:NO];
         [column setDataCell:[[PRAlbumListViewCell alloc] init]];
         [_artworkTableView addTableColumn:column];
         
-        _detailScrollView = [[PRSynchronizedScrollView alloc] initWithFrame:NSMakeRect(187,0,100,100)];
-        [_detailScrollView setAutoresizingMask:kCALayerHeightSizable|kCALayerWidthSizable];
+        _detailScrollView = [[PRSynchronizedScrollView alloc] init];
+        [_detailScrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
         [_detailScrollView setHasVerticalScroller:YES];
         [_detailScrollView setHasHorizontalScroller:YES];
-        [_detailScrollView setAutohidesScrollers:YES];
         [_detailView addSubview:_detailScrollView];
         
         _detailTableView = [[PRAlbumTableView alloc] initWithFrame:[_detailScrollView bounds]];
@@ -81,6 +78,11 @@
         [_detailTableView setDelegate:self];
         [_detailScrollView setDocumentView:_detailTableView];
         [_artworkTableView setActualResponder:_detailTableView];
+        
+        NSDictionary *views = @{@"v1":_artworkScrollView, @"v2":_detailScrollView};
+        [_detailView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[v1(187)][v2]|" options:0 metrics:nil views:views]];
+        [_detailView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[v1]|" options:0 metrics:nil views:views]];
+        [_detailView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[v2]|" options:0 metrics:nil views:views]];
     }
     [super loadView];
     
