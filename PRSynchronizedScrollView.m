@@ -1,7 +1,9 @@
 #import "PRSynchronizedScrollView.h"
 
 
-@implementation PRSynchronizedScrollView
+@implementation PRSynchronizedScrollView {
+     NSScrollView *_synchronizedScrollView;
+}
 
 - (void)setSynchronizedScrollView:(NSScrollView*)scrollview {
     NSView *synchronizedContentView;
@@ -11,10 +13,10 @@
     
     // don't retain the watched view, because we assume that it will
     // be retained by the view hierarchy for as long as we're around.
-    synchronizedScrollView = scrollview;
+    _synchronizedScrollView = scrollview;
     
     // get the content view of the
-    synchronizedContentView=[synchronizedScrollView contentView];
+    synchronizedContentView=[_synchronizedScrollView contentView];
     
     // Make sure the watched view is sending bounds changed
     // notifications (which is probably does anyway, but calling
@@ -58,16 +60,16 @@
 }
 
 - (void)stopSynchronizing {
-    if (synchronizedScrollView != nil) {
-        NSView* synchronizedContentView = [synchronizedScrollView contentView];
+    if (_synchronizedScrollView != nil) {
+        NSView* synchronizedContentView = [_synchronizedScrollView contentView];
         
         // remove any existing notification registration
         [[NSNotificationCenter defaultCenter] removeObserver:self
                                                         name:NSViewBoundsDidChangeNotification
                                                       object:synchronizedContentView];
         
-        // set synchronizedScrollView to nil
-        synchronizedScrollView=nil;
+        // set _synchronizedScrollView to nil
+        _synchronizedScrollView=nil;
     }
 }
 
