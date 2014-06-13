@@ -4,6 +4,7 @@
 #import "NSString+Extensions.h"
 #import "NSTableView+Extensions.h"
 #import "PRBitRateFormatter.h"
+#import "PRBrowseView.h"
 #import "PRCenteredTextFieldCell.h"
 #import "PRCore.h"
 #import "PRDateFormatter.h"
@@ -42,30 +43,8 @@
 }
 
 - (void)loadView {
-    NSView *view = [[NSView alloc] init];
-    [view setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
-    [self setView:view];
-    
-    // BrowserSplitView
-    _horizontalBrowserSplitView = [[PRPaneSplitView alloc] init];
-    [_horizontalBrowserSplitView setDelegate:self];
-    [_horizontalBrowserSplitView setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
-    
-    _horizontalBrowserSubSplitView = [[NSSplitView alloc] init];
-    [_horizontalBrowserSubSplitView setDividerStyle:NSSplitViewDividerStyleThin];
-    [_horizontalBrowserSubSplitView setVertical:YES];
-    [_horizontalBrowserSubSplitView setDelegate:self];
-    [_horizontalBrowserSplitView addSubview:_horizontalBrowserSubSplitView];
-    
-    _horizontalBrowserDetailSuperView = [[NSView alloc] init];
-    [_horizontalBrowserSplitView addSubview:_horizontalBrowserDetailSuperView];
-    
-    _verticalBrowserSplitView = [[NSSplitView alloc] init];
-    [_verticalBrowserSplitView setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
-    [_verticalBrowserSplitView setDividerStyle:NSSplitViewDividerStyleThin];
-    [_verticalBrowserSplitView setVertical:YES];
-    [_verticalBrowserSplitView setDelegate:self];
-    
+    [self setView:[[PRBrowseView alloc] initWithFrame:NSMakeRect(0, 0, 500, 500)]];
+        
     // LibraryTableView TableColumns
     NSTableColumn *tableColumn;
     NSMutableArray *tableColumns = [NSMutableArray array];
@@ -404,11 +383,10 @@
 
     // BrowserTableView
     NSMutableArray *scrollViews = [NSMutableArray array];
-    for (NSInteger i = 0; i < 4; i++){
+    for (NSInteger i = 0; i < 3; i++){
         NSScrollView *scrollView = [[NSScrollView alloc] init];
         [scrollView setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
         [scrollView setHasVerticalScroller:YES];
-        [scrollView setAutohidesScrollers:YES];
         [scrollViews addObject:scrollView];
         
         PRTableView *tableView = [[PRTableView alloc] initWithFrame:[scrollView bounds]];
@@ -426,33 +404,28 @@
         [column setEditable:NO];
         [tableView addTableColumn:column];
     }
-    _horizontalBrowser1ScrollView = scrollViews[0];
-    _horizontalBrowser2ScrollView = scrollViews[1];
-    _horizontalBrowser3ScrollView = scrollViews[2];
-    [_verticalBrowserSplitView addSubview:scrollViews[3]];
-    _horizontalBrowser1TableView = [scrollViews[0] documentView];
-    _horizontalBrowser2TableView = [scrollViews[1] documentView];
-    _horizontalBrowser3TableView = [scrollViews[2] documentView];
-    _verticalBrowser1TableView = [scrollViews[3] documentView];
+    _browser1ScrollView = scrollViews[0];
+    _browser2ScrollView = scrollViews[1];
+    _browser3ScrollView = scrollViews[2];
+    _browser1TableView = [scrollViews[0] documentView];
+    _browser2TableView = [scrollViews[1] documentView];
+    _browser3TableView = [scrollViews[2] documentView];
     
-    _verticalBrowserDetailSuperView = [[NSView alloc] init];
-    [_verticalBrowserSplitView addSubview:_verticalBrowserDetailSuperView];
-    
-    // BrowserTableView Context Menu
-    _browserHeaderMenu = [[NSMenu alloc] init];
-    [_browserHeaderMenu setDelegate:self];
-    [[_horizontalBrowser1TableView headerView] setMenu:_browserHeaderMenu];
-    [[_horizontalBrowser2TableView headerView] setMenu:_browserHeaderMenu];
-    [[_horizontalBrowser3TableView headerView] setMenu:_browserHeaderMenu];
-    [[_verticalBrowser1TableView headerView] setMenu:_browserHeaderMenu];
+    // // BrowserTableView Context Menu
+    // _browserHeaderMenu = [[NSMenu alloc] init];
+    // [_browserHeaderMenu setDelegate:self];
+    // [[_horizontalBrowser1TableView headerView] setMenu:_browserHeaderMenu];
+    // [[_horizontalBrowser2TableView headerView] setMenu:_browserHeaderMenu];
+    // [[_horizontalBrowser3TableView headerView] setMenu:_browserHeaderMenu];
+    // [[_verticalBrowser1TableView headerView] setMenu:_browserHeaderMenu];
         
-    // Key Views
-    [[self firstKeyView] setNextKeyView:_horizontalBrowser1TableView];
-    [_horizontalBrowser1TableView setNextKeyView:_horizontalBrowser2TableView];
-    [_horizontalBrowser2TableView setNextKeyView:_horizontalBrowser3TableView];
-    [_horizontalBrowser3TableView setNextKeyView:_verticalBrowser1TableView];
-    [_verticalBrowser1TableView setNextKeyView:_detailTableView];
-    [_detailTableView setNextKeyView:[self lastKeyView]];
+    // // Key Views
+    // [[self firstKeyView] setNextKeyView:_horizontalBrowser1TableView];
+    // [_horizontalBrowser1TableView setNextKeyView:_horizontalBrowser2TableView];
+    // [_horizontalBrowser2TableView setNextKeyView:_horizontalBrowser3TableView];
+    // [_horizontalBrowser3TableView setNextKeyView:_verticalBrowser1TableView];
+    // [_verticalBrowser1TableView setNextKeyView:_detailTableView];
+    // [_detailTableView setNextKeyView:[self lastKeyView]];
     
     // Update
     [[NSNotificationCenter defaultCenter] observeLibraryChanged:self sel:@selector(libraryDidChange:)];
@@ -897,58 +870,29 @@
 
 - (void)loadBrowser {
     _refreshing = YES;
-    [_verticalBrowserSplitView removeFromSuperview];
-    [_horizontalBrowserSplitView removeFromSuperview];
-    [_detailView removeFromSuperview];
+    
+    PRBrowseView *view = (PRBrowseView *)[self view];
+    [view setDetailView:_detailView];
+    
     int browserPosition = [[_db playlists] verticalForList:_currentList];
     if (browserPosition == PRBrowserPositionVertical) {
-        [[self view] addSubview:_verticalBrowserSplitView];
-        NSRect bounds = [[self view] bounds];
-        bounds.size.height += 1;
-        [_verticalBrowserSplitView setFrame:bounds];
-        [_verticalBrowserDetailSuperView addSubview:_detailView];
-        [_detailView setFrame:[_verticalBrowserDetailSuperView bounds]];
-        _browser1TableView = nil;
-        _browser2TableView = nil;
-        _browser3TableView = _verticalBrowser1TableView;
-        [_verticalBrowserSplitView setPosition:[[_db playlists] verticalBrowserWidthForList:_currentList] ofDividerAtIndex:0];
+        [view setStyle:PRBrowseViewStyleVertical];
+        [view setBrowseViews:@[_browser3ScrollView]];
+        [view setDividerPosition:[[_db playlists] verticalBrowserWidthForList:_currentList]];
     } else if (browserPosition == PRBrowserPositionHorizontal) {
-        [[self view] addSubview:_horizontalBrowserSplitView];
-        NSRect bounds = [[self view] bounds];
-        bounds.size.height += 1;
-        [_horizontalBrowserSplitView setFrame:bounds];
-        [_horizontalBrowserDetailSuperView addSubview:_detailView];
-        bounds = [_horizontalBrowserDetailSuperView bounds];
-        bounds.size.height += 1;
-        [_detailView setFrame:bounds];
-        
-        [_horizontalBrowser1ScrollView removeFromSuperview];
-        [_horizontalBrowser2ScrollView removeFromSuperview];
-        [_horizontalBrowser3ScrollView removeFromSuperview];
+        [view setStyle:PRBrowseViewStyleHorizontal];
         if (![[_db playlists] attrForBrowser:2 list:_currentList]) {
-            [_horizontalBrowserSubSplitView addSubview:_horizontalBrowser3ScrollView];
+            [view setBrowseViews:@[_browser3ScrollView]];
         } else if (![[_db playlists] attrForBrowser:1 list:_currentList]) {
-            [_horizontalBrowserSubSplitView addSubview:_horizontalBrowser2ScrollView];
-            [_horizontalBrowserSubSplitView addSubview:_horizontalBrowser3ScrollView];
+            [view setBrowseViews:@[_browser2ScrollView, _browser3ScrollView]];
         } else {
-            [_horizontalBrowserSubSplitView addSubview:_horizontalBrowser1ScrollView];
-            [_horizontalBrowserSubSplitView addSubview:_horizontalBrowser2ScrollView];
-            [_horizontalBrowserSubSplitView addSubview:_horizontalBrowser3ScrollView];
+            [view setBrowseViews:@[_browser1ScrollView, _browser2ScrollView, _browser3ScrollView]];
         }
-        
-        _browser1TableView = _horizontalBrowser1TableView;
-        _browser2TableView = _horizontalBrowser2TableView;
-        _browser3TableView = _horizontalBrowser3TableView;
-       [_horizontalBrowserSplitView setPosition:[[_db playlists] horizontalBrowserHeightForList:_currentList] ofDividerAtIndex:0];
+        [view setDividerPosition:[[_db playlists] horizontalBrowserHeightForList:_currentList]];
     } else if (browserPosition == PRBrowserPositionHidden){
-        [[self view] addSubview:_detailView];
-        NSRect bounds = [[self view] bounds];
-        bounds.size.height += 1;
-        [_detailView setFrame:bounds];
-        _browser1TableView = nil;
-        _browser2TableView = nil;
-        _browser3TableView = nil;
+        [view setStyle:PRBrowseViewStyleNone];
     }
+
     for (int i = 1; i < 4; i++) {
         PRItemAttr *attr = [[_db playlists] attrForBrowser:i list:_currentList];
         NSString *title = @"";
@@ -961,17 +905,17 @@
 }
 
 - (void)saveBrowser {
-    if (!_currentList) {
-        return;
-    }
-    int browserPosition = [[_db playlists] verticalForList:_currentList];
-    if (browserPosition == PRBrowserPositionVertical) {
-        float width = [[[_browser3TableView superview] superview] bounds].size.width;
-        [[_db playlists] setVerticalBrowserWidth:width forList:_currentList];
-    } else if (browserPosition == PRBrowserPositionHorizontal) {
-        float height = [_horizontalBrowserSubSplitView frame].size.height;
-        [[_db playlists] setHorizontalBrowserHeight:height forList:_currentList];
-    }
+    // if (!_currentList) {
+    //     return;
+    // }
+    // int browserPosition = [[_db playlists] verticalForList:_currentList];
+    // if (browserPosition == PRBrowserPositionVertical) {
+    //     float width = [[[_browser3TableView superview] superview] bounds].size.width;
+    //     [[_db playlists] setVerticalBrowserWidth:width forList:_currentList];
+    // } else if (browserPosition == PRBrowserPositionHorizontal) {
+    //     float height = [_horizontalBrowserSubSplitView frame].size.height;
+    //     [[_db playlists] setHorizontalBrowserHeight:height forList:_currentList];
+    // }
 }
 
 - (void)loadTableColumns {
@@ -1566,79 +1510,6 @@
         }
     }
     return didHandle;
-}
-
-#pragma mark - SplitView Delegate
-
-- (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {
-    if (splitView == _horizontalBrowserSplitView) {
-        return subview != _horizontalBrowserSubSplitView;
-    } else if (splitView == _verticalBrowserSplitView) {
-        return subview == _verticalBrowserDetailSuperView;
-    } else if (splitView == _horizontalBrowserSubSplitView) {
-        return NO;
-    }
-    @throw NSInvalidArgumentException;
-}
-
-- (BOOL)splitView:(NSSplitView *)splitView shouldHideDividerAtIndex:(NSInteger)dividerIndex {
-    return YES;
-}
-
-- (void)splitViewDidResizeSubviews:(NSNotification *)notification {
-    if (_refreshing) {
-        return;
-    }
-    if ([notification object] == _horizontalBrowserSplitView) {
-        if ([_horizontalBrowserSubSplitView frame].size.height < 120) {
-            NSRect frame = [_horizontalBrowserSubSplitView frame];
-            frame.size.height = 120;
-            [_horizontalBrowserSubSplitView setFrame:frame];
-        } else if ([_horizontalBrowserDetailSuperView frame].size.height < 120) {
-            NSRect frame = [_horizontalBrowserSubSplitView frame];
-            frame.size.height = [_horizontalBrowserSplitView frame].size.height - 120 - [_horizontalBrowserSplitView dividerThickness];
-            [_horizontalBrowserSubSplitView setFrame:frame];
-        }
-    }
-    [self saveBrowser];
-}
-
-- (CGFloat)splitView:(NSSplitView *)splitView constrainSplitPosition:(CGFloat)proposedPosition ofSubviewAt:(NSInteger)idx { 
-    if (splitView == _verticalBrowserSplitView) {
-        if (proposedPosition > 400) {
-            return 400;
-        } else if (proposedPosition < 120) {
-            return 120;
-        }
-    } else if (splitView == _horizontalBrowserSubSplitView) {
-        if ([[_horizontalBrowserSubSplitView subviews] count] == 3) {
-            float width = ([_horizontalBrowserSubSplitView frame].size.width - 2) / 3;
-            if (idx == 0) {
-                return width;
-            } else if (idx == 1) {
-                return width * 2 + 1;
-            }
-        } else if ([[_horizontalBrowserSubSplitView subviews] count] == 2)  {
-            float width = [_horizontalBrowserSubSplitView frame].size.width / 2;
-            return width;
-        } else {
-            return [_horizontalBrowserSubSplitView frame].size.width;
-        }
-    } else if (splitView == _horizontalBrowserSplitView) {
-        if (proposedPosition < 120) {
-            return 120;
-        } else if (proposedPosition > [_horizontalBrowserSplitView frame].size.height - 120) {
-            return [_horizontalBrowserSplitView frame].size.height - 120;
-        }
-    }
-    return proposedPosition;
-}
-
-- (NSRect)splitView:(NSSplitView *)splitView effectiveRect:(NSRect)proposedRect forDrawnRect:(NSRect)rect ofDividerAtIndex:(NSInteger)idx {
-    if (splitView == _horizontalBrowserSubSplitView) {
-        return NSZeroRect;
-    }
-    return proposedRect;
 }
 
 #pragma mark - Menu Delegate

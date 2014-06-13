@@ -19,7 +19,7 @@
 @class PRStringFormatter;
 
 
-@interface PRTableViewController : PRViewController <NSSplitViewDelegate, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate, PRTableViewDelegate> {
+@interface PRTableViewController : PRViewController <NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate, PRTableViewDelegate> {
     __weak PRCore *_core;
     __weak PRDb *_db;
     __weak PRNowPlayingController *_now;
@@ -28,28 +28,16 @@
     NSView *_detailView;
     NSScrollView *_detailScrollView;
     
-    NSSplitView *_horizontalBrowserSplitView;
-    NSSplitView *_horizontalBrowserSubSplitView;
-    PRTableView *_horizontalBrowser1TableView;
-    PRTableView *_horizontalBrowser2TableView;
-    PRTableView *_horizontalBrowser3TableView;
-    NSView *_horizontalBrowserDetailSuperView;
-    
-    NSSplitView *_verticalBrowserSplitView;
-    PRTableView *_verticalBrowser1TableView;
-    NSView *_verticalBrowserDetailSuperView;
-    
-    NSScrollView *_horizontalBrowser1ScrollView;
-    NSScrollView *_horizontalBrowser2ScrollView;
-    NSScrollView *_horizontalBrowser3ScrollView;
+    NSScrollView *_browser1ScrollView;
+    NSScrollView *_browser2ScrollView;
+    NSScrollView *_browser3ScrollView;
+    PRTableView *_browser1TableView;
+    PRTableView *_browser2TableView;
+    PRTableView *_browser3TableView;
     
     NSMenu *_libraryMenu;
     NSMenu *_headerMenu;
     NSMenu *_browserHeaderMenu;
-    
-    NSTableView *_browser1TableView;
-    NSTableView *_browser2TableView;
-    NSTableView *_browser3TableView;
     
     PRList *_currentList;
     BOOL _updatingTableViewSelection; // YES during reloadData: so tableViewSelectionDidChange doesn't trigger

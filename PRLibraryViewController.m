@@ -62,11 +62,13 @@
     [[self view] addSubview:_centerSuperview];
     
     listViewController = [[PRListViewController alloc] initWithCore:_core];
+    [[listViewController view] setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
     [[listViewController view] setFrame:[_centerSuperview bounds]];
     [_centerSuperview addSubview:[listViewController view]];
     _currentViewController = listViewController;
     
     albumListViewController = [[PRAlbumListViewController alloc] initWithCore:_core];
+    [[albumListViewController view] setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
     
     // Pane view
     _paneSuperview = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 500, 140)];

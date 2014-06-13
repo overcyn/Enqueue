@@ -4,7 +4,10 @@
 @implementation PRPaneSplitView
 
 - (CGFloat)dividerThickness {
-    return 10.0;
+    if ([self dividerStyle] == NSSplitViewDividerStyleThick) {
+        return 10.0;
+    }
+    return [super dividerThickness];
 }
 
 - (void)drawDividerInRect:(NSRect)rect {

@@ -23,7 +23,6 @@
     [scrollView setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
     [scrollView setHasVerticalScroller:YES];
     [scrollView setHasHorizontalScroller:YES];
-    [scrollView setAutohidesScrollers:YES];
     _detailView = scrollView;
     
     _detailTableView = [[PRTableView alloc] initWithFrame:[scrollView bounds]];
