@@ -15,7 +15,6 @@
 #import "PRLibraryViewController.h"
 #import "PRLibraryViewSource.h"
 #import "PRMainWindowController.h"
-#import "PRMainWindowController.h"
 #import "PRNowPlayingController.h"
 #import "PRNowPlayingViewController.h"
 #import "PRNumberFormatter.h"
@@ -43,7 +42,9 @@
 }
 
 - (void)loadView {
-    [self setView:[[PRBrowseView alloc] initWithFrame:NSMakeRect(0, 0, 500, 500)]];
+    PRBrowseView *view = [[PRBrowseView alloc] initWithFrame:NSMakeRect(0, 0, 500, 500)];
+    [view setDelegate:self];
+    [self setView:view];
         
     // LibraryTableView TableColumns
     NSTableColumn *tableColumn;
@@ -412,21 +413,19 @@
     _browser2TableView = [scrollViews[1] documentView];
     _browser3TableView = [scrollViews[2] documentView];
     
-    // // BrowserTableView Context Menu
-    // _browserHeaderMenu = [[NSMenu alloc] init];
-    // [_browserHeaderMenu setDelegate:self];
-    // [[_horizontalBrowser1TableView headerView] setMenu:_browserHeaderMenu];
-    // [[_horizontalBrowser2TableView headerView] setMenu:_browserHeaderMenu];
-    // [[_horizontalBrowser3TableView headerView] setMenu:_browserHeaderMenu];
-    // [[_verticalBrowser1TableView headerView] setMenu:_browserHeaderMenu];
+    // BrowserTableView Context Menu
+    _browserHeaderMenu = [[NSMenu alloc] init];
+    [_browserHeaderMenu setDelegate:self];
+    [[_browser1TableView headerView] setMenu:_browserHeaderMenu];
+    [[_browser2TableView headerView] setMenu:_browserHeaderMenu];
+    [[_browser3TableView headerView] setMenu:_browserHeaderMenu];
         
-    // // Key Views
-    // [[self firstKeyView] setNextKeyView:_horizontalBrowser1TableView];
-    // [_horizontalBrowser1TableView setNextKeyView:_horizontalBrowser2TableView];
-    // [_horizontalBrowser2TableView setNextKeyView:_horizontalBrowser3TableView];
-    // [_horizontalBrowser3TableView setNextKeyView:_verticalBrowser1TableView];
-    // [_verticalBrowser1TableView setNextKeyView:_detailTableView];
-    // [_detailTableView setNextKeyView:[self lastKeyView]];
+    // Key Views
+    [[self firstKeyView] setNextKeyView:_browser1TableView];
+    [_browser1TableView setNextKeyView:_browser2TableView];
+    [_browser2TableView setNextKeyView:_browser3TableView];
+    [_browser3TableView setNextKeyView:_detailTableView];
+    [_detailTableView setNextKeyView:[self lastKeyView]];
     
     // Update
     [[NSNotificationCenter defaultCenter] observeLibraryChanged:self sel:@selector(libraryDidChange:)];
@@ -446,10 +445,10 @@
 - (void)setCurrentList:(PRList *)list {
     _currentList = list;
     
-    if (list) {        
+    if (list) {
+        [self reloadData:YES];
         [self loadTableColumns];
         [self loadBrowser];
-        [self reloadData:YES];
         [_detailTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
         [_detailTableView scrollRowToVisiblePretty:0];
         [_browser1TableView scrollRowToVisiblePretty:[_browser1TableView selectedRow]];
@@ -906,17 +905,16 @@
 }
 
 - (void)saveBrowser {
-    // if (!_currentList) {
-    //     return;
-    // }
-    // int browserPosition = [[_db playlists] verticalForList:_currentList];
-    // if (browserPosition == PRBrowserPositionVertical) {
-    //     float width = [[[_browser3TableView superview] superview] bounds].size.width;
-    //     [[_db playlists] setVerticalBrowserWidth:width forList:_currentList];
-    // } else if (browserPosition == PRBrowserPositionHorizontal) {
-    //     float height = [_horizontalBrowserSubSplitView frame].size.height;
-    //     [[_db playlists] setHorizontalBrowserHeight:height forList:_currentList];
-    // }
+    if (!_currentList) {
+        return;
+    }
+    int browserPosition = [[_db playlists] verticalForList:_currentList];
+    float width = [(PRBrowseView *)[self view] dividerPosition];
+    if (browserPosition == PRBrowserPositionVertical) {
+        [[_db playlists] setVerticalBrowserWidth:width forList:_currentList];
+    } else if (browserPosition == PRBrowserPositionHorizontal) {
+        [[_db playlists] setHorizontalBrowserHeight:width forList:_currentList];
+    }
 }
 
 - (void)loadTableColumns {
@@ -1184,6 +1182,12 @@
         [tableRows addIndex:[self tableRowForDbRow:idx]];
     }];
     return tableRows;
+}
+
+#pragma mark - PRBrowseViewDelegate
+
+- (void)browseViewDidChangeDividerPosition:(PRBrowseView *)view {
+    [self saveBrowser];
 }
 
 #pragma mark - TableView Datasource

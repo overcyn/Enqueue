@@ -41,57 +41,56 @@
 }
 
 - (void)loadView {
-    {
-        _detailView = [[NSView alloc] init];
-        
-        _artworkScrollView = [[PRSynchronizedScrollView alloc] init];
-        [_artworkScrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
-        [_detailView addSubview:_artworkScrollView];
-        
-        _artworkTableView = [[PRAlbumTableView2 alloc] initWithFrame:[_artworkScrollView bounds]];
-        [_artworkTableView setFocusRingType:NSFocusRingTypeNone];
-        [_artworkScrollView setDocumentView:_artworkTableView];
-        
-        NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:@"0"];
-        [[column headerCell] setStringValue:@"Album by Artist"];
-        [column setResizingMask:NSTableColumnAutoresizingMask];
-        [column setEditable:NO];
-        [column setDataCell:[[PRAlbumListViewCell alloc] init]];
-        [_artworkTableView addTableColumn:column];
-        
-        _detailScrollView = [[PRSynchronizedScrollView alloc] init];
-        [_detailScrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
-        [_detailScrollView setHasVerticalScroller:YES];
-        [_detailScrollView setHasHorizontalScroller:YES];
-        [_detailView addSubview:_detailScrollView];
-        
-        _detailTableView = [[PRAlbumTableView alloc] initWithFrame:[_detailScrollView bounds]];
-        [_detailTableView setColumnAutoresizingStyle:NSTableViewNoColumnAutoresizing];
-        [_detailTableView setUsesAlternatingRowBackgroundColors:YES];
-        [_detailTableView setFocusRingType:NSFocusRingTypeNone];
-        [_detailTableView setTarget:self];
-        [_detailTableView setDoubleAction:@selector(play)];
-        [_detailTableView registerForDraggedTypes:@[PRFilePboardType]];
-        [_detailTableView setVerticalMotionCanBeginDrag:NO];
-        [_detailTableView setAllowsMultipleSelection:YES];
-        [_detailTableView setDataSource:self];
-        [_detailTableView setDelegate:self];
-        [_detailScrollView setDocumentView:_detailTableView];
-        [_artworkTableView setActualResponder:_detailTableView];
-        
-        NSDictionary *views = @{@"v1":_artworkScrollView, @"v2":_detailScrollView};
-        [_detailView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[v1(187)][v2]|" options:0 metrics:nil views:views]];
-        [_detailView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[v1]|" options:0 metrics:nil views:views]];
-        [_detailView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[v2]|" options:0 metrics:nil views:views]];
-    }
-    [super loadView];
+    _detailView = [[NSView alloc] init];
     
+    _artworkScrollView = [[PRSynchronizedScrollView alloc] init];
+    [_artworkScrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    [_detailView addSubview:_artworkScrollView];
+    
+    _artworkTableView = [[PRAlbumTableView2 alloc] initWithFrame:[_artworkScrollView bounds]];
+    [_artworkTableView setFocusRingType:NSFocusRingTypeNone];
     [_artworkTableView setBackgroundColor:[NSColor colorWithCalibratedWhite:0.93 alpha:1.0]];
     [_artworkTableView setDataSource:self];
     [_artworkTableView setDelegate:self];
     [_artworkTableView setTarget:self];
     [_artworkTableView setAction:@selector(selectAlbum)];
     [_artworkTableView setDoubleAction:@selector(playAlbum)];
+    [_artworkScrollView setDocumentView:_artworkTableView];
+    
+    NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:@"0"];
+    [[column headerCell] setStringValue:@"Album by Artist"];
+    [column setResizingMask:NSTableColumnAutoresizingMask];
+    [column setEditable:NO];
+    [column setDataCell:[[PRAlbumListViewCell alloc] init]];
+    [_artworkTableView addTableColumn:column];
+    
+    _detailScrollView = [[PRSynchronizedScrollView alloc] init];
+    [_detailScrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    [_detailScrollView setHasVerticalScroller:YES];
+    [_detailScrollView setHasHorizontalScroller:YES];
+    [_detailView addSubview:_detailScrollView];
+    
+    _detailTableView = [[PRAlbumTableView alloc] initWithFrame:[_detailScrollView bounds]];
+    [_detailTableView setColumnAutoresizingStyle:NSTableViewNoColumnAutoresizing];
+    [_detailTableView setUsesAlternatingRowBackgroundColors:YES];
+    [_detailTableView setFocusRingType:NSFocusRingTypeNone];
+    [_detailTableView setTarget:self];
+    [_detailTableView setDoubleAction:@selector(play)];
+    [_detailTableView registerForDraggedTypes:@[PRFilePboardType]];
+    [_detailTableView setVerticalMotionCanBeginDrag:NO];
+    [_detailTableView setAllowsMultipleSelection:YES];
+    [_detailTableView setDataSource:self];
+    [_detailTableView setDelegate:self];
+    [_detailScrollView setDocumentView:_detailTableView];
+    [_artworkTableView setActualResponder:_detailTableView];
+    
+    NSDictionary *views = @{@"v1":_artworkScrollView, @"v2":_detailScrollView};
+    [_detailView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[v1(174)][v2]|" options:0 metrics:nil views:views]];
+    [_detailView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[v1]|" options:0 metrics:nil views:views]];
+    [_detailView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[v2]|" options:0 metrics:nil views:views]];
+    
+    [super loadView];
+    
     [[_artworkTableView headerView] setMenu:_headerMenu];
     
     [(PRSynchronizedScrollView *)_detailScrollView setSynchronizedScrollView:_artworkScrollView];

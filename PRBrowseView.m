@@ -12,13 +12,13 @@
 @end
 
 @implementation PRBrowseView {
+    __weak id<PRBrowseViewDelegate> _delegate;
     NSSplitView *_splitView;
     NSSplitView *_subSplitView;
     PRBrowseViewStyle _style;
     NSArray *_browseViews;
     NSView *_detailView;
     NSView *_detailSuperview;
-    BOOL _refreshing;
 }
 
 - (id)initWithFrame:(CGRect)frame {
@@ -31,6 +31,7 @@
     _splitView = [[PRPaneSplitView alloc] init];
     [_splitView setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
     [_splitView setDelegate:self];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(paneSplitViewPositionDidChange:) name:PRPaneSplitViewPositionDidChangeNotification object:_splitView];
     
     _subSplitView = [[NSSplitView alloc] init];
     [_subSplitView setDividerStyle:NSSplitViewDividerStyleThin];
@@ -41,11 +42,20 @@
 
 #pragma mark - Accessors
 
+@synthesize delegate = _delegate;
 @synthesize style = _style;
 @synthesize browseViews = _browseViews;
 @synthesize detailView = _detailView;
 
 - (CGFloat)dividerPosition {
+    NSArray *subviews = [_splitView subviews];
+    if ([subviews count] > 0) {
+        if (_style == PRBrowseViewStyleHorizontal) {
+            return [subviews[0] frame].size.height;
+        } else {
+            return [subviews[0] frame].size.width;
+        }
+    }
     return 0;
 }
 
@@ -138,9 +148,6 @@
 }
 
 - (void)splitViewDidResizeSubviews:(NSNotification *)notification {
-    if (_refreshing) {
-        return;
-    }
     NSSplitView *splitView = [notification object];
     if (splitView == _splitView && _style == PRBrowseViewStyleHorizontal) {
         if ([_subSplitView frame].size.height < MIN_V_BROWSER_WIDTH) {
@@ -153,7 +160,6 @@
             [_subSplitView setFrame:frame];
         }
     }
-    // [self saveBrowser];
 }
 
 - (CGFloat)splitView:(NSSplitView *)splitView constrainSplitPosition:(CGFloat)proposedPosition ofSubviewAt:(NSInteger)idx {
@@ -177,6 +183,12 @@
 
 - (NSRect)splitView:(NSSplitView *)splitView effectiveRect:(NSRect)proposedRect forDrawnRect:(NSRect)rect ofDividerAtIndex:(NSInteger)idx {
     return splitView == _subSplitView ? NSZeroRect : proposedRect;
+}
+
+#pragma mark - Notifications
+
+- (void)paneSplitViewPositionDidChange:(NSNotification *)notifaction {
+    [_delegate browseViewDidChangeDividerPosition:self];
 }
 
 #pragma mark - UI

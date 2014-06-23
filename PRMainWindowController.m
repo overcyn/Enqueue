@@ -141,7 +141,6 @@
     [[_libraryViewController view] setFrame:[centerSuperview bounds]];
     [centerSuperview addSubview:[_libraryViewController view]];
     _currentViewController = _libraryViewController;
-    [_libraryViewController setCurrentList:[[_db playlists] libraryList]];
     [self setCurrentMode:PRLibraryMode];
     [_headerView addSubview:[_libraryViewController headerView]];
     
@@ -149,11 +148,11 @@
     [self setMiniPlayer:[self miniPlayer]];
     
     // Buttons
-    for (NSDictionary *i in @[
-         @{@"button":libraryButton, @"tag":[NSNumber numberWithInt:PRLibraryMode]},
-         @{@"button":playlistsButton, @"tag":[NSNumber numberWithInt:PRPlaylistsMode]},
-         @{@"button":historyButton, @"tag":[NSNumber numberWithInt:PRHistoryMode]},
-         @{@"button":preferencesButton, @"tag":[NSNumber numberWithInt:PRPreferencesMode]}]) {
+    NSArray *buttons = @[@{@"button":libraryButton, @"tag":@(PRLibraryMode)},
+                        @{@"button":playlistsButton, @"tag":@(PRPlaylistsMode)},
+                        @{@"button":historyButton, @"tag":@(PRHistoryMode)},
+                        @{@"button":preferencesButton, @"tag":@(PRPreferencesMode)}];
+    for (NSDictionary *i in buttons) {
         NSButton *button = [i objectForKey:@"button"];
         int tag = [[i objectForKey:@"tag"] intValue];
         [button setAction:@selector(headerButtonAction:)];
@@ -180,6 +179,9 @@
         [NSNotificationCenter addObserver:self selector:@selector(windowWillEnterFullScreen:) name:NSWindowWillEnterFullScreenNotification object:[self window]];
         [NSNotificationCenter addObserver:self selector:@selector(windowWillExitFullScreen:) name:NSWindowWillExitFullScreenNotification object:[self window]];
     }
+    
+    // Delay until after window is sized.
+    [_libraryViewController setCurrentList:[[[_core db] playlists] libraryList]];
 }
 
 #pragma mark - Accessors

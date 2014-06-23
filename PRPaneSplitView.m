@@ -1,6 +1,9 @@
 #import "PRPaneSplitView.h"
 
 
+NSString * const PRPaneSplitViewPositionDidChangeNotification = @"PRPaneSplitViewPositionDidChangeNotification";
+
+
 @implementation PRPaneSplitView
 
 - (CGFloat)dividerThickness {
@@ -24,6 +27,11 @@
     } else {
         [super drawDividerInRect:rect];
     }
+}
+
+- (void)mouseDown:(NSEvent *)event {
+    [super mouseDown:event];
+    [[NSNotificationCenter defaultCenter] postNotificationName:PRPaneSplitViewPositionDidChangeNotification object:self userInfo:nil];
 }
 
 @end

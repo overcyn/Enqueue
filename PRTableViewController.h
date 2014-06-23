@@ -3,6 +3,7 @@
 #import "PRLibrary.h"
 #import "PRLibraryViewController.h"
 #import "PRViewController.h"
+#import "PRBrowseView.h"
 
 @class PRDb;
 @class PRLibrary;
@@ -19,7 +20,7 @@
 @class PRStringFormatter;
 
 
-@interface PRTableViewController : PRViewController <NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate, PRTableViewDelegate> {
+@interface PRTableViewController : PRViewController <PRBrowseViewDelegate, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate, PRTableViewDelegate> {
     __weak PRCore *_core;
     __weak PRDb *_db;
     __weak PRNowPlayingController *_now;
