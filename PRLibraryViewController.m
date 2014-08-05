@@ -116,7 +116,7 @@
     // Initialization
     [self updateLayout];
     _currentList = nil;
-    // [self setCurrentList:[[[_core db] playlists] libraryList]];
+    // [self setCurrentList:[[[_core db] playlists] libraryList]]; // kd:
     
     // Key View
     [_searchField setNextKeyView:[self lastKeyView]];

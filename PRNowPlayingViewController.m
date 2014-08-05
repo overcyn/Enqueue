@@ -1,69 +1,62 @@
 #import "PRNowPlayingViewController.h"
-#import "PRDb.h"
-#import "PRLibrary.h"
-#import "PRPlaylists.h"
-#import "PRNowPlayingViewSource.h"
-#import "PRNowPlayingController.h"
-#import "PRNowPlayingCell.h"
-#import "PRNowPlayingHeaderCell.h"
-#import "NSIndexSet+Extensions.h"
-#import "PRTableView.h"
-#import "PRGradientView.h"
 #import "BWTexturedSlider.h"
-#import "PRMainWindowController.h"
-#import "PRLibraryViewController.h"
-#import "PRPlaylistsViewController.h"
-#import "PRDefaults.h"
-#import "PRQueue.h"
+#import "NSColor+Extensions.h"
 #import "NSIndexSet+Extensions.h"
-#import "PROutlineView.h"
-#import "PRMoviePlayer.h"
-#import "PRCore.h"
-#import "PRTableViewController.h"
 #import "NSMenuItem+Extensions.h"
 #import "NSTableView+Extensions.h"
-#import "NSColor+Extensions.h"
+#import "PRCore.h"
+#import "PRDb.h"
+#import "PRDefaults.h"
+#import "PRGradientView.h"
+#import "PRLibrary.h"
+#import "PRLibraryViewController.h"
+#import "PRMainWindowController.h"
+#import "PRMoviePlayer.h"
+#import "PRNowPlayingCell.h"
+#import "PRNowPlayingController.h"
+#import "PRNowPlayingHeaderCell.h"
+#import "PRNowPlayingViewSource.h"
+#import "PROutlineView.h"
+#import "PRPlaylists.h"
+#import "PRPlaylistsViewController.h"
+#import "PRQueue.h"
+#import "PRTableView.h"
+#import "PRTableViewController.h"
 #import "PRViewController.h"
 
 
-@interface PRNowPlayingViewController () 
-/* Action */
-- (void)playItem:(id)item;
-- (void)playSelected;
-- (void)removeSelected;
-- (void)addSelectedToQueue;
-- (void)removeSelectedFromQueue;
-- (void)showSelectedInLibrary;
-- (void)revealSelectedInFinder;
-
-/* Action Mouse */
-- (void)play;
-
-/* Action Menu */
-- (void)saveAsNewPlaylist:(id)sender;
-- (void)saveAsPlaylist:(id)sender;
-- (void)saveAsPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context;
-- (void)addToPlaylist:(id)sender;
-
-/* Update */
-- (void)updateTableView;
-- (void)playlistMenuNeedsUpdate; // only called by menuNeedsUpdate:
-- (void)contextMenuNeedsUpdate; // only called by menuNeedsUpdate:
-- (void)playlistDidChange:(NSNotification *)notification;
-- (void)currentFileDidChange:(NSNotification *)notification;
-- (void)applicationWillTerminate:(NSNotification *)notification;
-
-/* Misc */
-- (int)dbRowCount;
-- (NSRange)dbRangeForParentItem:(id)item;
-- (int)dbRowForItem:(id)item;
-- (id)itemForDbRow:(int)row;
-- (id)itemForItem:(id)item;
-- (NSIndexSet *)selectedDbRows;
+@interface PRNowPlayingViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, NSTextFieldDelegate, PROutlineViewDelegate>
 @end
 
-
-@implementation PRNowPlayingViewController
+@implementation PRNowPlayingViewController {
+    __weak PRCore *_core;
+    __weak PRMainWindowController *win;
+    __weak PRDb *db;
+    __weak PRNowPlayingController *now;
+    
+    PROutlineView *nowPlayingTableView;
+    NSScrollView *scrollview;
+    
+    NSView *_headerView;
+    NSButton *_clearButton;
+    NSPopUpButton *_menuButton;
+    
+    NSMenu *_playlistMenu;
+    NSMenu *_contextMenu;
+    
+    // tableview datasource
+    NSArray *_albumCounts;
+    NSMutableArray *_dbRowForAlbum;
+    NSMutableIndexSet *_albumIndexes;
+    
+    NSMutableDictionary *_parentItems;
+    NSMutableDictionary *_childItems;
+    
+    NSPoint dropPoint;
+    
+    NSCell *_cachedNowPlayingCell;
+    NSCell *_cachedNowPlayingHeaderCell;
+}
 
 #pragma mark - Initialization
 
@@ -692,7 +685,7 @@
     return selectedDbRows;
 }
 
-#pragma mark - OutlineView Delegate
+#pragma mark - NSOutlineViewDelegate
 
 - (void)outlineView:(NSOutlineView *)outlineView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn item:(id)item {
     [cell setHighlighted:[[outlineView selectedRowIndexes] containsIndex:[outlineView rowForItem:item]]];
@@ -958,7 +951,7 @@
     }
 }
 
-#pragma mark - OutlineView DataSource
+#pragma mark - NSOutlineViewDataSource
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item {
     if ([(NSArray *)item count] == 1) {
@@ -1032,7 +1025,7 @@
     return [self itemForItem:newItem];
 }
 
-#pragma mark - PROutlineView Delegate
+#pragma mark - PROutlineViewDelegate
 
 - (BOOL)outlineView:(PROutlineView *)outlineView keyDown:(NSEvent *)event {
     if ([[event characters] length] != 1) {
@@ -1061,7 +1054,7 @@
     return didHandle;
 }
 
-#pragma mark - Menu Delegate
+#pragma mark NSMenuDelegate
 
 - (void)menuNeedsUpdate:(NSMenu *)menu {
     if (menu == _contextMenu) {

@@ -21,7 +21,6 @@
 @interface PRMainWindowController () <NSWindowDelegate, NSMenuDelegate, NSSplitViewDelegate>
 @end
 
-
 @implementation PRMainWindowController {
     __weak PRCore *_core;
     __weak PRDb *_db;
@@ -97,18 +96,22 @@
     [_sidebarHeaderView setFrame:frame];
     
     _titlebarView = [[PRTitleBarGradientView alloc] init];
-    [_titlebarView setAutoresizingMask:NSViewWidthSizable | NSViewMinYMargin];
+    [_titlebarView setAutoresizingMask:NSViewWidthSizable|NSViewMinYMargin];
+    [_titlebarView setTopGradient:[NSColor colorWithCalibratedWhite:0.85 alpha:1.0]];
+    [_titlebarView setBotGradient:[NSColor colorWithCalibratedWhite:0.7 alpha:1.0]];
+    [_titlebarView setBotBorder:[NSColor colorWithCalibratedWhite:0.5 alpha:1.0]];
     frame = [_toolbarSubview frame];
-    frame.origin.x = 100;
-    frame.size.width = [[self window] frame].size.width - 100;
+    frame.origin.x = 0;
+    frame.size.width = [[self window] frame].size.width;
     frame.size.height = 30;
     frame.origin.y = [[self window] frame].size.height - 30;
     [_titlebarView setFrame:frame];
     
-    [[[[self window] contentView] superview] addSubview:_headerView];
-    [[[[self window] contentView] superview] addSubview:_toolbarSubview];
-    [[[[self window] contentView] superview] addSubview:_sidebarHeaderView];
-    [[[[self window] contentView] superview] addSubview:_titlebarView];
+    NSView *view = [[[self window] contentView] superview];
+    [view addSubview:_titlebarView positioned:NSWindowBelow relativeTo:[view subviews][0]];
+    [view addSubview:_headerView];
+    [view addSubview:_toolbarSubview];
+    [view addSubview:_sidebarHeaderView];
 
     // Window Buttons
     if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {

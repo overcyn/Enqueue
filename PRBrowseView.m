@@ -74,11 +74,13 @@
             [i removeFromSuperview];
         }
         
+        NSRect f = [self bounds];
+        f.size.height += 1;
         if (_style == PRBrowseViewStyleNone) {
-            [_detailSuperview setFrame:[self bounds]];
+            [_detailSuperview setFrame:f];
             [self addSubview:_detailSuperview];
         } else {
-            [_splitView setFrame:[self bounds]];
+            [_splitView setFrame:f];
             [self addSubview:_splitView];
             if (_style == PRBrowseViewStyleHorizontal) {
                 for (NSView *i in _browseViews) {
