@@ -200,6 +200,8 @@
 		67D911E71471087B001C9DE8 /* PRMediaKeyController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911E61471087B001C9DE8 /* PRMediaKeyController.m */; };
 		67DAC8161456387900E120B6 /* EMKeychainItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DAC8151456387900E120B6 /* EMKeychainItem.m */; };
 		67DC10891489D12100A76236 /* PRPathFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC10881489D12100A76236 /* PRPathFormatter.m */; };
+		67DC1D6D19975C490031BC3C /* PRNowPlayingDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D6C19975C490031BC3C /* PRNowPlayingDescription.m */; };
+		67DC1D7019975F270031BC3C /* PRListDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D6F19975F270031BC3C /* PRListDescription.m */; };
 		67DDC70F14FA169B00E361B0 /* NSMenuItem+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */; };
 		67DE033A147B07A600BBB0F6 /* PRFileInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE0339147B07A600BBB0F6 /* PRFileInfo.m */; };
 		67DE13351516E37D00E94F28 /* PRAlertWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE13341516E37D00E94F28 /* PRAlertWindowController.m */; };
@@ -572,6 +574,10 @@
 		67DAC8151456387900E120B6 /* EMKeychainItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EMKeychainItem.m; path = Frameworks/EMKeychainItem/EMKeychainItem.m; sourceTree = "<group>"; };
 		67DC10871489D12100A76236 /* PRPathFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRPathFormatter.h; sourceTree = "<group>"; };
 		67DC10881489D12100A76236 /* PRPathFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRPathFormatter.m; sourceTree = "<group>"; };
+		67DC1D6B19975C490031BC3C /* PRNowPlayingDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRNowPlayingDescription.h; sourceTree = "<group>"; };
+		67DC1D6C19975C490031BC3C /* PRNowPlayingDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRNowPlayingDescription.m; sourceTree = "<group>"; };
+		67DC1D6E19975F270031BC3C /* PRListDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRListDescription.h; sourceTree = "<group>"; };
+		67DC1D6F19975F270031BC3C /* PRListDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRListDescription.m; sourceTree = "<group>"; };
 		67DDC70D14FA169B00E361B0 /* NSMenuItem+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMenuItem+Extensions.h"; sourceTree = "<group>"; };
 		67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMenuItem+Extensions.m"; sourceTree = "<group>"; };
 		67DE0338147B07A600BBB0F6 /* PRFileInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRFileInfo.h; sourceTree = "<group>"; };
@@ -696,6 +702,7 @@
 		29B97314FDCFA39411CA2CEA /* Lyre */ = {
 			isa = PBXGroup;
 			children = (
+				67DC1D71199765820031BC3C /* Description */,
 				080E96DDFE201D6D7F000001 /* Core */,
 				67804A78124C8CCA003268AD /* Database */,
 				677CB95613BC74790090B4D0 /* Operations */,
@@ -1534,6 +1541,17 @@
 			name = "Keyboard Shortcuts";
 			sourceTree = "<group>";
 		};
+		67DC1D71199765820031BC3C /* Description */ = {
+			isa = PBXGroup;
+			children = (
+				67DC1D6E19975F270031BC3C /* PRListDescription.h */,
+				67DC1D6F19975F270031BC3C /* PRListDescription.m */,
+				67DC1D6B19975C490031BC3C /* PRNowPlayingDescription.h */,
+				67DC1D6C19975C490031BC3C /* PRNowPlayingDescription.m */,
+			);
+			name = Description;
+			sourceTree = "<group>";
+		};
 		67EA12F7145B346900309876 /* NowPlaying */ = {
 			isa = PBXGroup;
 			children = (
@@ -1739,6 +1757,7 @@
 				67804A96124D4F24003268AD /* PRLibrary.m in Sources */,
 				67804ABF124D52C2003268AD /* PRLibraryViewSource.m in Sources */,
 				675C77EA124D8B2A00D20D83 /* PRPlaylists.m in Sources */,
+				67DC1D7019975F270031BC3C /* PRListDescription.m in Sources */,
 				67AFF804124F3394006E7535 /* PRNowPlayingViewSource.m in Sources */,
 				67AFF8F9124FDEB6006E7535 /* PRNowPlayingViewController.m in Sources */,
 				670975341251B333008DA63D /* PRNowPlayingController.m in Sources */,
@@ -1750,6 +1769,7 @@
 				67026EA312697810002E929F /* PRPreferencesViewController.m in Sources */,
 				6702717E126AFC6F002E929F /* PRSizeFormatter.m in Sources */,
 				67E94735126C528E00CAE943 /* PRCenteredTextFieldCell.m in Sources */,
+				67DC1D6D19975C490031BC3C /* PRNowPlayingDescription.m in Sources */,
 				675C678B126E5965008336B9 /* PRTableView.m in Sources */,
 				6771E787127974F9007A34F2 /* PRPlaylistsViewController.m in Sources */,
 				6771E90F127A47E3007A34F2 /* PRHistoryViewController.m in Sources */,

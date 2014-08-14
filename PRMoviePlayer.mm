@@ -36,29 +36,6 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
 
 
 @interface PRMoviePlayer ()
-/* Update */
-- (void)update;
-
-/* Notifications */
-- (void)playingDidChange:(NSNotification *)note;
-- (void)EQDidChange:(NSNotification *)note;
-
-/* Playback */
-- (void)transitionCallback:(NSTimer *)timer;
-
-/* EQ */
-- (void)updateEQ;
-- (void)modifyEQ;
-- (void)enableEQ;
-- (void)disableEQ;
-
-/* Device */
-- (NSString *)defaultDevice;
-- (NSString *)playerDevice;
-- (void)updateDevice;
-
-/* Hog Output */
-- (void)updateHogOutput;
 @end
 
 
