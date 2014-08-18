@@ -8,6 +8,7 @@
 #import "PRPlaylists.h"
 #import "PRQueue.h"
 #import "PRTagger.h"
+#import "PRNowPlayingDescription_Private.h"
 
 
 @implementation PRNowPlayingController {
@@ -49,6 +50,17 @@
 }
 
 #pragma mark - Accessors
+
+- (PRNowPlayingDescription *)description {
+    PRNowPlayingDescription *description = [[PRNowPlayingDescription alloc] init];
+    [description setInvalidItems:[self invalidItems]];
+    [description setCurrentList:[self currentList]];
+    [description setCurrentItem:[self currentItem]];
+    [description setCurrentIndex:[self currentIndex]];
+    [description setShuffle:[self shuffle]];
+    [description setRepeat:[self repeat]];
+    return description;
+}
 
 @synthesize invalidItems = _invalidItems;
 @synthesize mov = _mov;

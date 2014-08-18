@@ -18,6 +18,7 @@
 #import "PRTrialSheetController.h"
 #import "PRVacuumOperation.h"
 #import "PRWelcomeSheetController.h"
+#import "PRActionCenter.h"
 
 
 @implementation PRCore {
@@ -55,6 +56,7 @@
         [[PRLog sharedLog] presentFatalError:[NSError errorWithDomain:PREnqueueErrorDomain code:0 userInfo:userInfo]];
     }
     
+    [[PRActionCenter defaultCenter] setCore:self];
     _opQueue = [[NSOperationQueue alloc] init];
     [_opQueue setMaxConcurrentOperationCount:1];
     [_opQueue setSuspended:YES];

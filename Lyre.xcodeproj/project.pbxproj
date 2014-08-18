@@ -165,7 +165,6 @@
 		67AD280C136CA77C00DF48EE /* PRPlaylistsCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67AD280B136CA77B00DF48EE /* PRPlaylistsCell.m */; };
 		67AD280E136FB0CD00DF48EE /* PRActionIcon2.png in Resources */ = {isa = PBXBuildFile; fileRef = 67AD280D136FB0CC00DF48EE /* PRActionIcon2.png */; };
 		67AD2810136FBB7500DF48EE /* PRActionIcon3.png in Resources */ = {isa = PBXBuildFile; fileRef = 67AD280F136FBB7500DF48EE /* PRActionIcon3.png */; };
-		67AFF804124F3394006E7535 /* PRNowPlayingViewSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 67AFF803124F3394006E7535 /* PRNowPlayingViewSource.m */; };
 		67AFF8F9124FDEB6006E7535 /* PRNowPlayingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67AFF8F8124FDEB6006E7535 /* PRNowPlayingViewController.m */; };
 		67B1D5F012FD633E00FEF494 /* PRBackgroundPattern.png in Resources */ = {isa = PBXBuildFile; fileRef = 67B1D5EF12FD633E00FEF494 /* PRBackgroundPattern.png */; };
 		67B4248A1290BFAE00FC98A0 /* PRShadowImageCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67B424891290BFAE00FC98A0 /* PRShadowImageCell.m */; };
@@ -202,6 +201,8 @@
 		67DC10891489D12100A76236 /* PRPathFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC10881489D12100A76236 /* PRPathFormatter.m */; };
 		67DC1D6D19975C490031BC3C /* PRNowPlayingDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D6C19975C490031BC3C /* PRNowPlayingDescription.m */; };
 		67DC1D7019975F270031BC3C /* PRListDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D6F19975F270031BC3C /* PRListDescription.m */; };
+		67DC1D7619A13D300031BC3C /* PRActionCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D7519A13D300031BC3C /* PRActionCenter.m */; };
+		67DC1D7919A141650031BC3C /* PRAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D7819A141650031BC3C /* PRAction.m */; };
 		67DDC70F14FA169B00E361B0 /* NSMenuItem+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */; };
 		67DE033A147B07A600BBB0F6 /* PRFileInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE0339147B07A600BBB0F6 /* PRFileInfo.m */; };
 		67DE13351516E37D00E94F28 /* PRAlertWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE13341516E37D00E94F28 /* PRAlertWindowController.m */; };
@@ -381,6 +382,8 @@
 		6740584C135A4CA3000ED697 /* TexturedSliderSpeakerLoudInverted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = TexturedSliderSpeakerLoudInverted.png; path = Icons/TexturedSliderSpeakerLoudInverted.png; sourceTree = "<group>"; };
 		674415C0135AA86800A5B269 /* PRMainMenuController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRMainMenuController.h; sourceTree = "<group>"; };
 		674415C1135AA86800A5B269 /* PRMainMenuController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRMainMenuController.m; sourceTree = "<group>"; };
+		67484DB019A1512200F02744 /* PRNowPlayingViewController_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRNowPlayingViewController_Private.h; sourceTree = "<group>"; };
+		67484DB119A1BB7E00F02744 /* PRNowPlayingDescription_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRNowPlayingDescription_Private.h; sourceTree = "<group>"; };
 		6750A3A1124322E000F415E3 /* PRMainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PRMainWindow.xib; sourceTree = "<group>"; };
 		6750A3A81243239B00F415E3 /* PRMainWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRMainWindowController.h; sourceTree = "<group>"; };
 		6750A3A91243239B00F415E3 /* PRMainWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRMainWindowController.m; sourceTree = "<group>"; };
@@ -519,8 +522,6 @@
 		67AD280B136CA77B00DF48EE /* PRPlaylistsCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRPlaylistsCell.m; sourceTree = "<group>"; };
 		67AD280D136FB0CC00DF48EE /* PRActionIcon2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRActionIcon2.png; path = Icons/PRActionIcon2.png; sourceTree = "<group>"; };
 		67AD280F136FBB7500DF48EE /* PRActionIcon3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRActionIcon3.png; path = Icons/PRActionIcon3.png; sourceTree = "<group>"; };
-		67AFF802124F3394006E7535 /* PRNowPlayingViewSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PRNowPlayingViewSource.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		67AFF803124F3394006E7535 /* PRNowPlayingViewSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PRNowPlayingViewSource.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		67AFF8F7124FDEB6006E7535 /* PRNowPlayingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRNowPlayingViewController.h; sourceTree = "<group>"; };
 		67AFF8F8124FDEB6006E7535 /* PRNowPlayingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRNowPlayingViewController.m; sourceTree = "<group>"; };
 		67B1D5EF12FD633E00FEF494 /* PRBackgroundPattern.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRBackgroundPattern.png; path = Icons/PRBackgroundPattern.png; sourceTree = "<group>"; };
@@ -578,6 +579,10 @@
 		67DC1D6C19975C490031BC3C /* PRNowPlayingDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRNowPlayingDescription.m; sourceTree = "<group>"; };
 		67DC1D6E19975F270031BC3C /* PRListDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRListDescription.h; sourceTree = "<group>"; };
 		67DC1D6F19975F270031BC3C /* PRListDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRListDescription.m; sourceTree = "<group>"; };
+		67DC1D7219A13BBA0031BC3C /* PRAction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRAction.h; sourceTree = "<group>"; };
+		67DC1D7419A13D300031BC3C /* PRActionCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRActionCenter.h; sourceTree = "<group>"; };
+		67DC1D7519A13D300031BC3C /* PRActionCenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRActionCenter.m; sourceTree = "<group>"; };
+		67DC1D7819A141650031BC3C /* PRAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRAction.m; sourceTree = "<group>"; };
 		67DDC70D14FA169B00E361B0 /* NSMenuItem+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMenuItem+Extensions.h"; sourceTree = "<group>"; };
 		67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMenuItem+Extensions.m"; sourceTree = "<group>"; };
 		67DE0338147B07A600BBB0F6 /* PRFileInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRFileInfo.h; sourceTree = "<group>"; };
@@ -702,6 +707,7 @@
 		29B97314FDCFA39411CA2CEA /* Lyre */ = {
 			isa = PBXGroup;
 			children = (
+				67DC1D7319A13BCF0031BC3C /* Actions */,
 				67DC1D71199765820031BC3C /* Description */,
 				080E96DDFE201D6D7F000001 /* Core */,
 				67804A78124C8CCA003268AD /* Database */,
@@ -1287,8 +1293,6 @@
 				6739CCAF1253107200AB54A1 /* PRPlaybackOrder.m */,
 				67804ABD124D52C2003268AD /* PRLibraryViewSource.h */,
 				67804ABE124D52C2003268AD /* PRLibraryViewSource.m */,
-				67AFF802124F3394006E7535 /* PRNowPlayingViewSource.h */,
-				67AFF803124F3394006E7535 /* PRNowPlayingViewSource.m */,
 				6706FDF512BB897B00C9B075 /* PRAlbumArtController.h */,
 				6706FDF612BB897B00C9B075 /* PRAlbumArtController.m */,
 			);
@@ -1413,6 +1417,7 @@
 			children = (
 				67AFF8F7124FDEB6006E7535 /* PRNowPlayingViewController.h */,
 				67AFF8F8124FDEB6006E7535 /* PRNowPlayingViewController.m */,
+				67484DB019A1512200F02744 /* PRNowPlayingViewController_Private.h */,
 				6739CEFF125569ED00AB54A1 /* PRNowPlayingCell.h */,
 				6739CF00125569ED00AB54A1 /* PRNowPlayingCell.m */,
 				673C849013E148CA00C6DB4B /* PRNowPlayingHeaderCell.h */,
@@ -1547,9 +1552,21 @@
 				67DC1D6E19975F270031BC3C /* PRListDescription.h */,
 				67DC1D6F19975F270031BC3C /* PRListDescription.m */,
 				67DC1D6B19975C490031BC3C /* PRNowPlayingDescription.h */,
+				67484DB119A1BB7E00F02744 /* PRNowPlayingDescription_Private.h */,
 				67DC1D6C19975C490031BC3C /* PRNowPlayingDescription.m */,
 			);
 			name = Description;
+			sourceTree = "<group>";
+		};
+		67DC1D7319A13BCF0031BC3C /* Actions */ = {
+			isa = PBXGroup;
+			children = (
+				67DC1D7219A13BBA0031BC3C /* PRAction.h */,
+				67DC1D7819A141650031BC3C /* PRAction.m */,
+				67DC1D7419A13D300031BC3C /* PRActionCenter.h */,
+				67DC1D7519A13D300031BC3C /* PRActionCenter.m */,
+			);
+			name = Actions;
 			sourceTree = "<group>";
 		};
 		67EA12F7145B346900309876 /* NowPlaying */ = {
@@ -1758,7 +1775,6 @@
 				67804ABF124D52C2003268AD /* PRLibraryViewSource.m in Sources */,
 				675C77EA124D8B2A00D20D83 /* PRPlaylists.m in Sources */,
 				67DC1D7019975F270031BC3C /* PRListDescription.m in Sources */,
-				67AFF804124F3394006E7535 /* PRNowPlayingViewSource.m in Sources */,
 				67AFF8F9124FDEB6006E7535 /* PRNowPlayingViewController.m in Sources */,
 				670975341251B333008DA63D /* PRNowPlayingController.m in Sources */,
 				6739CBDC1252AD4100AB54A1 /* PRTimeFormatter.m in Sources */,
@@ -1824,6 +1840,7 @@
 				6715CF8313989885001BC89B /* sha2.c in Sources */,
 				671C91EB13A376B90007D069 /* NSString+LFExtensions.m in Sources */,
 				67091AD013AB3D6400C4D298 /* PRQueue.m in Sources */,
+				67DC1D7619A13D300031BC3C /* PRActionCenter.m in Sources */,
 				677CB95A13BC74B60090B4D0 /* PRRescanOperation.m in Sources */,
 				67C0BA1A13C7AE1E0088D2E7 /* NSString+Extensions.m in Sources */,
 				673C849213E148CA00C6DB4B /* PRNowPlayingHeaderCell.m in Sources */,
@@ -1831,6 +1848,7 @@
 				676978BC13FDB45B004E0A08 /* PRVacuumOperation.m in Sources */,
 				671D31E21401699200B9FAA4 /* PRException.m in Sources */,
 				671D31E61401A9D800B9FAA4 /* PRStatement.m in Sources */,
+				67DC1D7919A141650031BC3C /* PRAction.m in Sources */,
 				678FC8D01414D49300A546B8 /* PRDropImageView.m in Sources */,
 				678FC8D3141559F100A546B8 /* PRDropImageCell.m in Sources */,
 				675116D2141FD42C00EBE02E /* NSImage+Extensions.m in Sources */,

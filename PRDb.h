@@ -5,7 +5,6 @@
 @class PRLibrary;
 @class PRPlaylists;
 @class PRLibraryViewSource;
-@class PRNowPlayingViewSource;
 @class PRAlbumArtController;
 @class PRPlaybackOrder;
 @class PRQueue;
@@ -33,7 +32,6 @@ extern NSString * const PRColData;
 @property (readonly) PRLibrary *library;
 @property (readonly) PRPlaylists *playlists;
 @property (readonly) PRLibraryViewSource *libraryViewSource;
-@property (readonly) PRNowPlayingViewSource *nowPlayingViewSource;
 @property (readonly) PRAlbumArtController *albumArtController;
 @property (readonly) PRPlaybackOrder *playbackOrder;
 @property (readonly) PRQueue *queue;

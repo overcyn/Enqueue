@@ -1,21 +1,24 @@
 #import "PRNowPlayingViewController.h"
+#import "PRNowPlayingViewController_Private.h"
 #import "BWTexturedSlider.h"
 #import "NSColor+Extensions.h"
 #import "NSIndexSet+Extensions.h"
 #import "NSMenuItem+Extensions.h"
 #import "NSTableView+Extensions.h"
+#import "PRAction.h"
+#import "PRActionCenter.h"
 #import "PRCore.h"
 #import "PRDb.h"
 #import "PRDefaults.h"
 #import "PRGradientView.h"
 #import "PRLibrary.h"
 #import "PRLibraryViewController.h"
+#import "PRListDescription.h"
 #import "PRMainWindowController.h"
 #import "PRMoviePlayer.h"
 #import "PRNowPlayingCell.h"
 #import "PRNowPlayingController.h"
 #import "PRNowPlayingHeaderCell.h"
-#import "PRNowPlayingViewSource.h"
 #import "PROutlineView.h"
 #import "PRPlaylists.h"
 #import "PRPlaylistsViewController.h"
@@ -23,6 +26,7 @@
 #import "PRTableView.h"
 #import "PRTableViewController.h"
 #import "PRViewController.h"
+#import "PRNowPlayingDescription.h"
 
 
 @interface PRNowPlayingViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, NSTextFieldDelegate, PROutlineViewDelegate>
@@ -30,11 +34,9 @@
 
 @implementation PRNowPlayingViewController {
     __weak PRCore *_core;
-    __weak PRMainWindowController *win;
-    __weak PRDb *db;
-    __weak PRNowPlayingController *now;
+    __weak PRDb *_db;
     
-    PROutlineView *nowPlayingTableView;
+    PROutlineView *_nowPlayingTableView;
     NSScrollView *scrollview;
     
     NSView *_headerView;
@@ -45,7 +47,6 @@
     NSMenu *_contextMenu;
     
     // tableview datasource
-    NSArray *_albumCounts;
     NSMutableArray *_dbRowForAlbum;
     NSMutableIndexSet *_albumIndexes;
     
@@ -56,6 +57,9 @@
     
     NSCell *_cachedNowPlayingCell;
     NSCell *_cachedNowPlayingHeaderCell;
+    
+    PRNowPlayingListDescription *_listDescription;
+    PRNowPlayingDescription *_nowPlayingDescription;
 }
 
 #pragma mark - Initialization
@@ -65,9 +69,7 @@
     _parentItems = [[NSMutableDictionary alloc] init];
     _childItems = [[NSMutableDictionary alloc] init];
     _core = core;
-    db = [core db];
-    now = [core now];
-    win = [core win];
+    _db = [core db];
     return self;
 }
 
@@ -89,23 +91,23 @@
     [[self view] addSubview:scrollview];
     
     NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:@"column"];
-    nowPlayingTableView = [[PROutlineView alloc] initWithFrame:[scrollview bounds]];
-    [nowPlayingTableView setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
-    [nowPlayingTableView setFocusRingType:NSFocusRingTypeNone];
-    [nowPlayingTableView setBackgroundColor:[NSColor transparent]];
-    [nowPlayingTableView setHeaderView:nil];
-    [nowPlayingTableView setAllowsMultipleSelection:YES];
-    [nowPlayingTableView setDoubleAction:@selector(play)];
-    [nowPlayingTableView setIntercellSpacing:NSMakeSize(0, 0)];
-    [nowPlayingTableView setTarget:self];
-    [nowPlayingTableView setDataSource:self];
-    [nowPlayingTableView setDelegate:self]; 
-    [nowPlayingTableView registerForDraggedTypes:@[PRFilePboardType]];
-    [nowPlayingTableView setVerticalMotionCanBeginDrag:NO];
-    [nowPlayingTableView setAutoresizesOutlineColumn:NO];
-    [nowPlayingTableView addTableColumn:column];
-    [nowPlayingTableView setOutlineTableColumn:column];
-    [scrollview setDocumentView:nowPlayingTableView];
+    _nowPlayingTableView = [[PROutlineView alloc] initWithFrame:[scrollview bounds]];
+    [_nowPlayingTableView setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+    [_nowPlayingTableView setFocusRingType:NSFocusRingTypeNone];
+    [_nowPlayingTableView setBackgroundColor:[NSColor transparent]];
+    [_nowPlayingTableView setHeaderView:nil];
+    [_nowPlayingTableView setAllowsMultipleSelection:YES];
+    [_nowPlayingTableView setDoubleAction:@selector(play)];
+    [_nowPlayingTableView setIntercellSpacing:NSMakeSize(0, 0)];
+    [_nowPlayingTableView setTarget:self];
+    [_nowPlayingTableView setDataSource:self];
+    [_nowPlayingTableView setDelegate:self]; 
+    [_nowPlayingTableView registerForDraggedTypes:@[PRFilePboardType]];
+    [_nowPlayingTableView setVerticalMotionCanBeginDrag:NO];
+    [_nowPlayingTableView setAutoresizesOutlineColumn:NO];
+    [_nowPlayingTableView addTableColumn:column];
+    [_nowPlayingTableView setOutlineTableColumn:column];
+    [scrollview setDocumentView:_nowPlayingTableView];
     
     // header view
     _headerView = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 50, 30)];
@@ -134,11 +136,11 @@
     _contextMenu = [[NSMenu alloc] init];
     [_contextMenu setDelegate:self];
     [_contextMenu setAutoenablesItems:NO];
-    [nowPlayingTableView setMenu:_contextMenu];
+    [_nowPlayingTableView setMenu:_contextMenu];
     
     // key views
-    [[self firstKeyView] setNextKeyView:nowPlayingTableView];
-    [nowPlayingTableView setNextKeyView:[self lastKeyView]];
+    [[self firstKeyView] setNextKeyView:_nowPlayingTableView];
+    [_nowPlayingTableView setNextKeyView:[self lastKeyView]];
     
     // update
     [self menuNeedsUpdate:_playlistMenu];
@@ -146,13 +148,13 @@
     
     // restore collapse state
     NSIndexSet *collapseState = [[PRDefaults sharedDefaults] valueForKey:PRDefaultsNowPlayingCollapseState];
-    [nowPlayingTableView collapseItem:nil];
-    if ([collapseState lastIndex] < [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil]) {
+    [_nowPlayingTableView collapseItem:nil];
+    if ([collapseState lastIndex] < [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil]) {
         [collapseState enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
-            [nowPlayingTableView expandItem:[self itemForItem:@[[NSNumber numberWithInt:idx]]]];
+            [_nowPlayingTableView expandItem:[self itemForItem:@[[NSNumber numberWithInt:idx]]]];
         }];
     } else {
-        [nowPlayingTableView expandItem:[self itemForItem:@[@0]]];
+        [_nowPlayingTableView expandItem:[self itemForItem:@[@0]]];
     }
     
     // notifications
@@ -168,31 +170,21 @@
 
 #pragma mark - Action
 
-- (void)clearPlaylist {
-    int count = [[db playlists] countForList:[now currentList]];
-    if (count == 1 || [now currentIndex] == 0) {
-        // if nothing playing or count == 1, clear playlist
-        [now stop];
-        [[db playlists] clearList:[now currentList]];
-    } else {
-        // otherwise delete all previous songs
-        [[db playlists] clearList:[now currentList] exceptIndex:[now currentIndex]];
-    }
-    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
-    [nowPlayingTableView expandItem:nil];
+- (void)collapseAll {
+    [_nowPlayingTableView expandItem:nil];
 }
 
 - (void)higlightPlayingFile {
-    if (![now currentItem]) {
+    if (![_nowPlayingDescription currentItem]) {
         return;
     }
-    id currentItem = [self itemForDbRow:[now currentIndex]];
+    id currentItem = [self itemForDbRow:[_nowPlayingDescription currentIndex]];
     NSArray *parentItem = [self itemForItem:@[[currentItem objectAtIndex:0]]];
-    if (![nowPlayingTableView isItemExpanded:parentItem]) {
-        [nowPlayingTableView collapseItem:nil];
+    if (![_nowPlayingTableView isItemExpanded:parentItem]) {
+        [_nowPlayingTableView collapseItem:nil];
     }
-    [nowPlayingTableView expandItem:parentItem];
-    [nowPlayingTableView scrollRowToVisiblePretty:[nowPlayingTableView rowForItem:currentItem]];
+    [_nowPlayingTableView expandItem:parentItem];
+    [_nowPlayingTableView scrollRowToVisiblePretty:[_nowPlayingTableView rowForItem:currentItem]];
 }
 
 - (void)addItems:(NSArray *)items atIndex:(int)index {
@@ -202,14 +194,14 @@
     
     NSMutableArray *beforeArray = [NSMutableArray array];
     NSMutableArray *afterArray = [NSMutableArray array];
-    int albumCount = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
+    int albumCount = [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil];
     for (int i = 0; i < albumCount; i++) {
         NSArray *item = [self itemForItem:[NSArray arrayWithObjects:[NSNumber numberWithInt:i], nil]];
         NSRange range = [self dbRangeForParentItem:item];
         if (range.location == dbRow) {
             break;
         }
-        [beforeArray addObject:[NSNumber numberWithBool:[nowPlayingTableView isItemExpanded:item]]];
+        [beforeArray addObject:[NSNumber numberWithBool:[_nowPlayingTableView isItemExpanded:item]]];
         if (NSLocationInRange(dbRow, range)) {
             break;
         }
@@ -217,7 +209,7 @@
     if (dbRow <= [self dbRowCount]) {
         for (int i = albumCount - 1; i >= 0 ; i--) {
             NSArray *item = [self itemForItem:[NSArray arrayWithObjects:[NSNumber numberWithInt:i], nil]];
-            [afterArray addObject:[NSNumber numberWithBool:[nowPlayingTableView isItemExpanded:item]]];
+            [afterArray addObject:[NSNumber numberWithBool:[_nowPlayingTableView isItemExpanded:item]]];
             NSRange range = [self dbRangeForParentItem:item];
             if (NSLocationInRange(dbRow, range)) {
                 break;
@@ -228,63 +220,66 @@
     // Checks if adding single album
     BOOL singleAlbum = YES;
     if ([files count] > 1) {
-        NSString *artist = [[db library] artistValueForItem:[files objectAtIndex:0]];
-        NSString *album = [[db library] valueForItem:[files objectAtIndex:0] attr:PRItemAttrAlbum];
+        NSString *artist = [[_db library] artistValueForItem:[files objectAtIndex:0]];
+        NSString *album = [[_db library] valueForItem:[files objectAtIndex:0] attr:PRItemAttrAlbum];
         for (NSNumber *i in files) {
-            NSString *nextArtist = [[db library] artistValueForItem:i];
-            NSString *nextAlbum = [[db library] valueForItem:i attr:PRItemAttrAlbum];
+            NSString *nextArtist = [[_db library] artistValueForItem:i];
+            NSString *nextAlbum = [[_db library] valueForItem:i attr:PRItemAttrAlbum];
             if (![artist isEqualToString:nextArtist] || ![album isEqualToString:nextAlbum]) {
                 singleAlbum = NO;
             }
         }
     }
     
-    [[db playlists] addItems:files atIndex:dbRow toList:[now currentList]];
-    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
-    [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
-    [nowPlayingTableView collapseItem:nil];
+    [[_db playlists] addItems:files atIndex:dbRow toList:[_nowPlayingDescription currentList]];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[_nowPlayingDescription currentList]];
     
-    albumCount = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
+    [_nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
+    [_nowPlayingTableView collapseItem:nil];
+    
+    albumCount = [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil];
     for (int i = 0; i < [beforeArray count]; i++) {
         id item = [self itemForItem:@[[NSNumber numberWithInt:i]]];
         if ([[beforeArray objectAtIndex:i] boolValue]) {
-            [nowPlayingTableView expandItem:item];
+            [_nowPlayingTableView expandItem:item];
         } else {
-            [nowPlayingTableView collapseItem:item];
+            [_nowPlayingTableView collapseItem:item];
         }
     }
     for (int i = 0; i < [afterArray count]; i++) {
         id item = [self itemForItem:@[[NSNumber numberWithInt:albumCount - i - 1]]];
         if ([[afterArray objectAtIndex:i] boolValue]) {
-            [nowPlayingTableView expandItem:item];
+            [_nowPlayingTableView expandItem:item];
         } else {
-            [nowPlayingTableView collapseItem:item];
+            [_nowPlayingTableView collapseItem:item];
         }
     }
     
     if (singleAlbum) {
         id item = [self itemForItem:@[[NSNumber numberWithInt:[beforeArray count]]]];
-        [nowPlayingTableView expandItem:item];
+        [_nowPlayingTableView expandItem:item];
     }
 }
 
 #pragma mark - Action Priv
 
-- (void)playItem:(id)item {
-    [now playItemAtIndex:[self dbRowForItem:item]];
+- (void)clearPlaylist {
+    [PRActionCenter performAction:[[PRClearNowPlayingAction alloc] init]];
 }
 
 - (void)playSelected {
-    if ([[self selectedDbRows] count] == 0) {
-        return;
+    NSIndexSet *selected = [self selectedDbRows];
+    if ([selected count] != 0) {
+        PRPlayItemAtIndexAction *action = [[PRPlayItemAtIndexAction alloc] init];
+        [action setIndex:[selected firstIndex]];
+        [PRActionCenter performAction:action];
     }
-    [now playItemAtIndex:[[self selectedDbRows] firstIndex]];
 }
 
 - (void)removeSelected {
     NSIndexSet *dbRows = [self selectedDbRows];
     
-    int albumCount = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
+    int albumCount = [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil];
     NSMutableArray *array = [NSMutableArray array];
     BOOL prevAlbumMissing = NO;
     for (int i = 0; i < albumCount; i++) {
@@ -294,14 +289,14 @@
             prevAlbumMissing = YES;
             continue;
         } else {
-            PRItem *item_ = [[db playlists] itemAtIndex:range.location forList:[now currentList]];
-            NSString *artist = [[db library] valueForItem:item_ attr:PRItemAttrArtist];
-            NSString *album = [[db library] valueForItem:item_ attr:PRItemAttrAlbum];
+            PRItem *item_ = [[_db playlists] itemAtIndex:range.location forList:[_nowPlayingDescription currentList]];
+            NSString *artist = [[_db library] valueForItem:item_ attr:PRItemAttrArtist];
+            NSString *album = [[_db library] valueForItem:item_ attr:PRItemAttrAlbum];
             NSString *prevArtist = [[array lastObject] objectForKey:@"artist"];
             NSString *prevAlbum = [[array lastObject] objectForKey:@"album"];
             if (!(prevAlbumMissing && [artist noCaseCompare:prevArtist] == NSOrderedSame && [album noCaseCompare:prevAlbum] == NSOrderedSame)) {
                 NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      [NSNumber numberWithBool:[nowPlayingTableView isItemExpanded:item]], @"expanded", 
+                                      [NSNumber numberWithBool:[_nowPlayingTableView isItemExpanded:item]], @"expanded", 
                                       artist, @"artist",
                                       album, @"album", nil];
                 [array addObject:info];
@@ -310,41 +305,48 @@
         }
     }
     
-    if ([dbRows containsIndex:[now currentIndex]]) {
-        [now stop];
+    if ([dbRows containsIndex:[_nowPlayingDescription currentIndex]]) {
+        [PRActionCenter performAction:[[PRStopAction alloc] init]];
     }
-    [[db playlists] removeItemsAtIndexes:dbRows fromList:[now currentList]];
-    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
-    [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
+    [[_db playlists] removeItemsAtIndexes:dbRows fromList:[_nowPlayingDescription currentList]];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[_nowPlayingDescription currentList]];
+    [_nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
     
     for (int i = 0; i < [array count]; i++) {
         if ([[[array objectAtIndex:i] objectForKey:@"expanded"] boolValue]) {
-            [nowPlayingTableView expandItem:[self itemForItem:@[[NSNumber numberWithInt:i]]]];
+            [_nowPlayingTableView expandItem:[self itemForItem:@[[NSNumber numberWithInt:i]]]];
         } else {
-            [nowPlayingTableView collapseItem:[self itemForItem:@[[NSNumber numberWithInt:i]]]];
+            [_nowPlayingTableView collapseItem:[self itemForItem:@[[NSNumber numberWithInt:i]]]];
         }
     }
 }
 
 - (void)revealSelectedInFinder {
-    NSIndexSet *dbRows = [self selectedDbRows];
-    if ([dbRows count] == 0) {
-        return;
-    }
-    PRItem *item = [[db playlists] itemAtIndex:[dbRows firstIndex] forList:[now currentList]];
-    NSString *path = [[db library] valueForItem:item attr:PRItemAttrPath];
-    [[NSWorkspace sharedWorkspace] selectFile:[[NSURL URLWithString:path] path] inFileViewerRootedAtPath:nil];
+    NSMutableArray *array = [NSMutableArray array];
+    [[self selectedDbRows] enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+        [array addObject:[_listDescription itemAtIndex:idx-1]];
+    }];
+    
+    [PRActionCenter performAction:[PRBlockAction blockActionWithBlock:^(PRCore *core) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSString *path = [[[core db] library] valueForItem:array[0] attr:PRItemAttrPath];
+            [[NSWorkspace sharedWorkspace] selectFile:[[NSURL URLWithString:path] path] inFileViewerRootedAtPath:nil];
+        });
+    }]];
 }
 
 - (void)showSelectedInLibrary {
     NSIndexSet *dbRows = [self selectedDbRows];
-    if ([dbRows count] == 0) {
-        return;
+    if ([dbRows count] != 0) {
+        NSMutableArray *items = [NSMutableArray array];
+        [dbRows enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+            [items addObject:[_listDescription itemAtIndex:idx-1]];
+        }];
+        
+        PRHighlightItemsAction *action = [[PRHighlightItemsAction alloc] init];
+        [action setItems:items];
+        [PRActionCenter performAction:action];
     }
-    PRItem *item = [[db playlists] itemAtIndex:[dbRows firstIndex] forList:[now currentList]];
-    [win setCurrentMode:PRLibraryMode];
-    [[win libraryViewController] setCurrentList:[[db playlists] libraryList]];
-    [[[win libraryViewController] currentViewController] highlightItem:item];
 }
 
 - (void)addSelectedToQueue {
@@ -352,8 +354,8 @@
     NSIndexSet *dbRows = [self selectedDbRows];
     NSInteger dbRow = [dbRows firstIndex];
     while (dbRow != NSNotFound) {
-        if (dbRow != [now currentIndex]) {
-            [[db queue] appendListItem:[[db playlists] listItemAtIndex:dbRow inList:[now currentList]]];
+        if (dbRow != [_nowPlayingDescription currentIndex]) {
+            [[_db queue] appendListItem:[[_db playlists] listItemAtIndex:dbRow inList:[_nowPlayingDescription currentList]]];
         }
         dbRow = [dbRows indexGreaterThanIndex:dbRow];
     }
@@ -363,90 +365,103 @@
     NSIndexSet *dbRows = [self selectedDbRows];
     NSInteger dbRow = [dbRows firstIndex];
     while (dbRow != NSNotFound) {
-        [[db queue] removeListItem:[[db playlists] listItemAtIndex:dbRow inList:[now currentList]]];
+        [[_db queue] removeListItem:[[_db playlists] listItemAtIndex:dbRow inList:[_nowPlayingDescription currentList]]];
         dbRow = [dbRows indexGreaterThanIndex:dbRow];
     }
 }
 
 - (void)clearQueue {
-    [[db queue] clear];
+    [PRActionCenter performAction:[PRBlockAction blockActionWithBlock:^(PRCore *core) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[[core db] queue] clear];
+        });
+    }]];
 }
 
 #pragma mark - Action Mouse Priv
 
 - (void)play {
-    if ([nowPlayingTableView clickedRow] == -1) {
+    if ([_nowPlayingTableView clickedRow] == -1) {
         return;
     }
-    id item = [nowPlayingTableView itemAtRow:[nowPlayingTableView clickedRow]];
-    [self playItem:item];
-    int row = [nowPlayingTableView rowForItem:item];
-    [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+    id item = [_nowPlayingTableView itemAtRow:[_nowPlayingTableView clickedRow]];
+    NSInteger row = [self dbRowForItem:item];
+    
+    [PRActionCenter performAction:[PRBlockAction blockActionWithBlock:^(PRCore *core) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[core now] playItemAtIndex:row];
+        });
+        dispatch_async(dispatch_get_main_queue(), ^{
+            int row = [_nowPlayingTableView rowForItem:item];
+            [_nowPlayingTableView selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+        });
+    }]];
 }
 
 #pragma mark - Action Menu Priv
 
 - (void)saveAsNewPlaylist:(id)sender {
-    [[win playlistsViewController] duplicatePlaylist:[[now currentList] intValue]];
+    PRDuplicatePlaylistAction *action = [[PRDuplicatePlaylistAction alloc] init];
+    [action setList:[_nowPlayingDescription currentList]];
+    [PRActionCenter performAction:action];
 }
 
 - (void)saveAsPlaylist:(id)sender {
-    int playlist = [[sender representedObject] intValue];
-    NSString *title = [[db playlists] titleForList:[NSNumber numberWithInt:playlist]];
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:@"Save"];
-    [alert addButtonWithTitle:@"Cancel"];
-    [alert setMessageText:[NSString stringWithFormat:@"Are you sure you want to save this as \"%@\"?", title]];
-    [alert setInformativeText:@"Existing playlist contents will be removed."];
-    [alert setAlertStyle:NSWarningAlertStyle];
+    // int playlist = [[sender representedObject] intValue];
+    // NSString *title = [[_db playlists] titleForList:[NSNumber numberWithInt:playlist]];
+    // NSAlert *alert = [[NSAlert alloc] init];
+    // [alert addButtonWithTitle:@"Save"];
+    // [alert addButtonWithTitle:@"Cancel"];
+    // [alert setMessageText:[NSString stringWithFormat:@"Are you sure you want to save this as \"%@\"?", title]];
+    // [alert setInformativeText:@"Existing playlist contents will be removed."];
+    // [alert setAlertStyle:NSWarningAlertStyle];
     
-    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(saveAsPlaylistHandler:code:context:) contextInfo:(__bridge_retained void *)@(playlist)];
+    // [alert beginSheetModalForWindow:[[self view] window] modalDelegate:self didEndSelector:@selector(saveAsPlaylistHandler:code:context:) contextInfo:(__bridge_retained void *)@(playlist)];
 }
 
 - (void)saveAsPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context {
-    PRList *list = (__bridge_transfer PRList *)context;
-    if (code != NSAlertFirstButtonReturn) {
-        return;
-    }
-    [[db playlists] clearList:list];
-    [[db playlists] copyItemsFromList:[now currentList] toList:list];
-    [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
+    // PRList *list = (__bridge_transfer PRList *)context;
+    // if (code != NSAlertFirstButtonReturn) {
+    //     return;
+    // }
+    // [[_db playlists] clearList:list];
+    // [[_db playlists] copyItemsFromList:[_nowPlayingDescription currentList] toList:list];
+    // [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
 }
 
 - (void)addToPlaylist:(id)sender {
-    PRList *list = [sender representedObject];
-    NSIndexSet *dbRows = [self selectedDbRows];
-    NSInteger dbRow = [dbRows firstIndex];
-    while (dbRow != NSNotFound) {
-        [[db playlists] appendItem:[[db playlists] itemAtIndex:dbRow forList:[now currentList]] toList:list];
-        dbRow = [dbRows indexGreaterThanIndex:dbRow];
-    }
-    [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
+    // PRList *list = [sender representedObject];
+    // NSIndexSet *dbRows = [self selectedDbRows];
+    // NSInteger dbRow = [dbRows firstIndex];
+    // while (dbRow != NSNotFound) {
+    //     [[_db playlists] appendItem:[[_db playlists] itemAtIndex:dbRow forList:[_nowPlayingDescription currentList]] toList:list];
+    //     dbRow = [dbRows indexGreaterThanIndex:dbRow];
+    // }
+    // [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
 }
 
 #pragma mark - Update Priv
 
 - (void)updateTableView {
-    // refresh nowPlayingViewSource
-    [[db nowPlayingViewSource] refresh];
+    _listDescription = [[PRNowPlayingListDescription alloc] initWithList:[[_db playlists] nowPlayingList] database:_db];
+    _nowPlayingDescription = [[_core now] description];
     
     // refresh tableIndexes
     [_parentItems removeAllObjects];
     [_childItems removeAllObjects];
     
-    _albumCounts = [[db nowPlayingViewSource] albumCounts];
     _dbRowForAlbum = [NSMutableArray array];
     _albumIndexes = [NSMutableIndexSet indexSet];
     
     int dbRow = 1;
     [_dbRowForAlbum addObject:[NSNumber numberWithInt:dbRow]];
     [_albumIndexes addIndex:dbRow];
-    for (int album = 0; album < [_albumCounts count]; album++) {
-        dbRow += [[_albumCounts objectAtIndex:album] intValue];
+    for (int album = 0; album < [[_listDescription albumCounts] count]; album++) {
+        dbRow += [[[_listDescription albumCounts] objectAtIndex:album] intValue];
         [_dbRowForAlbum addObject:[NSNumber numberWithInt:dbRow]];
         [_albumIndexes addIndex:dbRow];
     }
-    [nowPlayingTableView reloadData];
+    [_nowPlayingTableView reloadData];
 }
 
 - (void)playlistMenuNeedsUpdate {
@@ -466,12 +481,12 @@
     [menuItem setImage:[NSImage imageNamed:@"Add"]];
     [menu addItem:menuItem];
     
-    NSArray *playlistArray = [[db playlists] lists];
+    NSArray *playlistArray = [[_db playlists] lists];
     for (NSNumber *i in playlistArray) {
-        if (![[[db playlists] typeForList:i] isEqual:PRListTypeStatic]) {
+        if (![[[_db playlists] typeForList:i] isEqual:PRListTypeStatic]) {
             continue;
         }
-        NSString *playlistTitle = [NSString stringWithFormat:@" %@", [[db playlists] titleForList:i]];
+        NSString *playlistTitle = [NSString stringWithFormat:@" %@", [[_db playlists] titleForList:i]];
         menuItem = [[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(saveAsPlaylist:) keyEquivalent:@""];
         [menuItem setRepresentedObject:i];
         [menuItem setImage:[NSImage imageNamed:@"ListViewTemplate"]];
@@ -487,7 +502,7 @@
     for (NSMenuItem *i in [_contextMenu itemArray]) {
         [_contextMenu removeItem:i];
     }
-    if ([nowPlayingTableView clickedRow] == -1) {
+    if ([_nowPlayingTableView clickedRow] == -1) {
         return;
     }
     unichar c[1] = {NSCarriageReturnCharacter};
@@ -504,11 +519,11 @@
     BOOL addToQueue = NO;
     BOOL removeFromQueue = NO;
     
-    NSArray *queue = [[db queue] queueArray];
+    NSArray *queue = [[_db queue] queueArray];
     NSIndexSet *dbRows = [self selectedDbRows];
     NSInteger dbRow = [dbRows firstIndex];
     while (dbRow != NSNotFound) {
-        PRListItem *listItem = [[db playlists] listItemAtIndex:dbRow inList:[now currentList]];
+        PRListItem *listItem = [[_db playlists] listItemAtIndex:dbRow inList:[_nowPlayingDescription currentList]];
         if ([queue containsObject:listItem]) {
             removeFromQueue = YES;
         } else {
@@ -539,12 +554,12 @@
     [playlistMenuItem setSubmenu:playlistMenu_];
     [_contextMenu addItem:playlistMenuItem];
     
-    NSArray *playlistArray = [[db playlists] lists];
+    NSArray *playlistArray = [[_db playlists] lists];
     for (NSNumber *i in playlistArray) {
-        if (![[[db playlists] typeForList:i] isEqual:PRListTypeStatic]) {
+        if (![[[_db playlists] typeForList:i] isEqual:PRListTypeStatic]) {
             continue;
         }
-        NSString *playlistTitle = [NSString stringWithFormat:@" %@", [[db playlists] titleForList:i]];
+        NSString *playlistTitle = [NSString stringWithFormat:@" %@", [[_db playlists] titleForList:i]];
         NSMenuItem *tempMenuItem = [[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(addToPlaylist:) keyEquivalent:@""];
         [tempMenuItem setImage:[NSImage imageNamed:@"ListViewTemplate"]];
         [tempMenuItem setRepresentedObject:i];
@@ -570,35 +585,37 @@
 }
 
 - (void)playlistDidChange:(NSNotification *)notification {
-    if ([[[notification userInfo] valueForKey:@"playlist"] isEqual:[now currentList]]) {
+    if ([[[notification userInfo] valueForKey:@"playlist"] isEqual:[_nowPlayingDescription currentList]]) {
         [self updateTableView];
-        [nowPlayingTableView collapseItem:nil];
-        if ([now currentIndex] != 0) {
+        [_nowPlayingTableView collapseItem:nil];
+        if ([_nowPlayingDescription currentIndex] != 0) {
             NSArray *parentItem = [self itemForItem:@[[NSNumber numberWithInt:0]]];
-            [nowPlayingTableView expandItem:parentItem];
+            [_nowPlayingTableView expandItem:parentItem];
         }
     }
 }
 
 - (void)currentFileDidChange:(NSNotification *)notification {
-    [(PROutlineView *)nowPlayingTableView reloadVisibleItems];
-    if ([now currentIndex] != 0) {
-        id currentItem = [self itemForDbRow:[now currentIndex]];
+    _nowPlayingDescription = [[_core now] description];
+    
+    [(PROutlineView *)_nowPlayingTableView reloadVisibleItems];
+    if ([_nowPlayingDescription currentIndex] != 0) {
+        id currentItem = [self itemForDbRow:[_nowPlayingDescription currentIndex]];
         NSArray *parentItem = [self itemForItem:@[[currentItem objectAtIndex:0]]];
-        if (![nowPlayingTableView isItemExpanded:parentItem]) {
-            [nowPlayingTableView collapseItem:nil];
+        if (![_nowPlayingTableView isItemExpanded:parentItem]) {
+            [_nowPlayingTableView collapseItem:nil];
         }
-        [nowPlayingTableView expandItem:parentItem];
-        [nowPlayingTableView scrollRowToVisiblePretty:[nowPlayingTableView rowForItem:currentItem]];
+        [_nowPlayingTableView expandItem:parentItem];
+        [_nowPlayingTableView scrollRowToVisiblePretty:[_nowPlayingTableView rowForItem:currentItem]];
     }
 }
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
     // save collapse state
     NSMutableIndexSet *collapseState = [NSMutableIndexSet indexSet];
-    NSUInteger count = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
+    NSUInteger count = [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil];
     for (NSUInteger i = 0; i < count; i++) {
-        if ([nowPlayingTableView isItemExpanded:[self itemForItem:@[[NSNumber numberWithInt:i]]]]) {
+        if ([_nowPlayingTableView isItemExpanded:[self itemForItem:@[[NSNumber numberWithInt:i]]]]) {
             [collapseState addIndex:i];
         }
     }
@@ -613,7 +630,7 @@
 
 - (NSRange)dbRangeForParentItem:(id)item {
     return NSMakeRange([[_dbRowForAlbum objectAtIndex:[[item objectAtIndex:0] intValue]] intValue], 
-                       [[_albumCounts objectAtIndex:[[item objectAtIndex:0] intValue]] intValue]);
+                       [[[_listDescription albumCounts] objectAtIndex:[[item objectAtIndex:0] intValue]] intValue]);
 }
 
 - (int)dbRowForItem:(id)item {
@@ -627,7 +644,7 @@
 }
 
 - (int)countForAlbum:(int)album {
-    return [[_albumCounts objectAtIndex:album] intValue];
+    return [[[_listDescription albumCounts] objectAtIndex:album] intValue];
 }
 
 - (id)itemForDbRow:(int)row {
@@ -671,10 +688,10 @@
 
 - (NSIndexSet *)selectedDbRows {
     NSMutableIndexSet *selectedDbRows = [NSMutableIndexSet indexSet];
-    NSIndexSet *selectedRowIndexes = [nowPlayingTableView selectedRowIndexes];
+    NSIndexSet *selectedRowIndexes = [_nowPlayingTableView selectedRowIndexes];
     NSInteger selectedRow = [selectedRowIndexes firstIndex];
     while (selectedRow != NSNotFound) {
-        NSArray *item = [nowPlayingTableView itemAtRow:selectedRow];
+        NSArray *item = [_nowPlayingTableView itemAtRow:selectedRow];
         if ([item count] == 2) {
             [selectedDbRows addIndex:[self dbRowForItem:item]];
         } else {
@@ -733,9 +750,9 @@
         return NSDragOperationNone;
     }
     if ([item count] == 1 && 
-        (![nowPlayingTableView isItemExpanded:item] ||
-         index == [[_albumCounts objectAtIndex:[[item objectAtIndex:0] intValue]] intValue])) {
-        [nowPlayingTableView setDropItem:nil dropChildIndex:[[item objectAtIndex:0] intValue] + 1];
+        (![_nowPlayingTableView isItemExpanded:item] ||
+         index == [[[_listDescription albumCounts] objectAtIndex:[[item objectAtIndex:0] intValue]] intValue])) {
+        [_nowPlayingTableView setDropItem:nil dropChildIndex:[[item objectAtIndex:0] intValue] + 1];
     }
     return NSDragOperationGeneric;
 }
@@ -744,7 +761,7 @@
     NSArray *item = item_;
     NSPasteboard *pboard = [info draggingPasteboard];
     NSData *filesData = [pboard dataForType:PRFilePboardType];
-    if ([info draggingSource] == nowPlayingTableView) {
+    if ([info draggingSource] == _nowPlayingTableView) {
         // Moving
         NSIndexSet *dbIndexesToMove = [NSKeyedUnarchiver unarchiveObjectWithData:filesData];
         
@@ -762,7 +779,7 @@
         
         // Calculate collapsed/uncollapsed with dbIndexesToMove removed as tempAlbums
         int location = 1;
-        int albumCount = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
+        int albumCount = [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil];
         NSMutableArray *tempAlbums = [NSMutableArray array];
         NSString *prevArtist = @"";
         NSString *prevAlbum = @"";
@@ -786,9 +803,9 @@
                 prevAlbumMissing = YES;
                 continue;
             }
-            PRListItem *listItem = [[db playlists] itemAtIndex:range.location forList:[now currentList]];
-            NSString *artist = [[db library] valueForItem:listItem attr:PRItemAttrArtist];
-            NSString *album = [[db library] valueForItem:listItem attr:PRItemAttrAlbum];
+            PRListItem *listItem = [[_db playlists] itemAtIndex:range.location forList:[_nowPlayingDescription currentList]];
+            NSString *artist = [[_db library] valueForItem:listItem attr:PRItemAttrArtist];
+            NSString *album = [[_db library] valueForItem:listItem attr:PRItemAttrAlbum];
             BOOL shouldMergeWithPrevAlbum = prevAlbumMissing && [artist noCaseCompare:prevArtist] == NSOrderedSame && [album noCaseCompare:prevAlbum] == NSOrderedSame;
             prevArtist = artist;
             prevAlbum = album;
@@ -799,7 +816,7 @@
                 continue;
             }
             [tempAlbums addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                                   [NSNumber numberWithBool:[nowPlayingTableView isItemExpanded:item]], @"expanded", 
+                                   [NSNumber numberWithBool:[_nowPlayingTableView isItemExpanded:item]], @"expanded", 
                                    [NSValue valueWithRange:NSMakeRange(oldLocation, range.length - [dbIndexesToMove countOfIndexesInRange:range])], @"range", 
                                    [NSNumber numberWithInt:[dbIndexesToMove countOfIndexesInRange:range]], @"missing", nil]];
         }
@@ -829,27 +846,27 @@
         }
         
         // Move dbIndexesToMove to dbIndexToInsert
-        [[db playlists] moveItemsAtIndexes:dbIndexesToMove toIndex:dbIndexToInsert inList:[now currentList]];
-        [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
-        [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
-        [nowPlayingTableView collapseItem:nil];
+        [[_db playlists] moveItemsAtIndexes:dbIndexesToMove toIndex:dbIndexToInsert inList:[_nowPlayingDescription currentList]];
+        [[NSNotificationCenter defaultCenter] postListItemsDidChange:[_nowPlayingDescription currentList]];
+        [_nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
+        [_nowPlayingTableView collapseItem:nil];
         
         // Collapse/uncollapse using beforeArray and afterArray;
-        albumCount = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
+        albumCount = [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil];
         for (int i = 0; i < [beforeArray count]; i++) {
             id item = [self itemForItem:@[[NSNumber numberWithInt:i]]];
             if ([[beforeArray objectAtIndex:i] boolValue]) {
-                [nowPlayingTableView expandItem:item];
+                [_nowPlayingTableView expandItem:item];
             } else {
-                [nowPlayingTableView collapseItem:item];
+                [_nowPlayingTableView collapseItem:item];
             }
         }
         for (int i = 0; i < [afterArray count]; i++) {
             id item = [self itemForItem:@[[NSNumber numberWithInt:albumCount - i - 1]]];
             if ([[afterArray objectAtIndex:i] boolValue]) {
-                [nowPlayingTableView expandItem:item];
+                [_nowPlayingTableView expandItem:item];
             } else {
-                [nowPlayingTableView collapseItem:item];
+                [_nowPlayingTableView collapseItem:item];
             }
         }
     } else {
@@ -866,14 +883,14 @@
         
         NSMutableArray *beforeArray = [NSMutableArray array];
         NSMutableArray *afterArray = [NSMutableArray array];
-        int albumCount = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
+        int albumCount = [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil];
         for (int i = 0; i < albumCount; i++) {
             NSArray *item = [self itemForItem:[NSArray arrayWithObjects:[NSNumber numberWithInt:i], nil]];
             NSRange range = [self dbRangeForParentItem:item];
             if (range.location == dbRow) {
                 break;
             }
-            [beforeArray addObject:[NSNumber numberWithBool:[nowPlayingTableView isItemExpanded:item]]];
+            [beforeArray addObject:[NSNumber numberWithBool:[_nowPlayingTableView isItemExpanded:item]]];
             if (NSLocationInRange(dbRow, range)) {
                 break;
             }
@@ -881,7 +898,7 @@
         if (dbRow <= [self dbRowCount]) {
             for (int i = albumCount - 1; i >= 0 ; i--) {
                 NSArray *item = [self itemForItem:[NSArray arrayWithObjects:[NSNumber numberWithInt:i], nil]];
-                [afterArray addObject:[NSNumber numberWithBool:[nowPlayingTableView isItemExpanded:item]]];
+                [afterArray addObject:[NSNumber numberWithBool:[_nowPlayingTableView isItemExpanded:item]]];
                 NSRange range = [self dbRangeForParentItem:item];
                 if (NSLocationInRange(dbRow, range)) {
                     break;
@@ -892,43 +909,43 @@
         // Checks if adding single album
         BOOL singleAlbum = YES;
         if ([files count] > 1) {
-            NSString *artist = [[db library] artistValueForItem:[files objectAtIndex:0]];
-            NSString *album = [[db library] valueForItem:[files objectAtIndex:0] attr:PRItemAttrAlbum];
+            NSString *artist = [[_db library] artistValueForItem:[files objectAtIndex:0]];
+            NSString *album = [[_db library] valueForItem:[files objectAtIndex:0] attr:PRItemAttrAlbum];
             for (NSNumber *i in files) {
-                NSString *nextArtist = [[db library] artistValueForItem:i];
-                NSString *nextAlbum = [[db library] valueForItem:i attr:PRItemAttrAlbum];
+                NSString *nextArtist = [[_db library] artistValueForItem:i];
+                NSString *nextAlbum = [[_db library] valueForItem:i attr:PRItemAttrAlbum];
                 if (![artist isEqualToString:nextArtist] || ![album isEqualToString:nextAlbum]) {
                     singleAlbum = NO;
                 }
             }
         }
         
-        [[db playlists] addItems:files atIndex:dbRow toList:[now currentList]];
-        [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
-        [nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
-        [nowPlayingTableView collapseItem:nil];
+        [[_db playlists] addItems:files atIndex:dbRow toList:[_nowPlayingDescription currentList]];
+        [[NSNotificationCenter defaultCenter] postListItemsDidChange:[_nowPlayingDescription currentList]];
+        [_nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
+        [_nowPlayingTableView collapseItem:nil];
         
-        albumCount = [self outlineView:nowPlayingTableView numberOfChildrenOfItem:nil];
+        albumCount = [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil];
         for (int i = 0; i < [beforeArray count]; i++) {
             id item = [self itemForItem:@[[NSNumber numberWithInt:i]]];
             if ([[beforeArray objectAtIndex:i] boolValue]) {
-                [nowPlayingTableView expandItem:item];
+                [_nowPlayingTableView expandItem:item];
             } else {
-                [nowPlayingTableView collapseItem:item];
+                [_nowPlayingTableView collapseItem:item];
             }
         }
         for (int i = 0; i < [afterArray count]; i++) {
             id item = [self itemForItem:@[[NSNumber numberWithInt:albumCount - i - 1]]];
             if ([[afterArray objectAtIndex:i] boolValue]) {
-                [nowPlayingTableView expandItem:item];
+                [_nowPlayingTableView expandItem:item];
             } else {
-                [nowPlayingTableView collapseItem:item];
+                [_nowPlayingTableView collapseItem:item];
             }
         }
         
         if (singleAlbum) {
             id item = [self itemForItem:@[[NSNumber numberWithInt:[beforeArray count]]]];
-            [nowPlayingTableView expandItem:item];
+            [_nowPlayingTableView expandItem:item];
         }
     }
     return YES;
@@ -936,7 +953,7 @@
 
 - (void)draggedImage:(NSImage *)anImage endedAt:(NSPoint)aPoint operation:(NSDragOperation)operation {
     [[NSCursor arrowCursor] set];
-    if (operation == 0 && !NSMouseInRect([nowPlayingTableView convertPointFromBase:[[nowPlayingTableView window] convertScreenToBase:dropPoint]], [nowPlayingTableView bounds], YES)) {
+    if (operation == 0 && !NSMouseInRect([_nowPlayingTableView convertPointFromBase:[[_nowPlayingTableView window] convertScreenToBase:dropPoint]], [_nowPlayingTableView bounds], YES)) {
         NSShowAnimationEffect(NSAnimationEffectDisappearingItemDefault, dropPoint, NSZeroSize, nil, nil, nil);
         [self removeSelected];
     }
@@ -944,7 +961,7 @@
 
 - (void)draggedImage:(NSImage *)anImage movedTo:(NSPoint)point {
     dropPoint = [NSEvent mouseLocation];
-    if (!NSMouseInRect([nowPlayingTableView convertPointFromBase:[[nowPlayingTableView window] convertScreenToBase:dropPoint]], [nowPlayingTableView bounds], YES)) {
+    if (!NSMouseInRect([_nowPlayingTableView convertPointFromBase:[[_nowPlayingTableView window] convertScreenToBase:dropPoint]], [_nowPlayingTableView bounds], YES)) {
         [[NSCursor disappearingItemCursor] set];
     } else {
         [[NSCursor arrowCursor] set];
@@ -962,9 +979,9 @@
 
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
     if (!item) {
-        return [_albumCounts count];
+        return [[_listDescription albumCounts] count];
     } else if ([(NSArray *)item count] == 1) {
-        return [[_albumCounts objectAtIndex:[[item objectAtIndex:0] intValue]] intValue];
+        return [[[_listDescription albumCounts] objectAtIndex:[[item objectAtIndex:0] intValue]] intValue];
     } else {
         return 0;
     }
@@ -973,38 +990,38 @@
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item {
     if ([(NSArray *)item count] == 1) {
         int row = [self dbRowForItem:item];
-        PRItem *it = [[db nowPlayingViewSource] itemForRow:row];
-        NSString *album =  [[db library] valueForItem:it attr:PRItemAttrAlbum];
-        NSString *artist = [[db library] valueForItem:it attr:PRItemAttrArtist];
+        PRItem *it = [_listDescription itemAtIndex:row-1];
+        NSString *album =  [[_db library] valueForItem:it attr:PRItemAttrAlbum];
+        NSString *artist = [[_db library] valueForItem:it attr:PRItemAttrArtist];
         if ([artist isEqualToString:@""]) {
             artist = @"Unknown Artist";
         }
         if ([album isEqualToString:@""]) {
             album = @"Unknown Album";
         }
-        if ([[[db library] valueForItem:it attr:PRItemAttrCompilation] boolValue] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]) {
+        if ([[[_db library] valueForItem:it attr:PRItemAttrCompilation] boolValue] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]) {
             artist = @"Compilation";
         }
-        NSNumber *drawBorder = [NSNumber numberWithBool:[[item objectAtIndex:0] intValue] + 1 == [_albumCounts count] || [nowPlayingTableView isItemExpanded:item]];
+        NSNumber *drawBorder = [NSNumber numberWithBool:[[item objectAtIndex:0] intValue] + 1 == [[_listDescription albumCounts] count] || [_nowPlayingTableView isItemExpanded:item]];
         return @{@"title":artist, @"subtitle":album, @"item":item, @"drawBorder":drawBorder, @"target":self};
     } else {
         int row = [self dbRowForItem:item];
-        PRItem *it = [[db nowPlayingViewSource] itemForRow:row];
-        NSString *title = [[db library] valueForItem:it attr:PRItemAttrTitle];
+        PRItem *it = [_listDescription itemAtIndex:row-1];
+        NSString *title = [[_db library] valueForItem:it attr:PRItemAttrTitle];
         NSImage *icon;
         NSImage *invertedIcon;
-        if ([now currentIndex] == row) {
+        if ([_nowPlayingDescription currentIndex] == row) {
             icon = [NSImage imageNamed:@"PRSpeakerIcon"];
             invertedIcon = [NSImage imageNamed:@"PRLightSpeakerIcon"];
-        } else if ([[now invalidItems] containsObject:it]) {
+        } else if ([[_nowPlayingDescription invalidItems] containsObject:it]) {
             icon = [NSImage imageNamed:@"Exclamation Point"];
             invertedIcon = [NSImage imageNamed:@"Exclamation Point"];
         } else {
             icon = [[NSImage alloc] init];
             invertedIcon = [[NSImage alloc] init];
         }
-        PRListItem *listItem = [[db playlists] listItemAtIndex:row inList:[now currentList]];
-        NSUInteger queueIndex = [[[db queue] queueArray] indexOfObject:listItem];
+        PRListItem *listItem = [[_db playlists] listItemAtIndex:row inList:[_nowPlayingDescription currentList]];
+        NSUInteger queueIndex = [[[_db queue] queueArray] indexOfObject:listItem];
         NSNumber *badge;
         if (queueIndex != NSNotFound) {
             badge = @(queueIndex + 1);
@@ -1044,10 +1061,10 @@
         }
     } else if (flags == (NSNumericPadKeyMask | NSFunctionKeyMask)) {
         if (c == 0xf703) {
-            [[_core now] playNext];
+            [PRActionCenter performAction:[[PRPlayNextAction alloc] init]];
             didHandle = YES;
         } else if (c == 0xf702) {
-            [[_core now] playPrevious];
+            [PRActionCenter performAction:[[PRPlayPreviousAction alloc] init]];
             didHandle = YES;
         }
     }

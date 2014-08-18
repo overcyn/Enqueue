@@ -8,7 +8,6 @@
 - (id)initWithCore:(PRCore *)core;
 
 /* Action */
-- (void)clearPlaylist;
 - (void)higlightPlayingFile;
 - (void)addItems:(NSArray *)items atIndex:(int)index;
 

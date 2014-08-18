@@ -1,18 +1,20 @@
 #import "PRMainMenuController.h"
-#import "PRCore.h"
-#import "PRNowPlayingController.h"
-#import "PRMainWindowController.h"
-#import "PRLibraryViewController.h"
-#import "PRTableViewController.h"
-#import "PRPlaylistsViewController.h"
-#import "PRControlsViewController.h"
-#import "PRNowPlayingController.h"
-#import "PRNowPlayingViewController.h"
-#import "PRMoviePlayer.h"
-#import "PRFolderMonitor.h"
 #import "NSWindow+Extensions.h"
+#import "PRAction.h"
+#import "PRActionCenter.h"
+#import "PRControlsViewController.h"
+#import "PRCore.h"
+#import "PRFolderMonitor.h"
 #import "PRFullRescanOperation.h"
 #import "PRLibrary.h"
+#import "PRLibraryViewController.h"
+#import "PRMainWindowController.h"
+#import "PRMoviePlayer.h"
+#import "PRNowPlayingController.h"
+#import "PRNowPlayingController.h"
+#import "PRNowPlayingViewController.h"
+#import "PRPlaylistsViewController.h"
+#import "PRTableViewController.h"
 
 
 @implementation PRMainMenuController
@@ -248,7 +250,7 @@
 }
 
 - (void)clearNowPlaying {
-    [[[core win] nowPlayingViewController] clearPlaylist];
+    [PRActionCenter performAction:[[PRClearNowPlayingAction alloc] init]];
 }
 
 - (void)viewAsList {

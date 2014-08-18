@@ -4,8 +4,13 @@
 
 
 @interface PRListDescription : NSObject
-+ (PRListDescription *)listDescriptionForList:(PRList *)list database:(PRDb *)db;
-- (PRList *)list;
-- (NSInteger)count;
+- (id)initWithList:(PRList *)list database:(PRDb *)db;
+@property (nonatomic, readonly) PRList *list;
+@property (nonatomic, readonly) NSInteger count;
 - (PRItem *)itemAtIndex:(NSInteger)index;
+@end
+
+
+@interface PRNowPlayingListDescription : PRListDescription
+@property (nonatomic, readonly) NSArray *albumCounts;
 @end

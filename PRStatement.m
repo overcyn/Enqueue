@@ -4,7 +4,6 @@
 
 
 @interface PRStatement ()
-- (NSArray *)execute_:(BOOL)crash;
 @end
 
 
@@ -110,16 +109,16 @@
 #pragma mark - Action
 
 - (NSArray *)execute {
-    return [self execute_:YES];
+    return [self _execute:YES];
 }
 
 - (NSArray *)attempt {
-    return [self execute_:NO];
+    return [self _execute:NO];
 }
 
 #pragma mark - action
 
-- (NSArray *)execute_:(BOOL)crash {
+- (NSArray *)_execute:(BOOL)crash {
 //    if (![NSThread isMainThread]) {
 //        [PRException raise:PRDbInconsistencyException format:@"Not on main thread!", self];
 //        return nil;
@@ -139,8 +138,6 @@
                 NSMutableArray *column = [[NSMutableArray alloc] init];
                 for (int i = 0; i < [_columns count]; i++) {
                     id value;
-                    
-                    
                     id col = [_columns objectAtIndex:i];
                     if (col == PRColInteger) {
                         value = [[NSNumber alloc] initWithLongLong:sqlite3_column_int64(_stmt, i)];

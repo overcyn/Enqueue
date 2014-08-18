@@ -26,6 +26,7 @@
 @class PRPlaybackOrder;
 @class PRHistory; 
 @class PRMoviePlayer;
+@class PRNowPlayingDescription;
 
 
 @interface PRNowPlayingController : NSObject
@@ -33,6 +34,8 @@
 - (id)initWithDb:(PRDb *)db;
 
 /* Accessors */
+@property (nonatomic, readonly) PRNowPlayingDescription *description;
+
 @property (readonly) NSArray *invalidItems;
 @property (readonly) PRMoviePlayer *mov;
 @property (readonly) PRList *currentList;
