@@ -21,9 +21,7 @@ NSString * const PRDbInconsistencyException = @"PRDbInconsistencyException";
     va_list args;
     va_start(args, format);
     NSString *reason = [[NSString alloc] initWithFormat:format arguments:args];
-    [[PRException exceptionWithName:name 
-                             reason:reason 
-                           userInfo:nil] raise];
+    [[PRException exceptionWithName:name reason:reason userInfo:nil] raise];
     va_end(args);
 }
 

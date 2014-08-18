@@ -109,21 +109,26 @@
 #pragma mark - Action
 
 - (NSArray *)execute {
-    return [self _execute:YES];
+    NSArray *outValue = nil;
+    if (![self _execute:&outValue]) {
+        [PRException raise:PRDbInconsistencyException format:nil];
+    }
+    return outValue;
 }
 
 - (NSArray *)attempt {
-    return [self _execute:NO];
+    NSArray *outValue = nil;
+    [self _execute:&outValue];
+    return outValue;
+}
+
+- (BOOL)zExecute:(NSArray **)outValue {
+    return [self _execute:outValue];
 }
 
 #pragma mark - action
 
-- (NSArray *)_execute:(BOOL)crash {
-//    if (![NSThread isMainThread]) {
-//        [PRException raise:PRDbInconsistencyException format:@"Not on main thread!", self];
-//        return nil;
-//    }
-    
+- (BOOL)_execute:(NSArray **)outValue {
     NSMutableArray *result = [NSMutableArray array];
     BOOL l = YES;
     while (l) {
@@ -131,9 +136,7 @@
         switch (e) {
             case SQLITE_ROW: {
                 if (sqlite3_column_count(_stmt) != [_columns count]) {
-                    if (!crash) {return nil;}
-                    [PRException raise:PRDbInconsistencyException format:@"Mismatch column count - self:%@ expected:%d receieved:%@",
-                     self, sqlite3_column_count(_stmt), _columns];
+                    return NO;
                 }
                 NSMutableArray *column = [[NSMutableArray alloc] init];
                 for (int i = 0; i < [_columns count]; i++) {
@@ -148,11 +151,7 @@
                     } else if (col == PRColData) {
                         value = [[NSData alloc] initWithBytes:sqlite3_column_blob(_stmt, i) length:sqlite3_column_bytes(_stmt, i)];
                     } else {
-                        if (!crash) {
-                            return nil;
-                        }
-                        [PRException raise:PRDbInconsistencyException format:@"Unknown column type - self:%@", self];
-                        return nil;
+                        return NO;
                     }
                     [column addObject:value];
                 }
@@ -170,13 +169,14 @@
                 l = NO;
                 break;
             default:
-                if (!crash) {return nil;}
-                [PRException raise:PRDbInconsistencyException 
-                            format:@"Step Failed - self:%@ code:%d msg:%s", self, e, sqlite3_errmsg(_sqlite3)];
-                break;
+                return NO;
         }
     }
-    return result;
+    
+    if (outValue) {
+        *outValue = result;
+    }
+    return YES;
 }
 
 @end

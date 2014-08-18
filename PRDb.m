@@ -348,6 +348,28 @@ NSString * const PRColData = @"PRColData";
     return rlt;
 }
 
+- (BOOL)zExecute:(NSString *)string {
+    return [self zExecute:string bindings:nil columns:nil out:nil];
+}
+
+- (BOOL)zExecute:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns out:(NSArray **)outValue {
+    PRStatement *stmt = [[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:self];
+    return [stmt zExecute:outValue];
+}
+
+- (BOOL)zExecuteCached:(NSString *)string {
+    return [self zExecuteCached:string bindings:nil columns:nil out:nil];
+}
+
+- (BOOL)zExecuteCached:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns out:(NSArray **)outValue {
+    PRStatement *statement = [_cachedStatements objectForKey:string];
+    if (!statement || ![[statement columns] isEqual:columns]) {
+        statement = [PRStatement statement:string bindings:bindings columns:columns db:self];
+        [_cachedStatements setObject:statement forKey:string];
+    }
+    return [statement zExecute:outValue];
+}
+
 #pragma mark - Error
 
 - (NSError *)databaseWasMovedError:(NSString *)newPath {

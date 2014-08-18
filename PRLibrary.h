@@ -64,6 +64,20 @@ extern PRItemAttr * const PRItemAttrRating;
 - (NSArray *)itemsWithSimilarURL:(NSURL *)URL;
 - (NSArray *)itemsWithValue:(id)value forAttr:(PRItemAttr *)attr;
 
+/* zAccessors */
+- (BOOL)zContainsItem:(PRItem *)item out:(BOOL *)outValue;
+- (BOOL)zAddItemWithAttrs:(NSDictionary *)attrs out:(BOOL *)outValue;
+- (BOOL)zRemoveItems:(NSArray *)items;
+- (BOOL)zValueForItem:(PRItem *)item attr:(PRItemAttr *)attr out:(id *)outValue;
+- (BOOL)zSetValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr;
+- (BOOL)zAttrsForItem:(PRItem *)item out:(NSDictionary *)outValue;
+- (BOOL)zSetAttrs:(NSDictionary *)attrs forItem:(PRItem *)item;
+
+- (BOOL)zArtistValueForItem:(PRItem *)item out:(NSString **)outValue;
+- (BOOL)zURLForItem:(PRItem *)item out:(NSURL **)outValue;
+- (BOOL)zItemsWithSimilarURL:(NSURL *)url out:(NSArray **)outValue;
+- (BOOL)zItemsWithValue:(id)value forAttr:(PRItemAttr *)attr out:(NSArray **)outValue;
+
 /* Misc */
 + (NSArray *)itemAttrProperties;
 + (NSArray *)itemAttrs;

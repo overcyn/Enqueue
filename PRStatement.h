@@ -22,4 +22,5 @@
 /* Action */
 - (NSArray *)execute;
 - (NSArray *)attempt;
+- (BOOL)zExecute:(NSArray **)outValue;
 @end

@@ -197,9 +197,9 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
 - (BOOL)containsItem:(PRItem *)item {
     NSArray *rlt = [_db execute:@"SELECT count(*) FROM library WHERE file_id = ?1"
-                      bindings:@{@1:item}
-                       columns:@[PRColInteger]];
-    return [[[rlt objectAtIndex:0] objectAtIndex:0] intValue] > 0;
+        bindings:@{@1:item}
+        columns:@[PRColInteger]];
+    return [rlt[0][0] intValue] > 0;
 }
 
 - (PRItem *)addItemWithAttrs:(NSDictionary *)attrs {
@@ -239,7 +239,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
         bindings:@{@1:item}
         columns:@[[PRLibrary columnTypeForItemAttr:attr]]];
     if ([rlt count] != 1) {
-        [PRException raise:PRDbInconsistencyException format:@"valueForFile:%@ attribute:%@",item, attr];
+        return nil;
     }
     return rlt[0][0];
 }
@@ -319,6 +319,27 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     }
     return items;
 }
+
+#pragma mark - zAccessors
+
+- (BOOL)zContainsItem:(PRItem *)item out:(BOOL *)outValue {
+    NSArray *rlt = [_db execute:@"SELECT count(*) FROM library WHERE file_id = ?1"
+        bindings:@{@1:item}
+        columns:@[PRColInteger]];
+    return [rlt[0][0] intValue] > 0;
+}
+
+// - (BOOL)zAddItemWithAttrs:(NSDictionary *)attrs out:(BOOL *)outValue;
+// - (BOOL)zRemoveItems:(NSArray *)items;
+// - (BOOL)zValueForItem:(PRItem *)item attr:(PRItemAttr *)attr out:(id *)outValue;
+// - (BOOL)zSetValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr;
+// - (BOOL)zAttrsForItem:(PRItem *)item out:(NSDictionary *)outValue;
+// - (BOOL)zSetAttrs:(NSDictionary *)attrs forItem:(PRItem *)item;
+
+// - (BOOL)zArtistValueForItem:(PRItem *)item out:(NSString **)outValue;
+// - (BOOL)zURLForItem:(PRItem *)item out:(NSURL **)outValue;
+// - (BOOL)zItemsWithSimilarURL:(NSURL *)url out:(NSArray **)outValue;
+// - (BOOL)zItemsWithValue:(id)value forAttr:(PRItemAttr *)attr out:(NSArray **)outValue;
 
 #pragma mark - Misc
 
