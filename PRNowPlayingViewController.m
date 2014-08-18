@@ -314,9 +314,9 @@
     
     for (int i = 0; i < [array count]; i++) {
         if ([[[array objectAtIndex:i] objectForKey:@"expanded"] boolValue]) {
-            [_nowPlayingTableView expandItem:[self itemForItem:@[[NSNumber numberWithInt:i]]]];
+            [_nowPlayingTableView expandItem:[self itemForItem:@[@(i)]]];
         } else {
-            [_nowPlayingTableView collapseItem:[self itemForItem:@[[NSNumber numberWithInt:i]]]];
+            [_nowPlayingTableView collapseItem:[self itemForItem:@[@(i)]]];
         }
     }
 }

@@ -236,12 +236,12 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
 - (id)valueForItem:(PRItem *)item attr:(PRItemAttr *)attr {
     NSArray *rlt = [_db execute:[NSString stringWithFormat:@"SELECT %@ FROM library WHERE file_id = ?1", [PRLibrary columnNameForItemAttr:attr]]
-                      bindings:@{@1:item}
-                       columns:@[[PRLibrary columnTypeForItemAttr:attr]]];
+        bindings:@{@1:item}
+        columns:@[[PRLibrary columnTypeForItemAttr:attr]]];
     if ([rlt count] != 1) {
         [PRException raise:PRDbInconsistencyException format:@"valueForFile:%@ attribute:%@",item, attr];
     }
-    return [[rlt objectAtIndex:0] objectAtIndex:0];
+    return rlt[0][0];
 }
 
 - (void)setValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr {

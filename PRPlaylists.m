@@ -479,12 +479,12 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 - (void)clearList:(PRList *)list exceptIndex:(int)index {
     [_db begin];
     [_db execute:@"DELETE FROM playlist_items WHERE playlist_id = ?1 AND playlist_index != ?2"
-       bindings:@{@1:list, @2:[NSNumber numberWithInt:index]}
-        columns:nil];
+        bindings:@{@1:list, @2:@(index)}
+         columns:nil];
     
     [_db execute:@"UPDATE playlist_items SET playlist_index = 1 WHERE playlist_id = ?1"
-       bindings:@{@1:list}
-        columns:nil];
+        bindings:@{@1:list}
+         columns:nil];
     
     [self propagateListItemDelete];
     [_db commit];
@@ -520,7 +520,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
         }
         
         [_db execute:@"UPDATE playlist_items SET playlist_id = ?1, playlist_index = ?2 WHERE playlist_item_id = ?3"
-           bindings:@{@1:list, @2:[NSNumber numberWithInt:newPlaylistIndex], @3:[NSNumber numberWithInt:playlistItemID]}
+           bindings:@{@1:list, @2:@(newPlaylistIndex), @3:@(playlistItemID)}
             columns:nil];
     }
     [_db commit];
