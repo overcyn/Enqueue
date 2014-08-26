@@ -1,6 +1,7 @@
 #import "PRPlaylists.h"
 #import "PRDb.h"
 #import "PRPlaybackOrder.h"
+#import "NSArray+Extensions.h"
 
 
 NSString * const PRListTypeLibrary = @"PRListTypeLibrary";
@@ -277,34 +278,21 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 #pragma mark - List Getters
 
 - (NSArray *)lists {
-    NSArray *rlt = [_db execute:@"SELECT playlist_id FROM playlists ORDER BY type, title COLLATE NOCASE, playlist_id"
-                      bindings:nil 
-                       columns:@[PRColInteger]];
-    NSMutableArray *playlists = [NSMutableArray array];
-    for (NSArray *i in rlt) {
-        [playlists addObject:[i objectAtIndex:0]];
-    }
-    return playlists;    
+    NSArray *rlt = nil;
+    [self zLists:&rlt];
+    return rlt;
 }
 
 - (PRList *)libraryList {
-    NSArray *rlt = [_db execute:@"SELECT playlist_id FROM playlists WHERE type = ?1" 
-                      bindings:@{@1:[NSNumber numberWithInt:PRLibraryPlaylistType]}
-                       columns:@[PRColInteger]];
-    if ([rlt count] != 1) {
-        [PRException raise:PRDbInconsistencyException format:@""];
-    }
-    return [[rlt objectAtIndex:0] objectAtIndex:0];
+    PRList *rlt = nil;
+    [self zLibraryList:&rlt];
+    return rlt;
 }
 
 - (PRList *)nowPlayingList {
-    NSArray *rlt = [_db execute:@"SELECT playlist_id FROM playlists WHERE type = ?1" 
-                      bindings:@{@1:[NSNumber numberWithInt:PRNowPlayingPlaylistType]}
-                       columns:@[PRColInteger]];
-    if ([rlt count] != 1) {
-        [PRException raise:PRDbInconsistencyException format:@""];
-    }
-    return [[rlt objectAtIndex:0] objectAtIndex:0];
+    PRList *rlt = nil;
+    [self zNowPlayingList:&rlt];
+    return rlt;
 }
 
 - (PRList *)addList {
@@ -354,14 +342,57 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 }
 
 - (id)valueForList:(PRList *)list attr:(PRListAttr *)attr {
-    NSArray *rlt = [_db execute:[NSString stringWithFormat:@"SELECT %@ FROM playlists WHERE playlist_id = ?1",
-                                [PRPlaylists columnNameForListAttr:attr]]
-                      bindings:@{@1:list}
-                       columns:@[[PRPlaylists columnTypeForListAttr:attr]]];
-    if ([rlt count] != 1) {
-        [PRException raise:PRDbInconsistencyException format:@""];
+    id rlt = nil;
+    [self zValueForList:list attr:attr out:&rlt];
+    return rlt;
+}
+
+#pragma mark - zList Getters
+
+- (BOOL)zLists:(NSArray **)outValue {
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:@"SELECT playlist_id FROM playlists ORDER BY type, title COLLATE NOCASE, playlist_id" bindings:nil columns:@[PRColInteger] out:&rlt];
+    if (success && outValue) {
+        *outValue = [rlt PRMap:^(NSInteger idx, id obj){return obj[0];}];
     }
-    return [[rlt objectAtIndex:0] objectAtIndex:0];
+    return success;
+}
+
+- (BOOL)zLibraryList:(PRList **)outValue {
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:@"SELECT playlist_id FROM playlists WHERE type = ?1" bindings:@{@1:@(PRLibraryPlaylistType)} columns:@[PRColInteger] out:&rlt];
+    if (!success || [rlt count] != 1) {
+        return NO;
+    }
+    if (outValue) {
+        *outValue = rlt[0][0];
+    }
+    return YES;
+}
+
+- (BOOL)zNowPlayingList:(PRList **)outValue {
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:@"SELECT playlist_id FROM playlists WHERE type = ?1" bindings:@{@1:@(PRNowPlayingPlaylistType)} columns:@[PRColInteger] out:&rlt];
+    if (!success || [rlt count] != 1) {
+        return NO;
+    }
+    if (outValue) {
+        *outValue = rlt[0][0];
+    }
+    return YES;
+}
+
+- (BOOL)zValueForList:(PRList *)list attr:(PRListAttr *)attr out:(id *)outValue {
+    NSArray *rlt = nil;
+    NSString *stm = [NSString stringWithFormat:@"SELECT %@ FROM playlists WHERE playlist_id = ?1", [PRPlaylists columnNameForListAttr:attr]];
+    BOOL success = [_db zExecute:stm bindings:@{@1:list} columns:@[[PRPlaylists columnTypeForListAttr:attr]] out:&rlt];
+    if (!success || [rlt count] != 1) {
+        return NO;
+    }
+    if (outValue) {
+        *outValue = rlt[0][0];
+    }
+    return YES;
 }
 
 #pragma mark - ListItem Setters
@@ -646,12 +677,10 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 - (NSArray *)playlistsViewSource {
     NSString *string = @"SELECT playlist_id, type, title FROM playlists "
     "WHERE type IN (2,3) ORDER BY type, title COLLATE NOCASE2, playlist_id ";
-    NSArray *results = [_db execute:string
-                          bindings:nil
-                           columns:@[PRColInteger, PRColInteger, PRColString]];
+    NSArray *results = [_db execute:string bindings:nil columns:@[PRColInteger, PRColInteger, PRColString]];
     NSMutableArray *playlists = [NSMutableArray array];
     for (NSArray *i in results) {
-        [playlists addObject:@{@"playlist":[i objectAtIndex:0], @"type":[i objectAtIndex:1],@"title":[i objectAtIndex:2]}];
+        [playlists addObject:@{@"playlist":i[0], @"type":i[1],@"title":i[2]}];
     }
     return playlists;
 }

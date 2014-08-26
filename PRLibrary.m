@@ -5,6 +5,7 @@
 #import "PRFileInfo.h"
 #import "PRPlaylists.h"
 #import "PRTagger.h"
+#import "NSArray+Extensions.h"
 
 
 PRItemAttr * const PRItemAttrPath = @"PRItemAttrPath";
@@ -196,102 +197,45 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 #pragma mark - Accessors
 
 - (BOOL)containsItem:(PRItem *)item {
-    NSArray *rlt = [_db execute:@"SELECT count(*) FROM library WHERE file_id = ?1"
-        bindings:@{@1:item}
-        columns:@[PRColInteger]];
-    return [rlt[0][0] intValue] > 0;
+    BOOL rlt = NO;
+    [self zContainsItem:item out:&rlt];
+    return rlt;
 }
 
 - (PRItem *)addItemWithAttrs:(NSDictionary *)attrs {
-    NSMutableString *stm = [NSMutableString stringWithString:@"INSERT INTO library ("];
-    NSMutableString *stm2 = [NSMutableString stringWithString:@"VALUES ("];
-    NSMutableDictionary *bnd = [NSMutableDictionary dictionary];
-    int bndIndex = 1;
-    for (PRItemAttr *i in [attrs allKeys]) {
-        [stm appendFormat:@"%@, ", [PRLibrary columnNameForItemAttr:i]];
-        [stm2 appendFormat:@"?%d, ", bndIndex];
-        [bnd setObject:[attrs objectForKey:i] forKey:[NSNumber numberWithInt:bndIndex]];
-        bndIndex++;
-    }
-    [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 1)];
-    [stm appendFormat:@") "];
-    [stm2 deleteCharactersInRange:NSMakeRange([stm2 length] - 2, 1)];
-    [stm2 appendFormat:@") "];
-    [stm appendString:stm2];
-    [_db execute:stm bindings:bnd columns:nil];
-    return [PRItem numberWithUnsignedLongLong:[_db lastInsertRowid]];
+    PRItem *rlt = nil;
+    [self zAddItemWithAttrs:attrs out:&rlt];
+    return rlt;
 }
 
 - (void)removeItems:(NSArray *)items {
-    NSMutableString *stm = [NSMutableString stringWithString:@"DELETE FROM library WHERE file_id IN ("];
-    for (PRItem *i in items) {
-        [stm appendString:[NSString stringWithFormat:@"%llu, ", [i unsignedLongLongValue]]];
-        [[_db albumArtController] clearArtworkForItem:i];
-    }
-    [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 2)];
-    [stm appendString:@")"];
-    [_db execute:stm];
-    [self propagateItemDelete];
+    [self zRemoveItems:items];
 }
 
 - (id)valueForItem:(PRItem *)item attr:(PRItemAttr *)attr {
-    NSArray *rlt = [_db execute:[NSString stringWithFormat:@"SELECT %@ FROM library WHERE file_id = ?1", [PRLibrary columnNameForItemAttr:attr]]
-        bindings:@{@1:item}
-        columns:@[[PRLibrary columnTypeForItemAttr:attr]]];
-    if ([rlt count] != 1) {
-        return nil;
-    }
-    return rlt[0][0];
+    id rlt = nil;
+    [self zValueForItem:item attr:attr out:&rlt];
+    return rlt;
 }
 
 - (void)setValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr {
-    [_db execute:[NSString stringWithFormat:@"UPDATE library SET %@ = ?1 WHERE file_id = ?2", [PRLibrary columnNameForItemAttr:attr]]
-       bindings:@{@1:value, @2:item}
-        columns:nil];
+    [self zSetValue:value forItem:item attr:attr];
 }
 
 - (NSDictionary *)attrsForItem:(PRItem *)item {
-    NSMutableString *string = [NSMutableString stringWithString:@"SELECT "];
-    NSMutableArray *columns = [NSMutableArray array];
-    for (PRItemAttr *i in [PRLibrary itemAttrs]) {
-        [string appendFormat:@"%@, ",[PRLibrary columnNameForItemAttr:i]];
-        [columns addObject:[PRLibrary columnTypeForItemAttr:i]];
-    }
-    [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
-    [string appendString:@"FROM library WHERE file_id = ?1"];
-    NSArray *results = [_db execute:string bindings:@{@1:item} columns:columns];
-    if ([results count] != 1) {
-        [PRException raise:PRDbInconsistencyException format:@""];
-    }
-    NSArray *row = [results objectAtIndex:0];
-    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
-    for (int i = 0; i < [[PRLibrary itemAttrs] count]; i++) {
-        [dictionary setObject:[row objectAtIndex:i] forKey:[[PRLibrary itemAttrs] objectAtIndex:i]];
-    }
-    return dictionary;
+    NSDictionary *rlt = nil;
+    [self zAttrsForItem:item out:&rlt];
+    return rlt;
 }
 
 - (void)setAttrs:(NSDictionary *)attrs forItem:(PRItem *)item {
-    NSMutableString *string = [NSMutableString stringWithString:@"UPDATE library SET "];
-    NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
-    int bindingIndex = 1;
-    for (NSString *i in [attrs allKeys]) {
-        [string appendFormat:@"%@ = ?%d, ", [PRLibrary columnNameForItemAttr:i], bindingIndex];
-        [bindings setObject:[attrs objectForKey:i] forKey:[NSNumber numberWithInt:bindingIndex]];
-        bindingIndex += 1;
-    }
-    [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
-    [string appendFormat:@"WHERE file_id = ?%d", bindingIndex];
-    [bindings setObject:item forKey:[NSNumber numberWithInt:bindingIndex]];
-    [_db execute:string bindings:bindings columns:nil];
+    [self zSetAttrs:attrs forItem:item];
 }
 
 - (NSString *)artistValueForItem:(PRItem *)item {
-    if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist]) {
-        return [self valueForItem:item attr:PRItemAttrArtistAlbumArtist];
-    } else {
-        return [self valueForItem:item attr:PRItemAttrArtist];
-    }
+    NSString *rlt = nil;
+    [self zArtistValueForItem:item out:&rlt];
+    return rlt;
 }
 
 - (NSURL *)URLForItem:(PRItem *)item {
@@ -299,47 +243,184 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 }
 
 - (NSArray *)itemsWithSimilarURL:(NSURL *)URL {
-    NSArray *rlt = [_db execute:@"SELECT file_id FROM library WHERE path = ?1 COLLATE hfs_compare" 
-                      bindings:@{@1:[URL absoluteString]}
-                       columns:@[PRColInteger]];
-    NSMutableArray *array = [NSMutableArray array];
-    for (NSArray *i in rlt) {
-        [array addObject:[i objectAtIndex:0]];
-    }
-    return array;
+    NSArray *rlt = nil;
+    [self zItemsWithSimilarURL:URL out:&rlt];
+    return rlt;
 }
 
 - (NSArray *)itemsWithValue:(id)value forAttr:(PRItemAttr *)attr {
-    NSArray *result = [_db execute:[NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ = ?1", [PRLibrary columnNameForItemAttr:attr]]
-                         bindings:@{@1:value}
-                          columns:@[PRColInteger]];
-    NSMutableArray *items = [NSMutableArray array];
-    for (NSArray *i in result) {
-        [items addObject:[i objectAtIndex:0]];
-    }
-    return items;
+    NSArray *rlt = nil;
+    [self zItemsWithValue:value forAttr:attr out:&rlt];
+    return rlt;
 }
 
 #pragma mark - zAccessors
 
 - (BOOL)zContainsItem:(PRItem *)item out:(BOOL *)outValue {
-    NSArray *rlt = [_db execute:@"SELECT count(*) FROM library WHERE file_id = ?1"
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:@"SELECT count(*) FROM library WHERE file_id = ?1"
         bindings:@{@1:item}
-        columns:@[PRColInteger]];
-    return [rlt[0][0] intValue] > 0;
+        columns:@[PRColInteger]
+        out:&rlt];
+    if (success && outValue) {
+        *outValue = [rlt[0][0] intValue] > 0;
+    }
+    return success;
 }
 
-// - (BOOL)zAddItemWithAttrs:(NSDictionary *)attrs out:(BOOL *)outValue;
-// - (BOOL)zRemoveItems:(NSArray *)items;
-// - (BOOL)zValueForItem:(PRItem *)item attr:(PRItemAttr *)attr out:(id *)outValue;
-// - (BOOL)zSetValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr;
-// - (BOOL)zAttrsForItem:(PRItem *)item out:(NSDictionary *)outValue;
-// - (BOOL)zSetAttrs:(NSDictionary *)attrs forItem:(PRItem *)item;
+- (BOOL)zAddItemWithAttrs:(NSDictionary *)attrs out:(PRItem **)outValue {
+    NSMutableString *stm = [NSMutableString stringWithString:@"INSERT INTO library ("];
+    NSMutableString *stm2 = [NSMutableString stringWithString:@"VALUES ("];
+    NSMutableDictionary *bnd = [NSMutableDictionary dictionary];
+    int bndIndex = 1;
+    for (PRItemAttr *i in [attrs allKeys]) {
+        [stm appendFormat:@"%@, ", [PRLibrary columnNameForItemAttr:i]];
+        [stm2 appendFormat:@"?%d, ", bndIndex];
+        [bnd setObject:[attrs objectForKey:i] forKey:@(bndIndex)];
+        bndIndex++;
+    }
+    [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 1)];
+    [stm appendFormat:@") "];
+    [stm2 deleteCharactersInRange:NSMakeRange([stm2 length] - 2, 1)];
+    [stm2 appendFormat:@") "];
+    [stm appendString:stm2];
+    BOOL success = [_db zExecute:stm bindings:bnd columns:nil out:nil];
+    if (success && outValue) {
+        *outValue = [PRItem numberWithUnsignedLongLong:[_db lastInsertRowid]];
+    }
+    return success;
+}
 
-// - (BOOL)zArtistValueForItem:(PRItem *)item out:(NSString **)outValue;
-// - (BOOL)zURLForItem:(PRItem *)item out:(NSURL **)outValue;
-// - (BOOL)zItemsWithSimilarURL:(NSURL *)url out:(NSArray **)outValue;
-// - (BOOL)zItemsWithValue:(id)value forAttr:(PRItemAttr *)attr out:(NSArray **)outValue;
+- (BOOL)zRemoveItems:(NSArray *)items {
+    NSMutableString *stm = [NSMutableString stringWithString:@"DELETE FROM library WHERE file_id IN ("];
+    for (PRItem *i in items) {
+        [stm appendString:[NSString stringWithFormat:@"%llu, ", [i unsignedLongLongValue]]];
+        [[_db albumArtController] clearArtworkForItem:i];
+    }
+    [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 2)];
+    [stm appendString:@")"];
+    BOOL success = [_db zExecute:stm];
+    if (success) {
+        [self propagateItemDelete];
+    }
+    return success;
+}
+
+- (BOOL)zValueForItem:(PRItem *)item attr:(PRItemAttr *)attr out:(id *)outValue {
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:[NSString stringWithFormat:@"SELECT %@ FROM library WHERE file_id = ?1", [PRLibrary columnNameForItemAttr:attr]]
+        bindings:@{@1:item}
+        columns:@[[PRLibrary columnTypeForItemAttr:attr]]
+        out:&rlt];
+    if (success && outValue && [rlt count] > 0) {
+        *outValue = rlt[0][0];
+    }
+    return success;
+}
+
+- (BOOL)zSetValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr {
+    BOOL success = [_db zExecute:[NSString stringWithFormat:@"UPDATE library SET %@ = ?1 WHERE file_id = ?2", [PRLibrary columnNameForItemAttr:attr]]
+        bindings:@{@1:value, @2:item}
+        columns:nil
+        out:nil];
+    return success;
+}
+
+- (BOOL)zAttrsForItem:(PRItem *)item out:(NSDictionary **)outValue {
+    NSMutableString *stm = [NSMutableString stringWithString:@"SELECT "];
+    NSMutableArray *cols = [NSMutableArray array];
+    for (PRItemAttr *i in [PRLibrary itemAttrs]) {
+        [stm appendFormat:@"%@, ",[PRLibrary columnNameForItemAttr:i]];
+        [cols addObject:[PRLibrary columnTypeForItemAttr:i]];
+    }
+    [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 1)];
+    [stm appendString:@"FROM library WHERE file_id = ?1"];
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:stm bindings:@{@1:item} columns:cols out:&rlt];
+    if (!success || [rlt count] != 1) {
+        return NO;
+    }
+    
+    NSArray *row = [rlt objectAtIndex:0];
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    for (int i = 0; i < [[PRLibrary itemAttrs] count]; i++) {
+        [dictionary setObject:[row objectAtIndex:i] forKey:[[PRLibrary itemAttrs] objectAtIndex:i]];
+    }
+    if (outValue) {
+        *outValue = dictionary;
+    }
+    return YES;
+}
+
+- (BOOL)zSetAttrs:(NSDictionary *)attrs forItem:(PRItem *)item {
+    NSMutableString *stm = [NSMutableString stringWithString:@"UPDATE library SET "];
+    NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
+    int bindingIndex = 1;
+    for (NSString *i in [attrs allKeys]) {
+        [stm appendFormat:@"%@ = ?%d, ", [PRLibrary columnNameForItemAttr:i], bindingIndex];
+        [bindings setObject:[attrs objectForKey:i] forKey:@(bindingIndex)];
+        bindingIndex += 1;
+    }
+    [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 1)];
+    [stm appendFormat:@"WHERE file_id = ?%d", bindingIndex];
+    [bindings setObject:item forKey:@(bindingIndex)];
+    return [_db zExecute:stm bindings:bindings columns:nil out:nil];
+}
+
+- (BOOL)zArtistValueForItem:(PRItem *)item out:(NSString **)outValue {
+    PRItemAttr *attr = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist] ? PRItemAttrArtistAlbumArtist : PRItemAttrArtist;
+    NSString *rlt = nil;
+    BOOL success = [self zValueForItem:item attr:attr out:&rlt];
+    if (!success) {
+        return NO;
+    }
+    if (outValue) {
+        *outValue = rlt;
+    }
+    return YES;
+}
+
+- (BOOL)zURLForItem:(PRItem *)item out:(NSURL **)outValue {
+    NSString *rlt = nil;
+    BOOL success = [self zValueForItem:item attr:PRItemAttrPath out:&rlt];
+    if (!success) {
+        return NO;
+    }
+    if (outValue) {
+        *outValue = [NSURL URLWithString:rlt];
+    }
+    return YES;
+}
+
+- (BOOL)zItemsWithSimilarURL:(NSURL *)url out:(NSArray **)outValue {
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:@"SELECT file_id FROM library WHERE path = ?1 COLLATE hfs_compare" 
+        bindings:@{@1:[url absoluteString]}
+        columns:@[PRColInteger] 
+        out:&rlt];
+    if (!success) {
+        return NO;
+    }
+    if (outValue) {
+        *outValue = [rlt PRMap:^(NSInteger idx, id obj){return obj[0];}];
+    }
+    return YES;
+}
+
+- (BOOL)zItemsWithValue:(id)value forAttr:(PRItemAttr *)attr out:(NSArray **)outValue {
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:[NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ = ?1", [PRLibrary columnNameForItemAttr:attr]]
+        bindings:@{@1:value}
+        columns:@[PRColInteger]
+        out:&rlt];
+    if (!success) {
+        return NO;
+    }
+    if (outValue) {
+        *outValue = [rlt PRMap:^(NSInteger idx, id obj){return obj[0];}];
+    }
+    return YES;
+}
 
 #pragma mark - Misc
 

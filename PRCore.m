@@ -41,6 +41,7 @@
 
 - (id)init {
     if (!(self = [super init])) {return nil;}
+    
     // Prevent multiple instances of application
     _connection = [NSConnection connectionWithReceivePort:[NSPort port] sendPort:[NSPort port]];
     if (![_connection registerName:@"enqueue"]) {

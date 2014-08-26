@@ -86,12 +86,25 @@ typedef enum {
 - (PRList *)nowPlayingList;
 - (id)valueForList:(PRList *)list attr:(PRListAttr *)attr;
 
+// zList Setters
+- (BOOL)zLists:(NSArray **)outValue;
+- (BOOL)zLibraryList:(PRList **)outValue;
+- (BOOL)zNowPlayingList:(PRList **)outValue;
+- (BOOL)zValueForList:(PRList *)list attr:(PRListAttr *)attr out:(id *)outValue;
+
 // List Getters
 - (PRList *)addList;
 - (PRList *)addStaticList;
 - (PRList *)addSmartList;
 - (void)removeList:(PRList *)list;
 - (void)setValue:(id)value forList:(PRList *)list attr:(PRListAttr *)attr;
+
+// zList Setters
+- (BOOL)zAddList:(PRList **)outValue;
+- (BOOL)zAddStaticList:(PRList **)outValue;
+- (BOOL)zAddSmartList:(PRList **)outValue;
+- (BOOL)zRemoveList:(PRList *)list;
+- (BOOL)zSetValue:(id)value forList:(PRList *)list attr:(PRListAttr *)attr;
 
 // ListItem Setters
 - (void)addItem:(PRItem *)item atIndex:(int)index toList:(PRList *)list;
@@ -106,6 +119,19 @@ typedef enum {
 - (void)appendItemsFromLibraryViewSourceToList:(PRList *)list;
 - (void)copyItemsFromList:(PRList *)list toList:(PRList *)list;
 
+// zListItem Setters
+- (BOOL)zAddItem:(PRItem *)item atIndex:(int)index toList:(PRList *)list;
+- (BOOL)zAddItems:(NSArray *)items atIndex:(int)index toList:(PRList *)list;
+- (BOOL)zAppendItem:(PRList *)item toList:(PRList *)list;
+- (BOOL)zAppendItems:(NSArray *)items toList:(PRList *)list;
+- (BOOL)zRemoveItemAtIndex:(int)index fromList:(PRList *)list;
+- (BOOL)zRemoveItemsAtIndexes:(NSIndexSet *)indexes fromList:(PRList *)list;
+- (BOOL)zClearList:(PRList *)list;
+- (BOOL)zClearList:(PRList *)list exceptIndex:(int)index;
+- (BOOL)zMoveItemsAtIndexes:(NSIndexSet *)indexes toIndex:(int)index inList:(PRList *)list;
+- (BOOL)zAppendItemsFromLibraryViewSourceToList:(PRList *)list;
+- (BOOL)zCopyItemsFromList:(PRList *)list toList:(PRList *)list;
+
 // ListItem Getters
 - (int)countForList:(PRList *)list;
 - (PRListItem *)listItemAtIndex:(int)index inList:(PRList *)list;
@@ -116,8 +142,21 @@ typedef enum {
 - (BOOL)list:(PRList *)list containsItem:(PRItem *)item;
 - (NSIndexSet *)indexesOfItem:(PRItem *)item inList:(PRList *)list; 
 
+// zListItem Getters
+- (BOOL)zCountForList:(PRList *)list out:(NSInteger *)outValue;
+- (BOOL)zListItemAtIndex:(int)index inList:(PRList *)list out:(PRListItem **)outValue;
+- (BOOL)zItemAtIndex:(int)index forList:(PRList *)list out:(PRItem **)outValue;
+- (BOOL)zItemForListItem:(PRListItem *)listItem out:(PRItem **)outValue;
+- (BOOL)zIndexForListItem:(PRListItem *)listItem out:(NSInteger *)outValue;
+- (BOOL)zListForListItem:(PRListItem *)listItem out:(PRList **)outValue;
+- (BOOL)zList:(PRList *)list containsItem:(PRItem *)item out:(BOOL *)outValue;
+- (BOOL)zIndexesOfItem:(PRItem *)item inList:(PRList *)list out:(NSIndexSet **)outValue;
+
 // ListItem Getters Misc
 - (NSArray *)playlistsViewSource;
+
+// zListItem Getters Misc
+- (BOOL)zPlaylistsViewSource:(NSArray **)outValue;
 
 // Update
 - (BOOL)propagateListDelete;
