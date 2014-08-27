@@ -107,11 +107,8 @@ typedef enum {
 - (BOOL)zSetValue:(id)value forList:(PRList *)list attr:(PRListAttr *)attr;
 
 // ListItem Setters
-- (void)addItem:(PRItem *)item atIndex:(int)index toList:(PRList *)list;
 - (void)addItems:(NSArray *)items atIndex:(int)index toList:(PRList *)list;
 - (void)appendItem:(PRList *)item toList:(PRList *)list;
-- (void)appendItems:(NSArray *)items toList:(PRList *)list;
-- (void)removeItemAtIndex:(int)index fromList:(PRList *)list;
 - (void)removeItemsAtIndexes:(NSIndexSet *)indexes fromList:(PRList *)list;
 - (void)clearList:(PRList *)list;
 - (void)clearList:(PRList *)list exceptIndex:(int)index;
@@ -120,15 +117,12 @@ typedef enum {
 - (void)copyItemsFromList:(PRList *)list toList:(PRList *)list;
 
 // zListItem Setters
-- (BOOL)zAddItem:(PRItem *)item atIndex:(int)index toList:(PRList *)list;
 - (BOOL)zAddItems:(NSArray *)items atIndex:(int)index toList:(PRList *)list;
 - (BOOL)zAppendItem:(PRList *)item toList:(PRList *)list;
-- (BOOL)zAppendItems:(NSArray *)items toList:(PRList *)list;
-- (BOOL)zRemoveItemAtIndex:(int)index fromList:(PRList *)list;
 - (BOOL)zRemoveItemsAtIndexes:(NSIndexSet *)indexes fromList:(PRList *)list;
 - (BOOL)zClearList:(PRList *)list;
-- (BOOL)zClearList:(PRList *)list exceptIndex:(int)index;
-- (BOOL)zMoveItemsAtIndexes:(NSIndexSet *)indexes toIndex:(int)index inList:(PRList *)list;
+- (BOOL)zClearList:(PRList *)list exceptIndex:(NSInteger)index;
+- (BOOL)zMoveItemsAtIndexes:(NSIndexSet *)indexes toIndex:(NSInteger)index inList:(PRList *)list;
 - (BOOL)zAppendItemsFromLibraryViewSourceToList:(PRList *)list;
 - (BOOL)zCopyItemsFromList:(PRList *)list toList:(PRList *)list;
 

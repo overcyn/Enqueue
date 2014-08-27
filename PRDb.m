@@ -35,7 +35,7 @@ NSString * const PRColData = @"PRColData";
     PRPlaybackOrder *playbackOrder;
     PRAlbumArtController *albumArtController;
     
-    int transaction;
+    int _transaction;
     NSMutableDictionary *_cachedStatements;
     
     __weak PRCore *_core;
@@ -54,7 +54,7 @@ NSString * const PRColData = @"PRColData";
     playbackOrder = [[PRPlaybackOrder alloc] initWithDb:self];
     albumArtController = [[PRAlbumArtController alloc] initWithDb:self];
     _cachedStatements = [[NSMutableDictionary alloc] init];
-    transaction = 0;
+    _transaction = 0;
 
     BOOL e = ([[[NSFileManager alloc] init] fileExistsAtPath:[[PRDefaults sharedDefaults] libraryPath] isDirectory:nil] &&
               [self open] && [self update] && [self initialize]);
@@ -280,10 +280,10 @@ NSString * const PRColData = @"PRColData";
 #pragma mark - Action
 
 - (void)begin {
-    if (transaction == 0) {
+    if (_transaction == 0) {
         [self executeCached:@"BEGIN EXCLUSIVE"];
     }
-    transaction += 1;
+    _transaction += 1;
 }
 
 - (void)rollback {
@@ -291,13 +291,13 @@ NSString * const PRColData = @"PRColData";
 }
 
 - (void)commit {
-    if (transaction < 1) {
+    if (_transaction < 1) {
         [PRException raise:NSInternalInconsistencyException format:@"Commit index > 1"];
-    } else if (transaction == 1) {
+    } else if (_transaction == 1) {
         [self executeCached:@"COMMIT"];
-        transaction = 0;
+        _transaction = 0;
     } else {
-        transaction -= 1;
+        _transaction -= 1;
     }
 }
 
@@ -346,6 +346,25 @@ NSString * const PRColData = @"PRColData";
     NSArray *rlt = [self execute:string bindings:bindings columns:columns];
     NSLog(@"time:%f string:%@ explain:%@",[date timeIntervalSinceNow],string, explain);
     return rlt;
+}
+
+- (BOOL)zTransaction:(BOOL(^)(void))block {
+    if (_transaction == 0) {
+        [self executeCached:@"BEGIN EXCLUSIVE"];
+    }
+    
+    _transaction += 1;
+    BOOL success = block();
+    _transaction -= 1;
+    
+    if (_transaction == 0) {
+        if (success) {
+            [self executeCached:@"COMMIT"];
+        } else {
+            [self executeCached:@"ROLLBACK"];
+        }
+    }
+    return success;
 }
 
 - (BOOL)zExecute:(NSString *)string {

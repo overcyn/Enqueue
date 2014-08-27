@@ -50,6 +50,7 @@ extern NSString * const PRColData;
 - (NSArray *)explain:(NSString *)string;
 - (NSArray *)explain:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns;
 
+- (BOOL)zTransaction:(BOOL(^)(void))block;
 - (BOOL)zExecute:(NSString *)string;
 - (BOOL)zExecute:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns out:(NSArray **)outValue;
 - (BOOL)zExecuteCached:(NSString *)string;

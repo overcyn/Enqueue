@@ -53,7 +53,7 @@
     NSMutableDictionary *_parentItems;
     NSMutableDictionary *_childItems;
     
-    NSPoint dropPoint;
+    NSPoint _dropPoint;
     
     NSCell *_cachedNowPlayingCell;
     NSCell *_cachedNowPlayingHeaderCell;
@@ -953,15 +953,15 @@
 
 - (void)draggedImage:(NSImage *)anImage endedAt:(NSPoint)aPoint operation:(NSDragOperation)operation {
     [[NSCursor arrowCursor] set];
-    if (operation == 0 && !NSMouseInRect([_nowPlayingTableView convertPointFromBase:[[_nowPlayingTableView window] convertScreenToBase:dropPoint]], [_nowPlayingTableView bounds], YES)) {
-        NSShowAnimationEffect(NSAnimationEffectDisappearingItemDefault, dropPoint, NSZeroSize, nil, nil, nil);
+    if (operation == 0 && !NSMouseInRect([_nowPlayingTableView convertPointFromBase:[[_nowPlayingTableView window] convertScreenToBase:_dropPoint]], [_nowPlayingTableView bounds], YES)) {
+        NSShowAnimationEffect(NSAnimationEffectDisappearingItemDefault, _dropPoint, NSZeroSize, nil, nil, nil);
         [self removeSelected];
     }
 }
 
 - (void)draggedImage:(NSImage *)anImage movedTo:(NSPoint)point {
-    dropPoint = [NSEvent mouseLocation];
-    if (!NSMouseInRect([_nowPlayingTableView convertPointFromBase:[[_nowPlayingTableView window] convertScreenToBase:dropPoint]], [_nowPlayingTableView bounds], YES)) {
+    _dropPoint = [NSEvent mouseLocation];
+    if (!NSMouseInRect([_nowPlayingTableView convertPointFromBase:[[_nowPlayingTableView window] convertScreenToBase:_dropPoint]], [_nowPlayingTableView bounds], YES)) {
         [[NSCursor disappearingItemCursor] set];
     } else {
         [[NSCursor arrowCursor] set];
