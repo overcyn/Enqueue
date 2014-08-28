@@ -1,5 +1,6 @@
 #import "PRListDescription.h"
 #import "PRDefaults.h"
+#import "NSIndexSet+Extensions.h"
 
 
 @implementation PRListDescription {
@@ -10,7 +11,10 @@
 - (id)initWithList:(PRList *)list database:(PRDb *)db {
     if (!(self = [super init])) {return nil;}
     _list = list;
-    _items = [db executeCached:@"SELECT file_id FROM playlist_items WHERE playlist_id = ?1 ORDER BY playlist_index" bindings:@{@1:list} columns:@[PRColInteger]];
+    NSString *stm = @"SELECT file_id, playlist_item_id FROM playlist_items WHERE playlist_id = ?1 ORDER BY playlist_index";
+    NSArray *rlt = nil;
+    [db zExecute:stm bindings:@{@1:list} columns:@[PRColInteger, PRColInteger] out:&rlt];
+    _items = rlt;
     return self;
 }
 
@@ -24,11 +28,16 @@
     return _items[index][0];
 }
 
+- (PRItem *)listItemAtIndex:(NSInteger)index {
+    return _items[index][1];
+}
+
 @end
 
 
 @implementation PRNowPlayingListDescription {
     NSArray *_albumCounts;
+    NSMutableIndexSet *_albumIndexes;
 }
 
 @synthesize albumCounts = _albumCounts;
@@ -59,7 +68,7 @@
                 compilation2 = NO;
             }
             if (compilation != compilation2 || (compilation && !albumSame) || (!compilation && (!albumSame || !artistSame))) {
-                [array addObject:[NSNumber numberWithInt:count]];
+                [array addObject:@(count)];
                 count = 0;
             }
             count++;
@@ -69,7 +78,47 @@
     } else {
         _albumCounts = @[];
     }
+    
+    _albumIndexes = [NSMutableIndexSet indexSet];
+    NSInteger row = 1;
+    [_albumIndexes addIndex:row];
+    for (NSNumber *i in _albumCounts) {
+        row += [i integerValue];
+        [_albumIndexes addIndex:row];
+    }
+    
     return self;
+}
+
+- (NSInteger)indexForIndexPath:(NSIndexPath *)indexPath {
+    if ([indexPath length] == 1) {
+        return [_albumIndexes indexAtPosition:[indexPath indexAtPosition:0]];
+    } else if ([indexPath length] == 2) {
+        return [_albumIndexes indexAtPosition:[indexPath indexAtPosition:0]] + [indexPath indexAtPosition:1];
+    }
+    return 0;
+}
+
+- (NSIndexPath *)indexPathForIndex:(NSInteger)index {
+    NSInteger i = [_albumIndexes firstIndex];
+    NSInteger prevI = 0;
+    int album = 0;
+    while (i != NSNotFound) {
+        if (i > index) {
+            break;
+        }
+        album++;
+        prevI = i;
+        i = [_albumIndexes indexGreaterThanIndex:i];
+    }
+    
+    NSUInteger indexes[] = {album-1, index - prevI};
+    return [NSIndexPath indexPathWithIndexes:indexes length:2];
+}
+
+- (NSRange)rangeForIndexPath:(NSIndexPath *)indexPath {
+    NSInteger parentIndex = [indexPath indexAtPosition:0];
+    return NSMakeRange([_albumIndexes indexAtPosition:parentIndex], _albumCounts[parentIndex]);
 }
 
 @end

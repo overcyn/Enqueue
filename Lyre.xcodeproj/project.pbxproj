@@ -71,6 +71,7 @@
 		6740584B135A4903000ED697 /* Exclamation Point.png in Resources */ = {isa = PBXBuildFile; fileRef = 6740584A135A4903000ED697 /* Exclamation Point.png */; };
 		6740584D135A4CA4000ED697 /* TexturedSliderSpeakerLoudInverted.png in Resources */ = {isa = PBXBuildFile; fileRef = 6740584C135A4CA3000ED697 /* TexturedSliderSpeakerLoudInverted.png */; };
 		674415C2135AA86800A5B269 /* PRMainMenuController.m in Sources */ = {isa = PBXBuildFile; fileRef = 674415C1135AA86800A5B269 /* PRMainMenuController.m */; };
+		67484DCE19AECEE300F02744 /* NSIndexPath+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67484DCD19AECEE300F02744 /* NSIndexPath+Extensions.m */; };
 		6750A3A2124322E000F415E3 /* PRMainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6750A3A1124322E000F415E3 /* PRMainWindow.xib */; };
 		6750A3AA1243239B00F415E3 /* PRMainWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6750A3A91243239B00F415E3 /* PRMainWindowController.m */; };
 		6750A3FD12433FA700F415E3 /* PRListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6750A3FB12433FA700F415E3 /* PRListViewController.m */; };
@@ -384,6 +385,8 @@
 		674415C1135AA86800A5B269 /* PRMainMenuController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRMainMenuController.m; sourceTree = "<group>"; };
 		67484DB019A1512200F02744 /* PRNowPlayingViewController_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRNowPlayingViewController_Private.h; sourceTree = "<group>"; };
 		67484DB119A1BB7E00F02744 /* PRNowPlayingDescription_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRNowPlayingDescription_Private.h; sourceTree = "<group>"; };
+		67484DCC19AECEE300F02744 /* NSIndexPath+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSIndexPath+Extensions.h"; sourceTree = "<group>"; };
+		67484DCD19AECEE300F02744 /* NSIndexPath+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+Extensions.m"; sourceTree = "<group>"; };
 		6750A3A1124322E000F415E3 /* PRMainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PRMainWindow.xib; sourceTree = "<group>"; };
 		6750A3A81243239B00F415E3 /* PRMainWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRMainWindowController.h; sourceTree = "<group>"; };
 		6750A3A91243239B00F415E3 /* PRMainWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRMainWindowController.m; sourceTree = "<group>"; };
@@ -1139,6 +1142,8 @@
 				675116D1141FD42B00EBE02E /* NSImage+Extensions.m */,
 				67F1AA4B12BDCCC8000A0D8F /* NSIndexSet+Extensions.h */,
 				67F1AA4C12BDCCC8000A0D8F /* NSIndexSet+Extensions.m */,
+				67484DCC19AECEE300F02744 /* NSIndexPath+Extensions.h */,
+				67484DCD19AECEE300F02744 /* NSIndexPath+Extensions.m */,
 				67DDC70D14FA169B00E361B0 /* NSMenuItem+Extensions.h */,
 				67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */,
 				67CFB4471423FDB40045108D /* NSOperationQueue+Extensions.h */,
@@ -1766,6 +1771,7 @@
 			files = (
 				672361FE1241D3E4004FFD06 /* sqlite3.c in Sources */,
 				8D11072D0486CEB800E47090 /* main.m in Sources */,
+				67484DCE19AECEE300F02744 /* NSIndexPath+Extensions.m in Sources */,
 				256AC3DA0F4B6AC300CF3369 /* PRCore.m in Sources */,
 				6750A3AA1243239B00F415E3 /* PRMainWindowController.m in Sources */,
 				6750A3FD12433FA700F415E3 /* PRListViewController.m in Sources */,

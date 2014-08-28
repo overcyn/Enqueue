@@ -27,6 +27,7 @@
 #import "PRTableViewController.h"
 #import "PRViewController.h"
 #import "PRNowPlayingDescription.h"
+#import "NSIndexPath+Extensions.h"
 
 
 @interface PRNowPlayingViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, NSTextFieldDelegate, PROutlineViewDelegate>
@@ -37,7 +38,7 @@
     __weak PRDb *_db;
     
     PROutlineView *_nowPlayingTableView;
-    NSScrollView *scrollview;
+    NSScrollView *_scrollview;
     
     NSView *_headerView;
     NSButton *_clearButton;
@@ -49,9 +50,6 @@
     // tableview datasource
     NSMutableArray *_dbRowForAlbum;
     NSMutableIndexSet *_albumIndexes;
-    
-    NSMutableDictionary *_parentItems;
-    NSMutableDictionary *_childItems;
     
     NSPoint _dropPoint;
     
@@ -66,8 +64,6 @@
 
 - (id)initWithCore:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
-    _parentItems = [[NSMutableDictionary alloc] init];
-    _childItems = [[NSMutableDictionary alloc] init];
     _core = core;
     _db = [core db];
     return self;
@@ -81,17 +77,17 @@
     [self setView:background];
     
     // outline view
-    scrollview = [[NSScrollView alloc] initWithFrame:NSMakeRect(0, 0, 210, 501)];
-    [scrollview setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
-    [scrollview setFocusRingType:NSFocusRingTypeNone];
-    [scrollview setDrawsBackground:NO];
-    [scrollview setBorderType:NSNoBorder];
-    [scrollview setAutohidesScrollers:YES];
-    [scrollview setHasVerticalScroller:YES];
-    [[self view] addSubview:scrollview];
+    _scrollview = [[NSScrollView alloc] initWithFrame:NSMakeRect(0, 0, 210, 501)];
+    [_scrollview setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+    [_scrollview setFocusRingType:NSFocusRingTypeNone];
+    [_scrollview setDrawsBackground:NO];
+    [_scrollview setBorderType:NSNoBorder];
+    [_scrollview setAutohidesScrollers:YES];
+    [_scrollview setHasVerticalScroller:YES];
+    [[self view] addSubview:_scrollview];
     
     NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:@"column"];
-    _nowPlayingTableView = [[PROutlineView alloc] initWithFrame:[scrollview bounds]];
+    _nowPlayingTableView = [[PROutlineView alloc] initWithFrame:[_scrollview bounds]];
     [_nowPlayingTableView setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
     [_nowPlayingTableView setFocusRingType:NSFocusRingTypeNone];
     [_nowPlayingTableView setBackgroundColor:[NSColor transparent]];
@@ -107,7 +103,7 @@
     [_nowPlayingTableView setAutoresizesOutlineColumn:NO];
     [_nowPlayingTableView addTableColumn:column];
     [_nowPlayingTableView setOutlineTableColumn:column];
-    [scrollview setDocumentView:_nowPlayingTableView];
+    [_scrollview setDocumentView:_nowPlayingTableView];
     
     // header view
     _headerView = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 50, 30)];
@@ -151,10 +147,10 @@
     [_nowPlayingTableView collapseItem:nil];
     if ([collapseState lastIndex] < [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil]) {
         [collapseState enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
-            [_nowPlayingTableView expandItem:[self itemForItem:@[[NSNumber numberWithInt:idx]]]];
+            [_nowPlayingTableView expandItem:[self itemForItem:[NSIndexPath indexPathForAlbum:idx]]];
         }];
     } else {
-        [_nowPlayingTableView expandItem:[self itemForItem:@[@0]]];
+        [_nowPlayingTableView expandItem:[self itemForItem:[NSIndexPath indexPathForAlbum:0]]];
     }
     
     // notifications
@@ -179,7 +175,7 @@
         return;
     }
     id currentItem = [self itemForDbRow:[_nowPlayingDescription currentIndex]];
-    NSArray *parentItem = [self itemForItem:@[[currentItem objectAtIndex:0]]];
+    NSArray *parentItem = [self itemForItem:[NSIndexPath indexPathForAlbum:[currentItem indexAtPosition:0]]];
     if (![_nowPlayingTableView isItemExpanded:parentItem]) {
         [_nowPlayingTableView collapseItem:nil];
     }
@@ -196,7 +192,7 @@
     NSMutableArray *afterArray = [NSMutableArray array];
     int albumCount = [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil];
     for (int i = 0; i < albumCount; i++) {
-        NSArray *item = [self itemForItem:[NSArray arrayWithObjects:[NSNumber numberWithInt:i], nil]];
+        NSArray *item = [self itemForItem:[NSIndexPath indexPathForAlbum:i]];
         NSRange range = [self dbRangeForParentItem:item];
         if (range.location == dbRow) {
             break;
@@ -208,8 +204,8 @@
     }
     if (dbRow <= [self dbRowCount]) {
         for (int i = albumCount - 1; i >= 0 ; i--) {
-            NSArray *item = [self itemForItem:[NSArray arrayWithObjects:[NSNumber numberWithInt:i], nil]];
-            [afterArray addObject:[NSNumber numberWithBool:[_nowPlayingTableView isItemExpanded:item]]];
+            NSArray *item = [self itemForItem:[NSIndexPath indexPathForAlbum:i]];
+            [afterArray addObject:@([_nowPlayingTableView isItemExpanded:item])];
             NSRange range = [self dbRangeForParentItem:item];
             if (NSLocationInRange(dbRow, range)) {
                 break;
@@ -239,7 +235,7 @@
     
     albumCount = [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil];
     for (int i = 0; i < [beforeArray count]; i++) {
-        id item = [self itemForItem:@[[NSNumber numberWithInt:i]]];
+        id item = [self itemForItem:[NSIndexPath indexPathForAlbum:i]];
         if ([[beforeArray objectAtIndex:i] boolValue]) {
             [_nowPlayingTableView expandItem:item];
         } else {
@@ -247,7 +243,7 @@
         }
     }
     for (int i = 0; i < [afterArray count]; i++) {
-        id item = [self itemForItem:@[[NSNumber numberWithInt:albumCount - i - 1]]];
+        id item = [self itemForItem:[NSIndexPath indexPathForAlbum:albumCount - i - 1]];
         if ([[afterArray objectAtIndex:i] boolValue]) {
             [_nowPlayingTableView expandItem:item];
         } else {
@@ -256,7 +252,7 @@
     }
     
     if (singleAlbum) {
-        id item = [self itemForItem:@[[NSNumber numberWithInt:[beforeArray count]]]];
+        id item = [self itemForItem:[NSIndexPath indexPathForAlbum:[beforeArray count]]];
         [_nowPlayingTableView expandItem:item];
     }
 }
@@ -283,7 +279,7 @@
     NSMutableArray *array = [NSMutableArray array];
     BOOL prevAlbumMissing = NO;
     for (int i = 0; i < albumCount; i++) {
-        NSArray *item = [self itemForItem:[NSArray arrayWithObjects:[NSNumber numberWithInt:i], nil]];
+        NSArray *item = [self itemForItem:[NSIndexPath indexPathForAlbum:i]];
         NSRange range = [self dbRangeForParentItem:item];
         if (range.length == [dbRows countOfIndexesInRange:range]) {
             prevAlbumMissing = YES;
@@ -295,30 +291,32 @@
             NSString *prevArtist = [[array lastObject] objectForKey:@"artist"];
             NSString *prevAlbum = [[array lastObject] objectForKey:@"album"];
             if (!(prevAlbumMissing && [artist noCaseCompare:prevArtist] == NSOrderedSame && [album noCaseCompare:prevAlbum] == NSOrderedSame)) {
-                NSDictionary *info = [NSDictionary dictionaryWithObjectsAndKeys:
-                                      [NSNumber numberWithBool:[_nowPlayingTableView isItemExpanded:item]], @"expanded", 
-                                      artist, @"artist",
-                                      album, @"album", nil];
+                NSDictionary *info = @{@"expanded":@([_nowPlayingTableView isItemExpanded:item]), @"artist":artist, @"album":album};
                 [array addObject:info];
             }
             prevAlbumMissing = NO;
         }
     }
     
-    if ([dbRows containsIndex:[_nowPlayingDescription currentIndex]]) {
-        [PRActionCenter performAction:[[PRStopAction alloc] init]];
-    }
-    [[_db playlists] removeItemsAtIndexes:dbRows fromList:[_nowPlayingDescription currentList]];
-    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[_nowPlayingDescription currentList]];
-    [_nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
-    
-    for (int i = 0; i < [array count]; i++) {
-        if ([[[array objectAtIndex:i] objectForKey:@"expanded"] boolValue]) {
-            [_nowPlayingTableView expandItem:[self itemForItem:@[@(i)]]];
-        } else {
-            [_nowPlayingTableView collapseItem:[self itemForItem:@[@(i)]]];
+    BOOL shouldStop = [dbRows containsIndex:[_nowPlayingDescription currentIndex]];
+    [PRActionCenter performAction:[PRBlockAction blockActionWithBlock:^(PRCore *core) {
+        if (shouldStop) {
+            [[core now] stop];
         }
-    }
+        [[[core db] playlists] zRemoveItemsAtIndexes:dbRows fromList:[_nowPlayingDescription currentList]];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postListItemsDidChange:[_nowPlayingDescription currentList]];
+            [_nowPlayingTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
+            for (int i = 0; i < [array count]; i++) {
+                if ([[[array objectAtIndex:i] objectForKey:@"expanded"] boolValue]) {
+                    [_nowPlayingTableView expandItem:[self itemForItem:[NSIndexPath indexPathForAlbum:i]]];
+                } else {
+                    [_nowPlayingTableView collapseItem:[self itemForItem:[NSIndexPath indexPathForAlbum:i]]];
+                }
+            }
+        });
+    }]];
 }
 
 - (void)revealSelectedInFinder {
@@ -372,9 +370,7 @@
 
 - (void)clearQueue {
     [PRActionCenter performAction:[PRBlockAction blockActionWithBlock:^(PRCore *core) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[[core db] queue] clear];
-        });
+        [[[core db] queue] clear];
     }]];
 }
 
@@ -446,21 +442,6 @@
     _listDescription = [[PRNowPlayingListDescription alloc] initWithList:[[_db playlists] nowPlayingList] database:_db];
     _nowPlayingDescription = [[_core now] description];
     
-    // refresh tableIndexes
-    [_parentItems removeAllObjects];
-    [_childItems removeAllObjects];
-    
-    _dbRowForAlbum = [NSMutableArray array];
-    _albumIndexes = [NSMutableIndexSet indexSet];
-    
-    int dbRow = 1;
-    [_dbRowForAlbum addObject:[NSNumber numberWithInt:dbRow]];
-    [_albumIndexes addIndex:dbRow];
-    for (int album = 0; album < [[_listDescription albumCounts] count]; album++) {
-        dbRow += [[[_listDescription albumCounts] objectAtIndex:album] intValue];
-        [_dbRowForAlbum addObject:[NSNumber numberWithInt:dbRow]];
-        [_albumIndexes addIndex:dbRow];
-    }
     [_nowPlayingTableView reloadData];
 }
 
@@ -589,7 +570,7 @@
         [self updateTableView];
         [_nowPlayingTableView collapseItem:nil];
         if ([_nowPlayingDescription currentIndex] != 0) {
-            NSArray *parentItem = [self itemForItem:@[[NSNumber numberWithInt:0]]];
+            NSArray *parentItem = [self itemForItem:[NSIndexPath indexPathForAlbum:0]];
             [_nowPlayingTableView expandItem:parentItem];
         }
     }
@@ -601,7 +582,7 @@
     [(PROutlineView *)_nowPlayingTableView reloadVisibleItems];
     if ([_nowPlayingDescription currentIndex] != 0) {
         id currentItem = [self itemForDbRow:[_nowPlayingDescription currentIndex]];
-        NSArray *parentItem = [self itemForItem:@[[currentItem objectAtIndex:0]]];
+        NSArray *parentItem = [self itemForItem:[NSIndexPath indexPathForAlbum:[currentItem album]]];
         if (![_nowPlayingTableView isItemExpanded:parentItem]) {
             [_nowPlayingTableView collapseItem:nil];
         }
@@ -615,7 +596,7 @@
     NSMutableIndexSet *collapseState = [NSMutableIndexSet indexSet];
     NSUInteger count = [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil];
     for (NSUInteger i = 0; i < count; i++) {
-        if ([_nowPlayingTableView isItemExpanded:[self itemForItem:@[[NSNumber numberWithInt:i]]]]) {
+        if ([_nowPlayingTableView isItemExpanded:[self itemForItem:[NSIndexPath indexPathForAlbum:i]]]) {
             [collapseState addIndex:i];
         }
     }
@@ -625,22 +606,15 @@
 #pragma mark - Misc Priv
 
 - (int)dbRowCount {
-    return [_albumIndexes lastIndex] - 1;
+    return [_listDescription count];
 }
 
 - (NSRange)dbRangeForParentItem:(id)item {
-    return NSMakeRange([[_dbRowForAlbum objectAtIndex:[[item objectAtIndex:0] intValue]] intValue], 
-                       [[[_listDescription albumCounts] objectAtIndex:[[item objectAtIndex:0] intValue]] intValue]);
+    return [_listDescription rangeForIndexPath:item];
 }
 
 - (int)dbRowForItem:(id)item {
-    if (!item) {
-        return 0;
-    } else if ([(NSArray *)item count] == 1) {
-        return [[_dbRowForAlbum objectAtIndex:[[item objectAtIndex:0] intValue]] intValue];
-    } else {
-        return [[_dbRowForAlbum objectAtIndex:[[item objectAtIndex:0] intValue]] intValue] + [[item objectAtIndex:1] intValue];
-    }
+    return [_listDescription indexForIndexPath:item];
 }
 
 - (int)countForAlbum:(int)album {
@@ -648,42 +622,11 @@
 }
 
 - (id)itemForDbRow:(int)row {
-    NSInteger i = [_albumIndexes firstIndex];
-    NSInteger prevI = 0;
-    int album = 0;
-    while (i != NSNotFound) {
-        if (i > row) {
-            break;
-        }
-        album++;
-        prevI = i;
-        i = [_albumIndexes indexGreaterThanIndex:i];
-    }
-    NSArray *item = [NSArray arrayWithObjects:
-                     [NSNumber numberWithInt:album-1],
-                     [NSNumber numberWithInt:row - prevI], nil];
-    return [self itemForItem:item];
+    return [_listDescription indexPathForIndex:row];
 }
 
 - (id)itemForItem:(id)item {
-    NSString *key;
-    id new;
-    if ([(NSArray *)item count] == 1) {
-        key = [NSString stringWithFormat:@"%d",[[item objectAtIndex:0] intValue]];
-        new = [_parentItems objectForKey:key];
-        if (!new) {
-            [_parentItems setObject:item forKey:key];
-            new = item;
-        }
-    } else {
-        key = [NSString stringWithFormat:@"%d-%d",[[item objectAtIndex:0] intValue], [[item objectAtIndex:1] intValue]];
-        new = [_childItems objectForKey:key];
-        if (!new) {
-            [_childItems setObject:item forKey:key];
-            new = item;
-        }
-    }
-    return new;
+    return item;
 }
 
 - (NSIndexSet *)selectedDbRows {
@@ -709,7 +652,7 @@
 }
 
 - (CGFloat)outlineView:(NSOutlineView *)outlineView heightOfRowByItem:(id)item {
-    if ([(NSArray *)item count] == 1) {
+    if ([item length] == 1) {
         return 38.0;
     } else {
         return 19.0;
@@ -729,7 +672,7 @@
         _cachedNowPlayingCell = [[PRNowPlayingCell alloc] initTextCell:@""];
         _cachedNowPlayingHeaderCell = [[PRNowPlayingHeaderCell alloc] initTextCell:@""];
     }
-    if ([(NSArray *)item count] == 1) {
+    if ([item length] == 1) {
         return _cachedNowPlayingHeaderCell;
     }
     return _cachedNowPlayingCell;
@@ -785,7 +728,7 @@
         NSString *prevAlbum = @"";
         BOOL prevAlbumMissing = NO;
         for (int i = 0; i < albumCount; i++) {
-            NSArray *item = [self itemForItem:[NSArray arrayWithObjects:[NSNumber numberWithInt:i], nil]];
+            NSArray *item = [self itemForItem:[NSIndexPath indexPathForAlbum:i]];
             NSRange range = [self dbRangeForParentItem:item];
             if (NSLocationInRange(dbIndexToInsert, range)) {
                 int albumLength = range.length - [dbIndexesToMove countOfIndexesInRange:range];
@@ -854,7 +797,7 @@
         // Collapse/uncollapse using beforeArray and afterArray;
         albumCount = [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil];
         for (int i = 0; i < [beforeArray count]; i++) {
-            id item = [self itemForItem:@[[NSNumber numberWithInt:i]]];
+            id item = [self itemForItem:[NSIndexPath indexPathForAlbum:i]];
             if ([[beforeArray objectAtIndex:i] boolValue]) {
                 [_nowPlayingTableView expandItem:item];
             } else {
@@ -862,7 +805,7 @@
             }
         }
         for (int i = 0; i < [afterArray count]; i++) {
-            id item = [self itemForItem:@[[NSNumber numberWithInt:albumCount - i - 1]]];
+            id item = [self itemForItem:[NSIndexPath indexPathForAlbum:albumCount - i - 1]];
             if ([[afterArray objectAtIndex:i] boolValue]) {
                 [_nowPlayingTableView expandItem:item];
             } else {
@@ -885,7 +828,7 @@
         NSMutableArray *afterArray = [NSMutableArray array];
         int albumCount = [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil];
         for (int i = 0; i < albumCount; i++) {
-            NSArray *item = [self itemForItem:[NSArray arrayWithObjects:[NSNumber numberWithInt:i], nil]];
+            NSArray *item = [self itemForItem:[NSIndexPath indexPathForAlbum:i]];
             NSRange range = [self dbRangeForParentItem:item];
             if (range.location == dbRow) {
                 break;
@@ -897,7 +840,7 @@
         }
         if (dbRow <= [self dbRowCount]) {
             for (int i = albumCount - 1; i >= 0 ; i--) {
-                NSArray *item = [self itemForItem:[NSArray arrayWithObjects:[NSNumber numberWithInt:i], nil]];
+                NSArray *item = [self itemForItem:[NSIndexPath indexPathForAlbum:i]];
                 [afterArray addObject:[NSNumber numberWithBool:[_nowPlayingTableView isItemExpanded:item]]];
                 NSRange range = [self dbRangeForParentItem:item];
                 if (NSLocationInRange(dbRow, range)) {
@@ -927,7 +870,7 @@
         
         albumCount = [self outlineView:_nowPlayingTableView numberOfChildrenOfItem:nil];
         for (int i = 0; i < [beforeArray count]; i++) {
-            id item = [self itemForItem:@[[NSNumber numberWithInt:i]]];
+            id item = [self itemForItem:[NSIndexPath indexPathForAlbum:i]];
             if ([[beforeArray objectAtIndex:i] boolValue]) {
                 [_nowPlayingTableView expandItem:item];
             } else {
@@ -935,7 +878,7 @@
             }
         }
         for (int i = 0; i < [afterArray count]; i++) {
-            id item = [self itemForItem:@[[NSNumber numberWithInt:albumCount - i - 1]]];
+            id item = [self itemForItem:[NSIndexPath indexPathForAlbum:albumCount - i - 1]];
             if ([[afterArray objectAtIndex:i] boolValue]) {
                 [_nowPlayingTableView expandItem:item];
             } else {
@@ -944,7 +887,7 @@
         }
         
         if (singleAlbum) {
-            id item = [self itemForItem:@[[NSNumber numberWithInt:[beforeArray count]]]];
+            id item = [self itemForItem:[NSIndexPath indexPathForAlbum:[beforeArray count]]];
             [_nowPlayingTableView expandItem:item];
         }
     }
@@ -971,7 +914,7 @@
 #pragma mark - NSOutlineViewDataSource
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item {
-    if ([(NSArray *)item count] == 1) {
+    if ([item length] == 1) {
         return YES;
     }
     return NO;
@@ -980,15 +923,15 @@
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
     if (!item) {
         return [[_listDescription albumCounts] count];
-    } else if ([(NSArray *)item count] == 1) {
-        return [[[_listDescription albumCounts] objectAtIndex:[[item objectAtIndex:0] intValue]] intValue];
+    } else if ([item length] == 1) {
+        return [[[_listDescription albumCounts] objectAtIndex:[item indexAtPosition:0]] integerValue];
     } else {
         return 0;
     }
 }
 
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item {
-    if ([(NSArray *)item count] == 1) {
+    if ([item length] == 1) {
         int row = [self dbRowForItem:item];
         PRItem *it = [_listDescription itemAtIndex:row-1];
         NSString *album =  [[_db library] valueForItem:it attr:PRItemAttrAlbum];
@@ -1033,11 +976,11 @@
 }
 
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item {
-    NSArray *newItem;
+    NSIndexPath *newItem;
     if (!item) {
-        newItem = @[@(index)];
+        newItem = [NSIndexPath indexPathForAlbum:index];
     } else {
-        newItem = @[item[0], @(index)];
+        newItem = [NSIndexPath indexPathForAlbum:[item indexAtPosition:0] song:index];
     }
     return [self itemForItem:newItem];
 }
