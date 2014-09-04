@@ -46,11 +46,7 @@
     
     NSMenu *_playlistMenu;
     NSMenu *_contextMenu;
-    
-    // tableview datasource
-    NSMutableArray *_dbRowForAlbum;
-    NSMutableIndexSet *_albumIndexes;
-    
+        
     NSPoint _dropPoint;
     
     NSCell *_cachedNowPlayingCell;
@@ -285,7 +281,7 @@
             prevAlbumMissing = YES;
             continue;
         } else {
-            PRItem *item_ = [[_db playlists] itemAtIndex:range.location forList:[_nowPlayingDescription currentList]];
+            PRItem *item_ = [_listDescription itemAtIndex:range.location-1];
             NSString *artist = [[_db library] valueForItem:item_ attr:PRItemAttrArtist];
             NSString *album = [[_db library] valueForItem:item_ attr:PRItemAttrAlbum];
             NSString *prevArtist = [[array lastObject] objectForKey:@"artist"];
@@ -353,7 +349,7 @@
     NSInteger dbRow = [dbRows firstIndex];
     while (dbRow != NSNotFound) {
         if (dbRow != [_nowPlayingDescription currentIndex]) {
-            [[_db queue] appendListItem:[[_db playlists] listItemAtIndex:dbRow inList:[_nowPlayingDescription currentList]]];
+            [[_db queue] appendListItem:[_listDescription listItemAtIndex:dbRow-1]];
         }
         dbRow = [dbRows indexGreaterThanIndex:dbRow];
     }
@@ -363,7 +359,7 @@
     NSIndexSet *dbRows = [self selectedDbRows];
     NSInteger dbRow = [dbRows firstIndex];
     while (dbRow != NSNotFound) {
-        [[_db queue] removeListItem:[[_db playlists] listItemAtIndex:dbRow inList:[_nowPlayingDescription currentList]]];
+        [[_db queue] removeListItem:[_listDescription listItemAtIndex:dbRow-1]];
         dbRow = [dbRows indexGreaterThanIndex:dbRow];
     }
 }
@@ -504,7 +500,7 @@
     NSIndexSet *dbRows = [self selectedDbRows];
     NSInteger dbRow = [dbRows firstIndex];
     while (dbRow != NSNotFound) {
-        PRListItem *listItem = [[_db playlists] listItemAtIndex:dbRow inList:[_nowPlayingDescription currentList]];
+        PRListItem *listItem = [_listDescription listItemAtIndex:dbRow-1];
         if ([queue containsObject:listItem]) {
             removeFromQueue = YES;
         } else {
@@ -617,10 +613,6 @@
     return [_listDescription indexForIndexPath:item];
 }
 
-- (int)countForAlbum:(int)album {
-    return [[[_listDescription albumCounts] objectAtIndex:album] intValue];
-}
-
 - (id)itemForDbRow:(int)row {
     return [_listDescription indexPathForIndex:row];
 }
@@ -634,11 +626,12 @@
     NSIndexSet *selectedRowIndexes = [_nowPlayingTableView selectedRowIndexes];
     NSInteger selectedRow = [selectedRowIndexes firstIndex];
     while (selectedRow != NSNotFound) {
-        NSArray *item = [_nowPlayingTableView itemAtRow:selectedRow];
-        if ([item count] == 2) {
+        NSIndexPath *item = [_nowPlayingTableView itemAtRow:selectedRow];
+        if ([item length] == 2) {
             [selectedDbRows addIndex:[self dbRowForItem:item]];
         } else {
-            [selectedDbRows addIndexesInRange:NSMakeRange([self dbRowForItem:item], [self countForAlbum:[[item objectAtIndex:0] intValue]])];
+            NSInteger albumCount = [[[_listDescription albumCounts] objectAtIndex:[item indexAtPosition:0]] integerValue];
+            [selectedDbRows addIndexesInRange:NSMakeRange([self dbRowForItem:item], albumCount)];
         }
         selectedRow = [selectedRowIndexes indexGreaterThanIndex:selectedRow];
     }
@@ -688,20 +681,19 @@
 }
 
 - (NSDragOperation)outlineView:(NSOutlineView *)view validateDrop:(id<NSDraggingInfo>)info proposedItem:(id)item_ proposedChildIndex:(NSInteger)index {
-    NSArray *item = item_;
+    NSIndexPath *item = item_;
     if (index == NSOutlineViewDropOnItemIndex) {
         return NSDragOperationNone;
     }
-    if ([item count] == 1 && 
+    if ([item length] == 1 &&
         (![_nowPlayingTableView isItemExpanded:item] ||
-         index == [[[_listDescription albumCounts] objectAtIndex:[[item objectAtIndex:0] intValue]] intValue])) {
-        [_nowPlayingTableView setDropItem:nil dropChildIndex:[[item objectAtIndex:0] intValue] + 1];
+         index == [[[_listDescription albumCounts] objectAtIndex:[item indexAtPosition:0]] integerValue])) {
+        [_nowPlayingTableView setDropItem:nil dropChildIndex:[item indexAtPosition:0] + 1];
     }
     return NSDragOperationGeneric;
 }
 
-- (BOOL)outlineView:(NSOutlineView *)view acceptDrop:(id<NSDraggingInfo>)info item:(id)item_ childIndex:(NSInteger)index {
-    NSArray *item = item_;
+- (BOOL)outlineView:(NSOutlineView *)view acceptDrop:(id<NSDraggingInfo>)info item:(NSIndexPath *)item childIndex:(NSInteger)index {
     NSPasteboard *pboard = [info draggingPasteboard];
     NSData *filesData = [pboard dataForType:PRFilePboardType];
     if ([info draggingSource] == _nowPlayingTableView) {
@@ -711,8 +703,8 @@
         // Calculate the index at which to move dbIndexesToMove as dbIndexToInsert
         int dbIndexToInsert;
         if (!item) {
-            dbIndexToInsert = [self dbRowForItem:[NSArray arrayWithObjects:[NSNumber numberWithInt:index], nil]];
-        } else if ([item count] == 1) {
+            dbIndexToInsert = [self dbRowForItem:[NSIndexPath indexPathForAlbum:index]];
+        } else if ([item length] == 1) {
             dbIndexToInsert = [self dbRowForItem:item] + index;
         } else {
             dbIndexToInsert = 1;
@@ -746,7 +738,7 @@
                 prevAlbumMissing = YES;
                 continue;
             }
-            PRListItem *listItem = [[_db playlists] itemAtIndex:range.location forList:[_nowPlayingDescription currentList]];
+            PRListItem *listItem = [_listDescription listItemAtIndex:range.location-1];
             NSString *artist = [[_db library] valueForItem:listItem attr:PRItemAttrArtist];
             NSString *album = [[_db library] valueForItem:listItem attr:PRItemAttrAlbum];
             BOOL shouldMergeWithPrevAlbum = prevAlbumMissing && [artist noCaseCompare:prevArtist] == NSOrderedSame && [album noCaseCompare:prevAlbum] == NSOrderedSame;
@@ -817,8 +809,8 @@
         NSArray *files = [NSKeyedUnarchiver unarchiveObjectWithData:filesData];
         int dbRow;
         if (!item) {
-            dbRow = [self dbRowForItem:[NSArray arrayWithObjects:[NSNumber numberWithInt:index], nil]];
-        } else if ([item count] == 1) {
+            dbRow = [self dbRowForItem:[NSIndexPath indexPathForAlbum:index]];
+        } else if ([item length] == 1) {
             dbRow = [self dbRowForItem:item] + index;
         } else {
             dbRow = 1;
@@ -914,10 +906,7 @@
 #pragma mark - NSOutlineViewDataSource
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item {
-    if ([item length] == 1) {
-        return YES;
-    }
-    return NO;
+    return [item length] == 1;
 }
 
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
@@ -945,7 +934,7 @@
         if ([[[_db library] valueForItem:it attr:PRItemAttrCompilation] boolValue] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]) {
             artist = @"Compilation";
         }
-        NSNumber *drawBorder = [NSNumber numberWithBool:[[item objectAtIndex:0] intValue] + 1 == [[_listDescription albumCounts] count] || [_nowPlayingTableView isItemExpanded:item]];
+       NSNumber *drawBorder = @([item indexAtPosition:0] + 1 == [[_listDescription albumCounts] count] || [_nowPlayingTableView isItemExpanded:item]);
         return @{@"title":artist, @"subtitle":album, @"item":item, @"drawBorder":drawBorder, @"target":self};
     } else {
         int row = [self dbRowForItem:item];
@@ -963,7 +952,7 @@
             icon = [[NSImage alloc] init];
             invertedIcon = [[NSImage alloc] init];
         }
-        PRListItem *listItem = [[_db playlists] listItemAtIndex:row inList:[_nowPlayingDescription currentList]];
+        PRListItem *listItem = [_listDescription listItemAtIndex:row-1];
         NSUInteger queueIndex = [[[_db queue] queueArray] indexOfObject:listItem];
         NSNumber *badge;
         if (queueIndex != NSNotFound) {

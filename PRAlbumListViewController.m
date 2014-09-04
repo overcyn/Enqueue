@@ -407,7 +407,7 @@
 }
 
 - (int)tableRowForDbRow:(int)dbRow {
-    NSInteger tableRow = [_tableIndexes indexAtPosition:dbRow];
+    NSInteger tableRow = [_tableIndexes indexAtPosition:dbRow-1];
     if (tableRow == NSNotFound) {
         return -1;
     }

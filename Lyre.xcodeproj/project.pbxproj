@@ -49,7 +49,7 @@
 		6727A96413C6535900B264A9 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6727A96313C6535800B264A9 /* Quartz.framework */; };
 		6727E46D1368F80200A21055 /* SFBAudioEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6727E46C1368F80200A21055 /* SFBAudioEngine.framework */; };
 		6727E4701368F91D00A21055 /* ShortcutRecorder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6727E46F1368F91D00A21055 /* ShortcutRecorder.framework */; };
-		6727E4711368F92E00A21055 /* ShortcutRecorder.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6727E46F1368F91D00A21055 /* ShortcutRecorder.framework */; };
+		6727E4711368F92E00A21055 /* ShortcutRecorder.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6727E46F1368F91D00A21055 /* ShortcutRecorder.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		672AE6B9127E5DC70034C641 /* PRHistory.m in Sources */ = {isa = PBXBuildFile; fileRef = 672AE6B8127E5DC70034C641 /* PRHistory.m */; };
 		672AE9B7127FD5E40034C641 /* PRHistoryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 672AE9B6127FD5E40034C641 /* PRHistoryCell.m */; };
 		672AED8F128235260034C641 /* PRAlbumListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 672AED8E128235260034C641 /* PRAlbumListViewController.m */; };
@@ -67,7 +67,7 @@
 		673E4AB013854FAB00DD8260 /* Growl Registration Ticket.growlRegDict in Resources */ = {isa = PBXBuildFile; fileRef = 673E4AAF13854FAB00DD8260 /* Growl Registration Ticket.growlRegDict */; };
 		673E4AB2138550D200DD8260 /* Growl.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 673E4AB1138550D200DD8260 /* Growl.framework */; };
 		673E4AB61385512500DD8260 /* PRGrowl.m in Sources */ = {isa = PBXBuildFile; fileRef = 673E4AB51385512500DD8260 /* PRGrowl.m */; };
-		673E4AB7138553FD00DD8260 /* Growl.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 673E4AB1138550D200DD8260 /* Growl.framework */; };
+		673E4AB7138553FD00DD8260 /* Growl.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 673E4AB1138550D200DD8260 /* Growl.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		6740584B135A4903000ED697 /* Exclamation Point.png in Resources */ = {isa = PBXBuildFile; fileRef = 6740584A135A4903000ED697 /* Exclamation Point.png */; };
 		6740584D135A4CA4000ED697 /* TexturedSliderSpeakerLoudInverted.png in Resources */ = {isa = PBXBuildFile; fileRef = 6740584C135A4CA3000ED697 /* TexturedSliderSpeakerLoudInverted.png */; };
 		674415C2135AA86800A5B269 /* PRMainMenuController.m in Sources */ = {isa = PBXBuildFile; fileRef = 674415C1135AA86800A5B269 /* PRMainMenuController.m */; };
@@ -174,9 +174,9 @@
 		67BBE7621421AF5D003C438B /* PRLastfmFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 67BBE7611421AF5D003C438B /* PRLastfmFile.m */; };
 		67C0481A14B5703D00F8A9FF /* PRNothingPlaying.png in Resources */ = {isa = PBXBuildFile; fileRef = 67C0481914B5703D00F8A9FF /* PRNothingPlaying.png */; };
 		67C0BA1A13C7AE1E0088D2E7 /* NSString+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C0BA1913C7AE1E0088D2E7 /* NSString+Extensions.m */; };
-		67C0CE3E1458A67800CBCE24 /* SFBAudioEngine.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6727E46C1368F80200A21055 /* SFBAudioEngine.framework */; };
+		67C0CE3E1458A67800CBCE24 /* SFBAudioEngine.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6727E46C1368F80200A21055 /* SFBAudioEngine.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		67C0CE451458A7A700CBCE24 /* mp4v2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67C0CE441458A7A700CBCE24 /* mp4v2.framework */; };
-		67C0CE461458A7B300CBCE24 /* mp4v2.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 67C0CE441458A7A700CBCE24 /* mp4v2.framework */; };
+		67C0CE461458A7B300CBCE24 /* mp4v2.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 67C0CE441458A7A700CBCE24 /* mp4v2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		67C0D1B31458DF7800CBCE24 /* Settings.png in Resources */ = {isa = PBXBuildFile; fileRef = 67C0D1B21458DF7800CBCE24 /* Settings.png */; };
 		67C23B15137FA91F0099A5CA /* PRWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C23B14137FA91F0099A5CA /* PRWindow.m */; };
 		67C23B17137FDC020099A5CA /* background.png in Resources */ = {isa = PBXBuildFile; fileRef = 67C23B16137FDC020099A5CA /* background.png */; };
@@ -227,9 +227,9 @@
 		67EA1305145B36F400309876 /* NowCancel.png in Resources */ = {isa = PBXBuildFile; fileRef = 67EA1304145B36F400309876 /* NowCancel.png */; };
 		67EA1307145BA83D00309876 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67EA1306145BA83C00309876 /* AudioUnit.framework */; };
 		67EA414D1359535B00F27195 /* SSCrypto.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67EA414C1359535B00F27195 /* SSCrypto.framework */; };
-		67EA414E1359536500F27195 /* SSCrypto.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 67EA414C1359535B00F27195 /* SSCrypto.framework */; };
+		67EA414E1359536500F27195 /* SSCrypto.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 67EA414C1359535B00F27195 /* SSCrypto.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		67EA4157135958CE00F27195 /* taglib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67EA4156135958CE00F27195 /* taglib.framework */; };
-		67EA4158135958D900F27195 /* taglib.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 67EA4156135958CE00F27195 /* taglib.framework */; };
+		67EA4158135958D900F27195 /* taglib.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 67EA4156135958CE00F27195 /* taglib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		67EA44A014499336006DDB47 /* PREnableLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 67EA449F14499336006DDB47 /* PREnableLogger.mm */; };
 		67EB42451339B843009167BA /* PRBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67EB42441339B843009167BA /* PRBackgroundView.m */; };
 		67EC3B7C1349A55600AD0BE1 /* PRWelcomeSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67EC3B7B1349A55600AD0BE1 /* PRWelcomeSheetController.m */; };
@@ -1650,7 +1650,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 0600;
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Lyre" */;
 			compatibilityVersion = "Xcode 3.2";

@@ -308,10 +308,8 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
 - (BOOL)zValueForItem:(PRItem *)item attr:(PRItemAttr *)attr out:(id *)outValue {
     NSArray *rlt = nil;
-    BOOL success = [_db zExecute:[NSString stringWithFormat:@"SELECT %@ FROM library WHERE file_id = ?1", [PRLibrary columnNameForItemAttr:attr]]
-        bindings:@{@1:item}
-        columns:@[[PRLibrary columnTypeForItemAttr:attr]]
-        out:&rlt];
+    NSString *stm = [NSString stringWithFormat:@"SELECT %@ FROM library WHERE file_id = ?1", [PRLibrary columnNameForItemAttr:attr]];
+    BOOL success = [_db zExecute:stm bindings:@{@1:item} columns:@[[PRLibrary columnTypeForItemAttr:attr]] out:&rlt];
     if (success && outValue && [rlt count] > 0) {
         *outValue = rlt[0][0];
     }
@@ -319,10 +317,8 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 }
 
 - (BOOL)zSetValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr {
-    BOOL success = [_db zExecute:[NSString stringWithFormat:@"UPDATE library SET %@ = ?1 WHERE file_id = ?2", [PRLibrary columnNameForItemAttr:attr]]
-        bindings:@{@1:value, @2:item}
-        columns:nil
-        out:nil];
+    NSString *stm = [NSString stringWithFormat:@"UPDATE library SET %@ = ?1 WHERE file_id = ?2", [PRLibrary columnNameForItemAttr:attr]];
+    BOOL success = [_db zExecute:stm bindings:@{@1:value, @2:item} columns:nil out:nil];
     return success;
 }
 
