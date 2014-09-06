@@ -3,7 +3,7 @@
 @class PRDb;
 
 
-@interface PRListDescription : NSObject
+@interface PRListItemsDescription : NSObject
 - (id)initWithList:(PRList *)list database:(PRDb *)db;
 @property (nonatomic, readonly) PRList *list;
 @property (nonatomic, readonly) NSInteger count;
@@ -12,7 +12,7 @@
 @end
 
 
-@interface PRNowPlayingListDescription : PRListDescription
+@interface PRNowPlayingListItemsDescription : PRListItemsDescription
 @property (nonatomic, readonly) NSArray *albumCounts;
 - (NSInteger)indexForIndexPath:(NSIndexPath *)index; // One based
 - (NSIndexPath *)indexPathForIndex:(NSInteger)index;

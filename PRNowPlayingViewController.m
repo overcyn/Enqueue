@@ -13,7 +13,7 @@
 #import "PRGradientView.h"
 #import "PRLibrary.h"
 #import "PRLibraryViewController.h"
-#import "PRListDescription.h"
+#import "PRListItemsDescription.h"
 #import "PRMainWindowController.h"
 #import "PRMoviePlayer.h"
 #import "PRNowPlayingCell.h"
@@ -53,7 +53,7 @@
     NSCell *_cachedNowPlayingCell;
     NSCell *_cachedNowPlayingHeaderCell;
     
-    PRNowPlayingListDescription *_listDescription;
+    PRNowPlayingListItemsDescription *_listDescription;
     PRNowPlayingDescription *_nowPlayingDescription;
 }
 
@@ -445,7 +445,7 @@
 #pragma mark - Update Priv
 
 - (void)updateTableView {
-    _listDescription = [[PRNowPlayingListDescription alloc] initWithList:[[_db playlists] nowPlayingList] database:_db];
+    _listDescription = [[PRNowPlayingListItemsDescription alloc] initWithList:[[_db playlists] nowPlayingList] database:_db];
     _nowPlayingDescription = [[_core now] description];
     
     [_nowPlayingTableView reloadData];
