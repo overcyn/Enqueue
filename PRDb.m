@@ -307,7 +307,8 @@ NSString * const PRColData = @"PRColData";
 
 - (NSArray *)execute:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns {
     PRStatement *stmt = [[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:self];
-    id rlt = [stmt execute];
+    id rlt = nil;
+    [stmt zExecute:&rlt];
     return rlt;
 }
 
@@ -318,10 +319,12 @@ NSString * const PRColData = @"PRColData";
 - (NSArray *)executeCached:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns {
     PRStatement *statement = [_cachedStatements objectForKey:string];
     if (!statement || ![[statement columns] isEqual:columns]) {
-        statement = [PRStatement statement:string bindings:bindings columns:columns db:self];
+        statement = [[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:self];
         [_cachedStatements setObject:statement forKey:string];
     }
-    return [statement execute];
+    NSArray *rlt = nil;
+    [statement zExecute:&rlt];
+    return rlt;
 }
 
 - (NSArray *)attempt:(NSString *)string {
@@ -330,7 +333,8 @@ NSString * const PRColData = @"PRColData";
 
 - (NSArray *)attempt:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns {
     PRStatement *stmt = [[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:self];
-    id rlt = [stmt attempt];
+    id rlt = nil;
+    [stmt zExecute:&rlt];
     return rlt;
 }
 
@@ -383,7 +387,7 @@ NSString * const PRColData = @"PRColData";
 - (BOOL)zExecuteCached:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns out:(NSArray **)outValue {
     PRStatement *statement = [_cachedStatements objectForKey:string];
     if (!statement || ![[statement columns] isEqual:columns]) {
-        statement = [PRStatement statement:string bindings:bindings columns:columns db:self];
+        statement = [[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:self];
         [_cachedStatements setObject:statement forKey:string];
     }
     return [statement zExecute:outValue];

@@ -9,10 +9,12 @@
 @class PRLastfm; 
 @class PRMediaKeyController; 
 @class PRHotKeyController;
+@class PRConnection;
 
 
 @interface PRCore : NSObject <NSApplicationDelegate>
 /* Accessors */
+@property (readonly) PRConnection *conn;
 @property (readonly) PRDb *db;
 @property (readonly) PRMainWindowController *win;
 @property (readonly) PRNowPlayingController *now;

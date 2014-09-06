@@ -2,6 +2,7 @@
 #import "PRDb.h"
 
 @class PRDb;
+@class PRConnection;
 
 
 typedef NSNumber PRItem;
@@ -47,6 +48,7 @@ extern PRItemAttr * const PRItemAttrRating;
 @interface PRLibrary : NSObject
 /* Initialization */
 - (id)initWithDb:(PRDb *)db_;
+- (instancetype)initWithConnection:(PRConnection *)connection;
 - (void)create;
 - (BOOL)initialize;
 

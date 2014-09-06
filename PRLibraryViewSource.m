@@ -538,10 +538,11 @@ NSString * const compilationString = @"Compilations  ";
         _cachedStatement = [[PRStatement alloc] initWithString:string bindings:nil columns:columns db:_db];
     }
     [_cachedStatement setBindings:@{@1:[NSNumber numberWithInt:row]}];
-    NSArray *result = [[_cachedStatement execute] objectAtIndex:0];
+    NSArray *rlt = nil;
+    [_cachedStatement zExecute:&rlt];
     _cachedRow = row;
-    _cachedAttrValues = result;
-    return [result objectAtIndex:[_cachedAttrs indexOfObject:attr]];
+    _cachedAttrValues = rlt[0];
+    return rlt[0][[_cachedAttrs indexOfObject:attr]];
 }
 
 - (int)firstRowWithValue:(id)value forAttr:(PRItemAttr *)attr {

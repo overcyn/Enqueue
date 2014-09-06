@@ -27,6 +27,7 @@
 #import "PRTableViewController.h"
 #import "PRViewController.h"
 #import "PRNowPlayingDescription.h"
+#import "PRConnection.h"
 #import "NSIndexPath+Extensions.h"
 
 
@@ -212,13 +213,19 @@
     // Checks if adding single album
     BOOL singleAlbum = YES;
     if ([files count] > 1) {
-        NSString *artist = [[_db library] artistValueForItem:[files objectAtIndex:0]];
-        NSString *album = [[_db library] valueForItem:[files objectAtIndex:0] attr:PRItemAttrAlbum];
+        PRLibrary *library = [[_core conn] library];
+        NSString *artist = nil;
+        NSString *album = nil;
+        [library zArtistValueForItem:files[0] out:&artist];
+        [library zValueForItem:files[0] attr:PRItemAttrAlbum out:&album];
         for (NSNumber *i in files) {
-            NSString *nextArtist = [[_db library] artistValueForItem:i];
-            NSString *nextAlbum = [[_db library] valueForItem:i attr:PRItemAttrAlbum];
+            NSString *nextArtist = nil;
+            NSString *nextAlbum = nil;
+            [library zArtistValueForItem:i out:&nextArtist];
+            [library zValueForItem:i attr:PRItemAttrAlbum out:&nextAlbum];
             if (![artist isEqualToString:nextArtist] || ![album isEqualToString:nextAlbum]) {
                 singleAlbum = NO;
+                break;
             }
         }
     }
@@ -282,8 +289,10 @@
             continue;
         } else {
             PRItem *item_ = [_listDescription itemAtIndex:range.location-1];
-            NSString *artist = [[_db library] valueForItem:item_ attr:PRItemAttrArtist];
-            NSString *album = [[_db library] valueForItem:item_ attr:PRItemAttrAlbum];
+            NSString *artist = nil;
+            NSString *album = nil;
+            [[[_core conn] library] zValueForItem:item_ attr:PRItemAttrArtist out:&artist];
+            [[[_core conn] library] zValueForItem:item_ attr:PRItemAttrAlbum out:&album];
             NSString *prevArtist = [[array lastObject] objectForKey:@"artist"];
             NSString *prevAlbum = [[array lastObject] objectForKey:@"album"];
             if (!(prevAlbumMissing && [artist noCaseCompare:prevArtist] == NSOrderedSame && [album noCaseCompare:prevAlbum] == NSOrderedSame)) {
@@ -321,12 +330,13 @@
         [array addObject:[_listDescription itemAtIndex:idx-1]];
     }];
     
-    [PRActionCenter performAction:[PRBlockAction blockActionWithBlock:^(PRCore *core) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NSString *path = [[[core db] library] valueForItem:array[0] attr:PRItemAttrPath];
+    NSString *path = nil;
+    [[[_core conn] library] zValueForItem:array[0] attr:PRItemAttrPath out:&path];
+    if (path) {
+        [PRActionCenter performAction:[PRBlockAction blockActionWithBlock:^(PRCore *core) {
             [[NSWorkspace sharedWorkspace] selectFile:[[NSURL URLWithString:path] path] inFileViewerRootedAtPath:nil];
-        });
-    }]];
+        }]];
+    }
 }
 
 - (void)showSelectedInLibrary {
@@ -458,8 +468,9 @@
     [menuItem setImage:[NSImage imageNamed:@"Add"]];
     [menu addItem:menuItem];
     
-    NSArray *playlistArray = [[_db playlists] lists];
-    for (NSNumber *i in playlistArray) {
+    NSArray *lists = nil;
+    [[[_core conn] playlists] zLists:&lists];
+    for (NSNumber *i in lists) {
         if (![[[_db playlists] typeForList:i] isEqual:PRListTypeStatic]) {
             continue;
         }
@@ -738,9 +749,11 @@
                 prevAlbumMissing = YES;
                 continue;
             }
-            PRListItem *listItem = [_listDescription listItemAtIndex:range.location-1];
-            NSString *artist = [[_db library] valueForItem:listItem attr:PRItemAttrArtist];
-            NSString *album = [[_db library] valueForItem:listItem attr:PRItemAttrAlbum];
+            PRItem *listItem = [_listDescription itemAtIndex:range.location-1];
+            NSString *artist = nil;
+            NSString *album = nil;
+            [[[_core conn] library] zValueForItem:listItem attr:PRItemAttrArtist out:&artist];
+            [[[_core conn] library] zValueForItem:listItem attr:PRItemAttrAlbum out:&album];
             BOOL shouldMergeWithPrevAlbum = prevAlbumMissing && [artist noCaseCompare:prevArtist] == NSOrderedSame && [album noCaseCompare:prevAlbum] == NSOrderedSame;
             prevArtist = artist;
             prevAlbum = album;
@@ -844,13 +857,19 @@
         // Checks if adding single album
         BOOL singleAlbum = YES;
         if ([files count] > 1) {
-            NSString *artist = [[_db library] artistValueForItem:[files objectAtIndex:0]];
-            NSString *album = [[_db library] valueForItem:[files objectAtIndex:0] attr:PRItemAttrAlbum];
+            PRLibrary *library = [[_core conn] library];
+            NSString *artist = nil;
+            NSString *album = nil;
+            [library zArtistValueForItem:files[0] out:&artist];
+            [library zValueForItem:files[0] attr:PRItemAttrAlbum out:&album];
             for (NSNumber *i in files) {
-                NSString *nextArtist = [[_db library] artistValueForItem:i];
-                NSString *nextAlbum = [[_db library] valueForItem:i attr:PRItemAttrAlbum];
+                NSString *nextArtist = nil;
+                NSString *nextAlbum = nil;
+                [library zArtistValueForItem:i out:&nextArtist];
+                [library zValueForItem:i attr:PRItemAttrAlbum out:&nextAlbum];
                 if (![artist isEqualToString:nextArtist] || ![album isEqualToString:nextAlbum]) {
                     singleAlbum = NO;
+                    break;
                 }
             }
         }
@@ -920,26 +939,31 @@
 }
 
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item {
+    PRLibrary *library = [[_core conn] library];
+    NSInteger row = [self dbRowForItem:item];
+    PRItem *it = [_listDescription itemAtIndex:row-1];
+    
     if ([item length] == 1) {
-        int row = [self dbRowForItem:item];
-        PRItem *it = [_listDescription itemAtIndex:row-1];
-        NSString *album =  [[_db library] valueForItem:it attr:PRItemAttrAlbum];
-        NSString *artist = [[_db library] valueForItem:it attr:PRItemAttrArtist];
-        if ([artist isEqualToString:@""]) {
+        NSString *album = nil;
+        NSString *artist = nil;
+        NSNumber *compilation = nil;
+        [library zValueForItem:it attr:PRItemAttrAlbum out:&album];
+        [library zValueForItem:it attr:PRItemAttrArtist out:&artist];
+        [library zValueForItem:it attr:PRItemAttrCompilation out:&compilation];
+        if (!artist || [artist isEqualToString:@""]) {
             artist = @"Unknown Artist";
         }
-        if ([album isEqualToString:@""]) {
+        if (!album || [album isEqualToString:@""]) {
             album = @"Unknown Album";
         }
-        if ([[[_db library] valueForItem:it attr:PRItemAttrCompilation] boolValue] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]) {
+        if ([compilation boolValue] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]) {
             artist = @"Compilation";
         }
        NSNumber *drawBorder = @([item indexAtPosition:0] + 1 == [[_listDescription albumCounts] count] || [_nowPlayingTableView isItemExpanded:item]);
         return @{@"title":artist, @"subtitle":album, @"item":item, @"drawBorder":drawBorder, @"target":self};
     } else {
-        int row = [self dbRowForItem:item];
-        PRItem *it = [_listDescription itemAtIndex:row-1];
-        NSString *title = [[_db library] valueForItem:it attr:PRItemAttrTitle];
+        NSString *title = nil;
+        [library zValueForItem:it attr:PRItemAttrTitle out:&title];
         NSImage *icon;
         NSImage *invertedIcon;
         if ([_nowPlayingDescription currentIndex] == row) {
@@ -954,12 +978,7 @@
         }
         PRListItem *listItem = [_listDescription listItemAtIndex:row-1];
         NSUInteger queueIndex = [[[_db queue] queueArray] indexOfObject:listItem];
-        NSNumber *badge;
-        if (queueIndex != NSNotFound) {
-            badge = @(queueIndex + 1);
-        } else {
-            badge = @0;
-        }
+        NSNumber *badge = (queueIndex != NSNotFound) ? @(queueIndex + 1) : @0;
         return @{@"title":title, @"icon":icon, @"invertedIcon":invertedIcon, @"badge":badge, @"item":item, @"target":self};
     }
 }

@@ -13,6 +13,7 @@
 		67026EA312697810002E929F /* PRPreferencesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67026EA212697810002E929F /* PRPreferencesViewController.m */; };
 		67026EA512697833002E929F /* PRPreferencesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 67026EA412697833002E929F /* PRPreferencesView.xib */; };
 		6702717E126AFC6F002E929F /* PRSizeFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6702717D126AFC6F002E929F /* PRSizeFormatter.m */; };
+		670567F419B910F0008CD150 /* PRConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 670567F319B910F0008CD150 /* PRConnection.m */; };
 		6706FCC612B9A08200C9B075 /* NSFileManager+DirectoryLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FCC512B9A08200C9B075 /* NSFileManager+DirectoryLocations.m */; };
 		6706FCF812B9C7BF00C9B075 /* PRDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FCF712B9C7BF00C9B075 /* PRDefaults.m */; };
 		6706FDF712BB897B00C9B075 /* PRAlbumArtController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FDF612BB897B00C9B075 /* PRAlbumArtController.m */; };
@@ -285,6 +286,8 @@
 		67026EA412697833002E929F /* PRPreferencesView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PRPreferencesView.xib; sourceTree = "<group>"; };
 		6702717C126AFC6F002E929F /* PRSizeFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRSizeFormatter.h; sourceTree = "<group>"; };
 		6702717D126AFC6F002E929F /* PRSizeFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRSizeFormatter.m; sourceTree = "<group>"; };
+		670567F219B910F0008CD150 /* PRConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRConnection.h; sourceTree = "<group>"; };
+		670567F319B910F0008CD150 /* PRConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRConnection.m; sourceTree = "<group>"; };
 		6706FCC412B9A08200C9B075 /* NSFileManager+DirectoryLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+DirectoryLocations.h"; sourceTree = "<group>"; };
 		6706FCC512B9A08200C9B075 /* NSFileManager+DirectoryLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+DirectoryLocations.m"; sourceTree = "<group>"; };
 		6706FCF612B9C7BF00C9B075 /* PRDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRDefaults.h; sourceTree = "<group>"; };
@@ -1282,6 +1285,8 @@
 		67804A78124C8CCA003268AD /* Database */ = {
 			isa = PBXGroup;
 			children = (
+				670567F219B910F0008CD150 /* PRConnection.h */,
+				670567F319B910F0008CD150 /* PRConnection.m */,
 				671D31E41401A9D800B9FAA4 /* PRStatement.h */,
 				671D31E51401A9D800B9FAA4 /* PRStatement.m */,
 				6709DA3C1248304A00963B11 /* PRDb.h */,
@@ -1899,6 +1904,7 @@
 				67A7A2C5150C5A2B005E91C0 /* PRNonScrollingScrollView.m in Sources */,
 				67A7A2D4150C909F005E91C0 /* NSTableView+Extensions.m in Sources */,
 				67DE13351516E37D00E94F28 /* PRAlertWindowController.m in Sources */,
+				670567F419B910F0008CD150 /* PRConnection.m in Sources */,
 				67DE13391516FB4800E94F28 /* PRViewController.m in Sources */,
 				672235A7152442A700D48695 /* NSArray+Extensions.m in Sources */,
 				670F95081535724400E72AAE /* PRClipView.m in Sources */,

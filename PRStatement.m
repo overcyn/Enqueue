@@ -1,15 +1,44 @@
 #import "sqlite3.h"
 #import "PRStatement.h"
 #import "PRDb.h"
-
-
-@interface PRStatement ()
-@end
+#import "PRConnection.h"
 
 
 @implementation PRStatement
 
 #pragma mark - Initialization
+
+- (id)initWithString:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns connection:(PRConnection *)connection {
+    if (!(self = [super init])) {return nil;}
+    _sqlite3 = [connection sqliteDb];
+    _statement = string;
+    if (!columns) {
+        _columns = [[NSArray alloc] init];
+    } else {
+        _columns = columns;
+    }
+    
+    // Prepare statement
+    BOOL l = YES;
+    while (l) {
+        int e = sqlite3_prepare_v2(_sqlite3, [_statement UTF8String], -1, &_stmt, NULL);
+        switch (e) {
+            case SQLITE_OK:
+                l = NO;
+                break;
+            case SQLITE_BUSY:
+            case SQLITE_LOCKED:
+                usleep(50);
+            default:
+                [PRException raise:PRDbInconsistencyException 
+                            format:@"Prep Failed - self:%@ code:%d msg:%s", self, e, sqlite3_errmsg(_sqlite3)];
+                break;
+        }
+    }
+    // Set Bindings
+    [self setBindings:bindings];
+    return self;
+}
 
 - (id)initWithString:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns db:(PRDb *)db {
     if (!(self = [super init])) {return nil;}
@@ -41,10 +70,6 @@
     // Set Bindings
     [self setBindings:bindings];
     return self;
-}
-
-+ (PRStatement *)statement:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns db:(PRDb *)db {
-    return [[PRStatement alloc] initWithString:string bindings:bindings columns:columns db:db];
 }
 
 - (void)dealloc {

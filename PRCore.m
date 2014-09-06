@@ -18,6 +18,7 @@
 #import "PRTrialSheetController.h"
 #import "PRVacuumOperation.h"
 #import "PRWelcomeSheetController.h"
+#import "PRConnection.h"
 #import "PRActionCenter.h"
 
 
@@ -25,6 +26,7 @@
     IBOutlet NSMenu *__weak _mainMenu;
     NSConnection *_connection;
     
+    PRConnection *_conn;
     PRDb *_db;
     PRNowPlayingController *_now;
     PRMainWindowController *_win;
@@ -63,6 +65,7 @@
     [_opQueue setSuspended:YES];
     _taskManager = [[PRTaskManager alloc] init];
     _db = [[PRDb alloc] initWithCore:self];
+    _conn = [[PRConnection alloc] initWithPath:[[PRDefaults sharedDefaults] libraryPath] type:PRConnectionTypeReadWrite];
     _now = [[PRNowPlayingController alloc] initWithDb:_db]; // requires: db
     _folderMonitor = [[PRFolderMonitor alloc] initWithCore:self]; // requires: opQueue, db & taskManager
     _win = [[PRMainWindowController alloc] initWithCore:self]; // requires: db, now, taskManager, folderMonitor
@@ -103,6 +106,7 @@
 @synthesize lastfm = _lastfm;
 @synthesize keys = _keys;
 @synthesize hotKeys = _hotKeys;
+@synthesize conn = _conn;
 
 #pragma mark - Action
 

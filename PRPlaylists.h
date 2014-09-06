@@ -65,6 +65,7 @@ typedef enum {
 @interface PRPlaylists : NSObject
 // Initialization
 - (id)initWithDb:(PRDb *)db;
+- (instancetype)initWithConnection:(PRConnection *)connection;
 - (void)create;
 - (BOOL)initialize;
 - (BOOL)cleanPlaylists;
