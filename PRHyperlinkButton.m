@@ -1,5 +1,6 @@
 #import "PRHyperlinkButton.h"
 
+
 @implementation PRHyperlinkButton
 
 @dynamic attrString;
@@ -49,7 +50,11 @@
                                                 userInfo:nil];
     [self addTrackingArea:_trackingArea];
     
-    if (NSPointInRect([self convertPointFromBase:[[self window] convertScreenToBase:[NSEvent mouseLocation]]], rect)) {
+    CGRect r = CGRectZero;
+    r.origin = [NSEvent mouseLocation];
+    r = [[self window] convertRectFromScreen:r];
+    
+    if (NSPointInRect([self convertPointFromBacking:r.origin], rect)) {
         [self mouseEntered:nil];
     } else {
         [self mouseExited:nil];
@@ -70,7 +75,12 @@
 
 - (void)mouseDown:(NSEvent *)theEvent {
     NSRect rect = [self titleRect];
-    if (NSPointInRect([self convertPointFromBase:[[self window] convertScreenToBase:[NSEvent mouseLocation]]], rect)) {
+    
+    CGRect r = CGRectZero;
+    r.origin = [NSEvent mouseLocation];
+    r = [[self window] convertRectFromScreen:r];
+
+    if (NSPointInRect([self convertPointFromBacking:r.origin], rect)) {
         [super mouseDown:theEvent];
     }
 }

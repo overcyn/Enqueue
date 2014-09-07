@@ -109,7 +109,7 @@ static NSImage *trackLeftImage, *trackFillImage, *trackRightImage, *thumbPImage,
 //	if (trackHeight == 0)
 		drawPoint.y++;
 	
-	[drawImage compositeToPoint:drawPoint operation:NSCompositeSourceOver];
+    [drawImage drawInRect:rect];
 }
 
 - (BOOL)_usesCustomTrackImage
