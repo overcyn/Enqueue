@@ -36,54 +36,53 @@
         NSString *subtitle = [dict objectForKey:@"subtitle"];
         NSImage *icon = [dict objectForKey:@"icon"];
         NSSize iconSize = NSMakeSize(14, 14);
-        [icon setFlipped:YES];
     
-    // Draw dropdown button
-    NSRect rect = theCellFrame;
-    rect.origin.x += rect.size.width - 40;
-    rect.origin.y += rect.size.height/2 - 10;
-    rect.size.width = 21;
-    rect.size.height = 21;
-    
-    NSRect rect2 = theCellFrame;
-    rect2.origin.x += rect.size.width - 40;
-    rect2.origin.y += rect.size.height/2 - 10;
-    rect2.size.width = 21;
-    rect2.size.height = 21;    
-    NSImage *image;
-    if (NSPointInRect([[dict objectForKey:@"point"] pointValue], rect)) {
-        image = [NSImage imageNamed:@"PRActionIcon3"];
-    } else {
-        image = [NSImage imageNamed:@"PRActionIcon2"];
-    }
-    [image drawInRect:rect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
-    
-    // Draw rest of button
-    theCellFrame.size.height -= 6;
-    theCellFrame.origin.y += 3;
-    theCellFrame.size.width -= 50;
-    
-    // paragraph style
-    NSShadow *shadow = [[NSShadow alloc] init];
-    [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.5]];
-    [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
-    
-    NSDictionary *titleAttributes = 
-        @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-Medium" size:12],
-         NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
-         NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.2 alpha:1.0],
-         NSShadowAttributeName:shadow};
-    NSDictionary *subtitleAttributes = 
-        @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-Medium" size:11],
-         NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
-         NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.5 alpha:1.0]};
-    
-    // Inset the cell frame to give everything a little horizontal padding
+        // Draw dropdown button
+        NSRect rect = theCellFrame;
+        rect.origin.x += rect.size.width - 40;
+        rect.origin.y += rect.size.height/2 - 10;
+        rect.size.width = 21;
+        rect.size.height = 21;
+        
+        NSRect rect2 = theCellFrame;
+        rect2.origin.x += rect.size.width - 40;
+        rect2.origin.y += rect.size.height/2 - 10;
+        rect2.size.width = 21;
+        rect2.size.height = 21;    
+        NSImage *image;
+        if (NSPointInRect([[dict objectForKey:@"point"] pointValue], rect)) {
+            image = [NSImage imageNamed:@"PRActionIcon3"];
+        } else {
+            image = [NSImage imageNamed:@"PRActionIcon2"];
+        }
+        [image drawInRect:rect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+        
+        // Draw rest of button
+        theCellFrame.size.height -= 6;
+        theCellFrame.origin.y += 3;
+        theCellFrame.size.width -= 50;
+        
+        // paragraph style
+        NSShadow *shadow = [[NSShadow alloc] init];
+        [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.5]];
+        [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
+        
+        NSDictionary *titleAttributes = 
+            @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-Medium" size:12],
+             NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
+             NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.2 alpha:1.0],
+             NSShadowAttributeName:shadow};
+        NSDictionary *subtitleAttributes = 
+            @{NSFontAttributeName:[NSFont fontWithName:@"HelveticaNeue-Medium" size:11],
+             NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
+             NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.5 alpha:1.0]};
+        
+        // Inset the cell frame to give everything a little horizontal padding
         NSRect insetRect = NSInsetRect(theCellFrame, 0, 0);
     
         // get the size of the string for layout
         NSSize titleSize = [title sizeWithAttributes:titleAttributes];
-    NSSize subtitleSize = [subtitle sizeWithAttributes:subtitleAttributes];
+        NSSize subtitleSize = [subtitle sizeWithAttributes:subtitleAttributes];
         
         // Vertical padding between the lines of text     
         // Horizontal padding between icon and text
@@ -105,22 +104,22 @@
                                      insetRect.origin.y + insetRect.size.height * .5 - aCombinedHeight * .5 - 2,
                                      insetRect.size.width - iconSize.width - horizontalPadding,
                                      aCombinedHeight);
-    NSRect aTitleBox = NSMakeRect(aTextBox.origin.x, 
-                                  aTextBox.origin.y + aTextBox.size.height / 2 - titleSize.height + 4,
-                                  aTextBox.size.width, titleSize.height);
-    NSRect aSubtitleBox = NSMakeRect(aTextBox.origin.x,
-                                     aTextBox.origin.y + aTextBox.size.height*.5 + 2,
-                                     aTextBox.size.width, subtitleSize.height);
-    
-    if (!subtitle) {
-        aTitleBox = NSMakeRect(aTextBox.origin.x, 
-                               aTextBox.origin.y + (aTextBox.size.height - titleSize.height) / 2,
-                               aTextBox.size.width, titleSize.height);
-    }
-    
-    [title drawInRect:aTitleBox withAttributes:titleAttributes];
-    [subtitle drawInRect:aSubtitleBox withAttributes:subtitleAttributes];
-        [icon drawInRect:iconBox fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+        NSRect aTitleBox = NSMakeRect(aTextBox.origin.x,
+                                      aTextBox.origin.y + aTextBox.size.height / 2 - titleSize.height + 4,
+                                      aTextBox.size.width, titleSize.height);
+        NSRect aSubtitleBox = NSMakeRect(aTextBox.origin.x,
+                                         aTextBox.origin.y + aTextBox.size.height*.5 + 2,
+                                         aTextBox.size.width, subtitleSize.height);
+        
+        if (!subtitle) {
+            aTitleBox = NSMakeRect(aTextBox.origin.x, 
+                                   aTextBox.origin.y + (aTextBox.size.height - titleSize.height) / 2,
+                                   aTextBox.size.width, titleSize.height);
+        }
+        
+        [title drawInRect:aTitleBox withAttributes:titleAttributes];
+        [subtitle drawInRect:aSubtitleBox withAttributes:subtitleAttributes];
+        [icon drawInRect:iconBox fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0 respectFlipped:YES hints:nil];
     
     }
 }

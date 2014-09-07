@@ -16,7 +16,6 @@
     if (![image isKindOfClass:[NSImage class]]) {
         return;
     }
-    [image setFlipped:NO];
     // create a destination rect scaled to fit inside the frame
     NSRect drawnRect;
     drawnRect.origin = inRect.origin;

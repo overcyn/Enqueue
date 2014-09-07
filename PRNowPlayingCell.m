@@ -40,8 +40,7 @@
     } else {
         // Icon
         icon = highlighted ? invertedIcon : icon;
-        [icon setFlipped:YES];
-        [icon drawInRect:iconRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+        [icon drawInRect:iconRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0 respectFlipped:YES hints:nil];
     }
     
     // Text

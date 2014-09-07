@@ -27,7 +27,6 @@
     // Inset the cell frame to give everything a little horizontal padding
     NSRect insetRect = NSInsetRect(theCellFrame, 10, 9);
     NSSize iconSize = NSMakeSize(150, 150);
-    [icon setFlipped:YES];
     
     // Make attributes for our strings        
     NSDictionary *titleAttributes = @{NSFontAttributeName:[NSFont boldSystemFontOfSize:11],
@@ -106,7 +105,7 @@
     [shadow setShadowBlurRadius:5];
     [shadow setShadowColor:[NSColor colorWithDeviceWhite:0.0 alpha:0.4]];    
     [shadow set];
-    [image drawInRect:drawnRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0]; 
+    [image drawInRect:drawnRect fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0 respectFlipped:YES hints:NO]; 
     [NSGraphicsContext restoreGraphicsState];
     
     // draw the text
