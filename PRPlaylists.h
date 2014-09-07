@@ -3,6 +3,7 @@
 #import "PRDb.h"
 
 @class PRDb;
+@class PRListDescription;
 
 
 typedef NSNumber PRList;
@@ -87,13 +88,14 @@ typedef enum {
 - (PRList *)nowPlayingList;
 - (id)valueForList:(PRList *)list attr:(PRListAttr *)attr;
 
-// zList Setters
+// zList Getters
 - (BOOL)zLists:(NSArray **)outValue;
 - (BOOL)zLibraryList:(PRList **)outValue;
 - (BOOL)zNowPlayingList:(PRList **)outValue;
 - (BOOL)zValueForList:(PRList *)list attr:(PRListAttr *)attr out:(id *)outValue;
+- (BOOL)zListDescriptionForList:(PRList *)list out:(PRListDescription **)outValue;
 
-// List Getters
+// List Setters
 - (PRList *)addList;
 - (PRList *)addStaticList;
 - (PRList *)addSmartList;
@@ -106,6 +108,7 @@ typedef enum {
 - (BOOL)zAddSmartList:(PRList **)outValue;
 - (BOOL)zRemoveList:(PRList *)list;
 - (BOOL)zSetValue:(id)value forList:(PRList *)list attr:(PRListAttr *)attr;
+- (BOOL)zSetListDescription:(PRListDescription *)value forList:(PRList *)list;
 
 // ListItem Setters
 - (void)addItems:(NSArray *)items atIndex:(int)index toList:(PRList *)list;

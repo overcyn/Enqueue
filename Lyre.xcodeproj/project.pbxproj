@@ -14,6 +14,7 @@
 		67026EA512697833002E929F /* PRPreferencesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 67026EA412697833002E929F /* PRPreferencesView.xib */; };
 		6702717E126AFC6F002E929F /* PRSizeFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6702717D126AFC6F002E929F /* PRSizeFormatter.m */; };
 		670567F419B910F0008CD150 /* PRConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 670567F319B910F0008CD150 /* PRConnection.m */; };
+		670567F719BACDB0008CD150 /* PRListDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 670567F619BACDB0008CD150 /* PRListDescription.m */; };
 		6706FCC612B9A08200C9B075 /* NSFileManager+DirectoryLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FCC512B9A08200C9B075 /* NSFileManager+DirectoryLocations.m */; };
 		6706FCF812B9C7BF00C9B075 /* PRDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FCF712B9C7BF00C9B075 /* PRDefaults.m */; };
 		6706FDF712BB897B00C9B075 /* PRAlbumArtController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FDF612BB897B00C9B075 /* PRAlbumArtController.m */; };
@@ -288,6 +289,8 @@
 		6702717D126AFC6F002E929F /* PRSizeFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRSizeFormatter.m; sourceTree = "<group>"; };
 		670567F219B910F0008CD150 /* PRConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRConnection.h; sourceTree = "<group>"; };
 		670567F319B910F0008CD150 /* PRConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRConnection.m; sourceTree = "<group>"; };
+		670567F519BACDB0008CD150 /* PRListDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRListDescription.h; sourceTree = "<group>"; };
+		670567F619BACDB0008CD150 /* PRListDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRListDescription.m; sourceTree = "<group>"; };
 		6706FCC412B9A08200C9B075 /* NSFileManager+DirectoryLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+DirectoryLocations.h"; sourceTree = "<group>"; };
 		6706FCC512B9A08200C9B075 /* NSFileManager+DirectoryLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+DirectoryLocations.m"; sourceTree = "<group>"; };
 		6706FCF612B9C7BF00C9B075 /* PRDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRDefaults.h; sourceTree = "<group>"; };
@@ -714,7 +717,6 @@
 			isa = PBXGroup;
 			children = (
 				67DC1D7319A13BCF0031BC3C /* Actions */,
-				67DC1D71199765820031BC3C /* Description */,
 				080E96DDFE201D6D7F000001 /* Core */,
 				67804A78124C8CCA003268AD /* Database */,
 				677CB95613BC74790090B4D0 /* Operations */,
@@ -1285,6 +1287,7 @@
 		67804A78124C8CCA003268AD /* Database */ = {
 			isa = PBXGroup;
 			children = (
+				67DC1D71199765820031BC3C /* Description */,
 				670567F219B910F0008CD150 /* PRConnection.h */,
 				670567F319B910F0008CD150 /* PRConnection.m */,
 				671D31E41401A9D800B9FAA4 /* PRStatement.h */,
@@ -1559,6 +1562,8 @@
 		67DC1D71199765820031BC3C /* Description */ = {
 			isa = PBXGroup;
 			children = (
+				670567F519BACDB0008CD150 /* PRListDescription.h */,
+				670567F619BACDB0008CD150 /* PRListDescription.m */,
 				67DC1D6E19975F270031BC3C /* PRListItemsDescription.h */,
 				67DC1D6F19975F270031BC3C /* PRListItemsDescription.m */,
 				67DC1D6B19975C490031BC3C /* PRNowPlayingDescription.h */,
@@ -1830,6 +1835,7 @@
 				67C4ACBB1329CCD300796610 /* PRTask.m in Sources */,
 				67D732A6132FBB4700AB2D14 /* PRScrollView.m in Sources */,
 				67691F7A1338B80300D27C01 /* BWTexturedSlider.m in Sources */,
+				670567F719BACDB0008CD150 /* PRListDescription.m in Sources */,
 				67691F7B1338B80300D27C01 /* BWTexturedSliderCell.m in Sources */,
 				67691F901338C8F300D27C01 /* PRSliderCell.m in Sources */,
 				67EB42451339B843009167BA /* PRBackgroundView.m in Sources */,

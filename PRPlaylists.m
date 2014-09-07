@@ -371,6 +371,10 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return YES;
 }
 
+- (BOOL)zListDescriptionForList:(PRList *)list out:(PRListDescription **)outValue {
+    return NO;
+}
+
 #pragma mark - zList Setters
 
 - (BOOL)zAddList:(PRList **)outValue {
@@ -435,6 +439,10 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 - (BOOL)zSetValue:(id)value forList:(PRList *)list attr:(PRListAttr *)attr {
     NSString *stm = [NSString stringWithFormat:@"UPDATE playlists SET %@ = ?1 WHERE playlist_id = ?2", [PRPlaylists columnNameForListAttr:attr]];
     return [_db zExecute:stm bindings:@{@1:value, @2:list} columns:nil out:nil];
+}
+
+- (BOOL)zSetListDescription:(PRListDescription *)value forList:(PRList *)list {
+    
 }
 
 #pragma mark - ListItem Setters

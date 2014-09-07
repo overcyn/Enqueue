@@ -6,6 +6,7 @@
 @interface PRListItemsDescription : NSObject
 - (id)initWithList:(PRList *)list database:(PRDb *)db;
 @property (nonatomic, readonly) PRList *list;
+
 @property (nonatomic, readonly) NSInteger count;
 - (PRItem *)itemAtIndex:(NSInteger)index; // Zero based
 - (PRListItem *)listItemAtIndex:(NSInteger)index;
