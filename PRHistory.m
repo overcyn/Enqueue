@@ -1,6 +1,8 @@
 #import "PRHistory.h"
 #import "PRDb.h"
 #import "PRDefaults.h"
+#import "PRConnection.h"
+#import "NSArray+Extensions.h"
 
 
 NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
@@ -9,13 +11,23 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 "FOREIGN KEY(file_id) REFERENCES library(file_id) ON UPDATE CASCADE ON DELETE CASCADE)";
 
 
-@implementation PRHistory
+@implementation PRHistory {
+    __weak PRDb *_db;
+     __weak PRConnection *_conn;
+}
 
 #pragma mark - Initialization
 
 - (id)initWithDb:(PRDb *)db {
     if (!(self = [super init])) {return nil;}
     _db = db;
+    return self;
+}
+
+- (instancetype)initWithConnection:(PRConnection *)connection {
+    if ((self = [super init])) {
+        _conn = connection;
+    }
     return self;
 }
 
@@ -35,40 +47,16 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 
 #pragma mark - Accessors
  
-- (void)addItem:(PRItem *)item withDate:(NSDate *)date {
-    [_db execute:@"INSERT INTO history (file_id, date) VALUES (?1, ?2)"
-        bindings:@{@1:item, @2:[[NSDate date] description]}
-         columns:nil];
+- (BOOL)zAddItem:(PRItem *)item withDate:(NSDate *)date {
+    NSString *stm = @"INSERT INTO history (file_id, date) VALUES (?1, ?2)";
+    return [_db zExecute:stm bindings:@{@1:item, @2:[[NSDate date] description]} columns:nil out:nil];
 }
 
-- (void)clear {
-    [_db execute:@"DELETE FROM history"];
+- (BOOL)zClear {
+    return [_db zExecute:@"DELETE FROM history"];
 }
 
-- (NSArray *)topSongs {
-    NSString *stm;
-    if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist]) {
-        stm = @"SELECT file_id, playCount, title, artistAlbumArtist FROM library "
-        "WHERE playCount > 0 ORDER BY playCount DESC LIMIT 250";
-    } else {
-        stm = @"SELECT file_id, playCount, title, artist FROM library "
-        "WHERE playCount > 0 ORDER BY playCount DESC LIMIT 250";
-    }
-    NSArray *rlt = [_db execute:stm bindings:nil columns:@[PRColInteger, PRColInteger, PRColString, PRColString]];
-    NSMutableArray *topSongs = [NSMutableArray array];
-    
-    for (NSArray *i in rlt) {
-        [topSongs addObject:@{
-         @"file":[i objectAtIndex:0],
-         @"count":[i objectAtIndex:1],
-         @"title":[i objectAtIndex:2],
-         @"artist":[i objectAtIndex:3],
-         @"max":[[rlt objectAtIndex:0] objectAtIndex:1]}];
-    }
-    return topSongs;
-}
-
-- (NSArray *)topArtists {
+- (BOOL)zTopArtists:(NSArray **)out {
     NSString *stm;
     if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist]) {
         stm = @"SELECT file_id, sum(playCount), artistAlbumArtist FROM library "
@@ -79,20 +67,52 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         "GROUP BY artist COLLATE NOCASE2 HAVING sum(playCount) > 0 AND artist COLLATE NOCASE2 != '' "
         "ORDER BY 2 DESC, 3 DESC LIMIT 250";
     }
-    NSArray *results = [_db execute:stm bindings:nil columns:@[PRColInteger, PRColInteger, PRColString]];
-    NSMutableArray *topArtists = [NSMutableArray array];
-    
-    for (NSArray *i in results) {
-        [topArtists addObject:@{
-         @"file":[i objectAtIndex:0],
-         @"count":[i objectAtIndex:1],
-         @"artist":[i objectAtIndex:2],
-         @"max":[[results objectAtIndex:0] objectAtIndex:1]}];
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:stm bindings:nil columns:@[PRColInteger, PRColInteger, PRColString] out:nil];
+    if (!success) {
+        return NO;
+    }    
+    if (out) {
+        *out = [rlt PRMap:^(NSInteger idx, id obj){
+            return @{
+                @"file":obj[0],
+                @"count":obj[1],
+                @"artist":obj[2],
+                @"max":rlt[0][1]
+            };
+        }];
     }
-    return topArtists;
+    return YES;
 }
 
-- (NSArray *)recentlyAdded {
+- (BOOL)zTopSongs:(NSArray **)out {
+    NSString *stm;
+    if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist]) {
+        stm = @"SELECT file_id, playCount, title, artistAlbumArtist FROM library "
+        "WHERE playCount > 0 ORDER BY playCount DESC LIMIT 250";
+    } else {
+        stm = @"SELECT file_id, playCount, title, artist FROM library "
+        "WHERE playCount > 0 ORDER BY playCount DESC LIMIT 250";
+    }
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:stm bindings:nil columns:@[PRColInteger, PRColInteger, PRColString, PRColString] out:&rlt];
+    if (!success) {
+        return NO;
+    }
+    if (out) {
+        *out = [rlt PRMap:^(NSInteger idx, id obj){
+            return @{
+                @"file":obj[0],
+                @"count":obj[1],
+                @"title":obj[2],
+                @"artist":obj[3],
+                @"max":rlt[0][1]};
+        }];
+    }
+    return YES;
+}
+
+- (BOOL)zRecentlyAdded:(NSArray **)out {
     NSString *stm;
     if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist]) {
         stm = @"SELECT file_id, dateAdded, count(album), artistAlbumArtist, album FROM library "
@@ -101,25 +121,25 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         stm = @"SELECT file_id, dateAdded, count(album), artist, album FROM library "
         "GROUP BY artistAlbumArtist COLLATE NOCASE2, album COLLATE NOCASE2 ORDER BY 2 DESC LIMIT 250";
     }
-    NSArray *rlt = [_db execute:stm bindings:nil columns:@[PRColInteger, PRColString, PRColInteger, PRColString, PRColString]];
-    
-    NSMutableArray *recentlyAdded = [NSMutableArray array];
-    for (NSArray *i in rlt) {
-        NSDate *date = [NSDate dateWithString:[i objectAtIndex:1]];
-        if (!date) {
-            date = [NSDate date];
-        }
-        [recentlyAdded addObject:
-         @{@"file":[i objectAtIndex:0],
-         @"count":[i objectAtIndex:2],
-         @"artist":[i objectAtIndex:3],
-         @"album":[i objectAtIndex:4],
-         @"date":date}];
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:stm bindings:nil columns:@[PRColInteger, PRColString, PRColInteger, PRColString, PRColString] out:&rlt];
+    if (!success) {
+        return NO;
     }
-    return recentlyAdded;
+    if (out) {
+        *out = [rlt PRMap:^(NSInteger idx, id obj){
+            return @{
+                @"file":obj[0],
+                @"count":obj[2],
+                @"artist":obj[3],
+                @"album":obj[4],
+                @"date":[NSDate dateWithString:obj[1]] ?: [NSDate date]};
+        }];
+    }
+    return YES;
 }
 
-- (NSArray *)recentlyPlayed {
+- (BOOL)zRecentlyPlayed:(NSArray **)out {
     NSString *stm;
     if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist]) {
         stm = @"SELECT library.file_id, date, title, artistAlbumArtist FROM history "
@@ -128,20 +148,53 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         stm = @"SELECT library.file_id, date, title, artist FROM history "
         "JOIN library ON history.file_id = library.file_id ORDER BY date DESC LIMIT 250";
     }
-    NSArray *results = [_db execute:stm bindings:nil columns:@[PRColInteger, PRColString, PRColString, PRColString]];
-    NSMutableArray *recentlyPlayed = [NSMutableArray array];
-    for (NSArray *i in results) {
-        NSDate *date = [NSDate dateWithString:[i objectAtIndex:1]];
-        if (!date) {
-            date = [NSDate date];
-        }
-        [recentlyPlayed addObject:@{
-         @"file":[i objectAtIndex:0],
-         @"title":[i objectAtIndex:2],
-         @"artist":[i objectAtIndex:3],
-         @"date":date}];
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:stm bindings:nil columns:@[PRColInteger, PRColString, PRColString, PRColString] out:&rlt];
+    if (!success) {
+        return NO;
     }
-    return recentlyPlayed;
+    if (out) {
+        *out = [rlt PRMap:^(NSInteger idx, id obj){
+            return @{
+                @"file":obj[0],
+                @"title":obj[2],
+                @"artist":obj[3],
+                @"date":[NSDate dateWithString:obj[1]] ?: [NSDate date]};
+        }];
+    }
+    return YES;
+}
+ 
+- (void)addItem:(PRItem *)item withDate:(NSDate *)date {
+    [self zAddItem:item withDate:date];
+}
+
+- (void)clear {
+    [self zClear];
+}
+
+- (NSArray *)topSongs {
+    NSArray *rlt = nil;
+    [self zTopSongs:&rlt];
+    return rlt;
+}
+
+- (NSArray *)topArtists {
+    NSArray *rlt = nil;
+    [self zTopArtists:&rlt];
+    return rlt;
+}
+
+- (NSArray *)recentlyAdded {
+    NSArray *rlt = nil;
+    [self zRecentlyAdded:&rlt];
+    return rlt;
+}
+
+- (NSArray *)recentlyPlayed {
+    NSArray *rlt = nil;
+    [self zRecentlyPlayed:&rlt];
+    return rlt;
 }
 
 #pragma mark - Update
