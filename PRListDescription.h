@@ -2,9 +2,11 @@
 
 
 @interface PRListDescription : NSObject
-- (id)initWithList:(PRList *)list database:(PRDb *)db;
-- (void)writeToDatabase;
+- (id)initWithList:(PRList *)list connection:(PRConnection *)conn;
+- (BOOL)writeToConnection:(PRConnection *)conn;
 @property (nonatomic, readonly) PRList *list;
+- (void)setValue:(id)value forAttr:(PRListAttr *)attr;
+- (id)valueForAttr:(PRListAttr *)attr;
 
 @property (nonatomic) BOOL vertical;
 @property (nonatomic) CGFloat verticalBrowserWidth;

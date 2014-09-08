@@ -14,7 +14,8 @@
 
 @interface PRCore : NSObject <NSApplicationDelegate>
 /* Accessors */
-@property (readonly) PRConnection *conn;
+@property (readonly) PRConnection *conn1;
+@property (readonly) PRConnection *conn2;
 @property (readonly) PRDb *db;
 @property (readonly) PRMainWindowController *win;
 @property (readonly) PRNowPlayingController *now;

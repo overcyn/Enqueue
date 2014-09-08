@@ -148,7 +148,11 @@
 }
 
 - (BOOL)zExecute:(NSArray **)outValue {
-    return [self _execute:outValue];
+    BOOL success = [self _execute:outValue];
+    if (!success) {
+        @throw NSInternalInconsistencyException;
+    }
+    return success;
 }
 
 #pragma mark - action

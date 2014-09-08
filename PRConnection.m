@@ -3,6 +3,7 @@
 #import "PRStatement.h"
 #import "PRLibrary.h"
 #import "PRPlaylists.h"
+#import "PRQueue.h"
 
 
 @implementation PRConnection {
@@ -11,12 +12,14 @@
     sqlite3 *_sqliteDb;
     PRLibrary *_library;
     PRPlaylists *_playlists;
+    PRQueue *_queue;
 }
 
 @synthesize type = _type;
 @synthesize sqliteDb = _sqliteDb;
 @synthesize library = _library;
 @synthesize playlists = _playlists;
+@synthesize queue = _queue;
 
 - (instancetype)initWithPath:(NSString *)path type:(PRConnectionType)type {
     if ((self = [super init])) {
@@ -45,6 +48,7 @@
         
         _library = [[PRLibrary alloc] initWithConnection:self];
         _playlists = [[PRPlaylists alloc] initWithConnection:self];
+        _queue = [[PRQueue alloc] initWithConnection:self];
     }
     return self;
 }

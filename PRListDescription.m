@@ -1,5 +1,6 @@
 #import "PRListDescription.h"
 #import "NSArray+Extensions.h"
+#import "PRConnection.h"
 
 
 @implementation PRListDescription {
@@ -10,7 +11,7 @@
 
 @synthesize list = _list;
 
-- (id)initWithList:(PRList *)list database:(PRDb *)db {
+- (id)initWithList:(PRList *)list connection:(PRConnection *)conn {
     if ((self = [super init])) {
         _list = list;
         _keys = @[PRListAttrTitle, PRListAttrType, PRListAttrRules, PRListAttrViewMode, PRListAttrListViewInfo, 
@@ -23,12 +24,12 @@
         NSMutableArray *cols = [NSMutableArray array];
         NSMutableString *stm = [NSMutableString stringWithString:@"SELECT "];
         for (PRListAttr *i in _keys) {
-            [stm appendFormat:@"%@ ,", [PRPlaylists columnNameForListAttr:i]];
+            [stm appendFormat:@"%@, ", [PRPlaylists columnNameForListAttr:i]];
             [cols addObject:[PRPlaylists columnTypeForListAttr:i]];
         }
         [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 1)];
         [stm appendString:@"FROM playlists WHERE playlist_id = ?1"];
-        BOOL success = [db zExecute:stm bindings:@{@1:list} columns:cols out:&rlt];
+        BOOL success = [conn zExecute:stm bindings:@{@1:list} columns:cols out:&rlt];
         if (!success || [rlt count] != 1) {
             return nil;
         }
@@ -37,8 +38,26 @@
     return self;
 }
 
-- (void)writeToDatabase {
-    
+- (BOOL)writeToConnection:(PRConnection *)conn {
+    NSMutableString *stm = [NSMutableString stringWithString:@"UPDATE playlists SET "];
+    NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
+    NSInteger bindingIndex = 1;
+    for (PRListAttr *i in _keys) {
+        [stm appendFormat:@"%@ = ?%ld, ", [PRPlaylists columnNameForListAttr:i], (long)bindingIndex];
+        bindings[@(bindingIndex)] = _attributes[[_keys indexOfObject:i]];
+        bindingIndex += 1;
+    }
+    [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 1)];
+    [stm appendFormat:@"WHERE playlist_id = %@", _list];
+    return [conn zExecute:stm bindings:bindings columns:nil out:nil];
+}
+
+- (void)setValue:(id)value forAttr:(PRListAttr *)attr {
+    _attributes[[_keys indexOfObject:attr]] = value;
+}
+
+- (id)valueForAttr:(PRListAttr *)attr {
+    return _attributes[[_keys indexOfObject:attr]];
 }
 
 - (NSMutableDictionary *)browserInfo {
@@ -51,7 +70,6 @@
         return [NSMutableDictionary dictionary];
     }
     return [NSMutableDictionary dictionaryWithDictionary:info];
-    
 }
 
 - (void)setBrowserInfo:(NSDictionary *)value {
@@ -198,11 +216,11 @@
     }
 }
 
-- (PRListType *)listType {
+- (PRListType *)type {
     return [PRPlaylists listTypeForInternal:_attributes[[_keys indexOfObject:PRListAttrType]]];
 }
 
-- (void)setListType:(PRListType *)value {
+- (void)setType:(PRListType *)value {
     _attributes[[_keys indexOfObject:PRListAttrType]] = [PRPlaylists internalForListType:value];
 }
 

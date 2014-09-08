@@ -26,7 +26,8 @@
     IBOutlet NSMenu *__weak _mainMenu;
     NSConnection *_connection;
     
-    PRConnection *_conn;
+    PRConnection *_conn1;
+    PRConnection *_conn2;
     PRDb *_db;
     PRNowPlayingController *_now;
     PRMainWindowController *_win;
@@ -65,7 +66,8 @@
     [_opQueue setSuspended:YES];
     _taskManager = [[PRTaskManager alloc] init];
     _db = [[PRDb alloc] initWithCore:self];
-    _conn = [[PRConnection alloc] initWithPath:[[PRDefaults sharedDefaults] libraryPath] type:PRConnectionTypeReadWrite];
+    _conn1 = [[PRConnection alloc] initWithPath:[[PRDefaults sharedDefaults] libraryPath] type:PRConnectionTypeReadWrite];
+    _conn2 = [[PRConnection alloc] initWithPath:[[PRDefaults sharedDefaults] libraryPath] type:PRConnectionTypeReadOnly];
     _now = [[PRNowPlayingController alloc] initWithDb:_db]; // requires: db
     _folderMonitor = [[PRFolderMonitor alloc] initWithCore:self]; // requires: opQueue, db & taskManager
     _win = [[PRMainWindowController alloc] initWithCore:self]; // requires: db, now, taskManager, folderMonitor
@@ -106,7 +108,8 @@
 @synthesize lastfm = _lastfm;
 @synthesize keys = _keys;
 @synthesize hotKeys = _hotKeys;
-@synthesize conn = _conn;
+@synthesize conn1 = _conn1;
+@synthesize conn2 = _conn2;
 
 #pragma mark - Action
 

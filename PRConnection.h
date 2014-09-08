@@ -6,7 +6,7 @@
 
 
 typedef enum {
-    PRConnectionTypeRead,
+    PRConnectionTypeReadOnly,
     PRConnectionTypeReadWrite,
 } PRConnectionType;
 
@@ -25,6 +25,7 @@ typedef enum {
 
 @property (nonatomic, readonly) PRLibrary *library;
 @property (nonatomic, readonly) PRPlaylists *playlists;
+@property (nonatomic, readonly) PRQueue *queue;
 @end
 
 @protocol PRTable <NSObject>

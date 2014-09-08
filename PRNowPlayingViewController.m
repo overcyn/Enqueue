@@ -2,22 +2,26 @@
 #import "PRNowPlayingViewController_Private.h"
 #import "BWTexturedSlider.h"
 #import "NSColor+Extensions.h"
+#import "NSIndexPath+Extensions.h"
 #import "NSIndexSet+Extensions.h"
 #import "NSMenuItem+Extensions.h"
 #import "NSTableView+Extensions.h"
 #import "PRAction.h"
 #import "PRActionCenter.h"
+#import "PRConnection.h"
 #import "PRCore.h"
 #import "PRDb.h"
 #import "PRDefaults.h"
 #import "PRGradientView.h"
 #import "PRLibrary.h"
 #import "PRLibraryViewController.h"
+#import "PRListDescription.h"
 #import "PRListItemsDescription.h"
 #import "PRMainWindowController.h"
 #import "PRMoviePlayer.h"
 #import "PRNowPlayingCell.h"
 #import "PRNowPlayingController.h"
+#import "PRNowPlayingDescription.h"
 #import "PRNowPlayingHeaderCell.h"
 #import "PROutlineView.h"
 #import "PRPlaylists.h"
@@ -26,9 +30,6 @@
 #import "PRTableView.h"
 #import "PRTableViewController.h"
 #import "PRViewController.h"
-#import "PRNowPlayingDescription.h"
-#import "PRConnection.h"
-#import "NSIndexPath+Extensions.h"
 
 
 @interface PRNowPlayingViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, NSTextFieldDelegate, PROutlineViewDelegate>
@@ -53,7 +54,7 @@
     NSCell *_cachedNowPlayingCell;
     NSCell *_cachedNowPlayingHeaderCell;
     
-    PRNowPlayingListItemsDescription *_listDescription;
+    PRNowPlayingListItemsDescription *_listItemsDescription;
     PRNowPlayingDescription *_nowPlayingDescription;
 }
 
@@ -213,7 +214,7 @@
     // Checks if adding single album
     BOOL singleAlbum = YES;
     if ([files count] > 1) {
-        PRLibrary *library = [[_core conn] library];
+        PRLibrary *library = [[_core conn2] library];
         NSString *artist = nil;
         NSString *album = nil;
         [library zArtistValueForItem:files[0] out:&artist];
@@ -288,11 +289,11 @@
             prevAlbumMissing = YES;
             continue;
         } else {
-            PRItem *item_ = [_listDescription itemAtIndex:range.location-1];
+            PRItem *item_ = [_listItemsDescription itemAtIndex:range.location-1];
             NSString *artist = nil;
             NSString *album = nil;
-            [[[_core conn] library] zValueForItem:item_ attr:PRItemAttrArtist out:&artist];
-            [[[_core conn] library] zValueForItem:item_ attr:PRItemAttrAlbum out:&album];
+            [[[_core conn2] library] zValueForItem:item_ attr:PRItemAttrArtist out:&artist];
+            [[[_core conn2] library] zValueForItem:item_ attr:PRItemAttrAlbum out:&album];
             NSString *prevArtist = [[array lastObject] objectForKey:@"artist"];
             NSString *prevAlbum = [[array lastObject] objectForKey:@"album"];
             if (!(prevAlbumMissing && [artist noCaseCompare:prevArtist] == NSOrderedSame && [album noCaseCompare:prevAlbum] == NSOrderedSame)) {
@@ -327,11 +328,11 @@
 - (void)revealSelectedInFinder {
     NSMutableArray *array = [NSMutableArray array];
     [[self selectedDbRows] enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
-        [array addObject:[_listDescription itemAtIndex:idx-1]];
+        [array addObject:[_listItemsDescription itemAtIndex:idx-1]];
     }];
     
     NSString *path = nil;
-    [[[_core conn] library] zValueForItem:array[0] attr:PRItemAttrPath out:&path];
+    [[[_core conn2] library] zValueForItem:array[0] attr:PRItemAttrPath out:&path];
     if (path) {
         [PRActionCenter performAction:[PRBlockAction blockActionWithBlock:^(PRCore *core) {
             [[NSWorkspace sharedWorkspace] selectFile:[[NSURL URLWithString:path] path] inFileViewerRootedAtPath:nil];
@@ -344,7 +345,7 @@
     if ([dbRows count] != 0) {
         NSMutableArray *items = [NSMutableArray array];
         [dbRows enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
-            [items addObject:[_listDescription itemAtIndex:idx-1]];
+            [items addObject:[_listItemsDescription itemAtIndex:idx-1]];
         }];
         
         PRHighlightItemsAction *action = [[PRHighlightItemsAction alloc] init];
@@ -359,7 +360,7 @@
     NSInteger dbRow = [dbRows firstIndex];
     while (dbRow != NSNotFound) {
         if (dbRow != [_nowPlayingDescription currentIndex]) {
-            [[_db queue] appendListItem:[_listDescription listItemAtIndex:dbRow-1]];
+            [[_db queue] appendListItem:[_listItemsDescription listItemAtIndex:dbRow-1]];
         }
         dbRow = [dbRows indexGreaterThanIndex:dbRow];
     }
@@ -369,7 +370,7 @@
     NSIndexSet *dbRows = [self selectedDbRows];
     NSInteger dbRow = [dbRows firstIndex];
     while (dbRow != NSNotFound) {
-        [[_db queue] removeListItem:[_listDescription listItemAtIndex:dbRow-1]];
+        [[_db queue] removeListItem:[_listItemsDescription listItemAtIndex:dbRow-1]];
         dbRow = [dbRows indexGreaterThanIndex:dbRow];
     }
 }
@@ -445,8 +446,8 @@
 #pragma mark - Update Priv
 
 - (void)updateTableView {
-    _listDescription = [[PRNowPlayingListItemsDescription alloc] initWithList:[[_db playlists] nowPlayingList] database:_db];
     _nowPlayingDescription = [[_core now] description];
+    _listItemsDescription = [[PRNowPlayingListItemsDescription alloc] initWithList:[_nowPlayingDescription currentList] database:_db];
     
     [_nowPlayingTableView reloadData];
 }
@@ -468,17 +469,22 @@
     [menuItem setImage:[NSImage imageNamed:@"Add"]];
     [menu addItem:menuItem];
     
+    PRPlaylists *playlists = [[_core conn2] playlists];
     NSArray *lists = nil;
-    [[[_core conn] playlists] zLists:&lists];
+    [playlists zLists:&lists];
     for (NSNumber *i in lists) {
-        if (![[[_db playlists] typeForList:i] isEqual:PRListTypeStatic]) {
+        PRListDescription *listDescription = nil;
+        BOOL success = [playlists zListDescriptionForList:i out:&listDescription];
+        if (!success) {
             continue;
         }
-        NSString *playlistTitle = [NSString stringWithFormat:@" %@", [[_db playlists] titleForList:i]];
-        menuItem = [[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(saveAsPlaylist:) keyEquivalent:@""];
-        [menuItem setRepresentedObject:i];
-        [menuItem setImage:[NSImage imageNamed:@"ListViewTemplate"]];
-        [menu addItem:menuItem];
+        if ([[listDescription type] isEqual:PRListTypeStatic]) {
+            NSString *playlistTitle = [NSString stringWithFormat:@" %@", [listDescription title]];
+            menuItem = [[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(saveAsPlaylist:) keyEquivalent:@""];
+            [menuItem setRepresentedObject:i];
+            [menuItem setImage:[NSImage imageNamed:@"ListViewTemplate"]];
+            [menu addItem:menuItem];
+        }
     }
     
     for (NSMenuItem *i in [menu itemArray]) {
@@ -507,11 +513,13 @@
     BOOL addToQueue = NO;
     BOOL removeFromQueue = NO;
     
-    NSArray *queue = [[_db queue] queueArray];
+    NSArray *queue = nil;
+    [[[_core conn2] queue] zQueueArray:&queue];
+    
     NSIndexSet *dbRows = [self selectedDbRows];
     NSInteger dbRow = [dbRows firstIndex];
     while (dbRow != NSNotFound) {
-        PRListItem *listItem = [_listDescription listItemAtIndex:dbRow-1];
+        PRListItem *listItem = [_listItemsDescription listItemAtIndex:dbRow-1];
         if ([queue containsObject:listItem]) {
             removeFromQueue = YES;
         } else {
@@ -542,17 +550,23 @@
     [playlistMenuItem setSubmenu:playlistMenu_];
     [_contextMenu addItem:playlistMenuItem];
     
-    NSArray *playlistArray = [[_db playlists] lists];
-    for (NSNumber *i in playlistArray) {
-        if (![[[_db playlists] typeForList:i] isEqual:PRListTypeStatic]) {
+    PRPlaylists *playlists = [[_core conn2] playlists];
+    NSArray *lists = nil;
+    [playlists zLists:&lists];
+    for (NSNumber *i in lists) {
+        PRListDescription *listDescription = nil;
+        BOOL success = [playlists zListDescriptionForList:i out:&listDescription];
+        if (!success) {
             continue;
         }
-        NSString *playlistTitle = [NSString stringWithFormat:@" %@", [[_db playlists] titleForList:i]];
-        NSMenuItem *tempMenuItem = [[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(addToPlaylist:) keyEquivalent:@""];
-        [tempMenuItem setImage:[NSImage imageNamed:@"ListViewTemplate"]];
-        [tempMenuItem setRepresentedObject:i];
-        [tempMenuItem setTarget:self];
-        [playlistMenu_ addItem:tempMenuItem];
+        if ([[listDescription type] isEqual:PRListTypeStatic]) {
+            NSString *playlistTitle = [NSString stringWithFormat:@" %@", [listDescription title]];
+            NSMenuItem *tempMenuItem = [[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(addToPlaylist:) keyEquivalent:@""];
+            [tempMenuItem setImage:[NSImage imageNamed:@"ListViewTemplate"]];
+            [tempMenuItem setRepresentedObject:i];
+            [tempMenuItem setTarget:self];
+            [playlistMenu_ addItem:tempMenuItem];
+        }
     }
     [_contextMenu addItem:[NSMenuItem separatorItem]];
     
@@ -613,19 +627,19 @@
 #pragma mark - Misc Priv
 
 - (int)dbRowCount {
-    return [_listDescription count];
+    return [_listItemsDescription count];
 }
 
 - (NSRange)dbRangeForParentItem:(id)item {
-    return [_listDescription rangeForIndexPath:item];
+    return [_listItemsDescription rangeForIndexPath:item];
 }
 
 - (int)dbRowForItem:(id)item {
-    return [_listDescription indexForIndexPath:item];
+    return [_listItemsDescription indexForIndexPath:item];
 }
 
 - (id)itemForDbRow:(int)row {
-    return [_listDescription indexPathForIndex:row];
+    return [_listItemsDescription indexPathForIndex:row];
 }
 
 - (id)itemForItem:(id)item {
@@ -641,7 +655,7 @@
         if ([item length] == 2) {
             [selectedDbRows addIndex:[self dbRowForItem:item]];
         } else {
-            NSInteger albumCount = [[[_listDescription albumCounts] objectAtIndex:[item indexAtPosition:0]] integerValue];
+            NSInteger albumCount = [[[_listItemsDescription albumCounts] objectAtIndex:[item indexAtPosition:0]] integerValue];
             [selectedDbRows addIndexesInRange:NSMakeRange([self dbRowForItem:item], albumCount)];
         }
         selectedRow = [selectedRowIndexes indexGreaterThanIndex:selectedRow];
@@ -698,7 +712,7 @@
     }
     if ([item length] == 1 &&
         (![_nowPlayingTableView isItemExpanded:item] ||
-         index == [[[_listDescription albumCounts] objectAtIndex:[item indexAtPosition:0]] integerValue])) {
+         index == [[[_listItemsDescription albumCounts] objectAtIndex:[item indexAtPosition:0]] integerValue])) {
         [_nowPlayingTableView setDropItem:nil dropChildIndex:[item indexAtPosition:0] + 1];
     }
     return NSDragOperationGeneric;
@@ -749,11 +763,11 @@
                 prevAlbumMissing = YES;
                 continue;
             }
-            PRItem *listItem = [_listDescription itemAtIndex:range.location-1];
+            PRItem *listItem = [_listItemsDescription itemAtIndex:range.location-1];
             NSString *artist = nil;
             NSString *album = nil;
-            [[[_core conn] library] zValueForItem:listItem attr:PRItemAttrArtist out:&artist];
-            [[[_core conn] library] zValueForItem:listItem attr:PRItemAttrAlbum out:&album];
+            [[[_core conn2] library] zValueForItem:listItem attr:PRItemAttrArtist out:&artist];
+            [[[_core conn2] library] zValueForItem:listItem attr:PRItemAttrAlbum out:&album];
             BOOL shouldMergeWithPrevAlbum = prevAlbumMissing && [artist noCaseCompare:prevArtist] == NSOrderedSame && [album noCaseCompare:prevAlbum] == NSOrderedSame;
             prevArtist = artist;
             prevAlbum = album;
@@ -763,10 +777,9 @@
             if (shouldMergeWithPrevAlbum) {
                 continue;
             }
-            [tempAlbums addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-                                   [NSNumber numberWithBool:[_nowPlayingTableView isItemExpanded:item]], @"expanded", 
-                                   [NSValue valueWithRange:NSMakeRange(oldLocation, range.length - [dbIndexesToMove countOfIndexesInRange:range])], @"range", 
-                                   [NSNumber numberWithInt:[dbIndexesToMove countOfIndexesInRange:range]], @"missing", nil]];
+            [tempAlbums addObject:@{@"expanded":@([_nowPlayingTableView isItemExpanded:item]),
+               @"range":[NSValue valueWithRange:NSMakeRange(oldLocation, range.length - [dbIndexesToMove countOfIndexesInRange:range])], 
+               @"missing":@([dbIndexesToMove countOfIndexesInRange:range])}];
         }
         
         // Calculate collapsed/uncollapsed using tempAlbums and dbIndexToInsert as beforeArray and afterArray
@@ -857,7 +870,7 @@
         // Checks if adding single album
         BOOL singleAlbum = YES;
         if ([files count] > 1) {
-            PRLibrary *library = [[_core conn] library];
+            PRLibrary *library = [[_core conn2] library];
             NSString *artist = nil;
             NSString *album = nil;
             [library zArtistValueForItem:files[0] out:&artist];
@@ -930,18 +943,18 @@
 
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
     if (!item) {
-        return [[_listDescription albumCounts] count];
+        return [[_listItemsDescription albumCounts] count];
     } else if ([item length] == 1) {
-        return [[[_listDescription albumCounts] objectAtIndex:[item indexAtPosition:0]] integerValue];
+        return [[[_listItemsDescription albumCounts] objectAtIndex:[item indexAtPosition:0]] integerValue];
     } else {
         return 0;
     }
 }
 
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item {
-    PRLibrary *library = [[_core conn] library];
+    PRLibrary *library = [[_core conn2] library];
     NSInteger row = [self dbRowForItem:item];
-    PRItem *it = [_listDescription itemAtIndex:row-1];
+    PRItem *it = [_listItemsDescription itemAtIndex:row-1];
     
     if ([item length] == 1) {
         NSString *album = nil;
@@ -959,7 +972,7 @@
         if ([compilation boolValue] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]) {
             artist = @"Compilation";
         }
-       NSNumber *drawBorder = @([item indexAtPosition:0] + 1 == [[_listDescription albumCounts] count] || [_nowPlayingTableView isItemExpanded:item]);
+       NSNumber *drawBorder = @([item indexAtPosition:0] + 1 == [[_listItemsDescription albumCounts] count] || [_nowPlayingTableView isItemExpanded:item]);
         return @{@"title":artist, @"subtitle":album, @"item":item, @"drawBorder":drawBorder, @"target":self};
     } else {
         NSString *title = nil;
@@ -976,9 +989,11 @@
             icon = [[NSImage alloc] init];
             invertedIcon = [[NSImage alloc] init];
         }
-        PRListItem *listItem = [_listDescription listItemAtIndex:row-1];
-        NSUInteger queueIndex = [[[_db queue] queueArray] indexOfObject:listItem];
-        NSNumber *badge = (queueIndex != NSNotFound) ? @(queueIndex + 1) : @0;
+        PRListItem *listItem = [_listItemsDescription listItemAtIndex:row-1];
+        NSArray *queue = nil;
+        [[[_core conn2] queue] zQueueArray:&queue];
+        NSUInteger queueIndex = [queue indexOfObject:listItem];
+        NSNumber *badge = (queue && queueIndex != NSNotFound) ? @(queueIndex + 1) : @0;
         return @{@"title":title, @"icon":icon, @"invertedIcon":invertedIcon, @"badge":badge, @"item":item, @"target":self};
     }
 }
