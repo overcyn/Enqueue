@@ -4,6 +4,7 @@
 #import "PRLibrary.h"
 #import "PRPlaylists.h"
 #import "PRQueue.h"
+#import "PRPlaybackOrder.h"
 
 
 @implementation PRConnection {
@@ -13,6 +14,7 @@
     PRLibrary *_library;
     PRPlaylists *_playlists;
     PRQueue *_queue;
+    PRPlaybackOrder *_playbackOrder;
 }
 
 @synthesize type = _type;
@@ -20,6 +22,7 @@
 @synthesize library = _library;
 @synthesize playlists = _playlists;
 @synthesize queue = _queue;
+@synthesize playbackOrder = _playbackOrder;
 
 - (instancetype)initWithPath:(NSString *)path type:(PRConnectionType)type {
     if ((self = [super init])) {
@@ -49,6 +52,7 @@
         _library = [[PRLibrary alloc] initWithConnection:self];
         _playlists = [[PRPlaylists alloc] initWithConnection:self];
         _queue = [[PRQueue alloc] initWithConnection:self];
+        _playbackOrder = [[PRPlaybackOrder alloc] initWithConnection:self];
     }
     return self;
 }

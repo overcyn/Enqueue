@@ -3,6 +3,8 @@
 
 @class PRLibrary;
 @class PRPlaylists;
+@class PRQueue;
+@class PRPlaybackOrder;
 
 
 typedef enum {
@@ -26,6 +28,7 @@ typedef enum {
 @property (nonatomic, readonly) PRLibrary *library;
 @property (nonatomic, readonly) PRPlaylists *playlists;
 @property (nonatomic, readonly) PRQueue *queue;
+@property (nonatomic, readonly) PRPlaybackOrder *playbackOrder;
 @end
 
 @protocol PRTable <NSObject>
