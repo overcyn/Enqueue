@@ -255,4 +255,19 @@
 - (void)setRules:(NSDictionary *)value {
 }
 
+- (NSArray *)derivedBrowserAttributes {
+    [[self browserAttributes] PRMap:^(NSInteger idx, PRListAttr *obj){
+        if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist] && [attr isEqual:PRItemAttrArtist]) {
+            return PRItemAttrAlbumArtist;
+        } 
+        return obj;
+    }];
+}
+
+- (NSArray *)derivedBrowserAllowsCompilation {
+    return [[self browserAttributes PRMap:^(NSInteger idx, PRItemAttr *obj){
+        return [obj isEqual:PRItemAttrArtist] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation];
+    }];
+}
+
 @end

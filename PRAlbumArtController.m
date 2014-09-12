@@ -4,6 +4,7 @@
 #import "PRDefaults.h"
 #import "NSFileManager+DirectoryLocations.h"
 #import "NSImage+Extensions.h"
+#import "NSArray+Extensions.h"
 
 
 @interface PRAlbumArtController ()
@@ -14,7 +15,13 @@
 @end
 
 
-@implementation PRAlbumArtController
+@implementation PRAlbumArtController {
+    __weak PRDb *_db;
+    __weak PRConnection *_conn;
+    
+    int _tempIndex;
+    NSFileManager *_fileManager;
+}
 
 #pragma mark - Initialization
 
@@ -26,24 +33,29 @@
     return self;
 }
 
-
-#pragma mark - Accessors
-
-- (NSImage *)artworkForItem:(PRItem *)item {
-    return [self artworkForItems:[NSArray arrayWithObject:item]];
+- (id)initWithConnection:(PRConnection *)conn {
+    if (!(self = [super init])){return nil;}
+    _tempIndex = 0; 
+    _fileManager = [[NSFileManager alloc] init];
+    _conn = conn;
+    return self;
 }
 
-- (NSImage *)artworkForItems:(NSArray *)items {
+#pragma mark - zAccessors
+
+- (BOOL)zArtworkForItems:(NSArray *)items out:(NSImage **)outValue {
     // Cached album art
-    NSMutableString *string = [NSMutableString stringWithString:@"SELECT file_id FROM library WHERE file_id IN ("];
+    NSMutableString *stm = [NSMutableString stringWithString:@"SELECT file_id FROM library WHERE file_id IN ("];
     for (PRItem *i in items) {
-        [string appendFormat:@"%llu, ", [i unsignedLongLongValue]];
+        [stm appendFormat:@"%llu, ", [i unsignedLongLongValue]];
     }
-    [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
-    [string appendString:@") AND albumArt = 1"];
-    NSArray *results = [_db execute:string bindings:nil columns:@[PRColInteger]];
-    for (NSArray *i in results) {
-        PRItem *item = [i objectAtIndex:0];
+    [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 1)];
+    [stm appendString:@") AND albumArt = 1"];
+    
+    NSArray *rlt = nil;
+    [_db zExecute:stm bindings:nil columns:@[PRColInteger] out:&rlt];
+    for (NSArray *i in rlt) {
+        PRItem *item = i[0];
         BOOL isDirectory;
         BOOL fileExists = [_fileManager fileExistsAtPath:[self cachedArtworkPathForItem:item] isDirectory:&isDirectory];
         if (fileExists && !isDirectory) {
@@ -51,68 +63,150 @@
             if (!albumArt || ![albumArt isValid]) {
                 [self clearArtworkForItem:item];
             } else {
-                return albumArt;
+                if (outValue) {
+                    *outValue = albumArt;
+                }
+                return YES;
             }
         }
     }
     
     // Artwork in Folder
     if (![[PRDefaults sharedDefaults] boolForKey:PRDefaultsFolderArtwork]) {
-        return nil;
+        return NO;
     }
-    string = [NSMutableString stringWithString:@"SELECT path FROM library WHERE file_id IN ("];
+    stm = [NSMutableString stringWithString:@"SELECT path FROM library WHERE file_id IN ("];
     for (PRItem *i in items) {
-        [string appendFormat:@"%d, ", [i intValue]];
+        [stm appendFormat:@"%d, ", [i intValue]];
     }
-    [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
-    [string appendString:@")"];
-    results = [_db execute:string bindings:nil columns:@[PRColString]];
+    [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 1)];
+    [stm appendString:@")"];
+    rlt = nil;
+    
+    [_db zExecute:stm bindings:nil columns:@[PRColString] out:&rlt];
     NSMutableSet *paths = [NSMutableSet set];
-    for (NSArray *i in results) {
-        NSURL *URL = [NSURL URLWithString:[i objectAtIndex:0]];
+    for (NSArray *i in rlt) {
+        NSURL *URL = [NSURL URLWithString:i[0]];
         URL = [NSURL fileURLWithPath:[[URL path] stringByDeletingLastPathComponent]];
         if (!URL || [paths containsObject:[URL absoluteString]]) {
             continue;
         } else {
             [paths addObject:[URL absoluteString]];
         }
-        NSError *error;
-        NSArray *directoryURLs = [_fileManager contentsOfDirectoryAtURL:URL 
-                                            includingPropertiesForKeys:@[] 
-                                                               options:0 
-                                                                 error:&error];
-        if (!directoryURLs) {
-            continue;
-        }
-        for (NSURL *directoryURL in directoryURLs) {
-            NSString *pathExtension = [directoryURL pathExtension];
+        NSArray *directoryURLs = [_fileManager contentsOfDirectoryAtURL:URL includingPropertiesForKeys:@[] options:0 error:nil];
+        for (NSURL *j in directoryURLs) {
+            NSString *pathExtension = [j pathExtension];
             if ([pathExtension caseInsensitiveCompare:@"jpg"] == NSOrderedSame ||
                 [pathExtension caseInsensitiveCompare:@"jpeg"] == NSOrderedSame ||
                 [pathExtension caseInsensitiveCompare:@"png"] == NSOrderedSame) {
-                NSImage *albumArt = [[NSImage alloc] initWithContentsOfFile:[directoryURL path]];
+                NSImage *albumArt = [[NSImage alloc] initWithContentsOfFile:[j path]];
                 if (albumArt && [albumArt isValid]) {
-                    return albumArt;
+                    if (outValue) {
+                        *outValue = albumArt;
+                    }
+                    return YES;
                 }
             }
         }
     }
-    return nil;
+    return NO;
+}
+
+- (BOOL)zArtworkForArtist:(NSString *)artist out:(NSImage **)outValue {
+    NSString *stm = [NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ COLLATE NOCASE2 = ?1",
+        ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:stm bindings:@{@1:artist} columns:@[PRColInteger] out:&rlt];
+    if (!success) {
+        return NO;
+    }
+    NSArray *items = [rlt PRMap:^(NSInteger idx, NSArray *obj){
+        return obj[0];
+    }];
+    return [self zArtworkForItems:items out:outValue];
+}
+
+- (BOOL)zClearArtworkForItem:(PRItem *)item {
+    [_fileManager removeItemAtPath:[self cachedArtworkPathForItem:item] error:nil];
+    return [[_db library] zSetValue:@0 forItem:item attr:PRItemAttrArtwork];
+}
+
+- (BOOL)zArtworkInfoForItems:(NSArray *)items out:(NSDictionary **)outValue {
+    // Embedded Artwork 
+    NSMutableString *stm = [NSMutableString stringWithString:@"SELECT file_id FROM library WHERE file_id IN ("];
+    for (PRItem *i in items) {
+        [stm appendFormat:@"%ld, ", [i integerValue]];
+    }
+    [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 1)];
+    [stm appendString:@") AND albumArt = 1"];
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:stm bindings:nil columns:@[PRColInteger] out:&rlt];
+    if (!success) {
+        return NO;
+    }
+    NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
+    for (NSArray *i in rlt) {
+        [indexSet addIndex:[i[0] integerValue]];
+    }
+    
+    // Folder Artwork
+    NSArray *paths = @[];
+    if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsFolderArtwork]) {
+        stm = [NSMutableString stringWithString:@"SELECT path FROM library WHERE file_id IN ("];
+        for (PRItem *i in items) {
+            [stm appendFormat:@"%d, ", [i intValue]];
+        }        
+        [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 1)];
+        [stm appendString:@")"];
+        success = [_db zExecute:stm bindings:nil columns:@[PRColString] out:&rlt];
+        if (!success) {
+            return NO;
+        }
+        paths = [rlt PRMap:^(NSInteger idx, NSArray *obj){
+            return obj[0];
+        }];
+    }
+    
+    if (outValue) {
+        *outValue = @{@"files":indexSet, @"paths":paths};
+    }
+    return YES;
+}
+
+- (BOOL)zArtworkInfoForArtist:(NSString *)artist out:(NSDictionary **)outValue {
+    NSString *stm = [NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ COLLATE NOCASE2 = ?1",
+        ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:stm bindings:@{@1:artist} columns:@[PRColInteger] out:&rlt];
+    if (!success) {
+        return NO;
+    }
+    NSArray *items = [rlt PRMap:^(NSInteger idx, NSArray *obj){
+        return obj[0];
+    }];
+    return [self zArtworkInfoForItems:items out:outValue];
+}
+
+#pragma mark - Accessors
+
+- (NSImage *)artworkForItem:(PRItem *)item {
+    return [self artworkForItems:@[item]];
+}
+
+- (NSImage *)artworkForItems:(NSArray *)items {
+    NSImage *rlt = nil;
+    [self zArtworkForItems:items out:&rlt];
+    return rlt;
 }
 
 - (NSImage *)artworkForArtist:(NSString *)artist {
-    NSString *string = [NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ COLLATE NOCASE2 = ?1",
-                        ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
-    NSArray *results = [_db execute:string bindings:@{@1:artist} columns:@[PRColInteger]];
-    NSMutableArray *items = [NSMutableArray array];
-    for (NSArray *i in results) {
-        [items addObject:[i objectAtIndex:0]];
-    }
-    return [self artworkForItems:items];
+    NSImage *rlt = nil;
+    [self zArtworkForArtist:artist out:&rlt];
+    return rlt;
 }
 
 - (void)clearArtworkForItem:(PRItem *)item {
-    [_fileManager removeItemAtPath:[self cachedArtworkPathForItem:item] error:nil];
-    [[_db library] setValue:@0 forItem:item attr:PRItemAttrArtwork];
+    [self zClearArtworkForItem:item];
 }
 
 #pragma mark - Async Accessors
@@ -122,49 +216,15 @@
 }
 
 - (NSDictionary *)artworkInfoForItems:(NSArray *)items {
-    // Embedded Artwork 
-    NSMutableString *string = [NSMutableString stringWithString:@"SELECT file_id FROM library WHERE file_id IN ("];
-    for (PRItem *i in items) {
-        [string appendFormat:@"%d, ", [i intValue]];
-    }
-    [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
-    [string appendString:@") AND albumArt = 1"];
-    NSArray *results = [_db execute:string bindings:nil columns:@[PRColInteger]];
-    
-    NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
-    for (NSArray *i in results) {
-        [indexSet addIndex:[[i objectAtIndex:0] intValue]];
-    }
-    
-    // Folder Artwork
-    if (![[PRDefaults sharedDefaults] boolForKey:PRDefaultsFolderArtwork]) {
-        return @{@"files":indexSet, @"paths":@[]};
-    }
-    
-    string = [NSMutableString stringWithString:@"SELECT path FROM library WHERE file_id IN ("];
-    for (PRItem *i in items) {
-        [string appendFormat:@"%d, ", [i intValue]];
-    }        
-    [string deleteCharactersInRange:NSMakeRange([string length] - 2, 1)];
-    [string appendString:@")"];
-    results = [_db execute:string bindings:nil columns:@[PRColString]];
-    
-    NSMutableArray *paths = [NSMutableArray array];
-    for (NSArray *i in results) {
-        [paths addObject:[i objectAtIndex:0]];
-    }
-    return @{@"files":indexSet,@"paths":paths};
+    NSDictionary *rlt = nil;
+    [self zArtworkInfoForItems:items out:&rlt];
+    return rlt;
 }
 
 - (NSDictionary *)artworkInfoForArtist:(NSString *)artist {
-    NSString *string = [NSString stringWithFormat:@"SELECT file_id FROM library WHERE %@ COLLATE NOCASE2 = ?1",
-                        ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist] ? @"artistAlbumArtist" : @"artist")];
-    NSArray *results = [_db execute:string bindings:@{@1:artist} columns:@[PRColInteger]];
-    NSMutableArray *items = [NSMutableArray array];
-    for (NSArray *i in results) {
-        [items addObject:[i objectAtIndex:0]];
-    }
-    return [self artworkInfoForItems:items];
+    NSDictionary *rlt = nil;
+    [self zArtworkInfoForArtist:artist out:&rlt];
+    return rlt;
 }
 
 - (NSImage *)artworkForArtworkInfo:(NSDictionary *)info {

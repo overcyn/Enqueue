@@ -9,6 +9,7 @@
 #import "PRQueue.h"
 #import "PRTagger.h"
 #import "PRNowPlayingDescription_Private.h"
+#import "PRConnection.h"
 
 
 @implementation PRNowPlayingController {
@@ -22,6 +23,7 @@
     PRMoviePlayer *_mov;
 
     __weak PRDb *_db;
+    __weak PRConnection *_conn;
 }
 
 #pragma mark - Initialization
@@ -29,6 +31,25 @@
 - (id)initWithDb:(PRDb *)db {
     if (!(self = [super init])) {return nil;}
     _db = db;
+    _mov = [[PRMoviePlayer alloc] init];
+    
+    _currentListItem = nil;
+    [self clearHistory];
+    
+    _invalidItems = [[NSMutableArray alloc] init];
+    
+    srandomdev();
+    _random = random();
+    
+    [[NSNotificationCenter defaultCenter] observeMovieFinished:self sel:@selector(movieDidFinish)];
+    [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistDidChange:)];
+    [[NSNotificationCenter defaultCenter] observeMovieAlmostFinished:self sel:@selector(movieAlmostFinished)];
+    return self;
+}
+
+- (id)initWithConnection:(PRConnection *)conn {
+    if (!(self = [super init])) {return nil;}
+    _conn = conn;
     _mov = [[PRMoviePlayer alloc] init];
     
     _currentListItem = nil;
@@ -66,7 +87,9 @@
 @synthesize mov = _mov;
 
 - (PRList *)currentList {
-    return [[_db playlists] nowPlayingList];
+    PRList *rlt = nil;
+    [[(PRDb *)(_db?:(id)_conn) playlists] zNowPlayingList:&rlt];
+    return rlt;
 }
 
 - (PRListItem *)currentListItem {
@@ -77,14 +100,18 @@
     if ([self currentIndex] == 0) {
         return nil;
     } 
-    return [[_db playlists] itemAtIndex:[self currentIndex] forList:[self currentList]];
+    PRItem *item = nil;
+    [[(PRDb *)(_db?:(id)_conn) playlists] zItemAtIndex:[self currentIndex] forList:[self currentList] out:&item];
+    return item;
 }
 
 - (int)currentIndex {
     if (![self currentListItem]) {
         return 0;
     }
-    return [[_db playlists] indexForListItem:[self currentListItem]];
+    NSInteger rlt = 0;
+    [[(PRDb *)(_db?:(id)_conn) playlists] zIndexForListItem:[self currentListItem] out:&rlt];
+    return rlt;
 }
 
 - (int)repeat {
@@ -135,10 +162,14 @@
 
 - (void)playItemAtIndex:(int)index {
     [_invalidItems removeAllObjects];
-    PRListItem *item = [[_db playlists] listItemAtIndex:index inList:[self currentList]];
-    [[_db queue] removeListItem:item];
+    PRListItem *item = nil;
+    BOOL success = [[(PRDb *)(_db?:(id)_conn) playlists] zListItemAtIndex:index inList:[self currentList] out:&item];
+    if (!success) {
+        return;
+    }
+    [[(PRDb *)(_db?:(id)_conn) queue] zRemoveListItem:item];
     [self clearHistory];
-    [[_db playbackOrder] appendListItem:item];
+    [[(PRDb *)(_db?:(id)_conn) playbackOrder] zAppendListItem:item];
     self.position += 1;
     [self playListItem:item evenIfQueued:YES];
 }
@@ -164,20 +195,24 @@
 #pragma mark - Playback Priv
 
 - (void)playListItem:(PRListItem *)listItem evenIfQueued:(BOOL)evenIfQueued {
-    if ([_invalidItems count] == [[_db playlists] countForList:[self currentList]]) {
+    PRPlaylists *playlists = [(PRDb *)(_db?:(id)_conn) playlists];
+    PRLibrary *library = [(PRDb *)(_db?:(id)_conn) library];
+    
+    if ([_invalidItems count] == [playlists countForList:[self currentList]]) {
         [self stop];
         return;
     }
-    PRItem *item = [[_db playlists] itemForListItem:listItem];
+    PRItem *item = [playlists itemForListItem:listItem];
     _currentListItem = listItem;
     
     // update tags
-    BOOL updated = [PRTagger updateTagsForItem:item database:_db];
+    BOOL updated = [PRTagger updateTagsForItem:item database:(PRDb *)(_db?:(id)_conn)];
     if (updated) {
         [[NSNotificationCenter defaultCenter] postItemsChanged:@[item]];
     }
     
-    NSString *path = [[_db library] valueForItem:item attr:PRItemAttrPath];
+    NSString *path = nil;
+    [library zValueForItem:item attr:PRItemAttrPath out:&path];
     bool err = evenIfQueued ? [_mov play:path] : [_mov playIfNotQueued:path];
     if (!err) {
         if (![_invalidItems containsObject:item]) {
@@ -190,16 +225,21 @@
 }
 
 - (PRListItem *)nextItem:(BOOL)update {
+    PRQueue *queue = [(PRDb *)(_db?:(id)_conn) queue];
+    PRPlaybackOrder *playbackOrder = [(PRDb *)(_db?:(id)_conn) playbackOrder];
+    PRPlaylists *playlists = [(PRDb *)(_db?:(id)_conn) playlists];
+    
     // if items in queue
-    NSArray *queue = [[_db queue] queueArray];
-    if ([queue count] > 0) {
-        PRListItem *item = [queue objectAtIndex:0];
+    NSArray *queueArray = nil;
+    [queue zQueueArray:&queueArray];
+    if ([queueArray count] > 0) {
+        PRListItem *item = queueArray[0];
         if (update) {
-            [[_db queue] removeListItem:[queue objectAtIndex:0]];
+            [queue zRemoveListItem:item];
             if (![self shuffle]) {
                 [self clearHistory];
             }
-            [[_db playbackOrder] appendListItem:item];
+            [playbackOrder zAppendListItem:item];
             [self setPosition:[self position] + 1];
         }
         return item;
@@ -207,20 +247,24 @@
     
     // NOT SHUFFLE
     if (![self shuffle]) {
-        if ([self currentIndex] < [[_db playlists] countForList:[self currentList]]) {
-            PRListItem *item = [[_db playlists] listItemAtIndex:[self currentIndex] + 1 inList:[self currentList]];
+        NSInteger count = 0;
+        [playlists zCountForList:[self currentList] out:&count];
+        if ([self currentIndex] < count) {
+            PRListItem *item = nil;
+            [playlists zListItemAtIndex:[self currentIndex] + 1 inList:[self currentList] out:&item];
             if (update) {
                 [self clearHistory];
-                [[_db playbackOrder] appendListItem:item];
+                [playbackOrder zAppendListItem:item];
                 [self setPosition:[self position] + 1];
             }
             return item;
         } else {
             if ([self repeat]) {
-                PRListItem *item = [[_db playlists] listItemAtIndex:1 inList:[self currentList]];
+                PRListItem *item = nil;
+                [playlists zListItemAtIndex:1 inList:[self currentList] out:&item];
                 if (update) {
                     [self clearHistory];
-                    [[_db playbackOrder] appendListItem:item];
+                    [playbackOrder zAppendListItem:item];
                     [self setPosition:[self position] + 1];
                 }
                 return item;
@@ -232,8 +276,11 @@
     
     // SHUFFLE
     // if inside history
-    if ([self position] < [[_db playbackOrder] count]) {
-        PRListItem *item = [[_db playbackOrder] listItemAtIndex:[self position] + 1];
+    NSInteger count = 0;
+    [playbackOrder zCount:&count];
+    if ([self position] < count) {
+        PRListItem *item = nil;
+        [playbackOrder zListItemAtIndex:[self position] + 1 out:&item];
         if (update) {
             [self setPosition:[self position] + 1];
         }
@@ -241,15 +288,15 @@
     }
     
     // not inside history
-    NSArray *availableSongs = [[_db playbackOrder] listItemsInList:[self currentList] notInPlaybackOrderAfterIndex:[self marker]];
+    NSArray *availableSongs = [playbackOrder listItemsInList:[self currentList] notInPlaybackOrderAfterIndex:[self marker]];
     if ([self repeat]) {
         int newMarker = [self marker];
-        while ([availableSongs count] == 0 && newMarker < [[_db playbackOrder] count]) {
-            newMarker += floor([[_db playlists] countForList:[self currentList]] * 0.25) + 1;
-            if (newMarker > [[_db playbackOrder] count]) {
-                newMarker = [[_db playbackOrder] count];
+        while ([availableSongs count] == 0 && newMarker < [playbackOrder count]) {
+            newMarker += floor([playlists countForList:[self currentList]] * 0.25) + 1;
+            if (newMarker > [playbackOrder count]) {
+                newMarker = [playbackOrder count];
             }
-            availableSongs = [[_db playbackOrder] listItemsInList:[self currentList] notInPlaybackOrderAfterIndex:newMarker];
+            availableSongs = [playbackOrder listItemsInList:[self currentList] notInPlaybackOrderAfterIndex:newMarker];
         }
         if (update) {
             [self setMarker:newMarker];
@@ -259,7 +306,7 @@
         PRListItem *item = [availableSongs objectAtIndex:_random % [availableSongs count]];
         if (update) {
             _random = random();
-            [[_db playbackOrder] appendListItem:item];
+            [playbackOrder appendListItem:item];
             [self setPosition:[self position] + 1];
         }
         return item;
@@ -269,6 +316,10 @@
 }
 
 - (PRListItem *)previousItem:(BOOL)update {
+    PRQueue *queue = [(PRDb *)(_db?:(id)_conn) queue];
+    PRPlaybackOrder *playbackOrder = [(PRDb *)(_db?:(id)_conn) playbackOrder];
+    PRPlaylists *playlists = [(PRDb *)(_db?:(id)_conn) playlists];
+    
     // if playing song jump to beginning
     if ([_mov currentTime] > 4000.0) {
         return [self currentListItem];
@@ -277,23 +328,26 @@
     // NOT SHUFFLE
     if (![self shuffle]) {
         if ([self currentIndex] > 1) {
-            PRListItem *item = [[_db playlists] listItemAtIndex:[self currentIndex] - 1 inList:[self currentList]];
+            PRListItem *item = nil;
+            [playlists zListItemAtIndex:[self currentIndex] - 1 inList:[self currentList] out:&item];
             if (update) {
                 [self clearHistory];
-                [[_db playbackOrder] appendListItem:item];
+                [playbackOrder zAppendListItem:item];
                 [self setPosition:[self position] + 1];
-                [[_db queue] removeListItem:item];
+                [queue zRemoveListItem:item];
             }
             return item;
         } else {
             if ([self repeat]) {
-                int count = [[_db playlists] countForList:[self currentList]];
-                PRListItem *item = [[_db playlists] listItemAtIndex:count inList:[self currentList]];
+                NSInteger count = 0;
+                [playlists zCountForList:[self currentList] out:&count];
+                PRListItem *item = nil;
+                [playlists zListItemAtIndex:count inList:[self currentList] out:&item];
                 if (update) {
                     [self clearHistory];
-                    [[_db playbackOrder] appendListItem:item];
+                    [playbackOrder zAppendListItem:item];
                     [self setPosition:[self position] + 1];
-                    [[_db queue] removeListItem:item];
+                    [queue zRemoveListItem:item];
                 }
                 return item;
             } else {
@@ -304,10 +358,11 @@
     
     // SHUFFLE
     if ([self position] > 1) {
-        PRListItem *item = [[_db playbackOrder] listItemAtIndex:[self position] - 1];
+        PRListItem *item = nil;
+        [playbackOrder zListItemAtIndex:[self position] - 1 out:&item];
         if (update) {
             [self setPosition:[self position] - 1];
-            [[_db queue] removeListItem:item];
+            [queue zRemoveListItem:item];
         }
         return item;
     } else {
@@ -318,10 +373,16 @@
 #pragma mark - Notifications
 
 - (void)movieDidFinish {
-    int playCount = [[[_db library] valueForItem:[self currentItem] attr:PRItemAttrPlayCount] intValue];
-    [[_db library] setValue:[NSNumber numberWithInt:playCount+1] forItem:[self currentItem] attr:PRItemAttrPlayCount];
-    [[_db library] setValue:[[NSDate date] description] forItem:[self currentItem] attr:PRItemAttrLastPlayed];
-    [[_db history] addItem:[self currentItem] withDate:[NSDate date]];
+    PRLibrary *library = [(PRDb *)(_db?:(id)_conn) library];
+    PRHistory *history = [(PRDb *)(_db?:(id)_conn) history];
+    
+    NSNumber *playCount = nil;
+    BOOL success = [library zValueForItem:[self currentItem] attr:PRItemAttrPlayCount out:&playCount];
+    if (success) {
+        [library zSetValue:@([playCount integerValue]+1) forItem:[self currentItem] attr:PRItemAttrPlayCount];
+    }
+    [library zSetValue:[[NSDate date] description] forItem:[self currentItem] attr:PRItemAttrLastPlayed];
+    [history zAddItem:[self currentItem] withDate:[NSDate date]];
     
     // essentially playNext but if not queued
     PRListItem *item = [self nextItem:YES];
@@ -333,27 +394,34 @@
 }
 
 - (void)movieAlmostFinished {
+    PRLibrary *library = [(PRDb *)(_db?:(id)_conn) library];
+    PRPlaylists *playlists = [(PRDb *)(_db?:(id)_conn) playlists];
     PRListItem *item = [self nextItem:NO];
     if (item) {
-        NSString *path = [[_db library] valueForItem:[[_db playlists] itemForListItem:item] attr:PRItemAttrPath];
+        NSString *path = nil;
+        [library zValueForItem:[playlists itemForListItem:item] attr:PRItemAttrPath out:&path];
         [_mov queue:path];
     }
 }
 
 - (void)playlistDidChange:(NSNotification *)notification {
     if ([[[notification userInfo] objectForKey:@"playlist"] isEqual:[self currentList]]) {
+        NSInteger count = nil;
+        [[(PRDb *)(_db?:(id)_conn) playbackOrder] zCount:&count];
         [_invalidItems removeAllObjects];
-        [self setPosition:[[_db playbackOrder] count]];
-        [self setMarker:[[_db playbackOrder] count]];
+        [self setPosition:count];
+        [self setMarker:count];
     }
 }
 
 #pragma mark - Order Priv
 
 - (int)position {
-    if (_position < 0 || _position > [[_db playbackOrder] count]) {
+    NSInteger count = nil;
+    [[(PRDb *)(_db?:(id)_conn) playbackOrder] zCount:&count];
+    if (_position < 0 || _position > count) {
         NSLog(@"invalid orderPosition");
-        return [[_db playbackOrder] count];
+        return count;
     }
     return _position;
 }
@@ -363,9 +431,11 @@
 }
 
 - (int)marker {
-    if (_marker < 0 || _marker > [[_db playbackOrder] count]) {
+    NSInteger count = nil;
+    [[(PRDb *)(_db?:(id)_conn) playbackOrder] zCount:&count];
+    if (_marker < 0 || _marker > count) {
         NSLog(@"invalid orderMarker");
-        return [[_db playbackOrder] count];
+        return count;
     }
     return _marker;
 }
@@ -375,7 +445,7 @@
 }
 
 - (void)clearHistory {
-    [[_db playbackOrder] clear];
+    [[(PRDb *)(_db?:(id)_conn) playbackOrder] clear];
     _position = 0;
     _marker = 0;
 }

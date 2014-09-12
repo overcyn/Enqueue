@@ -13,7 +13,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 
 @implementation PRHistory {
     __weak PRDb *_db;
-     __weak PRConnection *_conn;
+    __weak PRConnection *_conn;
 }
 
 #pragma mark - Initialization
@@ -32,14 +32,13 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 }
 
 - (void)create {
-    [_db execute:PR_TBL_HISTORY_SQL];
+    [(PRDb*)(_db?:(id)_conn) zExecute:PR_TBL_HISTORY_SQL];
 }
 
 - (BOOL)initialize {
-    NSArray *result = [_db execute:@"SELECT sql FROM sqlite_master WHERE name = 'history'" 
-                          bindings:nil 
-                           columns:@[PRColString]];
-    if ([result count] != 1 || ![[[result objectAtIndex:0] objectAtIndex:0] isEqualToString:PR_TBL_HISTORY_SQL]) {
+    NSArray *rlt = nil;
+    BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:@"SELECT sql FROM sqlite_master WHERE name = 'history'" bindings:nil columns:@[PRColString] out:&rlt];
+    if (!success || [rlt count] != 1 || ![rlt[0][0] isEqualToString:PR_TBL_HISTORY_SQL]) {
         return NO;
     }
     return YES;
@@ -49,11 +48,11 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
  
 - (BOOL)zAddItem:(PRItem *)item withDate:(NSDate *)date {
     NSString *stm = @"INSERT INTO history (file_id, date) VALUES (?1, ?2)";
-    return [_db zExecute:stm bindings:@{@1:item, @2:[[NSDate date] description]} columns:nil out:nil];
+    return [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:@{@1:item, @2:[[NSDate date] description]} columns:nil out:nil];
 }
 
 - (BOOL)zClear {
-    return [_db zExecute:@"DELETE FROM history"];
+    return [(PRDb*)(_db?:(id)_conn) zExecute:@"DELETE FROM history"];
 }
 
 - (BOOL)zTopArtists:(NSArray **)out {
@@ -68,7 +67,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         "ORDER BY 2 DESC, 3 DESC LIMIT 250";
     }
     NSArray *rlt = nil;
-    BOOL success = [_db zExecute:stm bindings:nil columns:@[PRColInteger, PRColInteger, PRColString] out:nil];
+    BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:nil columns:@[PRColInteger, PRColInteger, PRColString] out:nil];
     if (!success) {
         return NO;
     }    
@@ -95,7 +94,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         "WHERE playCount > 0 ORDER BY playCount DESC LIMIT 250";
     }
     NSArray *rlt = nil;
-    BOOL success = [_db zExecute:stm bindings:nil columns:@[PRColInteger, PRColInteger, PRColString, PRColString] out:&rlt];
+    BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:nil columns:@[PRColInteger, PRColInteger, PRColString, PRColString] out:&rlt];
     if (!success) {
         return NO;
     }
@@ -122,7 +121,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         "GROUP BY artistAlbumArtist COLLATE NOCASE2, album COLLATE NOCASE2 ORDER BY 2 DESC LIMIT 250";
     }
     NSArray *rlt = nil;
-    BOOL success = [_db zExecute:stm bindings:nil columns:@[PRColInteger, PRColString, PRColInteger, PRColString, PRColString] out:&rlt];
+    BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:nil columns:@[PRColInteger, PRColString, PRColInteger, PRColString, PRColString] out:&rlt];
     if (!success) {
         return NO;
     }
@@ -149,7 +148,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
         "JOIN library ON history.file_id = library.file_id ORDER BY date DESC LIMIT 250";
     }
     NSArray *rlt = nil;
-    BOOL success = [_db zExecute:stm bindings:nil columns:@[PRColInteger, PRColString, PRColString, PRColString] out:&rlt];
+    BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:nil columns:@[PRColInteger, PRColString, PRColString, PRColString] out:&rlt];
     if (!success) {
         return NO;
     }

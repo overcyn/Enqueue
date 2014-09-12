@@ -1,16 +1,20 @@
 #import <Cocoa/Cocoa.h>
 #import "PRLibrary.h"
-@class PRDb, PRLibrary;
+@class PRDb;
+@class PRLibrary;
 
 
-@interface PRAlbumArtController : NSObject {
-    __weak PRDb *_db;
-    
-    int _tempIndex;
-    NSFileManager *_fileManager;
-}
+@interface PRAlbumArtController : NSObject
 /* Initialization */
 - (id)initWithDb:(PRDb *)db;
+- (id)initWithConnection:(PRConnection *)conn;
+
+- (BOOL)zArtworkForItems:(NSArray *)items out:(NSImage **)outValue;
+- (BOOL)zArtworkForArtist:(NSString *)artist out:(NSImage **)outValue;
+- (BOOL)zClearArtworkForItem:(PRItem *)item;
+
+- (BOOL)zArtworkInfoForItems:(NSArray *)items out:(NSDictionary **)outValue;
+- (BOOL)zArtworkInfoForArtist:(NSString *)artist out:(NSDictionary **)outValue;
 
 /* Accessors */
 - (NSImage *)artworkForItem:(PRItem *)item;

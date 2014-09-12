@@ -214,7 +214,7 @@
     // Checks if adding single album
     BOOL singleAlbum = YES;
     if ([files count] > 1) {
-        PRLibrary *library = [[_core conn2] library];
+        PRLibrary *library = [[_core conn] library];
         NSString *artist = nil;
         NSString *album = nil;
         [library zArtistValueForItem:files[0] out:&artist];
@@ -292,8 +292,8 @@
             PRItem *item_ = [_listItemsDescription itemAtIndex:range.location-1];
             NSString *artist = nil;
             NSString *album = nil;
-            [[[_core conn2] library] zValueForItem:item_ attr:PRItemAttrArtist out:&artist];
-            [[[_core conn2] library] zValueForItem:item_ attr:PRItemAttrAlbum out:&album];
+            [[[_core conn] library] zValueForItem:item_ attr:PRItemAttrArtist out:&artist];
+            [[[_core conn] library] zValueForItem:item_ attr:PRItemAttrAlbum out:&album];
             NSString *prevArtist = [[array lastObject] objectForKey:@"artist"];
             NSString *prevAlbum = [[array lastObject] objectForKey:@"album"];
             if (!(prevAlbumMissing && [artist noCaseCompare:prevArtist] == NSOrderedSame && [album noCaseCompare:prevAlbum] == NSOrderedSame)) {
@@ -332,7 +332,7 @@
     }];
     
     NSString *path = nil;
-    [[[_core conn2] library] zValueForItem:array[0] attr:PRItemAttrPath out:&path];
+    [[[_core conn] library] zValueForItem:array[0] attr:PRItemAttrPath out:&path];
     if (path) {
         [PRActionCenter performAction:[PRBlockAction blockActionWithBlock:^(PRCore *core) {
             [[NSWorkspace sharedWorkspace] selectFile:[[NSURL URLWithString:path] path] inFileViewerRootedAtPath:nil];
@@ -469,7 +469,7 @@
     [menuItem setImage:[NSImage imageNamed:@"Add"]];
     [menu addItem:menuItem];
     
-    PRPlaylists *playlists = [[_core conn2] playlists];
+    PRPlaylists *playlists = [[_core conn] playlists];
     NSArray *lists = nil;
     [playlists zLists:&lists];
     for (NSNumber *i in lists) {
@@ -514,7 +514,7 @@
     BOOL removeFromQueue = NO;
     
     NSArray *queue = nil;
-    [[[_core conn2] queue] zQueueArray:&queue];
+    [[[_core conn] queue] zQueueArray:&queue];
     
     NSIndexSet *dbRows = [self selectedDbRows];
     NSInteger dbRow = [dbRows firstIndex];
@@ -550,7 +550,7 @@
     [playlistMenuItem setSubmenu:playlistMenu_];
     [_contextMenu addItem:playlistMenuItem];
     
-    PRPlaylists *playlists = [[_core conn2] playlists];
+    PRPlaylists *playlists = [[_core conn] playlists];
     NSArray *lists = nil;
     [playlists zLists:&lists];
     for (NSNumber *i in lists) {
@@ -766,8 +766,8 @@
             PRItem *listItem = [_listItemsDescription itemAtIndex:range.location-1];
             NSString *artist = nil;
             NSString *album = nil;
-            [[[_core conn2] library] zValueForItem:listItem attr:PRItemAttrArtist out:&artist];
-            [[[_core conn2] library] zValueForItem:listItem attr:PRItemAttrAlbum out:&album];
+            [[[_core conn] library] zValueForItem:listItem attr:PRItemAttrArtist out:&artist];
+            [[[_core conn] library] zValueForItem:listItem attr:PRItemAttrAlbum out:&album];
             BOOL shouldMergeWithPrevAlbum = prevAlbumMissing && [artist noCaseCompare:prevArtist] == NSOrderedSame && [album noCaseCompare:prevAlbum] == NSOrderedSame;
             prevArtist = artist;
             prevAlbum = album;
@@ -870,7 +870,7 @@
         // Checks if adding single album
         BOOL singleAlbum = YES;
         if ([files count] > 1) {
-            PRLibrary *library = [[_core conn2] library];
+            PRLibrary *library = [[_core conn] library];
             NSString *artist = nil;
             NSString *album = nil;
             [library zArtistValueForItem:files[0] out:&artist];
@@ -952,7 +952,7 @@
 }
 
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item {
-    PRLibrary *library = [[_core conn2] library];
+    PRLibrary *library = [[_core conn] library];
     NSInteger row = [self dbRowForItem:item];
     PRItem *it = [_listItemsDescription itemAtIndex:row-1];
     
@@ -991,7 +991,7 @@
         }
         PRListItem *listItem = [_listItemsDescription listItemAtIndex:row-1];
         NSArray *queue = nil;
-        [[[_core conn2] queue] zQueueArray:&queue];
+        [[[_core conn] queue] zQueueArray:&queue];
         NSUInteger queueIndex = [queue indexOfObject:listItem];
         NSNumber *badge = (queue && queueIndex != NSNotFound) ? @(queueIndex + 1) : @0;
         return @{@"title":title, @"icon":icon, @"invertedIcon":invertedIcon, @"badge":badge, @"item":item, @"target":self};

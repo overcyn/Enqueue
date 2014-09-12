@@ -23,3 +23,8 @@
 @property (nonatomic) NSInteger viewMode;
 @property (nonatomic) NSDictionary *rules;
 @end
+
+@interface PRListDescription ()
+@property (nonatomic, readonly) NSArray *derivedBrowserAttributes;
+@property (nonatomic, readonly) NSArray *derivedBrowserAllowsCompilation;
+@end

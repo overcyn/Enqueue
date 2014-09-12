@@ -28,7 +28,39 @@ NSString * const compilationString = @"Compilations  ";
 @end
 
 
-@implementation PRLibraryViewSource
+@implementation PRLibraryViewSource {
+    __weak PRDb *_db;
+    
+    // state of current/last refresh
+    PRList *_list;
+    BOOL _force;
+    
+    // flag indicating if compilations browser item should be shown.
+    BOOL _compilation;
+    
+    // info about last refresh so as not to unnecessarily repopulate tables
+    NSString *_prevSourceString;
+    NSDictionary *_prevSourceBindings;
+    NSString *_prevBrowser1Statement;
+    NSDictionary *_prevBrowser1Bindings;
+    NSString *_prevBrowser2Statement;
+    NSDictionary *_prevBrowser2Bindings;
+    NSString *_prevBrowser3Statement;
+    NSDictionary *_prevBrowser3Bindings;
+    
+    // cache for basic library with no browser selection or search
+    NSString *_cachedLibraryStatement;
+    NSString *_cachedBrowser1Statement;
+    NSString *_cachedBrowser2Statement;
+    NSString *_cachedBrowser3Statement;
+    BOOL _cachedCompilation;
+    
+    // cache for valueForRow:attribute:andCacheAttributes:
+    int _cachedRow;
+    NSArray *_cachedAttrs;
+    NSArray *_cachedAttrValues;
+    PRStatement *_cachedStatement;
+}
 
 #pragma mark - Initialization
 
@@ -487,22 +519,32 @@ NSString * const compilationString = @"Compilations  ";
 
 #pragma mark - Library Accessors
 
+- (BOOL)zCount:(NSInteger *)outValue {
+    NSArray *rlt = nil;
+    BOOL success = [_db zExecute:@"SELECT COUNT(*) FROM libraryViewSource" bindings:nil columns:@[PRColInteger] out:&rlt];
+    if (!success || [rlt count] != 1) {
+        return NO;
+    }
+    if (outValue) {
+        *outValue = [rlt[0][0] integerValue];
+    }
+    return YES;
+}
+
 - (int)count {
-    NSArray *rlt = [_db execute:@"SELECT COUNT(*) FROM libraryViewSource"
-                       bindings:nil 
-                        columns:@[PRColInteger]];
-    if ([rlt count] != 1) {[PRException raise:PRDbInconsistencyException format:@""];}
-    return [[[rlt objectAtIndex:0] objectAtIndex:0] intValue];
+    NSInteger rlt = 0;
+    [self zCount:&rlt];
+    return rlt;
 }
 
 - (PRItem *)itemForRow:(int)row {
     NSArray *rlt = [_db execute:@"SELECT file_id FROM libraryViewSource WHERE row = ?1"
-                       bindings:@{@1:[NSNumber numberWithInt:row]}
+                       bindings:@{@1:@(row)}
                         columns:@[PRColInteger]];
     if ([rlt count] != 1) {
         [PRException raise:PRDbInconsistencyException format:@""];
     }
-    return [[rlt objectAtIndex:0] objectAtIndex:0];
+    return rlt[0][0];
 }
 
 - (int)rowForItem:(PRItem *)item {

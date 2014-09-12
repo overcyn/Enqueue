@@ -23,15 +23,15 @@
 #import "PRLibrary.h"
 
 @class PRDb;
-@class PRPlaybackOrder;
-@class PRHistory; 
 @class PRMoviePlayer;
 @class PRNowPlayingDescription;
+@class PRConnection;
 
 
 @interface PRNowPlayingController : NSObject
 /* Initialization */
 - (id)initWithDb:(PRDb *)db;
+- (id)initWithConnection:(PRConnection *)conn;
 
 /* Accessors */
 @property (nonatomic, readonly) PRNowPlayingDescription *description;

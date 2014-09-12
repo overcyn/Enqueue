@@ -15,6 +15,8 @@
 		6702717E126AFC6F002E929F /* PRSizeFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 6702717D126AFC6F002E929F /* PRSizeFormatter.m */; };
 		670567F419B910F0008CD150 /* PRConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 670567F319B910F0008CD150 /* PRConnection.m */; };
 		670567F719BACDB0008CD150 /* PRListDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 670567F619BACDB0008CD150 /* PRListDescription.m */; };
+		670567FA19BE6F95008CD150 /* PRLibraryDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 670567F919BE6F95008CD150 /* PRLibraryDescription.m */; };
+		670567FD19BE6FB1008CD150 /* PREngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 670567FC19BE6FB1008CD150 /* PREngine.m */; };
 		6706FCC612B9A08200C9B075 /* NSFileManager+DirectoryLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FCC512B9A08200C9B075 /* NSFileManager+DirectoryLocations.m */; };
 		6706FCF812B9C7BF00C9B075 /* PRDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FCF712B9C7BF00C9B075 /* PRDefaults.m */; };
 		6706FDF712BB897B00C9B075 /* PRAlbumArtController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FDF612BB897B00C9B075 /* PRAlbumArtController.m */; };
@@ -291,6 +293,10 @@
 		670567F319B910F0008CD150 /* PRConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRConnection.m; sourceTree = "<group>"; };
 		670567F519BACDB0008CD150 /* PRListDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRListDescription.h; sourceTree = "<group>"; };
 		670567F619BACDB0008CD150 /* PRListDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRListDescription.m; sourceTree = "<group>"; };
+		670567F819BE6F95008CD150 /* PRLibraryDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRLibraryDescription.h; sourceTree = "<group>"; };
+		670567F919BE6F95008CD150 /* PRLibraryDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRLibraryDescription.m; sourceTree = "<group>"; };
+		670567FB19BE6FB1008CD150 /* PREngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PREngine.h; sourceTree = "<group>"; };
+		670567FC19BE6FB1008CD150 /* PREngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PREngine.m; sourceTree = "<group>"; };
 		6706FCC412B9A08200C9B075 /* NSFileManager+DirectoryLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+DirectoryLocations.h"; sourceTree = "<group>"; };
 		6706FCC512B9A08200C9B075 /* NSFileManager+DirectoryLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+DirectoryLocations.m"; sourceTree = "<group>"; };
 		6706FCF612B9C7BF00C9B075 /* PRDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRDefaults.h; sourceTree = "<group>"; };
@@ -690,6 +696,8 @@
 		080E96DDFE201D6D7F000001 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				670567FB19BE6FB1008CD150 /* PREngine.h */,
+				670567FC19BE6FB1008CD150 /* PREngine.m */,
 				67C4ACB11329B59A00796610 /* Core */,
 				67CE095C124C6A1B00A39077 /* Now Playing */,
 				6739CCB4125313D400AB54A1 /* Tags */,
@@ -1569,6 +1577,8 @@
 				67DC1D6B19975C490031BC3C /* PRNowPlayingDescription.h */,
 				67484DB119A1BB7E00F02744 /* PRNowPlayingDescription_Private.h */,
 				67DC1D6C19975C490031BC3C /* PRNowPlayingDescription.m */,
+				670567F819BE6F95008CD150 /* PRLibraryDescription.h */,
+				670567F919BE6F95008CD150 /* PRLibraryDescription.m */,
 			);
 			name = Description;
 			sourceTree = "<group>";
@@ -1846,6 +1856,7 @@
 				670EDD7B135FC9F200CAB2F1 /* PRBitRateFormatter.m in Sources */,
 				6714296D1366C7A5009A2DAB /* PRKindFormatter.m in Sources */,
 				67AD280C136CA77C00DF48EE /* PRPlaylistsCell.m in Sources */,
+				670567FA19BE6F95008CD150 /* PRLibraryDescription.m in Sources */,
 				67C37B551373FAEF00004859 /* NSScrollView+Extensions.m in Sources */,
 				67C23B15137FA91F0099A5CA /* PRWindow.m in Sources */,
 				673E4AB61385512500DD8260 /* PRGrowl.m in Sources */,
@@ -1871,6 +1882,7 @@
 				675116D2141FD42C00EBE02E /* NSImage+Extensions.m in Sources */,
 				67BBE75F1421752E003C438B /* NSURLConnection+Extensions.m in Sources */,
 				67BBE7621421AF5D003C438B /* PRLastfmFile.m in Sources */,
+				670567FD19BE6FB1008CD150 /* PREngine.m in Sources */,
 				6790E3EF1421FA76001D7D49 /* PRZeroSplitView.m in Sources */,
 				67CFB4491423FDB40045108D /* NSOperationQueue+Extensions.m in Sources */,
 				67902A6B142FD7F900ACF55F /* NSEnumerator+Extensions.m in Sources */,
