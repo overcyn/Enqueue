@@ -1,14 +1,16 @@
 #import "PRViewController.h"
-@class PRBrowserDescription;
-@protocol PRBrowserViewControllerDelegate;
 
 @interface PRBrowserViewController : PRViewController
-@property (nonatomic, strong) PRBrowserDescription *browserDescription;
-- (void)scrollToSelectedRow;
-@property (nonatomic, readonly) NSIndexSet *selectedIndexes;
-@property (nonatomic, weak) id<PRBrowserViewControllerDelegate> delegate;
-@end
+- (id)initWithCore:(PRCore *)core;
 
-@protocol PRBrowserViewControllerDelegate
-- (void)browserViewControllerDidChangeSelection:(PRBrowserViewController *)browserVC;
+@property (nonatomic, weak) PRList *currentList;
+@property (weak, readonly) NSDictionary *info;
+@property (weak, readonly) NSArray *selection;
+
+// These methods will change the browser selection but not the currentList.
+- (void)highlightItem:(PRItem *)item;
+- (void)highlightFiles:(NSArray *)items;
+- (void)highlightArtist:(NSString *)artist;
+- (void)browseToArtist:(NSString *)artist;
+- (NSMenu *)browserHeaderMenu;
 @end

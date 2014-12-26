@@ -9,7 +9,7 @@
 #import "PRPlaylists.h"
 #import "PRSizeFormatter.h"
 #import "PRStringFormatter.h"
-#import "PRTableViewController.h"
+#import "PRBrowserViewController.h"
 #import "PRTimeFormatter2.h"
 
 #define SEARCH_DELAY 0.25
@@ -30,14 +30,14 @@
     NSMenu *_libraryPopUpButtonMenu;
     
     PRInfoViewController *infoViewController;
-    PRTableViewController *listViewController;
+    PRBrowserViewController *browserViewController;
     PRAlbumListViewController *albumListViewController;
     
     NSDate *_searchFieldLastEdit;
     
     BOOL _infoViewVisible;
     PRList *_currentList;
-    __weak PRTableViewController *_currentViewController;
+    __weak PRBrowserViewController *_currentViewController;
 }
 
 #pragma mark - Initialization
@@ -59,11 +59,11 @@
     [_centerSuperview setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
     [[self view] addSubview:_centerSuperview];
     
-    listViewController = [[PRTableViewController alloc] initWithCore:_core];
-    [[listViewController view] setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
-    [[listViewController view] setFrame:[_centerSuperview bounds]];
-    [_centerSuperview addSubview:[listViewController view]];
-    _currentViewController = listViewController;
+    browserViewController = [[PRBrowserViewController alloc] initWithCore:_core];
+    [[browserViewController view] setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
+    [[browserViewController view] setFrame:[_centerSuperview bounds]];
+    [_centerSuperview addSubview:[browserViewController view]];
+    _currentViewController = browserViewController;
     
     albumListViewController = [[PRAlbumListViewController alloc] initWithCore:_core];
     [[albumListViewController view] setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
@@ -144,7 +144,7 @@
 }
 
 - (PRLibraryViewMode)libraryViewMode {
-    if (_currentViewController == listViewController) {
+    if (_currentViewController == browserViewController) {
         return PRListMode;
     } else if (_currentViewController == albumListViewController) {
         return PRAlbumListMode;
@@ -154,14 +154,14 @@
 }
 
 - (void)setLibraryViewMode:(PRLibraryViewMode)libraryViewMode {
-    [listViewController setCurrentList:nil];
+    [browserViewController setCurrentList:nil];
     [albumListViewController setCurrentList:nil];
     
     [[[_core db] playlists] setViewMode:libraryViewMode forList:_currentList];
     
     id oldViewController = _currentViewController;
     if (libraryViewMode == PRListMode) {
-        _currentViewController = listViewController;
+        _currentViewController = browserViewController;
     } else if (libraryViewMode == PRAlbumListMode) {
         _currentViewController = albumListViewController;
     } else {

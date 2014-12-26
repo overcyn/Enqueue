@@ -13,7 +13,7 @@
 #import "PRNowPlayingController.h"
 #import "PRNowPlayingViewController.h"
 #import "PRSliderCell.h"
-#import "PRTableViewController.h"
+#import "PRBrowserViewController.h"
 #import "PRTimeFormatter.h"
 #import "PRDefaults.h"
 #import "PRTaskManager.h"

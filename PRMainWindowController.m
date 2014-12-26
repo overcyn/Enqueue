@@ -13,7 +13,7 @@
 #import "PRPlaylists.h"
 #import "PRPlaylistsViewController.h"
 #import "PRPreferencesViewController.h"
-#import "PRTableViewController.h"
+#import "PRBrowserViewController.h"
 #import "PRTitleBarGradientView.h"
 #import <Quartz/Quartz.h>
 

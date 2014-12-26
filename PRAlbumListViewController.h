@@ -1,10 +1,10 @@
-#import "PRTableViewController.h"
+#import "PRBrowserViewController.h"
 
 @class PRSynchronizedScrollView;
 @class PRAlbumTableView2;
 
 
-@interface PRAlbumListViewController : PRTableViewController
+@interface PRAlbumListViewController : PRBrowserViewController
 /* Action */
 - (void)selectAlbum;
 - (void)playAlbum;

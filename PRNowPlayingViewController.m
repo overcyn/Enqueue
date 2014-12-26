@@ -28,7 +28,7 @@
 #import "PRPlaylistsViewController.h"
 #import "PRQueue.h"
 #import "PRTableView.h"
-#import "PRTableViewController.h"
+#import "PRBrowserViewController.h"
 #import "PRViewController.h"
 
 

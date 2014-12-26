@@ -18,7 +18,7 @@
 #import "PRRatingCell.h"
 #import "PRSizeFormatter.h"
 #import "PRStringFormatter.h"
-#import "PRTableViewController.h"
+#import "PRBrowserViewController.h"
 #import "PRTagger.h"
 #import "PRTimeFormatter.h"
 

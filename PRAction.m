@@ -6,7 +6,7 @@
 #import "PRNowPlayingViewController_Private.h"
 #import "PRMainWindowController.h"
 #import "PRLibraryViewController.h"
-#import "PRTableViewController.h"
+#import "PRBrowserViewController.h"
 #import "PRPlaylistsViewController.h"
 
 

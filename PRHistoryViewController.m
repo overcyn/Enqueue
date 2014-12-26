@@ -10,7 +10,7 @@
 #import "PRRolloverTableView.h"
 #import "NSScrollView+Extensions.h"
 #import "PRHistoryCell.h"
-#import "PRTableViewController.h"
+#import "PRBrowserViewController.h"
 #import "NSColor+Extensions.h"
 #import "PRTabButtonCell.h"
 #import "PRHistoryDateFormatter.h"
@@ -164,7 +164,7 @@
     [[_win libraryViewController] setCurrentList:[[_db playlists] libraryList]];
     if (historyMode == PRTopArtistsHistoryMode) {
         NSString *artist = [[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"artist"];
-        [(PRTableViewController *)[[_win libraryViewController] currentViewController] highlightArtist:artist];
+        [(PRBrowserViewController *)[[_win libraryViewController] currentViewController] highlightArtist:artist];
     } else {
         PRItem *item = [[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"file"];
         [[[_win libraryViewController] currentViewController] highlightItem:item];

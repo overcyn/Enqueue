@@ -1,6 +1,5 @@
 #import "PRAlbumTableView.h"
 #import "PRAlbumListViewController.h"
-#import "PRTableViewController+Private.h"
 
 
 @implementation PRAlbumTableView

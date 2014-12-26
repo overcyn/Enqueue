@@ -14,7 +14,7 @@
 #import "PRNowPlayingController.h"
 #import "PRNowPlayingViewController.h"
 #import "PRPlaylistsViewController.h"
-#import "PRTableViewController.h"
+#import "PRBrowserViewController.h"
 
 
 @implementation PRMainMenuController
