@@ -48,15 +48,6 @@
 // Menu
 - (void)updateHeaderMenu;
 - (void)updateLibraryMenu;
-- (void)updateBrowserHeaderMenu;
-
-// Misc
-- (int)dbRowForTableRow:(int)tableRow;
-- (NSIndexSet *)dbRowIndexesForTableRowIndexes:(NSIndexSet *)tableRowIndexes;
-- (int)tableRowForDbRow:(int)dbRow;
-- (NSIndexSet *)tableRowIndexesForDbRowIndexes:(NSIndexSet *)indexSet;
-- (int)browserForTableView:(NSTableView *)tableView;
-- (NSTableView *)tableViewForBrowser:(int)browser;
 
 // TableViewDataSource Misc
 - (NSArray *)attributesToCache;

@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import "PRLibraryViewController.h"
 
 
 @interface PRListDescription : NSObject
@@ -15,16 +16,16 @@
 @property (nonatomic) BOOL albumListViewAscending;
 @property (nonatomic, strong) PRItemAttr *listViewSortAttr;
 @property (nonatomic, strong) PRItemAttr *albumListViewSortAttr;
-@property (nonatomic, strong) NSArray *browserSelections;
-@property (nonatomic, strong) NSArray *browserAttributes;
+@property (nonatomic, strong) NSArray *browserSelections; // Array of three arrays of NSString
+@property (nonatomic, strong) NSArray *browserAttributes; // Can be NSNull
 @property (nonatomic, strong) PRListType *type;
 @property (nonatomic, strong) NSString *title;
 @property (nonatomic, strong) NSString *search;
-@property (nonatomic) NSInteger viewMode;
+@property (nonatomic) PRLibraryViewMode viewMode;
 @property (nonatomic) NSDictionary *rules;
 @end
 
 @interface PRListDescription ()
-@property (nonatomic, readonly) NSArray *derivedBrowserAttributes;
+@property (nonatomic, readonly) NSArray *derivedBrowserAttributes; // Can be NSNull
 @property (nonatomic, readonly) NSArray *derivedBrowserAllowsCompilation;
 @end

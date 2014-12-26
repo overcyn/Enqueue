@@ -6,7 +6,7 @@ extern NSString * const libraryViewSource;
 extern NSString * const browser1ViewSource;
 extern NSString * const browser2ViewSource;
 extern NSString * const browser3ViewSource;
-extern NSString * const compilationString;
+extern NSString * const PRCompilationString;
 
 typedef enum {
     PRLibraryView = 1 << 0,

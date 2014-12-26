@@ -4,6 +4,8 @@
 
 @class PRDb;
 @class PRListDescription;
+@class PRLibraryDescription;
+@class PRBrowserDescription;
 
 
 typedef NSNumber PRList;
@@ -94,6 +96,10 @@ typedef enum {
 - (BOOL)zNowPlayingList:(PRList **)outValue;
 - (BOOL)zValueForList:(PRList *)list attr:(PRListAttr *)attr out:(id *)outValue;
 - (BOOL)zListDescriptionForList:(PRList *)list out:(PRListDescription **)outValue;
+
+- (BOOL)zLibraryDescriptionForList:(PRList *)list out:(PRLibraryDescription **)outValue;
+- (BOOL)zBrowserDescriptionsForList:(PRList *)list out:(NSArray **)outValue; // Always returns 3
+
 
 // List Setters
 - (PRList *)addList;

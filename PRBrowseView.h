@@ -1,14 +1,11 @@
 #import <Cocoa/Cocoa.h>
-
 @protocol PRBrowseViewDelegate;
-
 
 typedef enum {
     PRBrowseViewStyleNone,
     PRBrowseViewStyleVertical,
     PRBrowseViewStyleHorizontal,
 } PRBrowseViewStyle;
-
 
 @interface PRBrowseView : NSView
 @property (nonatomic, weak) id<PRBrowseViewDelegate> delegate;
@@ -17,7 +14,6 @@ typedef enum {
 @property (nonatomic, strong) NSView *detailView;
 @property (nonatomic) CGFloat dividerPosition;
 @end
-
 
 @protocol PRBrowseViewDelegate
 @required

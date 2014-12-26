@@ -3,6 +3,7 @@
 #import "PRPlaybackOrder.h"
 #import "NSArray+Extensions.h"
 #import "PRListDescription.h"
+#import "PRLibraryDescription.h"
 
 
 NSString * const PRListTypeLibrary = @"PRListTypeLibrary";
@@ -377,6 +378,29 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     }
     return *outValue != nil;
 }
+
+- (BOOL)zLibraryDescriptionForList:(PRList *)list out:(PRLibraryDescription **)outValue {
+    if (outValue) {
+        *outValue = [[PRLibraryDescription alloc] initWithList:list connection:(PRConnection*)(_db?:(id)_conn)];
+    }
+    return *outValue != nil;
+}
+
+- (BOOL)zBrowserDescriptionsForList:(PRList *)list out:(NSArray **)outValue {
+    if (outValue) {
+        NSMutableArray *array = [NSMutableArray array];
+        for (NSInteger i = 0; i < 3; i++) {
+            PRBrowserDescription *val = [[PRBrowserDescription alloc] initWithList:list browser:i connection:(PRConnection*)(_db?:(id)_conn)];
+            if (!val) {
+                return NO;
+            }
+            [array addObject:val];
+        }
+        *outValue = array;
+    }
+    return YES;
+}
+
 
 #pragma mark - zList Setters
 

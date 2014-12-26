@@ -78,7 +78,6 @@
 		67484DCE19AECEE300F02744 /* NSIndexPath+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67484DCD19AECEE300F02744 /* NSIndexPath+Extensions.m */; };
 		6750A3A2124322E000F415E3 /* PRMainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6750A3A1124322E000F415E3 /* PRMainWindow.xib */; };
 		6750A3AA1243239B00F415E3 /* PRMainWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6750A3A91243239B00F415E3 /* PRMainWindowController.m */; };
-		6750A3FD12433FA700F415E3 /* PRListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6750A3FB12433FA700F415E3 /* PRListViewController.m */; };
 		675116D2141FD42C00EBE02E /* NSImage+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 675116D1141FD42B00EBE02E /* NSImage+Extensions.m */; };
 		6758FD8E138B39A900E6EBA5 /* PRAppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 6758FD8D138B39A900E6EBA5 /* PRAppIcon.icns */; };
 		6758FD90138B571800E6EBA5 /* GenericDocumentIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 6758FD8F138B571800E6EBA5 /* GenericDocumentIcon.icns */; };
@@ -192,6 +191,7 @@
 		67C4ACB51329B61C00796610 /* PRTaskManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C4ACB41329B61C00796610 /* PRTaskManager.m */; };
 		67C4ACBB1329CCD300796610 /* PRTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C4ACBA1329CCD300796610 /* PRTask.m */; };
 		67C58B561309F77B00E12F63 /* PRTimeFormatter2.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C58B551309F77B00E12F63 /* PRTimeFormatter2.m */; };
+		67C83B681A4B592C00D55592 /* PRBrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C83B671A4B592C00D55592 /* PRBrowserViewController.m */; };
 		67CFB4491423FDB40045108D /* NSOperationQueue+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67CFB4481423FDB40045108D /* NSOperationQueue+Extensions.m */; };
 		67D27AB5129C692A00845FEB /* PRBorderlessTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D27AB4129C692A00845FEB /* PRBorderlessTextField.m */; };
 		67D2F1A3141B76A700F7AB71 /* PRLightAlbumArt.png in Resources */ = {isa = PBXBuildFile; fileRef = 67D2F1A2141B76A700F7AB71 /* PRLightAlbumArt.png */; };
@@ -402,8 +402,6 @@
 		6750A3A1124322E000F415E3 /* PRMainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PRMainWindow.xib; sourceTree = "<group>"; };
 		6750A3A81243239B00F415E3 /* PRMainWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRMainWindowController.h; sourceTree = "<group>"; };
 		6750A3A91243239B00F415E3 /* PRMainWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRMainWindowController.m; sourceTree = "<group>"; };
-		6750A3FA12433FA700F415E3 /* PRListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRListViewController.h; sourceTree = "<group>"; };
-		6750A3FB12433FA700F415E3 /* PRListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRListViewController.m; sourceTree = "<group>"; };
 		675116D0141FD42A00EBE02E /* NSImage+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSImage+Extensions.h"; sourceTree = "<group>"; };
 		675116D1141FD42B00EBE02E /* NSImage+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSImage+Extensions.m"; sourceTree = "<group>"; };
 		6758FD8D138B39A900E6EBA5 /* PRAppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = PRAppIcon.icns; path = Icons/PRAppIcon.icns; sourceTree = "<group>"; };
@@ -568,6 +566,8 @@
 		67C4ACBA1329CCD300796610 /* PRTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRTask.m; sourceTree = "<group>"; };
 		67C58B541309F77B00E12F63 /* PRTimeFormatter2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRTimeFormatter2.h; sourceTree = "<group>"; };
 		67C58B551309F77B00E12F63 /* PRTimeFormatter2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRTimeFormatter2.m; sourceTree = "<group>"; };
+		67C83B661A4B592C00D55592 /* PRBrowserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBrowserViewController.h; sourceTree = "<group>"; };
+		67C83B671A4B592C00D55592 /* PRBrowserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRBrowserViewController.m; sourceTree = "<group>"; };
 		67CFB4471423FDB40045108D /* NSOperationQueue+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSOperationQueue+Extensions.h"; sourceTree = "<group>"; };
 		67CFB4481423FDB40045108D /* NSOperationQueue+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSOperationQueue+Extensions.m"; sourceTree = "<group>"; };
 		67D27AB3129C692A00845FEB /* PRBorderlessTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBorderlessTextField.h; sourceTree = "<group>"; };
@@ -832,9 +832,9 @@
 				67215831126682C80050A982 /* PRLibraryViewController.h */,
 				67215832126682C80050A982 /* PRLibraryViewController.m */,
 				672AED93128239A40034C641 /* Table View */,
-				6750A3C91243313600F415E3 /* List View */,
 				672AED8C128235050034C641 /* Album List View */,
 				672157F61266630F0050A982 /* Info View */,
+				67C83B651A4B589D00D55592 /* Browser View */,
 				67ABCC46194A2118008F84CF /* Browse View */,
 			);
 			name = Library;
@@ -1004,15 +1004,6 @@
 				677AE06814C79A7D00159E6F /* Trial Sheet */,
 			);
 			name = "Main Window";
-			sourceTree = "<group>";
-		};
-		6750A3C91243313600F415E3 /* List View */ = {
-			isa = PBXGroup;
-			children = (
-				6750A3FA12433FA700F415E3 /* PRListViewController.h */,
-				6750A3FB12433FA700F415E3 /* PRListViewController.m */,
-			);
-			name = "List View";
 			sourceTree = "<group>";
 		};
 		67691F6B1338B4FF00D27C01 /* Split View */ = {
@@ -1522,6 +1513,15 @@
 			name = "Task Manager";
 			sourceTree = "<group>";
 		};
+		67C83B651A4B589D00D55592 /* Browser View */ = {
+			isa = PBXGroup;
+			children = (
+				67C83B661A4B592C00D55592 /* PRBrowserViewController.h */,
+				67C83B671A4B592C00D55592 /* PRBrowserViewController.m */,
+			);
+			name = "Browser View";
+			sourceTree = "<group>";
+		};
 		67CE095C124C6A1B00A39077 /* Now Playing */ = {
 			isa = PBXGroup;
 			children = (
@@ -1794,7 +1794,6 @@
 				67484DCE19AECEE300F02744 /* NSIndexPath+Extensions.m in Sources */,
 				256AC3DA0F4B6AC300CF3369 /* PRCore.m in Sources */,
 				6750A3AA1243239B00F415E3 /* PRMainWindowController.m in Sources */,
-				6750A3FD12433FA700F415E3 /* PRListViewController.m in Sources */,
 				6709D7BA12476E0400963B11 /* PRImportOperation.m in Sources */,
 				6709DA3E1248304A00963B11 /* PRDb.m in Sources */,
 				67804A96124D4F24003268AD /* PRLibrary.m in Sources */,
@@ -1877,6 +1876,7 @@
 				671D31E21401699200B9FAA4 /* PRException.m in Sources */,
 				671D31E61401A9D800B9FAA4 /* PRStatement.m in Sources */,
 				67DC1D7919A141650031BC3C /* PRAction.m in Sources */,
+				67C83B681A4B592C00D55592 /* PRBrowserViewController.m in Sources */,
 				678FC8D01414D49300A546B8 /* PRDropImageView.m in Sources */,
 				678FC8D3141559F100A546B8 /* PRDropImageCell.m in Sources */,
 				675116D2141FD42C00EBE02E /* NSImage+Extensions.m in Sources */,

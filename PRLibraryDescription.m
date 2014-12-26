@@ -1,184 +1,405 @@
 #import "PRLibraryDescription.h"
-
+#import "PRConnection.h"
+#import "PRListDescription.h"
+#import "PRDefaults.h"
+#import "NSArray+Extensions.h"
+#import "PRStatement.h"
+#import "PRLibraryViewController.h"
+#import "PRLibraryViewSource.h"
 
 @implementation PRLibraryDescription {
+    PRList *_list;
     NSArray *_items;
+    NSArray *_info;
+    NSArray *_albumCounts;
+    PRConnection *_conn;
+    
+    PRStatement *_cachedStatement;
+    NSArray *_cachedAttrValues;
+    NSInteger _cachedRow;
+    NSArray *_cachedAttrs;
 }
 
-- (id)initWithList:(PRList *)list database:(PRDb *)db {
-    if ((self = [super init])) {
+@synthesize info = _info;
+@synthesize albumCounts = _albumCounts;
+
+- (id)initWithList:(PRList *)list connection:(PRConnection *)conn {
+    if (!(self = [super init])) {return nil;}
+    _conn = conn;
+    _list = list;
+    
+    PRListDescription *listDescription = nil;
+    BOOL success = [[_conn playlists] zListDescriptionForList:list out:&listDescription];
+    if (!success) {
+        return nil;
+    }
+    
+    {
+        NSInteger bindingIndex = 1;
+        NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
+        NSMutableString *stmt;
+        NSString *albumColumn = @"";
+        if ([listDescription viewMode] == PRAlbumListMode) {
+            albumColumn = @", library.album";
+        }
+        if ([_list isEqual:[[_conn playlists] libraryList]]) {
+            stmt = [NSMutableString stringWithFormat:@"SELECT library.file_id%@ FROM library WHERE 1=1 AND ", albumColumn];
+        } else {
+            stmt = [NSMutableString stringWithFormat:
+                @"SELECT playlist_items.file_id%@ "
+                "FROM playlist_items JOIN library ON playlist_items.file_id = library.file_id "
+                "WHERE playlist_items.playlist_id = ?%ld AND ",
+                albumColumn, (long)bindingIndex];
+            bindings[@(bindingIndex)] = _list;
+            bindingIndex++;
+        }
         
+        // Filter for Column Browser
+        NSArray *browserAttributes = [listDescription derivedBrowserAttributes];
+        NSArray *browserSelections = [listDescription browserSelections];
+        for (NSInteger i = 0; i < [browserAttributes count]; i++) {
+            NSString *grouping = browserAttributes[i];
+            NSArray *selection = browserSelections[i];
+            
+            if ([selection count] != 0 && (id)grouping != [NSNull null]) {
+                [stmt appendFormat:@"(library.%@ COLLATE NOCASE2 IN (", [PRLibrary columnNameForItemAttr:grouping]];
+                for (NSString *i in selection) {
+                    [stmt appendFormat:@"?%ld, ", (long)bindingIndex];
+                    bindings[@(bindingIndex)] = i;
+                    bindingIndex++;
+                }
+                [stmt deleteCharactersInRange:NSMakeRange([stmt length] - 2, 2)];
+                [stmt appendString:@") "];
+                
+               if ([[listDescription derivedBrowserAllowsCompilation][i] boolValue]) {
+                   if ([selection containsObject:PRCompilationString]) {
+                       [stmt appendString:@"OR library.compilation != 0 "];
+                   } else {
+                       [stmt appendString:@"AND library.compilation == 0 "];
+                   }
+               }
+                
+                [stmt appendString:@") AND "];
+            }
+        }
+        
+        // Filter for Search
+        NSString *search = [listDescription search];
+        if ([search length] != 0) {
+            [stmt appendString:@"(1 = 1 "];
+            NSArray *searchTerms = [search componentsSeparatedByString:@" "];
+            for (NSString *term in searchTerms) {
+                [stmt appendString:[NSString stringWithFormat:@"AND (library.title LIKE ?%ld "
+                    "OR library.album LIKE ?%ld "
+                    "OR library.composer LIKE ?%ld "
+                    "OR library.artist LIKE ?%ld "
+                    "OR library.albumArtist LIKE ?%ld "
+                    "OR library.comments LIKE ?%ld "
+                    ") ", (long)bindingIndex, (long)bindingIndex, (long)bindingIndex, (long)bindingIndex, (long)bindingIndex, (long)bindingIndex]];
+                
+                bindings[@(bindingIndex)] = [NSString stringWithFormat:@"%%%@%%",term];
+                bindingIndex++;
+            }
+            [stmt appendString:@") AND "];
+        }
+        
+        // Delete 'AND '
+        [stmt deleteCharactersInRange:NSMakeRange([stmt length] - 4, 4)];
+        
+        // Sort Clause
+        {
+            PRLibraryViewMode viewMode = [listDescription viewMode];
+            PRListSort *sort;
+            NSInteger asc;
+            if (viewMode == PRListMode) {
+                sort = [listDescription listViewSortAttr];
+                asc = [listDescription listViewAscending];
+            } else {
+                sort = [listDescription albumListViewSortAttr];
+                asc = [listDescription albumListViewAscending];
+            }
+            
+            NSString *sortColumnName;
+            if ([sort isEqual:PRListSortIndex]) {
+                sortColumnName = @"playlist_items.playlist_index";
+            } else if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist] && [sort isEqual:PRItemAttrArtist]) {
+                sortColumnName = [PRLibrary columnNameForItemAttr:PRItemAttrArtistAlbumArtist];
+            } else {
+                if ([sort isEqual:PRListSortArtistAlbum]) {
+                    if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist]) {
+                        sort = PRItemAttrArtistAlbumArtist;
+                    } else {
+                        sort = PRItemAttrArtist;
+                    }
+                }
+                sortColumnName = [PRLibrary columnNameForItemAttr:sort];
+            }
+            NSString *ascending = asc ? @"ASC" : @"DESC";
+            
+            if (sort == PRItemAttrArtist || sort == PRItemAttrArtistAlbumArtist) {
+                [stmt appendFormat:@"ORDER BY CASE WHEN compilation == 0 THEN %@ ELSE 'compilation' END COLLATE NOCASE2 %@, "
+                 "album COLLATE NOCASE2 %@, discNumber %@, trackNumber %@",
+                 sortColumnName, ascending, ascending, ascending, ascending];
+            } else {
+                [stmt appendFormat:@"ORDER BY %@ COLLATE NOCASE2 %@, album COLLATE NOCASE2 %@, discNumber %@, trackNumber %@",
+                 sortColumnName, ascending, ascending, ascending, ascending];
+            }
+        }
+        
+        NSArray *rlt = nil;
+        success = [_conn zExecute:stmt bindings:bindings columns:@[PRColInteger] out:&rlt];
+        if (!success) {
+            return nil;
+        }
+        _items = rlt;
+    }
+    {
+        // NSArray *rlt = nil;
+        // NSString *stmt = @"SELECT SUM(time), SUM(size), count(libraryViewSource.file_id) "
+        //     "FROM libraryViewSource JOIN library ON libraryViewSource.file_id = library.file_id";
+        // BOOL success = [conn zExecute:stmt bindings:nil columns:@[PRColInteger, PRColInteger, PRColInteger] out:&rlt];
+        // if (!success) {
+        //     return nil;
+        // }
+        // _info = @[rlt[0][0], rlt[0][1], rlt[0][2]];
+    }
+
+    if ([listDescription viewMode] == PRAlbumListMode) {
+        if ([_items count] == 0) {
+            _albumCounts = @[];
+        } else if ([_items count] == 1) {
+            _albumCounts = @[@1];
+        } else {
+            NSMutableArray *array = [NSMutableArray array];
+            NSInteger count = 1;
+            NSInteger i = 0;
+            while (i < [_items count] - 1) {
+                NSString *string = _items[i][1];
+                NSString *nextString = _items[i + 1][1];
+                if ([string noCaseCompare:nextString]) {
+                    [array addObject:@(count)];
+                    count = 0;
+                }
+                count++;
+                i++;
+            }
+            [array addObject:@(count)];
+            _albumCounts = array;
+        }
     }
     return self;
 }
-
-
 
 - (NSInteger)count {
     return [_items count];
 }
 
 - (PRItem *)itemForRow:(NSInteger)row {
-    
+    return _items[row][0];
 }
 
 - (NSInteger)rowForItem:(PRItem *)item {
-    return 0;
+    return [_items indexOfObject:@[item]];
 }
 
-- (id)valueForRow:(NSInteger)row attribute:(PRItemAttr *)attribute andCacheAttributes:(NSArray *(^)(void))attributes {
-    
+- (id)valueForRow:(NSInteger)row attribute:(PRItemAttr *)attr andCacheAttributes:(NSArray *(^)(void))attributes {
+    if (_cachedAttrValues && _cachedRow == row && _cachedAttrs && [_cachedAttrs indexOfObject:attr] != NSNotFound) {
+        return _cachedAttrValues[[_cachedAttrs indexOfObject:attr]];
+    }
+    if (!_cachedStatement || ![_cachedAttrs containsObject:attr]) {
+        NSArray *temp = attributes();
+        if (![temp containsObject:attr]) {
+            temp = [temp arrayByAddingObject:attr];
+        }
+        _cachedAttrs = temp;
+        NSMutableString *stmt = [NSMutableString stringWithString:@"SELECT "];
+        NSMutableArray *cols = [NSMutableArray array];
+        for (PRItemAttr *i in _cachedAttrs) {
+            [stmt appendFormat:@"%@, ", [[PRLibrary class] columnNameForItemAttr:i]];
+            [cols addObject:[PRLibrary columnTypeForItemAttr:i]];
+        }
+        [stmt deleteCharactersInRange:NSMakeRange([stmt length] - 2, 2)];
+        [stmt appendString:@" FROM library WHERE file_id = ?1"];
+        _cachedStatement = [[PRStatement alloc] initWithString:stmt bindings:nil columns:cols connection:_conn];
+    }
+    [_cachedStatement setBindings:@{@1:_items[row][0]}];
+    NSArray *rlt = nil;
+    [_cachedStatement zExecute:&rlt];
+    _cachedRow = row;
+    _cachedAttrValues = rlt[0];
+    return rlt[0][[_cachedAttrs indexOfObject:attr]];
 }
 
 - (NSInteger)firstRowWithValue:(id)value forAttr:(PRItemAttr *)attr {
-    
+    return 0;
 }
 
-- (NSDictionary *)info {
-    
-}
-
-- (NSArray *)albumCounts {
-    
-}
-
-/* Browser Accessor */
-- (NSInteger)countForBrowser:(NSInteger)browser;
-- (NSString *)valueForRow:(NSInteger)row browser:(NSInteger)browser;
-- (NSIndexSet *)selectionForBrowser:(NSInteger)browser;
 @end
-
 
 @implementation PRBrowserDescription {
     NSArray *_items;
     BOOL _hasCompilation;
+    NSIndexSet *_selection;
+    PRList *_list;
+    PRItemAttr *_attribute;
+    NSString *_title;
 }
 
+@synthesize hasCompilation = _hasCompilation;
+@synthesize attribute = _attribute;
+@synthesize title = _title;
+
 - (id)initWithList:(PRList *)list browser:(NSInteger)browser connection:(PRConnection *)conn {
+    if (!(self = [super init])) {return nil;}
+    _list = list;
     PRListDescription *listDescription = nil;
     BOOL success = [[conn playlists] zListDescriptionForList:list out:&listDescription];
     if (!success) {
         return nil;
     }
-
-    // Do nothing if no grouping
-    NSString *grouping = [listDescription derivedBrowserAttributes][browser-1];
-    if ([grouping length] == 0) {
-        _items = @[];
-        return self;
-    }
-    
-    // Populate browser
-    int bindingIndex = 1;
-    NSMutableString *stmt;
-    NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
-    if ([_list isEqual:[[_db playlists] libraryList]]) {
-        stmt = [NSMutableString stringWithFormat:@"SELECT library.%@, library.compilation FROM library WHERE ", grouping];
-    } else {
-        stmt = [NSMutableString stringWithFormat:@"SELECT library.%@, library.compilation "
-            "FROM playlist_items JOIN library ON playlist_items.file_id = library.file_id "
-            "WHERE playlist_items.playlist_id = ?%d AND ", grouping, bindingIndex];
-        bindings[@(bindingIndex)] = _list;
-        bindingIndex++;
-    }
-    
-    // Filter for other browsers
-    for (int i = 1; i < browser; i++) {
-        NSString *grouping2 = [listDescription derivedBrowserAttributes][i-1];
-        NSArray *selection = [listDescription browserSelections][i];
         
-        if ([selection count] != 0 && [grouping2 length] != 0) {
-            // copy rows from library_view_source into temp table that match selection
-            [stmt appendFormat:@"(%@ COLLATE NOCASE2 IN (", grouping2];
-            for (NSString *i in selection) {
-                [stmt appendFormat:@"?%d, ", bindingIndex];
-                bindings[@(bindingIndex)] = i;
+    {
+        // Do nothing if no grouping
+        NSString *grouping = [listDescription derivedBrowserAttributes][browser];
+        NSString *groupingColumnName = [PRLibrary columnNameForItemAttr:grouping];
+        if ((id)grouping == [NSNull null]) {
+            _items = @[];
+        } else {
+            _attribute = [listDescription browserAttributes][browser];
+            
+            // Populate browser
+            NSInteger bindingIndex = 1;
+            NSMutableString *stmt;
+            NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
+            if ([_list isEqual:[[conn playlists] libraryList]]) {
+                stmt = [NSMutableString stringWithFormat:@"SELECT library.%@, library.compilation FROM library WHERE ", groupingColumnName];
+            } else {
+                stmt = [NSMutableString stringWithFormat:@"SELECT library.%@, library.compilation "
+                    "FROM playlist_items JOIN library ON playlist_items.file_id = library.file_id "
+                    "WHERE playlist_items.playlist_id = ?%ld AND ", groupingColumnName, (long)bindingIndex];
+                bindings[@(bindingIndex)] = _list;
                 bindingIndex++;
             }
-            [stmt deleteCharactersInRange:NSMakeRange([stmt length] - 2, 2)];
-            [stmt appendString:@") "];
             
-            if ([grouping2 isEqual:PRItemAttrArtist] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]) {
-                if ([selection containsObject:compilationString]) {
-                    [stmt appendString:@"OR library.compilation != 0 "];
-                } else {
-                    [stmt appendString:@"AND library.compilation == 0 "];
+            // Filter for other browsers
+            for (NSInteger i = 0; i < browser; i++) {
+                NSString *grouping2 = [listDescription derivedBrowserAttributes][i];
+                NSArray *selection = [listDescription browserSelections][i];
+                
+                if ([selection count] != 0 && (id)grouping2 != [NSNull null]) {
+                    [stmt appendFormat:@"(%@ COLLATE NOCASE2 IN (", [PRLibrary columnNameForItemAttr:grouping2]];
+                    for (NSString *i in selection) {
+                        [stmt appendFormat:@"?%ld, ", (long)bindingIndex];
+                        bindings[@(bindingIndex)] = i;
+                        bindingIndex++;
+                    }
+                    [stmt deleteCharactersInRange:NSMakeRange([stmt length] - 2, 2)];
+                    [stmt appendString:@") "];
+                    
+                    if ([[listDescription derivedBrowserAllowsCompilation][i] boolValue]) {
+                        if ([selection containsObject:PRCompilationString]) {
+                            [stmt appendString:@"OR library.compilation != 0 "];
+                        } else {
+                            [stmt appendString:@"AND library.compilation == 0 "];
+                        }
+                    }
+                    
+                    [stmt appendString:@") AND "];
                 }
             }
             
-            [stmt appendString:@") AND "];
-        }
-    }
-    
-    // Filter for search
-    NSString *search = [listDescription search];
-    if ([search length] != 0) {
-        [stmt appendString:@"(1 = 1 "];
-        NSArray *searchTerms = [search componentsSeparatedByString:@" "];
-        for (NSString *term in searchTerms) {
-            [stmt appendString:[NSString stringWithFormat:@"AND (library.title LIKE ?%d "
-                "OR library.album LIKE ?%d "
-                "OR library.composer LIKE ?%d "
-                "OR library.artist LIKE ?%d "
-                "OR library.albumArtist LIKE ?%d "
-                "OR library.comments LIKE ?%d "
-                ") ", bindingIndex, bindingIndex, bindingIndex, bindingIndex, bindingIndex, bindingIndex]];
-            
-            bindings[@(bindingIndex)] = [NSString stringWithFormat:@"%%%@%%",term];
-            bindingIndex++;
-        }
-        [stmt appendString:@") AND "];
-    }
-    
-    // Filter for empty
-    [stmt appendFormat:@"%@ != '' COLLATE NOCASE2 ", grouping];
-    
-    // Group and Sort
-    if ([self compilationForBrowser:browser]) {
-        [stmt appendFormat:@"GROUP BY compilation, %@ COLLATE NOCASE2 ORDER BY %@ COLLATE NOCASE2 ASC ", grouping, grouping];
-    } else {
-        [stmt appendFormat:@"GROUP BY %@ COLLATE NOCASE2 ORDER BY %@ COLLATE NOCASE2 ASC ", grouping, grouping];
-    }
-    
-    // Execute
-    NSArray *rlt = nil;
-    [_db zExecute:stmt bindings:bindings columns:@[PRColString, PRColInteger] out:&rlt];
-    if ([self compilationForBrowser:browser]) {
-        _items = [rlt PRMap:^(NSInteger idx, NSArray *obj){
-            if ([obj[1] integerValue]) {
-                _hasCompilation = YES;
-            } else {
-                return obj[0];
+            // Filter for search
+            NSString *search = [listDescription search];
+            if ([search length] != 0) {
+                [stmt appendString:@"(1 = 1 "];
+                NSArray *searchTerms = [search componentsSeparatedByString:@" "];
+                for (NSString *term in searchTerms) {
+                    [stmt appendString:[NSString stringWithFormat:@"AND (library.title LIKE ?%ld "
+                        "OR library.album LIKE ?%ld "
+                        "OR library.composer LIKE ?%ld "
+                        "OR library.artist LIKE ?%ld "
+                        "OR library.albumArtist LIKE ?%ld "
+                        "OR library.comments LIKE ?%ld "
+                        ") ", (long)bindingIndex, (long)bindingIndex, (long)bindingIndex, (long)bindingIndex, (long)bindingIndex, (long)bindingIndex]];
+                    
+                    bindings[@(bindingIndex)] = [NSString stringWithFormat:@"%%%@%%",term];
+                    bindingIndex++;
+                }
+                [stmt appendString:@") AND "];
             }
-        }];
-    } else {
-        _items = [rlt PRMap:^(NSInteger idx, NSArray *obj){
-            return obj[0];
-        }];
+            
+            // Filter for empty
+            [stmt appendFormat:@"%@ != '' COLLATE NOCASE2 ", groupingColumnName];
+            
+            // Group and Sort
+            BOOL browserAllowsCompilation = [[listDescription derivedBrowserAllowsCompilation][browser] boolValue];
+            if (browserAllowsCompilation) {
+                [stmt appendFormat:@"GROUP BY compilation, %@ COLLATE NOCASE2 ORDER BY %@ COLLATE NOCASE2 ASC ", groupingColumnName, groupingColumnName];
+            } else {
+                [stmt appendFormat:@"GROUP BY %@ COLLATE NOCASE2 ORDER BY %@ COLLATE NOCASE2 ASC ", groupingColumnName, groupingColumnName];
+            }
+            
+            // Execute
+            NSArray *rlt = nil;
+            BOOL success = [conn zExecute:stmt bindings:bindings columns:@[PRColString, PRColInteger] out:&rlt];
+            if (!success) {
+                return nil;
+            }
+            _items = [rlt PRMap:^(NSInteger idx, NSArray *obj){
+                if (browserAllowsCompilation && [obj[1] integerValue]) {
+                    _hasCompilation = YES;
+                }
+                return obj[0];
+            }];
+        }
     }
     
-    // // Reset if nothing selected
-    // NSMutableArray *selection = [NSMutableArray arrayWithArray:[[_db playlists] selectionForBrowser:browser list:_list]];
-    // NSMutableIndexSet *indexesToRemove = [NSMutableIndexSet indexSet];
-    // for (int i = 0; i < [selection count]; i++) {
-    //     if ([[selection objectAtIndex:i] isEqualToString:compilationString]) {
-    //         if (![self compilationForBrowser:browser] || !_compilation) {
-    //             [indexesToRemove addIndex:i];
-    //         }
-    //     } else {
-    //         NSArray *results = [_db execute:[NSString stringWithFormat:@"SELECT COUNT(*) FROM %@ WHERE value COLLATE NOCASE2 = ?1", destinationTableName]
-    //                                bindings:@{@1:[selection objectAtIndex:i]}
-    //                                 columns:@[PRColInteger]];
-    //         if ([[[results objectAtIndex:0] objectAtIndex:0] intValue] == 0) {
-    //             [indexesToRemove addIndex:i];
-    //         }
-    //     }
-    // }
-    // if ([indexesToRemove count] > 0) {
-    //     [selection removeObjectsAtIndexes:indexesToRemove];
-    //     [[_db playlists] setSelection:selection forBrowser:browser list:_list];
-    // }
-    return YES;
+    {
+        NSArray *selection = [listDescription browserSelections][browser];
+        NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
+        for (NSInteger i = 0; i < [_items count]; i++) {
+            NSString *browserString = _items[i];
+            for (NSInteger j = 0; j < [selection count]; j++) {
+                NSString *selectionString = selection[j];
+                if ([browserString noCaseCompare:selectionString] == NSOrderedSame) {
+                    [indexSet addIndex:_hasCompilation ? i + 2 : i + 1];
+                }
+            }
+        }
+        if (_hasCompilation && [selection containsObject:PRCompilationString]) {
+            [indexSet addIndex:1];
+        }
+        if ([indexSet count] == 0) {
+            [indexSet addIndex:0];
+        }
+        _selection = indexSet;
+    }
+    
+    {
+        _title = [PRLibrary titleForItemAttr:_attribute];
+    }
+    
+    return self;
+}
+
+- (NSInteger)count {
+    return [_items count] + 1;
+}
+
+- (NSIndexSet *)selection {
+    return _selection;
+}
+
+- (NSString *)valueForRow:(NSInteger)row {
+    if (row == 0) {
+        return [NSString stringWithFormat:@"All (%ld %@s)", [self count], [PRLibrary titleForItemAttr:[self attribute]]];
+    } else if (_hasCompilation && row == 1) {
+        return @"Compilations  ";
+    } else if (_hasCompilation && row > 1) {
+        return _items[row-2];
+    } else {
+        return _items[row-1];
+    }
 }
 
 @end

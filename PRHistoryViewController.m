@@ -14,6 +14,7 @@
 #import "NSColor+Extensions.h"
 #import "PRTabButtonCell.h"
 #import "PRHistoryDateFormatter.h"
+#import "PRTableView.h"
 
 
 #define HISTORY_ROW_HEIGHT              30

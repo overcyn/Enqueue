@@ -1,6 +1,7 @@
 #import "PRListDescription.h"
 #import "NSArray+Extensions.h"
 #import "PRConnection.h"
+#import "PRDefaults.h"
 
 
 @implementation PRListDescription {
@@ -195,7 +196,7 @@
 - (NSArray *)browserAttributes {
     NSArray *attrs = @[PRListAttrBrowser1Attr, PRListAttrBrowser2Attr, PRListAttrBrowser3Attr];
     return [attrs PRMap:^(NSInteger idx, PRListAttr *obj) {
-        return [PRLibrary itemAttrForInternal:_attributes[[_keys indexOfObject:obj]]];
+        return [PRLibrary itemAttrForInternal:_attributes[[_keys indexOfObject:obj]]] ?: [NSNull null];
     }];
 }
 
@@ -240,11 +241,11 @@
     _attributes[[_keys indexOfObject:PRListAttrSearch]] = value;
 }
 
-- (NSInteger)viewMode {
+- (PRLibraryViewMode)viewMode {
     return [_attributes[[_keys indexOfObject:PRListAttrViewMode]] integerValue];
 }
 
-- (void)setViewMode:(NSInteger)value {
+- (void)setViewMode:(PRLibraryViewMode)value {
     _attributes[[_keys indexOfObject:PRListAttrViewMode]] = @(value);
 }
 
@@ -256,17 +257,19 @@
 }
 
 - (NSArray *)derivedBrowserAttributes {
-    [[self browserAttributes] PRMap:^(NSInteger idx, PRListAttr *obj){
-        if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist] && [attr isEqual:PRItemAttrArtist]) {
-            return PRItemAttrAlbumArtist;
+    return [[self browserAttributes] PRMap:^(NSInteger idx, PRListAttr *obj) {
+        if (obj == (id)[NSNull null]) {
+            return obj;
+        } else if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist] && [obj isEqual:PRItemAttrArtist]) {
+            return PRItemAttrArtistAlbumArtist;
         } 
         return obj;
     }];
 }
 
 - (NSArray *)derivedBrowserAllowsCompilation {
-    return [[self browserAttributes PRMap:^(NSInteger idx, PRItemAttr *obj){
-        return [obj isEqual:PRItemAttrArtist] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation];
+    return [[self browserAttributes] PRMap:^(NSInteger idx, PRItemAttr *obj){
+        return @([obj isEqual:PRItemAttrArtist] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]);
     }];
 }
 

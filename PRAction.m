@@ -216,3 +216,36 @@
 }
 
 @end
+
+@implementation PRPlayItemsAction
+
+- (void)main {
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        PRNowPlayingController *now = [[self core] now];
+        PRPlaylists *playlists = [[[self core] db] playlists];
+        [now stop];
+        [playlists clearList:[now currentList]];
+        for (PRItem *i in [self items]) {
+            [playlists zAppendItem:i toList:[now currentList]];
+        }
+        [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
+        [now playItemAtIndex:[self index]+1];
+    });
+}
+
+@end
+
+@implementation PRAddItemsToListAction
+@end
+
+@implementation PRSetListDescriptionAction
+
+- (void)main {
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        PRPlaylists *playlists = [[[self core] db] playlists]; 
+        [playlists zSetListDescription:[self listDescription] forList:[self list]];
+        [[NSNotificationCenter defaultCenter] postListDidChange:[self list]];
+    });
+}
+
+@end

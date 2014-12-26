@@ -3,6 +3,8 @@
 
 @class PRDb;
 @class PRConnection;
+@class PRLibraryDescription;
+@class PRBrowserDescription;
 
 
 typedef NSNumber PRItem;

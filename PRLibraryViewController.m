@@ -5,16 +5,14 @@
 #import "PRInfoViewController.h"
 #import "PRLibrary.h"
 #import "PRLibraryViewSource.h"
-#import "PRListViewController.h"
 #import "PRNowPlayingController.h"
 #import "PRPlaylists.h"
 #import "PRSizeFormatter.h"
 #import "PRStringFormatter.h"
+#import "PRTableViewController.h"
 #import "PRTimeFormatter2.h"
 
-
 #define SEARCH_DELAY 0.25
-
 
 @interface PRLibraryViewController () <NSMenuDelegate, NSTextFieldDelegate>
 @end
@@ -32,7 +30,7 @@
     NSMenu *_libraryPopUpButtonMenu;
     
     PRInfoViewController *infoViewController;
-    PRListViewController *listViewController;
+    PRTableViewController *listViewController;
     PRAlbumListViewController *albumListViewController;
     
     NSDate *_searchFieldLastEdit;
@@ -61,7 +59,7 @@
     [_centerSuperview setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
     [[self view] addSubview:_centerSuperview];
     
-    listViewController = [[PRListViewController alloc] initWithCore:_core];
+    listViewController = [[PRTableViewController alloc] initWithCore:_core];
     [[listViewController view] setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
     [[listViewController view] setFrame:[_centerSuperview bounds]];
     [_centerSuperview addSubview:[listViewController view]];

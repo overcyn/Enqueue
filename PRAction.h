@@ -39,3 +39,19 @@
 @interface PRDuplicatePlaylistAction : PRAction
 @property (nonatomic, strong) PRList *list;
 @end
+
+@interface PRPlayItemsAction : PRAction
+@property (nonatomic, strong) NSArray *items;
+@property (nonatomic) NSInteger index;
+@end
+
+@interface PRAddItemsToListAction : PRAction
+@property (nonatomic, strong) NSArray *items;
+@property (nonatomic) NSInteger index; // -1 to append, -2 to append next
+@property (nonatomic, strong) PRList *list; // default now playing list
+@end
+
+@interface PRSetListDescriptionAction : PRAction
+@property (nonatomic, strong) PRListDescription *listDescription;
+@property (nonatomic, strong) PRList *list;
+@end

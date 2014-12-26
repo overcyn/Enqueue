@@ -11,7 +11,7 @@ NSString * const libraryViewSource = @"libraryViewSource";
 NSString * const browser1ViewSource = @"browser1ViewSource";
 NSString * const browser2ViewSource = @"browser2ViewSource";
 NSString * const browser3ViewSource = @"browser3ViewSource";
-NSString * const compilationString = @"Compilations  ";
+NSString * const PRCompilationString = @"Compilations  ";
 
 
 @interface PRLibraryViewSource ()
@@ -251,7 +251,7 @@ NSString * const compilationString = @"Compilations  ";
             [string appendString:@") "];
             
             if (_compilation && [self compilationForBrowser:i]) {
-                if ([selection containsObject:compilationString]) {
+                if ([selection containsObject:PRCompilationString]) {
                     [string appendString:@"OR library.compilation != 0 "];
                 } else {
                     [string appendString:@"AND library.compilation == 0 "];
@@ -372,7 +372,7 @@ NSString * const compilationString = @"Compilations  ";
             [statement appendString:@") "];
             
             if (_compilation && [self compilationForBrowser:i]) {
-                if ([selection containsObject:compilationString]) {
+                if ([selection containsObject:PRCompilationString]) {
                     [statement appendString:@"OR library.compilation != 0 "];
                 } else {
                     [statement appendString:@"AND library.compilation == 0 "];
@@ -448,7 +448,7 @@ NSString * const compilationString = @"Compilations  ";
     NSMutableArray *selection = [NSMutableArray arrayWithArray:[[_db playlists] selectionForBrowser:browser list:_list]];
     NSMutableIndexSet *indexesToRemove = [NSMutableIndexSet indexSet];
     for (int i = 0; i < [selection count]; i++) {
-        if ([[selection objectAtIndex:i] isEqualToString:compilationString]) {
+        if ([[selection objectAtIndex:i] isEqualToString:PRCompilationString]) {
             if (![self compilationForBrowser:browser] || !_compilation) {
                 [indexesToRemove addIndex:i];
             }
@@ -661,7 +661,7 @@ NSString * const compilationString = @"Compilations  ";
 - (NSString *)valueForRow:(int)row browser:(int)browser {
     if ([self compilationForBrowser:browser] && _compilation) {
         if (row == 1) {
-            return compilationString;
+            return PRCompilationString;
         }
         row -= 1;
     }
@@ -701,7 +701,7 @@ NSString * const compilationString = @"Compilations  ";
         }
         [indexSet addIndex:index];
     }
-    if ([self compilationForBrowser:browser] && _compilation && [selectionArray containsObject:compilationString]) {
+    if ([self compilationForBrowser:browser] && _compilation && [selectionArray containsObject:PRCompilationString]) {
         [indexSet addIndex:1];
     }
     if ([indexSet count] == 0) {

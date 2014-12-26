@@ -1,12 +1,10 @@
 #import "PRBrowseView.h"
 #import "PRPaneSplitView.h"
 
-
 #define MAX_H_BROWSER_WIDTH         (400)
 #define MIN_H_BROWSER_WIDTH         (120)
 #define MIN_V_BROWSER_WIDTH         (120)
 #define MIN_V_DETAIL_WIDTH          (120)
-
 
 @interface PRBrowseView () <NSSplitViewDelegate>
 @end
