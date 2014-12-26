@@ -217,6 +217,34 @@
     }
 }
 
+- (NSArray *)listViewInfo {
+    NSData *columnInfoData = _attributes[[_keys indexOfObject:PRListAttrListViewInfo]];
+    if ([columnInfoData isEqualToData:[NSData data]]) {
+        NSString *defaultData  = [[NSBundle mainBundle] pathForResource:@"PRListViewTableColumnsInfo" ofType:@"plist"];
+        columnInfoData = [NSData dataWithContentsOfFile:defaultData];
+    }
+    return [NSPropertyListSerialization propertyListFromData:columnInfoData mutabilityOption:0 format:nil errorDescription:nil];
+}
+
+- (void)setListViewInfo:(NSArray *)value {
+    NSData *data = [NSPropertyListSerialization dataFromPropertyList:value format:NSPropertyListXMLFormat_v1_0 errorDescription:nil];
+    _attributes[[_keys indexOfObject:PRListAttrListViewInfo]] = data;
+}
+
+- (NSArray *)albumListViewInfo {
+    NSData *columnInfoData = _attributes[[_keys indexOfObject:PRListAttrAlbumListViewInfo]];
+    if ([columnInfoData isEqualToData:[NSData data]]) {
+        NSString *defaultData  = [[NSBundle mainBundle] pathForResource:@"PRAlbumListViewTableColumnsInfo" ofType:@"plist"];
+        columnInfoData = [NSData dataWithContentsOfFile:defaultData];
+    }
+    return [NSPropertyListSerialization propertyListFromData:columnInfoData mutabilityOption:0 format:nil errorDescription:nil];
+}
+
+- (void)setAlbumListViewInfo:(NSArray *)value {
+    NSData *data = [NSPropertyListSerialization dataFromPropertyList:value format:NSPropertyListXMLFormat_v1_0 errorDescription:nil];
+    _attributes[[_keys indexOfObject:PRListAttrAlbumListViewInfo]] = data;
+}
+
 - (PRListType *)type {
     return [PRPlaylists listTypeForInternal:_attributes[[_keys indexOfObject:PRListAttrType]]];
 }

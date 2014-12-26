@@ -16,4 +16,15 @@
     [self scrollRectToVisible:NSUnionRect(topRect, botRect)];
 }
 
+- (void)PRHighlightTableColumn:(NSTableColumn *)tableColumn ascending:(BOOL)ascending {
+    for (NSTableColumn *i in [self tableColumns]) {
+        if (i != tableColumn) {
+            [[i tableView] setIndicatorImage:nil inTableColumn:i];  
+        }
+    }
+    NSImage *indicatorImage = ascending ? [NSImage imageNamed:@"NSAscendingSortIndicator"] : [NSImage imageNamed:@"NSDescendingSortIndicator"];
+    [[tableColumn tableView] setIndicatorImage:indicatorImage inTableColumn:tableColumn];   
+    [[tableColumn tableView] setHighlightedTableColumn:tableColumn];
+}
+
 @end

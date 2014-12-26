@@ -1,7 +1,11 @@
 #import <Foundation/Foundation.h>
+@class PRListDescription;
 
 @interface PRLibraryDescription : NSObject
 - (id)initWithList:(PRList *)list connection:(PRConnection *)conn;
+@property (nonatomic, readonly) PRList *list;
+@property (nonatomic, readonly) PRListDescription *listDescription;
+
 @property (nonatomic, readonly) NSInteger count;
 @property (nonatomic, readonly) NSArray *info;
 @property (nonatomic, readonly) NSArray *albumCounts;

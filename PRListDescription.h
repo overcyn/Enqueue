@@ -18,6 +18,8 @@
 @property (nonatomic, strong) PRItemAttr *albumListViewSortAttr;
 @property (nonatomic, strong) NSArray *browserSelections; // Array of three arrays of NSString
 @property (nonatomic, strong) NSArray *browserAttributes; // Can be NSNull
+@property (nonatomic, strong) NSArray *listViewInfo;
+@property (nonatomic, strong) NSArray *albumListViewInfo;
 @property (nonatomic, strong) PRListType *type;
 @property (nonatomic, strong) NSString *title;
 @property (nonatomic, strong) NSString *search;

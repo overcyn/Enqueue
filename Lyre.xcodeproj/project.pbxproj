@@ -218,6 +218,7 @@
 		67DF6127148C5FA30019DF24 /* PRHyperlinkButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DF6126148C5FA30019DF24 /* PRHyperlinkButton.m */; };
 		67E2366F148B028200106779 /* Trash.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E2366E148B028200106779 /* Trash.png */; };
 		67E38846147E541D00C094E5 /* PRTagger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 67E38845147E541D00C094E5 /* PRTagger.mm */; };
+		67E422D71A4D10D9009865DC /* PRLibraryListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E422D61A4D10D9009865DC /* PRLibraryListViewController.m */; };
 		67E7B4F214B444F60060D1FE /* iTunesImport.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E7B4F114B444F60060D1FE /* iTunesImport.png */; };
 		67E94735126C528E00CAE943 /* PRCenteredTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */; };
 		67E94DDA14551E8900B88EA4 /* Cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E94DD914551E8900B88EA4 /* Cancel.png */; };
@@ -615,6 +616,8 @@
 		67E2366E148B028200106779 /* Trash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Trash.png; path = Icons/Trash.png; sourceTree = "<group>"; };
 		67E38844147E541D00C094E5 /* PRTagger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRTagger.h; sourceTree = "<group>"; };
 		67E38845147E541D00C094E5 /* PRTagger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PRTagger.mm; sourceTree = "<group>"; };
+		67E422D51A4D10D9009865DC /* PRLibraryListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRLibraryListViewController.h; sourceTree = "<group>"; };
+		67E422D61A4D10D9009865DC /* PRLibraryListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRLibraryListViewController.m; sourceTree = "<group>"; };
 		67E7B4F114B444F60060D1FE /* iTunesImport.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = iTunesImport.png; path = Icons/iTunesImport.png; sourceTree = "<group>"; };
 		67E94733126C528E00CAE943 /* PRCenteredTextFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRCenteredTextFieldCell.h; sourceTree = "<group>"; };
 		67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRCenteredTextFieldCell.m; sourceTree = "<group>"; };
@@ -874,6 +877,7 @@
 		672AED93128239A40034C641 /* Browser */ = {
 			isa = PBXGroup;
 			children = (
+				67E422D41A4D10C4009865DC /* Library List */,
 				67C83B651A4B589D00D55592 /* Browser List */,
 				67ABCC46194A2118008F84CF /* Browse View */,
 				672AED97128239CD0034C641 /* PRBrowserViewController.h */,
@@ -1592,6 +1596,15 @@
 			name = Actions;
 			sourceTree = "<group>";
 		};
+		67E422D41A4D10C4009865DC /* Library List */ = {
+			isa = PBXGroup;
+			children = (
+				67E422D51A4D10D9009865DC /* PRLibraryListViewController.h */,
+				67E422D61A4D10D9009865DC /* PRLibraryListViewController.m */,
+			);
+			name = "Library List";
+			sourceTree = "<group>";
+		};
 		67EA12F7145B346900309876 /* NowPlaying */ = {
 			isa = PBXGroup;
 			children = (
@@ -1882,6 +1895,7 @@
 				67BBE7621421AF5D003C438B /* PRLastfmFile.m in Sources */,
 				670567FD19BE6FB1008CD150 /* PREngine.m in Sources */,
 				6790E3EF1421FA76001D7D49 /* PRZeroSplitView.m in Sources */,
+				67E422D71A4D10D9009865DC /* PRLibraryListViewController.m in Sources */,
 				67CFB4491423FDB40045108D /* NSOperationQueue+Extensions.m in Sources */,
 				67902A6B142FD7F900ACF55F /* NSEnumerator+Extensions.m in Sources */,
 				67902A71142FD9BC00ACF55F /* PRDirectoryEnumerator.m in Sources */,

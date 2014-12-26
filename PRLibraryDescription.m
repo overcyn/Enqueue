@@ -9,6 +9,7 @@
 
 @implementation PRLibraryDescription {
     PRList *_list;
+    PRListDescription *_listDescription;
     NSArray *_items;
     NSArray *_info;
     NSArray *_albumCounts;
@@ -20,26 +21,24 @@
     NSArray *_cachedAttrs;
 }
 
-@synthesize info = _info;
-@synthesize albumCounts = _albumCounts;
-
 - (id)initWithList:(PRList *)list connection:(PRConnection *)conn {
     if (!(self = [super init])) {return nil;}
     _conn = conn;
     _list = list;
     
-    PRListDescription *listDescription = nil;
+    PRListDescription *listDescription;
     BOOL success = [[_conn playlists] zListDescriptionForList:list out:&listDescription];
     if (!success) {
         return nil;
     }
+    _listDescription = listDescription;
     
     {
         NSInteger bindingIndex = 1;
         NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
         NSMutableString *stmt;
         NSString *albumColumn = @"";
-        if ([listDescription viewMode] == PRAlbumListMode) {
+        if ([_listDescription viewMode] == PRAlbumListMode) {
             albumColumn = @", library.album";
         }
         if ([_list isEqual:[[_conn playlists] libraryList]]) {
@@ -55,8 +54,8 @@
         }
         
         // Filter for Column Browser
-        NSArray *browserAttributes = [listDescription derivedBrowserAttributes];
-        NSArray *browserSelections = [listDescription browserSelections];
+        NSArray *browserAttributes = [_listDescription derivedBrowserAttributes];
+        NSArray *browserSelections = [_listDescription browserSelections];
         for (NSInteger i = 0; i < [browserAttributes count]; i++) {
             NSString *grouping = browserAttributes[i];
             NSArray *selection = browserSelections[i];
@@ -71,7 +70,7 @@
                 [stmt deleteCharactersInRange:NSMakeRange([stmt length] - 2, 2)];
                 [stmt appendString:@") "];
                 
-               if ([[listDescription derivedBrowserAllowsCompilation][i] boolValue]) {
+               if ([[_listDescription derivedBrowserAllowsCompilation][i] boolValue]) {
                    if ([selection containsObject:PRCompilationString]) {
                        [stmt appendString:@"OR library.compilation != 0 "];
                    } else {
@@ -84,7 +83,7 @@
         }
         
         // Filter for Search
-        NSString *search = [listDescription search];
+        NSString *search = [_listDescription search];
         if ([search length] != 0) {
             [stmt appendString:@"(1 = 1 "];
             NSArray *searchTerms = [search componentsSeparatedByString:@" "];
@@ -108,15 +107,15 @@
         
         // Sort Clause
         {
-            PRLibraryViewMode viewMode = [listDescription viewMode];
+            PRLibraryViewMode viewMode = [_listDescription viewMode];
             PRListSort *sort;
             NSInteger asc;
             if (viewMode == PRListMode) {
-                sort = [listDescription listViewSortAttr];
-                asc = [listDescription listViewAscending];
+                sort = [_listDescription listViewSortAttr];
+                asc = [_listDescription listViewAscending];
             } else {
-                sort = [listDescription albumListViewSortAttr];
-                asc = [listDescription albumListViewAscending];
+                sort = [_listDescription albumListViewSortAttr];
+                asc = [_listDescription albumListViewAscending];
             }
             
             NSString *sortColumnName;
@@ -164,7 +163,7 @@
         // _info = @[rlt[0][0], rlt[0][1], rlt[0][2]];
     }
 
-    if ([listDescription viewMode] == PRAlbumListMode) {
+    if ([_listDescription viewMode] == PRAlbumListMode) {
         if ([_items count] == 0) {
             _albumCounts = @[];
         } else if ([_items count] == 1) {
@@ -189,6 +188,13 @@
     }
     return self;
 }
+
+#pragma mark - API
+
+@synthesize list = _list;
+@synthesize info = _info;
+@synthesize albumCounts = _albumCounts;
+@synthesize listDescription = _listDescription;
 
 - (NSInteger)count {
     return [_items count];
