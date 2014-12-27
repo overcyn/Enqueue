@@ -78,7 +78,7 @@
     _attributes[[_keys indexOfObject:PRListAttrBrowserInfo]] = data;
 }
 
-- (BOOL)vertical {
+- (PRBrowserPosition)vertical {
     NSNumber *value = [self browserInfo][@"isVertical"];
     if (value) {
         return [value integerValue];
@@ -86,7 +86,7 @@
     return PRBrowserPositionHorizontal;
 }
 
-- (void)setVertical:(BOOL)value {
+- (void)setVertical:(PRBrowserPosition)value {
     NSMutableDictionary *info = [self browserInfo];
     info[@"isVertical"] = @(value);
     [self setBrowserInfo:info];
@@ -213,7 +213,11 @@
         } else if (i == 2) {
             attr = PRListAttrBrowser3Attr;
         }
-        _attributes[[_keys indexOfObject:attr]] = [PRLibrary internalForItemAttr:value[i]];
+        if (value[i] != [NSNull null]) {
+            _attributes[[_keys indexOfObject:attr]] = [PRLibrary internalForItemAttr:value[i]];
+        } else {
+            _attributes[[_keys indexOfObject:attr]] = @0;
+        }
     }
 }
 

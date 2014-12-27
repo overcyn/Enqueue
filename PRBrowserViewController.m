@@ -22,18 +22,14 @@
 #import "PRTagger.h"
 #import "sqlite_str.h"
 
-@interface PRBrowserViewController () <PRBrowseViewDelegate, NSTableViewDataSource, NSTableViewDelegate, NSMenuDelegate, PRTableViewDelegate, PRBrowserListViewController>
+@interface PRBrowserViewController () <PRBrowseViewDelegate, PRBrowserListViewControllerDelegate>
 @end
 
 @implementation PRBrowserViewController {
     __weak PRCore *_core;
-    __weak PRDb *_db;
-    
     PRList *_currentList;
     PRListDescription *_listDescription;
-    PRLibraryDescription *_libraryDescription;
     NSArray *_browserDescriptions;
-    
     PRLibraryListViewController *_libraryListVC;
     PRBrowserListViewController *_browserListVC1;
     PRBrowserListViewController *_browserListVC2;
@@ -45,14 +41,61 @@
 - (id)initWithCore:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
     _core = core;
-    _db = [core db];
     return self;
 }
 
 #pragma mark - API
 
 - (NSMenu *)browserHeaderMenu {
-    return nil;
+    PRBrowserPosition position = [_listDescription vertical];
+    
+    NSMenu *menu = [[NSMenu alloc] init];
+    NSMenuItem *item = [[NSMenuItem alloc] init];
+    [item setTitle:@"Hidden"];
+    [item setTarget:self];
+    [item setAction:@selector(_browserPositionAction:)];
+    [item setRepresentedObject:@(PRBrowserPositionHidden)];
+    if (position == PRBrowserPositionHidden) {
+        [item setState:NSOnState];
+    }
+    [menu addItem:item];
+    
+    item = [[NSMenuItem alloc] init];
+    [item setTitle:@"On Top"];
+    [item setTarget:self];
+    [item setAction:@selector(_browserPositionAction:)];
+    [item setRepresentedObject:@(PRBrowserPositionHorizontal)];
+    if (position == PRBrowserPositionHorizontal) {
+        [item setState:NSOnState];
+    }
+    [menu addItem:item];
+    
+    item = [[NSMenuItem alloc] init];
+    [item setTitle:@"On Left"];
+    [item setTarget:self];
+    [item setAction:@selector(_browserPositionAction:)];
+    [item setRepresentedObject:@(PRBrowserPositionVertical)];
+    if (position == PRBrowserPositionVertical) {
+        [item setState:NSOnState];
+    }
+    [menu addItem:item];
+    
+    if (position != PRBrowserPositionHidden) {
+        [menu addItem:[NSMenuItem separatorItem]];
+        
+        for (PRItemAttr *i in @[PRItemAttrGenre, PRItemAttrComposer, PRItemAttrArtist, PRItemAttrAlbum]) {
+            item = [[NSMenuItem alloc] init];
+            [item setTitle:[PRLibrary titleForItemAttr:i]];
+            [item setTarget:self];
+            [item setAction:@selector(_browserAttributeAction:)];
+            [item setRepresentedObject:i];
+            if ([[_listDescription browserAttributes] containsObject:i]) {
+                [item setState:NSOnState];
+            }
+            [menu addItem:item];
+        }
+    }
+    return menu;
 }
 
 - (PRList *)currentList {
@@ -61,20 +104,12 @@
 
 - (void)setCurrentList:(PRList *)list {
     _currentList = list;
-    
-    if (list) {
-        [self reloadData:YES];
-        [self loadBrowser];
-        // [_detailTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
-        // [_detailTableView scrollRowToVisiblePretty:0];
-        // [_browserListVC1 scrollToSelectedRow];
-        // [_browserListVC2 scrollToSelectedRow];
-        // [_browserListVC3 scrollToSelectedRow];
-    }
+    [self _reloadData];
 }
 
 - (NSDictionary *)info {
-    return [_libraryDescription info];
+    // return [_libraryDescription info];
+    return nil;
 }
 
 - (NSArray *)selection {
@@ -153,13 +188,9 @@
     //     [[_db playlists] setSelection:selection forBrowser:i list:_currentList];
     // }
     // [[NSNotificationCenter defaultCenter] postListDidChange:_currentList];
-    // [_browserListVC1 scrollToSelectedRow];
-    // [_browserListVC2 scrollToSelectedRow];
-    // [_browserListVC3 scrollToSelectedRow];
 }
 
 #pragma mark - NSViewController
-
 
 - (void)loadView {
     // Browser
@@ -168,7 +199,7 @@
     [self setView:view];
     
     // Library list
-    _libraryListVC = [[PRLibraryListViewController alloc] init];
+    _libraryListVC = [[PRLibraryListViewController alloc] initWithCore:_core];
     
     // Browser list
     _browserListVC1 = [[PRBrowserListViewController alloc] init];
@@ -197,12 +228,12 @@
 #pragma mark - PRBrowseViewDelegate
 
 - (void)browseViewDidChangeDividerPosition:(PRBrowseView *)view {
-    [self saveBrowser];
+    [self _saveBrowser];
 }
 
-#pragma mark - PRBrowserViewControllerDelegate
+#pragma mark - PRBrowserListViewControllerDelegate
 
-- (void)browserViewControllerDidChangeSelection:(PRBrowserListViewController *)browserVC {
+- (void)browserListViewControllerDidChangeSelection:(PRBrowserListViewController *)browserVC {
     NSMutableArray *browserSelections = [NSMutableArray array];
     for (NSInteger i = 0; i < 3; i++) {
         NSMutableArray *browserSelection = [NSMutableArray array];
@@ -212,7 +243,7 @@
         [selectedIndexes enumerateIndexesUsingBlock:^(NSUInteger j, BOOL *stop){
             if (j != 0) {
                [browserSelection addObject:[browserDescription valueForRow:j]];
-           }
+            }
         }];
         [browserSelections addObject:browserSelection];
     }
@@ -224,84 +255,77 @@
     [PRActionCenter performAction:action];
 }
 
+- (NSArray *)browserListViewControllerLibraryItems:(PRBrowserListViewController *)browserVC {
+    return [_libraryListVC allItems];
+}
+
+- (NSMenu *)browserListViewControllerHeaderMenu:(PRBrowserListViewController *)browserVC {
+    return [self browserHeaderMenu];
+}
+
 #pragma mark - Notifications
 
 - (void)playingFileChanged:(NSNotification *)note {
     // NSIndexSet *rows = [NSIndexSet indexSetWithIndexesInRange:[_detailTableView rowsInRect:[_detailTableView visibleRect]]];
     // NSIndexSet *columns = [NSIndexSet indexSetWithIndex:[_detailTableView columnWithIdentifier:PRItemAttrTrackNumber]];
     // [_detailTableView reloadDataForRowIndexes:rows columnIndexes:columns];
+    [self _reloadData];
 }
 
 - (void)libraryDidChange:(NSNotification *)note {
-    if (_currentList) {
-        [self reloadData:YES];
-    }
+    [self _reloadData];
 }
 
 - (void)tagsDidChange:(NSNotification *)note {
-    if (_currentList) {
-        [self reloadData:YES];
-    }
+    [self _reloadData];
 }
 
 - (void)playlistDidChange:(NSNotification *)note {
-    if (!_currentList || ![[[note userInfo] valueForKey:@"playlist"] isEqual:_currentList]) {
-        return;
+    if ([[[note userInfo] valueForKey:@"playlist"] isEqual:_currentList]) {
+        [self _reloadData];
     }
-    [self reloadData:NO];
-    // [_detailTableView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
-    // [_detailTableView scrollRowToVisible:[_detailTableView selectedRow]];
-    // [_browserListVC1 scrollToSelectedRow];
-    // [_browserListVC2 scrollToSelectedRow];
-    // [_browserListVC3 scrollToSelectedRow];
 }
 
 - (void)playlistFilesChanged:(NSNotification *)note {
-    if (_currentList && [[[note userInfo] valueForKey:@"playlist"] isEqual:_currentList]) {
-        [self reloadData:YES];
+    if ([[[note userInfo] valueForKey:@"playlist"] isEqual:_currentList]) {
+        [self _reloadData];
     }
 }
 
-#pragma mark - Internal
+#pragma mark - Action
 
-- (void)reloadData:(BOOL)force {
-    PRListDescription *listDescription = nil;
-    BOOL success = [[[_core conn] playlists] zListDescriptionForList:_currentList out:&listDescription];
-    _listDescription = listDescription;
+- (void)_browserPositionAction:(NSMenuItem *)item {
+    PRBrowserPosition position = [[item representedObject] integerValue];
+    if (position == PRBrowserPositionHorizontal) {
+        [_listDescription setVertical:PRBrowserPositionHorizontal];
+        [_listDescription setBrowserAttributes:@[PRItemAttrGenre, PRItemAttrArtist, PRItemAttrAlbum]];
+    } else if (position == PRBrowserPositionVertical) {
+        [_listDescription setVertical:PRBrowserPositionVertical];
+        [_listDescription setBrowserAttributes:@[[NSNull null], [NSNull null], PRItemAttrArtist]];
+    } else if (position == PRBrowserPositionHidden) {
+        [_listDescription setVertical:PRBrowserPositionHidden];
+        [_listDescription setBrowserAttributes:@[[NSNull null], [NSNull null], [NSNull null]]];
+    }
+    [_listDescription setBrowserSelections:@[@[], @[], @[]]];
     
-    PRLibraryDescription *libraryDescriptions = nil;
-    success = [[[_core conn] playlists] zLibraryDescriptionForList:_currentList out:&libraryDescriptions];
-    _libraryDescription = libraryDescriptions;
-    
-    NSArray *browserDescriptions = nil;
-    success = [[[_core conn] playlists] zBrowserDescriptionsForList:_currentList out:&browserDescriptions];
-    _browserDescriptions = browserDescriptions;
-    
-    [_libraryListVC setLibraryDescription:_libraryDescription];
-    [_browserListVC1 setBrowserDescription:_browserDescriptions[0]];
-    [_browserListVC2 setBrowserDescription:_browserDescriptions[1]];
-    [_browserListVC3 setBrowserDescription:_browserDescriptions[2]];
+    PRSetListDescriptionAction *action = [[PRSetListDescriptionAction alloc] init];
+    [action setListDescription:_listDescription];
+    [action setList:_currentList];
+    [PRActionCenter performAction:action];
 }
 
-- (void)toggleBrowser:(PRItemAttr *)attr {
-    if ([[_db playlists] verticalForList:_currentList]) {
-        [[_db playlists] setAttr:nil forBrowser:1 list:_currentList];
-        [[_db playlists] setAttr:nil forBrowser:2 list:_currentList];
-        [[_db playlists] setAttr:attr forBrowser:3 list:_currentList];
-    } else {
-        NSMutableSet *set = [NSMutableSet set];
-        for (int i = 1; i < 4; i++) {
-            if ([[_db playlists] attrForBrowser:i list:_currentList]) {
-                [set addObject:[[_db playlists] attrForBrowser:i list:_currentList]];
-            }
-        }
-        
-        if ([set containsObject:attr]) { // if removing browser
+- (void)_browserAttributeAction:(NSMenuItem *)item {
+    PRItemAttr *attr = [item representedObject];
+    if ([_listDescription vertical] == PRBrowserPositionVertical) {
+        [_listDescription setBrowserAttributes:@[[NSNull null], [NSNull null], attr]];
+    } else if ([_listDescription vertical] == PRBrowserPositionHorizontal) {
+        NSMutableSet *set = [NSMutableSet setWithArray:[_listDescription browserAttributes]];
+        if ([set containsObject:attr]) {
             [set removeObject:attr];
             if ([set count] == 0) {
                 [set addObject:PRItemAttrArtist];
             }
-        } else { // if adding browser
+        } else {
             [set addObject:attr];
             if ([set count] > 3) {
                 if ([attr isEqual:PRItemAttrComposer]) {
@@ -313,92 +337,86 @@
         }
         
         NSMutableArray *attrs = [NSMutableArray array];
-        for (PRItemAttr *i in @[PRItemAttrAlbum, PRItemAttrArtist, PRItemAttrComposer, PRItemAttrGenre]) {
+        for (PRItemAttr *i in @[PRItemAttrGenre, PRItemAttrComposer, PRItemAttrArtist, PRItemAttrAlbum]) {
             if ([set containsObject:i]) {
                 [attrs addObject:i];
             }
         }
-        [attrs addObject:[NSNull null]];
-        [attrs addObject:[NSNull null]];
-        [attrs addObject:[NSNull null]];
-        
-        // save
-        for (int i = 0; i < 3; i++) {
-            if ([attrs objectAtIndex:i] == [NSNull null]) {
-                [[_db playlists] setAttr:nil forBrowser:3-i list:_currentList];
-            } else {
-                [[_db playlists] setAttr:[attrs objectAtIndex:i] forBrowser:3-i list:_currentList];
-            }
+        while ([attrs count] < 3) {
+            [attrs insertObject:[NSNull null] atIndex:0];
         }
+        [_listDescription setBrowserAttributes:attrs];
+    } else {
+        return;
     }
-    [[_db playlists] setSelection:@[] forBrowser:1 list:_currentList];
-    [[_db playlists] setSelection:@[] forBrowser:2 list:_currentList];
-    [[_db playlists] setSelection:@[] forBrowser:3 list:_currentList];
-    [self loadBrowser];
-    [[NSNotificationCenter defaultCenter] postListDidChange:_currentList];
+    [_listDescription setBrowserSelections:@[@[], @[], @[]]];
+    
+    PRSetListDescriptionAction *action = [[PRSetListDescriptionAction alloc] init];
+    [action setListDescription:_listDescription];
+    [action setList:_currentList];
+    [PRActionCenter performAction:action];
 }
 
-- (void)setBrowserPosition:(PRBrowserPosition)position {
-    if (position == PRBrowserPositionHorizontal) {
-        [[_db playlists] setVertical:PRBrowserPositionHorizontal forList:_currentList];
-        [[_db playlists] setAttr:PRItemAttrGenre forBrowser:1 list:_currentList];
-        [[_db playlists] setAttr:PRItemAttrArtist forBrowser:2 list:_currentList];
-        [[_db playlists] setAttr:PRItemAttrAlbum forBrowser:3 list:_currentList];
-    } else if (position == PRBrowserPositionVertical) {
-        [[_db playlists] setVertical:PRBrowserPositionVertical forList:_currentList];
-        [[_db playlists] setAttr:nil forBrowser:1 list:_currentList];
-        [[_db playlists] setAttr:nil forBrowser:2 list:_currentList];
-        [[_db playlists] setAttr:PRItemAttrArtist forBrowser:3 list:_currentList];
-    } else if (position == PRBrowserPositionHidden) {
-        [[_db playlists] setVertical:PRBrowserPositionHidden forList:_currentList];
-        [[_db playlists] setAttr:nil forBrowser:1 list:_currentList];
-        [[_db playlists] setAttr:nil forBrowser:2 list:_currentList];
-        [[_db playlists] setAttr:nil forBrowser:3 list:_currentList];
+#pragma mark - Internal
+
+- (void)_reloadData {
+    if (_currentList) {
+        PRListDescription *listDescription = nil;
+        BOOL success = [[[_core conn] playlists] zListDescriptionForList:_currentList out:&listDescription];
+        _listDescription = listDescription;
+        
+        NSArray *browserDescriptions = nil;
+        success = [[[_core conn] playlists] zBrowserDescriptionsForList:_currentList out:&browserDescriptions];
+        _browserDescriptions = browserDescriptions;
+        
+        [_libraryListVC setCurrentList:_currentList];
+        [_browserListVC1 setBrowserDescription:_browserDescriptions[0]];
+        [_browserListVC2 setBrowserDescription:_browserDescriptions[1]];
+        [_browserListVC3 setBrowserDescription:_browserDescriptions[2]];
+        [self _loadBrowser];
     }
-    [[_db playlists] setSelection:@[] forBrowser:1 list:_currentList];
-    [[_db playlists] setSelection:@[] forBrowser:2 list:_currentList];
-    [[_db playlists] setSelection:@[] forBrowser:3 list:_currentList];
-    [self loadBrowser];
-    [[NSNotificationCenter defaultCenter] postListDidChange:_currentList];
 }
 
-- (void)loadBrowser {
+- (void)_loadBrowser {
     PRBrowseView *view = (PRBrowseView *)[self view];
     [view setDetailView:[_libraryListVC view]];
     
-    int browserPosition = [[_db playlists] verticalForList:_currentList];
+    PRBrowserPosition browserPosition = [_listDescription vertical];
     if (browserPosition == PRBrowserPositionVertical) {
         [view setStyle:PRBrowseViewStyleVertical];
         [view setBrowseViews:@[[_browserListVC3 view]]];
-        [view setDividerPosition:[[_db playlists] verticalBrowserWidthForList:_currentList]];
+        [view setDividerPosition:[_listDescription verticalBrowserWidth]];
     } else if (browserPosition == PRBrowserPositionHorizontal) {
         [view setStyle:PRBrowseViewStyleHorizontal];
+        NSArray *browserAttributes = [_listDescription browserAttributes];
         NSArray *browseViews = nil;
-        if (![[_db playlists] attrForBrowser:2 list:_currentList]) {
+        if (browserAttributes[1] == [NSNull null]) {
             browseViews = @[[_browserListVC3 view]];
-        } else if (![[_db playlists] attrForBrowser:1 list:_currentList]) {
+        } else if (browserAttributes[0] == [NSNull null]) {
             browseViews = @[[_browserListVC2 view], [_browserListVC3 view]];
         } else {
             browseViews = @[[_browserListVC1 view], [_browserListVC2 view], [_browserListVC3 view]];
         }
         [view setBrowseViews:browseViews];
-        [view setDividerPosition:[[_db playlists] horizontalBrowserHeightForList:_currentList]];
+        [view setDividerPosition:[_listDescription horizontalBrowserHeight]];
     } else if (browserPosition == PRBrowserPositionHidden){
         [view setStyle:PRBrowseViewStyleNone];
     }
 }
 
-- (void)saveBrowser {
-    if (!_currentList) {
-        return;
-    }
-    int browserPosition = [[_db playlists] verticalForList:_currentList];
-    float width = [(PRBrowseView *)[self view] dividerPosition];
+- (void)_saveBrowser {
+    PRBrowserPosition browserPosition = [_listDescription vertical];
+    CGFloat width = [(PRBrowseView *)[self view] dividerPosition];
     if (browserPosition == PRBrowserPositionVertical) {
-        [[_db playlists] setVerticalBrowserWidth:width forList:_currentList];
+        [_listDescription setVerticalBrowserWidth:width];
     } else if (browserPosition == PRBrowserPositionHorizontal) {
-        [[_db playlists] setHorizontalBrowserHeight:width forList:_currentList];
+        [_listDescription setHorizontalBrowserHeight:width];
     }
+    
+    PRSetListDescriptionAction *action = [[PRSetListDescriptionAction alloc] init];
+    [action setListDescription:_listDescription];
+    [action setList:_currentList];
+    [PRActionCenter performAction:action];
 }
 
 @end

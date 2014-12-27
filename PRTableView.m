@@ -3,7 +3,6 @@
 #import "PRCore.h"
 #import "PRNowPlayingViewController.h"
 
-
 @implementation PRTableView
 
 #pragma mark - Responder
@@ -204,3 +203,24 @@
 //}
 
 @end
+
+NSInteger PRIndexForTypeSelect(NSTableView *tableView, NSInteger startRow, NSInteger endRow, NSString *string, NSString *(^block)(NSInteger)) {
+    // forward event if space-key so window can play/pause
+    if ([string isEqualToString:@" "]) {
+        return -1;
+    }
+    
+    // endRow can be before startRow so account for loop around
+    NSInteger end = !(endRow < startRow) ? endRow : [[tableView dataSource] numberOfRowsInTableView:tableView] - 1;
+    for (NSInteger i = startRow; i <= end; i++) {
+        NSString *value = block(i);
+        if ([value noCaseBegins:string]) {
+            return i;
+        }
+        if (i == end && endRow < startRow && end != endRow) {
+            i = -1;
+            end = endRow;
+        }
+    }
+    return startRow;
+}

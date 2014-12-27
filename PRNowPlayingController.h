@@ -21,12 +21,10 @@
 #import <Cocoa/Cocoa.h>
 #import "PRPlaylists.h"
 #import "PRLibrary.h"
-
 @class PRDb;
 @class PRMoviePlayer;
 @class PRNowPlayingDescription;
 @class PRConnection;
-
 
 @interface PRNowPlayingController : NSObject
 /* Initialization */

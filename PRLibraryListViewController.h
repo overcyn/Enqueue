@@ -2,8 +2,8 @@
 @class PRLibraryDescription;
 
 @interface PRLibraryListViewController : PRViewController
-@property (nonatomic, strong) PRLibraryDescription *libraryDescription;
-
+- (id)initWithCore:(PRCore *)core;
+@property (nonatomic, strong) PRList *currentList;
 @property (nonatomic, readonly) NSArray *selectedItems;
-- (void)scrollToSelectedRow;
+@property (nonatomic, readonly) NSArray *allItems;
 @end

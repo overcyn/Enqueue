@@ -10,6 +10,7 @@
 @property (nonatomic, readonly) NSArray *info;
 @property (nonatomic, readonly) NSArray *albumCounts;
 - (PRItem *)itemForRow:(NSInteger)row;
+- (NSInteger)playlistIndexForRow:(NSInteger)row;
 - (NSInteger)rowForItem:(PRItem *)item;
 - (id)valueForRow:(NSInteger)row attribute:(PRItemAttr *)attribute andCacheAttributes:(NSArray *(^)(void))attributes;
 - (NSInteger)firstRowWithValue:(id)value forAttr:(PRItemAttr *)attr;
@@ -23,4 +24,5 @@
 @property (nonatomic, readonly) BOOL hasCompilation;
 @property (nonatomic, readonly) NSString *title;
 - (NSString *)valueForRow:(NSInteger)row;
+- (BOOL)isEqualExceptSelection:(PRBrowserDescription *)object;
 @end

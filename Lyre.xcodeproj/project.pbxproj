@@ -726,11 +726,9 @@
 		29B97314FDCFA39411CA2CEA /* Lyre */ = {
 			isa = PBXGroup;
 			children = (
+				67E422DD1A4E0E64009865DC /* Back End */,
+				67E422DC1A4E0E5C009865DC /* Front End */,
 				67DC1D7319A13BCF0031BC3C /* Actions */,
-				080E96DDFE201D6D7F000001 /* Core */,
-				67804A78124C8CCA003268AD /* Database */,
-				677CB95613BC74790090B4D0 /* Operations */,
-				6750A39E1243229900F415E3 /* UI */,
 				6706FCC312B9A06A00C9B075 /* Extensions */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Libraries */,
@@ -977,20 +975,6 @@
 				67DAC8151456387900E120B6 /* EMKeychainItem.m */,
 			);
 			name = EMKeychainItem;
-			sourceTree = "<group>";
-		};
-		6750A39E1243229900F415E3 /* UI */ = {
-			isa = PBXGroup;
-			children = (
-				6750A3AC124324AA00F415E3 /* Main Window */,
-				6709731C12502F62008DA63D /* Controls */,
-				67AFF8F6124FDEA0006E7535 /* Now Playing */,
-				672157CF12665EED0050A982 /* Library */,
-				6771E783127974E2007A34F2 /* Playlists */,
-				6771E90A127A47C9007A34F2 /* History */,
-				67026EA0126977EB002E929F /* Preferences */,
-			);
-			name = UI;
 			sourceTree = "<group>";
 		};
 		6750A3AC124324AA00F415E3 /* Main Window */ = {
@@ -1603,6 +1587,30 @@
 				67E422D61A4D10D9009865DC /* PRLibraryListViewController.m */,
 			);
 			name = "Library List";
+			sourceTree = "<group>";
+		};
+		67E422DC1A4E0E5C009865DC /* Front End */ = {
+			isa = PBXGroup;
+			children = (
+				6750A3AC124324AA00F415E3 /* Main Window */,
+				6709731C12502F62008DA63D /* Controls */,
+				67AFF8F6124FDEA0006E7535 /* Now Playing */,
+				672157CF12665EED0050A982 /* Library */,
+				6771E783127974E2007A34F2 /* Playlists */,
+				6771E90A127A47C9007A34F2 /* History */,
+				67026EA0126977EB002E929F /* Preferences */,
+			);
+			name = "Front End";
+			sourceTree = "<group>";
+		};
+		67E422DD1A4E0E64009865DC /* Back End */ = {
+			isa = PBXGroup;
+			children = (
+				080E96DDFE201D6D7F000001 /* Core */,
+				67804A78124C8CCA003268AD /* Database */,
+				677CB95613BC74790090B4D0 /* Operations */,
+			);
+			name = "Back End";
 			sourceTree = "<group>";
 		};
 		67EA12F7145B346900309876 /* NowPlaying */ = {

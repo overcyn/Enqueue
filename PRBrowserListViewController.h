@@ -1,14 +1,15 @@
 #import "PRViewController.h"
 @class PRBrowserDescription;
-@protocol PRBrowserListViewController;
+@protocol PRBrowserListViewControllerDelegate;
 
 @interface PRBrowserListViewController : PRViewController
 @property (nonatomic, strong) PRBrowserDescription *browserDescription;
-- (void)scrollToSelectedRow;
+@property (nonatomic, weak) id<PRBrowserListViewControllerDelegate> delegate;
 @property (nonatomic, readonly) NSIndexSet *selectedIndexes;
-@property (nonatomic, weak) id<PRBrowserListViewController> delegate;
 @end
 
-@protocol PRBrowserListViewController
-- (void)browserViewControllerDidChangeSelection:(PRBrowserListViewController *)browserVC;
+@protocol PRBrowserListViewControllerDelegate
+- (void)browserListViewControllerDidChangeSelection:(PRBrowserListViewController *)browserVC;
+- (NSArray *)browserListViewControllerLibraryItems:(PRBrowserListViewController *)browserVC;
+- (NSMenu *)browserListViewControllerHeaderMenu:(PRBrowserListViewController *)browserVC;
 @end

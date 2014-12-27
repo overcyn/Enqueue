@@ -38,19 +38,22 @@
         NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
         NSMutableString *stmt;
         NSString *albumColumn = @"";
+        NSArray *columns = nil;
         if ([_listDescription viewMode] == PRAlbumListMode) {
             albumColumn = @", library.album";
         }
         if ([_list isEqual:[[_conn playlists] libraryList]]) {
             stmt = [NSMutableString stringWithFormat:@"SELECT library.file_id%@ FROM library WHERE 1=1 AND ", albumColumn];
+            columns = @[PRColInteger];
         } else {
             stmt = [NSMutableString stringWithFormat:
-                @"SELECT playlist_items.file_id%@ "
+                @"SELECT playlist_items.file_id, playlist_items.playlist_index%@ "
                 "FROM playlist_items JOIN library ON playlist_items.file_id = library.file_id "
                 "WHERE playlist_items.playlist_id = ?%ld AND ",
                 albumColumn, (long)bindingIndex];
             bindings[@(bindingIndex)] = _list;
             bindingIndex++;
+            columns = @[PRColInteger, PRColInteger];
         }
         
         // Filter for Column Browser
@@ -146,7 +149,7 @@
         }
         
         NSArray *rlt = nil;
-        success = [_conn zExecute:stmt bindings:bindings columns:@[PRColInteger] out:&rlt];
+        success = [_conn zExecute:stmt bindings:bindings columns:columns out:&rlt];
         if (!success) {
             return nil;
         }
@@ -204,6 +207,10 @@
     return _items[row][0];
 }
 
+- (NSInteger)playlistIndexForRow:(NSInteger)row {
+    return [_items[row][1] integerValue];
+}
+
 - (NSInteger)rowForItem:(PRItem *)item {
     return [_items indexOfObject:@[item]];
 }
@@ -242,6 +249,11 @@
 
 @end
 
+@interface PRBrowserDescription ()
+@property (nonatomic, readonly) NSArray *items;
+@property (nonatomic, readonly) PRList *list;
+@end
+
 @implementation PRBrowserDescription {
     NSArray *_items;
     BOOL _hasCompilation;
@@ -251,7 +263,10 @@
     NSString *_title;
 }
 
+@synthesize items = _items;
 @synthesize hasCompilation = _hasCompilation;
+@synthesize selection = _selection;
+@synthesize list = _list;
 @synthesize attribute = _attribute;
 @synthesize title = _title;
 
@@ -406,6 +421,15 @@
     } else {
         return _items[row-1];
     }
+}
+
+- (BOOL)isEqualExceptSelection:(PRBrowserDescription *)object {
+    return [object isKindOfClass:[PRBrowserDescription class]] &&
+        [_items isEqual:[object items]] && 
+        _hasCompilation == [object hasCompilation] && 
+        [_list isEqual:[object list]] && 
+        [_attribute isEqual:[object attribute]] && 
+        [_title isEqual:[object title]];
 }
 
 @end

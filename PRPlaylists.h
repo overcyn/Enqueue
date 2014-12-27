@@ -95,10 +95,11 @@ typedef enum {
 - (BOOL)zLibraryList:(PRList **)outValue;
 - (BOOL)zNowPlayingList:(PRList **)outValue;
 - (BOOL)zValueForList:(PRList *)list attr:(PRListAttr *)attr out:(id *)outValue;
+- (BOOL)zAllListDescriptions:(NSArray **)outValue;
 - (BOOL)zListDescriptionForList:(PRList *)list out:(PRListDescription **)outValue;
 
 - (BOOL)zLibraryDescriptionForList:(PRList *)list out:(PRLibraryDescription **)outValue;
-- (BOOL)zBrowserDescriptionsForList:(PRList *)list out:(NSArray **)outValue; // Always returns 3
+- (BOOL)zBrowserDescriptionsForList:(PRList *)list out:(NSArray **)outValue; // Always returns array of 3 PRBrowserDescriptions
 
 
 // List Setters

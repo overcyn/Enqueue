@@ -55,3 +55,11 @@
 @property (nonatomic, strong) PRListDescription *listDescription;
 @property (nonatomic, strong) PRList *list;
 @end
+
+@interface PRRevealAction : PRAction
+@property (nonatomic, strong) NSArray *items;
+@end
+
+@interface PRDeleteItemsAction : PRAction
+@property (nonatomic, strong) NSArray *items;
+@end

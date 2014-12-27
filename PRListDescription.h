@@ -1,7 +1,6 @@
 #import <Foundation/Foundation.h>
 #import "PRLibraryViewController.h"
 
-
 @interface PRListDescription : NSObject
 - (id)initWithList:(PRList *)list connection:(PRConnection *)conn;
 - (BOOL)writeToConnection:(PRConnection *)conn;
@@ -9,7 +8,7 @@
 - (void)setValue:(id)value forAttr:(PRListAttr *)attr;
 - (id)valueForAttr:(PRListAttr *)attr;
 
-@property (nonatomic) BOOL vertical;
+@property (nonatomic) PRBrowserPosition vertical;
 @property (nonatomic) CGFloat verticalBrowserWidth;
 @property (nonatomic) CGFloat horizontalBrowserHeight;
 @property (nonatomic) BOOL listViewAscending;

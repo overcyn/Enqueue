@@ -379,6 +379,28 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return *outValue != nil;
 }
 
+- (BOOL)zAllListDescriptions:(NSArray **)outValue {
+    NSArray *lists = nil;
+    BOOL success = [self zLists:&lists];
+    if (!success) {
+        return NO;
+    }
+    
+    NSMutableArray *listDescriptions = [NSMutableArray array];
+    for (PRList *i in lists) {
+        PRListDescription *description = nil;
+        success = [self zListDescriptionForList:i out:&description];
+        if (!success) {
+            return NO;
+        }
+        [listDescriptions addObject:description];
+    }
+    if (outValue) {
+        *outValue = listDescriptions;
+    }
+    return YES;
+}
+
 - (BOOL)zLibraryDescriptionForList:(PRList *)list out:(PRLibraryDescription **)outValue {
     if (outValue) {
         *outValue = [[PRLibraryDescription alloc] initWithList:list connection:(PRConnection*)(_db?:(id)_conn)];
@@ -400,7 +422,6 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     }
     return YES;
 }
-
 
 #pragma mark - zList Setters
 
