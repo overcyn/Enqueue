@@ -1,12 +1,11 @@
 #import "PRViewController.h"
+@class PRBridge;
 
 @interface PRBrowserViewController : PRViewController
-- (id)initWithCore:(PRCore *)core;
-
+- (id)initWithBridge:(PRBridge *)bridge;
 @property (nonatomic, weak) PRList *currentList;
 @property (weak, readonly) NSDictionary *info;
 @property (weak, readonly) NSArray *selection;
-
 // These methods will change the browser selection but not the currentList.
 - (void)highlightItem:(PRItem *)item;
 - (void)highlightFiles:(NSArray *)items;

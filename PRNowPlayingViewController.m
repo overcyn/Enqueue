@@ -6,7 +6,7 @@
 #import "NSMenuItem+Extensions.h"
 #import "NSTableView+Extensions.h"
 #import "PRAction.h"
-#import "PRActionCenter.h"
+#import "PRBridge.h"
 #import "PRBrowserViewController.h"
 #import "PRConnection.h"
 #import "PRCore.h"
@@ -35,6 +35,7 @@
 
 @implementation PRNowPlayingViewController {
     __weak PRCore *_core;
+    PRBridge *_bridge;
     
     PROutlineView *_outlineView;
     NSScrollView *_scrollview;
@@ -61,6 +62,7 @@
 - (id)initWithCore:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
     _core = core;
+    _bridge = [_core bridge];
     return self;
 }
 
@@ -229,11 +231,11 @@
     NSData *indexesData = [pboard dataForType:PRIndexesPboardType];
     if (filesData) {
         NSArray *items = [NSKeyedUnarchiver unarchiveObjectWithData:filesData];
-        [PRActionCenter performTask:PRAddItemsToListTask(items, dropIndex, [_nowPlayingDescription currentList])];
+        [_bridge performTask:PRAddItemsToListTask(items, dropIndex, [_nowPlayingDescription currentList])];
     } else if (indexesData) {
         NSArray *array = [NSKeyedUnarchiver unarchiveObjectWithData:indexesData];
         if ([array[0] isEqual:[_nowPlayingDescription currentList]]) {
-            [PRActionCenter performTask:PRMoveIndexesInListTask(array[1], dropIndex, [_nowPlayingDescription currentList])];
+            [_bridge performTask:PRMoveIndexesInListTask(array[1], dropIndex, [_nowPlayingDescription currentList])];
         }
     }
     return YES;
@@ -326,10 +328,10 @@
         }
     } else if (flags == (NSNumericPadKeyMask | NSFunctionKeyMask)) {
         if (c == 0xf703) {
-            [PRActionCenter performTask:PRPlayNextTask()];
+            [_bridge performTask:PRPlayNextTask()];
             didHandle = YES;
         } else if (c == 0xf702) {
-            [PRActionCenter performTask:PRPlayPreviousTask()];
+            [_bridge performTask:PRPlayPreviousTask()];
             didHandle = YES;
         }
     }
@@ -373,61 +375,61 @@
     }
     id item = [_outlineView itemAtRow:[_outlineView clickedRow]];
     NSInteger index = [_listItemsDescription indexForIndexPath:item];
-    [PRActionCenter performTask:PRPlayIndexTask(index)];
+    [_bridge performTask:PRPlayIndexTask(index)];
 }
 
 - (void)_clearPlaylistAction:(id)sender {
-    [PRActionCenter performTask:PRClearNowPlayingTask()];
+    [_bridge performTask:PRClearNowPlayingTask()];
 }
 
 - (void)_playSelectedAction:(id)sender {
     NSIndexSet *selected = [self _selectedIndexes];
     if ([selected count] != 0) {
-        [PRActionCenter performTask:PRPlayIndexTask([selected firstIndex])];
+        [_bridge performTask:PRPlayIndexTask([selected firstIndex])];
     }
 }
 
 - (void)_removeSelectedAction:(id)sender {
     NSIndexSet *selected = [self _selectedIndexes];
     if ([selected count] != 0) {
-        [PRActionCenter performTask:PRRemoveItemsFromListTask(selected, [_nowPlayingDescription currentList])];
+        [_bridge performTask:PRRemoveItemsFromListTask(selected, [_nowPlayingDescription currentList])];
     }
 }
 
 - (void)_revealSelectedAction:(id)sender {
     NSArray *items = [self _selectedItems];
     if ([items count] != 0) {
-        [PRActionCenter performTask:PRRevealTask(items)];
+        [_bridge performTask:PRRevealTask(items)];
     }
 }
 
 - (void)_showSelectedInLibraryAction:(id)sender {
     NSArray *items = [self _selectedItems];
     if ([items count] != 0) {
-        [PRActionCenter performTask:PRHighightItemsTask(items)];
+        [_bridge performTask:PRHighightItemsTask(items)];
     }
 }
 
 - (void)_addSelectedToQueueAction:(id)sender {
     NSArray *items = [self _selectedItems];
     if ([items count] != 0) {
-        [PRActionCenter performTask:PRAddToQueueTask(items)];
+        [_bridge performTask:PRAddToQueueTask(items)];
     }
 }
 
 - (void)_removeSelectedFromQueueAction:(id)sender {
     NSArray *items = [self _selectedItems];
     if ([items count] != 0) {
-        [PRActionCenter performTask:PRRemoveFromQueueTask(items)];
+        [_bridge performTask:PRRemoveFromQueueTask(items)];
     }
 }
 
 - (void)_clearQueueAction:(id)sender {
-    [PRActionCenter performTask:PRClearQueueTask()];
+    [_bridge performTask:PRClearQueueTask()];
 }
 
 - (void)_saveAsNewPlaylist:(id)sender {
-    [PRActionCenter performTask:PRDuplicateListTask([_nowPlayingDescription currentList])];
+    [_bridge performTask:PRDuplicateListTask([_nowPlayingDescription currentList])];
 }
 
 - (void)saveAsPlaylist:(id)sender {
@@ -495,12 +497,17 @@
 #pragma mark - Internal
 
 - (void)_reloadData:(PRChangeSet *)changeSet {
-    _nowPlayingDescription = [[_core now] description];
-    _listItemsDescription = [[PRNowPlayingListItemsDescription alloc] initWithList:[_nowPlayingDescription currentList] database:[_core db]];
-    
-    NSArray *queue = nil;
-    [[[_core conn] queue] zQueueArray:&queue];
-    _queueArray = queue;
+    __block PRNowPlayingListItemsDescription *listItemsDescription;
+    __block PRNowPlayingDescription *nowPlayingDescription;
+    __block NSArray *queueArray;
+    [_bridge performTaskSync:^(PRCore *core){
+        nowPlayingDescription = [[core now] description];
+        listItemsDescription = [[PRNowPlayingListItemsDescription alloc] initWithList:[nowPlayingDescription currentList] database:[core db]];
+        [[[core conn] queue] zQueueArray:&queueArray];
+    }];
+    _nowPlayingDescription = nowPlayingDescription;
+    _listItemsDescription = listItemsDescription;
+    _queueArray = queueArray;
     
     [_outlineView reloadData];
 }

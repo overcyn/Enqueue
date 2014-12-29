@@ -1,5 +1,5 @@
 #import "PRLibraryListViewController.h"
-#import "PRActionCenter.h"
+#import "PRBridge.h"
 #import "NSTableView+Extensions.h"
 #import "PRAction.h"
 #import "PRBitRateFormatter.h"
@@ -24,7 +24,7 @@
 @end
 
 @implementation PRLibraryListViewController {
-    PRCore *_core;
+    PRBridge *_bridge;
     PRList *_currentList;
     PRNowPlayingDescription *_nowPlayingDescription;
     PRLibraryDescription *_libraryDescription;
@@ -35,9 +35,9 @@
     BOOL _refreshing;
 }
 
-- (id)initWithCore:(PRCore *)core {
+- (id)initWithBridge:(PRBridge *)bridge {
     if ((self = [super init])) {
-        _core = core;
+        _bridge = bridge;
     }
     return self;
 }
@@ -554,7 +554,7 @@
         [listDescription setListViewSortAttr:columnAttr];
         [listDescription setListViewAscending:YES];
     }
-    [PRActionCenter performTask:PRSetListDescriptionTask([_libraryDescription listDescription], [_libraryDescription list])];
+    [_bridge performTask:PRSetListDescriptionTask([_libraryDescription listDescription], [_libraryDescription list])];
 }
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification {
@@ -616,26 +616,26 @@
 - (void)_doubleAction:(id)sender {
     NSIndexSet *indexes = [_tableView selectedRowIndexes];
     if ([indexes count] > 1) {
-        [PRActionCenter performTask:PRPlayItemsTask([self selectedItems], 0)];
+        [_bridge performTask:PRPlayItemsTask([self selectedItems], 0)];
     } else if ([indexes count] == 1){
         NSMutableArray *items = [NSMutableArray array];
         for (NSInteger i = 0; i < [_libraryDescription count]; i++) {
             [items addObject:[_libraryDescription itemForRow:i]];
         }
-        [PRActionCenter performTask:PRPlayItemsTask(items, [_tableView clickedRow])];
+        [_bridge performTask:PRPlayItemsTask(items, [_tableView clickedRow])];
     }
 }
 
 - (void)_playAction:(id)sender {
-    [PRActionCenter performTask:PRPlayItemsTask([self selectedItems], 0)];
+    [_bridge performTask:PRPlayItemsTask([self selectedItems], 0)];
 }
 
 - (void)_appendNextAction:(id)sender {
-    [PRActionCenter performTask:PRAddItemsToListTask([self selectedItems], -1, nil)];
+    [_bridge performTask:PRAddItemsToListTask([self selectedItems], -1, nil)];
 }
 
 - (void)_appendAction:(id)sender {
-    [PRActionCenter performTask:PRAddItemsToListTask([self selectedItems], -2, nil)];
+    [_bridge performTask:PRAddItemsToListTask([self selectedItems], -2, nil)];
 }
 
 - (void)_toggleColumnAction:(NSMenuItem *)sender {
@@ -645,30 +645,32 @@
 }
 
 - (void)_deleteAction:(id)sender {
-    [PRActionCenter performTask:PRDeleteItemsTask([self selectedItems])];
+    [_bridge performTask:PRDeleteItemsTask([self selectedItems])];
     // KD: Deleting from a static list
 }
 
 - (void)_appendToListAction:(NSMenuItem *)sender {
-    [PRActionCenter performTask:PRAddItemsToListTask([self selectedItems], -1, [sender representedObject])];
+    [_bridge performTask:PRAddItemsToListTask([self selectedItems], -1, [sender representedObject])];
 }
 
 - (void)_revealAction:(id)sender {
-    [PRActionCenter performTask:PRRevealTask([self selectedItems])];
+    [_bridge performTask:PRRevealTask([self selectedItems])];
 }
 
 #pragma mark - Internal
 
 - (void)_reloadData {
-    PRLibraryDescription *libraryDescription = nil;
-    BOOL success = [[[_core conn] playlists] zLibraryDescriptionForList:_currentList out:&libraryDescription];
+    __block PRLibraryDescription *libraryDescription = nil;
+    __block NSArray *listDescriptions = nil;
+    __block PRNowPlayingDescription *nowPlayingDescription = nil;
+    [_bridge performTaskSync:^(PRCore *core){
+        [[[core conn] playlists] zLibraryDescriptionForList:_currentList out:&libraryDescription];
+        [[[core conn] playlists] zAllListDescriptions:&listDescriptions];
+        nowPlayingDescription = [[core now] description];
+    }];
     _libraryDescription = libraryDescription;
-    
-    NSArray *listDescriptions = nil;
-    success = [[[_core conn] playlists] zAllListDescriptions:&listDescriptions];
     _listDescriptions = listDescriptions;
-    
-    _nowPlayingDescription = [[_core now] description];
+    _nowPlayingDescription = nowPlayingDescription;
     
     [self _loadTableColumns];
     [_tableView reloadData];

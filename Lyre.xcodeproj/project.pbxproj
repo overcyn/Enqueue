@@ -16,7 +16,6 @@
 		670567F419B910F0008CD150 /* PRConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 670567F319B910F0008CD150 /* PRConnection.m */; };
 		670567F719BACDB0008CD150 /* PRListDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 670567F619BACDB0008CD150 /* PRListDescription.m */; };
 		670567FA19BE6F95008CD150 /* PRLibraryDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 670567F919BE6F95008CD150 /* PRLibraryDescription.m */; };
-		670567FD19BE6FB1008CD150 /* PREngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 670567FC19BE6FB1008CD150 /* PREngine.m */; };
 		6706FCC612B9A08200C9B075 /* NSFileManager+DirectoryLocations.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FCC512B9A08200C9B075 /* NSFileManager+DirectoryLocations.m */; };
 		6706FCF812B9C7BF00C9B075 /* PRDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FCF712B9C7BF00C9B075 /* PRDefaults.m */; };
 		6706FDF712BB897B00C9B075 /* PRAlbumArtController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6706FDF612BB897B00C9B075 /* PRAlbumArtController.m */; };
@@ -205,7 +204,7 @@
 		67DC10891489D12100A76236 /* PRPathFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC10881489D12100A76236 /* PRPathFormatter.m */; };
 		67DC1D6D19975C490031BC3C /* PRNowPlayingDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D6C19975C490031BC3C /* PRNowPlayingDescription.m */; };
 		67DC1D7019975F270031BC3C /* PRListItemsDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D6F19975F270031BC3C /* PRListItemsDescription.m */; };
-		67DC1D7619A13D300031BC3C /* PRActionCenter.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D7519A13D300031BC3C /* PRActionCenter.m */; };
+		67DC1D7619A13D300031BC3C /* PRBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D7519A13D300031BC3C /* PRBridge.m */; };
 		67DC1D7919A141650031BC3C /* PRAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D7819A141650031BC3C /* PRAction.m */; };
 		67DDC70F14FA169B00E361B0 /* NSMenuItem+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */; };
 		67DE033A147B07A600BBB0F6 /* PRFileInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE0339147B07A600BBB0F6 /* PRFileInfo.m */; };
@@ -295,8 +294,6 @@
 		670567F619BACDB0008CD150 /* PRListDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRListDescription.m; sourceTree = "<group>"; };
 		670567F819BE6F95008CD150 /* PRLibraryDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRLibraryDescription.h; sourceTree = "<group>"; };
 		670567F919BE6F95008CD150 /* PRLibraryDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRLibraryDescription.m; sourceTree = "<group>"; };
-		670567FB19BE6FB1008CD150 /* PREngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PREngine.h; sourceTree = "<group>"; };
-		670567FC19BE6FB1008CD150 /* PREngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PREngine.m; sourceTree = "<group>"; };
 		6706FCC412B9A08200C9B075 /* NSFileManager+DirectoryLocations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileManager+DirectoryLocations.h"; sourceTree = "<group>"; };
 		6706FCC512B9A08200C9B075 /* NSFileManager+DirectoryLocations.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileManager+DirectoryLocations.m"; sourceTree = "<group>"; };
 		6706FCF612B9C7BF00C9B075 /* PRDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRDefaults.h; sourceTree = "<group>"; };
@@ -591,8 +588,8 @@
 		67DC1D6E19975F270031BC3C /* PRListItemsDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRListItemsDescription.h; sourceTree = "<group>"; };
 		67DC1D6F19975F270031BC3C /* PRListItemsDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRListItemsDescription.m; sourceTree = "<group>"; };
 		67DC1D7219A13BBA0031BC3C /* PRAction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRAction.h; sourceTree = "<group>"; };
-		67DC1D7419A13D300031BC3C /* PRActionCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRActionCenter.h; sourceTree = "<group>"; };
-		67DC1D7519A13D300031BC3C /* PRActionCenter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRActionCenter.m; sourceTree = "<group>"; };
+		67DC1D7419A13D300031BC3C /* PRBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBridge.h; sourceTree = "<group>"; };
+		67DC1D7519A13D300031BC3C /* PRBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRBridge.m; sourceTree = "<group>"; };
 		67DC1D7819A141650031BC3C /* PRAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRAction.m; sourceTree = "<group>"; };
 		67DDC70D14FA169B00E361B0 /* NSMenuItem+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMenuItem+Extensions.h"; sourceTree = "<group>"; };
 		67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMenuItem+Extensions.m"; sourceTree = "<group>"; };
@@ -694,19 +691,6 @@
 		080E96DDFE201D6D7F000001 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				670567FB19BE6FB1008CD150 /* PREngine.h */,
-				670567FC19BE6FB1008CD150 /* PREngine.m */,
-				67C4ACB11329B59A00796610 /* Core */,
-				67CE095C124C6A1B00A39077 /* Now Playing */,
-				6739CCB4125313D400AB54A1 /* Tags */,
-				67133E181327425C00764174 /* Folder Monitor */,
-				67C4ACB21329B5AA00796610 /* Task Manager */,
-				67D911E414710856001C9DE8 /* Keyboard Shortcuts */,
-				673E4AB31385510900DD8260 /* Growl */,
-				673E4ACF13858CB000DD8260 /* LastFm */,
-				6706FCF512B9C64400C9B075 /* Defaults */,
-				67D41109158586A0007C2E04 /* AppleScript */,
-				67FCEE0B133EA04800765EE1 /* Log */,
 			);
 			name = Core;
 			sourceTree = "<group>";
@@ -722,9 +706,9 @@
 		29B97314FDCFA39411CA2CEA /* Lyre */ = {
 			isa = PBXGroup;
 			children = (
-				67E422DD1A4E0E64009865DC /* Back End */,
 				67E422DC1A4E0E5C009865DC /* Front End */,
-				67DC1D7319A13BCF0031BC3C /* Actions */,
+				67E422E81A51D434009865DC /* Bridge */,
+				67E422DD1A4E0E64009865DC /* Back End */,
 				6706FCC312B9A06A00C9B075 /* Extensions */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Libraries */,
@@ -1472,15 +1456,6 @@
 			name = Icons;
 			sourceTree = "<group>";
 		};
-		67C4ACB11329B59A00796610 /* Core */ = {
-			isa = PBXGroup;
-			children = (
-				256AC3D80F4B6AC300CF3369 /* PRCore.h */,
-				256AC3D90F4B6AC300CF3369 /* PRCore.m */,
-			);
-			name = Core;
-			sourceTree = "<group>";
-		};
 		67C4ACB21329B5AA00796610 /* Task Manager */ = {
 			isa = PBXGroup;
 			children = (
@@ -1562,17 +1537,6 @@
 			name = Description;
 			sourceTree = "<group>";
 		};
-		67DC1D7319A13BCF0031BC3C /* Actions */ = {
-			isa = PBXGroup;
-			children = (
-				67DC1D7219A13BBA0031BC3C /* PRAction.h */,
-				67DC1D7819A141650031BC3C /* PRAction.m */,
-				67DC1D7419A13D300031BC3C /* PRActionCenter.h */,
-				67DC1D7519A13D300031BC3C /* PRActionCenter.m */,
-			);
-			name = Actions;
-			sourceTree = "<group>";
-		};
 		67E422D41A4D10C4009865DC /* Library List */ = {
 			isa = PBXGroup;
 			children = (
@@ -1599,11 +1563,34 @@
 		67E422DD1A4E0E64009865DC /* Back End */ = {
 			isa = PBXGroup;
 			children = (
+				256AC3D80F4B6AC300CF3369 /* PRCore.h */,
+				256AC3D90F4B6AC300CF3369 /* PRCore.m */,
+				67CE095C124C6A1B00A39077 /* Now Playing */,
+				6739CCB4125313D400AB54A1 /* Tags */,
+				67133E181327425C00764174 /* Folder Monitor */,
+				67C4ACB21329B5AA00796610 /* Task Manager */,
+				67D911E414710856001C9DE8 /* Keyboard Shortcuts */,
+				673E4AB31385510900DD8260 /* Growl */,
+				673E4ACF13858CB000DD8260 /* LastFm */,
+				6706FCF512B9C64400C9B075 /* Defaults */,
+				67D41109158586A0007C2E04 /* AppleScript */,
+				67FCEE0B133EA04800765EE1 /* Log */,
 				080E96DDFE201D6D7F000001 /* Core */,
 				67804A78124C8CCA003268AD /* Database */,
 				677CB95613BC74790090B4D0 /* Operations */,
 			);
 			name = "Back End";
+			sourceTree = "<group>";
+		};
+		67E422E81A51D434009865DC /* Bridge */ = {
+			isa = PBXGroup;
+			children = (
+				67DC1D7419A13D300031BC3C /* PRBridge.h */,
+				67DC1D7519A13D300031BC3C /* PRBridge.m */,
+				67DC1D7219A13BBA0031BC3C /* PRAction.h */,
+				67DC1D7819A141650031BC3C /* PRAction.m */,
+			);
+			name = Bridge;
 			sourceTree = "<group>";
 		};
 		67EA12F7145B346900309876 /* NowPlaying */ = {
@@ -1878,7 +1865,7 @@
 				6715CF8313989885001BC89B /* sha2.c in Sources */,
 				671C91EB13A376B90007D069 /* NSString+LFExtensions.m in Sources */,
 				67091AD013AB3D6400C4D298 /* PRQueue.m in Sources */,
-				67DC1D7619A13D300031BC3C /* PRActionCenter.m in Sources */,
+				67DC1D7619A13D300031BC3C /* PRBridge.m in Sources */,
 				677CB95A13BC74B60090B4D0 /* PRRescanOperation.m in Sources */,
 				67C0BA1A13C7AE1E0088D2E7 /* NSString+Extensions.m in Sources */,
 				673C849213E148CA00C6DB4B /* PRNowPlayingHeaderCell.m in Sources */,
@@ -1893,7 +1880,6 @@
 				675116D2141FD42C00EBE02E /* NSImage+Extensions.m in Sources */,
 				67BBE75F1421752E003C438B /* NSURLConnection+Extensions.m in Sources */,
 				67BBE7621421AF5D003C438B /* PRLastfmFile.m in Sources */,
-				670567FD19BE6FB1008CD150 /* PREngine.m in Sources */,
 				6790E3EF1421FA76001D7D49 /* PRZeroSplitView.m in Sources */,
 				67E422D71A4D10D9009865DC /* PRLibraryListViewController.m in Sources */,
 				67CFB4491423FDB40045108D /* NSOperationQueue+Extensions.m in Sources */,

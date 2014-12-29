@@ -1,8 +1,9 @@
 #import "PRViewController.h"
+@class PRBridge;
 @class PRLibraryDescription;
 
 @interface PRLibraryListViewController : PRViewController
-- (id)initWithCore:(PRCore *)core;
+- (id)initWithBridge:(PRBridge *)bridge;
 @property (nonatomic, strong) PRList *currentList;
 @property (nonatomic, readonly) NSArray *selectedItems;
 @property (nonatomic, readonly) NSArray *allItems;

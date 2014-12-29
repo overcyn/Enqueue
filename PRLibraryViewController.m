@@ -58,14 +58,14 @@
     [_centerSuperview setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
     [[self view] addSubview:_centerSuperview];
     
-    browserViewController = [[PRBrowserViewController alloc] initWithCore:_core];
+    browserViewController = [[PRBrowserViewController alloc] initWithBridge:[_core bridge]];
     [[browserViewController view] setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
     [[browserViewController view] setFrame:[_centerSuperview bounds]];
     [_centerSuperview addSubview:[browserViewController view]];
     _currentViewController = browserViewController;
     
-    albumListViewController = [[PRAlbumListViewController alloc] initWithCore:_core];
-    [[albumListViewController view] setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
+//    albumListViewController = [[PRAlbumListViewController alloc] initWithCore:_core];
+//    [[albumListViewController view] setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
     
     // Pane view
     _paneSuperview = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 500, 140)];

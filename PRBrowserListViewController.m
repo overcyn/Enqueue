@@ -4,17 +4,25 @@
 #import "NSColor+Extensions.h"
 #import "PRCenteredTextFieldCell.h"
 #import "PRAction.h"
-#import "PRActionCenter.h"
+#import "PRBridge.h"
 
 @interface PRBrowserListViewController () <NSTableViewDelegate, NSTableViewDataSource, PRTableViewDelegate, NSMenuDelegate>
 @end
 
 @implementation PRBrowserListViewController {
+    PRBridge *_bridge;
     NSMenu *_headerMenu;
     PRBrowserDescription *_browserDescription;
     PRTableView *_tableView;
     BOOL _updatingSelection;
     __weak id<PRBrowserListViewControllerDelegate> _delegate;
+}
+
+- (id)initWithBridge:(PRBridge *)bridge {
+    if ((self = [super init])) {
+        _bridge = bridge;
+    }
+    return self;
 }
 
 - (void)loadView {
@@ -156,15 +164,15 @@
 }
 
 - (void)_playAction:(id)sender {
-    [PRActionCenter performTask:PRPlayItemsTask([_delegate browserListViewControllerLibraryItems:self], 0)];
+    [_bridge performTask:PRPlayItemsTask([_delegate browserListViewControllerLibraryItems:self], 0)];
 }
 
 - (void)_appendAction:(id)sender {
-    [PRActionCenter performTask:PRAddItemsToListTask([_delegate browserListViewControllerLibraryItems:self], -1, nil)];
+    [_bridge performTask:PRAddItemsToListTask([_delegate browserListViewControllerLibraryItems:self], -1, nil)];
 }
 
 - (void)_appendNextAction:(id)sender {
-    [PRActionCenter performTask:PRAddItemsToListTask([_delegate browserListViewControllerLibraryItems:self], -2, nil)];
+    [_bridge performTask:PRAddItemsToListTask([_delegate browserListViewControllerLibraryItems:self], -2, nil)];
 }
 
 @end

@@ -4,7 +4,7 @@
 #import "NSString+Extensions.h"
 #import "NSTableView+Extensions.h"
 #import "PRAction.h"
-#import "PRActionCenter.h"
+#import "PRBridge.h"
 #import "PRBrowseView.h"
 #import "PRBrowserListViewController.h"
 #import "PRConnection.h"
@@ -26,7 +26,7 @@
 @end
 
 @implementation PRBrowserViewController {
-    __weak PRCore *_core;
+    PRBridge *_bridge;
     PRList *_currentList;
     PRListDescription *_listDescription;
     NSArray *_browserDescriptions;
@@ -38,9 +38,9 @@
 
 #pragma mark - Initialization
 
-- (id)initWithCore:(PRCore *)core {
+- (id)initWithBridge:(PRBridge *)bridge {
     if (!(self = [super init])) {return nil;}
-    _core = core;
+    _bridge = bridge;
     return self;
 }
 
@@ -199,14 +199,14 @@
     [self setView:view];
     
     // Library list
-    _libraryListVC = [[PRLibraryListViewController alloc] initWithCore:_core];
+    _libraryListVC = [[PRLibraryListViewController alloc] initWithBridge:_bridge];
     
     // Browser list
-    _browserListVC1 = [[PRBrowserListViewController alloc] init];
+    _browserListVC1 = [[PRBrowserListViewController alloc] initWithBridge:_bridge];
     [_browserListVC1 setDelegate:self];
-    _browserListVC2 = [[PRBrowserListViewController alloc] init];
+    _browserListVC2 = [[PRBrowserListViewController alloc] initWithBridge:_bridge];
     [_browserListVC2 setDelegate:self];
-    _browserListVC3 = [[PRBrowserListViewController alloc] init];
+    _browserListVC3 = [[PRBrowserListViewController alloc] initWithBridge:_bridge];
     [_browserListVC3 setDelegate:self];
     
     // Key Views
@@ -248,7 +248,7 @@
         [browserSelections addObject:browserSelection];
     }
     [_listDescription setBrowserSelections:browserSelections];
-    [PRActionCenter performTask:PRSetListDescriptionTask(_listDescription, _currentList)];
+    [_bridge performTask:PRSetListDescriptionTask(_listDescription, _currentList)];
 }
 
 - (NSArray *)browserListViewControllerLibraryItems:(PRBrowserListViewController *)browserVC {
@@ -309,7 +309,7 @@
     }
     [_listDescription setBrowserSelections:@[@[], @[], @[]]];
     
-    [PRActionCenter performTask:PRSetListDescriptionTask(_listDescription, _currentList)];
+    [_bridge performTask:PRSetListDescriptionTask(_listDescription, _currentList)];
 }
 
 - (void)_browserAttributeAction:(NSMenuItem *)item {
@@ -348,19 +348,20 @@
         return;
     }
     [_listDescription setBrowserSelections:@[@[], @[], @[]]];
-    [PRActionCenter performTask:PRSetListDescriptionTask(_listDescription, _currentList)];
+    [_bridge performTask:PRSetListDescriptionTask(_listDescription, _currentList)];
 }
 
 #pragma mark - Internal
 
 - (void)_reloadData {
     if (_currentList) {
-        PRListDescription *listDescription = nil;
-        BOOL success = [[[_core conn] playlists] zListDescriptionForList:_currentList out:&listDescription];
+        __block PRListDescription *listDescription = nil;
+        __block NSArray *browserDescriptions = nil;
+        [_bridge performTaskSync:^(PRCore *core){
+            [[[core conn] playlists] zListDescriptionForList:_currentList out:&listDescription];
+            [[[core conn] playlists] zBrowserDescriptionsForList:_currentList out:&browserDescriptions];
+        }];
         _listDescription = listDescription;
-        
-        NSArray *browserDescriptions = nil;
-        success = [[[_core conn] playlists] zBrowserDescriptionsForList:_currentList out:&browserDescriptions];
         _browserDescriptions = browserDescriptions;
         
         [_libraryListVC setCurrentList:_currentList];
@@ -406,7 +407,7 @@
     } else if (browserPosition == PRBrowserPositionHorizontal) {
         [_listDescription setHorizontalBrowserHeight:width];
     }
-    [PRActionCenter performTask:PRSetListDescriptionTask(_listDescription, _currentList)];
+    [_bridge performTask:PRSetListDescriptionTask(_listDescription, _currentList)];
 }
 
 @end

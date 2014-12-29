@@ -1,7 +1,7 @@
 #import "PRMainMenuController.h"
 #import "NSWindow+Extensions.h"
 #import "PRAction.h"
-#import "PRActionCenter.h"
+#import "PRBridge.h"
 #import "PRControlsViewController.h"
 #import "PRCore.h"
 #import "PRFolderMonitor.h"
@@ -250,7 +250,7 @@
 }
 
 - (void)clearNowPlaying {
-    [PRActionCenter performTask:PRClearNowPlayingTask()];
+    [[core bridge] performTask:PRClearNowPlayingTask()];
 }
 
 - (void)viewAsList {

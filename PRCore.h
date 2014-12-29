@@ -1,19 +1,18 @@
 #import <Cocoa/Cocoa.h>
-
-@class PRDb; 
-@class PRNowPlayingController; 
-@class PRMainWindowController; 
-@class PRFolderMonitor; 
-@class PRProgressManager; 
-@class PRGrowl; 
-@class PRLastfm; 
-@class PRMediaKeyController; 
-@class PRHotKeyController;
+@class PRBridge;
 @class PRConnection;
-
+@class PRDb; 
+@class PRFolderMonitor; 
+@class PRGrowl; 
+@class PRHotKeyController;
+@class PRLastfm; 
+@class PRMainWindowController; 
+@class PRMediaKeyController; 
+@class PRNowPlayingController; 
+@class PRProgressManager; 
 
 @interface PRCore : NSObject <NSApplicationDelegate>
-/* Accessors */
+@property (readonly) PRBridge *bridge;
 @property (readonly) PRConnection *conn;
 @property (readonly) PRDb *db;
 @property (readonly) PRMainWindowController *win;
@@ -25,8 +24,6 @@
 @property (readonly) PRLastfm *lastfm;
 @property (readonly) PRMediaKeyController *keys;
 @property (readonly) PRHotKeyController *hotKeys;
-
-/* Actions */
 - (void)itunesImport:(id)sender;
 - (IBAction)showOpenPanel:(id)sender;
 @end
