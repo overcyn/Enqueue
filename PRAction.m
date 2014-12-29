@@ -1,9 +1,9 @@
 #import "PRAction.h"
 #import "PRCore.h"
 #import "PRDb.h"
+#import "PRQueue.h"
 #import "PRPlaylists.h"
 #import "PRNowPlayingController.h"
-#import "PRNowPlayingViewController_Private.h"
 #import "PRMainWindowController.h"
 #import "PRLibraryViewController.h"
 #import "PRBrowserViewController.h"
@@ -114,22 +114,6 @@
     //     id item = [self itemForItem:@[@([beforeArray count])]];
     //     [nowPlayingTableView expandItem:item];
     // }
-}
-
-@end
-
-@implementation PRBlockAction
-
-+ (instancetype)blockActionWithBlock:(void (^)(PRCore *))block {
-    PRBlockAction *action = [[[self class] alloc] init];
-    [action setBlock:block];
-    return action;
-}
-
-- (void)main {
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        _block([self core]);
-    });
 }
 
 @end
@@ -355,4 +339,34 @@
     });
 }
 
+@end
+
+#pragma mark - Queue
+
+@implementation PRClearQueueAction : PRAction
+- (void)main {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[[[self core] db] queue] clear];
+    });
+}
+@end
+
+@implementation PRRemoveFromQueueAction : PRAction
+- (void)main {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        for (PRListItem *i in [self listItems]) {
+            [[[[self core] db] queue] removeListItem:i];
+        }
+    });
+}
+@end
+
+@implementation PRAddToQueueAction : PRAction
+- (void)main {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        for (PRListItem *i in [self listItems]) {
+            [[[[self core] db] queue] appendListItem:i];
+        }
+    });
+}
 @end

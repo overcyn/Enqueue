@@ -1,5 +1,4 @@
 #import "PRNowPlayingViewController.h"
-#import "PRNowPlayingViewController_Private.h"
 #import "BWTexturedSlider.h"
 #import "NSColor+Extensions.h"
 #import "NSIndexPath+Extensions.h"
@@ -8,6 +7,7 @@
 #import "NSTableView+Extensions.h"
 #import "PRAction.h"
 #import "PRActionCenter.h"
+#import "PRBrowserViewController.h"
 #import "PRConnection.h"
 #import "PRCore.h"
 #import "PRDb.h"
@@ -28,16 +28,13 @@
 #import "PRPlaylistsViewController.h"
 #import "PRQueue.h"
 #import "PRTableView.h"
-#import "PRBrowserViewController.h"
 #import "PRViewController.h"
 
-
-@interface PRNowPlayingViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, NSTextFieldDelegate, PROutlineViewDelegate>
+@interface PRNowPlayingViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, PROutlineViewDelegate>
 @end
 
 @implementation PRNowPlayingViewController {
     __weak PRCore *_core;
-    __weak PRDb *_db;
     
     PROutlineView *_outlineView;
     NSScrollView *_scrollview;
@@ -56,6 +53,7 @@
     
     PRNowPlayingListItemsDescription *_listItemsDescription;
     PRNowPlayingDescription *_nowPlayingDescription;
+    NSArray *_queueArray;
 }
 
 #pragma mark - Initialization
@@ -63,7 +61,6 @@
 - (id)initWithCore:(PRCore *)core {
     if (!(self = [super init])) {return nil;}
     _core = core;
-    _db = [core db];
     return self;
 }
 
@@ -121,7 +118,7 @@
     [_clearButton setImage:[NSImage imageNamed:@"Trash"]];
     [_clearButton setBordered:NO];
     [_clearButton setTarget:self];
-    [_clearButton setAction:@selector(clearPlaylist)];
+    [_clearButton setAction:@selector(_clearPlaylistAction:)];
     [_clearButton setButtonType:NSMomentaryChangeButton];
     [_clearButton setToolTip:@"Clear the Now Playing playlist."];
     [_headerView addSubview:_clearButton];
@@ -138,7 +135,7 @@
     
     // update
     [self menuNeedsUpdate:_playlistMenu];
-    [self _updateTableView];
+    [self _reloadData:nil];
     
     // restore collapse state
     NSIndexSet *collapseState = [[PRDefaults sharedDefaults] valueForKey:PRDefaultsNowPlayingCollapseState];
@@ -152,157 +149,27 @@
     }
     
     // notifications
-    [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(_updateTableView)];
-    [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(_updateTableView)];
-    [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistDidChange:)];
+    [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(_playlistItemsDidChange:)];
+    [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(_itemsDidChange:)];
+    [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(_playlistDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(_currentFileDidChange:)];
     [NSNotificationCenter addObserver:self selector:@selector(_applicationWillTerminate:) name:NSApplicationWillTerminateNotification object:nil];
 }
 
-#pragma mark - Accessors
+#pragma mark - API
 
 @synthesize headerView = _headerView;
 
-#pragma mark - Action
-
-- (void)collapseAll {
-    [_outlineView expandItem:nil];
-}
-
 - (void)higlightPlayingFile {
-    // if (![_nowPlayingDescription currentItem]) {
-    //     return;
-    // }
-    // id currentItem = [self itemForDbRow:[_nowPlayingDescription currentIndex]];
-    // NSArray *parentItem = [self itemForItem:[NSIndexPath indexPathForAlbum:[currentItem indexAtPosition:0]]];
-    // if (![_outlineView isItemExpanded:parentItem]) {
-    //     [_outlineView collapseItem:nil];
-    // }
-    // [_outlineView expandItem:parentItem];
-    // [_outlineView scrollRowToVisiblePretty:[_outlineView rowForItem:currentItem]];
-}
-
-#pragma mark - Action Priv
-
-- (void)clearPlaylist {
-    [PRActionCenter performAction:[[PRClearNowPlayingAction alloc] init]];
-}
-
-- (void)playSelected {
-    NSIndexSet *selected = [self _selectedRows];
-    if ([selected count] != 0) {
-        PRPlayItemAction *action = [[PRPlayItemAction alloc] init];
-        [action setIndex:[selected firstIndex]];
-        [PRActionCenter performAction:action];
+    if ([_nowPlayingDescription currentItem]) {
+        NSIndexPath *indexPath = [_listItemsDescription indexPathForIndex:[_nowPlayingDescription currentIndex]];
+        NSIndexPath *parentIndexPath = [NSIndexPath indexPathForAlbum:[indexPath indexAtPosition:0]];
+        if (![_outlineView isItemExpanded:parentIndexPath]) {
+            [_outlineView collapseItem:nil];
+            [_outlineView expandItem:parentIndexPath];
+        }
+        [_outlineView scrollRowToVisiblePretty:[_outlineView rowForItem:indexPath]];
     }
-}
-
-- (void)removeSelected {
-    NSIndexSet *selected = [self _selectedRows];
-    if ([selected count] != 0) {
-        PRRemoveItemsFromListAction *action = [[PRRemoveItemsFromListAction alloc] init];
-        [action setIndexes:selected];
-        [action setList:[_nowPlayingDescription currentList]];
-        [PRActionCenter performAction:action];
-    }
-}
-
-- (void)revealSelectedInFinder {
-    // NSMutableArray *array = [NSMutableArray array];
-    // [[self _selectedRows] enumerateIndexesUsingBlock:^(NSUInteger i, BOOL *stop) {
-    //     [array addObject:[_listItemsDescription itemAtIndex:i]];
-    // }];
-    
-    // NSString *path = nil;
-    // [[[_core conn] library] zValueForItem:array[0] attr:PRItemAttrPath out:&path];
-    // if (path) {
-    //     [PRActionCenter performAction:[PRBlockAction blockActionWithBlock:^(PRCore *core) {
-    //         [[NSWorkspace sharedWorkspace] selectFile:[[NSURL URLWithString:path] path] inFileViewerRootedAtPath:nil];
-    //     }]];
-    // }
-}
-
-- (void)showSelectedInLibrary {
-    // NSIndexSet *dbRows = [self selectedDbRows];
-    // if ([dbRows count] != 0) {
-    //     NSMutableArray *items = [NSMutableArray array];
-    //     [dbRows enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
-    //         [items addObject:[_listItemsDescription itemAtIndex:idx-1]];
-    //     }];
-        
-    //     PRHighlightItemsAction *action = [[PRHighlightItemsAction alloc] init];
-    //     [action setItems:items];
-    //     [PRActionCenter performAction:action];
-    // }
-}
-
-- (void)addSelectedToQueue {
-    // [self removeSelectedFromQueue];
-    // NSIndexSet *dbRows = [self selectedDbRows];
-    // NSInteger dbRow = [dbRows firstIndex];
-    // while (dbRow != NSNotFound) {
-    //     if (dbRow != [_nowPlayingDescription currentIndex]) {
-    //         [[_db queue] appendListItem:[_listItemsDescription listItemAtIndex:dbRow-1]];
-    //     }
-    //     dbRow = [dbRows indexGreaterThanIndex:dbRow];
-    // }
-}
-
-- (void)removeSelectedFromQueue {
-    // NSIndexSet *dbRows = [self selectedDbRows];
-    // NSInteger dbRow = [dbRows firstIndex];
-    // while (dbRow != NSNotFound) {
-    //     [[_db queue] removeListItem:[_listItemsDescription listItemAtIndex:dbRow-1]];
-    //     dbRow = [dbRows indexGreaterThanIndex:dbRow];
-    // }
-}
-
-- (void)clearQueue {
-    // [PRActionCenter performAction:[PRBlockAction blockActionWithBlock:^(PRCore *core) {
-    //     [[[core db] queue] clear];
-    // }]];
-}
-
-#pragma mark - Action Menu Priv
-
-- (void)saveAsNewPlaylist:(id)sender {
-    // PRDuplicatePlaylistAction *action = [[PRDuplicatePlaylistAction alloc] init];
-    // [action setList:[_nowPlayingDescription currentList]];
-    // [PRActionCenter performAction:action];
-}
-
-- (void)saveAsPlaylist:(id)sender {
-    // NSInteger playlist = [[sender representedObject] intValue];
-    // NSString *title = [[_db playlists] titleForList:[NSNumber numberWithInt:playlist]];
-    // NSAlert *alert = [[NSAlert alloc] init];
-    // [alert addButtonWithTitle:@"Save"];
-    // [alert addButtonWithTitle:@"Cancel"];
-    // [alert setMessageText:[NSString stringWithFormat:@"Are you sure you want to save this as \"%@\"?", title]];
-    // [alert setInformativeText:@"Existing playlist contents will be removed."];
-    // [alert setAlertStyle:NSWarningAlertStyle];
-    
-    // [alert beginSheetModalForWindow:[[self view] window] modalDelegate:self didEndSelector:@selector(saveAsPlaylistHandler:code:context:) contextInfo:(__bridge_retained void *)@(playlist)];
-}
-
-- (void)saveAsPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context {
-    // PRList *list = (__bridge_transfer PRList *)context;
-    // if (code != NSAlertFirstButtonReturn) {
-    //     return;
-    // }
-    // [[_db playlists] clearList:list];
-    // [[_db playlists] copyItemsFromList:[_nowPlayingDescription currentList] toList:list];
-    // [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
-}
-
-- (void)addToPlaylist:(id)sender {
-    // PRList *list = [sender representedObject];
-    // NSIndexSet *dbRows = [self selectedDbRows];
-    // NSInteger dbRow = [dbRows firstIndex];
-    // while (dbRow != NSNotFound) {
-    //     [[_db playlists] appendItem:[[_db playlists] itemAtIndex:dbRow forList:[_nowPlayingDescription currentList]] toList:list];
-    //     dbRow = [dbRows indexGreaterThanIndex:dbRow];
-    // }
-    // [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
 }
 
 #pragma mark - NSOutlineViewDelegate
@@ -330,7 +197,7 @@
 #pragma mark - NSOutlineViewDataSource
 
 - (BOOL)outlineView:(NSOutlineView *)view writeItems:(NSArray *)items toPasteboard:(NSPasteboard *)pboard {
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:@[[_nowPlayingDescription currentList],[self _selectedRows]]];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:@[[_nowPlayingDescription currentList],[self _selectedIndexes]]];
     [pboard declareTypes:@[PRIndexesPboardType] owner:self];
     [pboard setData:data forType:PRIndexesPboardType];
     return YES;
@@ -422,7 +289,7 @@
         [library zValueForItem:it attr:PRItemAttrTitle out:&title];
         NSImage *icon;
         NSImage *invertedIcon;
-        if ([_nowPlayingDescription currentIndex] == index+1) {
+        if ([_nowPlayingDescription currentIndex] == index) {
             icon = [NSImage imageNamed:@"PRSpeakerIcon"];
             invertedIcon = [NSImage imageNamed:@"PRLightSpeakerIcon"];
         } else if ([[_nowPlayingDescription invalidItems] containsObject:it]) {
@@ -433,10 +300,8 @@
             invertedIcon = [[NSImage alloc] init];
         }
         PRListItem *listItem = [_listItemsDescription listItemAtIndex:index];
-        NSArray *queue = nil;
-        [[[_core conn] queue] zQueueArray:&queue];
-        NSUInteger queueIndex = [queue indexOfObject:listItem];
-        NSNumber *badge = (queue && queueIndex != NSNotFound) ? @(queueIndex + 1) : @0;
+        NSUInteger queueIndex = [_queueArray indexOfObject:listItem];
+        NSNumber *badge = (_queueArray && queueIndex != NSNotFound) ? @(queueIndex + 1) : @0;
         return @{@"title":title, @"icon":icon, @"invertedIcon":invertedIcon, @"badge":badge, @"item":item, @"target":self};
     }
 }
@@ -460,10 +325,10 @@
     UniChar c = [[event characters] characterAtIndex:0];
     if (flags == 0) {
         if (c == 0x7F || c == 0xf728) {
-            [self removeSelected];
+            [self _removeSelectedAction:nil];
             didHandle = YES;
         } else if (c == 0xd) {
-            [self playSelected];
+            [self _playSelectedAction:nil];
             didHandle = YES;
         }
     } else if (flags == (NSNumericPadKeyMask | NSFunctionKeyMask)) {
@@ -484,7 +349,7 @@
     [[NSCursor arrowCursor] set];
     if (operation == 0 && !NSMouseInRect([_outlineView convertPointFromBase:[[_outlineView window] convertScreenToBase:_dropPoint]], [_outlineView bounds], YES)) {
         NSShowAnimationEffect(NSAnimationEffectDisappearingItemDefault, _dropPoint, NSZeroSize, nil, nil, nil);
-        [self removeSelected];
+        [self _removeSelectedAction:nil];
     }
 }
 
@@ -501,9 +366,9 @@
 
 - (void)menuNeedsUpdate:(NSMenu *)menu {
     if (menu == _contextMenu) {
-        [self _contextMenuNeedsUpdate];
+        [self _updateContextMenu];
     } else {
-        [self _playlistMenuNeedsUpdate];
+        [self _updatePlaylistMenu];
     }
 }
 
@@ -521,39 +386,126 @@
     [PRActionCenter performAction:action];
 }
 
+- (void)_clearPlaylistAction:(id)sender {
+    [PRActionCenter performAction:[[PRClearNowPlayingAction alloc] init]];
+}
+
+- (void)_playSelectedAction:(id)sender {
+    NSIndexSet *selected = [self _selectedIndexes];
+    if ([selected count] != 0) {
+        PRPlayItemAction *action = [[PRPlayItemAction alloc] init];
+        [action setIndex:[selected firstIndex]];
+        [PRActionCenter performAction:action];
+    }
+}
+
+- (void)_removeSelectedAction:(id)sender {
+    NSIndexSet *selected = [self _selectedIndexes];
+    if ([selected count] != 0) {
+        PRRemoveItemsFromListAction *action = [[PRRemoveItemsFromListAction alloc] init];
+        [action setIndexes:selected];
+        [action setList:[_nowPlayingDescription currentList]];
+        [PRActionCenter performAction:action];
+    }
+}
+
+- (void)_revealSelectedAction:(id)sender {
+    NSArray *items = [self _selectedItems];
+    if ([items count] != 0) {
+        PRRevealAction *action = [[PRRevealAction alloc] init];
+        [action setItems:items];
+        [PRActionCenter performAction:action];
+    }
+}
+
+- (void)_showSelectedInLibraryAction:(id)sender {
+    NSArray *items = [self _selectedItems];
+    if ([items count] != 0) {
+        PRHighlightItemsAction *action = [[PRHighlightItemsAction alloc] init];
+        [action setItems:items];
+        [PRActionCenter performAction:action];
+    }
+}
+
+- (void)_addSelectedToQueueAction:(id)sender {
+    PRAddToQueueAction *action = [[PRAddToQueueAction alloc] init];
+    [action setListItems:[self _selectedListItems]];
+    [PRActionCenter performAction:action];
+}
+
+- (void)_removeSelectedFromQueueAction:(id)sender {
+    PRRemoveFromQueueAction *action = [[PRRemoveFromQueueAction alloc] init];
+    [action setListItems:[self _selectedListItems]];
+    [PRActionCenter performAction:action];
+}
+
+- (void)_clearQueueAction:(id)sender {
+    PRClearQueueAction *action = [[PRClearQueueAction alloc] init];
+    [PRActionCenter performAction:action];
+}
+
+- (void)_saveAsNewPlaylist:(id)sender {
+    PRDuplicatePlaylistAction *action = [[PRDuplicatePlaylistAction alloc] init];
+    [action setList:[_nowPlayingDescription currentList]];
+    [PRActionCenter performAction:action];
+}
+
+- (void)saveAsPlaylist:(id)sender {
+    // NSInteger playlist = [[sender representedObject] intValue];
+    // NSString *title = [[_db playlists] titleForList:[NSNumber numberWithInt:playlist]];
+    // NSAlert *alert = [[NSAlert alloc] init];
+    // [alert addButtonWithTitle:@"Save"];
+    // [alert addButtonWithTitle:@"Cancel"];
+    // [alert setMessageText:[NSString stringWithFormat:@"Are you sure you want to save this as \"%@\"?", title]];
+    // [alert setInformativeText:@"Existing playlist contents will be removed."];
+    // [alert setAlertStyle:NSWarningAlertStyle];
+    
+    // [alert beginSheetModalForWindow:[[self view] window] modalDelegate:self didEndSelector:@selector(saveAsPlaylistHandler:code:context:) contextInfo:(__bridge_retained void *)@(playlist)];
+}
+
+- (void)saveAsPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context {
+    // PRList *list = (__bridge_transfer PRList *)context;
+    // if (code != NSAlertFirstButtonReturn) {
+    //     return;
+    // }
+    // [[_db playlists] clearList:list];
+    // [[_db playlists] copyItemsFromList:[_nowPlayingDescription currentList] toList:list];
+    // [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
+}
+
+- (void)addToPlaylist:(id)sender {
+    // PRList *list = [sender representedObject];
+    // NSIndexSet *dbRows = [self selectedDbRows];
+    // NSInteger dbRow = [dbRows firstIndex];
+    // while (dbRow != NSNotFound) {
+    //     [[_db playlists] appendItem:[[_db playlists] itemAtIndex:dbRow forList:[_nowPlayingDescription currentList]] toList:list];
+    //     dbRow = [dbRows indexGreaterThanIndex:dbRow];
+    // }
+    // [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
+}
+
 #pragma mark - Notifications
 
-- (void)playlistDidChange:(NSNotification *)notification {
-    // if ([[[notification userInfo] valueForKey:@"playlist"] isEqual:[_nowPlayingDescription currentList]]) {
-    //     [self _updateTableView];
-    //     [_outlineView collapseItem:nil];
-    //     if ([_nowPlayingDescription currentIndex] != 0) {
-    //         NSArray *parentItem = [self itemForItem:[NSIndexPath indexPathForAlbum:0]];
-    //         [_outlineView expandItem:parentItem];
-    //     }
-    // }
+- (void)_itemsDidChange:(NSNotification *)notification {
+    [self _reloadData:nil];
+}
+
+- (void)_playlistItemsDidChange:(NSNotification *)notification {
+    [self _reloadData:nil];
+}
+
+- (void)_playlistDidChange:(NSNotification *)notification {
+    [self _reloadData:nil];
 }
 
 - (void)_currentFileDidChange:(NSNotification *)notification {
-    _nowPlayingDescription = [[_core now] description];
-    
-    [_outlineView reloadVisibleItems];
-    // if ([_nowPlayingDescription currentIndex] != 0) {
-    //     id currentItem = [self itemForDbRow:[_nowPlayingDescription currentIndex]];
-    //     NSArray *parentItem = [self itemForItem:[NSIndexPath indexPathForAlbum:[currentItem album]]];
-    //     if (![_outlineView isItemExpanded:parentItem]) {
-    //         [_outlineView collapseItem:nil];
-    //     }
-    //     [_outlineView expandItem:parentItem];
-    //     [_outlineView scrollRowToVisiblePretty:[_outlineView rowForItem:currentItem]];
-    // }
+    [self _reloadData:nil];
 }
 
 - (void)_applicationWillTerminate:(NSNotification *)notification {
     NSMutableIndexSet *collapseState = [NSMutableIndexSet indexSet];
-    NSUInteger count = [self outlineView:_outlineView numberOfChildrenOfItem:nil];
-    for (NSUInteger i = 0; i < count; i++) {
-        if ([_outlineView isItemExpanded:[self itemForItem:[NSIndexPath indexPathForAlbum:i]]]) {
+    for (NSUInteger i = 0; i < [self outlineView:_outlineView numberOfChildrenOfItem:nil]; i++) {
+        if ([_outlineView isItemExpanded:[NSIndexPath indexPathForAlbum:i]]) {
             [collapseState addIndex:i];
         }
     }
@@ -562,7 +514,18 @@
 
 #pragma mark - Internal
 
-- (NSIndexSet *)_selectedRows {
+- (void)_reloadData:(PRChangeSet *)changeSet {
+    _nowPlayingDescription = [[_core now] description];
+    _listItemsDescription = [[PRNowPlayingListItemsDescription alloc] initWithList:[_nowPlayingDescription currentList] database:[_core db]];
+    
+    NSArray *queue = nil;
+    [[[_core conn] queue] zQueueArray:&queue];
+    _queueArray = queue;
+    
+    [_outlineView reloadData];
+}
+
+- (NSIndexSet *)_selectedIndexes {
     NSMutableIndexSet *selectedIndexes = [NSMutableIndexSet indexSet];
     [[_outlineView selectedRowIndexes] enumerateIndexesUsingBlock:^(NSUInteger i, BOOL *stop){
         NSIndexPath *item = [_outlineView itemAtRow:i];
@@ -577,14 +540,23 @@
     return selectedIndexes;
 }
 
-- (void)_updateTableView {
-    _nowPlayingDescription = [[_core now] description];
-    _listItemsDescription = [[PRNowPlayingListItemsDescription alloc] initWithList:[_nowPlayingDescription currentList] database:_db];
-    
-    [_outlineView reloadData];
+- (NSArray *)_selectedItems {
+    NSMutableArray *selectedItems = [NSMutableArray array];
+    [[self _selectedIndexes] enumerateIndexesUsingBlock:^(NSUInteger i, BOOL *stop){
+        [selectedItems addObject:[_listItemsDescription itemAtIndex:i]];
+    }];
+    return selectedItems;
 }
 
-- (void)_playlistMenuNeedsUpdate {
+- (NSArray *)_selectedListItems {
+    NSMutableArray *selectedListItems = [NSMutableArray array];
+    [[self _selectedIndexes] enumerateIndexesUsingBlock:^(NSUInteger i, BOOL *stop){
+        [selectedListItems addObject:[_listItemsDescription listItemAtIndex:i]];
+    }];
+    return selectedListItems;
+}
+
+- (void)_updatePlaylistMenu {
     // NSMenu *menu = _playlistMenu;
     // for (NSMenuItem *i in [menu itemArray]) {
     //     [menu removeItem:i];
@@ -597,7 +569,7 @@
     // [menuItem setEnabled:NO];
     // [menu addItem:menuItem];
     
-    // menuItem = [[NSMenuItem alloc] initWithTitle:@" New Playlist          " action:@selector(saveAsNewPlaylist:) keyEquivalent:@""];
+    // menuItem = [[NSMenuItem alloc] initWithTitle:@" New Playlist          " action:@selector(_saveAsNewPlaylist:) keyEquivalent:@""];
     // [menuItem setImage:[NSImage imageNamed:@"Add"]];
     // [menu addItem:menuItem];
     
@@ -624,7 +596,7 @@
     // }
 }
 
-- (void)_contextMenuNeedsUpdate {
+- (void)_updateContextMenu {
     // for (NSMenuItem *i in [_contextMenu itemArray]) {
     //     [_contextMenu removeItem:i];
     // }
@@ -638,7 +610,7 @@
     // [item setTitle:@"Play"];
     // [item setKeyEquivalent:[NSString stringWithCharacters:c length:1]];
     // [item setKeyEquivalentModifierMask:0];
-    // [item setActionBlock:^{[weakSelf playSelected];}];
+    // [item setActionBlock:^{[weakSelf _playSelectedAction:];}];
     // [_contextMenu addItem:item];
     
     // // Queue
@@ -660,17 +632,17 @@
     //     dbRow = [dbRows indexGreaterThanIndex:dbRow];
     // }
     // if (addToQueue) {
-    //     NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Add to Queue" action:@selector(addSelectedToQueue) keyEquivalent:@""];
+    //     NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Add to Queue" action:@selector(_addSelectedToQueueAction:) keyEquivalent:@""];
     //     [menuItem setTarget:self];
     //     [_contextMenu addItem:menuItem];
     // }
     // if (removeFromQueue) {
-    //     NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Remove From Queue" action:@selector(removeSelectedFromQueue) keyEquivalent:@""];
+    //     NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Remove From Queue" action:@selector(_removeSelectedFromQueueAction:) keyEquivalent:@""];
     //     [menuItem setTarget:self];
     //     [_contextMenu addItem:menuItem];
     // }
     // if ([queue count] != 0) {
-    //     NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Clear Queue" action:@selector(clearQueue) keyEquivalent:@""];
+    //     NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Clear Queue" action:@selector(_clearQueueAction:) keyEquivalent:@""];
     //     [menuItem setTarget:self];
     //     [_contextMenu addItem:menuItem];
     // }
@@ -703,16 +675,16 @@
     // [_contextMenu addItem:[NSMenuItem separatorItem]];
     
     // // Other
-    // NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Show in Library" action:@selector(showSelectedInLibrary) keyEquivalent:@""];
+    // NSMenuItem *menuItem = [[NSMenuItem alloc] initWithTitle:@"Show in Library" action:@selector(_showSelectedInLibraryAction:) keyEquivalent:@""];
     // [menuItem setTarget:self];
     // [_contextMenu addItem:menuItem];
-    // menuItem = [[NSMenuItem alloc] initWithTitle:@"Reveal in Finder" action:@selector(revealSelectedInFinder) keyEquivalent:@""];
+    // menuItem = [[NSMenuItem alloc] initWithTitle:@"Reveal in Finder" action:@selector(_revealSelectedAction:) keyEquivalent:@""];
     // [menuItem setTarget:self];
     // [_contextMenu addItem:menuItem];
     // [_contextMenu addItem:[NSMenuItem separatorItem]];
     
     // c[0] = NSDeleteCharacter;;
-    // item = [[NSMenuItem alloc] initWithTitle:@"Remove" action:@selector(removeSelected) keyEquivalent:[NSString stringWithCharacters:c length:1]];
+    // item = [[NSMenuItem alloc] initWithTitle:@"Remove" action:@selector(_removeSelectedAction:) keyEquivalent:[NSString stringWithCharacters:c length:1]];
     // [item setTarget:self];
     // [item setKeyEquivalentModifierMask:0];
     // [_contextMenu addItem:item];

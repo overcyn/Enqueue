@@ -77,7 +77,7 @@
     [description setInvalidItems:[self invalidItems]];
     [description setCurrentList:[self currentList]];
     [description setCurrentItem:[self currentItem]];
-    [description setCurrentIndex:[self currentIndex]];
+    [description setCurrentIndex:[self currentIndex]-1];
     [description setShuffle:[self shuffle]];
     [description setRepeat:[self repeat]];
     return description;

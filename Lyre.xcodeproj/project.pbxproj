@@ -395,7 +395,6 @@
 		6740584C135A4CA3000ED697 /* TexturedSliderSpeakerLoudInverted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = TexturedSliderSpeakerLoudInverted.png; path = Icons/TexturedSliderSpeakerLoudInverted.png; sourceTree = "<group>"; };
 		674415C0135AA86800A5B269 /* PRMainMenuController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRMainMenuController.h; sourceTree = "<group>"; };
 		674415C1135AA86800A5B269 /* PRMainMenuController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRMainMenuController.m; sourceTree = "<group>"; };
-		67484DB019A1512200F02744 /* PRNowPlayingViewController_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRNowPlayingViewController_Private.h; sourceTree = "<group>"; };
 		67484DB119A1BB7E00F02744 /* PRNowPlayingDescription_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRNowPlayingDescription_Private.h; sourceTree = "<group>"; };
 		67484DCC19AECEE300F02744 /* NSIndexPath+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSIndexPath+Extensions.h"; sourceTree = "<group>"; };
 		67484DCD19AECEE300F02744 /* NSIndexPath+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+Extensions.m"; sourceTree = "<group>"; };
@@ -1410,7 +1409,6 @@
 			children = (
 				67AFF8F7124FDEB6006E7535 /* PRNowPlayingViewController.h */,
 				67AFF8F8124FDEB6006E7535 /* PRNowPlayingViewController.m */,
-				67484DB019A1512200F02744 /* PRNowPlayingViewController_Private.h */,
 				6739CEFF125569ED00AB54A1 /* PRNowPlayingCell.h */,
 				6739CF00125569ED00AB54A1 /* PRNowPlayingCell.m */,
 				673C849013E148CA00C6DB4B /* PRNowPlayingHeaderCell.h */,

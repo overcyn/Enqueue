@@ -2,6 +2,8 @@
 
 @class PRCore;
 
+typedef void (^WLTask)(PRCore *core);
+
 @interface PRAction : NSOperation
 @property (nonatomic, weak) PRCore *core;
 @end
@@ -12,11 +14,6 @@
 @interface PRAddNowPlayingAction : PRAction
 @property (nonatomic, strong) NSArray *items;
 @property (nonatomic) NSInteger index;
-@end
-
-@interface PRBlockAction : PRAction
-+ (instancetype)blockActionWithBlock:(void (^)(PRCore *))block;
-@property (nonatomic, copy) void (^block)(PRCore *);
 @end
 
 @interface PRPlayNextAction : PRAction
@@ -73,4 +70,17 @@
 
 @interface PRDeleteItemsAction : PRAction
 @property (nonatomic, strong) NSArray *items;
+@end
+
+#pragma mark - Queue
+
+@interface PRClearQueueAction : PRAction
+@end
+
+@interface PRRemoveFromQueueAction : PRAction
+@property (nonatomic, strong) NSArray *listItems;
+@end
+
+@interface PRAddToQueueAction : PRAction
+@property (nonatomic, strong) NSArray *listItems;
 @end
