@@ -19,13 +19,21 @@
     return sDefaultCenter;
 }
 
-+ (void)performAction:(PRAction *)action {
++ (void)performAction:(PRAction2 *)action {
     [(PRActionCenter *)[self defaultCenter] performAction:action];
 }
 
-- (void)performAction:(PRAction *)action {
+- (void)performAction:(PRAction2 *)action {
     [action setCore:_core];
     [_opQueue addOperation:action];
+}
+
++ (void)performTask:(PRAction)action {
+    [(PRActionCenter *)[self defaultCenter] performTask:action];
+}
+
+- (void)performTask:(PRAction)action {
+    action(_core);
 }
 
 @end

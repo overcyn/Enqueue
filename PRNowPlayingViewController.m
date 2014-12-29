@@ -333,10 +333,10 @@
         }
     } else if (flags == (NSNumericPadKeyMask | NSFunctionKeyMask)) {
         if (c == 0xf703) {
-            [PRActionCenter performAction:[[PRPlayNextAction alloc] init]];
+            [PRActionCenter performTask:PRPlayNextTask()];
             didHandle = YES;
         } else if (c == 0xf702) {
-            [PRActionCenter performAction:[[PRPlayPreviousAction alloc] init]];
+            [PRActionCenter performTask:PRPlayPreviousTask()];
             didHandle = YES;
         }
     }
@@ -380,22 +380,17 @@
     }
     id item = [_outlineView itemAtRow:[_outlineView clickedRow]];
     NSInteger index = [_listItemsDescription indexForIndexPath:item];
-    
-    PRPlayItemAction *action = [[PRPlayItemAction alloc] init];
-    [action setIndex:index];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRPlayIndexTask(index)];
 }
 
 - (void)_clearPlaylistAction:(id)sender {
-    [PRActionCenter performAction:[[PRClearNowPlayingAction alloc] init]];
+    [PRActionCenter performTask:PRClearNowPlayingTask()];
 }
 
 - (void)_playSelectedAction:(id)sender {
     NSIndexSet *selected = [self _selectedIndexes];
     if ([selected count] != 0) {
-        PRPlayItemAction *action = [[PRPlayItemAction alloc] init];
-        [action setIndex:[selected firstIndex]];
-        [PRActionCenter performAction:action];
+        [PRActionCenter performTask:PRPlayIndexTask([selected firstIndex])];
     }
 }
 

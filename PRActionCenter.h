@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
-
-@class PRAction;
+#import "PRAction.h"
+@class PRAction2;
 @class PRCore;
 
 
@@ -8,6 +8,8 @@
 + (instancetype)defaultCenter;
 @property (nonatomic, weak) PRCore *core;
 
-+ (void)performAction:(PRAction *)action;
-- (void)performAction:(PRAction *)action;
++ (void)performAction:(PRAction2 *)action;
+- (void)performAction:(PRAction2 *)action;
+
++ (void)performTask:(PRAction)action;
 @end

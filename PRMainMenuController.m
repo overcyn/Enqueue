@@ -250,7 +250,7 @@
 }
 
 - (void)clearNowPlaying {
-    [PRActionCenter performAction:[[PRClearNowPlayingAction alloc] init]];
+    [PRActionCenter performTask:PRClearNowPlayingTask()];
 }
 
 - (void)viewAsList {
