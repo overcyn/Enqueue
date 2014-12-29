@@ -122,7 +122,6 @@
 		677AE06D14C79D4700159E6F /* PRTrialSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = 677AE06C14C79D4700159E6F /* PRTrialSheetController.m */; };
 		677CB95A13BC74B60090B4D0 /* PRRescanOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 677CB95913BC74B60090B4D0 /* PRRescanOperation.m */; };
 		67804A96124D4F24003268AD /* PRLibrary.m in Sources */ = {isa = PBXBuildFile; fileRef = 67804A95124D4F24003268AD /* PRLibrary.m */; };
-		67804ABF124D52C2003268AD /* PRLibraryViewSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 67804ABE124D52C2003268AD /* PRLibraryViewSource.m */; };
 		678252BC12926F8E00957CBC /* PRAlbumTableView2.m in Sources */ = {isa = PBXBuildFile; fileRef = 678252BB12926F8D00957CBC /* PRAlbumTableView2.m */; };
 		6782CF8112D5E1630003F1C9 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6782CF8012D5E1630003F1C9 /* CoreFoundation.framework */; };
 		6787C8E812F3059200D808AB /* PRTableHeaderCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6787C8E712F3059200D808AB /* PRTableHeaderCell.m */; };
@@ -462,8 +461,6 @@
 		677CB95913BC74B60090B4D0 /* PRRescanOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRRescanOperation.m; sourceTree = "<group>"; };
 		67804A94124D4F24003268AD /* PRLibrary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PRLibrary.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		67804A95124D4F24003268AD /* PRLibrary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PRLibrary.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		67804ABD124D52C2003268AD /* PRLibraryViewSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PRLibraryViewSource.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		67804ABE124D52C2003268AD /* PRLibraryViewSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PRLibraryViewSource.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		678252BA12926F8D00957CBC /* PRAlbumTableView2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRAlbumTableView2.h; sourceTree = "<group>"; };
 		678252BB12926F8D00957CBC /* PRAlbumTableView2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRAlbumTableView2.m; sourceTree = "<group>"; };
 		6782CF8012D5E1630003F1C9 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -1289,8 +1286,6 @@
 				672AE6B8127E5DC70034C641 /* PRHistory.m */,
 				6739CCAE1253107200AB54A1 /* PRPlaybackOrder.h */,
 				6739CCAF1253107200AB54A1 /* PRPlaybackOrder.m */,
-				67804ABD124D52C2003268AD /* PRLibraryViewSource.h */,
-				67804ABE124D52C2003268AD /* PRLibraryViewSource.m */,
 				6706FDF512BB897B00C9B075 /* PRAlbumArtController.h */,
 				6706FDF612BB897B00C9B075 /* PRAlbumArtController.m */,
 			);
@@ -1816,7 +1811,6 @@
 				6709D7BA12476E0400963B11 /* PRImportOperation.m in Sources */,
 				6709DA3E1248304A00963B11 /* PRDb.m in Sources */,
 				67804A96124D4F24003268AD /* PRLibrary.m in Sources */,
-				67804ABF124D52C2003268AD /* PRLibraryViewSource.m in Sources */,
 				675C77EA124D8B2A00D20D83 /* PRPlaylists.m in Sources */,
 				67DC1D7019975F270031BC3C /* PRListItemsDescription.m in Sources */,
 				67AFF8F9124FDEB6006E7535 /* PRNowPlayingViewController.m in Sources */,

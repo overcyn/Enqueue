@@ -1,6 +1,25 @@
 #import "NSNotificationCenter+Extensions.h"
 #import "PRPlaylists.h"
 
+@implementation PRChangeSet
+@end
+
+@implementation PRLibraryChange
+@end
+
+@implementation PRItemChange
+@end
+
+@implementation PRListsChange
+@end
+
+@implementation PRListChange
+@end
+
+@implementation PRListItemsChange
+@end
+
+
 
 NSString * const PRLibraryDidChangeNotification = @"PRLibraryDidChangeNotification";
 NSString * const PRTagsDidChangeNotification = @"PRTagsDidChangeNotification";
@@ -46,6 +65,14 @@ NSString * const PRDeviceDidChangeNotification = @"PRDeviceDidChangeNotification
 
 + (void)removeObserver:(id)observer {
     [[NSNotificationCenter defaultCenter] removeObserver:observer];
+}
+
+- (void)postBackendChanged:(PRChangeSet *)changeset {
+    [self postNotificationName:@"changeset" object:nil userInfo:@{@"changeset":changeset}];
+}
+
+- (void)observeBackendChanged:(id)obs sel:(SEL)sel {
+    [self addObserver:obs selector:sel name:@"changeset" object:nil];
 }
 
 // Db notifications

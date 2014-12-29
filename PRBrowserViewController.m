@@ -217,8 +217,8 @@
     [[_libraryListVC view] setNextKeyView:[self lastKeyView]];
     
     // Update
+    [[NSNotificationCenter defaultCenter] observeBackendChanged:self sel:@selector(_backendDidChange:)];
     [[NSNotificationCenter defaultCenter] observeLibraryChanged:self sel:@selector(libraryDidChange:)];
-    [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(playlistDidChange:)];
     [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(tagsDidChange:)];
     [[NSNotificationCenter defaultCenter] observeUseAlbumArtistChanged:self sel:@selector(libraryDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistFilesChanged:)];
@@ -265,6 +265,17 @@
 
 #pragma mark - Notifications
 
+- (void)_backendDidChange:(NSNotification *)note {
+    PRChangeSet *changeSet = [note userInfo][@"changeset"];
+    for (NSObject *i in [changeSet changes]) {
+        if ([i isKindOfClass:[PRListChange class]]) {
+            if ([[(PRListChange *)i list] isEqual:_currentList]) {
+                [self _reloadData];
+            }
+        }
+    }
+}
+
 - (void)playingFileChanged:(NSNotification *)note {
     // NSIndexSet *rows = [NSIndexSet indexSetWithIndexesInRange:[_detailTableView rowsInRect:[_detailTableView visibleRect]]];
     // NSIndexSet *columns = [NSIndexSet indexSetWithIndex:[_detailTableView columnWithIdentifier:PRItemAttrTrackNumber]];
@@ -278,12 +289,6 @@
 
 - (void)tagsDidChange:(NSNotification *)note {
     [self _reloadData];
-}
-
-- (void)playlistDidChange:(NSNotification *)note {
-    if ([[[note userInfo] valueForKey:@"playlist"] isEqual:_currentList]) {
-        [self _reloadData];
-    }
 }
 
 - (void)playlistFilesChanged:(NSNotification *)note {

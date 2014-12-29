@@ -1,6 +1,33 @@
 #import <Foundation/Foundation.h>
 #import "PRPlaylists.h"
 
+@interface PRChangeSet : NSObject
+@property (nonatomic, strong) NSArray *changes;
+@end
+
+@interface PRLibraryChange : NSObject
+@end
+
+@interface PRItemChange : NSObject
+@property (nonatomic, strong) NSArray *items;
+@end
+
+@interface PRListsChange : NSObject
+@end
+
+@interface PRListChange : NSObject
+@property (nonatomic, strong) PRList *list;
+@end
+
+@interface PRListItemsChange : NSObject
+@property (nonatomic, strong) PRList *list;
+@end
+
+
+
+
+
+
 
 extern NSString * const PRCurrentListDidChangeNotification;
 extern NSString * const PRLibraryViewSelectionDidChangeNotification;
@@ -13,6 +40,10 @@ extern NSString * const PRDeviceDidChangeNotification;
 + (void)post:(NSString *)name object:(id)object info:(NSDictionary *)info;
 + (void)addObserver:(id)observer selector:(SEL)selector name:(NSString *)name object:(id)object;
 + (void)removeObserver:(id)observer;
+
+/* Changeset */
+- (void)postBackendChanged:(PRChangeSet *)changeset;
+- (void)observeBackendChanged:(id)obs sel:(SEL)sel;
 
 /* Db */
 - (void)postLibraryChanged;

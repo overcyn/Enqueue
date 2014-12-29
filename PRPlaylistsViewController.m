@@ -281,15 +281,15 @@
 }
 
 - (void)tableView:(NSTableView *)aTableView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    if ([object isKindOfClass:[NSString class]]) {
-        int playlist = [self playlistForRow:row];
-        if (playlist == -1) {
-            return;
-        }
-        PRList *list = [PRList numberWithInt:playlist];
-        [[db playlists] setTitle:object forList:list];
-        [[NSNotificationCenter defaultCenter] postListDidChange:list];
-    }
+    // if ([object isKindOfClass:[NSString class]]) {
+    //     int playlist = [self playlistForRow:row];
+    //     if (playlist == -1) {
+    //         return;
+    //     }
+    //     PRList *list = [PRList numberWithInt:playlist];
+    //     [[db playlists] setTitle:object forList:list];
+    //     [[NSNotificationCenter defaultCenter] postListDidChange:list];
+    // }
 }
 
 #pragma mark - NSTableView Delegate

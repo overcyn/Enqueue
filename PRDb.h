@@ -31,7 +31,6 @@ extern NSString * const PRColData;
 @property (readonly) PRHistory *history;
 @property (readonly) PRLibrary *library;
 @property (readonly) PRPlaylists *playlists;
-@property (readonly) PRLibraryViewSource *libraryViewSource;
 @property (readonly) PRAlbumArtController *albumArtController;
 @property (readonly) PRPlaybackOrder *playbackOrder;
 @property (readonly) PRQueue *queue;

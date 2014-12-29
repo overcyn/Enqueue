@@ -102,7 +102,7 @@
 }
 
 - (void)setBrowseViews:(NSArray *)value {
-    if (_browseViews != value) {
+    if (![_browseViews isEqual:value]) {
         for (NSView *i in _browseViews) {
             [i removeFromSuperview];
         }

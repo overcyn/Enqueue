@@ -4,7 +4,6 @@
 #import "PRDefaults.h"
 #import "PRHistory.h"
 #import "PRLibrary.h"
-#import "PRLibraryViewSource.h"
 #import "PRPlaybackOrder.h"
 #import "PRPlaylists.h"
 #import "PRQueue.h"
@@ -31,7 +30,6 @@ NSString * const PRColData = @"PRColData";
     PRLibrary *library;
     PRPlaylists *playlists;
     PRQueue *queue;
-    PRLibraryViewSource *libraryViewSource;
     PRPlaybackOrder *playbackOrder;
     PRAlbumArtController *albumArtController;
     
@@ -50,7 +48,6 @@ NSString * const PRColData = @"PRColData";
     library = [[PRLibrary alloc] initWithDb:self];
     playlists = [[PRPlaylists alloc] initWithDb:self];
     queue = [[PRQueue alloc] initWithDb:self];
-    libraryViewSource = [[PRLibraryViewSource alloc] initWithDb:self];
     playbackOrder = [[PRPlaybackOrder alloc] initWithDb:self];
     albumArtController = [[PRAlbumArtController alloc] initWithDb:self];
     _cachedStatements = [[NSMutableDictionary alloc] init];
@@ -101,8 +98,7 @@ NSString * const PRColData = @"PRColData";
         [history initialize] &&
         [library initialize] &&
         [playlists initialize] &&
-        [queue initialize] &&
-        [libraryViewSource initialize]);
+        [queue initialize]);
 }
 
 - (BOOL)update {
@@ -206,7 +202,6 @@ NSString * const PRColData = @"PRColData";
     [library create];
     [playlists create];
     [queue create];
-    [libraryViewSource create];
     [playbackOrder create];
 }
 
@@ -271,7 +266,7 @@ NSString * const PRColData = @"PRColData";
 
 #pragma mark - Accessors
 
-@synthesize sqlDb, history, library, playlists, queue, libraryViewSource, albumArtController, playbackOrder;
+@synthesize sqlDb, history, library, playlists, queue, albumArtController, playbackOrder;
 
 - (long)lastInsertRowid {
     return sqlite3_last_insert_rowid(sqlDb);

@@ -257,7 +257,12 @@
     dispatch_sync(dispatch_get_main_queue(), ^{
         PRPlaylists *playlists = [[[self core] db] playlists]; 
         [playlists zSetListDescription:[self listDescription] forList:[self list]];
-        [[NSNotificationCenter defaultCenter] postListDidChange:[self list]];
+        
+        PRListChange *listChange = [[PRListChange alloc] init];
+        [listChange setList:[self list]];
+        PRChangeSet *changeSet = [[PRChangeSet alloc] init];
+        [changeSet setChanges:@[listChange]];
+        [[NSNotificationCenter defaultCenter] postBackendChanged:changeSet];
     });
 }
 
