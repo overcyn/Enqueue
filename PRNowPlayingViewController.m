@@ -228,19 +228,12 @@
     NSData *filesData = [pboard dataForType:PRFilePboardType];
     NSData *indexesData = [pboard dataForType:PRIndexesPboardType];
     if (filesData) {
-        PRAddItemsToListAction *action = [[PRAddItemsToListAction alloc] init];
-        [action setItems:[NSKeyedUnarchiver unarchiveObjectWithData:filesData]];
-        [action setIndex:dropIndex];
-        [action setList:[_nowPlayingDescription currentList]];
-        [PRActionCenter performAction:action];
+        NSArray *items = [NSKeyedUnarchiver unarchiveObjectWithData:filesData];
+        [PRActionCenter performTask:PRAddItemsToListTask(items, dropIndex, [_nowPlayingDescription currentList])];
     } else if (indexesData) {
         NSArray *array = [NSKeyedUnarchiver unarchiveObjectWithData:indexesData];
         if ([array[0] isEqual:[_nowPlayingDescription currentList]]) {
-            PRMoveIndexesInListAction *action = [[PRMoveIndexesInListAction alloc] init];
-            [action setIndexes:array[1]];
-            [action setIndex:dropIndex];
-            [action setList:[_nowPlayingDescription currentList]];
-            [PRActionCenter performAction:action];
+            [PRActionCenter performTask:PRMoveIndexesInListTask(array[1], dropIndex, [_nowPlayingDescription currentList])];
         }
     }
     return YES;
@@ -397,52 +390,44 @@
 - (void)_removeSelectedAction:(id)sender {
     NSIndexSet *selected = [self _selectedIndexes];
     if ([selected count] != 0) {
-        PRRemoveItemsFromListAction *action = [[PRRemoveItemsFromListAction alloc] init];
-        [action setIndexes:selected];
-        [action setList:[_nowPlayingDescription currentList]];
-        [PRActionCenter performAction:action];
+        [PRActionCenter performTask:PRRemoveItemsFromListTask(selected, [_nowPlayingDescription currentList])];
     }
 }
 
 - (void)_revealSelectedAction:(id)sender {
     NSArray *items = [self _selectedItems];
     if ([items count] != 0) {
-        PRRevealAction *action = [[PRRevealAction alloc] init];
-        [action setItems:items];
-        [PRActionCenter performAction:action];
+        [PRActionCenter performTask:PRRevealTask(items)];
     }
 }
 
 - (void)_showSelectedInLibraryAction:(id)sender {
     NSArray *items = [self _selectedItems];
     if ([items count] != 0) {
-        PRHighlightItemsAction *action = [[PRHighlightItemsAction alloc] init];
-        [action setItems:items];
-        [PRActionCenter performAction:action];
+        [PRActionCenter performTask:PRHighightItemsTask(items)];
     }
 }
 
 - (void)_addSelectedToQueueAction:(id)sender {
-    PRAddToQueueAction *action = [[PRAddToQueueAction alloc] init];
-    [action setListItems:[self _selectedListItems]];
-    [PRActionCenter performAction:action];
+    NSArray *items = [self _selectedItems];
+    if ([items count] != 0) {
+        [PRActionCenter performTask:PRAddToQueueTask(items)];
+    }
 }
 
 - (void)_removeSelectedFromQueueAction:(id)sender {
-    PRRemoveFromQueueAction *action = [[PRRemoveFromQueueAction alloc] init];
-    [action setListItems:[self _selectedListItems]];
-    [PRActionCenter performAction:action];
+    NSArray *items = [self _selectedItems];
+    if ([items count] != 0) {
+        [PRActionCenter performTask:PRRemoveFromQueueTask(items)];
+    }
 }
 
 - (void)_clearQueueAction:(id)sender {
-    PRClearQueueAction *action = [[PRClearQueueAction alloc] init];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRClearQueueTask()];
 }
 
 - (void)_saveAsNewPlaylist:(id)sender {
-    PRDuplicatePlaylistAction *action = [[PRDuplicatePlaylistAction alloc] init];
-    [action setList:[_nowPlayingDescription currentList]];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRDuplicateListTask([_nowPlayingDescription currentList])];
 }
 
 - (void)saveAsPlaylist:(id)sender {

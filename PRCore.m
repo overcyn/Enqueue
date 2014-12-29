@@ -14,7 +14,7 @@
 #import "PRMainWindowController.h"
 #import "PRMediaKeyController.h"
 #import "PRNowPlayingController.h"
-#import "PRTaskManager.h"
+#import "PRProgressManager.h"
 #import "PRTrialSheetController.h"
 #import "PRVacuumOperation.h"
 #import "PRWelcomeSheetController.h"
@@ -33,7 +33,7 @@
     PRMainWindowController *_win;
     NSOperationQueue *_opQueue;
     PRFolderMonitor *_folderMonitor;
-    PRTaskManager *_taskManager;
+    PRProgressManager *_taskManager;
     PRGrowl *_growl;
     PRLastfm *_lastfm;
     PRMediaKeyController *_keys;
@@ -64,7 +64,7 @@
     _opQueue = [[NSOperationQueue alloc] init];
     [_opQueue setMaxConcurrentOperationCount:1];
     [_opQueue setSuspended:YES];
-    _taskManager = [[PRTaskManager alloc] init];
+    _taskManager = [[PRProgressManager alloc] init];
     _db = [[PRDb alloc] initWithCore:self];
     _conn = [[PRConnection alloc] initWithPath:[[PRDefaults sharedDefaults] libraryPath] type:PRConnectionTypeReadOnly];
     

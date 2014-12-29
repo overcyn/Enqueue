@@ -248,11 +248,7 @@
         [browserSelections addObject:browserSelection];
     }
     [_listDescription setBrowserSelections:browserSelections];
-    
-    PRSetListDescriptionAction *action = [[PRSetListDescriptionAction alloc] init];
-    [action setList:_currentList];
-    [action setListDescription:_listDescription];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRSetListDescriptionTask(_listDescription, _currentList)];
 }
 
 - (NSArray *)browserListViewControllerLibraryItems:(PRBrowserListViewController *)browserVC {
@@ -313,10 +309,7 @@
     }
     [_listDescription setBrowserSelections:@[@[], @[], @[]]];
     
-    PRSetListDescriptionAction *action = [[PRSetListDescriptionAction alloc] init];
-    [action setListDescription:_listDescription];
-    [action setList:_currentList];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRSetListDescriptionTask(_listDescription, _currentList)];
 }
 
 - (void)_browserAttributeAction:(NSMenuItem *)item {
@@ -355,11 +348,7 @@
         return;
     }
     [_listDescription setBrowserSelections:@[@[], @[], @[]]];
-    
-    PRSetListDescriptionAction *action = [[PRSetListDescriptionAction alloc] init];
-    [action setListDescription:_listDescription];
-    [action setList:_currentList];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRSetListDescriptionTask(_listDescription, _currentList)];
 }
 
 #pragma mark - Internal
@@ -417,11 +406,7 @@
     } else if (browserPosition == PRBrowserPositionHorizontal) {
         [_listDescription setHorizontalBrowserHeight:width];
     }
-    
-    PRSetListDescriptionAction *action = [[PRSetListDescriptionAction alloc] init];
-    [action setListDescription:_listDescription];
-    [action setList:_currentList];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRSetListDescriptionTask(_listDescription, _currentList)];
 }
 
 @end

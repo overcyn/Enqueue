@@ -187,8 +187,8 @@
 		67C268801357E7C1008F55C0 /* FolderMonitorIcon.png in Resources */ = {isa = PBXBuildFile; fileRef = 67C2687F1357E7C1008F55C0 /* FolderMonitorIcon.png */; };
 		67C268821357FC82008F55C0 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 67C268811357FC82008F55C0 /* Credits.rtf */; };
 		67C37B551373FAEF00004859 /* NSScrollView+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C37B541373FAEF00004859 /* NSScrollView+Extensions.m */; };
-		67C4ACB51329B61C00796610 /* PRTaskManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C4ACB41329B61C00796610 /* PRTaskManager.m */; };
-		67C4ACBB1329CCD300796610 /* PRTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C4ACBA1329CCD300796610 /* PRTask.m */; };
+		67C4ACB51329B61C00796610 /* PRProgressManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C4ACB41329B61C00796610 /* PRProgressManager.m */; };
+		67C4ACBB1329CCD300796610 /* PROperationProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C4ACBA1329CCD300796610 /* PROperationProgress.m */; };
 		67C58B561309F77B00E12F63 /* PRTimeFormatter2.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C58B551309F77B00E12F63 /* PRTimeFormatter2.m */; };
 		67C83B681A4B592C00D55592 /* PRBrowserListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67C83B671A4B592C00D55592 /* PRBrowserListViewController.m */; };
 		67CFB4491423FDB40045108D /* NSOperationQueue+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67CFB4481423FDB40045108D /* NSOperationQueue+Extensions.m */; };
@@ -556,10 +556,10 @@
 		67C268811357FC82008F55C0 /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
 		67C37B531373FAEF00004859 /* NSScrollView+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSScrollView+Extensions.h"; sourceTree = "<group>"; };
 		67C37B541373FAEF00004859 /* NSScrollView+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSScrollView+Extensions.m"; sourceTree = "<group>"; };
-		67C4ACB31329B61C00796610 /* PRTaskManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRTaskManager.h; sourceTree = "<group>"; };
-		67C4ACB41329B61C00796610 /* PRTaskManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRTaskManager.m; sourceTree = "<group>"; };
-		67C4ACB91329CCD300796610 /* PRTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRTask.h; sourceTree = "<group>"; };
-		67C4ACBA1329CCD300796610 /* PRTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRTask.m; sourceTree = "<group>"; };
+		67C4ACB31329B61C00796610 /* PRProgressManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRProgressManager.h; sourceTree = "<group>"; };
+		67C4ACB41329B61C00796610 /* PRProgressManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRProgressManager.m; sourceTree = "<group>"; };
+		67C4ACB91329CCD300796610 /* PROperationProgress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PROperationProgress.h; sourceTree = "<group>"; };
+		67C4ACBA1329CCD300796610 /* PROperationProgress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PROperationProgress.m; sourceTree = "<group>"; };
 		67C58B541309F77B00E12F63 /* PRTimeFormatter2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRTimeFormatter2.h; sourceTree = "<group>"; };
 		67C58B551309F77B00E12F63 /* PRTimeFormatter2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRTimeFormatter2.m; sourceTree = "<group>"; };
 		67C83B661A4B592C00D55592 /* PRBrowserListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBrowserListViewController.h; sourceTree = "<group>"; };
@@ -1484,10 +1484,10 @@
 		67C4ACB21329B5AA00796610 /* Task Manager */ = {
 			isa = PBXGroup;
 			children = (
-				67C4ACB31329B61C00796610 /* PRTaskManager.h */,
-				67C4ACB41329B61C00796610 /* PRTaskManager.m */,
-				67C4ACB91329CCD300796610 /* PRTask.h */,
-				67C4ACBA1329CCD300796610 /* PRTask.m */,
+				67C4ACB31329B61C00796610 /* PRProgressManager.h */,
+				67C4ACB41329B61C00796610 /* PRProgressManager.m */,
+				67C4ACB91329CCD300796610 /* PROperationProgress.h */,
+				67C4ACBA1329CCD300796610 /* PROperationProgress.m */,
 			);
 			name = "Task Manager";
 			sourceTree = "<group>";
@@ -1851,8 +1851,8 @@
 				671334CC13206A7D00764174 /* PRApplication.m in Sources */,
 				67133A641325EF9D00764174 /* PRGradientView.m in Sources */,
 				67133E211327429700764174 /* PRFolderMonitor.m in Sources */,
-				67C4ACB51329B61C00796610 /* PRTaskManager.m in Sources */,
-				67C4ACBB1329CCD300796610 /* PRTask.m in Sources */,
+				67C4ACB51329B61C00796610 /* PRProgressManager.m in Sources */,
+				67C4ACBB1329CCD300796610 /* PROperationProgress.m in Sources */,
 				67D732A6132FBB4700AB2D14 /* PRScrollView.m in Sources */,
 				67691F7A1338B80300D27C01 /* BWTexturedSlider.m in Sources */,
 				670567F719BACDB0008CD150 /* PRListDescription.m in Sources */,

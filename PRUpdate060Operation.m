@@ -1,7 +1,7 @@
 #import "PRUpdate060Operation.h"
-#import "PRTask.h"
+#import "PROperationProgress.h"
 #import "PRCore.h"
-#import "PRTaskManager.h"
+#import "PRProgressManager.h"
 #import "PRDb.h"
 #import "PRTagger.h"
 
@@ -25,7 +25,7 @@
 - (void)main {
     NSLog(@"begin update060");
     @autoreleasepool {
-        PRTask *task = [PRTask task];
+        PROperationProgress *task = [PROperationProgress task];
         [task setTitle:@"Updating Library..."];
         [[_core taskManager] addTask:task];
         

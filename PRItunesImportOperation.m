@@ -3,8 +3,8 @@
 #import "PRLibrary.h"
 #import "PRPlaylists.h"
 #import "PRAlbumArtController.h"
-#import "PRTaskManager.h"
-#import "PRTask.h"
+#import "PRProgressManager.h"
+#import "PROperationProgress.h"
 #import "PRCore.h"
 #import "NSEnumerator+Extensions.h"
 #import "NSFileManager+Extensions.h"
@@ -40,7 +40,7 @@
 - (void)main {
     NSLog(@"begin itunesimport");
     @autoreleasepool {
-        PRTask *task = [PRTask task];
+        PROperationProgress *task = [PROperationProgress task];
         [task setTitle:@"Importing iTunes..."];
         [[_core taskManager] addTask:task];
         

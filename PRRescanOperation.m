@@ -2,8 +2,8 @@
 #import "PRCore.h"
 #import "PRDb.h"
 #import "PRLibrary.h"
-#import "PRTask.h"
-#import "PRTaskManager.h"
+#import "PROperationProgress.h"
+#import "PRProgressManager.h"
 #import "NSIndexSet+Extensions.h"
 #import "NSEnumerator+Extensions.h"
 #import "NSFileManager+Extensions.h"
@@ -44,7 +44,7 @@
 - (void)main {
     NSLog(@"begin folderrescan");
     @autoreleasepool {
-        PRTask *task = [PRTask task];
+        PROperationProgress *task = [PROperationProgress task];
         [task setTitle:@"Rescanning Folders..."];
         [[_core taskManager] addTask:task];
         

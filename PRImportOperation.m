@@ -3,8 +3,8 @@
 #import "PRPlaylists.h"
 #import "PRDb.h"
 #import "PRCore.h"
-#import "PRTask.h"
-#import "PRTaskManager.h"
+#import "PROperationProgress.h"
+#import "PRProgressManager.h"
 #import "PRNowPlayingController.h"
 #import "NSIndexSet+Extensions.h"
 #import "PRDirectoryEnumerator.h"
@@ -19,7 +19,7 @@
 - (void)main {
     NSLog(@"begin import");
     @autoreleasepool {
-        PRTask *task = [PRTask task];
+        PROperationProgress *task = [PROperationProgress task];
         [task setTitle:@"Adding Files..."];
         [[_core taskManager] addTask:task];
         

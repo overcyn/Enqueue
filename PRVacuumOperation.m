@@ -1,8 +1,8 @@
 #import "PRVacuumOperation.h"
 #import "PRCore.h"
 #import "PRDb.h"
-#import "PRTask.h"
-#import "PRTaskManager.h"
+#import "PROperationProgress.h"
+#import "PRProgressManager.h"
 
 @implementation PRVacuumOperation
 
@@ -15,7 +15,7 @@
 - (void)main {
     NSLog(@"begin vacuum");
     @autoreleasepool {
-        _task = [PRTask task];
+        _task = [PROperationProgress task];
         [_task setTitle:@"Analyzing Library..."];
         [[_core taskManager] addTask:_task];
         

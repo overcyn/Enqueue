@@ -1,7 +1,7 @@
 #import "PRFullRescanOperation.h"
-#import "PRTask.h"
+#import "PROperationProgress.h"
 #import "PRCore.h"
-#import "PRTaskManager.h"
+#import "PRProgressManager.h"
 #import "PRDb.h"
 #import "PRAlbumArtController.h"
 #import "PRTagger.h"
@@ -26,7 +26,7 @@
 - (void)main {
     NSLog(@"begin fullrescan");
     @autoreleasepool {
-        PRTask *task = [PRTask task];
+        PROperationProgress *task = [PROperationProgress task];
         [task setTitle:@"Rescanning Library..."];
         [[_core taskManager] addTask:task];
         

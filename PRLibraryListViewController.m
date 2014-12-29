@@ -554,11 +554,7 @@
         [listDescription setListViewSortAttr:columnAttr];
         [listDescription setListViewAscending:YES];
     }
-    
-    PRSetListDescriptionAction *action = [[PRSetListDescriptionAction alloc] init];
-    [action setList:[_libraryDescription list]];
-    [action setListDescription:[_libraryDescription listDescription]];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRSetListDescriptionTask([_libraryDescription listDescription], [_libraryDescription list])];
 }
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification {
@@ -620,39 +616,26 @@
 - (void)_doubleAction:(id)sender {
     NSIndexSet *indexes = [_tableView selectedRowIndexes];
     if ([indexes count] > 1) {
-        PRPlayItemsAction *action = [[PRPlayItemsAction alloc] init];
-        [action setItems:[self selectedItems]];
-        [PRActionCenter performAction:action];
+        [PRActionCenter performTask:PRPlayItemsTask([self selectedItems], 0)];
     } else if ([indexes count] == 1){
         NSMutableArray *items = [NSMutableArray array];
         for (NSInteger i = 0; i < [_libraryDescription count]; i++) {
             [items addObject:[_libraryDescription itemForRow:i]];
         }
-        PRPlayItemsAction *action = [[PRPlayItemsAction alloc] init];
-        [action setIndex:[_tableView clickedRow]];
-        [action setItems:items];
-        [PRActionCenter performAction:action];
+        [PRActionCenter performTask:PRPlayItemsTask(items, [_tableView clickedRow])];
     }
 }
 
 - (void)_playAction:(id)sender {
-    PRPlayItemsAction *action = [[PRPlayItemsAction alloc] init];
-    [action setItems:[self selectedItems]];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRPlayItemsTask([self selectedItems], 0)];
 }
 
 - (void)_appendNextAction:(id)sender {
-    PRAddItemsToListAction *action = [[PRAddItemsToListAction alloc] init];
-    [action setItems:[self selectedItems]];
-    [action setIndex:-1];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRAddItemsToListTask([self selectedItems], -1, nil)];
 }
 
 - (void)_appendAction:(id)sender {
-    PRAddItemsToListAction *action = [[PRAddItemsToListAction alloc] init];
-    [action setItems:[self selectedItems]];
-    [action setIndex:-2];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRAddItemsToListTask([self selectedItems], -2, nil)];
 }
 
 - (void)_toggleColumnAction:(NSMenuItem *)sender {
@@ -662,24 +645,16 @@
 }
 
 - (void)_deleteAction:(id)sender {
-    PRDeleteItemsAction *action = [[PRDeleteItemsAction alloc] init];
-    [action setItems:[self selectedItems]];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRDeleteItemsTask([self selectedItems])];
     // KD: Deleting from a static list
 }
 
 - (void)_appendToListAction:(NSMenuItem *)sender {
-    PRAddItemsToListAction *action = [[PRAddItemsToListAction alloc] init];
-    [action setItems:[self selectedItems]];
-    [action setIndex:-1];
-    [action setList:[sender representedObject]];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRAddItemsToListTask([self selectedItems], -1, [sender representedObject])];
 }
 
 - (void)_revealAction:(id)sender {
-    PRRevealAction *action = [[PRRevealAction alloc] init];
-    [action setItems:[self selectedItems]];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRRevealTask([self selectedItems])];
 }
 
 #pragma mark - Internal

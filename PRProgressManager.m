@@ -1,13 +1,13 @@
-#import "PRTaskManager.h"
-#import "PRTask.h"
+#import "PRProgressManager.h"
+#import "PROperationProgress.h"
 
 
-@interface PRTaskManager ()
+@interface PRProgressManager ()
 - (void)updateTasks;
 @end
 
 
-@implementation PRTaskManager
+@implementation PRProgressManager
 
 @synthesize tasks = _tasks;
 
@@ -19,7 +19,7 @@
 }
 
 
-- (void)addTask:(PRTask *)task {
+- (void)addTask:(PROperationProgress *)task {
     if (![_tasks containsObject:task]) {
         [task addObserver:self forKeyPath:@"title" options:0 context:nil];
         [task addObserver:self forKeyPath:@"percent" options:0 context:nil];
@@ -28,7 +28,7 @@
     }
 }
 
-- (void)removeTask:(PRTask *)task {
+- (void)removeTask:(PROperationProgress *)task {
     if ([_tasks containsObject:task]) {
         [task removeObserver:self forKeyPath:@"title"];
         [task removeObserver:self forKeyPath:@"percent"];
@@ -49,7 +49,7 @@
 }
 
 - (void)cancel {
-    PRTask *task = [_tasks objectAtIndex:0];
+    PROperationProgress *task = [_tasks objectAtIndex:0];
     [task setShouldCancel:YES];
 }
 

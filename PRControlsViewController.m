@@ -16,8 +16,8 @@
 #import "PRBrowserViewController.h"
 #import "PRTimeFormatter.h"
 #import "PRDefaults.h"
-#import "PRTaskManager.h"
-#import "PRTask.h"
+#import "PRProgressManager.h"
+#import "PROperationProgress.h"
 #import "NSParagraphStyle+Extensions.h"
 #import "NSAttributedString+Extensions.h"
 
@@ -506,7 +506,7 @@
     if (_progressHidden) {
         return;
     }
-    PRTask *task = [[[core taskManager] tasks] objectAtIndex:0];
+    PROperationProgress *task = [[[core taskManager] tasks] objectAtIndex:0];
 
     NSDictionary *attributes = [NSAttributedString defaultUIAttributes];
     NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:[task title] attributes:attributes];

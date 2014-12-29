@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 
 
-@interface PRTask : NSObject {
+@interface PROperationProgress : NSObject {
     NSString *_title;
     int _percent;
     BOOL _shouldCancel;
@@ -9,7 +9,7 @@
 }
 /* Initialization */
 - (id)init;
-+ (PRTask *)task;
++ (PROperationProgress *)task;
 
 /* Accessors */
 @property (readwrite, copy) NSString *title;

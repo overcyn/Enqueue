@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-@class PRCore, PRTask;
+@class PRCore, PROperationProgress;
 
 
 @interface PRFullRescanOperation : NSOperation {

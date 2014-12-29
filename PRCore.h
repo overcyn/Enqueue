@@ -4,7 +4,7 @@
 @class PRNowPlayingController; 
 @class PRMainWindowController; 
 @class PRFolderMonitor; 
-@class PRTaskManager; 
+@class PRProgressManager; 
 @class PRGrowl; 
 @class PRLastfm; 
 @class PRMediaKeyController; 
@@ -20,7 +20,7 @@
 @property (readonly) PRNowPlayingController *now;
 @property (readonly) NSOperationQueue *opQueue;
 @property (readonly) PRFolderMonitor *folderMonitor;
-@property (readonly) PRTaskManager *taskManager;
+@property (readonly) PRProgressManager *taskManager;
 @property (weak, readonly) NSMenu *mainMenu;
 @property (readonly) PRLastfm *lastfm;
 @property (readonly) PRMediaKeyController *keys;

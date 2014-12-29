@@ -151,30 +151,20 @@
 
 - (void)_doubleAction:(id)sender {
     if ([_tableView clickedRow] != -1) {
-        PRPlayItemsAction *action = [[PRPlayItemsAction alloc] init];
-        [action setItems:[_delegate browserListViewControllerLibraryItems:self]];
-        [PRActionCenter performAction:action];
+        [self _playAction:sender];
     }
 }
 
 - (void)_playAction:(id)sender {
-    PRPlayItemsAction *action = [[PRPlayItemsAction alloc] init];
-    [action setItems:[_delegate browserListViewControllerLibraryItems:self]];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRPlayItemsTask([_delegate browserListViewControllerLibraryItems:self], 0)];
 }
 
 - (void)_appendAction:(id)sender {
-    PRAddItemsToListAction *action = [[PRAddItemsToListAction alloc] init];
-    [action setItems:[_delegate browserListViewControllerLibraryItems:self]];
-    [action setIndex:-1];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRAddItemsToListTask([_delegate browserListViewControllerLibraryItems:self], -1, nil)];
 }
 
 - (void)_appendNextAction:(id)sender {
-    PRAddItemsToListAction *action = [[PRAddItemsToListAction alloc] init];
-    [action setItems:[_delegate browserListViewControllerLibraryItems:self]];
-    [action setIndex:-2];
-    [PRActionCenter performAction:action];
+    [PRActionCenter performTask:PRAddItemsToListTask([_delegate browserListViewControllerLibraryItems:self], -2, nil)];
 }
 
 @end

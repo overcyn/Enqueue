@@ -1,7 +1,7 @@
-#import "PRTask.h"
+#import "PROperationProgress.h"
 
 
-@implementation PRTask
+@implementation PROperationProgress
 
 #pragma mark - Initialization
 
@@ -12,8 +12,8 @@
     return self;
 }
 
-+ (PRTask *)task {
-    return [[PRTask alloc] init];
++ (PROperationProgress *)task {
+    return [[PROperationProgress alloc] init];
 }
 
 
