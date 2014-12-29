@@ -11,7 +11,6 @@
 @class PRStatement;
 @class PRCore;
 
-
 extern NSString * const PRFilePboardType;
 extern NSString * const PRIndexesPboardType;
 

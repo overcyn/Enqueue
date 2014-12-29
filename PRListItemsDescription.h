@@ -15,7 +15,7 @@
 
 @interface PRNowPlayingListItemsDescription : PRListItemsDescription
 @property (nonatomic, readonly) NSArray *albumCounts;
-- (NSInteger)indexForIndexPath:(NSIndexPath *)index; // One based
+- (NSInteger)indexForIndexPath:(NSIndexPath *)index; // Zero based
 - (NSIndexPath *)indexPathForIndex:(NSInteger)index;
 - (NSRange)rangeForIndexPath:(NSIndexPath *)index;
 @end

@@ -28,8 +28,13 @@
 @interface PRStopAction : PRAction
 @end
 
-@interface PRPlayItemAtIndexAction : PRAction
-@property (nonatomic) NSInteger index;
+@interface PRPlayItemAction : PRAction
+@property (nonatomic) NSInteger index; // 0 based
+@end
+
+@interface PRRemoveItemsFromListAction : PRAction
+@property (nonatomic, strong) NSIndexSet *indexes;
+@property (nonatomic, strong) PRList *list;
 @end
 
 @interface PRHighlightItemsAction : PRAction
@@ -49,6 +54,12 @@
 @property (nonatomic, strong) NSArray *items;
 @property (nonatomic) NSInteger index; // -1 to append, -2 to append next
 @property (nonatomic, strong) PRList *list; // default now playing list
+@end
+
+@interface PRMoveIndexesInListAction : PRAction
+@property (nonatomic, strong) NSIndexSet *indexes;
+@property (nonatomic) NSInteger index;
+@property (nonatomic, strong) PRList *list;
 @end
 
 @interface PRSetListDescriptionAction : PRAction

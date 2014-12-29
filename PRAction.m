@@ -22,7 +22,7 @@
 
 - (void)main {
     PRCore *core = [self core];
-    dispatch_sync(dispatch_get_main_queue(), ^{
+    dispatch_async(dispatch_get_main_queue(), ^{
         int count = [[[core db] playlists] countForList:[[core now] currentList]];
         if (count == 1 || [[core now] currentIndex] == 0) {
             // if nothing playing or count == 1, clear playlist
@@ -33,9 +33,6 @@
             [[[core db] playlists] clearList:[[core now] currentList] exceptIndex:[[core now] currentIndex]];
         }
         [[NSNotificationCenter defaultCenter] postListItemsDidChange:[[core now] currentList]];
-    });
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        [[[core win] nowPlayingViewController] collapseAll];
     });
 }
 
@@ -121,7 +118,6 @@
 
 @end
 
-
 @implementation PRBlockAction
 
 + (instancetype)blockActionWithBlock:(void (^)(PRCore *))block {
@@ -135,8 +131,8 @@
         _block([self core]);
     });
 }
-@end
 
+@end
 
 @implementation PRPlayNextAction
 
@@ -148,7 +144,6 @@
 
 @end
 
-
 @implementation PRPlayPreviousAction
 
 - (void)main {
@@ -159,27 +154,11 @@
 
 @end
 
-
 @implementation PRStopAction
 
 - (void)main {
     dispatch_sync(dispatch_get_main_queue(), ^{
         [[[self core] now] stop];
-    });
-}
-
-@end
-
-
-@implementation PRPlayItemAtIndexAction {
-    NSInteger _index;
-}
-
-@synthesize index = _index;
-
-- (void)main {
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        [[[self core] now] playItemAtIndex:_index];
     });
 }
 
@@ -242,13 +221,54 @@
         PRNowPlayingController *now = [[self core] now];
         PRList *list = [self list] ?: [now currentList];
         PRPlaylists *playlists = [[[self core] db] playlists];
-        for (PRItem *i in [self items]) {
-            [playlists zAppendItem:i toList:list];
+        
+        NSInteger index = [self index];
+        if (index == -1) {
+            NSInteger count;
+            [playlists zCountForList:list out:&count];
+            index = count + 1;
+        } else if (index == -2) {
+            // KD: TODO
+            NSInteger count;
+            [playlists zCountForList:list out:&count];
+            index = count + 1;
+        } else {
+            index += 1;
         }
+        
+        [playlists zAddItems:[self items] atIndex:index toList:list];
         [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
     });
 }
 
+@end
+
+@implementation PRMoveIndexesInListAction
+- (void)main {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        PRPlaylists *playlists = [[[self core] db] playlists];
+        NSMutableIndexSet *indexes = [NSMutableIndexSet indexSet];
+        [[self indexes] enumerateIndexesUsingBlock:^(NSUInteger i, BOOL *stop){
+            [indexes addIndex:i+1];
+        }];
+        [playlists zMoveItemsAtIndexes:indexes toIndex:[self index]+1 inList:[self list]];
+        [[NSNotificationCenter defaultCenter] postListItemsDidChange:[self list]];
+    });
+}
+@end
+
+@implementation PRRemoveItemsFromListAction
+- (void)main {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        PRPlaylists *playlists = [[[self core] db] playlists];
+        NSMutableIndexSet *indexSet = [NSMutableIndexSet indexSet];
+        [[self indexes] enumerateIndexesUsingBlock:^(NSUInteger i, BOOL *stop){
+            [indexSet addIndex:i+1];
+        }];
+        [playlists zRemoveItemsAtIndexes:indexSet fromList:[self list]];
+        [[NSNotificationCenter defaultCenter] postListItemsDidChange:[self list]];
+    });
+}
 @end
 
 @implementation PRSetListDescriptionAction
@@ -327,3 +347,12 @@
 
 @end
 
+@implementation PRPlayItemAction
+
+- (void)main {
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        [[[self core] now] playItemAtIndex:[self index] + 1];
+    });
+}
+
+@end

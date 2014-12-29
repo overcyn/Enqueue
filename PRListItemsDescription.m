@@ -80,7 +80,7 @@
     }
     
     _albumIndexes = [NSMutableIndexSet indexSet];
-    NSInteger row = 1;
+    NSInteger row = 0;
     [_albumIndexes addIndex:row];
     for (NSNumber *i in _albumCounts) {
         row += [i integerValue];
