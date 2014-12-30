@@ -80,11 +80,11 @@
 
 @dynamic historyMode;
 
-- (PRHistoryMode2)historyMode {
+- (PRWindowModeHistory2)historyMode {
     return historyMode;
 }
 
-- (void)setHistoryMode:(PRHistoryMode2)historyMode_ {
+- (void)setHistoryMode:(PRWindowModeHistory2)historyMode_ {
     historyMode = historyMode_;
     [self update];
 }
@@ -160,7 +160,7 @@
     if ([sender clickedRow] == -1) {
         return;
     }
-    [_win setCurrentMode:PRLibraryMode];
+    [_win setCurrentMode:PRWindowModeLibrary];
     [[_win libraryViewController] setCurrentList:[[_db playlists] libraryList]];
     if (historyMode == PRTopArtistsHistoryMode) {
         NSString *artist = [[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"artist"];

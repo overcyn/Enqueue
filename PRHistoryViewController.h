@@ -7,7 +7,7 @@ typedef enum {
     PRTopArtistsHistoryMode,
     PRRecentlyAddedHistoryMode,
     PRRecentlyPlayedHistoryMode,
-} PRHistoryMode2;
+} PRWindowModeHistory2;
 
 
 @interface PRHistoryViewController : NSViewController <NSTableViewDelegate, NSTableViewDataSource> {
@@ -22,7 +22,7 @@ typedef enum {
     
     IBOutlet NSImageView *_placeholder;
     
-    PRHistoryMode2 historyMode;
+    PRWindowModeHistory2 historyMode;
     
     NSArray *dataSource;
     PRHistoryDateFormatter *_dateFormatter;
@@ -34,7 +34,7 @@ typedef enum {
 - (id)initWithDb:(PRDb *)db mainWindowController:(PRMainWindowController *)win;
 
 /* Accessors */
-@property (readwrite) PRHistoryMode2 historyMode;
+@property (readwrite) PRWindowModeHistory2 historyMode;
 
 /* Action */
 - (void)historyModeButtonAction:(id)sender;

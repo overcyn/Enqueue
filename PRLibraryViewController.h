@@ -1,6 +1,6 @@
 #import "PRViewController.h"
 #import "PRPlaylists.h"
-@class PRCore;
+@class PRBridge;
 @class PRBrowserViewController;
 
 typedef enum {
@@ -9,7 +9,7 @@ typedef enum {
 } PRLibraryViewMode;
 
 @interface PRLibraryViewController : PRViewController
-- (id)initWithCore:(PRCore *)core;
+- (id)initWithBridge:(PRBridge *)bridge;
 @property (readonly) NSView *headerView;
 @property (readonly) PRBrowserViewController *currentViewController;
 @property (strong) PRList *currentList;

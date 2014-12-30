@@ -208,16 +208,16 @@
 #pragma mark - Action
 
 - (void)showPreferences {
-    [[core win] setCurrentMode:PRPreferencesMode];
+    [[core win] setCurrentMode:PRWindowModePreferences];
 }
          
 - (void)newPlaylist {
-    [[core win] setCurrentMode:PRPlaylistsMode];
+    [[core win] setCurrentMode:PRWindowModePlaylists];
     [[[core win] playlistsViewController] newStaticPlaylist];
 }
 
 - (void)newSmartPlaylist {
-    [[core win] setCurrentMode:PRPlaylistsMode];
+    [[core win] setCurrentMode:PRWindowModePlaylists];
     [[[core win] playlistsViewController] newSmartPlaylist];
 }
 
@@ -298,12 +298,12 @@
     NSMenu *browser = [[[[core win] libraryViewController] currentViewController] browserHeaderMenu];
     [browser setAutoenablesItems:NO];
     [[viewMenu itemWithTitle:@"Browser"] setSubmenu:browser];
-    [[viewMenu itemWithTitle:@"Browser"] setEnabled:([[core win] currentMode] == PRLibraryMode && ![[core win] miniPlayer])];
+    [[viewMenu itemWithTitle:@"Browser"] setEnabled:([[core win] currentMode] == PRWindowModeLibrary && ![[core win] miniPlayer])];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     for (NSMenuItem *i in @[[viewMenu itemWithTag:1], [viewMenu itemWithTag:2], [viewMenu itemWithTag:4]]) {
-        if (menuItem == i && [[core win] currentMode] != PRLibraryMode) {
+        if (menuItem == i && [[core win] currentMode] != PRWindowModeLibrary) {
             return NO;
         }
     }

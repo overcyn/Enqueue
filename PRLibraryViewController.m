@@ -10,6 +10,9 @@
 #import "PRStringFormatter.h"
 #import "PRBrowserViewController.h"
 #import "PRTimeFormatter2.h"
+#import "PRListDescription.h"
+#import "PRBridge.h"
+#import "PRConnection.h"
 
 #define SEARCH_DELAY 0.25
 
@@ -17,7 +20,7 @@
 @end
 
 @implementation PRLibraryViewController {
-    __weak PRCore *_core;
+    PRBridge *_bridge;
     
     NSView *_centerSuperview;
     NSView *_paneSuperview;
@@ -28,25 +31,74 @@
     
     NSMenu *_libraryPopUpButtonMenu;
     
-    PRInfoViewController *infoViewController;
-    PRBrowserViewController *browserViewController;
-    PRAlbumListViewController *albumListViewController;
+    PRInfoViewController *_infoVC;
+    PRBrowserViewController *_browserVC;
+    PRAlbumListViewController *_albumListVC;
     
     NSDate *_searchFieldLastEdit;
     
     BOOL _infoViewVisible;
     PRList *_currentList;
-    __weak PRBrowserViewController *_currentViewController;
+    PRListDescription *_listDescription;
+    PRBrowserViewController *_currentVC;
 }
 
 #pragma mark - Initialization
 
-- (id)initWithCore:(PRCore *)core {
+- (id)initWithBridge:(PRBridge *)bridge {
     if (!(self = [super init])) {return nil;}
-    _core = core;
-    _currentList = [[[_core db] playlists] libraryList];
+    _bridge = bridge;
     return self;
 }
+
+#pragma mark - API
+
+@synthesize currentViewController = _currentVC;
+@synthesize headerView = _headerView;
+
+- (PRList *)currentList {
+    return _currentList;
+}
+
+- (void)setCurrentList:(PRList *)list {
+    if (![list isEqual:_currentList]) {
+        _currentList = list;
+        [self _reloadData];
+        [NSNotificationCenter post:PRCurrentListDidChangeNotification];
+    }
+}
+
+- (PRLibraryViewMode)libraryViewMode {
+    if (_currentVC == _browserVC) {
+        return PRListMode;
+    }
+    return PRAlbumListMode;
+}
+
+- (void)setLibraryViewMode:(PRLibraryViewMode)libraryViewMode {
+    [_listDescription viewMode];
+}
+
+- (BOOL)infoViewVisible {
+    return _infoViewVisible;
+}
+
+- (void)setInfoViewVisible:(BOOL)visible {
+    if (_infoViewVisible != visible) {
+        _infoViewVisible = visible;
+        [self _updateLayout];
+    }
+}
+
+- (void)toggleInfoViewVisible {
+    [self setInfoViewVisible:![self infoViewVisible]];
+}
+
+- (void)find {
+    [[_searchField window] makeFirstResponder:_searchField];
+}
+
+#pragma mark - NSViewController
 
 - (void)loadView {
     NSView *view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 500, 500)];
@@ -58,23 +110,23 @@
     [_centerSuperview setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
     [[self view] addSubview:_centerSuperview];
     
-    browserViewController = [[PRBrowserViewController alloc] initWithBridge:[_core bridge]];
-    [[browserViewController view] setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
-    [[browserViewController view] setFrame:[_centerSuperview bounds]];
-    [_centerSuperview addSubview:[browserViewController view]];
-    _currentViewController = browserViewController;
+    _browserVC = [[PRBrowserViewController alloc] initWithBridge:_bridge];
+    [[_browserVC view] setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
+    [[_browserVC view] setFrame:[_centerSuperview bounds]];
+    [_centerSuperview addSubview:[_browserVC view]];
+    _currentVC = _browserVC;
     
-//    albumListViewController = [[PRAlbumListViewController alloc] initWithCore:_core];
-//    [[albumListViewController view] setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
+//    _albumListVC = [[PRAlbumListViewController alloc] initWithCore:_core];
+//    [[_albumListVC view] setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
     
     // Pane view
     _paneSuperview = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 500, 140)];
     [_paneSuperview setAutoresizingMask:NSViewWidthSizable | NSViewMaxYMargin];
     _infoViewVisible = NO;
     
-    infoViewController = [[PRInfoViewController alloc] initWithCore:_core];
-    [[infoViewController view] setFrame:[_paneSuperview bounds]];
-    [_paneSuperview addSubview:[infoViewController view]];
+    // _infoVC = [[PRInfoViewController alloc] initWithCore:_core];
+    // [[_infoVC view] setFrame:[_paneSuperview bounds]];
+    // [_paneSuperview addSubview:[_infoVC view]];
     
     // Header view
     _libraryPopUpButtonMenu = [[NSMenu alloc] init];
@@ -111,101 +163,105 @@
     [_headerView addSubview:_searchField];
     
     // Initialization
-    [self updateLayout];
-    _currentList = nil;
-    // [self setCurrentList:[[[_core db] playlists] libraryList]]; // kd:
+    [self _updateLayout];
     
     // Key View
     [_searchField setNextKeyView:[self lastKeyView]];
     
     // Update
-    [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(updateSearch)];
+    [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(_updateSearch)];
 }
 
-#pragma mark - Accessors
 
-@synthesize currentViewController = _currentViewController;
-@synthesize headerView = _headerView;
+#pragma mark - NSMenuDelegate
 
-- (PRList *)currentList {
-    return _currentList;
-}
-
-- (void)setCurrentList:(PRList *)list {
-    if ([list isEqual:_currentList]) {
-        return;
-    }
-    _currentList = list;
-    [self setLibraryViewMode:[[[_core db] playlists] viewModeForList:_currentList]];
-    [self updateSearch];
-    [self menuNeedsUpdate:_libraryPopUpButtonMenu];
-    [NSNotificationCenter post:PRCurrentListDidChangeNotification];
-}
-
-- (PRLibraryViewMode)libraryViewMode {
-    if (_currentViewController == browserViewController) {
-        return PRListMode;
-    } else if (_currentViewController == albumListViewController) {
-        return PRAlbumListMode;
+- (void)menuNeedsUpdate:(NSMenu *)menu {
+    [menu removeAllItems];
+    NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
+    NSImage *image;
+    if ([self libraryViewMode] == PRListMode) {
+        image = [NSImage imageNamed:@"List.png"];
     } else {
-        @throw NSInternalInconsistencyException;
+        image = [NSImage imageNamed:@"AlbumList.png"];
+    }
+    [item setImage:image];
+    [item setEnabled:YES];
+    [menu addItem:item];
+    item = [[NSMenuItem alloc] initWithTitle:@"View As..." action:nil keyEquivalent:@""];
+    [item setEnabled:NO];
+    [menu addItem:item];
+    item = [[NSMenuItem alloc] initWithTitle:@"List" action:@selector(_setLibraryViewModeAction:) keyEquivalent:@""];
+    [item setTag:PRListMode];
+    if ([self libraryViewMode] == PRListMode) {
+        [item setState:NSOnState];
+    }
+    [menu addItem:item];
+    item = [[NSMenuItem alloc] initWithTitle:@"Album List" action:@selector(_setLibraryViewModeAction:) keyEquivalent:@""];
+    [item setTag:PRAlbumListMode];
+    if ([self libraryViewMode] == PRAlbumListMode) {
+        [item setState:NSOnState];
+    }
+    [menu addItem:item];
+    
+    [menu addItem:[NSMenuItem separatorItem]];
+    item = [[NSMenuItem alloc] initWithTitle:@"Browser" action:nil keyEquivalent:@""];
+    [item setSubmenu:[_currentVC browserHeaderMenu]];
+    [menu addItem:item];
+    
+    for (NSMenuItem *i in [menu itemArray]) {
+        [i setTarget:self];
     }
 }
 
-- (void)setLibraryViewMode:(PRLibraryViewMode)libraryViewMode {
-    [browserViewController setCurrentList:nil];
-    [albumListViewController setCurrentList:nil];
-    
-    [[[_core db] playlists] setViewMode:libraryViewMode forList:_currentList];
-    
-    id oldViewController = _currentViewController;
-    if (libraryViewMode == PRListMode) {
-        _currentViewController = browserViewController;
-    } else if (libraryViewMode == PRAlbumListMode) {
-        _currentViewController = albumListViewController;
-    } else {
-        @throw NSInvalidArgumentException;
-    }
-    
-    [[_currentViewController view] setFrame:[_centerSuperview bounds]];
-    [_centerSuperview replaceSubview:[oldViewController view] with:[_currentViewController view]];    
-    [_currentViewController setCurrentList:_currentList];
-    [self menuNeedsUpdate:_libraryPopUpButtonMenu];
-    [[self firstKeyView] setNextKeyView:[_currentViewController firstKeyView]];
-    [[_currentViewController lastKeyView] setNextKeyView:_searchField];
-}
+#pragma mark - NSTextFieldDelegate
 
-- (BOOL)infoViewVisible {
-    return _infoViewVisible;
-}
+- (void)controlTextDidChange:(NSNotification *)note {
+    _searchFieldLastEdit = [NSDate date];
 
-- (void)setInfoViewVisible:(BOOL)visible {
-    if (_infoViewVisible == visible) {
-        return;
-    }
-    _infoViewVisible = visible;
-    [self updateLayout];
-}
-
-- (void)toggleInfoViewVisible {
-    [self setInfoViewVisible:![self infoViewVisible]];
+    CGFloat delay = [[_searchField stringValue] length] != 0 ? SEARCH_DELAY : 0.0;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, delay * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        [self _postSearchChangedAndRetry:YES];
+    });
 }
 
 #pragma mark - Action
 
-- (void)find {
-    [[_searchField window] makeFirstResponder:_searchField];
-}
-
-#pragma mark - Action Priv
-
-- (void)setLibraryViewModeAction:(id)sender {
+- (void)_setLibraryViewModeAction:(id)sender {
     [self setLibraryViewMode:[sender tag]];
 }
 
-#pragma mark - Update
+#pragma mark - Internal
 
-- (void)updateLayout {
+- (void)_reloadData {
+    if (_currentList) {
+        __block PRListDescription *listDescription = nil;
+        [_bridge performTaskSync:^(PRCore *core){
+            [[[core conn] playlists] zListDescriptionForList:_currentList out:&listDescription];
+        }];
+        _listDescription = listDescription;
+        
+        [_browserVC setCurrentList:nil];
+        [_albumListVC setCurrentList:nil];
+        PRBrowserViewController *prevVC = _currentVC;
+        if ([_listDescription viewMode] == PRListMode) {
+            _currentVC = _browserVC;
+        } else {
+            _currentVC = _albumListVC;
+        }
+        [_currentVC setCurrentList:_currentList];
+        if (_currentVC != prevVC) {
+            [[_currentVC view] setFrame:[_centerSuperview bounds]];
+            [_centerSuperview replaceSubview:[prevVC view] with:[_currentVC view]];    
+            [[self firstKeyView] setNextKeyView:[_currentVC firstKeyView]];
+            [[_currentVC lastKeyView] setNextKeyView:_searchField];
+        }
+        
+        [self _updateLayout];
+        [self _updateSearch];
+    }
+}
+
+- (void)_updateLayout {
     if (_infoViewVisible) {
         // pane
         NSRect frame;
@@ -239,82 +295,24 @@
     }
 }
 
-- (void)updateSearch {
-    NSString *search = [[[_core db] playlists] valueForList:_currentList attr:PRListAttrSearch];
-    [_searchField setStringValue:search];
+- (void)_updateSearch {
+    [_searchField setStringValue:[_listDescription search]];
 }
 
-#pragma mark - NSMenuDelegate
-
-- (void)menuNeedsUpdate:(NSMenu *)menu {
-    [menu removeAllItems];
-    NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
-    NSImage *image;
-    if ([self libraryViewMode] == PRListMode) {
-        image = [NSImage imageNamed:@"List.png"];
-    } else {
-        image = [NSImage imageNamed:@"AlbumList.png"];
-    }
-    [item setImage:image];
-    [item setEnabled:YES];
-    [menu addItem:item];
-    item = [[NSMenuItem alloc] initWithTitle:@"View As..." action:nil keyEquivalent:@""];
-    [item setEnabled:NO];
-    [menu addItem:item];
-    item = [[NSMenuItem alloc] initWithTitle:@"List" action:@selector(setLibraryViewModeAction:) keyEquivalent:@""];
-    [item setTag:PRListMode];
-    if ([self libraryViewMode] == PRListMode) {
-        [item setState:NSOnState];
-    }
-    [menu addItem:item];
-    item = [[NSMenuItem alloc] initWithTitle:@"Album List" action:@selector(setLibraryViewModeAction:) keyEquivalent:@""];
-    [item setTag:PRAlbumListMode];
-    if ([self libraryViewMode] == PRAlbumListMode) {
-        [item setState:NSOnState];
-    }
-    [menu addItem:item];
-    
-    [menu addItem:[NSMenuItem separatorItem]];
-    item = [[NSMenuItem alloc] initWithTitle:@"Browser" action:nil keyEquivalent:@""];
-    [item setSubmenu:[_currentViewController browserHeaderMenu]];
-    [menu addItem:item];
-    
-    for (NSMenuItem *i in [menu itemArray]) {
-        [i setTarget:self];
-    }
-}
-
-#pragma mark - NSTextFieldDelegate
-
-- (void)controlTextDidChange:(NSNotification *)note {
-    _searchFieldLastEdit = [NSDate date];
-
-    float delay = [[_searchField stringValue] length] != 0 ? SEARCH_DELAY : 0.0;
-    [[NSOperationQueue currentQueue] addBlock:^{
-        [self postSearchChangedAndRetry:YES];
-    } afterDelay:delay];
-}
-
-#pragma mark - Priv
-
-- (void)postSearchChangedAndRetry:(BOOL)retry {
-    NSString *search = [_searchField stringValue];
-    if (!search) {
-        search = @"";
-    }
-    if ([[[[_core db] playlists] valueForList:_currentList attr:PRListAttrSearch] isEqual:search]) {
-        return;
-    }
-    if (fabs([_searchFieldLastEdit timeIntervalSinceNow]) < SEARCH_DELAY) {
-        if (retry) {
-            [[NSOperationQueue currentQueue] addBlock:^{
-                [self postSearchChangedAndRetry:NO];
-            } afterDelay:SEARCH_DELAY];
+- (void)_postSearchChangedAndRetry:(BOOL)retry {
+    NSString *search = [_searchField stringValue] ?: @"";
+    if (![[_listDescription search] isEqual:search]) {
+        if (fabs([_searchFieldLastEdit timeIntervalSinceNow]) < SEARCH_DELAY) {
+            if (retry) {
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, SEARCH_DELAY * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+                    [self _postSearchChangedAndRetry:NO];
+                });
+            }
+        } else {
+            [_listDescription setSearch:search];
+            [_bridge performTask:PRSetListDescriptionTask(_listDescription, _currentList)];
         }
-        return;
     }
-    [[[_core db] playlists] setValue:search forList:_currentList attr:PRListAttrSearch];
-    [[NSNotificationCenter defaultCenter] postListDidChange:_currentList];
 }
 
 @end

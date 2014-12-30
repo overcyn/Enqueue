@@ -137,7 +137,7 @@ PRTask PRHighightItemsTask(NSArray *items) {
         PRMainWindowController *win = [core win];
         PRPlaylists *playlists = [[core db] playlists];
         dispatch_sync(dispatch_get_main_queue(), ^{
-            [win setCurrentMode:PRLibraryMode];
+            [win setCurrentMode:PRWindowModeLibrary];
             [[win libraryViewController] setCurrentList:[playlists libraryList]];
             [[[win libraryViewController] currentViewController] highlightItem:[items firstObject]];
         });

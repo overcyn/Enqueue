@@ -75,7 +75,6 @@
 		6740584D135A4CA4000ED697 /* TexturedSliderSpeakerLoudInverted.png in Resources */ = {isa = PBXBuildFile; fileRef = 6740584C135A4CA3000ED697 /* TexturedSliderSpeakerLoudInverted.png */; };
 		674415C2135AA86800A5B269 /* PRMainMenuController.m in Sources */ = {isa = PBXBuildFile; fileRef = 674415C1135AA86800A5B269 /* PRMainMenuController.m */; };
 		67484DCE19AECEE300F02744 /* NSIndexPath+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67484DCD19AECEE300F02744 /* NSIndexPath+Extensions.m */; };
-		6750A3A2124322E000F415E3 /* PRMainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6750A3A1124322E000F415E3 /* PRMainWindow.xib */; };
 		6750A3AA1243239B00F415E3 /* PRMainWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6750A3A91243239B00F415E3 /* PRMainWindowController.m */; };
 		675116D2141FD42C00EBE02E /* NSImage+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 675116D1141FD42B00EBE02E /* NSImage+Extensions.m */; };
 		6758FD8E138B39A900E6EBA5 /* PRAppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 6758FD8D138B39A900E6EBA5 /* PRAppIcon.icns */; };
@@ -217,6 +216,11 @@
 		67E2366F148B028200106779 /* Trash.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E2366E148B028200106779 /* Trash.png */; };
 		67E38846147E541D00C094E5 /* PRTagger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 67E38845147E541D00C094E5 /* PRTagger.mm */; };
 		67E422D71A4D10D9009865DC /* PRLibraryListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E422D61A4D10D9009865DC /* PRLibraryListViewController.m */; };
+		67E422EB1A5202D5009865DC /* PRMainWindowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E422EA1A5202D5009865DC /* PRMainWindowView.m */; };
+		67E422EF1A523D9F009865DC /* sidebar@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E422EE1A523D9F009865DC /* sidebar@2x.png */; };
+		67E422F21A523FD1009865DC /* info.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 67E422F01A523FD1009865DC /* info.pdf */; };
+		67E422F31A523FD1009865DC /* overview.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 67E422F11A523FD1009865DC /* overview.pdf */; };
+		67E422F71A529EB0009865DC /* PRToolbarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E422F61A529EB0009865DC /* PRToolbarController.m */; };
 		67E7B4F214B444F60060D1FE /* iTunesImport.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E7B4F114B444F60060D1FE /* iTunesImport.png */; };
 		67E94735126C528E00CAE943 /* PRCenteredTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */; };
 		67E94DDA14551E8900B88EA4 /* Cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E94DD914551E8900B88EA4 /* Cancel.png */; };
@@ -395,7 +399,6 @@
 		67484DB119A1BB7E00F02744 /* PRNowPlayingDescription_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRNowPlayingDescription_Private.h; sourceTree = "<group>"; };
 		67484DCC19AECEE300F02744 /* NSIndexPath+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSIndexPath+Extensions.h"; sourceTree = "<group>"; };
 		67484DCD19AECEE300F02744 /* NSIndexPath+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+Extensions.m"; sourceTree = "<group>"; };
-		6750A3A1124322E000F415E3 /* PRMainWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PRMainWindow.xib; sourceTree = "<group>"; };
 		6750A3A81243239B00F415E3 /* PRMainWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRMainWindowController.h; sourceTree = "<group>"; };
 		6750A3A91243239B00F415E3 /* PRMainWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRMainWindowController.m; sourceTree = "<group>"; };
 		675116D0141FD42A00EBE02E /* NSImage+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSImage+Extensions.h"; sourceTree = "<group>"; };
@@ -611,6 +614,13 @@
 		67E38845147E541D00C094E5 /* PRTagger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PRTagger.mm; sourceTree = "<group>"; };
 		67E422D51A4D10D9009865DC /* PRLibraryListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRLibraryListViewController.h; sourceTree = "<group>"; };
 		67E422D61A4D10D9009865DC /* PRLibraryListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRLibraryListViewController.m; sourceTree = "<group>"; };
+		67E422E91A5202D5009865DC /* PRMainWindowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRMainWindowView.h; sourceTree = "<group>"; };
+		67E422EA1A5202D5009865DC /* PRMainWindowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRMainWindowView.m; sourceTree = "<group>"; };
+		67E422EE1A523D9F009865DC /* sidebar@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "sidebar@2x.png"; path = "Icons/sidebar@2x.png"; sourceTree = "<group>"; };
+		67E422F01A523FD1009865DC /* info.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = info.pdf; path = Icons/info.pdf; sourceTree = "<group>"; };
+		67E422F11A523FD1009865DC /* overview.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = overview.pdf; path = Icons/overview.pdf; sourceTree = "<group>"; };
+		67E422F51A529EB0009865DC /* PRToolbarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRToolbarController.h; sourceTree = "<group>"; };
+		67E422F61A529EB0009865DC /* PRToolbarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRToolbarController.m; sourceTree = "<group>"; };
 		67E7B4F114B444F60060D1FE /* iTunesImport.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = iTunesImport.png; path = Icons/iTunesImport.png; sourceTree = "<group>"; };
 		67E94733126C528E00CAE943 /* PRCenteredTextFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRCenteredTextFieldCell.h; sourceTree = "<group>"; };
 		67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRCenteredTextFieldCell.m; sourceTree = "<group>"; };
@@ -720,6 +730,9 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				67E422F01A523FD1009865DC /* info.pdf */,
+				67E422F11A523FD1009865DC /* overview.pdf */,
+				67E422EE1A523D9F009865DC /* sidebar@2x.png */,
 				67C268841357FCB0008F55C0 /* Icons */,
 				67C268831357FC92008F55C0 /* Misc */,
 			);
@@ -960,12 +973,14 @@
 		6750A3AC124324AA00F415E3 /* Main Window */ = {
 			isa = PBXGroup;
 			children = (
-				6750A3A1124322E000F415E3 /* PRMainWindow.xib */,
 				6750A3A81243239B00F415E3 /* PRMainWindowController.h */,
 				6750A3A91243239B00F415E3 /* PRMainWindowController.m */,
+				67E422E91A5202D5009865DC /* PRMainWindowView.h */,
+				67E422EA1A5202D5009865DC /* PRMainWindowView.m */,
 				1DDD58140DA1D0A300B32029 /* MainMenu.xib */,
 				674415C0135AA86800A5B269 /* PRMainMenuController.h */,
 				674415C1135AA86800A5B269 /* PRMainMenuController.m */,
+				67E422F41A529789009865DC /* Toolbar */,
 				67EC3B791349A53600AD0BE1 /* Welcome Sheet */,
 				677AE06814C79A7D00159E6F /* Trial Sheet */,
 			);
@@ -1593,6 +1608,15 @@
 			name = Bridge;
 			sourceTree = "<group>";
 		};
+		67E422F41A529789009865DC /* Toolbar */ = {
+			isa = PBXGroup;
+			children = (
+				67E422F51A529EB0009865DC /* PRToolbarController.h */,
+				67E422F61A529EB0009865DC /* PRToolbarController.m */,
+			);
+			name = Toolbar;
+			sourceTree = "<group>";
+		};
 		67EA12F7145B346900309876 /* NowPlaying */ = {
 			isa = PBXGroup;
 			children = (
@@ -1695,7 +1719,6 @@
 			files = (
 				8D11072B0486CEB800E47090 /* InfoPlist.strings in Resources */,
 				1DDD58160DA1D0A300B32029 /* MainMenu.xib in Resources */,
-				6750A3A2124322E000F415E3 /* PRMainWindow.xib in Resources */,
 				672157F5126663060050A982 /* PRInfoView.xib in Resources */,
 				67026EA512697833002E929F /* PRPreferencesView.xib in Resources */,
 				6771E78912797511007A34F2 /* PRPlaylistsView.xib in Resources */,
@@ -1709,6 +1732,7 @@
 				675AC4AA12D13B23006B8B95 /* PRLightRatingIcon.png in Resources */,
 				675AC4AB12D13B23006B8B95 /* PRLightSpeakerIcon.png in Resources */,
 				675AC4AE12D13B23006B8B95 /* NextButton.png in Resources */,
+				67E422EF1A523D9F009865DC /* sidebar@2x.png in Resources */,
 				675AC4AF12D13B23006B8B95 /* PRNoteIcon.png in Resources */,
 				675AC4B012D13B23006B8B95 /* PauseButton.png in Resources */,
 				675AC4B112D13B23006B8B95 /* PlayButton.png in Resources */,
@@ -1759,6 +1783,7 @@
 				6768E61513BBBF7C00FA7474 /* InfoTemplate.png in Resources */,
 				67669BCA13E57D590042A649 /* Disclosure.png in Resources */,
 				67669BCC13E580200042A649 /* DisclosureAlt.png in Resources */,
+				67E422F31A523FD1009865DC /* overview.pdf in Resources */,
 				67D2F1A3141B76A700F7AB71 /* PRLightAlbumArt.png in Resources */,
 				67E94DDA14551E8900B88EA4 /* Cancel.png in Resources */,
 				67C0D1B31458DF7800CBCE24 /* Settings.png in Resources */,
@@ -1766,6 +1791,7 @@
 				67EA12FE145B34A900309876 /* NowAdd.png in Resources */,
 				67EA12FF145B34A900309876 /* NowSettings.png in Resources */,
 				67EA1300145B34A900309876 /* NowSpeaker0.png in Resources */,
+				67E422F21A523FD1009865DC /* info.pdf in Resources */,
 				67EA1301145B34A900309876 /* NowSpeaker1.png in Resources */,
 				67EA1302145B34A900309876 /* NowSpeaker2.png in Resources */,
 				67EA1303145B34A900309876 /* NowSpeaker3.png in Resources */,
@@ -1859,6 +1885,7 @@
 				673E4AB61385512500DD8260 /* PRGrowl.m in Sources */,
 				6792C47213873B4B00EE7550 /* PRLastfm.m in Sources */,
 				67AB53E0138BAA69000A329B /* PRDateFormatter.m in Sources */,
+				67E422F71A529EB0009865DC /* PRToolbarController.m in Sources */,
 				678D5D7B138D519F00A55E5D /* YRKSpinningProgressIndicator.m in Sources */,
 				67723FDE1396BEB7006A6AAC /* PRStringFormatter.m in Sources */,
 				6715CF8213989885001BC89B /* hmac_sha2.c in Sources */,
@@ -1927,6 +1954,7 @@
 				67BB82C7154E875E000CD7FE /* NSParagraphStyle+Extensions.m in Sources */,
 				670C465415681E7200409097 /* NSAttributedString+Extensions.m in Sources */,
 				670C46581568825900409097 /* PRHistoryDateFormatter.m in Sources */,
+				67E422EB1A5202D5009865DC /* PRMainWindowView.m in Sources */,
 				670C465B15688E6000409097 /* PRHotKeyController.m in Sources */,
 				67D4110D158586C4007C2E04 /* PRAppleScriptController.m in Sources */,
 			);

@@ -47,7 +47,7 @@
 
 - (void)monitorFolders {
     [self endSheet];
-    [[_core win] setCurrentMode:PRPreferencesMode];
+    [[_core win] setCurrentMode:PRWindowModePreferences];
     [[[_core win] preferencesViewController] addFolder];
 }
 

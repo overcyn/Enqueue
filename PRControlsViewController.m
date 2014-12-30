@@ -21,32 +21,48 @@
 #import "NSParagraphStyle+Extensions.h"
 #import "NSAttributedString+Extensions.h"
 
-@interface PRControlsViewController ()
-/* Update */
-- (void)updateControls;
-- (void)updatePlayButton;
-- (void)updateVolume;
-- (void)updateProgress;
-
-/* Action */
-- (void)mute;
-- (void)setVolume:(id)sender;
-- (void)setCurrentTime:(id)sender;
-@end
-
-
-@implementation PRControlsViewController
-
-#pragma mark - Initialization
-
-- (id)initWithCore:(PRCore *)core_; {
-    if (!(self = [super initWithNibName:@"PRControlsView" bundle:nil])) {return nil;}
-    core = core_;
-    db = [core_ db];
-    now = [core_ now];
-    return self;
+@implementation PRControlsViewController {
+    __weak PRCore *_core;
+    __weak PRDb *_db;
+    __weak PRNowPlayingController *_now;
+    
+    IBOutlet NSButton *playPause;
+    IBOutlet NSButton *next;
+    IBOutlet NSButton *previous;
+    IBOutlet NSButton *shuffle;
+    IBOutlet NSButton *repeat;
+    
+    IBOutlet PRHeaderBox *_box;
+    IBOutlet PRHyperlinkButton *titleButton;
+    IBOutlet NSTextField *_artistAlbumField;
+    
+    IBOutlet NSSlider *controlSlider;
+    IBOutlet NSTextField *_currentTime;
+    IBOutlet NSTextField *duration;
+    
+    IBOutlet NSImageView *__weak albumArtView;
+    
+    IBOutlet NSButton *_volumeButton;
+    IBOutlet NSSlider *_volumeSlider;
+    
+    IBOutlet NSView *_containerView;
+    IBOutlet PRGradientView *gradientView;
+    
+    IBOutlet PRGradientView *_progressDivider;
+    IBOutlet NSTextField *_progressTextField;
+    IBOutlet NSTextField *_progressPercentTextField;
+    IBOutlet NSButton *_progressButton;
+    
+    BOOL _progressHidden;
 }
 
+- (id)initWithCore:(PRCore *)core {
+    if (!(self = [super initWithNibName:@"PRControlsView" bundle:nil])) {return nil;}
+    _core = core;
+    _db = [core db];
+    _now = [core now];
+    return self;
+}
 
 - (void)awakeFromNib {
     // Time
@@ -56,15 +72,15 @@
     [controlSlider setAction:@selector(setCurrentTime:)];
         
     // Buttons
-    [playPause setTarget:now];
+    [playPause setTarget:_now];
     [playPause setAction:@selector(playPause)];
-    [previous setTarget:now];
+    [previous setTarget:_now];
     [previous setAction:@selector(playPrevious)];
-    [next setTarget:now];
+    [next setTarget:_now];
     [next setAction:@selector(playNext)];
-    [shuffle setTarget:now];
+    [shuffle setTarget:_now];
     [shuffle setAction:@selector(toggleShuffle)];
-    [repeat setTarget:now];
+    [repeat setTarget:_now];
     [repeat setAction:@selector(toggleRepeat)];
     [titleButton setTarget:self];
     [titleButton setAction:@selector(showInLibrary)];
@@ -87,23 +103,23 @@
     
     // UI
     NSGradient *gradient = [[NSGradient alloc] initWithColorsAndLocations:
-                             [NSColor colorWithCalibratedWhite:0.75 alpha:1.0], 0.0,
-                             [NSColor colorWithCalibratedWhite:0.5 alpha:1.0], 1.0,
+                             [NSColor colorWithCalibratedWhite:0.75 alpha:0.0], 0.0,
+                             [NSColor colorWithCalibratedWhite:0.5 alpha:0.0], 1.0,
                              nil];
     [gradientView setVerticalGradient:gradient];
-    gradient = [[NSGradient alloc] initWithColorsAndLocations:
-                 [NSColor colorWithCalibratedWhite:0.96 alpha:1.0], 0.0,
-                 [NSColor colorWithCalibratedWhite:0.75 alpha:1.0], 1.0,
-                 nil];
-    [gradientView setAltVerticalGradient:gradient];
-    [gradientView setTopBorder:[NSColor colorWithCalibratedWhite:0.55 alpha:1.0]];
-    [gradientView setTopBorder2:[NSColor colorWithCalibratedWhite:1.0 alpha:0.5]];
+    // gradient = [[NSGradient alloc] initWithColorsAndLocations:
+    //              [NSColor colorWithCalibratedWhite:0.96 alpha:1.0], 0.0,
+    //              [NSColor colorWithCalibratedWhite:0.75 alpha:1.0], 1.0,
+    //              nil];
+    // [gradientView setAltVerticalGradient:gradient];
+    // [gradientView setTopBorder:[NSColor colorWithCalibratedWhite:0.55 alpha:1.0]];
+    // [gradientView setTopBorder2:[NSColor colorWithCalibratedWhite:1.0 alpha:0.5]];
     
     // Task Manager
-    [[core taskManager] addObserver:self forKeyPath:@"tasks" options:0 context:nil];
+    [[_core taskManager] addObserver:self forKeyPath:@"tasks" options:0 context:nil];
     [_progressDivider setColor:[NSColor colorWithCalibratedWhite:0.0 alpha:0.3]];
     [_progressDivider setBotBorder:[NSColor colorWithCalibratedWhite:1.0 alpha:0.8]];
-    [_progressButton setTarget:[core taskManager]];
+    [_progressButton setTarget:[_core taskManager]];
     [_progressButton setAction:@selector(cancel)];
     
     // Notifications
@@ -115,7 +131,7 @@
     [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(updateControls)];
     [[NSNotificationCenter defaultCenter] observeVolumeChanged:self sel:@selector(updateVolume)];
     
-    _progressHidden = [[[core taskManager] tasks] count] == 0; // set initial value so it doesn't immediately update
+    _progressHidden = [[[_core taskManager] tasks] count] == 0; // set initial value so it doesn't immediately update
     [self updateControls];
     [self updateLayout];
     [self updateVolume];
@@ -129,15 +145,15 @@
 #pragma mark - Update
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if (object == [core taskManager] && [keyPath isEqualToString:@"tasks"]) {
+    if (object == [_core taskManager] && [keyPath isEqualToString:@"tasks"]) {
         [self updateProgress];
     }
 }
 
 - (void)updateLayout {
-    [_volumeButton setHidden:[[core win] miniPlayer]];
-    [_artistAlbumField setHidden:![[core win] miniPlayer]];
-    if (![[core win] miniPlayer]) {
+    [_volumeButton setHidden:[[_core win] miniPlayer]];
+    [_artistAlbumField setHidden:![[_core win] miniPlayer]];
+    if (![[_core win] miniPlayer]) {
         [_containerView removeFromSuperview];
         for (NSView *i in [NSArray arrayWithObjects:playPause, next, previous, shuffle, repeat, nil]) {
             [i removeFromSuperview];
@@ -300,7 +316,7 @@
         [duration setFrame:frame];
     }
     
-    if (!_progressHidden && ![[core win] miniPlayer]) {
+    if (!_progressHidden && ![[_core win] miniPlayer]) {
         NSRect frame;
         frame = [titleButton frame];
         frame.size.width -= 165;
@@ -340,7 +356,7 @@
         frame.origin.x = [_box frame].size.width - 173;
         frame.origin.y = 12;
         [_progressButton setFrame:frame];
-    } else if (!_progressHidden && [[core win] miniPlayer]) {
+    } else if (!_progressHidden && [[_core win] miniPlayer]) {
         NSRect frame;
         frame = [titleButton frame];
         frame.size.width -= 37;
@@ -371,7 +387,7 @@
         [_progressPercentTextField setFrame:frame];
     }
     
-    if ([[core win] miniPlayer]) {
+    if ([[_core win] miniPlayer]) {
         [_progressTextField setHidden:YES];
         [_progressButton setHidden:YES];
     } else {
@@ -385,28 +401,28 @@
 }
 
 - (void)updateControls {
-    [duration setHidden:([now currentIndex] == 0)];
-    [_currentTime setHidden:([now currentIndex] == 0)];
-    [titleButton setHidden:([now currentIndex] == 0)];
-    [controlSlider setHidden:([now currentIndex] == 0)];
+    [duration setHidden:([_now currentIndex] == 0)];
+    [_currentTime setHidden:([_now currentIndex] == 0)];
+    [titleButton setHidden:([_now currentIndex] == 0)];
+    [controlSlider setHidden:([_now currentIndex] == 0)];
     
-    NSImage *shuffleImage = [now shuffle] ? [NSImage imageNamed:@"ShuffleAlt"] : [NSImage imageNamed:@"Shuffle"];
-    NSImage *repeatImage = [now repeat] ? [NSImage imageNamed:@"RepeatAlt"]: [NSImage imageNamed:@"Repeat"];
+    NSImage *shuffleImage = [_now shuffle] ? [NSImage imageNamed:@"ShuffleAlt"] : [NSImage imageNamed:@"Shuffle"];
+    NSImage *repeatImage = [_now repeat] ? [NSImage imageNamed:@"RepeatAlt"]: [NSImage imageNamed:@"Repeat"];
     [shuffle setImage:shuffleImage];
     [repeat setImage:repeatImage];
     
     // title
-    if ([now currentIndex] != 0) {
+    if ([_now currentIndex] != 0) {
         NSMutableDictionary *titleAttrs = [NSAttributedString defaultBoldUIAttributes];
         NSMutableDictionary *albumAttrs = [NSAttributedString defaultUIAttributes];
-        if ([[core win] miniPlayer]) {
+        if ([[_core win] miniPlayer]) {
             [titleAttrs setObject:[NSParagraphStyle centerAlignStyle] forKey:NSParagraphStyleAttributeName];
             [albumAttrs setObject:[NSParagraphStyle centerAlignStyle] forKey:NSParagraphStyleAttributeName];
         }
         
-        NSString *title = [[db library] valueForItem:[now currentItem] attr:PRItemAttrTitle];
-        NSString *artist = [[db library] artistValueForItem:[now currentItem]];
-        NSString *album = [[db library] valueForItem:[now currentItem] attr:PRItemAttrAlbum];
+        NSString *title = [[_db library] valueForItem:[_now currentItem] attr:PRItemAttrTitle];
+        NSString *artist = [[_db library] artistValueForItem:[_now currentItem]];
+        NSString *album = [[_db library] valueForItem:[_now currentItem] attr:PRItemAttrAlbum];
         if ([artist isEqualToString:@""]) {
             artist = @"Unknown Artist";
         }
@@ -414,7 +430,7 @@
             album = @"Unknown Album";
         }
         
-        if (![[core win] miniPlayer]) {
+        if (![[_core win] miniPlayer]) {
             NSMutableAttributedString *attrString = [[NSMutableAttributedString alloc] initWithString:title attributes:titleAttrs];
             [attrString appendAttributedString:[[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" - %@ - %@",album,artist]
                                                                                 attributes:albumAttrs]];
@@ -435,8 +451,8 @@
         
     // AlbumArt
     NSImage *albumArt;
-    if ([now currentIndex] != 0) {
-        albumArt = [[db albumArtController] artworkForItem:[now currentItem]] ?: [NSImage imageNamed:@"PREmptyAlbumArt.png"];
+    if ([_now currentIndex] != 0) {
+        albumArt = [[_db albumArtController] artworkForItem:[_now currentItem]] ?: [NSImage imageNamed:@"PREmptyAlbumArt.png"];
     } else {
         albumArt = [NSImage imageNamed:@"PRNothingPlaying.png"];
     }
@@ -445,10 +461,10 @@
 }
 
 - (void)updatePlayButton {
-    [controlSlider setMaxValue:[[now mov] duration]];
-    [controlSlider setIntegerValue:[[now mov] currentTime]];
+    [controlSlider setMaxValue:[[_now mov] duration]];
+    [controlSlider setIntegerValue:[[_now mov] currentTime]];
     
-    NSImage *image = [[now mov] isPlaying] ? [NSImage imageNamed:@"PauseButton"] : [NSImage imageNamed:@"PlayButton"];
+    NSImage *image = [[_now mov] isPlaying] ? [NSImage imageNamed:@"PauseButton"] : [NSImage imageNamed:@"PlayButton"];
     [playPause setImage:image];
     
     NSShadow *shadow = [[NSShadow alloc] init];
@@ -459,15 +475,15 @@
         NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.3 alpha:1.0],
         NSParagraphStyleAttributeName:[NSParagraphStyle rightAlignStyle],
         NSShadowAttributeName:shadow};
-    NSString *currentTime_ = [[[PRTimeFormatter alloc] init] stringForObjectValue:[NSNumber numberWithLong:[[now mov] currentTime]]];
+    NSString *currentTime_ = [[[PRTimeFormatter alloc] init] stringForObjectValue:[NSNumber numberWithLong:[[_now mov] currentTime]]];
     NSDictionary *attributes2 = @{
         NSFontAttributeName:[NSFont fontWithName:@"LucidaGrande" size:10],
         NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.3 alpha:1.0],
         NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
         NSShadowAttributeName:shadow};
-    NSString *duration_ = [[[PRTimeFormatter alloc] init] stringForObjectValue:[NSNumber numberWithLong:[[now mov] duration]]];
+    NSString *duration_ = [[[PRTimeFormatter alloc] init] stringForObjectValue:[NSNumber numberWithLong:[[_now mov] duration]]];
     
-    if (![[core win] miniPlayer]) {
+    if (![[_core win] miniPlayer]) {
         NSString *string = [NSString stringWithFormat:@"%@ / %@",currentTime_, duration_];
         NSAttributedString *attrString = [[NSAttributedString alloc] initWithString:string attributes:attributes];
         [duration setAttributedStringValue:attrString];
@@ -481,7 +497,7 @@
 }
 
 - (void)updateVolume {
-    float volume = [[now mov] volume];
+    float volume = [[_now mov] volume];
     NSImage *image;
     if (volume == 0) {
         image = [NSImage imageNamed:@"NowSpeaker1"];
@@ -498,7 +514,7 @@
 
 - (void)updateProgress {
     BOOL prevProgressHidden = _progressHidden;
-    _progressHidden = [[[core taskManager] tasks] count] == 0;
+    _progressHidden = [[[_core taskManager] tasks] count] == 0;
     if (prevProgressHidden != _progressHidden) {
         [self updateLayout];
     }
@@ -506,7 +522,7 @@
     if (_progressHidden) {
         return;
     }
-    PROperationProgress *task = [[[core taskManager] tasks] objectAtIndex:0];
+    PROperationProgress *task = [[[_core taskManager] tasks] objectAtIndex:0];
 
     NSDictionary *attributes = [NSAttributedString defaultUIAttributes];
     NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:[task title] attributes:attributes];
@@ -520,27 +536,27 @@
 #pragma mark - Action
 
 - (void)showInLibrary {
-    if (![now currentItem]) {
+    if (![_now currentItem]) {
         return;
     }
-    if (![[core win] miniPlayer]) {
-        [[core win] setCurrentMode:PRLibraryMode];
-        [[[core win] libraryViewController] setCurrentList:[[db playlists] libraryList]];
-        [[[[core win] libraryViewController] currentViewController] highlightItem:[now currentItem]];
+    if (![[_core win] miniPlayer]) {
+        [[_core win] setCurrentMode:PRWindowModeLibrary];
+        [[[_core win] libraryViewController] setCurrentList:[[_db playlists] libraryList]];
+        [[[[_core win] libraryViewController] currentViewController] highlightItem:[_now currentItem]];
     } 
-    [[[core win] nowPlayingViewController] higlightPlayingFile];
+    [[[_core win] nowPlayingViewController] higlightPlayingFile];
 }
 
 - (void)mute {
-    [[now mov] setVolume:0];
+    [[_now mov] setVolume:0];
 }
 
 - (void)setVolume:(id)sender {
-    [[now mov] setVolume:[_volumeSlider floatValue]];
+    [[_now mov] setVolume:[_volumeSlider floatValue]];
 }
 
 - (void)setCurrentTime:(id)sender {
-    [[now mov] setCurrentTime:[controlSlider integerValue]];
+    [[_now mov] setCurrentTime:[controlSlider integerValue]];
 }
 
 @end

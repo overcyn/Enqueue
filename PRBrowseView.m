@@ -27,6 +27,7 @@
     [_detailSuperview setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
     
     _splitView = [[PRPaneSplitView alloc] init];
+    [_splitView setDividerStyle:NSSplitViewDividerStyleThin];
     [_splitView setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
     [_splitView setDelegate:self];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(paneSplitViewPositionDidChange:) name:PRPaneSplitViewPositionDidChangeNotification object:_splitView];
@@ -88,7 +89,7 @@
                 [_splitView addSubview:_subSplitView];
                 [_splitView addSubview:_detailSuperview];
                 [_splitView setVertical:NO];
-                [_splitView setDividerStyle:NSSplitViewDividerStyleThick];
+                [_splitView setDividerStyle:NSSplitViewDividerStyleThin];
             } else if (_style == PRBrowseViewStyleVertical) {
                 if ([_browseViews count] > 0) {
                     [_splitView addSubview:_browseViews[0]];

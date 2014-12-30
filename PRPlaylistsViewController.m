@@ -71,7 +71,7 @@
     if (idx >= [_datasource count]) {return;}
     PRList *list = [[_datasource objectAtIndex:idx] objectForKey:@"playlist"];
     [[win libraryViewController] setCurrentList:list];
-    [win setCurrentMode:PRLibraryMode];
+    [win setCurrentMode:PRWindowModeLibrary];
 }
 
 - (void)newStaticPlaylist {

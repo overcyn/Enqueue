@@ -74,25 +74,20 @@
     _lastfm = [[PRLastfm alloc] initWithCore:self];
     _keys = [[PRMediaKeyController alloc] initWithCore:self];
     _hotKeys = [[PRHotKeyController alloc] initWithCore:self];
-    return self;
-}
-
-- (void)dealloc {
-    [_connection invalidate];
-}
-
-- (void)awakeFromNib {
+    
     [_win showWindow:nil];
     [_opQueue setSuspended:NO];
-    
-//    PRTrialSheetController *trialSheet = [[PRTrialSheetController alloc] initWithCore:self]; 
-//    [trialSheet beginSheetModalForWindow:[_win window] completionHandler:^{}];
-    
     if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsShowWelcomeSheet]) {
         [[PRDefaults sharedDefaults] setBool:NO forKey:PRDefaultsShowWelcomeSheet];
         PRWelcomeSheetController *welcomeSheet = [[PRWelcomeSheetController alloc] initWithCore:self];
         [welcomeSheet beginSheetModalForWindow:[_win window] completionHandler:^{}];
     }
+    
+    return self;
+}
+
+- (void)dealloc {
+    [_connection invalidate];
 }
 
 #pragma mark - Accessors
