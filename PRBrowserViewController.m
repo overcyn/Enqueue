@@ -222,7 +222,6 @@
     [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(tagsDidChange:)];
     [[NSNotificationCenter defaultCenter] observeUseAlbumArtistChanged:self sel:@selector(libraryDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistFilesChanged:)];
-    [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(playingFileChanged:)];
 }
 
 #pragma mark - PRBrowseViewDelegate
@@ -262,21 +261,19 @@
 #pragma mark - Notifications
 
 - (void)_backendDidChange:(NSNotification *)note {
-    PRChangeSet *changeSet = [note userInfo][@"changeset"];
-    for (NSObject *i in [changeSet changes]) {
+    BOOL reloadData = NO;
+    for (NSObject *i in [[note userInfo][@"changeset"] changes]) {
         if ([i isKindOfClass:[PRListChange class]]) {
             if ([[(PRListChange *)i list] isEqual:_currentList]) {
-                [self _reloadData];
+                reloadData = YES;
             }
+        } else if ([i isKindOfClass:[PRNowPlayingChange class]]) {
+            reloadData = YES;
         }
     }
-}
-
-- (void)playingFileChanged:(NSNotification *)note {
-    // NSIndexSet *rows = [NSIndexSet indexSetWithIndexesInRange:[_detailTableView rowsInRect:[_detailTableView visibleRect]]];
-    // NSIndexSet *columns = [NSIndexSet indexSetWithIndex:[_detailTableView columnWithIdentifier:PRItemAttrTrackNumber]];
-    // [_detailTableView reloadDataForRowIndexes:rows columnIndexes:columns];
-    [self _reloadData];
+    if (reloadData) {
+        [self _reloadData];
+    }
 }
 
 - (void)libraryDidChange:(NSNotification *)note {

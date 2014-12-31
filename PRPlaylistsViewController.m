@@ -60,7 +60,7 @@
         
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(update)];
     [[NSNotificationCenter defaultCenter] observePlaylistsChanged:self sel:@selector(update)];
-    [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(update)];
+//    [[NSNotificationCenter defaultCenter] observePlaylistChanged:self sel:@selector(update)];
     [self update];
 }
 

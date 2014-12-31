@@ -274,7 +274,7 @@
 }
 
 - (void)showCurrentSong {
-    [[[core win] controlsViewController] showInLibrary];
+//    [[[core win] controlsViewController] showInLibrary]; // KD:
 }
 
 #pragma mark - menu delegate

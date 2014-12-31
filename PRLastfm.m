@@ -66,8 +66,8 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
     } else {
         [self setLastfmState:PRLastfmDisconnectedState];
     }
-    [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(playingChanged:)];
-    [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(playingFileChanged:)];
+    // [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(playingChanged:)];
+    // [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(playingFileChanged:)];
     return self;
 }
 

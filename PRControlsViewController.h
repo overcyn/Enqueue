@@ -1,9 +1,6 @@
 #import <Cocoa/Cocoa.h>
-@class PRCore;
+@class PRBridge;
 
 @interface PRControlsViewController : NSViewController
-- (id)initWithCore:(PRCore *)core;
-@property (nonatomic, readonly) NSImageView *albumArtView;
-- (void)updateLayout;
-- (void)showInLibrary;
+- (id)initWithBridge:(PRBridge *)core;
 @end

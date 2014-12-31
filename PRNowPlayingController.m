@@ -83,6 +83,15 @@
     return description;
 }
 
+- (PRMoviePlayerDescription *)movDescription {
+    PRMoviePlayerDescription *description = [[PRMoviePlayerDescription alloc] init];
+    [description setIsPlaying:[_mov isPlaying]];
+    [description setVolume:[_mov volume]];
+    [description setCurrentTime:[_mov currentTime]];
+    [description setDuration:[_mov duration]];
+    return description;
+}
+
 @synthesize invalidItems = _invalidItems;
 @synthesize mov = _mov;
 
@@ -120,7 +129,7 @@
 
 - (void)setRepeat:(int)repeat {
     [[PRDefaults sharedDefaults] setBool:repeat forKey:PRDefaultsRepeat];
-    [[NSNotificationCenter defaultCenter] postRepeatChanged];
+    [self _postChangeSet];
 }
 
 - (BOOL)shuffle {
@@ -129,7 +138,7 @@
 
 - (void)setShuffle:(BOOL)shuffle {
     [[PRDefaults sharedDefaults] setBool:shuffle forKey:PRDefaultsShuffle];
-    [[NSNotificationCenter defaultCenter] postShuffleChanged];
+    [self _postChangeSet];
 }
 
 - (void)toggleRepeat {
@@ -145,8 +154,8 @@
 - (void)stop {
     [_mov stop];
     _currentListItem = nil;
-    [[NSNotificationCenter defaultCenter] postPlayingFileChanged];
     [self clearHistory];
+    [self _postChangeSet];
 }
 
 - (void)playPause {
@@ -221,7 +230,7 @@
         [self playNext];
         return;
     }
-    [[NSNotificationCenter defaultCenter] postPlayingFileChanged];
+    [self _postChangeSet];
 }
 
 - (PRListItem *)nextItem:(BOOL)update {
@@ -448,6 +457,12 @@
     [[(PRDb *)(_db?:(id)_conn) playbackOrder] clear];
     _position = 0;
     _marker = 0;
+}
+
+#pragma mark - Internal
+
+- (void)_postChangeSet {
+    [[NSNotificationCenter defaultCenter] postChanges:@[[[PRNowPlayingChange alloc] init]]];
 }
 
 @end

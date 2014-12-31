@@ -25,6 +25,7 @@
 @class PRMoviePlayer;
 @class PRNowPlayingDescription;
 @class PRConnection;
+@class PRMoviePlayerDescription;
 
 @interface PRNowPlayingController : NSObject
 /* Initialization */
@@ -33,6 +34,7 @@
 
 /* Accessors */
 @property (nonatomic, readonly) PRNowPlayingDescription *description;
+@property (nonatomic, readonly) PRMoviePlayerDescription *movDescription;
 
 @property (readonly) NSArray *invalidItems;
 @property (readonly) PRMoviePlayer *mov;

@@ -1,12 +1,7 @@
 #import <Foundation/Foundation.h>
 
-
-@interface PRWindow : NSWindow {
-    BOOL _entered;
-    NSTrackingArea *_trackingArea;
-}
+@interface PRWindow : NSWindow
 @end
-
 
 @protocol PRWindowDelegate <NSObject>
 @optional

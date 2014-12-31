@@ -1,19 +1,24 @@
 #import "PRMoviePlayer.h"
-#import "PRDefaults.h"
-#import "NSNotificationCenter+Extensions.h"
-#import "NSOperationQueue+Extensions.h"
-#import <AudioUnit/AudioUnit.h>
-#include <cmath>
-#include <libkern/OSAtomic.h>
-#include <SFBAudioEngine/AudioPlayer.h>
-#include <SFBAudioEngine/AudioDecoder.h>
-#import "CAAUParameter.h"
 #import "AUParamInfo.h"
-#import "PREQ.h"
+#import "CAAUParameter.h"
+#import "NSNotificationCenter+Extensions.h"
 #import "NSObject+SPInvocationGrabbing.h"
+#import "NSOperationQueue+Extensions.h"
+#import "PRDefaults.h"
+#import "PREQ.h"
+#import <AudioUnit/AudioUnit.h>
 #import <CoreAudio/CoreAudio.h>
 #import <QuickTime/QuickTime.h>
+#include <cmath>
+#include <libkern/OSAtomic.h>
+#include <SFBAudioEngine/AudioDecoder.h>
+#include <SFBAudioEngine/AudioPlayer.h>
 
+typedef NS_ENUM(NSInteger, PRMoviePlayerTransitionState) {
+    PRNeitherTransitionState,
+    PRPlayingTransitionState,
+    PRPausingTransitionState,
+};
 
 #define PLAYER                      (static_cast<AudioPlayer *>(_player))
 #define ALMOST_FINISHED_FLAG        7
@@ -34,12 +39,19 @@ NSString * const PRDeviceKeyName = @"PRDeviceKeyName";
 NSString * const PRDeviceKeyManufacturer = @"PRDeviceKeyManufacturer";
 NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
 
-
 @interface PRMoviePlayer ()
 @end
 
-
-@implementation PRMoviePlayer
+@implementation PRMoviePlayer {
+    void *_player;
+    AudioUnit _equalizer;
+    NSTimer    *_UIUpdateTimer;
+    NSString *_lastQueued;
+    
+    float _transitionVolume;
+    int _transitionState;
+    NSTimer *_transitionTimer;
+}
 
 #pragma mark - Initialization
 
@@ -51,7 +63,7 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
     [[NSRunLoop mainRunLoop] addTimer:_UIUpdateTimer forMode:NSRunLoopCommonModes];
     
     [[NSNotificationCenter defaultCenter] observeEQChanged:self sel:@selector(EQDidChange:)];
-    [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(playingDidChange:)];
+    [[NSNotificationCenter defaultCenter] observeBackendChanged:self sel:@selector(_backendDidChange:)];
     // KD:
 //    AudioObjectPropertyAddress propertyAddress;
 //    propertyAddress.mSelector = kAudioHardwarePropertyDefaultOutputDevice;
@@ -105,7 +117,7 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
     if (_transitionState == PRNeitherTransitionState) {
         PLAYER->SetVolume([self volume]);
     }
-    [[NSNotificationCenter defaultCenter] postVolumeChanged];
+    [[NSNotificationCenter defaultCenter] postChanges:@[[[PRMovieChange alloc] init]]];
 }
 
 - (long)currentTime {
@@ -143,7 +155,9 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
 #pragma mark - Update Private
 
 - (void)update {
-    [[NSNotificationCenter defaultCenter] postTimeChanged];
+    PRMovieChange *change = [[PRMovieChange alloc] init];
+    [change setProgress:YES];
+    [[NSNotificationCenter defaultCenter] postChanges:@[change]];
     if ([self isPlaying] && ([self duration] - [self currentTime]) < 2000 && !OSAtomicTestAndSetBarrier(ALMOST_FINISHED_FLAG, &moviePlayerFlags) ) {
         [[NSNotificationCenter defaultCenter] postMovieAlmostFinished];
     }
@@ -151,8 +165,12 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
 
 #pragma mark - Notifications
 
-- (void)playingDidChange:(NSNotification *)note {
-    [self updateHogOutput];
+- (void)_backendDidChange:(NSNotification *)note {
+    for (NSObject *i in [[note userInfo][@"changeset"] changes]) {
+        if ([i isKindOfClass:[PRListChange class]]) {
+            [self updateHogOutput];
+        }
+    }
 }
 
 - (void)EQDidChange:(NSNotification *)note {
@@ -224,7 +242,7 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
 
 - (void)stop {
     PLAYER->Stop();
-    [[NSNotificationCenter defaultCenter] postPlayingChanged];
+    [[NSNotificationCenter defaultCenter] postChanges:@[[[PRMovieChange alloc] init]]];
 }
 
 - (void)pauseUnpause {
@@ -243,7 +261,7 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
         PLAYER->SetVolume(_transitionVolume * [self volume]);
         PLAYER->Play();
         [self transitionCallback:nil];
-        [[NSNotificationCenter defaultCenter] postPlayingChanged];
+        [[NSNotificationCenter defaultCenter] postChanges:@[[[PRMovieChange alloc] init]]];
     }
 }
 
@@ -283,7 +301,7 @@ NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
                 _transitionVolume = 0;
                 _transitionState = PRNeitherTransitionState;
                 PLAYER->Pause();
-                [[NSNotificationCenter defaultCenter] postPlayingChanged];
+                [[NSNotificationCenter defaultCenter] postChanges:@[[[PRMovieChange alloc] init]]];
             } else {
                 [_transitionTimer invalidate];
                 _transitionTimer = [NSTimer timerWithTimeInterval:TRANSITION_TIME_STEP
@@ -583,7 +601,7 @@ static void renderingStarted(void *context, const AudioDecoder *decoder) {
 //    CFShow(const_cast<CFURLRef>(const_cast<AudioDecoder *>(decoder)->GetURL()));
     @autoreleasepool {
         [[NSOperationQueue mainQueue] addBlock:^{
-            [[NSNotificationCenter defaultCenter] postPlayingChanged];
+            [[NSNotificationCenter defaultCenter] postChanges:@[[[PRMovieChange alloc] init]]];
         }];
     }
 }
@@ -601,7 +619,7 @@ static void renderingFinished(void *context, const AudioDecoder *decoder) {
     @autoreleasepool {
         [[NSOperationQueue mainQueue] addBlock:^{
             [[NSNotificationCenter defaultCenter] postMovieFinished];
-            [[NSNotificationCenter defaultCenter] postPlayingChanged];
+            [[NSNotificationCenter defaultCenter] postChanges:@[[[PRMovieChange alloc] init]]];
         }];
     }
 }

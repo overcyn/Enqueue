@@ -3,18 +3,17 @@
 @class PRBridge;
 @class PRBrowserViewController;
 
-typedef enum {
+typedef NS_ENUM(NSInteger, PRLibraryViewMode) {
     PRListMode,
     PRAlbumListMode,
-} PRLibraryViewMode;
+};
 
 @interface PRLibraryViewController : PRViewController
 - (id)initWithBridge:(PRBridge *)bridge;
-@property (readonly) NSView *headerView;
-@property (readonly) PRBrowserViewController *currentViewController;
-@property (strong) PRList *currentList;
-@property PRLibraryViewMode libraryViewMode;
-@property BOOL infoViewVisible;
+@property (nonatomic, readonly) PRBrowserViewController *currentViewController;
+@property (nonatomic, strong) PRList *currentList;
+@property (nonatomic) PRLibraryViewMode libraryViewMode;
+@property (nonatomic) BOOL infoViewVisible;
 - (void)toggleInfoViewVisible;
 - (void)find;
 @end

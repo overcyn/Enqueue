@@ -5,14 +5,10 @@
 @implementation NSAttributedString (Extensions)
 
 + (NSMutableDictionary *)defaultUIAttributes {
-    NSShadow *shadow = [[NSShadow alloc] init];
-    [shadow setShadowColor:[NSColor colorWithDeviceWhite:1.0 alpha:0.6]];
-    [shadow setShadowOffset:NSMakeSize(1.0, -1.1)];
     return [NSMutableDictionary dictionaryWithDictionary:@{
         NSFontAttributeName:[NSFont fontWithName:@"LucidaGrande" size:11],
         NSForegroundColorAttributeName:[NSColor colorWithDeviceWhite:0.3 alpha:1.0],
         NSParagraphStyleAttributeName:[NSParagraphStyle leftAlignStyle],
-        NSShadowAttributeName:shadow
     }];
 }
 

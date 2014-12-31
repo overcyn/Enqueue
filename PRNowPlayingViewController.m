@@ -154,7 +154,7 @@
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(_playlistItemsDidChange:)];
     [[NSNotificationCenter defaultCenter] observeItemsChanged:self sel:@selector(_itemsDidChange:)];
     [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(_playlistDidChange:)];
-    [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(_currentFileDidChange:)];
+    [[NSNotificationCenter defaultCenter] observeBackendChanged:self sel:@selector(_backendDidChange:)];
     [NSNotificationCenter addObserver:self selector:@selector(_applicationWillTerminate:) name:NSApplicationWillTerminateNotification object:nil];
 }
 
@@ -480,8 +480,12 @@
     [self _reloadData:nil];
 }
 
-- (void)_currentFileDidChange:(NSNotification *)notification {
-    [self _reloadData:nil];
+- (void)_backendDidChange:(NSNotification *)note {
+    for (NSObject *i in [[note userInfo][@"changeset"] changes]) {
+        if ([i isKindOfClass:[PRNowPlayingChange class]]) {
+            [self _reloadData:nil];
+        }
+    }
 }
 
 - (void)_applicationWillTerminate:(NSNotification *)notification {

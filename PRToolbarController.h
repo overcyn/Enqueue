@@ -3,8 +3,9 @@
 
 @interface PRToolbarController : NSObject
 @property (nonatomic, readonly) NSToolbar *toolbar;
-@property (nonatomic, readonly) id<PRToolbarControllerDelegate> delegate;
-@property (nonatomic) PRWindowMode mode;
+@property (nonatomic, weak) id<PRToolbarControllerDelegate> delegate;
+@property (nonatomic) PRWindowMode windowMode;
+@property (nonatomic, strong) NSString *searchText;
 @end
 
 @protocol PRToolbarControllerDelegate <NSObject>

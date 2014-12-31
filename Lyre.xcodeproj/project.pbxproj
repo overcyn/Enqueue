@@ -75,6 +75,7 @@
 		6740584D135A4CA4000ED697 /* TexturedSliderSpeakerLoudInverted.png in Resources */ = {isa = PBXBuildFile; fileRef = 6740584C135A4CA3000ED697 /* TexturedSliderSpeakerLoudInverted.png */; };
 		674415C2135AA86800A5B269 /* PRMainMenuController.m in Sources */ = {isa = PBXBuildFile; fileRef = 674415C1135AA86800A5B269 /* PRMainMenuController.m */; };
 		67484DCE19AECEE300F02744 /* NSIndexPath+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67484DCD19AECEE300F02744 /* NSIndexPath+Extensions.m */; };
+		674996D51A53C4390037E90A /* PRControlsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 674996D41A53C4390037E90A /* PRControlsView.m */; };
 		6750A3AA1243239B00F415E3 /* PRMainWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6750A3A91243239B00F415E3 /* PRMainWindowController.m */; };
 		675116D2141FD42C00EBE02E /* NSImage+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 675116D1141FD42B00EBE02E /* NSImage+Extensions.m */; };
 		6758FD8E138B39A900E6EBA5 /* PRAppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 6758FD8D138B39A900E6EBA5 /* PRAppIcon.icns */; };
@@ -399,6 +400,8 @@
 		67484DB119A1BB7E00F02744 /* PRNowPlayingDescription_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRNowPlayingDescription_Private.h; sourceTree = "<group>"; };
 		67484DCC19AECEE300F02744 /* NSIndexPath+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSIndexPath+Extensions.h"; sourceTree = "<group>"; };
 		67484DCD19AECEE300F02744 /* NSIndexPath+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+Extensions.m"; sourceTree = "<group>"; };
+		674996D31A53C4390037E90A /* PRControlsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRControlsView.h; sourceTree = "<group>"; };
+		674996D41A53C4390037E90A /* PRControlsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRControlsView.m; sourceTree = "<group>"; };
 		6750A3A81243239B00F415E3 /* PRMainWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRMainWindowController.h; sourceTree = "<group>"; };
 		6750A3A91243239B00F415E3 /* PRMainWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRMainWindowController.m; sourceTree = "<group>"; };
 		675116D0141FD42A00EBE02E /* NSImage+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSImage+Extensions.h"; sourceTree = "<group>"; };
@@ -806,6 +809,8 @@
 				67DF083E1482DFEC00D2C9B5 /* PRControlsView.xib */,
 				67DF083F1482DFEC00D2C9B5 /* PRControlsViewController.h */,
 				67DF08401482DFEC00D2C9B5 /* PRControlsViewController.m */,
+				674996D31A53C4390037E90A /* PRControlsView.h */,
+				674996D41A53C4390037E90A /* PRControlsView.m */,
 			);
 			name = Controls;
 			sourceTree = "<group>";
@@ -1500,6 +1505,9 @@
 				679E3A0E12D28984006190C7 /* PRMoviePlayer.mm */,
 				67EFE761145D406E00F05694 /* PREQ.h */,
 				67EFE762145D406E00F05694 /* PREQ.m */,
+				67DC1D6B19975C490031BC3C /* PRNowPlayingDescription.h */,
+				67484DB119A1BB7E00F02744 /* PRNowPlayingDescription_Private.h */,
+				67DC1D6C19975C490031BC3C /* PRNowPlayingDescription.m */,
 			);
 			name = "Now Playing";
 			sourceTree = "<group>";
@@ -1543,9 +1551,6 @@
 				670567F619BACDB0008CD150 /* PRListDescription.m */,
 				67DC1D6E19975F270031BC3C /* PRListItemsDescription.h */,
 				67DC1D6F19975F270031BC3C /* PRListItemsDescription.m */,
-				67DC1D6B19975C490031BC3C /* PRNowPlayingDescription.h */,
-				67484DB119A1BB7E00F02744 /* PRNowPlayingDescription_Private.h */,
-				67DC1D6C19975C490031BC3C /* PRNowPlayingDescription.m */,
 				670567F819BE6F95008CD150 /* PRLibraryDescription.h */,
 				670567F919BE6F95008CD150 /* PRLibraryDescription.m */,
 			);
@@ -1826,6 +1831,7 @@
 				67DC1D7019975F270031BC3C /* PRListItemsDescription.m in Sources */,
 				67AFF8F9124FDEB6006E7535 /* PRNowPlayingViewController.m in Sources */,
 				670975341251B333008DA63D /* PRNowPlayingController.m in Sources */,
+				674996D51A53C4390037E90A /* PRControlsView.m in Sources */,
 				6739CBDC1252AD4100AB54A1 /* PRTimeFormatter.m in Sources */,
 				6739CCB01253107200AB54A1 /* PRPlaybackOrder.m in Sources */,
 				6739CF01125569ED00AB54A1 /* PRNowPlayingCell.m in Sources */,

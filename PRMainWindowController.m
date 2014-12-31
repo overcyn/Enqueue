@@ -1,5 +1,6 @@
 #import "PRMainWindowController.h"
 #import "NSWindow+Extensions.h"
+#import "PRBridge.h"
 #import "PRBrowserViewController.h"
 #import "PRControlsViewController.h"
 #import "PRCore.h"
@@ -16,26 +17,27 @@
 #import "PRPlaylistsViewController.h"
 #import "PRPreferencesViewController.h"
 #import "PRToolbarController.h"
+#import "PRWindow.h"
 #import <Quartz/Quartz.h>
 
-@interface PRMainWindowController () <NSWindowDelegate, NSMenuDelegate, NSSplitViewDelegate>
+@interface PRMainWindowController () <NSWindowDelegate, NSMenuDelegate, NSSplitViewDelegate, PRToolbarControllerDelegate>
 @end
 
 @implementation PRMainWindowController {
     __weak PRCore *_core;
-    __weak PRDb *_db;
+    PRBridge *_bridge;
     
     PRToolbarController *_toolbarController;    
     PRMainMenuController *_mainMenuController;
-    PRLibraryViewController *_libraryViewController; 
-    PRHistoryViewController *_historyViewController;
-    PRPlaylistsViewController *_playlistsViewController;
-    PRPreferencesViewController *_preferencesViewController; 
-    PRNowPlayingViewController *_nowPlayingViewController;
-    PRControlsViewController *_controlsViewController;
+    PRLibraryViewController *_libraryVC; 
+    PRHistoryViewController *_historyVC;
+    PRPlaylistsViewController *_playlistsVC;
+    PRPreferencesViewController *_preferencesVC; 
+    PRNowPlayingViewController *_nowPlayingVC;
+    PRControlsViewController *_controlsVC;
     
     PRWindowMode _currentMode;
-    id _currentViewController;
+    PRList *_libraryList;
     
     BOOL _resizingSplitView;
     BOOL _windowWillResize;
@@ -46,63 +48,87 @@
 - (id)initWithCore:(PRCore *)core {
     if ((self = [super initWithWindow:nil])) {
         _core = core;
-        _db = [core db];
+        _bridge = [_core bridge];
         _currentMode = PRWindowModeLibrary;
 
         _toolbarController = [[PRToolbarController alloc] init];
+        [_toolbarController setDelegate:self];
+        
         _mainMenuController = [[PRMainMenuController alloc] initWithCore:_core]; 
-        _libraryViewController = [[PRLibraryViewController alloc] initWithBridge:[_core bridge]];
-        _preferencesViewController = [[PRPreferencesViewController alloc] initWithCore:_core];
-        _playlistsViewController = [[PRPlaylistsViewController alloc] initWithCore:_core];
-        _historyViewController = [[PRHistoryViewController alloc] initWithDb:_db mainWindowController:self];
-        _nowPlayingViewController = [[PRNowPlayingViewController alloc] initWithCore:_core];    
-        _controlsViewController = [[PRControlsViewController alloc] initWithCore:_core];
-        // [nowPlayingSuperview addSubview:[_controlsViewController albumArtView]];
+        _libraryVC = [[PRLibraryViewController alloc] initWithBridge:_bridge];
+        _preferencesVC = [[PRPreferencesViewController alloc] initWithCore:_core];
+        _playlistsVC = [[PRPlaylistsViewController alloc] initWithCore:_core];
+        _historyVC = [[PRHistoryViewController alloc] initWithDb:[_core db] mainWindowController:self];
+        _nowPlayingVC = [[PRNowPlayingViewController alloc] initWithCore:_core];    
+        _controlsVC = [[PRControlsViewController alloc] initWithBridge:_bridge];
+        // [nowPlayingSuperview addSubview:[_controlsVC albumArtView]];
+        
+        PRMainWindowView *view = [[PRMainWindowView alloc] init];
+        [view setSidebarVisible:YES];
         
         NSUInteger styleMask = NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask|NSResizableWindowMask;
-        NSWindow *window = [[NSWindow alloc] initWithContentRect:CGRectMake(0, 0, 1000, 1000) styleMask:styleMask backing:NSBackingStoreBuffered defer:YES];
+        PRWindow *window = [[PRWindow alloc] initWithContentRect:CGRectMake(0, 0, 1000, 1000) styleMask:styleMask backing:NSBackingStoreBuffered defer:NO];
         [window setDelegate:self];
-        [window setTitleVisibility:NSWindowTitleHidden];
+        if ([window respondsToSelector:@selector(setTitleVisibility:)]) {
+            [window setTitleVisibility:NSWindowTitleHidden];
+        }
         [window setToolbar:[_toolbarController toolbar]];
-        [window setContentView:[[PRMainWindowView alloc] init]];
+        [window setContentView:view];
         if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
             [[self window] setCollectionBehavior:[[self window] collectionBehavior] | NSWindowCollectionBehaviorFullScreenPrimary];
         }
         [self setWindow:window];
         
-        [self _reloadWindow];
-        
-        [window setInitialFirstResponder:[_libraryViewController firstKeyView]];
-        [[_libraryViewController lastKeyView] setNextKeyView:[_nowPlayingViewController firstKeyView]];
-        [[_nowPlayingViewController lastKeyView] setNextKeyView:[_libraryViewController firstKeyView]];
+        [window setInitialFirstResponder:[_libraryVC firstKeyView]];
+        [[_libraryVC lastKeyView] setNextKeyView:[_nowPlayingVC firstKeyView]];
+        [[_nowPlayingVC lastKeyView] setNextKeyView:[_libraryVC firstKeyView]];
         
         // if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
         //     [NSNotificationCenter addObserver:self selector:@selector(windowWillEnterFullScreen:) name:NSWindowWillEnterFullScreenNotification object:[self window]];
         //     [NSNotificationCenter addObserver:self selector:@selector(windowWillExitFullScreen:) name:NSWindowWillExitFullScreenNotification object:[self window]];
         // }
+        
+        __block PRList *libraryList = nil;
+        [_bridge performTaskSync:^(PRCore *core){
+            libraryList = [[[core db] playlists] libraryList];
+        }];
+        _libraryList = libraryList;
+        
+        [self _reloadWindow];
     }
     return self;
 }
 
 - (void)_reloadWindow {
-    _currentViewController = _libraryViewController;
+    NSViewController *vc = nil;
+    if (_currentMode == PRWindowModeLibrary) {
+        vc = _libraryVC;
+    } else if (_currentMode == PRWindowModePlaylists) {
+        vc = _playlistsVC;
+    } else if (_currentMode == PRWindowModeHistory) {
+        vc = _historyVC;
+    } else if (_currentMode == PRWindowModePreferences) {
+        vc = _preferencesVC;
+    }
     
     PRMainWindowView *view = [[self window] contentView];
-    [view setLeftViewController:_nowPlayingViewController];
-    [view setCenterViewController:_libraryViewController];
-    [view setBottomView:[_controlsViewController view]];
-    [_libraryViewController setCurrentList:[[[_core db] playlists] libraryList]];
+    [view setSidebarView:[_nowPlayingVC view]];
+    [view setCenterView:[vc view]];
+    [view setBottomView:[_controlsVC view]];
+    
+    [_toolbarController setWindowMode:_currentMode];
+    [_libraryVC setCurrentList:_libraryList];
 }
 
 #pragma mark - Accessors
 
 @synthesize mainMenuController = _mainMenuController; 
-@synthesize libraryViewController = _libraryViewController;
-@synthesize historyViewController = _historyViewController;
-@synthesize playlistsViewController = _playlistsViewController;
-@synthesize preferencesViewController = _preferencesViewController;
-@synthesize nowPlayingViewController = _nowPlayingViewController;
-@synthesize controlsViewController = _controlsViewController;
+@synthesize libraryViewController = _libraryVC;
+@synthesize historyViewController = _historyVC;
+@synthesize playlistsViewController = _playlistsVC;
+@synthesize preferencesViewController = _preferencesVC;
+@synthesize nowPlayingViewController = _nowPlayingVC;
+@synthesize controlsViewController = _controlsVC;
 
 - (PRWindowMode)currentMode {
     return _currentMode;
@@ -110,27 +136,7 @@
 
 - (void)setCurrentMode:(PRWindowMode)mode {
     _currentMode = mode;
-    id newViewController;
-    switch (_currentMode) {
-        case PRWindowModeLibrary:
-            newViewController = _libraryViewController;
-            break;
-        case PRWindowModePlaylists:
-            newViewController = _playlistsViewController;
-            break;
-        case PRWindowModeHistory:
-            newViewController = _historyViewController;
-            [_historyViewController update];
-            break;
-        case PRWindowModePreferences:
-            newViewController = _preferencesViewController;
-            break;
-        default:
-            [PRException raise:NSInternalInconsistencyException format:@"Invalid Mode"];return;
-            break;
-    }
-    _currentViewController = newViewController;
-    [self updateUI];
+    [self _reloadWindow];
 }
 
 - (BOOL)showsArtwork {
@@ -176,7 +182,7 @@
             winFrame.size.width = 700+185;
         }
     }
-    [self updateLayoutWithFrame:winFrame];
+    // [self updateLayoutWithFrame:winFrame];
 }
 
 - (void)toggleMiniPlayer {
@@ -210,7 +216,7 @@
     //     frame.size.width = winFrame.size.width;
     //     [controlsSuperview setFrame:frame];
     //     [controlsSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewMaxYMargin];
-    //     [_controlsViewController updateLayout];
+    //     [_controlsVC updateLayout];
         
     //     // SPLIT VIEW
     //     [_splitView removeFromSuperview];
@@ -248,7 +254,7 @@
     //     frame.size.width = winFrame.size.width;
     //     [controlsSuperview setFrame:frame];
     //     [controlsSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewMaxYMargin];
-    //     [_controlsViewController updateLayout];
+    //     [_controlsVC updateLayout];
         
     //     // SPLIT VIEW
     //     [_splitView removeFromSuperview];
@@ -278,7 +284,7 @@
     //     frame.size.width = winFrame.size.width;
     //     [controlsSuperview setFrame:frame];
     //     [controlsSuperview setAutoresizingMask:NSViewMaxXMargin|NSViewMaxYMargin];
-    //     [_controlsViewController updateLayout];
+    //     [_controlsVC updateLayout];
         
     //     // SPLIT VIEW
     //     [[[self window] contentView] addSubview:_splitView];
@@ -334,7 +340,7 @@
     // }
     
     // if (![self miniPlayer]) {
-    //     [[_controlsViewController albumArtView] setHidden:![self showsArtwork]];
+    //     [[_controlsVC albumArtView] setHidden:![self showsArtwork]];
     //     if ([self showsArtwork]) {
     //         // size of nowPlayingView
     //         frame = [nowPlayingSuperview bounds];
@@ -346,24 +352,24 @@
     //             frame.size.height = [nowPlayingSuperview frame].size.height - 500;
     //         }
     //         frame.origin.y = [nowPlayingSuperview frame].size.height - frame.size.height;
-    //         [[_nowPlayingViewController view] setFrame:frame];
+    //         [[_nowPlayingVC view] setFrame:frame];
             
     //         // size of albumArt
     //         frame.origin.x = -1;
     //         frame.origin.y = -2;
     //         frame.size.width = [nowPlayingSuperview frame].size.width + 2;
-    //         frame.size.height = [nowPlayingSuperview frame].size.height - [[_nowPlayingViewController view] frame].size.height + 2;
-    //         [[_controlsViewController albumArtView] setFrame:frame];
+    //         frame.size.height = [nowPlayingSuperview frame].size.height - [[_nowPlayingVC view] frame].size.height + 2;
+    //         [[_controlsVC albumArtView] setFrame:frame];
     //     } else {
     //         frame = [nowPlayingSuperview bounds];
-    //         [[_nowPlayingViewController view] setFrame:frame];
+    //         [[_nowPlayingVC view] setFrame:frame];
     //     }
     // } else {
-    //     [[_controlsViewController albumArtView] setHidden:YES];
+    //     [[_controlsVC albumArtView] setHidden:YES];
         
     //     // size of nowPlayingView
     //     frame = [nowPlayingSuperview bounds];
-    //     [[_nowPlayingViewController view] setFrame:frame];
+    //     [[_nowPlayingVC view] setFrame:frame];
     // }
 }
 
@@ -372,7 +378,7 @@
     // NSButton *button;
     // switch (_currentMode) {
     //     case PRWindowModeLibrary:
-    //         if ([[_libraryViewController currentList] isEqual:[[_db playlists] libraryList]]) {
+    //         if ([[_libraryVC currentList] isEqual:[[_db playlists] libraryList]]) {
     //             button = libraryButton;
     //         } else {
     //             button = playlistsButton;
@@ -429,7 +435,7 @@
 
 - (void)headerButtonAction:(id)sender {
     if ([sender tag] == PRWindowModeLibrary) {
-        [_libraryViewController setCurrentList:[[_db playlists] libraryList]];
+        [_libraryVC setCurrentList:[[[_core db] playlists] libraryList]];
     }
     [self setCurrentMode:[sender tag]];
 }
@@ -533,15 +539,15 @@
     UniChar c = [[event characters] characterAtIndex:0];
     if (flags == 0) {
         if (c == 0x20) {
-            [[_core now] playPause];
+            [_bridge performTask:PRPlayPauseTask()];
             didHandle = YES;
         }
     } else if (flags == (NSNumericPadKeyMask | NSFunctionKeyMask)) {
         if (c == 0xf703) {
-            [[_core now] playNext];
+            [_bridge performTask:PRPlayNextTask()];
             didHandle = YES;
         } else if (c == 0xf702) {
-            [[_core now] playPrevious];
+            [_bridge performTask:PRPlayPreviousTask()];
             didHandle = YES;
         }
     }
@@ -567,21 +573,26 @@
 //     [[PRDefaults sharedDefaults] setFloat:[nowPlayingSuperview frame].size.width forKey:PRDefaultsSidebarWidth];
 // }
 
-// - (BOOL)splitView:(NSSplitView *)splitView shouldAdjustSizeOfSubview:(NSView *)subview {
-//     if (subview == nowPlayingSuperview) {
-//         return NO;
-//     }
-//     return YES;
-// }
+#pragma mark - PRToolbarControllerDelegate
 
-// - (CGFloat)splitView:(NSSplitView *)splitView constrainSplitPosition:(CGFloat)proposedPosition ofSubviewAt:(NSInteger)dividerIndex {
-//     if (proposedPosition < 185) {
-//         return 185;
-//     } else if (proposedPosition > 500) {
-//         return 500;
-//     } else {
-//         return proposedPosition;
-//     }
-// }
+- (void)toolbarControllerSidebarButtonPressed:(PRToolbarController *)toolbar {
+    PRMainWindowView *view = [[self window] contentView];
+    [view setSidebarVisible:![view sidebarVisible]];
+}
+
+- (void)toolbarControllerInfoButtonPressed:(PRToolbarController *)toolbar {
+    
+}
+
+- (void)toolbarControllerSelectedSegmentChanged:(PRToolbarController *)toolbar {
+    PRWindowMode mode = [_toolbarController windowMode];
+    if (mode != _currentMode) {
+        [self setCurrentMode:mode];
+    }
+}
+
+- (void)toolbarControllerSearchTextChanged:(PRToolbarController *)toolbar {
+    
+}
 
 @end

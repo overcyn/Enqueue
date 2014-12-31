@@ -22,7 +22,7 @@
     _core = core_;
     _db = [_core db];
     [GrowlApplicationBridge setGrowlDelegate:self];
-    [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(currentFileDidChange:)];
+    // [[NSNotificationCenter defaultCenter] observePlayingFileChanged:self sel:@selector(currentFileDidChange:)];
 //    [[NSNotificationCenter defaultCenter] observePlayingChanged:self sel:@selector(playingChanged:)];
     return self;
 }

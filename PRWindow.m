@@ -4,15 +4,16 @@
 #import "PRNowPlayingController.h"
 #import "NSBezierPath+Extensions.h"
 
-
 @interface PRWindow(hush)
 - (float)roundedCornerRadius;
 - (void)drawRectOriginal:(NSRect)rect;
 - (NSWindow *)window;
 @end
 
-
-@implementation PRWindow
+@implementation PRWindow {
+    BOOL _entered;
+    NSTrackingArea *_trackingArea;
+}
 
 // - (void)awakeFromNib {
 //     // Get window's frame view class 

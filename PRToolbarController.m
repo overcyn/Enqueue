@@ -11,7 +11,7 @@
 @end
 
 @implementation PRToolbarController {
-    id<PRToolbarControllerDelegate> _delegate;
+    __weak id<PRToolbarControllerDelegate> _delegate;
     NSToolbar *_toolbar;
     NSSegmentedControl *_segmentedControl;
     NSButton *_sidebarButton;
@@ -35,14 +35,12 @@
         
         _sidebarButton = [[NSButton alloc] init];
         [_sidebarButton setBezelStyle:NSTexturedRoundedBezelStyle];
-        [_sidebarButton setButtonType:NSMomentaryLightButton];
         [_sidebarButton setImage:[NSImage imageNamed:@"sidebar"]];
         [_sidebarButton setAction:@selector(_sidebarButtonAction:)];
         [_sidebarButton setTarget:self];
         
         _infoButton = [[NSButton alloc] init];
         [_infoButton setBezelStyle:NSTexturedRoundedBezelStyle];
-        [_infoButton setButtonType:NSMomentaryLightButton];
         [_infoButton setImage:[NSImage imageNamed:@"info"]];
         [_infoButton setTarget:self];
         [_infoButton setAction:@selector(_infoButtonAction:)];
@@ -57,6 +55,35 @@
 #pragma mark - API
 
 @synthesize delegate = _delegate;
+
+- (PRWindowMode)windowMode {
+    NSInteger index = [_segmentedControl selectedSegment];
+    PRWindowMode mode = PRWindowModeLibrary;
+    if (index == 0) {
+        mode = PRWindowModeLibrary;
+    } else if (index == 1) {
+        mode = PRWindowModePlaylists;
+    } else if (index == 2) {
+        mode = PRWindowModeHistory;
+    } else if (index == 3) {
+        mode = PRWindowModePreferences;
+    }
+    return mode;
+}
+
+- (void)setWindowMode:(PRWindowMode)value {
+    NSInteger index = 0;
+    if (value == PRWindowModeLibrary) {
+        index = 0;
+    } else if (value == PRWindowModePlaylists) {
+        index = 1;
+    } else if (value == PRWindowModeHistory) {
+        index = 2;
+    } else if (value == PRWindowModePreferences) {
+        index = 3;
+    }
+    [_segmentedControl setSelectedSegment:index];
+}
 
 #pragma mark - NSToolbarDelegate
 

@@ -8,6 +8,7 @@
 #import "PRLibraryViewController.h"
 #import "PRBrowserViewController.h"
 #import "PRPlaylistsViewController.h"
+#import "PRMoviePlayer.h"
 
 #pragma mark - Now Playing
 
@@ -21,6 +22,12 @@ PRTask PRClearNowPlayingTask(void) {
             [[[core db] playlists] clearList:[[core now] currentList] exceptIndex:[[core now] currentIndex]];
         }
         [[NSNotificationCenter defaultCenter] postListItemsDidChange:[[core now] currentList]];
+    };
+}
+
+PRTask PRPlayPauseTask(void) {
+    return ^(PRCore *core){
+        [[core now] playPause];
     };
 }
 
@@ -59,6 +66,18 @@ PRTask PRPlayItemsTask(NSArray *items, NSInteger index) {
         }
         [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
         [now playItemAtIndex:index+1];
+    };
+}
+
+PRTask PRSetVolumeTask(CGFloat volume) {
+    return ^(PRCore *core){
+        [[[core now] mov] setVolume:volume];
+    };
+}
+
+PRTask PRSetTimeTask(NSInteger time) {
+    return ^(PRCore *core){
+        [[[core now] mov] setCurrentTime:time];
     };
 }
 
@@ -118,9 +137,7 @@ PRTask PRSetListDescriptionTask(PRListDescription *ld, PRList *list) {
         
         PRListChange *listChange = [[PRListChange alloc] init];
         [listChange setList:list];
-        PRChangeSet *changeSet = [[PRChangeSet alloc] init];
-        [changeSet setChanges:@[listChange]];
-        [[NSNotificationCenter defaultCenter] postBackendChanged:changeSet];
+        [[NSNotificationCenter defaultCenter] postChanges:@[listChange]];
     };
 }
 

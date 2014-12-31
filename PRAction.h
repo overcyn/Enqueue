@@ -6,11 +6,14 @@ typedef void (^PRTask)(PRCore *core);
 
 // Now Playing
 PRTask PRClearNowPlayingTask(void);
+PRTask PRPlayPauseTask(void);
 PRTask PRPlayNextTask(void);
 PRTask PRPlayPreviousTask(void);
 PRTask PRStopTask(void);
 PRTask PRPlayIndexTask(NSInteger index);
 PRTask PRPlayItemsTask(NSArray *items, NSInteger index);
+PRTask PRSetVolumeTask(CGFloat volume);
+PRTask PRSetTimeTask(NSInteger time);
 
 // Lists
 PRTask PRAddItemsToListTask(NSArray *items, NSInteger index, PRList *list); // -1 to append, -2 to append next

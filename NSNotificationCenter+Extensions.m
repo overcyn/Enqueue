@@ -10,6 +10,9 @@
 @implementation PRItemChange
 @end
 
+@implementation PRMovieChange
+@end
+
 @implementation PRListsChange
 @end
 
@@ -19,6 +22,8 @@
 @implementation PRListItemsChange
 @end
 
+@implementation PRNowPlayingChange
+@end
 
 
 NSString * const PRLibraryDidChangeNotification = @"PRLibraryDidChangeNotification";
@@ -67,8 +72,10 @@ NSString * const PRDeviceDidChangeNotification = @"PRDeviceDidChangeNotification
     [[NSNotificationCenter defaultCenter] removeObserver:observer];
 }
 
-- (void)postBackendChanged:(PRChangeSet *)changeset {
-    [self postNotificationName:@"changeset" object:nil userInfo:@{@"changeset":changeset}];
+- (void)postChanges:(NSArray *)changes {
+    PRChangeSet *changeSet = [[PRChangeSet alloc] init];
+    [changeSet setChanges:changes];
+    [self postNotificationName:@"changeset" object:nil userInfo:@{@"changeset":changeSet}];
 }
 
 - (void)observeBackendChanged:(id)obs sel:(SEL)sel {
@@ -164,22 +171,6 @@ NSString * const PRDeviceDidChangeNotification = @"PRDeviceDidChangeNotification
     [self postNotificationName:PRMovieAlmostFinishedNote object:nil];
 }
 
-- (void)postPlayingFileChanged {
-    [self postNotificationName:PRCurrentFileDidChangeNotification object:nil];
-}
-
-- (void)postShuffleChanged {
-    [self postNotificationName:PRShuffleDidChangeNotification object:nil];
-}
-
-- (void)postRepeatChanged {
-    [self postNotificationName:PRRepeatDidChangeNotification object:nil];
-}
-
-- (void)postVolumeChanged {
-    [self postNotificationName:PRVolumeChangedNote object:nil];
-}
-
 - (void)observeTimeChanged:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRTimeChangedNote object:nil];
 }
@@ -194,22 +185,6 @@ NSString * const PRDeviceDidChangeNotification = @"PRDeviceDidChangeNotification
 
 - (void)observeMovieAlmostFinished:(id)obs sel:(SEL)sel {
     [self addObserver:obs selector:sel name:PRMovieAlmostFinishedNote object:nil];
-}
-
-- (void)observePlayingFileChanged:(id)obs sel:(SEL)sel {
-    [self addObserver:obs selector:sel name:PRCurrentFileDidChangeNotification object:nil];
-}
-
-- (void)observeShuffleChanged:(id)obs sel:(SEL)sel {
-    [self addObserver:obs selector:sel name:PRShuffleDidChangeNotification object:nil];
-}
-
-- (void)observeRepeatChanged:(id)obs sel:(SEL)sel {
-    [self addObserver:obs selector:sel name:PRRepeatDidChangeNotification object:nil];
-}
-
-- (void)observeVolumeChanged:(id)obs sel:(SEL)sel {
-    [self addObserver:obs selector:sel name:PRVolumeChangedNote object:nil];
 }
 
 @end

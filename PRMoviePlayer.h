@@ -24,28 +24,11 @@
 #import <Cocoa/Cocoa.h>
 #import <AudioUnit/AudioUnit.h>
 
-
-enum {
-    PRNeitherTransitionState,
-    PRPlayingTransitionState,
-    PRPausingTransitionState,
-};
-
 extern NSString * const PRDeviceKeyName;
 extern NSString * const PRDeviceKeyManufacturer;
 extern NSString * const PRDeviceKeyUID;
 
-
-@interface PRMoviePlayer : NSObject {
-    void *_player;
-    AudioUnit _equalizer;
-    NSTimer    *_UIUpdateTimer;
-    NSString *_lastQueued;
-    
-    float _transitionVolume;
-    int _transitionState;
-    NSTimer *_transitionTimer;
-}
+@interface PRMoviePlayer : NSObject
 /* Accessors */
 @property (readonly) BOOL isPlaying;
 @property (readwrite) float volume;

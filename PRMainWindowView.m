@@ -1,13 +1,16 @@
 #import "PRMainWindowView.h"
 
+#define BOTTOM_HEIGHT       55
+
 @interface PRMainWindowView () <NSSplitViewDelegate>
 @end
 
 @implementation PRMainWindowView {
     NSSplitView *_splitView;
-    NSViewController *_leftVC;
-    NSViewController *_centerVC;
+    NSView *_sidebarView;
+    NSView *_centerView;
     NSView *_bottomView;
+    BOOL _sidebarVisible;
 }
 
 - (id)init {
@@ -25,24 +28,23 @@
 
 #pragma mark - API
 
-@synthesize leftViewController = _leftVC;
-@synthesize centerViewController = _centerVC;
+@synthesize sidebarView = _sidebarView;
+@synthesize centerView = _centerView;
 @synthesize bottomView = _bottomView;
+@synthesize sidebarVisible = _sidebarVisible;
 
-- (void)setLeftViewController:(NSViewController *)value {
-    if (_leftVC != value) {
-        [[_leftVC view] removeFromSuperview];
-        _leftVC = value;
-        [_splitView addSubview:[_leftVC view]];
+- (void)setSidebarView:(NSView *)value {
+    if (_sidebarView != value) {
+        [_sidebarView removeFromSuperview];
+        _sidebarView = value;
         [self _layout];
     }
 }
 
-- (void)setCenterViewController:(NSViewController *)value {
-    if (_centerVC != value) {
-        [[_centerVC view] removeFromSuperview];
-        _centerVC = value;
-        [_splitView addSubview:[_centerVC view]];
+- (void)setCenterView:(NSView *)value {
+    if (_centerView != value) {
+        [_centerView removeFromSuperview];
+        _centerView = value;
         [self _layout];
     }
 }
@@ -52,6 +54,13 @@
         [_bottomView removeFromSuperview];
         _bottomView = value;
         [self addSubview:_bottomView];
+        [self _layout];
+    }
+}
+
+- (void)setSidebarVisible:(BOOL)value {
+    if (_sidebarVisible != value) {
+        _sidebarVisible = value;
         [self _layout];
     }
 }
@@ -78,20 +87,27 @@
     }
 }
 
-
 #pragma mark - Internal
 
 - (void)_layout {
+    for (NSView *i in [[_splitView subviews] copy]) {
+        [i removeFromSuperview];
+    }
+    if (_sidebarVisible && _sidebarView) {
+        [_splitView addSubview:_sidebarView];
+    }
+    [_splitView addSubview:_centerView];
+    
     CGRect b = [self bounds];
     {
         CGRect f = b;
-        f.origin.y += 54;
-        f.size.height -= 54;
+        f.origin.y += BOTTOM_HEIGHT;
+        f.size.height -= BOTTOM_HEIGHT;
         [_splitView setFrame:f];
     }
     {
         CGRect f = b;
-        f.size.height = 54;
+        f.size.height = BOTTOM_HEIGHT;
         [_bottomView setFrame:f];
     }
 }
