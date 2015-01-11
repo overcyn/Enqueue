@@ -21,11 +21,11 @@
 #import <Cocoa/Cocoa.h>
 #import "PRPlaylists.h"
 #import "PRLibrary.h"
+@class PRConnection;
 @class PRDb;
 @class PRMoviePlayer;
-@class PRNowPlayingDescription;
-@class PRConnection;
 @class PRMoviePlayerDescription;
+@class PRNowPlayingDescription;
 
 @interface PRNowPlayingController : NSObject
 /* Initialization */
@@ -36,15 +36,15 @@
 @property (nonatomic, readonly) PRNowPlayingDescription *description;
 @property (nonatomic, readonly) PRMoviePlayerDescription *movDescription;
 
-@property (readonly) NSArray *invalidItems;
-@property (readonly) PRMoviePlayer *mov;
-@property (readonly) PRList *currentList;
-@property (readonly) PRListItem *currentListItem;
-@property (readonly) PRItem *currentItem;
-@property (readonly) int currentIndex;
+@property (nonatomic, readonly) NSArray *invalidItems;
+@property (nonatomic, readonly) PRMoviePlayer *mov;
+@property (nonatomic, readonly) PRList *currentList;
+@property (nonatomic, readonly) PRListItem *currentListItem;
+@property (nonatomic, readonly) PRItem *currentItem;
+@property (nonatomic, readonly) int currentIndex;
 
-@property (readwrite) BOOL shuffle;
-@property (readwrite) int repeat;
+@property (nonatomic, readwrite) BOOL shuffle;
+@property (nonatomic, readwrite) int repeat;
 - (void)toggleRepeat;
 - (void)toggleShuffle;
 

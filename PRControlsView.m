@@ -10,6 +10,7 @@
     NSSlider *_volumeSlider;
     NSSlider *_progressSlider;
     PRGradientView *_containerView;
+    NSTextField *_titleLabel;
 }
 
 - (id)initWithFrame:(CGRect)frame {
@@ -42,6 +43,14 @@
         [_progressSlider setMinValue:0];
         [_progressSlider setMaxValue:1];
         [self addSubview:_progressSlider];
+        
+        _titleLabel = [[NSTextField alloc] init];
+        [_titleLabel setBezeled:NO];
+        [_titleLabel setDrawsBackground:NO];
+        [_titleLabel setEditable:NO];
+        [_titleLabel setSelectable:NO];
+        [[_titleLabel cell] setUsesSingleLineMode:YES];
+        [self addSubview:_titleLabel];
     }
     return self;
 }
@@ -55,6 +64,14 @@
 @synthesize repeatButton = _repeatButton;
 @synthesize volumeSlider = _volumeSlider;
 @synthesize progressSlider = _progressSlider;
+
+- (NSString *)titleString {
+    return [_titleLabel stringValue];
+}
+
+- (void)setTitleString:(NSString *)value {
+    [_titleLabel setStringValue:value];
+}
 
 #pragma mark - NSView
 
@@ -125,10 +142,18 @@
         [_containerView setFrame:f];
     }
     {
+        CGRect f = [_titleLabel frame];
+        f.size.width = maxX - x;
+        f.size.height = 25;
+        f.origin.x = x;
+        f.origin.y = b.origin.y + b.size.height - f.size.height;
+        [_titleLabel setFrame:f];
+    }
+    {
         CGRect f = [_progressSlider frame];
         f.size.width = maxX - x;
-        f.size.height = 50;
-        f.origin.y = b.origin.y + b.size.height - 10 - f.size.height;
+        f.size.height = 25;
+        f.origin.y = b.origin.y + 5;
         f.origin.x = x;
         [_progressSlider setFrame:f];
     }

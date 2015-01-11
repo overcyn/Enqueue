@@ -5,7 +5,7 @@
 @class PRConnection;
 @class PRLibraryDescription;
 @class PRBrowserDescription;
-
+@class PRItemDescription;
 
 typedef NSNumber PRItem;
 typedef NSString PRItemAttr;
@@ -76,6 +76,9 @@ extern PRItemAttr * const PRItemAttrRating;
 - (BOOL)zSetValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr;
 - (BOOL)zAttrsForItem:(PRItem *)item out:(NSDictionary **)outValue;
 - (BOOL)zSetAttrs:(NSDictionary *)attrs forItem:(PRItem *)item;
+
+- (BOOL)zItemDescriptionForItem:(PRItem *)item out:(PRItemDescription **)outValue;
+- (BOOL)zSetItemDescription:(PRItemDescription *)value forItem:(PRItem *)item;
 
 - (BOOL)zArtistValueForItem:(PRItem *)item out:(NSString **)outValue;
 - (BOOL)zURLForItem:(PRItem *)item out:(NSURL **)outValue;

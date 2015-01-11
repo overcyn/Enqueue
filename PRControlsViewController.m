@@ -78,8 +78,11 @@
     __block PRNowPlayingDescription *nowPlayingDescription = nil;
     [_bridge performTaskSync:^(PRCore *core){
         nowPlayingDescription = [[core now] description];
+        
     }];
     _nowPlayingDescription = nowPlayingDescription;
+    
+    [_view setTitleString:@"dog"];
     
     [self _reloadMovie];
 }

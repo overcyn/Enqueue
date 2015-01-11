@@ -222,6 +222,7 @@
 		67E422F21A523FD1009865DC /* info.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 67E422F01A523FD1009865DC /* info.pdf */; };
 		67E422F31A523FD1009865DC /* overview.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 67E422F11A523FD1009865DC /* overview.pdf */; };
 		67E422F71A529EB0009865DC /* PRToolbarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E422F61A529EB0009865DC /* PRToolbarController.m */; };
+		67E509941A61F7F90078CD2E /* PRItemDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E509931A61F7F90078CD2E /* PRItemDescription.m */; };
 		67E7B4F214B444F60060D1FE /* iTunesImport.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E7B4F114B444F60060D1FE /* iTunesImport.png */; };
 		67E94735126C528E00CAE943 /* PRCenteredTextFieldCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */; };
 		67E94DDA14551E8900B88EA4 /* Cancel.png in Resources */ = {isa = PBXBuildFile; fileRef = 67E94DD914551E8900B88EA4 /* Cancel.png */; };
@@ -624,6 +625,9 @@
 		67E422F11A523FD1009865DC /* overview.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = overview.pdf; path = Icons/overview.pdf; sourceTree = "<group>"; };
 		67E422F51A529EB0009865DC /* PRToolbarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRToolbarController.h; sourceTree = "<group>"; };
 		67E422F61A529EB0009865DC /* PRToolbarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRToolbarController.m; sourceTree = "<group>"; };
+		67E509921A61F7F90078CD2E /* PRItemDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRItemDescription.h; sourceTree = "<group>"; };
+		67E509931A61F7F90078CD2E /* PRItemDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRItemDescription.m; sourceTree = "<group>"; };
+		67E509951A627C7F0078CD2E /* PRItemDescription_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRItemDescription_Private.h; sourceTree = "<group>"; };
 		67E7B4F114B444F60060D1FE /* iTunesImport.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = iTunesImport.png; path = Icons/iTunesImport.png; sourceTree = "<group>"; };
 		67E94733126C528E00CAE943 /* PRCenteredTextFieldCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRCenteredTextFieldCell.h; sourceTree = "<group>"; };
 		67E94734126C528E00CAE943 /* PRCenteredTextFieldCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRCenteredTextFieldCell.m; sourceTree = "<group>"; };
@@ -701,13 +705,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		080E96DDFE201D6D7F000001 /* Core */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Core;
-			sourceTree = "<group>";
-		};
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -1553,6 +1550,9 @@
 				67DC1D6F19975F270031BC3C /* PRListItemsDescription.m */,
 				670567F819BE6F95008CD150 /* PRLibraryDescription.h */,
 				670567F919BE6F95008CD150 /* PRLibraryDescription.m */,
+				67E509921A61F7F90078CD2E /* PRItemDescription.h */,
+				67E509931A61F7F90078CD2E /* PRItemDescription.m */,
+				67E509951A627C7F0078CD2E /* PRItemDescription_Private.h */,
 			);
 			name = Description;
 			sourceTree = "<group>";
@@ -1585,6 +1585,7 @@
 			children = (
 				256AC3D80F4B6AC300CF3369 /* PRCore.h */,
 				256AC3D90F4B6AC300CF3369 /* PRCore.m */,
+				67804A78124C8CCA003268AD /* Database */,
 				67CE095C124C6A1B00A39077 /* Now Playing */,
 				6739CCB4125313D400AB54A1 /* Tags */,
 				67133E181327425C00764174 /* Folder Monitor */,
@@ -1595,8 +1596,6 @@
 				6706FCF512B9C64400C9B075 /* Defaults */,
 				67D41109158586A0007C2E04 /* AppleScript */,
 				67FCEE0B133EA04800765EE1 /* Log */,
-				080E96DDFE201D6D7F000001 /* Core */,
-				67804A78124C8CCA003268AD /* Database */,
 				677CB95613BC74790090B4D0 /* Operations */,
 			);
 			name = "Back End";
@@ -1925,6 +1924,7 @@
 				67EA44A014499336006DDB47 /* PREnableLogger.mm in Sources */,
 				67DAC8161456387900E120B6 /* EMKeychainItem.m in Sources */,
 				673540FC145CB76D004044F1 /* AUParamInfo.cpp in Sources */,
+				67E509941A61F7F90078CD2E /* PRItemDescription.m in Sources */,
 				673540FD145CB76D004044F1 /* CAAUParameter.cpp in Sources */,
 				67EFE763145D406E00F05694 /* PREQ.m in Sources */,
 				67EFE766145E813C00F05694 /* NSColor+Extensions.m in Sources */,

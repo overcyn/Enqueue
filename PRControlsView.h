@@ -8,4 +8,5 @@
 @property (nonatomic, readonly) NSButton *repeatButton;
 @property (nonatomic, readonly) NSSlider *volumeSlider;
 @property (nonatomic, readonly) NSSlider *progressSlider;
+@property (nonatomic, strong) NSString *titleString;
 @end
