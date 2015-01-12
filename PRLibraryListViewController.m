@@ -17,7 +17,7 @@
 #import "PRConnection.h"
 #import "PRTimeFormatter.h"
 #import "PRCore.h"
-#import "PRNowPlayingDescription.h"
+#import "PRPlayerDescription.h"
 #import "PRNowPlayingController.h"
 
 @interface PRLibraryListViewController () <NSMenuDelegate, NSTableViewDelegate, NSTableViewDataSource, PRTableViewDelegate>
@@ -26,7 +26,7 @@
 @implementation PRLibraryListViewController {
     PRBridge *_bridge;
     PRList *_currentList;
-    PRNowPlayingDescription *_nowPlayingDescription;
+    PRPlayerDescription *_nowPlayingDescription;
     PRLibraryDescription *_libraryDescription;
     NSArray *_listDescriptions;
     PRTableView *_tableView;
@@ -662,7 +662,7 @@
 - (void)_reloadData {
     __block PRLibraryDescription *libraryDescription = nil;
     __block NSArray *listDescriptions = nil;
-    __block PRNowPlayingDescription *nowPlayingDescription = nil;
+    __block PRPlayerDescription *nowPlayingDescription = nil;
     [_bridge performTaskSync:^(PRCore *core){
         [[[core conn] playlists] zLibraryDescriptionForList:_currentList out:&libraryDescription];
         [[[core conn] playlists] zAllListDescriptions:&listDescriptions];

@@ -21,7 +21,7 @@
 #import "PRMoviePlayer.h"
 #import "PRNowPlayingCell.h"
 #import "PRNowPlayingController.h"
-#import "PRNowPlayingDescription.h"
+#import "PRPlayerDescription.h"
 #import "PRNowPlayingHeaderCell.h"
 #import "PROutlineView.h"
 #import "PRPlaylists.h"
@@ -53,7 +53,7 @@
     NSCell *_cachedNowPlayingHeaderCell;
     
     PRNowPlayingListItemsDescription *_listItemsDescription;
-    PRNowPlayingDescription *_nowPlayingDescription;
+    PRPlayerDescription *_nowPlayingDescription;
     NSArray *_queueArray;
 }
 
@@ -502,7 +502,7 @@
 
 - (void)_reloadData:(PRChangeSet *)changeSet {
     __block PRNowPlayingListItemsDescription *listItemsDescription;
-    __block PRNowPlayingDescription *nowPlayingDescription;
+    __block PRPlayerDescription *nowPlayingDescription;
     __block NSArray *queueArray;
     [_bridge performTaskSync:^(PRCore *core){
         nowPlayingDescription = [[core now] description];

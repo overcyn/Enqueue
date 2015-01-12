@@ -8,7 +8,7 @@
 #import "PRPlaylists.h"
 #import "PRQueue.h"
 #import "PRTagger.h"
-#import "PRNowPlayingDescription_Private.h"
+#import "PRPlayerDescription_Private.h"
 #import "PRConnection.h"
 
 
@@ -72,8 +72,8 @@
 
 #pragma mark - Accessors
 
-- (PRNowPlayingDescription *)description {
-    PRNowPlayingDescription *description = [[PRNowPlayingDescription alloc] init];
+- (PRPlayerDescription *)description {
+    PRPlayerDescription *description = [[PRPlayerDescription alloc] init];
     [description setInvalidItems:[self invalidItems]];
     [description setCurrentList:[self currentList]];
     [description setCurrentItem:[self currentItem]];
@@ -83,8 +83,8 @@
     return description;
 }
 
-- (PRMoviePlayerDescription *)movDescription {
-    PRMoviePlayerDescription *description = [[PRMoviePlayerDescription alloc] init];
+- (PRMovieDescription *)movDescription {
+    PRMovieDescription *description = [[PRMovieDescription alloc] init];
     [description setIsPlaying:[_mov isPlaying]];
     [description setVolume:[_mov volume]];
     [description setCurrentTime:[_mov currentTime]];

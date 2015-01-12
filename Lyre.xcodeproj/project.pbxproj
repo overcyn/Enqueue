@@ -202,7 +202,7 @@
 		67D911E71471087B001C9DE8 /* PRMediaKeyController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67D911E61471087B001C9DE8 /* PRMediaKeyController.m */; };
 		67DAC8161456387900E120B6 /* EMKeychainItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DAC8151456387900E120B6 /* EMKeychainItem.m */; };
 		67DC10891489D12100A76236 /* PRPathFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC10881489D12100A76236 /* PRPathFormatter.m */; };
-		67DC1D6D19975C490031BC3C /* PRNowPlayingDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D6C19975C490031BC3C /* PRNowPlayingDescription.m */; };
+		67DC1D6D19975C490031BC3C /* PRPlayerDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D6C19975C490031BC3C /* PRPlayerDescription.m */; };
 		67DC1D7019975F270031BC3C /* PRListItemsDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D6F19975F270031BC3C /* PRListItemsDescription.m */; };
 		67DC1D7619A13D300031BC3C /* PRBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D7519A13D300031BC3C /* PRBridge.m */; };
 		67DC1D7919A141650031BC3C /* PRAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D7819A141650031BC3C /* PRAction.m */; };
@@ -397,7 +397,7 @@
 		6740584C135A4CA3000ED697 /* TexturedSliderSpeakerLoudInverted.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = TexturedSliderSpeakerLoudInverted.png; path = Icons/TexturedSliderSpeakerLoudInverted.png; sourceTree = "<group>"; };
 		674415C0135AA86800A5B269 /* PRMainMenuController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRMainMenuController.h; sourceTree = "<group>"; };
 		674415C1135AA86800A5B269 /* PRMainMenuController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRMainMenuController.m; sourceTree = "<group>"; };
-		67484DB119A1BB7E00F02744 /* PRNowPlayingDescription_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRNowPlayingDescription_Private.h; sourceTree = "<group>"; };
+		67484DB119A1BB7E00F02744 /* PRPlayerDescription_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRPlayerDescription_Private.h; sourceTree = "<group>"; };
 		67484DCC19AECEE300F02744 /* NSIndexPath+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSIndexPath+Extensions.h"; sourceTree = "<group>"; };
 		67484DCD19AECEE300F02744 /* NSIndexPath+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSIndexPath+Extensions.m"; sourceTree = "<group>"; };
 		674996D31A53C4390037E90A /* PRControlsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRControlsView.h; sourceTree = "<group>"; };
@@ -589,8 +589,8 @@
 		67DAC8151456387900E120B6 /* EMKeychainItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EMKeychainItem.m; path = Frameworks/EMKeychainItem/EMKeychainItem.m; sourceTree = "<group>"; };
 		67DC10871489D12100A76236 /* PRPathFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRPathFormatter.h; sourceTree = "<group>"; };
 		67DC10881489D12100A76236 /* PRPathFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRPathFormatter.m; sourceTree = "<group>"; };
-		67DC1D6B19975C490031BC3C /* PRNowPlayingDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRNowPlayingDescription.h; sourceTree = "<group>"; };
-		67DC1D6C19975C490031BC3C /* PRNowPlayingDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRNowPlayingDescription.m; sourceTree = "<group>"; };
+		67DC1D6B19975C490031BC3C /* PRPlayerDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRPlayerDescription.h; sourceTree = "<group>"; };
+		67DC1D6C19975C490031BC3C /* PRPlayerDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRPlayerDescription.m; sourceTree = "<group>"; };
 		67DC1D6E19975F270031BC3C /* PRListItemsDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRListItemsDescription.h; sourceTree = "<group>"; };
 		67DC1D6F19975F270031BC3C /* PRListItemsDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRListItemsDescription.m; sourceTree = "<group>"; };
 		67DC1D7219A13BBA0031BC3C /* PRAction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRAction.h; sourceTree = "<group>"; };
@@ -1499,9 +1499,9 @@
 				679E3A0E12D28984006190C7 /* PRMoviePlayer.mm */,
 				67EFE761145D406E00F05694 /* PREQ.h */,
 				67EFE762145D406E00F05694 /* PREQ.m */,
-				67DC1D6B19975C490031BC3C /* PRNowPlayingDescription.h */,
-				67484DB119A1BB7E00F02744 /* PRNowPlayingDescription_Private.h */,
-				67DC1D6C19975C490031BC3C /* PRNowPlayingDescription.m */,
+				67DC1D6B19975C490031BC3C /* PRPlayerDescription.h */,
+				67484DB119A1BB7E00F02744 /* PRPlayerDescription_Private.h */,
+				67DC1D6C19975C490031BC3C /* PRPlayerDescription.m */,
 			);
 			name = "Now Playing";
 			sourceTree = "<group>";
@@ -1835,7 +1835,7 @@
 				67026EA312697810002E929F /* PRPreferencesViewController.m in Sources */,
 				6702717E126AFC6F002E929F /* PRSizeFormatter.m in Sources */,
 				67E94735126C528E00CAE943 /* PRCenteredTextFieldCell.m in Sources */,
-				67DC1D6D19975C490031BC3C /* PRNowPlayingDescription.m in Sources */,
+				67DC1D6D19975C490031BC3C /* PRPlayerDescription.m in Sources */,
 				675C678B126E5965008336B9 /* PRTableView.m in Sources */,
 				6771E787127974F9007A34F2 /* PRPlaylistsViewController.m in Sources */,
 				6771E90F127A47E3007A34F2 /* PRHistoryViewController.m in Sources */,

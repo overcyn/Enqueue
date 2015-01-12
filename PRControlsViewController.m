@@ -7,13 +7,13 @@
 #import "PRItemDescription.h"
 #import "PRNowPlayingController.h"
 #import "PRTimeFormatter.h"
-#import "PRNowPlayingDescription.h"
+#import "PRPlayerDescription.h"
 
 @implementation PRControlsViewController {
     PRBridge *_bridge;
     PRControlsView *_view;
-    PRNowPlayingDescription *_player;
-    PRMoviePlayerDescription *_movie;
+    PRPlayerDescription *_player;
+    PRMovieDescription *_movie;
     PRItemDescription *_item;
     PRTimeFormatter *_formatter;
 }
@@ -93,7 +93,7 @@
 #pragma mark - Internal
 
 - (void)_reloadData {
-    __block PRNowPlayingDescription *player = nil;
+    __block PRPlayerDescription *player = nil;
     __block PRItemDescription *item = nil;
     [_bridge performTaskSync:^(PRCore *core){
         player = [[core now] description];
@@ -112,7 +112,7 @@
 }
 
 - (void)_reloadMovie {
-    __block PRMoviePlayerDescription *movDescription = nil;
+    __block PRMovieDescription *movDescription = nil;
     [_bridge performTaskSync:^(PRCore *core){
         movDescription = [[core now] movDescription];
     }];
