@@ -81,6 +81,18 @@ PRTask PRSetTimeTask(NSInteger time) {
     };
 }
 
+PRTask PRToggleShuffleTask(void) {
+    return ^(PRCore *core){
+        [[core now] toggleShuffle];
+    };
+}
+
+PRTask PRToggleRepeatTask(void) {
+    return ^(PRCore *core){
+        [[core now] toggleRepeat];
+    };
+}
+
 #pragma mark - Lists
 
 PRTask PRAddItemsToListTask(NSArray *items, NSInteger index, PRList *list) {

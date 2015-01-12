@@ -210,7 +210,6 @@
 		67DE033A147B07A600BBB0F6 /* PRFileInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE0339147B07A600BBB0F6 /* PRFileInfo.m */; };
 		67DE13351516E37D00E94F28 /* PRAlertWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE13341516E37D00E94F28 /* PRAlertWindowController.m */; };
 		67DE13391516FB4800E94F28 /* PRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE13381516FB4800E94F28 /* PRViewController.m */; };
-		67DF08411482DFEC00D2C9B5 /* PRControlsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 67DF083E1482DFEC00D2C9B5 /* PRControlsView.xib */; };
 		67DF08421482DFEC00D2C9B5 /* PRControlsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DF08401482DFEC00D2C9B5 /* PRControlsViewController.m */; };
 		67DF08451483159800D2C9B5 /* PRHeaderBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DF08441483159800D2C9B5 /* PRHeaderBox.m */; };
 		67DF6127148C5FA30019DF24 /* PRHyperlinkButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DF6126148C5FA30019DF24 /* PRHyperlinkButton.m */; };
@@ -606,7 +605,6 @@
 		67DE13341516E37D00E94F28 /* PRAlertWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRAlertWindowController.m; sourceTree = "<group>"; };
 		67DE13371516FB4800E94F28 /* PRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRViewController.h; sourceTree = "<group>"; };
 		67DE13381516FB4800E94F28 /* PRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRViewController.m; sourceTree = "<group>"; };
-		67DF083E1482DFEC00D2C9B5 /* PRControlsView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRControlsView.xib; sourceTree = "<group>"; };
 		67DF083F1482DFEC00D2C9B5 /* PRControlsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRControlsViewController.h; sourceTree = "<group>"; };
 		67DF08401482DFEC00D2C9B5 /* PRControlsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRControlsViewController.m; sourceTree = "<group>"; };
 		67DF08431483159700D2C9B5 /* PRHeaderBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRHeaderBox.h; sourceTree = "<group>"; };
@@ -803,7 +801,6 @@
 		6709731C12502F62008DA63D /* Controls */ = {
 			isa = PBXGroup;
 			children = (
-				67DF083E1482DFEC00D2C9B5 /* PRControlsView.xib */,
 				67DF083F1482DFEC00D2C9B5 /* PRControlsViewController.h */,
 				67DF08401482DFEC00D2C9B5 /* PRControlsViewController.m */,
 				674996D31A53C4390037E90A /* PRControlsView.h */,
@@ -1800,7 +1797,6 @@
 				67EA1302145B34A900309876 /* NowSpeaker2.png in Resources */,
 				67EA1303145B34A900309876 /* NowSpeaker3.png in Resources */,
 				67EA1305145B36F400309876 /* NowCancel.png in Resources */,
-				67DF08411482DFEC00D2C9B5 /* PRControlsView.xib in Resources */,
 				675FE00F1487138100E76BD0 /* AlbumList.png in Resources */,
 				675FE0101487138100E76BD0 /* List.png in Resources */,
 				67E2366F148B028200106779 /* Trash.png in Resources */,

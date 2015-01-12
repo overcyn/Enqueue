@@ -9,4 +9,8 @@
 @property (nonatomic, readonly) NSSlider *volumeSlider;
 @property (nonatomic, readonly) NSSlider *progressSlider;
 @property (nonatomic, strong) NSString *titleString;
+@property (nonatomic, strong) NSString *subtitleString;
+@property (nonatomic) BOOL isPlaying;
+@property (nonatomic) BOOL shuffle;
+@property (nonatomic) NSInteger repeat;
 @end

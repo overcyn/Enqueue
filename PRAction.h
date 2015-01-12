@@ -14,6 +14,8 @@ PRTask PRPlayIndexTask(NSInteger index);
 PRTask PRPlayItemsTask(NSArray *items, NSInteger index);
 PRTask PRSetVolumeTask(CGFloat volume);
 PRTask PRSetTimeTask(NSInteger time);
+PRTask PRToggleShuffleTask(void);
+PRTask PRToggleRepeatTask(void);
 
 // Lists
 PRTask PRAddItemsToListTask(NSArray *items, NSInteger index, PRList *list); // -1 to append, -2 to append next
