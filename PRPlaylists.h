@@ -45,6 +45,7 @@ typedef enum {
 } PRBrowserPosition;
 
 typedef int PRPlaylist;
+typedef int PRPlaylistItem;
 
 typedef enum {
     PRLibraryPlaylistType = 0,
