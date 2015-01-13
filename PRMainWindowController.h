@@ -1,5 +1,4 @@
 #import <Cocoa/Cocoa.h>
-#import "PRPlaylists.h"
 @class PRCore; 
 @class PRUpNextViewController; 
 @class PRControlsViewController; 

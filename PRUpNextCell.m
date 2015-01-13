@@ -2,7 +2,6 @@
 #import "PRUpNextViewController.h"
 #import "NSParagraphStyle+Extensions.h"
 
-
 @implementation PRUpNextCell
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)theControlView {

@@ -7,7 +7,6 @@
 #import "NSTableView+Extensions.h"
 #import "PRAction.h"
 #import "PRBridge.h"
-#import "PRBrowserViewController.h"
 #import "PRConnection.h"
 #import "PRCore.h"
 #import "PRDb.h"
@@ -25,11 +24,7 @@
 #import "PRPlayer.h"
 #import "PRPlayerState.h"
 #import "PRPlaylists.h"
-#import "PRPlaylists.h"
-#import "PRPlaylistsViewController.h"
 #import "PRQueue.h"
-#import "PRTableView.h"
-#import "PRViewController.h"
 
 @interface PRUpNextViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, PROutlineViewDelegate>
 @end
@@ -45,7 +40,6 @@
     NSButton *_clearButton;
     NSPopUpButton *_menuButton;
     
-    NSMenu *_playlistMenu;
     NSMenu *_contextMenu;
         
     NSPoint _dropPoint;
@@ -61,9 +55,10 @@
 #pragma mark - Initialization
 
 - (id)initWithCore:(PRCore *)core {
-    if (!(self = [super init])) {return nil;}
-    _core = core;
-    _bridge = [_core bridge];
+    if ((self = [super init])) {
+        _core = core;
+        _bridge = [_core bridge];
+    }
     return self;
 }
 
@@ -103,29 +98,6 @@
     [_outlineView setOutlineTableColumn:column];
     [_scrollview setDocumentView:_outlineView];
     
-    // header view
-    _headerView = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, 50, 30)];
-    
-    _playlistMenu = [[NSMenu alloc] init];
-    [_playlistMenu setAutoenablesItems:NO];
-    [_playlistMenu setDelegate:self];
-    _menuButton = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(18, 3, 25, 25)];
-    [[_menuButton cell] setArrowPosition:NSPopUpNoArrow];
-    [_menuButton setMenu:_playlistMenu];
-    [_menuButton setPullsDown:YES];
-    [_menuButton setBordered:NO];
-    [_menuButton setToolTip:@"Save the Now Playing playlist."];
-    [_headerView addSubview:_menuButton];
-    
-    _clearButton = [[NSButton alloc] initWithFrame:NSMakeRect(1, 3, 25, 25)];
-    [_clearButton setImage:[NSImage imageNamed:@"Trash"]];
-    [_clearButton setBordered:NO];
-    [_clearButton setTarget:self];
-    [_clearButton setAction:@selector(_clearPlaylistAction:)];
-    [_clearButton setButtonType:NSMomentaryChangeButton];
-    [_clearButton setToolTip:@"Clear the Now Playing playlist."];
-    [_headerView addSubview:_clearButton];
-    
     // context menu
     _contextMenu = [[NSMenu alloc] init];
     [_contextMenu setDelegate:self];
@@ -137,7 +109,6 @@
     [_outlineView setNextKeyView:[self lastKeyView]];
     
     // update
-    [self menuNeedsUpdate:_playlistMenu];
     [self _reloadData:nil];
     
     // restore collapse state
@@ -160,8 +131,6 @@
 }
 
 #pragma mark - API
-
-@synthesize headerView = _headerView;
 
 - (void)higlightPlayingFile {
     if ([_player currentItem]) {
@@ -379,10 +348,6 @@
     [_bridge performTask:PRPlayIndexTask(index)];
 }
 
-- (void)_clearPlaylistAction:(id)sender {
-    [_bridge performTask:PRClearNowPlayingTask()];
-}
-
 - (void)_playSelectedAction:(id)sender {
     NSIndexSet *selected = [self _selectedIndexes];
     if ([selected count] != 0) {
@@ -546,46 +511,6 @@
         [selectedListItems addObject:[_playerList listItemIDAtIndex:i]];
     }];
     return selectedListItems;
-}
-
-- (void)_updatePlaylistMenu {
-    // NSMenu *menu = _playlistMenu;
-    // for (NSMenuItem *i in [menu itemArray]) {
-    //     [menu removeItem:i];
-    // }
-    // NSMenuItem *menuItem = [[NSMenuItem alloc] init];
-    // [menuItem setImage:[NSImage imageNamed:@"Settings"]];
-    // [menu addItem:menuItem];
-    
-    // menuItem = [[NSMenuItem alloc] initWithTitle:@"Save as..." action:nil keyEquivalent:@""];
-    // [menuItem setEnabled:NO];
-    // [menu addItem:menuItem];
-    
-    // menuItem = [[NSMenuItem alloc] initWithTitle:@" New Playlist          " action:@selector(_saveAsNewPlaylist:) keyEquivalent:@""];
-    // [menuItem setImage:[NSImage imageNamed:@"Add"]];
-    // [menu addItem:menuItem];
-    
-    // PRPlaylists *playlists = [[_core conn] playlists];
-    // NSArray *lists = nil;
-    // [playlists zLists:&lists];
-    // for (NSNumber *i in lists) {
-    //     PRListDescription *listDescription = nil;
-    //     BOOL success = [playlists zListDescriptionForList:i out:&listDescription];
-    //     if (!success) {
-    //         continue;
-    //     }
-    //     if ([[listDescription type] isEqual:PRListTypeStatic]) {
-    //         NSString *playlistTitle = [NSString stringWithFormat:@" %@", [listDescription title]];
-    //         menuItem = [[NSMenuItem alloc] initWithTitle:playlistTitle action:@selector(saveAsPlaylist:) keyEquivalent:@""];
-    //         [menuItem setRepresentedObject:i];
-    //         [menuItem setImage:[NSImage imageNamed:@"ListViewTemplate"]];
-    //         [menu addItem:menuItem];
-    //     }
-    // }
-    
-    // for (NSMenuItem *i in [menu itemArray]) {
-    //     [i setTarget:self];
-    // }
 }
 
 - (void)_updateContextMenu {
