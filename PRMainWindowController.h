@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import "PRPlaylists.h"
 @class PRCore; 
-@class PRNowPlayingViewController; 
+@class PRUpNextViewController; 
 @class PRControlsViewController; 
 @class PRLibraryViewController; 
 @class PRPreferencesViewController; 
@@ -24,7 +24,7 @@ typedef NS_ENUM(NSInteger, PRWindowMode) {
 @property (readonly) PRHistoryViewController *historyViewController;
 @property (readonly) PRPlaylistsViewController *playlistsViewController;
 @property (readonly) PRPreferencesViewController *preferencesViewController;
-@property (readonly) PRNowPlayingViewController *nowPlayingViewController;
+@property (readonly) PRUpNextViewController *upNextViewController;
 @property (readonly) PRControlsViewController *controlsViewController;
 
 @property (readwrite) PRWindowMode currentMode;

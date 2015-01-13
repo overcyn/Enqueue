@@ -27,10 +27,10 @@
 
 @implementation PRLibraryListViewController {
     PRBridge *_bridge;
-    PRListID *_currentList;
-    PRPlayerState *_nowPlayingDescription;
+    PRListID *_listID;
+    PRPlayerState *_playerState;
     PRLibraryDescription *_libraryDescription;
-    NSArray *_listDescriptions;
+    NSArray *_lists;
     PRTableView *_tableView;
     NSMenu *_libraryMenu;
     NSMenu *_headerMenu;
@@ -46,10 +46,10 @@
 
 #pragma mark - API
 
-@synthesize currentList = _currentList;
+@synthesize currentList = _listID;
 
 - (void)setCurrentList:(PRListID *)value {
-    _currentList = value;
+    _listID = value;
     [self _reloadData];
 }
 
@@ -453,7 +453,7 @@
             value = [[NSURL URLWithString:value] path];
         } else if ([attr isEqual:PRItemAttrTrackNumber]) {
             value = nil;
-            if ([[_libraryDescription itemForRow:row] isEqual:[_nowPlayingDescription currentItem]]) {
+            if ([[_libraryDescription itemForRow:row] isEqual:[_playerState currentItem]]) {
                 value = [NSString stringWithFormat:@"◈"];
             }
         }
@@ -506,7 +506,7 @@
     
 //     if (tableView == _tableView && 
 //         op == NSTableViewDropAbove && 
-//         ![[[_db playlists] typeForList:_currentList] isEqual:PRListTypeLibrary] && 
+//         ![[[_db playlists] typeForList:_listID] isEqual:PRListTypeLibrary] && 
 //         [indexes count] != 0 && 
 //         [indexSet1 firstIndex] == 0 &&
 //         [indexSet2 firstIndex] == 0 &&
@@ -524,11 +524,11 @@
 //     NSIndexSet *indexes = [NSKeyedUnarchiver unarchiveObjectWithData:[pboard dataForType:PRIndexesPboardType]];
     
 //     // get move row
-//     PRListItem *listItem = [[_db playlists] listItemAtIndex:[indexes firstIndex] inList:_currentList];
+//     PRListItem *listItem = [[_db playlists] listItemAtIndex:[indexes firstIndex] inList:_listID];
                    
 //     NSInteger row2 = [self dbRowForTableRow:row];
-//     [[_db playlists] moveItemsAtIndexes:indexes toIndex:row2 inList:_currentList];
-//     [[NSNotificationCenter defaultCenter] postListItemsDidChange:_currentList];
+//     [[_db playlists] moveItemsAtIndexes:indexes toIndex:row2 inList:_listID];
+//     [[NSNotificationCenter defaultCenter] postListItemsDidChange:_listID];
     
 //     // select
 //     NSInteger index = [[_db playlists] indexForListItem:listItem];
@@ -663,16 +663,16 @@
 
 - (void)_reloadData {
     __block PRLibraryDescription *libraryDescription = nil;
-    __block NSArray *listDescriptions = nil;
-    __block PRPlayerState *nowPlayingDescription = nil;
+    __block NSArray *lists = nil;
+    __block PRPlayerState *playerState = nil;
     [_bridge performTaskSync:^(PRCore *core){
-        [[[core conn] playlists] zLibraryDescriptionForList:_currentList out:&libraryDescription];
-        [[[core conn] playlists] zAllListDescriptions:&listDescriptions];
-        nowPlayingDescription = [[core now] description];
+        [[[core conn] playlists] zLibraryDescriptionForList:_listID out:&libraryDescription];
+        [[[core conn] playlists] zAllListDescriptions:&lists];
+        playerState = [[core now] playerState];
     }];
     _libraryDescription = libraryDescription;
-    _listDescriptions = listDescriptions;
-    _nowPlayingDescription = nowPlayingDescription;
+    _lists = lists;
+    _playerState = playerState;
     
     [self _loadTableColumns];
     [_tableView reloadData];
@@ -747,7 +747,7 @@
         
         // Add to Playlist
         NSMenu *playlistMenu = [[NSMenu alloc] init];
-        for (PRList *i in _listDescriptions) {
+        for (PRList *i in _lists) {
             if (![[i type] isEqual:PRListTypeStatic]) {
                 continue;
             }
@@ -756,7 +756,7 @@
             [item setImage:[NSImage imageNamed:@"ListViewTemplate"]];
             [item setTarget:self];
             [item setAction:@selector(_appendToListAction:)];
-            [item setRepresentedObject:[i list]];
+            [item setRepresentedObject:[i listID]];
             [playlistMenu addItem:item];
         }
         NSMenuItem *playlistMenuItem = [[NSMenuItem alloc] init];

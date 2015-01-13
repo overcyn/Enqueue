@@ -92,10 +92,10 @@ OSStatus hotKeyHandler(EventHandlerCallRef nextHandler, EventRef event, void *us
         [[core now] playPrevious];
         break;
     case PRIncreaseVolumeHotKey:
-        [[[core now] mov] increaseVolume];
+        [[[core now] movie] increaseVolume];
         break;
     case PRDecreaseVolumeHotKey:
-        [[[core now] mov] decreaseVolume];
+        [[[core now] movie] decreaseVolume];
         break;
     case PRRate0HotKey:
     case PRRate1HotKey:

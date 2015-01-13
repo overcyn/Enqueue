@@ -1,10 +1,9 @@
-#import "PRNowPlayingViewController.h"
-#import "NSNotificationCenter+Extensions.h"
-#import "PRPlaylists.h"
+#import "PRUpNextViewController.h"
 #import "NSColor+Extensions.h"
 #import "NSIndexPath+Extensions.h"
 #import "NSIndexSet+Extensions.h"
 #import "NSMenuItem+Extensions.h"
+#import "NSNotificationCenter+Extensions.h"
 #import "NSTableView+Extensions.h"
 #import "PRAction.h"
 #import "PRBridge.h"
@@ -20,21 +19,22 @@
 #import "PRListItems.h"
 #import "PRMainWindowController.h"
 #import "PRMovie.h"
-#import "PRNowPlayingCell.h"
+#import "PRUpNextCell.h"
+#import "PRUpNextHeaderCell.h"
+#import "PROutlineView.h"
 #import "PRPlayer.h"
 #import "PRPlayerState.h"
-#import "PRNowPlayingHeaderCell.h"
-#import "PROutlineView.h"
+#import "PRPlaylists.h"
 #import "PRPlaylists.h"
 #import "PRPlaylistsViewController.h"
 #import "PRQueue.h"
 #import "PRTableView.h"
 #import "PRViewController.h"
 
-@interface PRNowPlayingViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, PROutlineViewDelegate>
+@interface PRUpNextViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, PROutlineViewDelegate>
 @end
 
-@implementation PRNowPlayingViewController {
+@implementation PRUpNextViewController {
     __weak PRCore *_core;
     PRBridge *_bridge;
     
@@ -191,8 +191,8 @@
 
 - (NSCell *)outlineView:(NSOutlineView *)outlineView dataCellForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
     if (!_cachedNowPlayingCell || !_cachedNowPlayingHeaderCell) {
-        _cachedNowPlayingCell = [[PRNowPlayingCell alloc] initTextCell:@""];
-        _cachedNowPlayingHeaderCell = [[PRNowPlayingHeaderCell alloc] initTextCell:@""];
+        _cachedNowPlayingCell = [[PRUpNextCell alloc] initTextCell:@""];
+        _cachedNowPlayingHeaderCell = [[PRUpNextHeaderCell alloc] initTextCell:@""];
     }
     return ([item length] == 1) ? _cachedNowPlayingHeaderCell : _cachedNowPlayingCell;
 }

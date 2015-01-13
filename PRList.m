@@ -4,16 +4,16 @@
 #import "PRDefaults.h"
 
 @implementation PRList {
-    PRListID *_list;
+    PRListID *_listID;
     NSMutableArray *_attributes;
     NSArray *_keys;
 }
 
-@synthesize list = _list;
+@synthesize listID = _listID;
 
 - (id)initWithListID:(PRListID *)list connection:(PRConnection *)conn {
     if ((self = [super init])) {
-        _list = list;
+        _listID = list;
         _keys = @[PRListAttrTitle, PRListAttrType, PRListAttrRules, PRListAttrViewMode, PRListAttrListViewInfo, 
             PRListAttrListViewSortAttr, PRListAttrListViewAscending, PRListAttrAlbumListViewInfo, PRListAttrAlbumListViewSortAttr, 
             PRListAttrAlbumListViewAscending, PRListAttrSearch, PRListAttrBrowser1Attr, PRListAttrBrowser1Selection, 
@@ -48,7 +48,7 @@
         bindingIndex += 1;
     }
     [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 1)];
-    [stm appendFormat:@"WHERE playlist_id = %@", _list];
+    [stm appendFormat:@"WHERE playlist_id = %@", _listID];
     return [conn zExecute:stm bindings:bindings columns:nil out:nil];
 }
 

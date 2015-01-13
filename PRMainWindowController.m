@@ -12,7 +12,7 @@
 #import "PRMainMenuController.h"
 #import "PRMainWindowView.h"
 #import "PRPlayer.h"
-#import "PRNowPlayingViewController.h"
+#import "PRUpNextViewController.h"
 #import "PRPlaylists.h"
 #import "PRPlaylistsViewController.h"
 #import "PRPreferencesViewController.h"
@@ -33,7 +33,7 @@
     PRHistoryViewController *_historyVC;
     PRPlaylistsViewController *_playlistsVC;
     PRPreferencesViewController *_preferencesVC; 
-    PRNowPlayingViewController *_nowPlayingVC;
+    PRUpNextViewController *_nowPlayingVC;
     PRControlsViewController *_controlsVC;
     
     PRWindowMode _currentMode;
@@ -59,7 +59,7 @@
         _preferencesVC = [[PRPreferencesViewController alloc] initWithCore:_core];
         _playlistsVC = [[PRPlaylistsViewController alloc] initWithCore:_core];
         _historyVC = [[PRHistoryViewController alloc] initWithDb:[_core db] mainWindowController:self];
-        _nowPlayingVC = [[PRNowPlayingViewController alloc] initWithCore:_core];    
+        _nowPlayingVC = [[PRUpNextViewController alloc] initWithCore:_core];    
         _controlsVC = [[PRControlsViewController alloc] initWithBridge:_bridge];
         // [nowPlayingSuperview addSubview:[_controlsVC albumArtView]];
         
@@ -127,7 +127,7 @@
 @synthesize historyViewController = _historyVC;
 @synthesize playlistsViewController = _playlistsVC;
 @synthesize preferencesViewController = _preferencesVC;
-@synthesize nowPlayingViewController = _nowPlayingVC;
+@synthesize upNextViewController = _nowPlayingVC;
 @synthesize controlsViewController = _controlsVC;
 
 - (PRWindowMode)currentMode {

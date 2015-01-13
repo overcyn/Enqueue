@@ -2,7 +2,7 @@
 #import "NSString+Extensions.h"
 #import "PRPlayer.h"
 #import "PRCore.h"
-#import "PRNowPlayingViewController.h"
+#import "PRUpNextViewController.h"
 
 @implementation PRTableView
 
@@ -57,14 +57,14 @@
 
 - (void)draggedImage:(NSImage *)image endedAt:(NSPoint)point operation:(NSDragOperation)operation {
     if ([self dataSource] && [[self dataSource] respondsToSelector:@selector(draggedImage:endedAt:operation:)]) {
-        [(PRNowPlayingViewController *)[self dataSource] draggedImage:image endedAt:point operation:operation];
+        [(PRUpNextViewController *)[self dataSource] draggedImage:image endedAt:point operation:operation];
     }
     [super draggedImage:image endedAt:point operation:operation];
 }
 
 - (void)draggedImage:(NSImage *)image movedTo:(NSPoint)point {
     if ([self dataSource] && [[self dataSource] respondsToSelector:@selector(draggedImage:movedTo:)]) {
-         [(PRNowPlayingViewController *)[self dataSource] draggedImage:image movedTo:point];
+         [(PRUpNextViewController *)[self dataSource] draggedImage:image movedTo:point];
     }
     [super draggedImage:image movedTo:point];
 }

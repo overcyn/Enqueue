@@ -1,9 +1,9 @@
-#import "PRNowPlayingCell.h"
-#import "PRNowPlayingViewController.h"
+#import "PRUpNextCell.h"
+#import "PRUpNextViewController.h"
 #import "NSParagraphStyle+Extensions.h"
 
 
-@implementation PRNowPlayingCell
+@implementation PRUpNextCell
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)theControlView {
     BOOL highlighted = [self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder]

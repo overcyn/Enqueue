@@ -12,7 +12,7 @@
 #import "PRMovie.h"
 #import "PRPlayer.h"
 #import "PRPlayer.h"
-#import "PRNowPlayingViewController.h"
+#import "PRUpNextViewController.h"
 #import "PRPlaylistsViewController.h"
 #import "PRBrowserViewController.h"
 
@@ -132,11 +132,11 @@
     [menuItem setAction:@selector(playPrevious)];
     
     menuItem = [controlsMenu itemWithTag:4];
-    [menuItem setTarget:[[core now] mov]];
+    [menuItem setTarget:[[core now] movie]];
     [menuItem setAction:@selector(increaseVolume)];
     
     menuItem = [controlsMenu itemWithTag:5];
-    [menuItem setTarget:[[core now] mov]];
+    [menuItem setTarget:[[core now] movie]];
     [menuItem setAction:@selector(decreaseVolume)];
     
     menuItem = [controlsMenu itemWithTag:6];
@@ -177,7 +177,7 @@
         [menu addItem:[NSMenuItem separatorItem]];
     }
     
-    title = [[[core now] mov] isPlaying] ? @"Pause" : @"Play";
+    title = [[[core now] movie] isPlaying] ? @"Pause" : @"Play";
     item = [[NSMenuItem alloc] initWithTitle:title action:@selector(playPause) keyEquivalent:@""];
     [item setTarget:[core now]];
     [menu addItem:item];
@@ -280,7 +280,7 @@
 #pragma mark - menu delegate
 
 - (void)menuNeedsUpdate:(NSMenu *)menu {
-    NSString *title = [[[core now] mov] isPlaying] ? @"Pause" : @"Play";
+    NSString *title = [[[core now] movie] isPlaying] ? @"Pause" : @"Play";
     [[controlsMenu itemWithTag:1] setTitle:title];
     
     title = [[core win] showsArtwork] ? @"Hide Artwork" : @"Show Artwork";

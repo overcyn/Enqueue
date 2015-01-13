@@ -33,18 +33,18 @@
 @property (nonatomic, readonly) PRMovieState *movieState;
 
 @property (nonatomic, readonly) NSArray *invalidItems;
-@property (nonatomic, readonly) PRMovie *mov;
+@property (nonatomic, readonly) PRMovie *movie;
 @property (nonatomic, readonly) PRListID *currentList;
 @property (nonatomic, readonly) PRListItemID *currentListItem;
 @property (nonatomic, readonly) PRItemID *currentItem;
-@property (nonatomic, readonly) int currentIndex;
+@property (nonatomic, readonly) NSInteger currentIndex;
 
 @property (nonatomic, readwrite) BOOL shuffle;
 @property (nonatomic, readwrite) int repeat;
 - (void)toggleRepeat;
 - (void)toggleShuffle;
 
-- (void)playItemAtIndex:(int)index;
+- (void)playItemAtIndex:(NSInteger)index;
 - (void)playPause;
 - (void)playNext;
 - (void)playPrevious;

@@ -4,7 +4,8 @@
 @interface PRList : NSObject
 - (id)initWithListID:(PRListID *)list connection:(PRConnection *)conn;
 - (BOOL)writeToConnection:(PRConnection *)conn;
-@property (nonatomic, readonly) PRListID *list;
+
+@property (nonatomic, readonly) PRListID *listID;
 - (void)setValue:(id)value forAttr:(PRListAttr *)attr;
 - (id)valueForAttr:(PRListAttr *)attr;
 
@@ -24,9 +25,7 @@
 @property (nonatomic, strong) NSString *search;
 @property (nonatomic) PRLibraryViewMode viewMode;
 @property (nonatomic) NSDictionary *rules;
-@end
 
-@interface PRList ()
 @property (nonatomic, readonly) NSArray *derivedBrowserAttributes; // Can be NSNull
 @property (nonatomic, readonly) NSArray *derivedBrowserAllowsCompilation;
 @end

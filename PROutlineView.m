@@ -1,7 +1,7 @@
 #import "PROutlineView.h"
 #import "PRCore.h"
 #import "PRPlayer.h"
-#import "PRNowPlayingViewController.h"
+#import "PRUpNextViewController.h"
 
 
 @interface NSOutlineView (private)
@@ -85,14 +85,14 @@
 
 - (void)draggedImage:(NSImage *)image endedAt:(NSPoint)point operation:(NSDragOperation)operation {
     if ([self dataSource] && [[self dataSource] respondsToSelector:@selector(draggedImage:endedAt:operation:)]) {
-        [(PRNowPlayingViewController *)[self dataSource] draggedImage:image endedAt:point operation:operation];
+        [(PRUpNextViewController *)[self dataSource] draggedImage:image endedAt:point operation:operation];
     }
     [super draggedImage:image endedAt:point operation:operation];
 }
 
 - (void)draggedImage:(NSImage *)image movedTo:(NSPoint)point {
     if ([self dataSource] && [[self dataSource] respondsToSelector:@selector(draggedImage:movedTo:)]) {
-        [(PRNowPlayingViewController *)[self dataSource] draggedImage:image movedTo:point];
+        [(PRUpNextViewController *)[self dataSource] draggedImage:image movedTo:point];
     }
     [super draggedImage:image movedTo:point];
 }

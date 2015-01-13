@@ -1,10 +1,10 @@
-#import "PRNowPlayingHeaderCell.h"
-#import "PRNowPlayingViewController.h"
+#import "PRUpNextHeaderCell.h"
+#import "PRUpNextViewController.h"
 #import "NSAttributedString+Extensions.h"
 #import "NSParagraphStyle+Extensions.h"
 
 
-@implementation PRNowPlayingHeaderCell
+@implementation PRUpNextHeaderCell
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
     BOOL highlighted = [self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder]

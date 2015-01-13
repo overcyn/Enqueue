@@ -195,7 +195,7 @@
     [sortWithAlbumArtist setState:[[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist]];
     [mediaKeys setState:[[core keys] isEnabled]];
     [folderArtwork setState:[[PRDefaults sharedDefaults] boolForKey:PRDefaultsFolderArtwork]];
-    [_hogButton setState:[[[core now] mov] hogOutput]];
+    [_hogButton setState:[[[core now] movie] hogOutput]];
     
     // Folders
     [foldersTableView reloadData];
@@ -411,7 +411,7 @@
 #pragma mark - Misc Preferences
 
 - (void)toggleHogOutput {
-    [[[core now] mov] setHogOutput:![[[core now] mov] hogOutput]];
+    [[[core now] movie] setHogOutput:![[[core now] movie] hogOutput]];
     [self updateUI];
 }
 
@@ -514,8 +514,8 @@
     [_outputMenu addItem:item];
     [_outputMenu addItem:[NSMenuItem separatorItem]];
     
-    NSString *currentDevice = [[[core now] mov] currentDevice];
-    for (NSDictionary *i in [[[core now] mov] devices]) {
+    NSString *currentDevice = [[[core now] movie] currentDevice];
+    for (NSDictionary *i in [[[core now] movie] devices]) {
         NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:[i objectForKey:PRDeviceKeyName] action:@selector(setDevice:) keyEquivalent:@""];
         [item setRepresentedObject:[i objectForKey:PRDeviceKeyUID]];
         [_outputMenu addItem:item];
@@ -531,7 +531,7 @@
 }
 
 - (void)setDevice:(id)sender {
-    [[[core now] mov] setCurrentDevice:[sender representedObject]];
+    [[[core now] movie] setCurrentDevice:[sender representedObject]];
 }
 
 #pragma mark - HotKeys

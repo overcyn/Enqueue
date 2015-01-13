@@ -18,14 +18,14 @@
     int _marker; // position in history AFTER which not to random from
     long _random; // next random number
     
-    PRMovie *_mov;
+    PRMovie *_movie;
     __weak PRConnection *_conn;
 }
 
 - (id)initWithConnection:(PRConnection *)conn {
     if (!(self = [super init])) {return nil;}
     _conn = conn;
-    _mov = [[PRMovie alloc] init];
+    _movie = [[PRMovie alloc] init];
     
     _currentListItem = nil;
     [self clearHistory];
@@ -60,15 +60,15 @@
 
 - (PRMovieState *)movieState {
     PRMovieState *description = [[PRMovieState alloc] init];
-    [description setIsPlaying:[_mov isPlaying]];
-    [description setVolume:[_mov volume]];
-    [description setCurrentTime:[_mov currentTime]];
-    [description setDuration:[_mov duration]];
+    [description setIsPlaying:[_movie isPlaying]];
+    [description setVolume:[_movie volume]];
+    [description setCurrentTime:[_movie currentTime]];
+    [description setDuration:[_movie duration]];
     return description;
 }
 
 @synthesize invalidItems = _invalidItems;
-@synthesize mov = _mov;
+@synthesize movie = _movie;
 
 - (PRListID *)currentList {
     PRListID *rlt = nil;
@@ -89,7 +89,7 @@
     return item;
 }
 
-- (int)currentIndex {
+- (NSInteger)currentIndex {
     if (![self currentListItem]) {
         return 0;
     }
@@ -127,7 +127,7 @@
 #pragma mark - Playback
 
 - (void)stop {
-    [_mov stop];
+    [_movie stop];
     _currentListItem = nil;
     [self clearHistory];
     [self _postChangeSet];
@@ -140,11 +140,11 @@
             [self playNext];
         }
     } else {
-        [_mov pauseUnpause];
+        [_movie pauseUnpause];
     }
 }
 
-- (void)playItemAtIndex:(int)index {
+- (void)playItemAtIndex:(NSInteger)index {
     [_invalidItems removeAllObjects];
     PRListItemID *item = nil;
     BOOL success = [[_conn playlists] zListItemAtIndex:index inList:[self currentList] out:&item];
@@ -197,7 +197,7 @@
     
     NSString *path = nil;
     [library zValueForItem:item attr:PRItemAttrPath out:&path];
-    bool err = evenIfQueued ? [_mov play:path] : [_mov playIfNotQueued:path];
+    bool err = evenIfQueued ? [_movie play:path] : [_movie playIfNotQueued:path];
     if (!err) {
         if (![_invalidItems containsObject:item]) {
             [_invalidItems addObject:item];
@@ -305,7 +305,7 @@
     PRPlaylists *playlists = [_conn playlists];
     
     // if playing song jump to beginning
-    if ([_mov currentTime] > 4000.0) {
+    if ([_movie currentTime] > 4000.0) {
         return [self currentListItem];
     }
     
@@ -384,7 +384,7 @@
     if (item) {
         NSString *path = nil;
         [library zValueForItem:[playlists itemForListItem:item] attr:PRItemAttrPath out:&path];
-        [_mov queue:path];
+        [_movie queue:path];
     }
 }
 

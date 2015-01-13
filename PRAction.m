@@ -72,13 +72,13 @@ PRTask PRPlayItemsTask(NSArray *items, NSInteger index) {
 
 PRTask PRSetVolumeTask(CGFloat volume) {
     return ^(PRCore *core){
-        [[[core now] mov] setVolume:volume];
+        [[[core now] movie] setVolume:volume];
     };
 }
 
 PRTask PRSetTimeTask(NSInteger time) {
     return ^(PRCore *core){
-        [[[core now] mov] setCurrentTime:time];
+        [[[core now] movie] setCurrentTime:time];
     };
 }
 

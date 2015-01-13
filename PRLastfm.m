@@ -114,7 +114,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 #pragma mark - Scrobbling
 
 - (void)playingChanged:(NSNotification *)note {
-    if ([[[_core now] mov] isPlaying]) {
+    if ([[[_core now] movie] isPlaying]) {
         [_file play];
     } else {
         [_file pause];
