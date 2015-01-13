@@ -1,11 +1,4 @@
 #import "PRMoviePlayer.h"
-#import "AUParamInfo.h"
-#import "CAAUParameter.h"
-#import "NSNotificationCenter+Extensions.h"
-#import "NSObject+SPInvocationGrabbing.h"
-#import "NSOperationQueue+Extensions.h"
-#import "PRDefaults.h"
-#import "PREQ.h"
 #import <AudioUnit/AudioUnit.h>
 #import <CoreAudio/CoreAudio.h>
 #import <QuickTime/QuickTime.h>
@@ -13,6 +6,13 @@
 #include <libkern/OSAtomic.h>
 #include <SFBAudioEngine/AudioDecoder.h>
 #include <SFBAudioEngine/AudioPlayer.h>
+#import "AUParamInfo.h"
+#import "CAAUParameter.h"
+#import "NSNotificationCenter+Extensions.h"
+#import "NSObject+SPInvocationGrabbing.h"
+#import "NSOperationQueue+Extensions.h"
+#import "PRDefaults.h"
+#import "PREQ.h"
 
 typedef NS_ENUM(NSInteger, PRMoviePlayerTransitionState) {
     PRNeitherTransitionState,

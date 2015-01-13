@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import "PRPlaylists.h"
 
 @interface PRItemDescription : NSObject
 @property (nonatomic, readonly) PRItem *item;

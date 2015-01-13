@@ -1,4 +1,5 @@
 #import "PRHotKeyController.h"
+#import "NSNotificationCenter+Extensions.h"
 #import "PRCore.h"
 #import "PRMoviePlayer.h"
 #import "PRNowPlayingController.h"

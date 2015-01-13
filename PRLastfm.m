@@ -1,4 +1,5 @@
 #import "PRLastfm.h"
+#import "NSNotificationCenter+Extensions.h"
 #import <Security/Security.h>
 #import "PRDefaults.h"
 #import "EMKeychainItem.h"

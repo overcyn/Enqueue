@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-
+#import "PRPlaylists.h"
 
 @interface PRFileInfo : NSObject {
     NSMutableDictionary *_attributes;

@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import "PRPlaylists.h"
 
 @interface PRPlayerDescription : NSObject
 @property (readonly) NSArray *invalidItems;

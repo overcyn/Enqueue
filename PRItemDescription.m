@@ -1,4 +1,5 @@
 #import "PRItemDescription.h"
+#import "PRPlaylists.h"
 #import "PRItemDescription_Private.h"
 #import "PRConnection.h"
 

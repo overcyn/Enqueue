@@ -238,7 +238,6 @@
 		67EA414E1359536500F27195 /* SSCrypto.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 67EA414C1359535B00F27195 /* SSCrypto.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		67EA4157135958CE00F27195 /* taglib.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 67EA4156135958CE00F27195 /* taglib.framework */; };
 		67EA4158135958D900F27195 /* taglib.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 67EA4156135958CE00F27195 /* taglib.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		67EA44A014499336006DDB47 /* PREnableLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 67EA449F14499336006DDB47 /* PREnableLogger.mm */; };
 		67EB42451339B843009167BA /* PRBackgroundView.m in Sources */ = {isa = PBXBuildFile; fileRef = 67EB42441339B843009167BA /* PRBackgroundView.m */; };
 		67EC3B7C1349A55600AD0BE1 /* PRWelcomeSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67EC3B7B1349A55600AD0BE1 /* PRWelcomeSheetController.m */; };
 		67EC3B7E1349A5A200AD0BE1 /* PRWelcomeSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 67EC3B7D1349A5A200AD0BE1 /* PRWelcomeSheet.xib */; };
@@ -641,8 +640,6 @@
 		67EA1306145BA83C00309876 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
 		67EA414C1359535B00F27195 /* SSCrypto.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SSCrypto.framework; path = Frameworks/SSCrypto.framework; sourceTree = "<group>"; };
 		67EA4156135958CE00F27195 /* taglib.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = taglib.framework; path = Frameworks/taglib.framework; sourceTree = "<group>"; };
-		67EA449F14499336006DDB47 /* PREnableLogger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PREnableLogger.mm; sourceTree = "<group>"; };
-		67EA44A114499345006DDB47 /* PREnableLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PREnableLogger.h; sourceTree = "<group>"; };
 		67EB42431339B843009167BA /* PRBackgroundView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBackgroundView.h; sourceTree = "<group>"; };
 		67EB42441339B843009167BA /* PRBackgroundView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRBackgroundView.m; sourceTree = "<group>"; };
 		67EC3B7A1349A55600AD0BE1 /* PRWelcomeSheetController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRWelcomeSheetController.h; sourceTree = "<group>"; };
@@ -1656,8 +1653,6 @@
 		67FCEE0B133EA04800765EE1 /* Log */ = {
 			isa = PBXGroup;
 			children = (
-				67EA44A114499345006DDB47 /* PREnableLogger.h */,
-				67EA449F14499336006DDB47 /* PREnableLogger.mm */,
 				67FCEE0C133EA07D00765EE1 /* PRLog.h */,
 				67FCEE0D133EA07D00765EE1 /* PRLog.m */,
 				671D31E01401699200B9FAA4 /* PRException.h */,
@@ -1917,7 +1912,6 @@
 				6795F54A143B1D5600AC8C91 /* sqlite_str.m in Sources */,
 				6795B236143C34D4008D53CB /* NSFileManager+Extensions.m in Sources */,
 				678E90BA1443F54A00B8B7C3 /* NSWindow+Extensions.m in Sources */,
-				67EA44A014499336006DDB47 /* PREnableLogger.mm in Sources */,
 				67DAC8161456387900E120B6 /* EMKeychainItem.m in Sources */,
 				673540FC145CB76D004044F1 /* AUParamInfo.cpp in Sources */,
 				67E509941A61F7F90078CD2E /* PRItemDescription.m in Sources */,

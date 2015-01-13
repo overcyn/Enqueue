@@ -1,4 +1,5 @@
 #import "PRBrowserViewController.h"
+#import "NSNotificationCenter+Extensions.h"
 #import "NSColor+Extensions.h"
 #import "NSMenuItem+Extensions.h"
 #import "NSString+Extensions.h"

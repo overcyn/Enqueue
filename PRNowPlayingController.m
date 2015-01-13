@@ -1,4 +1,5 @@
 #import "PRNowPlayingController.h"
+#import "NSNotificationCenter+Extensions.h"
 #import "PRDb.h"
 #import "PRDefaults.h"
 #import "PRHistory.h"

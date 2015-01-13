@@ -1,5 +1,5 @@
 #import "PRBrowserViewController.h"
-
+#import "PRPlaylists.h"
 @class PRSynchronizedScrollView;
 @class PRAlbumTableView2;
 

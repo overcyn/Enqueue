@@ -1,5 +1,5 @@
 #import "PRTrialSheetController.h"
-
+#import "PRCore.h"
 
 @interface PRTrialSheetController ()
 /* action */

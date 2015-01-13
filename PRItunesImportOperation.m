@@ -1,4 +1,6 @@
 #import "PRItunesImportOperation.h"
+#import "NSNotificationCenter+Extensions.h"
+#import "PRPlaylists.h"
 #import "PRDb.h"
 #import "PRLibrary.h"
 #import "PRPlaylists.h"

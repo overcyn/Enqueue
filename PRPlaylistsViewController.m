@@ -1,4 +1,6 @@
 #import "PRPlaylistsViewController.h"
+#import "NSNotificationCenter+Extensions.h"
+#import "PRPlaylists.h"
 #import "PRDb.h"
 #import "PRPlaylists.h"
 #import "PRMainWindowController.h"

@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import "PRPlaylists.h"
 @class PROperationProgress, PRCore, PRDb;
 
 

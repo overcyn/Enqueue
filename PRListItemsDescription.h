@@ -1,4 +1,5 @@
 #import <Foundation/Foundation.h>
+#import "PRPlaylists.h"
 @class PRConnection;
 
 @interface PRListItemsDescription : NSObject

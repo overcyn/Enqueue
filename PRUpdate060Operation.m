@@ -1,4 +1,5 @@
 #import "PRUpdate060Operation.h"
+#import "NSNotificationCenter+Extensions.h"
 #import "PROperationProgress.h"
 #import "PRCore.h"
 #import "PRProgressManager.h"

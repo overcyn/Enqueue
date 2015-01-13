@@ -1,4 +1,5 @@
 #import "PRAction.h"
+#import "NSNotificationCenter+Extensions.h"
 #import "PRCore.h"
 #import "PRDb.h"
 #import "PRQueue.h"

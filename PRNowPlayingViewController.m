@@ -1,4 +1,6 @@
 #import "PRNowPlayingViewController.h"
+#import "NSNotificationCenter+Extensions.h"
+#import "PRPlaylists.h"
 #import "BWTexturedSlider.h"
 #import "NSColor+Extensions.h"
 #import "NSIndexPath+Extensions.h"

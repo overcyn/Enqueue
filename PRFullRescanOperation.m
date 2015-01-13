@@ -1,4 +1,6 @@
 #import "PRFullRescanOperation.h"
+#import "PRPlaylists.h"
+#import "NSNotificationCenter+Extensions.h"
 #import "PROperationProgress.h"
 #import "PRCore.h"
 #import "PRProgressManager.h"

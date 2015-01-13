@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import "PRAlertWindowController.h"
-
+@class PRCore;
 
 @interface PRTrialSheetController : PRAlertWindowController {
     __weak PRCore *_core;

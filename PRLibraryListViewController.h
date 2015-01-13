@@ -1,4 +1,5 @@
 #import "PRViewController.h"
+#import "PRPlaylists.h"
 @class PRBridge;
 @class PRLibraryDescription;
 

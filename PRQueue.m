@@ -1,4 +1,5 @@
 #import "PRQueue.h"
+#import "PRPlaylists.h"
 #import "PRDb.h"
 #import "PRConnection.h"
 #import "NSArray+Extensions.h"

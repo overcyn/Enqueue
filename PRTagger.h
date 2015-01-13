@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
+#import "PRPlaylists.h"
 @class PRDb, PRFileInfo;
-
 
 typedef enum {
     PRFileTypeUnknown,
