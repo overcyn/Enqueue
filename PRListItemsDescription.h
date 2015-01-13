@@ -1,8 +1,8 @@
 #import <Foundation/Foundation.h>
-@class PRDb;
+@class PRConnection;
 
 @interface PRListItemsDescription : NSObject
-- (id)initWithList:(PRList *)list database:(PRDb *)db;
+- (id)initWithList:(PRList *)list connection:(PRConnection *)conn;
 @property (nonatomic, readonly) PRList *list;
 @property (nonatomic, readonly) NSInteger count;
 - (PRItem *)itemAtIndex:(NSInteger)index; // Zero based

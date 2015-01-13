@@ -1,6 +1,5 @@
 #import <Cocoa/Cocoa.h>
 #include "sqlite3.h"
-
 @class PRHistory;
 @class PRLibrary;
 @class PRPlaylists;

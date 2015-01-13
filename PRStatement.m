@@ -3,8 +3,14 @@
 #import "PRDb.h"
 #import "PRConnection.h"
 
-
-@implementation PRStatement
+@implementation PRStatement {
+    NSString *_statement;
+    NSDictionary *_bindings;
+    NSArray *_columns;
+    
+    sqlite3 *_sqlite3;
+    sqlite3_stmt *_stmt;
+}
 
 #pragma mark - Initialization
 

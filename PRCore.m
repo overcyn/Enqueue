@@ -2,7 +2,7 @@
 #import "NSFileManager+DirectoryLocations.h"
 #import "PRDb.h"
 #import "PRDefaults.h"
-#import "PREnableLogger.h"
+//#import "PREnableLogger.h"
 #import "PRFolderMonitor.h"
 #import "PRFullRescanOperation.h"
 #import "PRGrowl.h"

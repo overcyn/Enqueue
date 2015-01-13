@@ -52,9 +52,9 @@
     NSCell *_cachedNowPlayingCell;
     NSCell *_cachedNowPlayingHeaderCell;
     
-    PRNowPlayingListItemsDescription *_listItemsDescription;
-    PRPlayerDescription *_nowPlayingDescription;
-    NSArray *_queueArray;
+    PRNowPlayingListItemsDescription *_playerList;
+    PRPlayerDescription *_player;
+    NSArray *_queue;
 }
 
 #pragma mark - Initialization
@@ -163,8 +163,8 @@
 @synthesize headerView = _headerView;
 
 - (void)higlightPlayingFile {
-    if ([_nowPlayingDescription currentItem]) {
-        NSIndexPath *indexPath = [_listItemsDescription indexPathForIndex:[_nowPlayingDescription currentIndex]];
+    if ([_player currentItem]) {
+        NSIndexPath *indexPath = [_playerList indexPathForIndex:[_player currentIndex]];
         NSIndexPath *parentIndexPath = [NSIndexPath indexPathForAlbum:[indexPath indexAtPosition:0]];
         if (![_outlineView isItemExpanded:parentIndexPath]) {
             [_outlineView collapseItem:nil];
@@ -199,7 +199,7 @@
 #pragma mark - NSOutlineViewDataSource
 
 - (BOOL)outlineView:(NSOutlineView *)view writeItems:(NSArray *)items toPasteboard:(NSPasteboard *)pboard {
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:@[[_nowPlayingDescription currentList],[self _selectedIndexes]]];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:@[[_player currentList],[self _selectedIndexes]]];
     [pboard declareTypes:@[PRIndexesPboardType] owner:self];
     [pboard setData:data forType:PRIndexesPboardType];
     return YES;
@@ -210,7 +210,7 @@
         return NSDragOperationNone;
     }
     // KD: WTF is this?
-    // if ([item length] == 1 && (![_outlineView isItemExpanded:item] || index == [[_listItemsDescription albumCounts][[item indexAtPosition:0]] integerValue])) {
+    // if ([item length] == 1 && (![_outlineView isItemExpanded:item] || index == [[_playerList albumCounts][[item indexAtPosition:0]] integerValue])) {
     //     [_outlineView setDropItem:nil dropChildIndex:[item indexAtPosition:0] + 1];
     // }
     return NSDragOperationGeneric;
@@ -219,9 +219,9 @@
 - (BOOL)outlineView:(NSOutlineView *)view acceptDrop:(id<NSDraggingInfo>)info item:(NSIndexPath *)indexPath childIndex:(NSInteger)childIndex {
     NSInteger dropIndex;
     if (!indexPath) {
-        dropIndex = [_listItemsDescription indexForIndexPath:indexPath];
+        dropIndex = [_playerList indexForIndexPath:indexPath];
     } else if ([indexPath length] == 1) {
-        dropIndex = [_listItemsDescription indexForIndexPath:indexPath] + childIndex;
+        dropIndex = [_playerList indexForIndexPath:indexPath] + childIndex;
     } else {
         dropIndex = 0;
     }
@@ -231,11 +231,11 @@
     NSData *indexesData = [pboard dataForType:PRIndexesPboardType];
     if (filesData) {
         NSArray *items = [NSKeyedUnarchiver unarchiveObjectWithData:filesData];
-        [_bridge performTask:PRAddItemsToListTask(items, dropIndex, [_nowPlayingDescription currentList])];
+        [_bridge performTask:PRAddItemsToListTask(items, dropIndex, [_player currentList])];
     } else if (indexesData) {
         NSArray *array = [NSKeyedUnarchiver unarchiveObjectWithData:indexesData];
-        if ([array[0] isEqual:[_nowPlayingDescription currentList]]) {
-            [_bridge performTask:PRMoveIndexesInListTask(array[1], dropIndex, [_nowPlayingDescription currentList])];
+        if ([array[0] isEqual:[_player currentList]]) {
+            [_bridge performTask:PRMoveIndexesInListTask(array[1], dropIndex, [_player currentList])];
         }
     }
     return YES;
@@ -249,17 +249,17 @@
 
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(NSIndexPath *)item {
     if (!item) {
-        return [[_listItemsDescription albumCounts] count];
+        return [[_playerList albumCounts] count];
     } else if ([item length] == 1) {
-        return [[_listItemsDescription albumCounts][[item indexAtPosition:0]] integerValue];
+        return [[_playerList albumCounts][[item indexAtPosition:0]] integerValue];
     }
     return 0;
 }
 
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(NSIndexPath *)item {
     PRLibrary *library = [[_core conn] library];
-    NSInteger index = [_listItemsDescription indexForIndexPath:item];
-    PRItem *it = [_listItemsDescription itemAtIndex:index];
+    NSInteger index = [_playerList indexForIndexPath:item];
+    PRItem *it = [_playerList itemAtIndex:index];
     
     if ([item length] == 1) {
         NSString *album = nil;
@@ -277,26 +277,26 @@
         if ([compilation boolValue] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]) {
             artist = @"Compilation";
         }
-       NSNumber *drawBorder = @([item indexAtPosition:0] + 1 == [[_listItemsDescription albumCounts] count] || [_outlineView isItemExpanded:item]);
+       NSNumber *drawBorder = @([item indexAtPosition:0] + 1 == [[_playerList albumCounts] count] || [_outlineView isItemExpanded:item]);
         return @{@"title":artist, @"subtitle":album, @"item":item, @"drawBorder":drawBorder, @"target":self};
     } else {
         NSString *title = nil;
         [library zValueForItem:it attr:PRItemAttrTitle out:&title];
         NSImage *icon;
         NSImage *invertedIcon;
-        if ([_nowPlayingDescription currentIndex] == index) {
+        if ([_player currentIndex] == index) {
             icon = [NSImage imageNamed:@"PRSpeakerIcon"];
             invertedIcon = [NSImage imageNamed:@"PRLightSpeakerIcon"];
-        } else if ([[_nowPlayingDescription invalidItems] containsObject:it]) {
+        } else if ([[_player invalidItems] containsObject:it]) {
             icon = [NSImage imageNamed:@"Exclamation Point"];
             invertedIcon = [NSImage imageNamed:@"Exclamation Point"];
         } else {
             icon = [[NSImage alloc] init];
             invertedIcon = [[NSImage alloc] init];
         }
-        PRListItem *listItem = [_listItemsDescription listItemAtIndex:index];
-        NSUInteger queueIndex = [_queueArray indexOfObject:listItem];
-        NSNumber *badge = (_queueArray && queueIndex != NSNotFound) ? @(queueIndex + 1) : @0;
+        PRListItem *listItem = [_playerList listItemAtIndex:index];
+        NSUInteger queueIndex = [_queue indexOfObject:listItem];
+        NSNumber *badge = (_queue && queueIndex != NSNotFound) ? @(queueIndex + 1) : @0;
         return @{@"title":title, @"icon":icon, @"invertedIcon":invertedIcon, @"badge":badge, @"item":item, @"target":self};
     }
 }
@@ -374,7 +374,7 @@
         return;
     }
     id item = [_outlineView itemAtRow:[_outlineView clickedRow]];
-    NSInteger index = [_listItemsDescription indexForIndexPath:item];
+    NSInteger index = [_playerList indexForIndexPath:item];
     [_bridge performTask:PRPlayIndexTask(index)];
 }
 
@@ -392,7 +392,7 @@
 - (void)_removeSelectedAction:(id)sender {
     NSIndexSet *selected = [self _selectedIndexes];
     if ([selected count] != 0) {
-        [_bridge performTask:PRRemoveItemsFromListTask(selected, [_nowPlayingDescription currentList])];
+        [_bridge performTask:PRRemoveItemsFromListTask(selected, [_player currentList])];
     }
 }
 
@@ -429,7 +429,7 @@
 }
 
 - (void)_saveAsNewPlaylist:(id)sender {
-    [_bridge performTask:PRDuplicateListTask([_nowPlayingDescription currentList])];
+    [_bridge performTask:PRDuplicateListTask([_player currentList])];
 }
 
 - (void)saveAsPlaylist:(id)sender {
@@ -451,7 +451,7 @@
     //     return;
     // }
     // [[_db playlists] clearList:list];
-    // [[_db playlists] copyItemsFromList:[_nowPlayingDescription currentList] toList:list];
+    // [[_db playlists] copyItemsFromList:[_player currentList] toList:list];
     // [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
 }
 
@@ -460,7 +460,7 @@
     // NSIndexSet *dbRows = [self selectedDbRows];
     // NSInteger dbRow = [dbRows firstIndex];
     // while (dbRow != NSNotFound) {
-    //     [[_db playlists] appendItem:[[_db playlists] itemAtIndex:dbRow forList:[_nowPlayingDescription currentList]] toList:list];
+    //     [[_db playlists] appendItem:[[_db playlists] itemAtIndex:dbRow forList:[_player currentList]] toList:list];
     //     dbRow = [dbRows indexGreaterThanIndex:dbRow];
     // }
     // [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
@@ -501,17 +501,17 @@
 #pragma mark - Internal
 
 - (void)_reloadData:(PRChangeSet *)changeSet {
-    __block PRNowPlayingListItemsDescription *listItemsDescription;
-    __block PRPlayerDescription *nowPlayingDescription;
-    __block NSArray *queueArray;
+    __block PRNowPlayingListItemsDescription *playerList;
+    __block PRPlayerDescription *player;
+    __block NSArray *queue;
     [_bridge performTaskSync:^(PRCore *core){
-        nowPlayingDescription = [[core now] description];
-        listItemsDescription = [[PRNowPlayingListItemsDescription alloc] initWithList:[nowPlayingDescription currentList] database:[core db]];
-        [[[core conn] queue] zQueueArray:&queueArray];
+        player = [[core now] description];
+        playerList = [[PRNowPlayingListItemsDescription alloc] initWithList:[player currentList] connection:[core conn]];
+        [[[core conn] queue] zQueueArray:&queue];
     }];
-    _nowPlayingDescription = nowPlayingDescription;
-    _listItemsDescription = listItemsDescription;
-    _queueArray = queueArray;
+    _player = player;
+    _playerList = playerList;
+    _queue = queue;
     
     [_outlineView reloadData];
 }
@@ -520,11 +520,11 @@
     NSMutableIndexSet *selectedIndexes = [NSMutableIndexSet indexSet];
     [[_outlineView selectedRowIndexes] enumerateIndexesUsingBlock:^(NSUInteger i, BOOL *stop){
         NSIndexPath *item = [_outlineView itemAtRow:i];
-        NSInteger index = [_listItemsDescription indexForIndexPath:item];
+        NSInteger index = [_playerList indexForIndexPath:item];
         if ([item length] == 2) {
             [selectedIndexes addIndex:index];
         } else {
-            NSInteger albumCount = [[_listItemsDescription albumCounts][[item indexAtPosition:0]] integerValue];
+            NSInteger albumCount = [[_playerList albumCounts][[item indexAtPosition:0]] integerValue];
             [selectedIndexes addIndexesInRange:NSMakeRange(index, albumCount)];
         }
     }];
@@ -534,7 +534,7 @@
 - (NSArray *)_selectedItems {
     NSMutableArray *selectedItems = [NSMutableArray array];
     [[self _selectedIndexes] enumerateIndexesUsingBlock:^(NSUInteger i, BOOL *stop){
-        [selectedItems addObject:[_listItemsDescription itemAtIndex:i]];
+        [selectedItems addObject:[_playerList itemAtIndex:i]];
     }];
     return selectedItems;
 }
@@ -542,7 +542,7 @@
 - (NSArray *)_selectedListItems {
     NSMutableArray *selectedListItems = [NSMutableArray array];
     [[self _selectedIndexes] enumerateIndexesUsingBlock:^(NSUInteger i, BOOL *stop){
-        [selectedListItems addObject:[_listItemsDescription listItemAtIndex:i]];
+        [selectedListItems addObject:[_playerList listItemAtIndex:i]];
     }];
     return selectedListItems;
 }
@@ -614,7 +614,7 @@
     // NSIndexSet *dbRows = [self selectedDbRows];
     // NSInteger dbRow = [dbRows firstIndex];
     // while (dbRow != NSNotFound) {
-    //     PRListItem *listItem = [_listItemsDescription listItemAtIndex:dbRow-1];
+    //     PRListItem *listItem = [_playerList listItemAtIndex:dbRow-1];
     //     if ([queue containsObject:listItem]) {
     //         removeFromQueue = YES;
     //     } else {

@@ -1,6 +1,5 @@
 #import <Foundation/Foundation.h>
 #include "sqlite3.h"
-
 @class PRLibrary;
 @class PRPlaylists;
 @class PRQueue;
@@ -8,12 +7,10 @@
 @class PRHistory;
 @class PRAlbumArtController;
 
-
 typedef enum {
     PRConnectionTypeReadOnly,
     PRConnectionTypeReadWrite,
 } PRConnectionType;
-
 
 @interface PRConnection : NSObject
 - (instancetype)initWithPath:(NSString *)path type:(PRConnectionType)type;

@@ -6,8 +6,8 @@
 #import "PRCore.h"
 #import "PRItemDescription.h"
 #import "PRNowPlayingController.h"
-#import "PRTimeFormatter.h"
 #import "PRPlayerDescription.h"
+#import "PRTimeFormatter.h"
 
 @implementation PRControlsViewController {
     PRBridge *_bridge;
