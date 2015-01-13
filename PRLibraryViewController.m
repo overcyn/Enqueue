@@ -4,7 +4,7 @@
 #import "PRDb.h"
 #import "PRInfoViewController.h"
 #import "PRLibrary.h"
-#import "PRNowPlayingController.h"
+#import "PRPlayer.h"
 #import "PRPlaylists.h"
 #import "PRSizeFormatter.h"
 #import "PRStringFormatter.h"

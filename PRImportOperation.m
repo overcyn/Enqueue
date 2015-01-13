@@ -5,7 +5,7 @@
 #import "PRCore.h"
 #import "PROperationProgress.h"
 #import "PRProgressManager.h"
-#import "PRNowPlayingController.h"
+#import "PRPlayer.h"
 #import "NSIndexSet+Extensions.h"
 #import "PRDirectoryEnumerator.h"
 #import "NSEnumerator+Extensions.h"

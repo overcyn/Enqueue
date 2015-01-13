@@ -2,7 +2,7 @@
 #import "PRCore.h"
 #import "SPMediaKeyTap.h"
 #import "PRDefaults.h"
-#import "PRNowPlayingController.h"
+#import "PRPlayer.h"
 
 
 @implementation PRMediaKeyController

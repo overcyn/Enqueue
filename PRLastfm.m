@@ -4,12 +4,12 @@
 #import "PRDefaults.h"
 #import "EMKeychainItem.h"
 #import "PRCore.h"
-#import "PRNowPlayingController.h"
+#import "PRPlayer.h"
 #import "PRDb.h"
 #import "PRLibrary.h"
 #import "NSString+LFExtensions.h"
 #import "NSURLConnection+Extensions.h"
-#import "PRMoviePlayer.h"
+#import "PRMovie.h"
 #import "PRMainWindowController.h"
 
 NSString * const PRLastfmSecret = @"7c36737d54802277880b10bf32fe8718";

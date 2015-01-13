@@ -3,6 +3,7 @@
 #import "PRDb.h"
 #import "PROperationProgress.h"
 #import "PRProgressManager.h"
+#import "NSOperationQueue+Extensions.h"
 
 @implementation PRVacuumOperation
 

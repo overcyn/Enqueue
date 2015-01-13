@@ -1,7 +1,7 @@
 #import "PRWindow.h"
 #import <objc/runtime.h>
 #import "PRCore.h"
-#import "PRNowPlayingController.h"
+#import "PRPlayer.h"
 #import "NSBezierPath+Extensions.h"
 
 @interface PRWindow(hush)

@@ -1,13 +1,13 @@
 #import "PRGrowl.h"
 #import "Growl/Growl.h"
-#import "PRNowPlayingController.h"
+#import "PRPlayer.h"
 #import "PRDefaults.h"
 #import "PRCore.h"
 #import "PRDb.h"
 #import "PRLibrary.h"
 #import "PRTimeFormatter.h"
 #import "PRAlbumArtController.h"
-#import "PRMoviePlayer.h"
+#import "PRMovie.h"
 
 
 @interface PRGrowl ()

@@ -1,4 +1,5 @@
 #import "NSURLConnection+Extensions.h"
+#import "NSOperationQueue+Extensions.h"
 
 @implementation NSURLConnection (Extensions)
 

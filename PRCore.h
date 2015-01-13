@@ -8,7 +8,7 @@
 @class PRLastfm; 
 @class PRMainWindowController; 
 @class PRMediaKeyController; 
-@class PRNowPlayingController; 
+@class PRPlayer; 
 @class PRProgressManager; 
 
 @interface PRCore : NSObject <NSApplicationDelegate>
@@ -16,7 +16,7 @@
 @property (readonly) PRConnection *conn;
 @property (readonly) PRDb *db;
 @property (readonly) PRMainWindowController *win;
-@property (readonly) PRNowPlayingController *now;
+@property (readonly) PRPlayer *now;
 @property (readonly) NSOperationQueue *opQueue;
 @property (readonly) PRFolderMonitor *folderMonitor;
 @property (readonly) PRProgressManager *taskManager;

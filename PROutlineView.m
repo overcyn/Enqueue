@@ -1,6 +1,6 @@
 #import "PROutlineView.h"
 #import "PRCore.h"
-#import "PRNowPlayingController.h"
+#import "PRPlayer.h"
 #import "PRNowPlayingViewController.h"
 
 

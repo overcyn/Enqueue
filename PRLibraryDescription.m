@@ -6,6 +6,7 @@
 #import "NSArray+Extensions.h"
 #import "PRStatement.h"
 #import "PRLibraryViewController.h"
+#import "NSString+Extensions.h"
 
 extern NSString * const PRCompilationString;
 NSString * const PRCompilationString = @"Compilations  ";

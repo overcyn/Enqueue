@@ -1,7 +1,7 @@
 #import "PRAlbumListViewController.h"
 #import "PRBrowserViewController.h"
 #import "PRSynchronizedScrollView.h"
-#import "PRNowPlayingController.h"
+#import "PRPlayer.h"
 #import "PRDb.h"
 #import "PRAlbumArtController.h"
 #import "PRAlbumTableView2.h"

@@ -2,6 +2,7 @@
 #import "PRStatement.h"
 #import "PRDb.h"
 #import "PRConnection.h"
+#import "PRException.h"
 
 @implementation PRStatement {
     NSString *_statement;

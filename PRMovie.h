@@ -18,7 +18,7 @@
     In situation 1, _lastQueued is always cleared before Play()
     In situation 2, Enqueue()'d is only called from queue: which also sets _lastQueued
  
-    Currently [PRMoviePlayer update] gets called twice because as soon as you queue up the next song DecodingStarted 
+    Currently [PRMovie update] gets called twice because as soon as you queue up the next song DecodingStarted 
     gets called which clears the flags and update gets called again.
 */
 #import <Cocoa/Cocoa.h>
@@ -28,7 +28,7 @@ extern NSString * const PRDeviceKeyName;
 extern NSString * const PRDeviceKeyManufacturer;
 extern NSString * const PRDeviceKeyUID;
 
-@interface PRMoviePlayer : NSObject
+@interface PRMovie : NSObject
 /* Accessors */
 @property (readonly) BOOL isPlaying;
 @property (readwrite) float volume;

@@ -1,12 +1,9 @@
 #import <Cocoa/Cocoa.h>
 #import "PRLibrary.h"
-#import "PRDb.h"
-
 @class PRDb;
 @class PRList;
 @class PRLibraryDescription;
 @class PRBrowserDescription;
-
 
 typedef NSNumber PRListID;
 typedef NSNumber PRListItemID;

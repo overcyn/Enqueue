@@ -17,7 +17,7 @@
 #import "PRLibraryViewController.h"
 #import "PRList.h"
 #import "PRMainWindowController.h"
-#import "PRNowPlayingController.h"
+#import "PRPlayer.h"
 #import "PRPlaylists.h"
 #import "PRTableView.h"
 #import "PRTagger.h"

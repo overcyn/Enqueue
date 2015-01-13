@@ -1,19 +1,19 @@
-#import "PRNowPlayingController.h"
+#import "PRPlayer.h"
 #import "NSNotificationCenter+Extensions.h"
 #import "PRDb.h"
 #import "PRDefaults.h"
 #import "PRHistory.h"
 #import "PRLibrary.h"
-#import "PRMoviePlayer.h"
+#import "PRMovie.h"
 #import "PRPlaybackOrder.h"
 #import "PRPlaylists.h"
 #import "PRQueue.h"
 #import "PRTagger.h"
-#import "PRPlayerDescription_Private.h"
+#import "PRPlayerState_Private.h"
 #import "PRConnection.h"
 
 
-@implementation PRNowPlayingController {
+@implementation PRPlayer {
     PRListItemID *_currentListItem;
     NSMutableArray *_invalidItems;
     int _position; // current position in playback history. usually count of playbackorder
@@ -21,7 +21,7 @@
     
     long _random; // next random number
     
-    PRMoviePlayer *_mov;
+    PRMovie *_mov;
 
     __weak PRDb *_db;
     __weak PRConnection *_conn;
@@ -32,7 +32,7 @@
 - (id)initWithDb:(PRDb *)db {
     if (!(self = [super init])) {return nil;}
     _db = db;
-    _mov = [[PRMoviePlayer alloc] init];
+    _mov = [[PRMovie alloc] init];
     
     _currentListItem = nil;
     [self clearHistory];
@@ -51,7 +51,7 @@
 - (id)initWithConnection:(PRConnection *)conn {
     if (!(self = [super init])) {return nil;}
     _conn = conn;
-    _mov = [[PRMoviePlayer alloc] init];
+    _mov = [[PRMovie alloc] init];
     
     _currentListItem = nil;
     [self clearHistory];
@@ -73,8 +73,8 @@
 
 #pragma mark - Accessors
 
-- (PRPlayerDescription *)description {
-    PRPlayerDescription *description = [[PRPlayerDescription alloc] init];
+- (PRPlayerState *)description {
+    PRPlayerState *description = [[PRPlayerState alloc] init];
     [description setInvalidItems:[self invalidItems]];
     [description setCurrentList:[self currentList]];
     [description setCurrentItem:[self currentItem]];
@@ -84,8 +84,8 @@
     return description;
 }
 
-- (PRMovieDescription *)movDescription {
-    PRMovieDescription *description = [[PRMovieDescription alloc] init];
+- (PRMovieState *)movDescription {
+    PRMovieState *description = [[PRMovieState alloc] init];
     [description setIsPlaying:[_mov isPlaying]];
     [description setVolume:[_mov volume]];
     [description setCurrentTime:[_mov currentTime]];

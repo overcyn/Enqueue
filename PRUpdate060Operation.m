@@ -5,7 +5,7 @@
 #import "PRProgressManager.h"
 #import "PRDb.h"
 #import "PRTagger.h"
-
+#import "NSOperationQueue+Extensions.h"
 
 @implementation PRUpdate060Operation
 

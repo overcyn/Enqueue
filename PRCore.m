@@ -13,13 +13,14 @@
 #import "PRMainMenuController.h"
 #import "PRMainWindowController.h"
 #import "PRMediaKeyController.h"
-#import "PRNowPlayingController.h"
+#import "PRPlayer.h"
 #import "PRProgressManager.h"
 #import "PRTrialSheetController.h"
 #import "PRVacuumOperation.h"
 #import "PRWelcomeSheetController.h"
 #import "PRConnection.h"
 #import "PRBridge.h"
+#import "PRLog.h"
 
 @implementation PRCore {
     IBOutlet NSMenu *__weak _mainMenu;
@@ -27,7 +28,7 @@
     PRBridge *_bridge;
     PRConnection *_conn;
     PRDb *_db;
-    PRNowPlayingController *_now;
+    PRPlayer *_now;
     PRMainWindowController *_win;
     NSOperationQueue *_opQueue;
     PRFolderMonitor *_folderMonitor;
@@ -67,7 +68,7 @@
     _taskManager = [[PRProgressManager alloc] init];
     _db = [[PRDb alloc] initWithCore:self];
     _conn = [[PRConnection alloc] initWithPath:[[PRDefaults sharedDefaults] libraryPath] type:PRConnectionTypeReadOnly];
-    _now = [[PRNowPlayingController alloc] initWithDb:_db]; // requires: db
+    _now = [[PRPlayer alloc] initWithDb:_db]; // requires: db
     _folderMonitor = [[PRFolderMonitor alloc] initWithCore:self]; // requires: opQueue, db & taskManager
     _win = [[PRMainWindowController alloc] initWithCore:self]; // requires: db, now, taskManager, folderMonitor
     _growl  = [[PRGrowl alloc] initWithCore:self];

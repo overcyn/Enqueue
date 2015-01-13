@@ -1,4 +1,4 @@
-#import "PRMoviePlayer.h"
+#import "PRMovie.h"
 #import <AudioUnit/AudioUnit.h>
 #import <CoreAudio/CoreAudio.h>
 #import <QuickTime/QuickTime.h>
@@ -14,7 +14,7 @@
 #import "PRDefaults.h"
 #import "PREQ.h"
 
-typedef NS_ENUM(NSInteger, PRMoviePlayerTransitionState) {
+typedef NS_ENUM(NSInteger, PRMovieTransitionState) {
     PRNeitherTransitionState,
     PRPlayingTransitionState,
     PRPausingTransitionState,
@@ -39,10 +39,10 @@ NSString * const PRDeviceKeyName = @"PRDeviceKeyName";
 NSString * const PRDeviceKeyManufacturer = @"PRDeviceKeyManufacturer";
 NSString * const PRDeviceKeyUID = @"PRDeviceKeyUID";
 
-@interface PRMoviePlayer ()
+@interface PRMovie ()
 @end
 
-@implementation PRMoviePlayer {
+@implementation PRMovie {
     void *_player;
     AudioUnit _equalizer;
     NSTimer    *_UIUpdateTimer;
@@ -583,7 +583,7 @@ error:;
 
 OSStatus deviceListener(AudioObjectID inObjectID, UInt32 inNumberAddresses, const AudioObjectPropertyAddress inAddresses[], void *inClientData) {
     NSLog(@"blah");
-    [(__bridge PRMoviePlayer *)inClientData updateDevice];
+    [(__bridge PRMovie *)inClientData updateDevice];
     return noErr;
 }
 

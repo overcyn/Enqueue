@@ -1,6 +1,6 @@
 #import "PRProgressManager.h"
 #import "PROperationProgress.h"
-
+#import "NSOperationQueue+Extensions.h"
 
 @interface PRProgressManager ()
 - (void)updateTasks;

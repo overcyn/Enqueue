@@ -1,5 +1,5 @@
 #import "PRLog.h"
-
+#import <Cocoa/Cocoa.h>
 
 NSString * const PREnqueueErrorDomain = @"PREnqueueErrorDomain";
 NSString * const PRSQLiteErrorDomain = @"PRSQLiteErrorDomain";

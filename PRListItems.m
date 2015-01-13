@@ -1,6 +1,7 @@
 #import "PRListItems.h"
 #import "PRDefaults.h"
 #import "NSIndexSet+Extensions.h"
+#import "NSString+Extensions.h"
 #import "PRConnection.h"
 
 @implementation PRListItems {

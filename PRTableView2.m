@@ -1,5 +1,5 @@
 #import "PRTableView2.h"
-#import "PRNowPlayingController.h"
+#import "PRPlayer.h"
 #import "PRCore.h"
 
 @implementation PRTableView2
@@ -11,7 +11,7 @@
 
 - (void)keyDown:(NSEvent *)event
 {
-    PRNowPlayingController *now = [(PRCore *)[NSApp delegate] now];
+    PRPlayer *now = [(PRCore *)[NSApp delegate] now];
     if ([[event characters] length] != 1) {
         [super keyDown:event];
         return;

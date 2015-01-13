@@ -3,7 +3,6 @@
 #import "PRConnection.h"
 #import "PRDefaults.h"
 
-
 @implementation PRList {
     PRListID *_list;
     NSMutableArray *_attributes;

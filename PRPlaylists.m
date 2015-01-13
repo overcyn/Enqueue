@@ -4,7 +4,7 @@
 #import "NSArray+Extensions.h"
 #import "PRList.h"
 #import "PRLibraryDescription.h"
-
+#import "PRException.h"
 
 NSString * const PRListTypeLibrary = @"PRListTypeLibrary";
 NSString * const PRListTypeNowPlaying = @"PRListTypeNowPlaying";

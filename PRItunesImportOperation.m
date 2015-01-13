@@ -12,7 +12,7 @@
 #import "NSFileManager+Extensions.h"
 #import "PRTagger.h"
 #import "PRFileInfo.h"
-
+#import "NSOperationQueue+Extensions.h"
 
 @interface NSDictionary (trackSort)
 - (int)trackSort:(NSDictionary *)dictionary;

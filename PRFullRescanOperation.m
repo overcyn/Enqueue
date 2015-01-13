@@ -7,6 +7,7 @@
 #import "PRDb.h"
 #import "PRAlbumArtController.h"
 #import "PRTagger.h"
+#import "NSOperationQueue+Extensions.h"
 #import "PRFileInfo.h"
 
 @implementation PRFullRescanOperation

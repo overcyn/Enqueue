@@ -4,12 +4,12 @@
 #import "PRDb.h"
 #import "PRQueue.h"
 #import "PRPlaylists.h"
-#import "PRNowPlayingController.h"
+#import "PRPlayer.h"
 #import "PRMainWindowController.h"
 #import "PRLibraryViewController.h"
 #import "PRBrowserViewController.h"
 #import "PRPlaylistsViewController.h"
-#import "PRMoviePlayer.h"
+#import "PRMovie.h"
 
 #pragma mark - Now Playing
 
@@ -58,7 +58,7 @@ PRTask PRPlayIndexTask(NSInteger index) {
 
 PRTask PRPlayItemsTask(NSArray *items, NSInteger index) {
     return ^(PRCore *core){
-        PRNowPlayingController *now = [core now];
+        PRPlayer *now = [core now];
         PRPlaylists *playlists = [[core db] playlists];
         [now stop];
         [playlists clearList:[now currentList]];

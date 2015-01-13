@@ -1,6 +1,8 @@
 #import "PRDropImageView.h"
 
-@implementation PRDropImageView
+@implementation PRDropImageView {
+    BOOL focusRing;
+}
 
 #pragma mark - Initialization
 

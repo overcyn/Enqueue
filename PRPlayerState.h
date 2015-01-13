@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "PRPlaylists.h"
 
-@interface PRPlayerDescription : NSObject
+@interface PRPlayerState : NSObject
 @property (readonly) NSArray *invalidItems;
 @property (readonly) PRListID *currentList;
 @property (readonly) PRItemID *currentItem;
@@ -10,7 +10,7 @@
 @property (readonly) NSInteger repeat;
 @end
 
-@interface PRMovieDescription : NSObject
+@interface PRMovieState : NSObject
 @property (readonly) BOOL isPlaying;
 @property (readonly) CGFloat volume;
 @property (readonly) long currentTime;

@@ -11,7 +11,7 @@
 #import "PRLibraryViewController.h"
 #import "PRMainMenuController.h"
 #import "PRMainWindowView.h"
-#import "PRNowPlayingController.h"
+#import "PRPlayer.h"
 #import "PRNowPlayingViewController.h"
 #import "PRPlaylists.h"
 #import "PRPlaylistsViewController.h"

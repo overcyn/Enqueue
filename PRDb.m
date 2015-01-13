@@ -13,7 +13,8 @@
 #include <ctype.h>
 #include <string.h>
 #include <sys/file.h>
-
+#import "PRLog.h"
+#import "PRException.h"
 
 NSString * const PRFilePboardType = @"PRFilePboardType";
 NSString * const PRIndexesPboardType = @"PRIndexesPboardType";

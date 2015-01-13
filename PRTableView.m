@@ -1,5 +1,6 @@
 #import "PRTableView.h"
-#import "PRNowPlayingController.h"
+#import "NSString+Extensions.h"
+#import "PRPlayer.h"
 #import "PRCore.h"
 #import "PRNowPlayingViewController.h"
 

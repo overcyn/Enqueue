@@ -1,3 +1,4 @@
+#import <Foundation/Foundation.h>
 //
 //  NSData+Base64.m
 //

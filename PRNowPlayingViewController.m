@@ -20,10 +20,10 @@
 #import "PRList.h"
 #import "PRListItems.h"
 #import "PRMainWindowController.h"
-#import "PRMoviePlayer.h"
+#import "PRMovie.h"
 #import "PRNowPlayingCell.h"
-#import "PRNowPlayingController.h"
-#import "PRPlayerDescription.h"
+#import "PRPlayer.h"
+#import "PRPlayerState.h"
 #import "PRNowPlayingHeaderCell.h"
 #import "PROutlineView.h"
 #import "PRPlaylists.h"
@@ -55,7 +55,7 @@
     NSCell *_cachedNowPlayingHeaderCell;
     
     PRNowPlayingListItems *_playerList;
-    PRPlayerDescription *_player;
+    PRPlayerState *_player;
     NSArray *_queue;
 }
 
@@ -504,7 +504,7 @@
 
 - (void)_reloadData:(PRChangeSet *)changeSet {
     __block PRNowPlayingListItems *playerList;
-    __block PRPlayerDescription *player;
+    __block PRPlayerState *player;
     __block NSArray *queue;
     [_bridge performTaskSync:^(PRCore *core){
         player = [[core now] description];

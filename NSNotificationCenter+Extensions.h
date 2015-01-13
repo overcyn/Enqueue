@@ -67,7 +67,7 @@ extern NSString * const PRDeviceDidChangeNotification;
 - (void)observeUseAlbumArtistChanged:(id)obs sel:(SEL)sel;
 - (void)observeEQChanged:(id)obs sel:(SEL)sel;
 
-/* PRMoviePlayer */
+/* PRMovie */
 - (void)postMovieFinished;
 - (void)postMovieAlmostFinished;
 

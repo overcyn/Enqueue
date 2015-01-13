@@ -1,8 +1,8 @@
 #import "PRHotKeyController.h"
 #import "NSNotificationCenter+Extensions.h"
 #import "PRCore.h"
-#import "PRMoviePlayer.h"
-#import "PRNowPlayingController.h"
+#import "PRMovie.h"
+#import "PRPlayer.h"
 #import "PRDefaults.h"
 #import <Carbon/Carbon.h>
 #import <ShortcutRecorder/SRRecorderControl.h>

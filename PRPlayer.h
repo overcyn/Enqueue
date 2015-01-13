@@ -23,21 +23,21 @@
 #import "PRLibrary.h"
 @class PRConnection;
 @class PRDb;
-@class PRMoviePlayer;
-@class PRMovieDescription;
-@class PRPlayerDescription;
+@class PRMovie;
+@class PRMovieState;
+@class PRPlayerState;
 
-@interface PRNowPlayingController : NSObject
+@interface PRPlayer : NSObject
 /* Initialization */
 - (id)initWithDb:(PRDb *)db;
 - (id)initWithConnection:(PRConnection *)conn;
 
 /* Accessors */
-@property (nonatomic, readonly) PRPlayerDescription *description;
-@property (nonatomic, readonly) PRMovieDescription *movDescription;
+@property (nonatomic, readonly) PRPlayerState *description;
+@property (nonatomic, readonly) PRMovieState *movDescription;
 
 @property (nonatomic, readonly) NSArray *invalidItems;
-@property (nonatomic, readonly) PRMoviePlayer *mov;
+@property (nonatomic, readonly) PRMovie *mov;
 @property (nonatomic, readonly) PRListID *currentList;
 @property (nonatomic, readonly) PRListItemID *currentListItem;
 @property (nonatomic, readonly) PRItemID *currentItem;

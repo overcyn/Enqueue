@@ -1,9 +1,5 @@
-#import <Foundation/Foundation.h>
+#import <Cocoa/Cocoa.h>
 
-
-@interface PRDropImageView : NSImageView {
-    BOOL focusRing;
-}
-// Accessors
+@interface PRDropImageView : NSImageView
 @property (readonly) BOOL focusRing;
 @end

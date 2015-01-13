@@ -1,6 +1,6 @@
-#import "PRPlayerDescription.h"
+#import "PRPlayerState.h"
 
-@interface PRPlayerDescription ()
+@interface PRPlayerState ()
 @property (readwrite) NSArray *invalidItems;
 @property (readwrite) PRListID *currentList;
 @property (readwrite) PRItemID *currentItem;
@@ -9,7 +9,7 @@
 @property (readwrite) NSInteger repeat;
 @end
 
-@interface PRMovieDescription ()
+@interface PRMovieState ()
 @property (readwrite) BOOL isPlaying;
 @property (readwrite) CGFloat volume;
 @property (readwrite) long currentTime;

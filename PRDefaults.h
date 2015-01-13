@@ -39,7 +39,7 @@ extern NSString * const PRDefaultsRate3HotKey;
 extern NSString * const PRDefaultsRate4HotKey;
 extern NSString * const PRDefaultsRate5HotKey;
 
-/* PRMoviePlayer */
+/* PRMovie */
 extern NSString * const PRDefaultsVolume;                       // float (0 - 1)
 extern NSString * const PRDefaultsPregain;                      // float (0 - 1)
 extern NSString * const PRDefaultsHogOutput;                    // bool

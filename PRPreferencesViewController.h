@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <ShortcutRecorder/SRRecorderControl.h>
 #import <Carbon/Carbon.h>
-@class PRDb, PRNowPlayingController, PRGradientView, PRCore;
+@class PRDb, PRPlayer, PRGradientView, PRCore;
 
 
 typedef enum {
@@ -91,7 +91,7 @@ typedef enum {
     
     __weak PRCore *core;
     __weak PRDb *db;
-    __weak PRNowPlayingController *now;
+    __weak PRPlayer *now;
 }
 /* Initialization */
 - (id)initWithCore:(PRCore *)core;
