@@ -3,7 +3,6 @@
 @class PRDb;
 @class PRConnection;
 
-
 @interface PRQueue : NSObject
 /* Initialization */
 - (id)initWithDb:(PRDb *)db;

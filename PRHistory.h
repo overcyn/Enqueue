@@ -2,7 +2,6 @@
 #import "PRPlaylists.h"
 @class PRDb;
 
-
 @interface PRHistory : NSObject
 // Initialization
 - (id)initWithDb:(PRDb *)db;

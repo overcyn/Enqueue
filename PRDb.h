@@ -19,12 +19,9 @@ extern NSString * const PRColInteger;
 extern NSString * const PRColString;
 extern NSString * const PRColData;
 
-
 @interface PRDb : NSObject
-/* Initialization */
 - (id)initWithCore:(PRCore *)core;
 
-/* Accessors */
 @property (readwrite, assign) sqlite3 *sqlDb;
 @property (readonly) PRHistory *history;
 @property (readonly) PRLibrary *library;
@@ -34,7 +31,6 @@ extern NSString * const PRColData;
 @property (readonly) PRQueue *queue;
 - (long)lastInsertRowid;
 
-/* Action */
 - (void)begin;
 - (void)rollback;
 - (void)commit;
@@ -53,7 +49,6 @@ extern NSString * const PRColData;
 - (BOOL)zExecuteCached:(NSString *)string;
 - (BOOL)zExecuteCached:(NSString *)string bindings:(NSDictionary *)bindings columns:(NSArray *)columns out:(NSArray **)outValue;
 
-/* Error */
 - (NSError *)databaseWasMovedError:(NSString *)newPath;
 - (NSError *)databaseCouldNotBeMovedError;
 - (NSError *)databaseCouldNotBeInitializedError;

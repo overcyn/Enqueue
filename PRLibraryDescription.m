@@ -25,7 +25,7 @@ NSString * const PRCompilationString = @"Compilations  ";
     NSArray *_cachedAttrs;
 }
 
-- (id)initWithList:(PRListID *)list connection:(PRConnection *)conn {
+- (id)initWithListID:(PRListID *)list connection:(PRConnection *)conn {
     if (!(self = [super init])) {return nil;}
     _conn = conn;
     _list = list;

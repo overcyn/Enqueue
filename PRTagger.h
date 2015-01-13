@@ -19,13 +19,12 @@ typedef enum {
     PRFileTypeWavPack,
 } PRFileType;
 
-
 @interface PRTagger : NSObject
 /* Tags */
 + (PRFileInfo *)infoForURL:(NSURL *)URL; // returns nil if invalid or missing file
 + (NSMutableDictionary *)tagsForURL:(NSURL *)URL; // returns nil if invalid or missing file
 + (void)setTag:(id)tag forAttribute:(PRItemAttr *)attr URL:(NSURL *)URL;
-+ (BOOL)updateTagsForItem:(PRItem *)item database:(PRDb *)db; // caller should post ItemsDidChangeNotification if this returns TRUE
++ (BOOL)updateTagsForItem:(PRItemID *)item database:(PRDb *)db; // caller should post ItemsDidChangeNotification if this returns TRUE
 
 /* Properties */
 + (NSDate *)lastModifiedForFileAtPath:(NSString *)path;

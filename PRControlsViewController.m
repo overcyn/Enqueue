@@ -14,8 +14,8 @@
 @implementation PRControlsViewController {
     PRBridge *_bridge;
     PRControlsView *_view;
-    PRPlayerState *_player;
-    PRMovieState *_movie;
+    PRPlayerState *_playerState;
+    PRMovieState *_movieState;
     PRItem *_item;
     PRTimeFormatter *_formatter;
 }
@@ -103,12 +103,12 @@
             [[[core conn] library] zItemDescriptionForItem:[player currentItem] out:&item];
         }
     }];
-    _player = player;
+    _playerState = player;
     _item = item;
     
     [_view setTitleString:_item ? [NSString stringWithFormat:@"%@ - %@ - %@", [_item title], [_item artist], [_item album]] : @""];
-    [_view setRepeat:[_player repeat]];
-    [_view setShuffle:[_player shuffle]];
+    [_view setRepeat:[_playerState repeat]];
+    [_view setShuffle:[_playerState shuffle]];
     
     [self _reloadMovie];
 }
@@ -118,16 +118,16 @@
     [_bridge performTaskSync:^(PRCore *core){
         movDescription = [[core now] movDescription];
     }];
-    _movie = movDescription;
+    _movieState = movDescription;
     
-    [[_view volumeSlider] setFloatValue:[_movie volume]];
-    [[_view progressSlider] setMaxValue:[_movie duration]];
-    [[_view progressSlider] setIntegerValue:[_movie currentTime]];
-    [_view setIsPlaying:[_movie isPlaying]];
+    [[_view volumeSlider] setFloatValue:[_movieState volume]];
+    [[_view progressSlider] setMaxValue:[_movieState duration]];
+    [[_view progressSlider] setIntegerValue:[_movieState currentTime]];
+    [_view setIsPlaying:[_movieState isPlaying]];
     
-    NSString *timeStr = [_formatter stringForObjectValue:@([_movie currentTime])];
-    NSString *durationStr = [_formatter stringForObjectValue:@([_movie duration])];
-    [_view setSubtitleString:(_item && _movie) ? [NSString stringWithFormat:@"%@ / %@", timeStr, durationStr] : @""];
+    NSString *timeStr = [_formatter stringForObjectValue:@([_movieState currentTime])];
+    NSString *durationStr = [_formatter stringForObjectValue:@([_movieState duration])];
+    [_view setSubtitleString:(_item && _movieState) ? [NSString stringWithFormat:@"%@ / %@", timeStr, durationStr] : @""];
 }
 
 @end

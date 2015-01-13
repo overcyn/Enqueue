@@ -1,15 +1,15 @@
 #import <Cocoa/Cocoa.h>
 @class PRBridge;
 @class PRConnection;
-@class PRDb; 
-@class PRFolderMonitor; 
-@class PRGrowl; 
+@class PRDb;
+@class PRFolderMonitor;
+@class PRGrowl;
 @class PRHotKeyController;
-@class PRLastfm; 
-@class PRMainWindowController; 
-@class PRMediaKeyController; 
-@class PRPlayer; 
-@class PRProgressManager; 
+@class PRLastfm;
+@class PRMainWindowController;
+@class PRMediaKeyController;
+@class PRPlayer;
+@class PRProgressManager;
 
 @interface PRCore : NSObject <NSApplicationDelegate>
 @property (readonly) PRBridge *bridge;

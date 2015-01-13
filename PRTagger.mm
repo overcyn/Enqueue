@@ -386,7 +386,7 @@ using namespace TagLib;
     return;
 }
 
-+ (BOOL)updateTagsForItem:(PRItem *)item database:(PRDb *)db {
++ (BOOL)updateTagsForItem:(PRItemID *)item database:(PRDb *)db {
 	PRFileInfo *info = [PRTagger infoForURL:[[db library] URLForItem:item]];
 	if (!info) {
 		return FALSE;

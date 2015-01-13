@@ -4,7 +4,6 @@
 NSString * const PREnqueueErrorDomain = @"PREnqueueErrorDomain";
 NSString * const PRSQLiteErrorDomain = @"PRSQLiteErrorDomain";
 
-
 @implementation PRLog
 
 #pragma mark - Initialization

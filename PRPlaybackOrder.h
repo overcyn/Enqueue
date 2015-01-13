@@ -2,7 +2,6 @@
 #import "PRPlaylists.h"
 @class PRDb;
 
-
 @interface PRPlaybackOrder : NSObject
 /* Initialization */
 - (id)initWithDb:(PRDb *)sqlDb;
