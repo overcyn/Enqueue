@@ -1,6 +1,5 @@
 #import "NSScrollView+Extensions.h"
 
-
 @implementation NSScrollView (Extensions)
 
 - (void)scrollToTop {

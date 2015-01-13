@@ -1,6 +1,5 @@
 #import "NSParagraphStyle+Extensions.h"
 
-
 @implementation NSParagraphStyle (Extensions)
 
 + (NSParagraphStyle *)rightAlignStyle {

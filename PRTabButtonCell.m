@@ -3,8 +3,9 @@
 #import "NSBezierPath+Extensions.h"
 #import "NSParagraphStyle+Extensions.h"
 
-
-@implementation PRTabButtonCell
+@implementation PRTabButtonCell {
+    BOOL _rounded;
+}
 
 @synthesize rounded = _rounded;
 

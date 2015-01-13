@@ -1,6 +1,5 @@
 #import "PRPlayer.h"
 #import "NSNotificationCenter+Extensions.h"
-#import "PRDb.h"
 #import "PRDefaults.h"
 #import "PRHistory.h"
 #import "PRLibrary.h"
@@ -12,40 +11,15 @@
 #import "PRPlayerState_Private.h"
 #import "PRConnection.h"
 
-
 @implementation PRPlayer {
     PRListItemID *_currentListItem;
     NSMutableArray *_invalidItems;
     int _position; // current position in playback history. usually count of playbackorder
     int _marker; // position in history AFTER which not to random from
-    
     long _random; // next random number
     
     PRMovie *_mov;
-
-    __weak PRDb *_db;
     __weak PRConnection *_conn;
-}
-
-#pragma mark - Initialization
-
-- (id)initWithDb:(PRDb *)db {
-    if (!(self = [super init])) {return nil;}
-    _db = db;
-    _mov = [[PRMovie alloc] init];
-    
-    _currentListItem = nil;
-    [self clearHistory];
-    
-    _invalidItems = [[NSMutableArray alloc] init];
-    
-    srandomdev();
-    _random = random();
-    
-    [[NSNotificationCenter defaultCenter] observeMovieFinished:self sel:@selector(movieDidFinish)];
-    [[NSNotificationCenter defaultCenter] observePlaylistFilesChanged:self sel:@selector(playlistDidChange:)];
-    [[NSNotificationCenter defaultCenter] observeMovieAlmostFinished:self sel:@selector(movieAlmostFinished)];
-    return self;
 }
 
 - (id)initWithConnection:(PRConnection *)conn {
@@ -73,7 +47,7 @@
 
 #pragma mark - Accessors
 
-- (PRPlayerState *)description {
+- (PRPlayerState *)playerState {
     PRPlayerState *description = [[PRPlayerState alloc] init];
     [description setInvalidItems:[self invalidItems]];
     [description setCurrentList:[self currentList]];
@@ -84,7 +58,7 @@
     return description;
 }
 
-- (PRMovieState *)movDescription {
+- (PRMovieState *)movieState {
     PRMovieState *description = [[PRMovieState alloc] init];
     [description setIsPlaying:[_mov isPlaying]];
     [description setVolume:[_mov volume]];
@@ -98,7 +72,7 @@
 
 - (PRListID *)currentList {
     PRListID *rlt = nil;
-    [[(PRDb *)(_db?:(id)_conn) playlists] zNowPlayingList:&rlt];
+    [[_conn playlists] zNowPlayingList:&rlt];
     return rlt;
 }
 
@@ -111,7 +85,7 @@
         return nil;
     } 
     PRItemID *item = nil;
-    [[(PRDb *)(_db?:(id)_conn) playlists] zItemAtIndex:[self currentIndex] forList:[self currentList] out:&item];
+    [[_conn playlists] zItemAtIndex:[self currentIndex] forList:[self currentList] out:&item];
     return item;
 }
 
@@ -120,7 +94,7 @@
         return 0;
     }
     NSInteger rlt = 0;
-    [[(PRDb *)(_db?:(id)_conn) playlists] zIndexForListItem:[self currentListItem] out:&rlt];
+    [[_conn playlists] zIndexForListItem:[self currentListItem] out:&rlt];
     return rlt;
 }
 
@@ -173,13 +147,13 @@
 - (void)playItemAtIndex:(int)index {
     [_invalidItems removeAllObjects];
     PRListItemID *item = nil;
-    BOOL success = [[(PRDb *)(_db?:(id)_conn) playlists] zListItemAtIndex:index inList:[self currentList] out:&item];
+    BOOL success = [[_conn playlists] zListItemAtIndex:index inList:[self currentList] out:&item];
     if (!success) {
         return;
     }
-    [[(PRDb *)(_db?:(id)_conn) queue] zRemoveListItem:item];
+    [[_conn queue] zRemoveListItem:item];
     [self clearHistory];
-    [[(PRDb *)(_db?:(id)_conn) playbackOrder] zAppendListItem:item];
+    [[_conn playbackOrder] zAppendListItem:item];
     self.position += 1;
     [self playListItem:item evenIfQueued:YES];
 }
@@ -205,8 +179,8 @@
 #pragma mark - Playback Priv
 
 - (void)playListItem:(PRListItemID *)listItem evenIfQueued:(BOOL)evenIfQueued {
-    PRPlaylists *playlists = [(PRDb *)(_db?:(id)_conn) playlists];
-    PRLibrary *library = [(PRDb *)(_db?:(id)_conn) library];
+    PRPlaylists *playlists = [_conn playlists];
+    PRLibrary *library = [_conn library];
     
     if ([_invalidItems count] == [playlists countForList:[self currentList]]) {
         [self stop];
@@ -216,7 +190,7 @@
     _currentListItem = listItem;
     
     // update tags
-    BOOL updated = [PRTagger updateTagsForItem:item database:(PRDb *)(_db?:(id)_conn)];
+    BOOL updated = [PRTagger updateTagsForItem:item database:_conn];
     if (updated) {
         [[NSNotificationCenter defaultCenter] postItemsChanged:@[item]];
     }
@@ -235,9 +209,9 @@
 }
 
 - (PRListItemID *)nextItem:(BOOL)update {
-    PRQueue *queue = [(PRDb *)(_db?:(id)_conn) queue];
-    PRPlaybackOrder *playbackOrder = [(PRDb *)(_db?:(id)_conn) playbackOrder];
-    PRPlaylists *playlists = [(PRDb *)(_db?:(id)_conn) playlists];
+    PRQueue *queue = [_conn queue];
+    PRPlaybackOrder *playbackOrder = [_conn playbackOrder];
+    PRPlaylists *playlists = [_conn playlists];
     
     // if items in queue
     NSArray *queueArray = nil;
@@ -326,9 +300,9 @@
 }
 
 - (PRListItemID *)previousItem:(BOOL)update {
-    PRQueue *queue = [(PRDb *)(_db?:(id)_conn) queue];
-    PRPlaybackOrder *playbackOrder = [(PRDb *)(_db?:(id)_conn) playbackOrder];
-    PRPlaylists *playlists = [(PRDb *)(_db?:(id)_conn) playlists];
+    PRQueue *queue = [_conn queue];
+    PRPlaybackOrder *playbackOrder = [_conn playbackOrder];
+    PRPlaylists *playlists = [_conn playlists];
     
     // if playing song jump to beginning
     if ([_mov currentTime] > 4000.0) {
@@ -383,8 +357,8 @@
 #pragma mark - Notifications
 
 - (void)movieDidFinish {
-    PRLibrary *library = [(PRDb *)(_db?:(id)_conn) library];
-    PRHistory *history = [(PRDb *)(_db?:(id)_conn) history];
+    PRLibrary *library = [_conn library];
+    PRHistory *history = [_conn history];
     
     NSNumber *playCount = nil;
     BOOL success = [library zValueForItem:[self currentItem] attr:PRItemAttrPlayCount out:&playCount];
@@ -404,8 +378,8 @@
 }
 
 - (void)movieAlmostFinished {
-    PRLibrary *library = [(PRDb *)(_db?:(id)_conn) library];
-    PRPlaylists *playlists = [(PRDb *)(_db?:(id)_conn) playlists];
+    PRLibrary *library = [_conn library];
+    PRPlaylists *playlists = [_conn playlists];
     PRListItemID *item = [self nextItem:NO];
     if (item) {
         NSString *path = nil;
@@ -417,7 +391,7 @@
 - (void)playlistDidChange:(NSNotification *)notification {
     if ([[[notification userInfo] objectForKey:@"playlist"] isEqual:[self currentList]]) {
         NSInteger count = nil;
-        [[(PRDb *)(_db?:(id)_conn) playbackOrder] zCount:&count];
+        [[_conn playbackOrder] zCount:&count];
         [_invalidItems removeAllObjects];
         [self setPosition:count];
         [self setMarker:count];
@@ -428,7 +402,7 @@
 
 - (int)position {
     NSInteger count = nil;
-    [[(PRDb *)(_db?:(id)_conn) playbackOrder] zCount:&count];
+    [[_conn playbackOrder] zCount:&count];
     if (_position < 0 || _position > count) {
         NSLog(@"invalid orderPosition");
         return count;
@@ -442,7 +416,7 @@
 
 - (int)marker {
     NSInteger count = nil;
-    [[(PRDb *)(_db?:(id)_conn) playbackOrder] zCount:&count];
+    [[_conn playbackOrder] zCount:&count];
     if (_marker < 0 || _marker > count) {
         NSLog(@"invalid orderMarker");
         return count;
@@ -455,7 +429,7 @@
 }
 
 - (void)clearHistory {
-    [[(PRDb *)(_db?:(id)_conn) playbackOrder] clear];
+    [[_conn playbackOrder] clear];
     _position = 0;
     _marker = 0;
 }

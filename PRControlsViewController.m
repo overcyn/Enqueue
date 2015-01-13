@@ -98,7 +98,7 @@
     __block PRPlayerState *player = nil;
     __block PRItem *item = nil;
     [_bridge performTaskSync:^(PRCore *core){
-        player = [[core now] description];
+        player = [[core now] playerState];
         if ([player currentItem]) {
             [[[core conn] library] zItemDescriptionForItem:[player currentItem] out:&item];
         }
@@ -116,7 +116,7 @@
 - (void)_reloadMovie {
     __block PRMovieState *movDescription = nil;
     [_bridge performTaskSync:^(PRCore *core){
-        movDescription = [[core now] movDescription];
+        movDescription = [[core now] movieState];
     }];
     _movieState = movDescription;
     

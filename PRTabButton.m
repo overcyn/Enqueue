@@ -1,6 +1,5 @@
 #import "PRTabButton.h"
 
-
 @implementation PRTabButton
 
 - (void)mouseDown:(NSEvent *)theEvent {

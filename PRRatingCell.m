@@ -1,7 +1,10 @@
 #import "PRRatingCell.h"
 
-
-@implementation PRRatingCell
+@implementation PRRatingCell {
+    BOOL _showDots;
+    NSRect _cellFrame;
+    BOOL _editing;
+}
 
 - (id)init {
     if (!(self = [super init])) {return nil;}

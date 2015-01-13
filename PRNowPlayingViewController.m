@@ -1,7 +1,6 @@
 #import "PRNowPlayingViewController.h"
 #import "NSNotificationCenter+Extensions.h"
 #import "PRPlaylists.h"
-#import "BWTexturedSlider.h"
 #import "NSColor+Extensions.h"
 #import "NSIndexPath+Extensions.h"
 #import "NSIndexSet+Extensions.h"
@@ -507,7 +506,7 @@
     __block PRPlayerState *player;
     __block NSArray *queue;
     [_bridge performTaskSync:^(PRCore *core){
-        player = [[core now] description];
+        player = [[core now] playerState];
         playerList = [[PRNowPlayingListItems alloc] initWithListID:[player currentList] connection:[core conn]];
         [[[core conn] queue] zQueueArray:&queue];
     }];

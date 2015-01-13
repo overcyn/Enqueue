@@ -1,7 +1,10 @@
 #import "PREQ.h"
 
 
-@implementation PREQ
+@implementation PREQ {
+    NSString *_title;
+    NSArray *_amplitudes;
+}
 
 #pragma mark - Initialization
 

@@ -2,7 +2,6 @@
 #import "NSFileManager+DirectoryLocations.h"
 #import "PRDb.h"
 #import "PRDefaults.h"
-//#import "PREnableLogger.h"
 #import "PRFolderMonitor.h"
 #import "PRFullRescanOperation.h"
 #import "PRGrowl.h"
@@ -68,7 +67,7 @@
     _taskManager = [[PRProgressManager alloc] init];
     _db = [[PRDb alloc] initWithCore:self];
     _conn = [[PRConnection alloc] initWithPath:[[PRDefaults sharedDefaults] libraryPath] type:PRConnectionTypeReadOnly];
-    _now = [[PRPlayer alloc] initWithDb:_db]; // requires: db
+    _now = [[PRPlayer alloc] initWithConnection:_conn]; // requires: db
     _folderMonitor = [[PRFolderMonitor alloc] initWithCore:self]; // requires: opQueue, db & taskManager
     _win = [[PRMainWindowController alloc] initWithCore:self]; // requires: db, now, taskManager, folderMonitor
     _growl  = [[PRGrowl alloc] initWithCore:self];

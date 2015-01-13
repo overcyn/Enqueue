@@ -22,19 +22,15 @@
 #import "PRPlaylists.h"
 #import "PRLibrary.h"
 @class PRConnection;
-@class PRDb;
 @class PRMovie;
 @class PRMovieState;
 @class PRPlayerState;
 
 @interface PRPlayer : NSObject
-/* Initialization */
-- (id)initWithDb:(PRDb *)db;
 - (id)initWithConnection:(PRConnection *)conn;
 
-/* Accessors */
-@property (nonatomic, readonly) PRPlayerState *description;
-@property (nonatomic, readonly) PRMovieState *movDescription;
+@property (nonatomic, readonly) PRPlayerState *playerState;
+@property (nonatomic, readonly) PRMovieState *movieState;
 
 @property (nonatomic, readonly) NSArray *invalidItems;
 @property (nonatomic, readonly) PRMovie *mov;
@@ -48,7 +44,6 @@
 - (void)toggleRepeat;
 - (void)toggleShuffle;
 
-/* Playback */
 - (void)playItemAtIndex:(int)index;
 - (void)playPause;
 - (void)playNext;
