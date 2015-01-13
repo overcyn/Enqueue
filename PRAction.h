@@ -19,11 +19,11 @@ PRTask PRToggleShuffleTask(void);
 PRTask PRToggleRepeatTask(void);
 
 // Lists
-PRTask PRAddItemsToListTask(NSArray *items, NSInteger index, PRList *list); // -1 to append, -2 to append next
-PRTask PRRemoveItemsFromListTask(NSIndexSet *indexes, PRList *list);
-PRTask PRMoveIndexesInListTask(NSIndexSet *indexes, NSInteger index, PRList *list);
-PRTask PRSetListDescriptionTask(PRListDescription *ld, PRList *list);
-PRTask PRDuplicateListTask(PRList *list);
+PRTask PRAddItemsToListTask(NSArray *items, NSInteger index, PRListID *list); // -1 to append, -2 to append next
+PRTask PRRemoveItemsFromListTask(NSIndexSet *indexes, PRListID *list);
+PRTask PRMoveIndexesInListTask(NSIndexSet *indexes, NSInteger index, PRListID *list);
+PRTask PRSetListDescriptionTask(PRList *ld, PRListID *list);
+PRTask PRDuplicateListTask(PRListID *list);
 
 // Misc
 PRTask PRHighightItemsTask(NSArray *items);

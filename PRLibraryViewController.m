@@ -10,7 +10,7 @@
 #import "PRStringFormatter.h"
 #import "PRBrowserViewController.h"
 #import "PRTimeFormatter2.h"
-#import "PRListDescription.h"
+#import "PRList.h"
 #import "PRBridge.h"
 #import "PRConnection.h"
 
@@ -32,8 +32,8 @@
     NSDate *_searchFieldLastEdit;
     
     BOOL _infoViewVisible;
-    PRList *_currentList;
-    PRListDescription *_listDescription;
+    PRListID *_currentList;
+    PRList *_listDescription;
     PRBrowserViewController *_currentVC;
 }
 
@@ -51,7 +51,7 @@
 @synthesize currentViewController = _currentVC;
 @synthesize currentList = _currentList;
 
-- (void)setCurrentList:(PRList *)list {
+- (void)setCurrentList:(PRListID *)list {
     if (![list isEqual:_currentList]) {
         _currentList = list;
         [self _reloadData];
@@ -190,7 +190,7 @@
 
 - (void)_reloadData {
     if (_currentList) {
-        __block PRListDescription *listDescription = nil;
+        __block PRList *listDescription = nil;
         [_bridge performTaskSync:^(PRCore *core){
             [[[core conn] playlists] zListDescriptionForList:_currentList out:&listDescription];
         }];

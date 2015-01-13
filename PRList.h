@@ -1,10 +1,10 @@
 #import <Foundation/Foundation.h>
 #import "PRLibraryViewController.h"
 
-@interface PRListDescription : NSObject
-- (id)initWithList:(PRList *)list connection:(PRConnection *)conn;
+@interface PRList : NSObject
+- (id)initWithListID:(PRListID *)list connection:(PRConnection *)conn;
 - (BOOL)writeToConnection:(PRConnection *)conn;
-@property (nonatomic, readonly) PRList *list;
+@property (nonatomic, readonly) PRListID *list;
 - (void)setValue:(id)value forAttr:(PRListAttr *)attr;
 - (id)valueForAttr:(PRListAttr *)attr;
 
@@ -26,7 +26,7 @@
 @property (nonatomic) NSDictionary *rules;
 @end
 
-@interface PRListDescription ()
+@interface PRList ()
 @property (nonatomic, readonly) NSArray *derivedBrowserAttributes; // Can be NSNull
 @property (nonatomic, readonly) NSArray *derivedBrowserAllowsCompilation;
 @end

@@ -71,7 +71,7 @@
 - (void)tableViewAction {
     int idx = [tableView clickedRow];
     if (idx >= [_datasource count]) {return;}
-    PRList *list = [[_datasource objectAtIndex:idx] objectForKey:@"playlist"];
+    PRListID *list = [[_datasource objectAtIndex:idx] objectForKey:@"playlist"];
     [[win libraryViewController] setCurrentList:list];
     [win setCurrentMode:PRWindowModeLibrary];
 }
@@ -99,7 +99,7 @@
     if (code != NSAlertFirstButtonReturn) {
         return;
     }
-    PRList *list = [[db playlists] addStaticList];
+    PRListID *list = [[db playlists] addStaticList];
     [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:list attr:PRListAttrTitle];
     [[NSNotificationCenter defaultCenter] postListsDidChange];
 }
@@ -127,7 +127,7 @@
     if (code != NSAlertFirstButtonReturn) {
         return;
     }
-    PRList *list = [[db playlists] addSmartList];
+    PRListID *list = [[db playlists] addSmartList];
     [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:list attr:PRListAttrTitle];
     [[NSNotificationCenter defaultCenter] postListsDidChange];
 }
@@ -140,7 +140,7 @@
     [alert setInformativeText:@""];
     [alert setAccessoryView:[[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 400, 0)]];
     NSString *title = @"";
-    PRListType *type = [[db playlists] typeForList:[PRList numberWithInt:playlist]];
+    PRListType *type = [[db playlists] typeForList:[PRListID numberWithInt:playlist]];
     if ([type isEqual:PRListTypeStatic]) {
         title = [[[db playlists] titleForList:[NSNumber numberWithInt:playlist]] stringByAppendingString:@" Copy"];
     } else if ([type isEqual:PRListTypeNowPlaying]) {
@@ -163,7 +163,7 @@
     if (code != NSAlertFirstButtonReturn) {
         return;
     }
-    PRList *list = [[db playlists] addStaticList];
+    PRListID *list = [[db playlists] addStaticList];
     [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:list attr:PRListAttrTitle];
     [[db playlists] copyItemsFromList:l toList:list];
     [[NSNotificationCenter defaultCenter] postListsDidChange];

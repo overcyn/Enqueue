@@ -62,7 +62,7 @@ PRTask PRPlayItemsTask(NSArray *items, NSInteger index) {
         PRPlaylists *playlists = [[core db] playlists];
         [now stop];
         [playlists clearList:[now currentList]];
-        for (PRItem *i in items) {
+        for (PRItemID *i in items) {
             [playlists zAppendItem:i toList:[now currentList]];
         }
         [[NSNotificationCenter defaultCenter] postListItemsDidChange:[now currentList]];
@@ -96,9 +96,9 @@ PRTask PRToggleRepeatTask(void) {
 
 #pragma mark - Lists
 
-PRTask PRAddItemsToListTask(NSArray *items, NSInteger index, PRList *list) {
+PRTask PRAddItemsToListTask(NSArray *items, NSInteger index, PRListID *list) {
     return ^(PRCore *core){
-        PRList *list2 = list ?: [[core now] currentList];
+        PRListID *list2 = list ?: [[core now] currentList];
         PRPlaylists *playlists = [[core db] playlists];
         NSInteger index2 = index;
         if (index == -1) {
@@ -119,7 +119,7 @@ PRTask PRAddItemsToListTask(NSArray *items, NSInteger index, PRList *list) {
     };
 }
 
-PRTask PRRemoveItemsFromListTask(NSIndexSet *indexes, PRList *list) {
+PRTask PRRemoveItemsFromListTask(NSIndexSet *indexes, PRListID *list) {
     return ^(PRCore *core){
         PRPlaylists *playlists = [[core db] playlists];
         NSMutableIndexSet *indexes2 = [NSMutableIndexSet indexSet];
@@ -131,7 +131,7 @@ PRTask PRRemoveItemsFromListTask(NSIndexSet *indexes, PRList *list) {
     };
 }
 
-PRTask PRMoveIndexesInListTask(NSIndexSet *indexes, NSInteger index, PRList *list) {
+PRTask PRMoveIndexesInListTask(NSIndexSet *indexes, NSInteger index, PRListID *list) {
     return ^(PRCore *core){
         PRPlaylists *playlists = [[core db] playlists];
         NSMutableIndexSet *indexes2 = [NSMutableIndexSet indexSet];
@@ -143,7 +143,7 @@ PRTask PRMoveIndexesInListTask(NSIndexSet *indexes, NSInteger index, PRList *lis
     };
 }
 
-PRTask PRSetListDescriptionTask(PRListDescription *ld, PRList *list) {
+PRTask PRSetListDescriptionTask(PRList *ld, PRListID *list) {
     return ^(PRCore *core){
         PRPlaylists *playlists = [[core db] playlists]; 
         [playlists zSetListDescription:ld forList:list];
@@ -154,7 +154,7 @@ PRTask PRSetListDescriptionTask(PRListDescription *ld, PRList *list) {
     };
 }
 
-PRTask PRDuplicateListTask(PRList *list) {
+PRTask PRDuplicateListTask(PRListID *list) {
     return ^(PRCore *core){
         [[[core win] playlistsViewController] duplicatePlaylist:[list integerValue]]; // KD: WTF
     };
@@ -198,7 +198,7 @@ PRTask PRClearQueueTask(void) {
 
 PRTask PRRemoveFromQueueTask(NSArray *listItems) {
     return ^(PRCore *core){
-        for (PRListItem *i in listItems) {
+        for (PRListItemID *i in listItems) {
             [[[core db] queue] removeListItem:i];
         }
     };
@@ -206,7 +206,7 @@ PRTask PRRemoveFromQueueTask(NSArray *listItems) {
 
 PRTask PRAddToQueueTask(NSArray *listItems) {
     return ^(PRCore *core){
-        for (PRListItem *i in listItems) {
+        for (PRListItemID *i in listItems) {
             [[[core db] queue] appendListItem:i];
         }
     };

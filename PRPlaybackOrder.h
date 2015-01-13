@@ -15,17 +15,17 @@
 
 /* Accessors */
 - (BOOL)zCount:(NSInteger *)outValue;
-- (BOOL)zAppendListItem:(PRListItem *)listItem;
-- (BOOL)zListItemAtIndex:(NSInteger)index out:(PRListItem **)outValue;
+- (BOOL)zAppendListItem:(PRListItemID *)listItem;
+- (BOOL)zListItemAtIndex:(NSInteger)index out:(PRListItemID **)outValue;
 - (BOOL)zClear;
-- (BOOL)zListItemsInList:(PRList *)list notInPlaybackOrderAfterIndex:(int)index out:(NSArray **)outValue;
+- (BOOL)zListItemsInList:(PRListID *)list notInPlaybackOrderAfterIndex:(int)index out:(NSArray **)outValue;
 
 - (int)count;
-- (void)appendListItem:(PRListItem *)listItem;
-- (PRListItem *)listItemAtIndex:(int)index;
+- (void)appendListItem:(PRListItemID *)listItem;
+- (PRListItemID *)listItemAtIndex:(int)index;
 - (void)clear;
 
-- (NSArray *)listItemsInList:(PRList *)list notInPlaybackOrderAfterIndex:(int)index;
+- (NSArray *)listItemsInList:(PRListID *)list notInPlaybackOrderAfterIndex:(int)index;
 
 /* Update */
 - (BOOL)confirmPlaylistItemDelete:(NSError **)error;

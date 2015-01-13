@@ -3,11 +3,11 @@
 @class PRConnection;
 
 @interface PRListItemsDescription : NSObject
-- (id)initWithList:(PRList *)list connection:(PRConnection *)conn;
-@property (nonatomic, readonly) PRList *list;
+- (id)initWithListID:(PRListID *)list connection:(PRConnection *)conn;
+@property (nonatomic, readonly) PRListID *list;
 @property (nonatomic, readonly) NSInteger count;
-- (PRItem *)itemAtIndex:(NSInteger)index; // Zero based
-- (PRListItem *)listItemAtIndex:(NSInteger)index;
+- (PRItemID *)itemIDAtIndex:(NSInteger)index; // Zero based
+- (PRListItemID *)listItemIDAtIndex:(NSInteger)index;
 @end
 
 @interface PRNowPlayingListItemsDescription : PRListItemsDescription

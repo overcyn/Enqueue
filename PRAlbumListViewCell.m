@@ -11,7 +11,7 @@
 - (void)drawInteriorWithFrame:(NSRect)theCellFrame inView:(NSView *)theControlView {
     NSDictionary *dict = [self objectValue];
     PRDb *db = [dict objectForKey:@"db"];
-    PRItem *item = [dict objectForKey:@"file"];
+    PRItemID *item = [dict objectForKey:@"file"];
     NSImage *icon = [dict objectForKey:@"icon"];
     if (!icon || ![icon isValid]) {
         icon = [NSImage imageNamed:@"PRLightAlbumArt"];

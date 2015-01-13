@@ -4,11 +4,11 @@
 #import "PRConnection.h"
 
 @implementation PRListItemsDescription {
-    PRList *_list;
+    PRListID *_list;
     NSArray *_items;
 }
 
-- (id)initWithList:(PRList *)list connection:(PRConnection *)conn {
+- (id)initWithListID:(PRListID *)list connection:(PRConnection *)conn {
     if ((self = [super init])) {
         _list = list;
         NSString *stm = @"SELECT file_id, playlist_item_id FROM playlist_items WHERE playlist_id = ?1 ORDER BY playlist_index";
@@ -25,11 +25,11 @@
     return [_items count];
 }
 
-- (PRItem *)itemAtIndex:(NSInteger)index {
+- (PRItemID *)itemIDAtIndex:(NSInteger)index {
     return _items[index][0];
 }
 
-- (PRItem *)listItemAtIndex:(NSInteger)index {
+- (PRItemID *)listItemIDAtIndex:(NSInteger)index {
     return _items[index][1];
 }
 
@@ -42,8 +42,8 @@
 
 @synthesize albumCounts = _albumCounts;
 
-- (id)initWithList:(PRList *)list connection:(PRConnection *)conn {
-    if ((self = [super initWithList:list connection:conn])) {
+- (id)initWithListID:(PRListID *)list connection:(PRConnection *)conn {
+    if ((self = [super initWithListID:list connection:conn])) {
         NSString *string = [NSString stringWithFormat:@"SELECT library.album, library.%@, library.compilation "
                             "FROM playlist_items JOIN library ON playlist_items.file_id = library.file_id "
                             "WHERE playlist_id = ?1 ORDER BY playlist_index",

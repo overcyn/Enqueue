@@ -2,7 +2,7 @@
 #import "PRPlaylists.h"
 
 @interface PRItemDescription : NSObject
-@property (nonatomic, readonly) PRItem *item;
+@property (nonatomic, readonly) PRItemID *item;
 
 /* File Attributes */
 @property (nonatomic, strong) NSString *path;

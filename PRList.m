@@ -1,18 +1,18 @@
-#import "PRListDescription.h"
+#import "PRList.h"
 #import "NSArray+Extensions.h"
 #import "PRConnection.h"
 #import "PRDefaults.h"
 
 
-@implementation PRListDescription {
-    PRList *_list;
+@implementation PRList {
+    PRListID *_list;
     NSMutableArray *_attributes;
     NSArray *_keys;
 }
 
 @synthesize list = _list;
 
-- (id)initWithList:(PRList *)list connection:(PRConnection *)conn {
+- (id)initWithListID:(PRListID *)list connection:(PRConnection *)conn {
     if ((self = [super init])) {
         _list = list;
         _keys = @[PRListAttrTitle, PRListAttrType, PRListAttrRules, PRListAttrViewMode, PRListAttrListViewInfo, 

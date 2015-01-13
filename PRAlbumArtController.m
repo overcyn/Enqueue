@@ -9,7 +9,7 @@
 
 @interface PRAlbumArtController ()
 /* Priv */
-- (NSString *)cachedArtworkPathForItem:(PRItem *)item;
+- (NSString *)cachedArtworkPathForItem:(PRItemID *)item;
 - (int)nextTempValue;
 - (NSString *)tempArtPathForTempValue:(int)temp;
 @end
@@ -46,7 +46,7 @@
 - (BOOL)zArtworkForItems:(NSArray *)items out:(NSImage **)outValue {
     // Cached album art
     NSMutableString *stm = [NSMutableString stringWithString:@"SELECT file_id FROM library WHERE file_id IN ("];
-    for (PRItem *i in items) {
+    for (PRItemID *i in items) {
         [stm appendFormat:@"%llu, ", [i unsignedLongLongValue]];
     }
     [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 1)];
@@ -55,7 +55,7 @@
     NSArray *rlt = nil;
     [_db zExecute:stm bindings:nil columns:@[PRColInteger] out:&rlt];
     for (NSArray *i in rlt) {
-        PRItem *item = i[0];
+        PRItemID *item = i[0];
         BOOL isDirectory;
         BOOL fileExists = [_fileManager fileExistsAtPath:[self cachedArtworkPathForItem:item] isDirectory:&isDirectory];
         if (fileExists && !isDirectory) {
@@ -76,7 +76,7 @@
         return NO;
     }
     stm = [NSMutableString stringWithString:@"SELECT path FROM library WHERE file_id IN ("];
-    for (PRItem *i in items) {
+    for (PRItemID *i in items) {
         [stm appendFormat:@"%d, ", [i intValue]];
     }
     [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 1)];
@@ -126,7 +126,7 @@
     return [self zArtworkForItems:items out:outValue];
 }
 
-- (BOOL)zClearArtworkForItem:(PRItem *)item {
+- (BOOL)zClearArtworkForItem:(PRItemID *)item {
     [_fileManager removeItemAtPath:[self cachedArtworkPathForItem:item] error:nil];
     return [[_db library] zSetValue:@0 forItem:item attr:PRItemAttrArtwork];
 }
@@ -134,7 +134,7 @@
 - (BOOL)zArtworkInfoForItems:(NSArray *)items out:(NSDictionary **)outValue {
     // Embedded Artwork 
     NSMutableString *stm = [NSMutableString stringWithString:@"SELECT file_id FROM library WHERE file_id IN ("];
-    for (PRItem *i in items) {
+    for (PRItemID *i in items) {
         [stm appendFormat:@"%ld, ", [i integerValue]];
     }
     [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 1)];
@@ -153,7 +153,7 @@
     NSArray *paths = @[];
     if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsFolderArtwork]) {
         stm = [NSMutableString stringWithString:@"SELECT path FROM library WHERE file_id IN ("];
-        for (PRItem *i in items) {
+        for (PRItemID *i in items) {
             [stm appendFormat:@"%d, ", [i intValue]];
         }        
         [stm deleteCharactersInRange:NSMakeRange([stm length] - 2, 1)];
@@ -189,7 +189,7 @@
 
 #pragma mark - Accessors
 
-- (NSImage *)artworkForItem:(PRItem *)item {
+- (NSImage *)artworkForItem:(PRItemID *)item {
     return [self artworkForItems:@[item]];
 }
 
@@ -205,13 +205,13 @@
     return rlt;
 }
 
-- (void)clearArtworkForItem:(PRItem *)item {
+- (void)clearArtworkForItem:(PRItemID *)item {
     [self zClearArtworkForItem:item];
 }
 
 #pragma mark - Async Accessors
 
-- (NSDictionary *)artworkInfoForItem:(PRItem *)item {
+- (NSDictionary *)artworkInfoForItem:(PRItemID *)item {
     return [self artworkInfoForItems:@[item]];
 }
 
@@ -233,7 +233,7 @@
     
     NSInteger file = [files firstIndex];
     while (file != NSNotFound) {
-        PRItem *item = [PRItem numberWithInt:file];
+        PRItemID *item = [PRItemID numberWithInt:file];
         BOOL isDirectory;
         BOOL fileExists = [_fileManager fileExistsAtPath:[self cachedArtworkPathForItem:item] isDirectory:&isDirectory];
         if (fileExists && !isDirectory) {
@@ -277,7 +277,7 @@
     return nil;
 }
 
-- (void)setTempArtwork:(int)temp forItem:(PRItem *)item {
+- (void)setTempArtwork:(int)temp forItem:(PRItemID *)item {
     if (temp == 0) {
         [_fileManager removeItemAtPath:[self cachedArtworkPathForItem:item] error:nil];
         return;
@@ -314,7 +314,7 @@
 
 #pragma mark - Priv
 
-- (NSString *)cachedArtworkPathForItem:(PRItem *)item {
+- (NSString *)cachedArtworkPathForItem:(PRItemID *)item {
     unsigned long long file = [item unsignedLongLongValue];
     NSString *path = [[PRDefaults sharedDefaults] cachedAlbumArtPath];
     path = [path stringByAppendingPathComponent:[NSString stringWithFormat:@"%03llu", ((file / 1000000) % 1000)]];

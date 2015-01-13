@@ -210,14 +210,14 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
 #pragma mark - Accessors
 
-- (BOOL)containsItem:(PRItem *)item {
+- (BOOL)containsItem:(PRItemID *)item {
     BOOL rlt = NO;
     [self zContainsItem:item out:&rlt];
     return rlt;
 }
 
-- (PRItem *)addItemWithAttrs:(NSDictionary *)attrs {
-    PRItem *rlt = nil;
+- (PRItemID *)addItemWithAttrs:(NSDictionary *)attrs {
+    PRItemID *rlt = nil;
     [self zAddItemWithAttrs:attrs out:&rlt];
     return rlt;
 }
@@ -226,33 +226,33 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     [self zRemoveItems:items];
 }
 
-- (id)valueForItem:(PRItem *)item attr:(PRItemAttr *)attr {
+- (id)valueForItem:(PRItemID *)item attr:(PRItemAttr *)attr {
     id rlt = nil;
     [self zValueForItem:item attr:attr out:&rlt];
     return rlt;
 }
 
-- (void)setValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr {
+- (void)setValue:(id)value forItem:(PRItemID *)item attr:(PRItemAttr *)attr {
     [self zSetValue:value forItem:item attr:attr];
 }
 
-- (NSDictionary *)attrsForItem:(PRItem *)item {
+- (NSDictionary *)attrsForItem:(PRItemID *)item {
     NSDictionary *rlt = nil;
     [self zAttrsForItem:item out:&rlt];
     return rlt;
 }
 
-- (void)setAttrs:(NSDictionary *)attrs forItem:(PRItem *)item {
+- (void)setAttrs:(NSDictionary *)attrs forItem:(PRItemID *)item {
     [self zSetAttrs:attrs forItem:item];
 }
 
-- (NSString *)artistValueForItem:(PRItem *)item {
+- (NSString *)artistValueForItem:(PRItemID *)item {
     NSString *rlt = nil;
     [self zArtistValueForItem:item out:&rlt];
     return rlt;
 }
 
-- (NSURL *)URLForItem:(PRItem *)item {
+- (NSURL *)URLForItem:(PRItemID *)item {
     return [NSURL URLWithString:[self valueForItem:item attr:PRItemAttrPath]];
 }
 
@@ -270,7 +270,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
 
 #pragma mark - zAccessors
 
-- (BOOL)zContainsItem:(PRItem *)item out:(BOOL *)outValue {
+- (BOOL)zContainsItem:(PRItemID *)item out:(BOOL *)outValue {
     NSArray *rlt = nil;
     BOOL success = [(PRDb*)(_db?:_conn) zExecute:@"SELECT count(*) FROM library WHERE file_id = ?1"
         bindings:@{@1:item}
@@ -282,7 +282,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     return success;
 }
 
-- (BOOL)zAddItemWithAttrs:(NSDictionary *)attrs out:(PRItem **)outValue {
+- (BOOL)zAddItemWithAttrs:(NSDictionary *)attrs out:(PRItemID **)outValue {
     NSMutableString *stm = [NSMutableString stringWithString:@"INSERT INTO library ("];
     NSMutableString *stm2 = [NSMutableString stringWithString:@"VALUES ("];
     NSMutableDictionary *bnd = [NSMutableDictionary dictionary];
@@ -300,14 +300,14 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     [stm appendString:stm2];
     BOOL success = [(PRDb*)(_db?:_conn) zExecute:stm bindings:bnd columns:nil out:nil];
     if (success && outValue) {
-        *outValue = [PRItem numberWithUnsignedLongLong:[(PRDb*)(_db?:_conn) lastInsertRowid]];
+        *outValue = [PRItemID numberWithUnsignedLongLong:[(PRDb*)(_db?:_conn) lastInsertRowid]];
     }
     return success;
 }
 
 - (BOOL)zRemoveItems:(NSArray *)items {
     NSMutableString *stm = [NSMutableString stringWithString:@"DELETE FROM library WHERE file_id IN ("];
-    for (PRItem *i in items) {
+    for (PRItemID *i in items) {
         [stm appendString:[NSString stringWithFormat:@"%llu, ", [i unsignedLongLongValue]]];
         [[(PRDb*)(_db?:_conn) albumArtController] clearArtworkForItem:i];
     }
@@ -320,7 +320,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     return success;
 }
 
-- (BOOL)zValueForItem:(PRItem *)item attr:(PRItemAttr *)attr out:(id *)outValue {
+- (BOOL)zValueForItem:(PRItemID *)item attr:(PRItemAttr *)attr out:(id *)outValue {
     NSArray *rlt = nil;
     NSString *stm = [NSString stringWithFormat:@"SELECT %@ FROM library WHERE file_id = ?1", [PRLibrary columnNameForItemAttr:attr]];
     BOOL success = [(PRDb*)(_db?:_conn) zExecute:stm bindings:@{@1:item} columns:@[[PRLibrary columnTypeForItemAttr:attr]] out:&rlt];
@@ -330,13 +330,13 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     return success;
 }
 
-- (BOOL)zSetValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr {
+- (BOOL)zSetValue:(id)value forItem:(PRItemID *)item attr:(PRItemAttr *)attr {
     NSString *stm = [NSString stringWithFormat:@"UPDATE library SET %@ = ?1 WHERE file_id = ?2", [PRLibrary columnNameForItemAttr:attr]];
     BOOL success = [(PRDb*)(_db?:_conn) zExecute:stm bindings:@{@1:value, @2:item} columns:nil out:nil];
     return success;
 }
 
-- (BOOL)zAttrsForItem:(PRItem *)item out:(NSDictionary **)outValue {
+- (BOOL)zAttrsForItem:(PRItemID *)item out:(NSDictionary **)outValue {
     NSMutableString *stm = [NSMutableString stringWithString:@"SELECT "];
     NSMutableArray *cols = [NSMutableArray array];
     for (PRItemAttr *i in [PRLibrary itemAttrs]) {
@@ -362,7 +362,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     return YES;
 }
 
-- (BOOL)zSetAttrs:(NSDictionary *)attrs forItem:(PRItem *)item {
+- (BOOL)zSetAttrs:(NSDictionary *)attrs forItem:(PRItemID *)item {
     NSMutableString *stm = [NSMutableString stringWithString:@"UPDATE library SET "];
     NSMutableDictionary *bindings = [NSMutableDictionary dictionary];
     int bindingIndex = 1;
@@ -377,7 +377,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     return [(PRDb*)(_db?:_conn) zExecute:stm bindings:bindings columns:nil out:nil];
 }
 
-- (BOOL)zArtistValueForItem:(PRItem *)item out:(NSString **)outValue {
+- (BOOL)zArtistValueForItem:(PRItemID *)item out:(NSString **)outValue {
     PRItemAttr *attr = [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseAlbumArtist] ? PRItemAttrArtistAlbumArtist : PRItemAttrArtist;
     NSString *rlt = nil;
     BOOL success = [self zValueForItem:item attr:attr out:&rlt];
@@ -390,7 +390,7 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     return YES;
 }
 
-- (BOOL)zURLForItem:(PRItem *)item out:(NSURL **)outValue {
+- (BOOL)zURLForItem:(PRItemID *)item out:(NSURL **)outValue {
     NSString *rlt = nil;
     BOOL success = [self zValueForItem:item attr:PRItemAttrPath out:&rlt];
     if (!success) {
@@ -432,14 +432,14 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     return YES;
 }
 
-- (BOOL)zItemDescriptionForItem:(PRItem *)item out:(PRItemDescription **)outValue {
+- (BOOL)zItemDescriptionForItem:(PRItemID *)item out:(PRItemDescription **)outValue {
     if (outValue) {
         *outValue = [[PRItemDescription alloc] initWithItem:item connection:(PRConnection*)(_db?:(id)_conn)];
     }
     return *outValue != nil;
 }
 
-- (BOOL)zSetItemDescription:(PRItemDescription *)value forItem:(PRItem *)item {
+- (BOOL)zSetItemDescription:(PRItemDescription *)value forItem:(PRItemID *)item {
     return [value writeToConnection:(PRConnection*)(_db?:(id)_conn)];
 }
 

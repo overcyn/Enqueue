@@ -2,8 +2,8 @@
 
 @interface PRPlayerDescription ()
 @property (readwrite) NSArray *invalidItems;
-@property (readwrite) PRList *currentList;
-@property (readwrite) PRItem *currentItem;
+@property (readwrite) PRListID *currentList;
+@property (readwrite) PRItemID *currentItem;
 @property (readwrite) NSInteger currentIndex;
 @property (readwrite) BOOL shuffle;
 @property (readwrite) NSInteger repeat;

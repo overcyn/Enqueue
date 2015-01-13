@@ -11,5 +11,5 @@
 
 /* Misc */
 - (BOOL)shouldDrawGridForRow:(int)row tableView:(NSTableView *)tableView;
-- (void)cacheArtworkForItem:(PRItem *)item artworkInfo:(NSDictionary *)artworkInfo dirtyRect:(NSRect)dirtyRect;
+- (void)cacheArtworkForItem:(PRItemID *)item artworkInfo:(NSDictionary *)artworkInfo dirtyRect:(NSRect)dirtyRect;
 @end

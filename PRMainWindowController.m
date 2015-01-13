@@ -37,7 +37,7 @@
     PRControlsViewController *_controlsVC;
     
     PRWindowMode _currentMode;
-    PRList *_libraryList;
+    PRListID *_libraryList;
     
     BOOL _resizingSplitView;
     BOOL _windowWillResize;
@@ -88,7 +88,7 @@
         //     [NSNotificationCenter addObserver:self selector:@selector(windowWillExitFullScreen:) name:NSWindowWillExitFullScreenNotification object:[self window]];
         // }
         
-        __block PRList *libraryList = nil;
+        __block PRListID *libraryList = nil;
         [_bridge performTaskSync:^(PRCore *core){
             libraryList = [[[core db] playlists] libraryList];
         }];

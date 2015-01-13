@@ -38,9 +38,9 @@
 
 @property (nonatomic, readonly) NSArray *invalidItems;
 @property (nonatomic, readonly) PRMoviePlayer *mov;
-@property (nonatomic, readonly) PRList *currentList;
-@property (nonatomic, readonly) PRListItem *currentListItem;
-@property (nonatomic, readonly) PRItem *currentItem;
+@property (nonatomic, readonly) PRListID *currentList;
+@property (nonatomic, readonly) PRListItemID *currentListItem;
+@property (nonatomic, readonly) PRItemID *currentItem;
 @property (nonatomic, readonly) int currentIndex;
 
 @property (nonatomic, readwrite) BOOL shuffle;

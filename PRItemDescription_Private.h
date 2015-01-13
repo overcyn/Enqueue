@@ -2,6 +2,6 @@
 #import "PRPlaylists.h"
 
 @interface PRItemDescription (Private)
-- (id)initWithItem:(PRItem *)item connection:(PRConnection *)conn;
+- (id)initWithItem:(PRItemID *)item connection:(PRConnection *)conn;
 - (BOOL)writeToConnection:(PRConnection *)conn;
 @end

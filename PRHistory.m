@@ -46,7 +46,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
 
 #pragma mark - Accessors
  
-- (BOOL)zAddItem:(PRItem *)item withDate:(NSDate *)date {
+- (BOOL)zAddItem:(PRItemID *)item withDate:(NSDate *)date {
     NSString *stm = @"INSERT INTO history (file_id, date) VALUES (?1, ?2)";
     return [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:@{@1:item, @2:[[NSDate date] description]} columns:nil out:nil];
 }
@@ -164,7 +164,7 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
     return YES;
 }
  
-- (void)addItem:(PRItem *)item withDate:(NSDate *)date {
+- (void)addItem:(PRItemID *)item withDate:(NSDate *)date {
     [self zAddItem:item withDate:date];
 }
 

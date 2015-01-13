@@ -93,7 +93,7 @@ end:;
 
 #pragma mark - Misc
 
-- (void)setFileExists:(PRItem *)file {
+- (void)setFileExists:(PRItemID *)file {
     
 }
 

@@ -33,7 +33,7 @@
 }
 
 - (void)playingChanged:(NSNotification *)notification {
-    PRItem *item = [[_core now] currentItem];
+    PRItemID *item = [[_core now] currentItem];
     if (![[PRDefaults sharedDefaults] boolForKey:PRDefaultsPostGrowl] || !item || ![[[_core now] mov] isPlaying]) {
         return;
     }
@@ -57,7 +57,7 @@
 }
 
 - (void)currentFileDidChange:(NSNotification *)notification {
-    PRItem *item = [[_core now] currentItem];
+    PRItemID *item = [[_core now] currentItem];
     if (![[PRDefaults sharedDefaults] boolForKey:PRDefaultsPostGrowl] || !item) {
         return;
     }

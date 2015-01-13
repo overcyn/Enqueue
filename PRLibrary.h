@@ -7,7 +7,7 @@
 @class PRBrowserDescription;
 @class PRItemDescription;
 
-typedef NSNumber PRItem;
+typedef NSNumber PRItemID;
 typedef NSString PRItemAttr;
 /* File Attributes */
 extern PRItemAttr * const PRItemAttrPath;
@@ -55,33 +55,33 @@ extern PRItemAttr * const PRItemAttrRating;
 - (BOOL)initialize;
 
 /* Accessors */
-- (BOOL)containsItem:(PRItem *)item;
-- (PRItem *)addItemWithAttrs:(NSDictionary *)attrs;
+- (BOOL)containsItem:(PRItemID *)item;
+- (PRItemID *)addItemWithAttrs:(NSDictionary *)attrs;
 - (void)removeItems:(NSArray *)items;
-- (id)valueForItem:(PRItem *)item attr:(PRItemAttr *)attr;
-- (void)setValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr;
-- (NSDictionary *)attrsForItem:(PRItem *)item;
-- (void)setAttrs:(NSDictionary *)attrs forItem:(PRItem *)item;
+- (id)valueForItem:(PRItemID *)item attr:(PRItemAttr *)attr;
+- (void)setValue:(id)value forItem:(PRItemID *)item attr:(PRItemAttr *)attr;
+- (NSDictionary *)attrsForItem:(PRItemID *)item;
+- (void)setAttrs:(NSDictionary *)attrs forItem:(PRItemID *)item;
 
-- (NSString *)artistValueForItem:(PRItem *)item;
-- (NSURL *)URLForItem:(PRItem *)item;
+- (NSString *)artistValueForItem:(PRItemID *)item;
+- (NSURL *)URLForItem:(PRItemID *)item;
 - (NSArray *)itemsWithSimilarURL:(NSURL *)URL;
 - (NSArray *)itemsWithValue:(id)value forAttr:(PRItemAttr *)attr;
 
 /* zAccessors */
-- (BOOL)zContainsItem:(PRItem *)item out:(BOOL *)outValue;
-- (BOOL)zAddItemWithAttrs:(NSDictionary *)attrs out:(PRItem **)outValue;
+- (BOOL)zContainsItem:(PRItemID *)item out:(BOOL *)outValue;
+- (BOOL)zAddItemWithAttrs:(NSDictionary *)attrs out:(PRItemID **)outValue;
 - (BOOL)zRemoveItems:(NSArray *)items;
-- (BOOL)zValueForItem:(PRItem *)item attr:(PRItemAttr *)attr out:(id *)outValue;
-- (BOOL)zSetValue:(id)value forItem:(PRItem *)item attr:(PRItemAttr *)attr;
-- (BOOL)zAttrsForItem:(PRItem *)item out:(NSDictionary **)outValue;
-- (BOOL)zSetAttrs:(NSDictionary *)attrs forItem:(PRItem *)item;
+- (BOOL)zValueForItem:(PRItemID *)item attr:(PRItemAttr *)attr out:(id *)outValue;
+- (BOOL)zSetValue:(id)value forItem:(PRItemID *)item attr:(PRItemAttr *)attr;
+- (BOOL)zAttrsForItem:(PRItemID *)item out:(NSDictionary **)outValue;
+- (BOOL)zSetAttrs:(NSDictionary *)attrs forItem:(PRItemID *)item;
 
-- (BOOL)zItemDescriptionForItem:(PRItem *)item out:(PRItemDescription **)outValue;
-- (BOOL)zSetItemDescription:(PRItemDescription *)value forItem:(PRItem *)item;
+- (BOOL)zItemDescriptionForItem:(PRItemID *)item out:(PRItemDescription **)outValue;
+- (BOOL)zSetItemDescription:(PRItemDescription *)value forItem:(PRItemID *)item;
 
-- (BOOL)zArtistValueForItem:(PRItem *)item out:(NSString **)outValue;
-- (BOOL)zURLForItem:(PRItem *)item out:(NSURL **)outValue;
+- (BOOL)zArtistValueForItem:(PRItemID *)item out:(NSString **)outValue;
+- (BOOL)zURLForItem:(PRItemID *)item out:(NSURL **)outValue;
 - (BOOL)zItemsWithSimilarURL:(NSURL *)url out:(NSArray **)outValue;
 - (BOOL)zItemsWithValue:(id)value forAttr:(PRItemAttr *)attr out:(NSArray **)outValue;
 

@@ -4,12 +4,12 @@
 #import "PRConnection.h"
 
 @implementation PRItemDescription {
-    PRItem *_item;
+    PRItemID *_item;
 }
 
 @synthesize item = _item;
 
-- (id)initWithItem:(PRItem *)item connection:(PRConnection *)conn {
+- (id)initWithItem:(PRItemID *)item connection:(PRConnection *)conn {
     if ((self = [super init])) {
         _item = item;
         NSArray *keys = [PRItemDescription _keys];

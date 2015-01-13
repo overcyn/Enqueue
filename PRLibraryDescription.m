@@ -1,7 +1,7 @@
 #import "PRLibraryDescription.h"
 #import "PRPlaylists.h"
 #import "PRConnection.h"
-#import "PRListDescription.h"
+#import "PRList.h"
 #import "PRDefaults.h"
 #import "NSArray+Extensions.h"
 #import "PRStatement.h"
@@ -11,8 +11,8 @@ extern NSString * const PRCompilationString;
 NSString * const PRCompilationString = @"Compilations  ";
 
 @implementation PRLibraryDescription {
-    PRList *_list;
-    PRListDescription *_listDescription;
+    PRListID *_list;
+    PRList *_listDescription;
     NSArray *_items;
     NSArray *_info;
     NSArray *_albumCounts;
@@ -24,12 +24,12 @@ NSString * const PRCompilationString = @"Compilations  ";
     NSArray *_cachedAttrs;
 }
 
-- (id)initWithList:(PRList *)list connection:(PRConnection *)conn {
+- (id)initWithList:(PRListID *)list connection:(PRConnection *)conn {
     if (!(self = [super init])) {return nil;}
     _conn = conn;
     _list = list;
     
-    PRListDescription *listDescription;
+    PRList *listDescription;
     BOOL success = [[_conn playlists] zListDescriptionForList:list out:&listDescription];
     if (!success) {
         return nil;
@@ -206,7 +206,7 @@ NSString * const PRCompilationString = @"Compilations  ";
     return [_items count];
 }
 
-- (PRItem *)itemForRow:(NSInteger)row {
+- (PRItemID *)itemForRow:(NSInteger)row {
     return _items[row][0];
 }
 
@@ -214,7 +214,7 @@ NSString * const PRCompilationString = @"Compilations  ";
     return [_items[row][1] integerValue];
 }
 
-- (NSInteger)rowForItem:(PRItem *)item {
+- (NSInteger)rowForItem:(PRItemID *)item {
     return [_items indexOfObject:@[item]];
 }
 
@@ -254,14 +254,14 @@ NSString * const PRCompilationString = @"Compilations  ";
 
 @interface PRBrowserDescription ()
 @property (nonatomic, readonly) NSArray *items;
-@property (nonatomic, readonly) PRList *list;
+@property (nonatomic, readonly) PRListID *list;
 @end
 
 @implementation PRBrowserDescription {
     NSArray *_items;
     BOOL _hasCompilation;
     NSIndexSet *_selection;
-    PRList *_list;
+    PRListID *_list;
     PRItemAttr *_attribute;
     NSString *_title;
 }
@@ -273,10 +273,10 @@ NSString * const PRCompilationString = @"Compilations  ";
 @synthesize attribute = _attribute;
 @synthesize title = _title;
 
-- (id)initWithList:(PRList *)list browser:(NSInteger)browser connection:(PRConnection *)conn {
+- (id)initWithList:(PRListID *)list browser:(NSInteger)browser connection:(PRConnection *)conn {
     if (!(self = [super init])) {return nil;}
     _list = list;
-    PRListDescription *listDescription = nil;
+    PRList *listDescription = nil;
     BOOL success = [[conn playlists] zListDescriptionForList:list out:&listDescription];
     if (!success) {
         return nil;

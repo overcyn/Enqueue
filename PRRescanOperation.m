@@ -115,7 +115,7 @@
                 if ([array count] == 0) {
                     [toAdd addObject:URL];
                 } else {
-                    PRItem *item = [array objectAtIndex:0];
+                    PRItemID *item = [array objectAtIndex:0];
                     NSNumber *size = [i objectForKey:@"size"];
                     NSString *last = [[i objectForKey:@"lastModified"] description];
                     NSNumber *size2 = [[_db library] valueForItem:item attr:PRItemAttrSize];
@@ -183,7 +183,7 @@
                                bindings:@{@1:[[i attributes] objectForKey:PRItemAttrCheckSum],
                                           @2:[[i attributes] objectForKey:PRItemAttrSize]}
                                 columns:@[PRColInteger, PRColString]];
-            PRItem *moved = nil;
+            PRItemID *moved = nil;
             for (NSArray *j in rlt) {
                 if (![[NSFileManager defaultManager] fileExistsAtPath:[[NSURL URLWithString:[j objectAtIndex:1]] path]]) {
                     moved = [j objectAtIndex:0];
@@ -269,7 +269,7 @@
 #pragma mark - Misc
 
 // Should only be called on the main thread
-- (void)setFileExists:(PRItem *)item {
+- (void)setFileExists:(PRItemID *)item {
     [_db execute:@"UPDATE tmp_tbl_monitored_files SET exist = 1 WHERE file_id = ?1"
         bindings:@{@1:item}
          columns:nil];

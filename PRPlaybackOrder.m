@@ -67,7 +67,7 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
     return YES;
 }
 
-- (BOOL)zAppendListItem:(PRListItem *)listItem {
+- (BOOL)zAppendListItem:(PRListItemID *)listItem {
     NSInteger count = 0;
     BOOL success = [self zCount:&count];
     if (!success) {
@@ -77,7 +77,7 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
     return [(PRDb*)(_db?:_conn) zExecute:stm bindings:@{@1:@(count+1), @2:listItem} columns:nil out:nil];
 }
 
-- (BOOL)zListItemAtIndex:(NSInteger)index out:(PRListItem **)outValue {
+- (BOOL)zListItemAtIndex:(NSInteger)index out:(PRListItemID **)outValue {
     NSArray *rlt = nil;
     NSString *stm = @"SELECT playlist_item_id FROM playback_order WHERE index_ = ?1";
     BOOL success = [(PRDb*)(_db?:_conn) zExecute:stm bindings:@{@1:@(index)} columns:@[PRColInteger] out:&rlt];
@@ -94,7 +94,7 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
     return [(PRDb*)(_db?:_conn) zExecute:@"DELETE FROM playback_order"];
 }
 
-- (BOOL)zListItemsInList:(PRList *)list notInPlaybackOrderAfterIndex:(int)index out:(NSArray **)outValue {
+- (BOOL)zListItemsInList:(PRListID *)list notInPlaybackOrderAfterIndex:(int)index out:(NSArray **)outValue {
     NSString *stm = @"SELECT playlist_item_id FROM playlist_items "
         "LEFT OUTER JOIN (SELECT index_, playlist_item_id AS temp FROM playback_order "
         "GROUP BY playlist_item_id) ON playlist_item_id = temp "
@@ -118,12 +118,12 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
     return rlt;
 }
 
-- (void)appendListItem:(PRListItem *)listItem {
+- (void)appendListItem:(PRListItemID *)listItem {
     [self zAppendListItem:listItem];
 }
 
-- (PRListItem *)listItemAtIndex:(int)index {
-    PRListItem *item = nil;
+- (PRListItemID *)listItemAtIndex:(int)index {
+    PRListItemID *item = nil;
     [self zListItemAtIndex:index out:&item];
     return item;
 }
@@ -132,7 +132,7 @@ NSString * const PR_TBL_PLAYBACK_ORDER_SQL = @"CREATE TABLE playback_order ("
     [self zClear];
 }
 
-- (NSArray *)listItemsInList:(PRList *)list notInPlaybackOrderAfterIndex:(int)index {
+- (NSArray *)listItemsInList:(PRListID *)list notInPlaybackOrderAfterIndex:(int)index {
     NSArray *rlt = nil;
     [self zListItemsInList:list notInPlaybackOrderAfterIndex:index out:&rlt];
     return rlt;

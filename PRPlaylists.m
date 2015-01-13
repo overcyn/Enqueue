@@ -2,7 +2,7 @@
 #import "PRDb.h"
 #import "PRPlaybackOrder.h"
 #import "NSArray+Extensions.h"
-#import "PRListDescription.h"
+#import "PRList.h"
 #import "PRLibraryDescription.h"
 
 
@@ -114,7 +114,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     // Create library if it doesnt exist
     [(PRDb*)(_db?:(id)_conn) zExecute:@"SELECT playlist_id FROM playlists WHERE type=0" bindings:nil columns:@[PRColInteger] out:&rlt];
     if ([rlt count] != 1) {
-        PRList *list = [self addList];
+        PRListID *list = [self addList];
         [self setTitle:@"Music" forList:list];
         [self setType:PRListTypeLibrary forList:list];
         [self setAttr:PRItemAttrGenre forBrowser:1 list:list];
@@ -125,7 +125,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     // Create now playing playlist if it doesnt exist
     [(PRDb*)(_db?:(id)_conn) zExecute:@"SELECT playlist_id FROM playlists WHERE type=1" bindings:nil columns:@[PRColInteger] out:&rlt];
     if ([rlt count] != 1) {
-        PRList *list = [self addList];
+        PRListID *list = [self addList];
         [self setTitle:@"Now Playing" forList:list];
         [self setType:PRListTypeNowPlaying forList:list];
     }
@@ -281,45 +281,45 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return rlt;
 }
 
-- (PRList *)libraryList {
-    PRList *rlt = nil;
+- (PRListID *)libraryList {
+    PRListID *rlt = nil;
     [self zLibraryList:&rlt];
     return rlt;
 }
 
-- (PRList *)nowPlayingList {
-    PRList *rlt = nil;
+- (PRListID *)nowPlayingList {
+    PRListID *rlt = nil;
     [self zNowPlayingList:&rlt];
     return rlt;
 }
 
-- (PRList *)addList {
-    PRList *rlt;
+- (PRListID *)addList {
+    PRListID *rlt;
     [self zAddList:&rlt];
     return rlt;
 }
 
-- (PRList *)addStaticList {
-    PRList *rlt;
+- (PRListID *)addStaticList {
+    PRListID *rlt;
     [self zAddStaticList:&rlt];
     return rlt;
 }
 
-- (PRList *)addSmartList {
-    PRList *rlt;
+- (PRListID *)addSmartList {
+    PRListID *rlt;
     [self zAddSmartList:&rlt];
     return rlt;
 }
 
-- (void)removeList:(PRList *)list {
+- (void)removeList:(PRListID *)list {
     [self zRemoveList:list];
 }
 
-- (void)setValue:(id)value forList:(PRList *)list attr:(PRListAttr *)attr {
+- (void)setValue:(id)value forList:(PRListID *)list attr:(PRListAttr *)attr {
     [self zSetValue:value forList:list attr:attr];
 }
 
-- (id)valueForList:(PRList *)list attr:(PRListAttr *)attr {
+- (id)valueForList:(PRListID *)list attr:(PRListAttr *)attr {
     id rlt = nil;
     [self zValueForList:list attr:attr out:&rlt];
     return rlt;
@@ -336,7 +336,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return success;
 }
 
-- (BOOL)zLibraryList:(PRList **)outValue {
+- (BOOL)zLibraryList:(PRListID **)outValue {
     NSArray *rlt = nil;
     BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:@"SELECT playlist_id FROM playlists WHERE type = ?1" bindings:@{@1:@(PRLibraryPlaylistType)} columns:@[PRColInteger] out:&rlt];
     if (!success || [rlt count] != 1) {
@@ -348,7 +348,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return YES;
 }
 
-- (BOOL)zNowPlayingList:(PRList **)outValue {
+- (BOOL)zNowPlayingList:(PRListID **)outValue {
     NSArray *rlt = nil;
     BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:@"SELECT playlist_id FROM playlists WHERE type = ?1" bindings:@{@1:@(PRNowPlayingPlaylistType)} columns:@[PRColInteger] out:&rlt];
     if (!success || [rlt count] != 1) {
@@ -360,8 +360,8 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return YES;
 }
 
-- (BOOL)zValueForList:(PRList *)list attr:(PRListAttr *)attr out:(id *)outValue {
-    PRListDescription *listDescription = nil;
+- (BOOL)zValueForList:(PRListID *)list attr:(PRListAttr *)attr out:(id *)outValue {
+    PRList *listDescription = nil;
     BOOL success = [self zListDescriptionForList:list out:&listDescription];
     if (!success) {
         return NO;
@@ -372,9 +372,9 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return YES;
 }
 
-- (BOOL)zListDescriptionForList:(PRList *)list out:(PRListDescription **)outValue {
+- (BOOL)zListDescriptionForList:(PRListID *)list out:(PRList **)outValue {
     if (outValue) {
-        *outValue = [[PRListDescription alloc] initWithList:list connection:(PRConnection*)(_db?:(id)_conn)];
+        *outValue = [[PRList alloc] initWithListID:list connection:(PRConnection*)(_db?:(id)_conn)];
     }
     return *outValue != nil;
 }
@@ -387,8 +387,8 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     }
     
     NSMutableArray *listDescriptions = [NSMutableArray array];
-    for (PRList *i in lists) {
-        PRListDescription *description = nil;
+    for (PRListID *i in lists) {
+        PRList *description = nil;
         success = [self zListDescriptionForList:i out:&description];
         if (!success) {
             return NO;
@@ -401,14 +401,14 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return YES;
 }
 
-- (BOOL)zLibraryDescriptionForList:(PRList *)list out:(PRLibraryDescription **)outValue {
+- (BOOL)zLibraryDescriptionForList:(PRListID *)list out:(PRLibraryDescription **)outValue {
     if (outValue) {
-        *outValue = [[PRLibraryDescription alloc] initWithList:list connection:(PRConnection*)(_db?:(id)_conn)];
+        *outValue = [[PRLibraryDescription alloc] initWithListID:list connection:(PRConnection*)(_db?:(id)_conn)];
     }
     return *outValue != nil;
 }
 
-- (BOOL)zBrowserDescriptionsForList:(PRList *)list out:(NSArray **)outValue {
+- (BOOL)zBrowserDescriptionsForList:(PRListID *)list out:(NSArray **)outValue {
     if (outValue) {
         NSMutableArray *array = [NSMutableArray array];
         for (NSInteger i = 0; i < 3; i++) {
@@ -425,7 +425,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 
 #pragma mark - zList Setters
 
-- (BOOL)zAddList:(PRList **)outValue {
+- (BOOL)zAddList:(PRListID **)outValue {
     __block NSArray *rlt = nil;
     BOOL success = [(PRDb*)(_db?:(id)_conn) zTransaction:^{
         BOOL success2 = [(PRDb*)(_db?:(id)_conn) zExecute:@"INSERT INTO playlists DEFAULT VALUES"];
@@ -444,8 +444,8 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return success;
 }
 
-- (BOOL)zAddStaticList:(PRList **)outValue {
-    __block PRList *list = nil;
+- (BOOL)zAddStaticList:(PRListID **)outValue {
+    __block PRListID *list = nil;
     BOOL success = [(PRDb*)(_db?:(id)_conn) zTransaction:^{
         BOOL success2 = [self zAddList:&list];
         if (!success2) {
@@ -462,8 +462,8 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return success;
 }
 
-- (BOOL)zAddSmartList:(PRList **)outValue {
-    __block PRList *list = nil;
+- (BOOL)zAddSmartList:(PRListID **)outValue {
+    __block PRListID *list = nil;
     BOOL success = [(PRDb*)(_db?:(id)_conn) zTransaction:^{
         BOOL success2 = [self zAddList:&list];
         if (!success2) {
@@ -480,12 +480,12 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return success;
 }
 
-- (BOOL)zRemoveList:(PRList *)list {
+- (BOOL)zRemoveList:(PRListID *)list {
     return [(PRDb*)(_db?:(id)_conn) zExecute:@"DELETE FROM playlists WHERE playlist_id = ?1" bindings:@{@1:list} columns:nil out:nil];
 }
 
-- (BOOL)zSetValue:(id)value forList:(PRList *)list attr:(PRListAttr *)attr {
-    PRListDescription *listDescription = nil;
+- (BOOL)zSetValue:(id)value forList:(PRListID *)list attr:(PRListAttr *)attr {
+    PRList *listDescription = nil;
     BOOL success = [self zListDescriptionForList:list out:&listDescription];
     if (!success) {
         return NO;
@@ -494,47 +494,47 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return [listDescription writeToConnection:(PRConnection*)(_db?:(id)_conn)];
 }
 
-- (BOOL)zSetListDescription:(PRListDescription *)value forList:(PRList *)list {
+- (BOOL)zSetListDescription:(PRList *)value forList:(PRListID *)list {
     return [value writeToConnection:(PRConnection*)(_db?:(id)_conn)];
 }
 
 #pragma mark - ListItem Setters
 
-- (void)addItems:(NSArray *)items atIndex:(int)index toList:(PRList *)list {
+- (void)addItems:(NSArray *)items atIndex:(int)index toList:(PRListID *)list {
     [self zAddItems:items atIndex:index toList:list];
 }
 
-- (void)appendItem:(PRList *)item toList:(PRList *)list {
+- (void)appendItem:(PRListID *)item toList:(PRListID *)list {
     [self zAppendItem:item toList:list];
 }
 
-- (void)removeItemsAtIndexes:(NSIndexSet *)indexes fromList:(PRList *)list {
+- (void)removeItemsAtIndexes:(NSIndexSet *)indexes fromList:(PRListID *)list {
     [self zRemoveItemsAtIndexes:indexes fromList:list];
 }
 
-- (void)clearList:(PRList *)list {
+- (void)clearList:(PRListID *)list {
     [self zClearList:list];
 }
 
-- (void)clearList:(PRList *)list exceptIndex:(int)index {
+- (void)clearList:(PRListID *)list exceptIndex:(int)index {
     [self zClearList:list exceptIndex:index];
 }
 
-- (void)moveItemsAtIndexes:(NSIndexSet *)indexes toIndex:(int)index inList:(PRList *)list {
+- (void)moveItemsAtIndexes:(NSIndexSet *)indexes toIndex:(int)index inList:(PRListID *)list {
     [self zMoveItemsAtIndexes:indexes toIndex:index inList:list];
 }
 
-- (void)appendItemsFromLibraryViewSourceToList:(PRList *)list {
+- (void)appendItemsFromLibraryViewSourceToList:(PRListID *)list {
     [self zAppendItemsFromLibraryViewSourceToList:list];
 }
 
-- (void)copyItemsFromList:(PRList *)list toList:(PRList *)list2 {
+- (void)copyItemsFromList:(PRListID *)list toList:(PRListID *)list2 {
     [self zCopyItemsFromList:list toList:list2];
 }
 
 #pragma mark - ListItem Setters
 
-- (BOOL)zAddItems:(NSArray *)items atIndex:(int)index toList:(PRList *)list {
+- (BOOL)zAddItems:(NSArray *)items atIndex:(int)index toList:(PRListID *)list {
     BOOL success = [(PRDb*)(_db?:(id)_conn) zTransaction:^{
         NSString *stm = @"UPDATE playlist_items SET playlist_index = playlist_index + ?3 WHERE playlist_index >= ?1 AND playlist_id = ?2";
         BOOL success2 = [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:@{@1:@(index), @2:list, @3:@(10000000 + [items count])} columns:nil out:nil];
@@ -558,7 +558,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return success;
 }
 
-- (BOOL)zAppendItem:(PRList *)item toList:(PRList *)list {
+- (BOOL)zAppendItem:(PRListID *)item toList:(PRListID *)list {
     NSInteger count = 0;
     BOOL success = [self zCountForList:list out:&count];
     if (!success) {
@@ -569,7 +569,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return success;
 }
 
-- (BOOL)zRemoveItemsAtIndexes:(NSIndexSet *)indexes fromList:(PRList *)list {
+- (BOOL)zRemoveItemsAtIndexes:(NSIndexSet *)indexes fromList:(PRListID *)list {
     BOOL success = [(PRDb*)(_db?:(id)_conn) zTransaction:^{
         BOOL success2 = [(PRDb*)(_db?:(id)_conn) zExecute:@"CREATE TEMP TABLE indexesToRemove (index2 INTEGER PRIMARY KEY)"];
         if (!success2) {
@@ -621,7 +621,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return success;
 }
 
-- (BOOL)zClearList:(PRList *)list {
+- (BOOL)zClearList:(PRListID *)list {
     BOOL success = [(PRDb*)(_db?:(id)_conn) zTransaction:^{
         BOOL success2 = [(PRDb*)(_db?:(id)_conn) zExecute:@"DELETE FROM playlist_items WHERE playlist_id = ?1" bindings:@{@1:list} columns:nil out:nil];
         if (!success2) {
@@ -633,7 +633,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return success;
 }
 
-- (BOOL)zClearList:(PRList *)list exceptIndex:(NSInteger)index {
+- (BOOL)zClearList:(PRListID *)list exceptIndex:(NSInteger)index {
     BOOL success = [(PRDb*)(_db?:(id)_conn) zTransaction:^{
         NSString *stm = @"DELETE FROM playlist_items WHERE playlist_id = ?1 AND playlist_index != ?2";
         BOOL success2 = [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:@{@1:list, @2:@(index)} columns:nil out:nil];
@@ -651,7 +651,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return success;
 }
 
-- (BOOL)zMoveItemsAtIndexes:(NSIndexSet *)indexes toIndex:(NSInteger)index inList:(PRList *)list {
+- (BOOL)zMoveItemsAtIndexes:(NSIndexSet *)indexes toIndex:(NSInteger)index inList:(PRListID *)list {
     BOOL success = [(PRDb*)(_db?:(id)_conn) zTransaction:^{
         // Get array of playlist_item_ids ordered by playlists_index
         NSString *stm = @"SELECT playlist_item_id FROM playlist_items WHERE playlist_id = ?1 ORDER BY playlist_index";
@@ -693,7 +693,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return success;
 }
 
-- (BOOL)zAppendItemsFromLibraryViewSourceToList:(PRList *)list {
+- (BOOL)zAppendItemsFromLibraryViewSourceToList:(PRListID *)list {
     BOOL success = [(PRDb*)(_db?:(id)_conn) zTransaction:^{
         // create temp table
         NSString *stm = [NSString stringWithFormat:@"CREATE TEMP TABLE temp_table (playlist_index INTEGER PRIMARY KEY, "
@@ -733,7 +733,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return success;
 }
 
-- (BOOL)zCopyItemsFromList:(PRList *)list toList:(PRList *)list2 {
+- (BOOL)zCopyItemsFromList:(PRListID *)list toList:(PRListID *)list2 {
     BOOL success = [(PRDb*)(_db?:(id)_conn) zTransaction:^{
         BOOL success2 = [self zClearList:list2];
         if (!success2) {
@@ -751,49 +751,49 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 
 #pragma mark - ListItem Getters 
 
-- (int)countForList:(PRList *)list {
+- (int)countForList:(PRListID *)list {
     NSInteger rlt = 0;
     [self zCountForList:list out:&rlt];
     return rlt;
 }
 
-- (PRListItem *)listItemAtIndex:(int)index inList:(PRList *)list {
-    PRListItem *rlt;
+- (PRListItemID *)listItemAtIndex:(int)index inList:(PRListID *)list {
+    PRListItemID *rlt;
     [self zListItemAtIndex:index inList:list out:&rlt];
     return rlt;
 }
 
-- (PRItem *)itemAtIndex:(int)index forList:(PRList *)list {
-    PRItem *rlt;
+- (PRItemID *)itemAtIndex:(int)index forList:(PRListID *)list {
+    PRItemID *rlt;
     [self zItemAtIndex:index forList:list out:&rlt];
     return rlt;
 }
 
-- (PRItem *)itemForListItem:(PRListItem *)listItem {
-    PRItem *rlt;
+- (PRItemID *)itemForListItem:(PRListItemID *)listItem {
+    PRItemID *rlt;
     [self zItemForListItem:listItem out:&rlt];
     return rlt;
 }
 
-- (int)indexForListItem:(PRListItem *)listItem {
+- (int)indexForListItem:(PRListItemID *)listItem {
     NSInteger rlt = 0;
     [self zIndexForListItem:listItem out:&rlt];
     return rlt;
 }
 
-- (PRList *)listForListItem:(PRListItem *)listItem {
-    PRList *rlt;
+- (PRListID *)listForListItem:(PRListItemID *)listItem {
+    PRListID *rlt;
     [self zListForListItem:listItem out:&rlt];
     return rlt;
 }
 
-- (BOOL)list:(PRList *)list containsItem:(PRItem *)item {
+- (BOOL)list:(PRListID *)list containsItem:(PRItemID *)item {
     BOOL rlt;
     [self zList:list containsItem:item out:&rlt];
     return rlt;
 }
 
-- (NSIndexSet *)indexesOfItem:(PRItem *)item inList:(PRList *)list {
+- (NSIndexSet *)indexesOfItem:(PRItemID *)item inList:(PRListID *)list {
     NSIndexSet *rlt;
     [self zIndexesOfItem:item inList:list out:&rlt];
     return rlt;
@@ -801,7 +801,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 
 #pragma mark - zListItem Getters
 
-- (BOOL)zCountForList:(PRList *)list out:(NSInteger *)outValue {
+- (BOOL)zCountForList:(PRListID *)list out:(NSInteger *)outValue {
     NSString *stm = @"SELECT COUNT(*) FROM playlist_items WHERE playlist_id = ?1";
     NSArray *rlt = nil;
     BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:@{@1:list} columns:@[PRColInteger] out:&rlt];
@@ -814,7 +814,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return YES;
 }
 
-- (BOOL)zListItemAtIndex:(int)index inList:(PRList *)list out:(PRListItem **)outValue {
+- (BOOL)zListItemAtIndex:(int)index inList:(PRListID *)list out:(PRListItemID **)outValue {
     NSString *stm = @"SELECT playlist_item_id FROM playlist_items WHERE playlist_id = ?1 AND playlist_index = ?2";
     NSArray *rlt = nil;
     BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:@{@1:list, @2:@(index)} columns:@[PRColInteger] out:&rlt];
@@ -827,7 +827,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return YES;
 }
 
-- (BOOL)zItemAtIndex:(int)index forList:(PRList *)list out:(PRItem **)outValue {
+- (BOOL)zItemAtIndex:(int)index forList:(PRListID *)list out:(PRItemID **)outValue {
     NSString *stm = @"SELECT file_id FROM playlist_items WHERE playlist_id = ? AND playlist_index = ?";
     NSArray *rlt = nil;
     BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:@{@1:list, @2:@(index)} columns:@[PRColInteger] out:&rlt];
@@ -840,7 +840,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return YES;
 }
 
-- (BOOL)zItemForListItem:(PRListItem *)listItem out:(PRItem **)outValue {
+- (BOOL)zItemForListItem:(PRListItemID *)listItem out:(PRItemID **)outValue {
     NSString *stm = @"SELECT file_id FROM playlist_items WHERE playlist_item_id = ?1";
     NSArray *rlt = nil;
     BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:@{@1:listItem} columns:@[PRColInteger] out:&rlt];
@@ -853,7 +853,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return YES;
 }
 
-- (BOOL)zIndexForListItem:(PRListItem *)listItem out:(NSInteger *)outValue {
+- (BOOL)zIndexForListItem:(PRListItemID *)listItem out:(NSInteger *)outValue {
     NSString *stm = @"SELECT playlist_index FROM playlist_items WHERE playlist_item_id = ?1";
     NSArray *rlt = nil;
     BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:@{@1:listItem} columns:@[PRColInteger] out:&rlt];
@@ -866,7 +866,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return YES;
 }
 
-- (BOOL)zListForListItem:(PRListItem *)listItem out:(PRList **)outValue {
+- (BOOL)zListForListItem:(PRListItemID *)listItem out:(PRListID **)outValue {
     NSString *stm = @"SELECT playlist_id FROM playlist_items WHERE playlist_item_id = ?1";
     NSArray *rlt = nil;
     BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:@{@1:listItem} columns:@[PRColInteger] out:&rlt];
@@ -879,7 +879,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return YES;
 }
 
-- (BOOL)zList:(PRList *)list containsItem:(PRItem *)item out:(BOOL *)outValue {
+- (BOOL)zList:(PRListID *)list containsItem:(PRItemID *)item out:(BOOL *)outValue {
     NSString *stm = @"SELECT file_id FROM playlist_items WHERE file_id = ?1 AND playlist_id = ?2 LIMIT 1";
     NSArray *rlt = nil;
     BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:@{@1:item, @2:list} columns:@[PRColInteger] out:&rlt];
@@ -892,7 +892,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return YES;
 }
 
-- (BOOL)zIndexesOfItem:(PRItem *)item inList:(PRList *)list out:(NSIndexSet **)outValue {
+- (BOOL)zIndexesOfItem:(PRItemID *)item inList:(PRListID *)list out:(NSIndexSet **)outValue {
     NSString *stm = @"SELECT playlist_index FROM playlist_items WHERE file_id = ?2 AND playlist_id = ?1";
     NSArray *rlt = nil;
     BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:@{@1:list, @2:item} columns: @[PRColInteger] out:&rlt];
@@ -946,7 +946,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 
 // ========================================
 
-- (NSMutableDictionary *)browserInfoForList:(PRList *)list {
+- (NSMutableDictionary *)browserInfoForList:(PRListID *)list {
     NSData *data = [self valueForList:list attr:PRListAttrBrowserInfo];
     NSDictionary *info = [NSPropertyListSerialization propertyListFromData:data mutabilityOption:0 format:nil errorDescription:nil];
     if (!info || ![info isKindOfClass:[NSDictionary class]] ||
@@ -958,12 +958,12 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return [NSMutableDictionary dictionaryWithDictionary:info];
 }
 
-- (void)setBrowserInfo:(NSMutableDictionary *)info forList:(PRList *)list {
+- (void)setBrowserInfo:(NSMutableDictionary *)info forList:(PRListID *)list {
     NSData *data = [NSPropertyListSerialization dataFromPropertyList:info format:NSPropertyListXMLFormat_v1_0 errorDescription:nil];
     [self setValue:data forList:list attr:PRListAttrBrowserInfo];
 }
 
-- (int)verticalForList:(PRList *)list {
+- (int)verticalForList:(PRListID *)list {
     NSNumber *isVertical = [[self browserInfoForList:list] objectForKey:@"isVertical"];
     if (isVertical) {
         return [isVertical intValue];
@@ -975,13 +975,13 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     }
 }
 
-- (void)setVertical:(int)vertical forList:(PRList *)list {
+- (void)setVertical:(int)vertical forList:(PRListID *)list {
     NSMutableDictionary *info = [self browserInfoForList:list];
     [info setObject:[NSNumber numberWithInt:vertical] forKey:@"isVertical"];
     [self setBrowserInfo:info forList:list];
 }
 
-- (float)verticalBrowserWidthForList:(PRList *)list {
+- (float)verticalBrowserWidthForList:(PRListID *)list {
     NSNumber *width = [[self browserInfoForList:list] objectForKey:@"verticalBrowser3Width"];
     if (width) {
         return [width floatValue];
@@ -989,13 +989,13 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return 200;
 }
 
-- (void)setVerticalBrowserWidth:(float)width forList:(PRList *)list {
+- (void)setVerticalBrowserWidth:(float)width forList:(PRListID *)list {
     NSMutableDictionary *info = [self browserInfoForList:list];
     [info setObject:[NSNumber numberWithFloat:width] forKey:@"verticalBrowser3Width"];
     [self setBrowserInfo:info forList:list];
 }
 
-- (float)horizontalBrowserHeightForList:(PRList *)list {
+- (float)horizontalBrowserHeightForList:(PRListID *)list {
     NSNumber *height = [[self browserInfoForList:list] objectForKey:@"horizontalBrowserHeight"];
     if (height) {
         return [height floatValue];
@@ -1003,45 +1003,45 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return 250;
 }
 
-- (void)setHorizontalBrowserHeight:(float)height forList:(PRList *)list {
+- (void)setHorizontalBrowserHeight:(float)height forList:(PRListID *)list {
     NSMutableDictionary *info = [self browserInfoForList:list];
     [info setObject:[NSNumber numberWithFloat:height] forKey:@"horizontalBrowserHeight"];
     [self setBrowserInfo:info forList:list];
 }
 
-- (BOOL)listViewAscendingForList:(PRList *)list {
+- (BOOL)listViewAscendingForList:(PRListID *)list {
     return [[self valueForList:list attr:PRListAttrListViewAscending] boolValue];
 }
 
-- (void)setListViewAscending:(BOOL)ascending forList:(PRList *)list {
+- (void)setListViewAscending:(BOOL)ascending forList:(PRListID *)list {
     [self setValue:[NSNumber numberWithBool:ascending] forList:list attr:PRListAttrListViewAscending];
 }
 
-- (BOOL)albumListViewAscendingForList:(PRList *)list {
+- (BOOL)albumListViewAscendingForList:(PRListID *)list {
     return [[self valueForList:list attr:PRListAttrAlbumListViewAscending] boolValue];
 }
 
-- (void)setAlbumListViewAscending:(BOOL)ascending forList:(PRList *)list {
+- (void)setAlbumListViewAscending:(BOOL)ascending forList:(PRListID *)list {
     [self setValue:[NSNumber numberWithBool:ascending] forList:list attr:PRListAttrAlbumListViewAscending];
 }
 
-- (PRItemAttr *)listViewSortAttrForList:(PRList *)list {
+- (PRItemAttr *)listViewSortAttrForList:(PRListID *)list {
     return [PRPlaylists sortAttrForInternal:[self valueForList:list attr:PRListAttrListViewSortAttr]];
 }
 
-- (void)setListViewSortAttr:(PRItemAttr *)attr forList:(PRList *)list {
+- (void)setListViewSortAttr:(PRItemAttr *)attr forList:(PRListID *)list {
     [self setValue:[PRPlaylists internalForSortAttr:attr] forList:list attr:PRListAttrListViewSortAttr];
 }
 
-- (PRItemAttr *)albumListViewSortAttrForList:(PRList *)list {
+- (PRItemAttr *)albumListViewSortAttrForList:(PRListID *)list {
     return [PRPlaylists sortAttrForInternal:[self valueForList:list attr:PRListAttrAlbumListViewSortAttr]];
 }
 
-- (void)setAlbumListViewSortAttr:(PRItemAttr *)attr forList:(PRList *)list {
+- (void)setAlbumListViewSortAttr:(PRItemAttr *)attr forList:(PRListID *)list {
     [self setValue:[PRPlaylists internalForSortAttr:attr] forList:list attr:PRListAttrAlbumListViewSortAttr];
 }
 
-- (NSArray *)listViewInfoForList:(PRList *)list {
+- (NSArray *)listViewInfoForList:(PRListID *)list {
     NSData *columnInfoData = [self valueForList:list attr:PRListAttrListViewInfo];
     if ([columnInfoData isEqualToData:[NSData data]]) {
         NSString *defaultData  = [[NSBundle mainBundle] pathForResource:@"PRListViewTableColumnsInfo" ofType:@"plist"];
@@ -1050,12 +1050,12 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return [NSPropertyListSerialization propertyListFromData:columnInfoData mutabilityOption:0 format:nil errorDescription:nil];
 }
 
-- (void)setListViewInfo:(NSArray *)info forList:(PRList *)list {
+- (void)setListViewInfo:(NSArray *)info forList:(PRListID *)list {
     NSData *data = [NSPropertyListSerialization dataFromPropertyList:info format:NSPropertyListXMLFormat_v1_0 errorDescription:nil];
     [self setValue:data forList:list attr:PRListAttrListViewInfo];
 }
 
-- (NSArray *)albumListViewInfoForList:(PRList *)list {
+- (NSArray *)albumListViewInfoForList:(PRListID *)list {
     NSData *columnInfoData = [self valueForList:list attr:PRListAttrAlbumListViewInfo];
     if ([columnInfoData isEqualToData:[NSData data]]) {
         NSString *defaultData  = [[NSBundle mainBundle] pathForResource:@"PRAlbumListViewTableColumnsInfo" ofType:@"plist"];
@@ -1064,12 +1064,12 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return [NSPropertyListSerialization propertyListFromData:columnInfoData mutabilityOption:0 format:nil errorDescription:nil];
 }
 
-- (void)setAlbumListViewInfo:(NSArray *)info forList:(PRList *)list {
+- (void)setAlbumListViewInfo:(NSArray *)info forList:(PRListID *)list {
     NSData *data = [NSPropertyListSerialization dataFromPropertyList:info format:NSPropertyListXMLFormat_v1_0 errorDescription:nil];
     [self setValue:data forList:list attr:PRListAttrAlbumListViewInfo];
 }
 
-- (NSArray *)selectionForBrowser:(int)browser list:(PRList *)list {
+- (NSArray *)selectionForBrowser:(int)browser list:(PRListID *)list {
     PRListAttr *attr;
     if (browser == 1) {
         attr = PRListAttrBrowser1Selection;
@@ -1091,7 +1091,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     }
 }
 
-- (void)setSelection:(NSArray *)selection forBrowser:(int)browser list:(PRList *)list {
+- (void)setSelection:(NSArray *)selection forBrowser:(int)browser list:(PRListID *)list {
     PRListAttr *attr;
     if (browser == 1) {
         attr = PRListAttrBrowser1Selection;
@@ -1106,7 +1106,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     [self setValue:data forList:list attr:attr];
 }
 
-- (PRItemAttr *)attrForBrowser:(int)browser list:(PRList *)list {
+- (PRItemAttr *)attrForBrowser:(int)browser list:(PRListID *)list {
     PRListAttr *attr;
     if (browser == 1) {
         attr = PRListAttrBrowser1Attr;
@@ -1120,7 +1120,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return [PRLibrary itemAttrForInternal:[self valueForList:list attr:attr]];
 }
 
-- (void)setAttr:(PRItemAttr *)attr forBrowser:(int)browser list:(PRList *)list {
+- (void)setAttr:(PRItemAttr *)attr forBrowser:(int)browser list:(PRListID *)list {
     PRListAttr *listAttr;
     if (browser == 1) {
         listAttr = PRListAttrBrowser1Attr;
@@ -1134,43 +1134,43 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     [self setValue:[PRLibrary internalForItemAttr:attr] forList:list attr:listAttr];
 }
 
-- (PRListType *)typeForList:(PRList *)list {
+- (PRListType *)typeForList:(PRListID *)list {
     return [PRPlaylists listTypeForInternal:[self valueForList:list attr:PRListAttrType]];
 }
 
-- (void)setType:(PRListType *)type forList:(PRList *)list {
+- (void)setType:(PRListType *)type forList:(PRListID *)list {
     [self setValue:[PRPlaylists internalForListType:type] forList:list attr:PRListAttrType];
 }
 
-- (NSString *)titleForList:(PRList *)list {
+- (NSString *)titleForList:(PRListID *)list {
     return [self valueForList:list attr:PRListAttrTitle];
 }
 
-- (void)setTitle:(NSString *)title forList:(PRList *)list {
+- (void)setTitle:(NSString *)title forList:(PRListID *)list {
     [self setValue:title forList:list attr:PRListAttrTitle];
 }
 
-- (NSString *)searchForList:(PRList *)list {
+- (NSString *)searchForList:(PRListID *)list {
     return [self valueForList:list attr:PRListAttrSearch];
 }
 
-- (void)setSearch:(NSString *)search forList:(PRList *)list {
+- (void)setSearch:(NSString *)search forList:(PRListID *)list {
     [self setValue:search forList:list attr:PRListAttrSearch];
 }
 
-- (int)viewModeForList:(PRList *)list {
+- (int)viewModeForList:(PRListID *)list {
     return [[self valueForList:list attr:PRListAttrViewMode] intValue];
 }
 
-- (void)setViewMode:(int)viewMode forList:(PRList *)list {
+- (void)setViewMode:(int)viewMode forList:(PRListID *)list {
     [self setValue:[NSNumber numberWithInt:viewMode] forList:list attr:PRListAttrViewMode];
 }
 
-- (NSDictionary *)ruleForList:(PRList *)list {
+- (NSDictionary *)ruleForList:(PRListID *)list {
     return nil;
 }
 
-- (void)setRule:(NSDictionary *)rule forList:(PRList *)list {
+- (void)setRule:(NSDictionary *)rule forList:(PRListID *)list {
 
 }
 

@@ -15,7 +15,7 @@
 #import "PRLibraryDescription.h"
 #import "PRLibraryListViewController.h"
 #import "PRLibraryViewController.h"
-#import "PRListDescription.h"
+#import "PRList.h"
 #import "PRMainWindowController.h"
 #import "PRNowPlayingController.h"
 #import "PRPlaylists.h"
@@ -28,8 +28,8 @@
 
 @implementation PRBrowserViewController {
     PRBridge *_bridge;
-    PRList *_currentList;
-    PRListDescription *_listDescription;
+    PRListID *_currentList;
+    PRList *_listDescription;
     NSArray *_browserDescriptions;
     PRLibraryListViewController *_libraryListVC;
     PRBrowserListViewController *_browserListVC1;
@@ -99,11 +99,11 @@
     return menu;
 }
 
-- (PRList *)currentList {
+- (PRListID *)currentList {
     return _currentList;
 }
 
-- (void)setCurrentList:(PRList *)list {
+- (void)setCurrentList:(PRListID *)list {
     _currentList = list;
     [self _reloadData];
 }
@@ -117,7 +117,7 @@
     return [_libraryListVC selectedItems];
 }
 
-- (void)highlightItem:(PRItem *)item {
+- (void)highlightItem:(PRItemID *)item {
     // NSString *artist;
     // if ([[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation] && [[[_db library] valueForItem:item attr:PRItemAttrCompilation] boolValue]) {
     //     artist = PRCompilationString;
@@ -353,7 +353,7 @@
 
 - (void)_reloadData {
     if (_currentList) {
-        __block PRListDescription *listDescription = nil;
+        __block PRList *listDescription = nil;
         __block NSArray *browserDescriptions = nil;
         [_bridge performTaskSync:^(PRCore *core){
             [[[core conn] playlists] zListDescriptionForList:_currentList out:&listDescription];

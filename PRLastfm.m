@@ -134,7 +134,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 }
 
 - (void)nowPlaying:(PRLastfmFile *)lastfmFile {
-    PRItem *item = [lastfmFile item];
+    PRItemID *item = [lastfmFile item];
     NSString *title = [[_db library] valueForItem:item attr:PRItemAttrTitle];
     NSString *artist = [[_db library] artistValueForItem:item];
     NSString *album = [[_db library] valueForItem:item attr:PRItemAttrAlbum];
@@ -161,7 +161,7 @@ NSString * const PRLastfmAPIKey = @"9e6a08d552a2e037f1ad598d5eca3802";
 }
 
 - (void)scrobble:(PRLastfmFile *)lastfmFile {
-    PRItem *item = [lastfmFile item];
+    PRItemID *item = [lastfmFile item];
     NSString *title = [[_db library] valueForItem:item attr:PRItemAttrTitle];
     NSString *artist = [[_db library] artistValueForItem:item];
     NSString *album = [[_db library] valueForItem:item attr:PRItemAttrAlbum];

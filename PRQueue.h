@@ -13,12 +13,12 @@
 
 /* Accessors */
 - (BOOL)zQueueArray:(NSArray **)out;
-- (BOOL)zRemoveListItem:(PRListItem *)listItem;
-- (BOOL)zAppendListItem:(PRListItem *)listItem;
+- (BOOL)zRemoveListItem:(PRListItemID *)listItem;
+- (BOOL)zAppendListItem:(PRListItemID *)listItem;
 - (BOOL)zClear;
 
 - (NSArray *)queueArray;
-- (void)removeListItem:(PRListItem *)listItem;
-- (void)appendListItem:(PRListItem *)listItem;
+- (void)removeListItem:(PRListItemID *)listItem;
+- (void)appendListItem:(PRListItemID *)listItem;
 - (void)clear;
 @end

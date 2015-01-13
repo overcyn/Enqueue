@@ -2,7 +2,7 @@
 
 @implementation PRLastfmFile
 
-- (id)initWithItem:(PRItem *)item {
+- (id)initWithItem:(PRItemID *)item {
     if (!(self = [super init])) {return nil;}
     _item = item;
     _startDate = nil;

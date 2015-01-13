@@ -172,7 +172,7 @@ end:;
         blk = ^{
             [_db begin];
             for (PRFileInfo *i in infoArray) {
-            PRItem *item = [[_db library] addItemWithAttrs:[i attributes]];
+            PRItemID *item = [[_db library] addItemWithAttrs:[i attributes]];
                 [i setItem:item];
                 NSNumber *trackId = [NSNumber numberWithInt:[i trackid]];
                 [_fileTrackIdDictionary setObject:item forKey:trackId];
@@ -203,7 +203,7 @@ end:;
     // Add playlist items
     void (^blk)(void) = ^{
         [_db begin];
-        PRList *list = [[_db playlists] addStaticList];
+        PRListID *list = [[_db playlists] addStaticList];
         if ([playlist objectForKey:@"Name"]) {
             [[_db playlists] setValue:[playlist objectForKey:@"Name"] forList:list attr:PRListAttrTitle];
         }

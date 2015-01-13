@@ -11,14 +11,14 @@
 - (BOOL)initialize;
 
 // Accessors
-- (BOOL)zAddItem:(PRItem *)item withDate:(NSDate *)date;
+- (BOOL)zAddItem:(PRItemID *)item withDate:(NSDate *)date;
 - (BOOL)zClear;
 - (BOOL)zTopArtists:(NSArray **)out;
 - (BOOL)zTopSongs:(NSArray **)out;
 - (BOOL)zRecentlyAdded:(NSArray **)out;
 - (BOOL)zRecentlyPlayed:(NSArray **)out;
 
-- (void)addItem:(PRItem *)item withDate:(NSDate *)date;
+- (void)addItem:(PRItemID *)item withDate:(NSDate *)date;
 - (void)clear;
 - (NSArray *)topArtists;
 - (NSArray *)topSongs;

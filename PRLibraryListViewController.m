@@ -9,7 +9,7 @@
 #import "PRDateFormatter.h"
 #import "PRKindFormatter.h"
 #import "PRLibraryDescription.h"
-#import "PRListDescription.h"
+#import "PRList.h"
 #import "PRNumberFormatter.h"
 #import "PRRatingCell.h"
 #import "PRSizeFormatter.h"
@@ -27,7 +27,7 @@
 
 @implementation PRLibraryListViewController {
     PRBridge *_bridge;
-    PRList *_currentList;
+    PRListID *_currentList;
     PRPlayerDescription *_nowPlayingDescription;
     PRLibraryDescription *_libraryDescription;
     NSArray *_listDescriptions;
@@ -48,7 +48,7 @@
 
 @synthesize currentList = _currentList;
 
-- (void)setCurrentList:(PRList *)value {
+- (void)setCurrentList:(PRListID *)value {
     _currentList = value;
     [self _reloadData];
 }
@@ -549,7 +549,7 @@
 
 - (void)tableView:(NSTableView *)tableView didClickTableColumn:(NSTableColumn *)tableColumn {
     PRItemAttr *columnAttr = [tableColumn identifier];
-    PRListDescription *listDescription = [_libraryDescription listDescription];
+    PRList *listDescription = [_libraryDescription listDescription];
     if ([columnAttr isEqual:[listDescription listViewSortAttr]]) {
         [listDescription setListViewAscending:![listDescription listViewAscending]];
     } else {
@@ -681,7 +681,7 @@
 - (void)_loadTableColumns {
     _refreshing = YES;
     
-    PRListDescription *listDescription = [_libraryDescription listDescription];
+    PRList *listDescription = [_libraryDescription listDescription];
     NSArray *columnsInfo = [listDescription listViewInfo];
     for (NSInteger i = 0; i < [columnsInfo count]; i++) {
         NSDictionary *columnInfo = [columnsInfo objectAtIndex:i];
@@ -747,7 +747,7 @@
         
         // Add to Playlist
         NSMenu *playlistMenu = [[NSMenu alloc] init];
-        for (PRListDescription *i in _listDescriptions) {
+        for (PRList *i in _listDescriptions) {
             if (![[i type] isEqual:PRListTypeStatic]) {
                 continue;
             }
@@ -774,7 +774,7 @@
         [_libraryMenu addItem:[NSMenuItem separatorItem]];
         
         // Delete
-        PRListDescription *listDescription = [_libraryDescription listDescription];
+        PRList *listDescription = [_libraryDescription listDescription];
         
         c[0] = NSDeleteCharacter;
         item = [[NSMenuItem alloc] init];

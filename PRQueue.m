@@ -67,11 +67,11 @@ NSString * const PR_TBL_QUEUE_SQL = @"CREATE TABLE queue ("
     return rlt;
 }
 
-- (BOOL)zRemoveListItem:(PRListItem *)listItem {
+- (BOOL)zRemoveListItem:(PRListItemID *)listItem {
     return [(PRDb*)(_db?:(id)_conn) zExecute:@"DELETE FROM queue WHERE playlist_item_id = ?1" bindings:@{@1:listItem} columns:nil out:nil];
 }
 
-- (BOOL)zAppendListItem:(PRListItem *)listItem {
+- (BOOL)zAppendListItem:(PRListItemID *)listItem {
     return [(PRDb*)(_db?:(id)_conn) zExecute:@"INSERT INTO queue (playlist_item_id) VALUES (?1)" bindings:@{@1:listItem} columns:nil out:nil];
 }
 
@@ -79,11 +79,11 @@ NSString * const PR_TBL_QUEUE_SQL = @"CREATE TABLE queue ("
     return [(PRDb*)(_db?:(id)_conn) zExecute:@"DELETE FROM queue"];
 }
 
-- (void)removeListItem:(PRListItem *)listItem {
+- (void)removeListItem:(PRListItemID *)listItem {
     [self zRemoveListItem:listItem];
 }
 
-- (void)appendListItem:(PRListItem *)listItem {
+- (void)appendListItem:(PRListItemID *)listItem {
     [self zAppendListItem:listItem];
 }
 

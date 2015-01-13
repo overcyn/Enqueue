@@ -3,17 +3,17 @@
 
 
 @interface PRLastfmFile : NSObject {
-    PRItem *_item;
+    PRItemID *_item;
     NSDate *_startDate;
     NSDate *_playDate;
     NSTimeInterval _playTime;
     BOOL _playing;
 }
-- (id)initWithItem:(PRItem *)item;
+- (id)initWithItem:(PRItemID *)item;
 - (void)play;
 - (void)pause;
 
-@property (readonly) PRItem *item;
+@property (readonly) PRItemID *item;
 @property (readonly) NSDate *startDate;
 @property (readonly) NSTimeInterval playTime;
 @end

@@ -166,7 +166,7 @@
         NSString *artist = [[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"artist"];
         [(PRBrowserViewController *)[[_win libraryViewController] currentViewController] highlightArtist:artist];
     } else {
-        PRItem *item = [[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"file"];
+        PRItemID *item = [[dataSource objectAtIndex:[sender clickedRow]] objectForKey:@"file"];
         [[[_win libraryViewController] currentViewController] highlightItem:item];
     }
 }

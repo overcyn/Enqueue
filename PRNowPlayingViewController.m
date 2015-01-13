@@ -17,7 +17,7 @@
 #import "PRGradientView.h"
 #import "PRLibrary.h"
 #import "PRLibraryViewController.h"
-#import "PRListDescription.h"
+#import "PRList.h"
 #import "PRListItemsDescription.h"
 #import "PRMainWindowController.h"
 #import "PRMoviePlayer.h"
@@ -261,7 +261,7 @@
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(NSIndexPath *)item {
     PRLibrary *library = [[_core conn] library];
     NSInteger index = [_playerList indexForIndexPath:item];
-    PRItem *it = [_playerList itemAtIndex:index];
+    PRItemID *it = [_playerList itemIDAtIndex:index];
     
     if ([item length] == 1) {
         NSString *album = nil;
@@ -296,7 +296,7 @@
             icon = [[NSImage alloc] init];
             invertedIcon = [[NSImage alloc] init];
         }
-        PRListItem *listItem = [_playerList listItemAtIndex:index];
+        PRListItemID *listItem = [_playerList listItemIDAtIndex:index];
         NSUInteger queueIndex = [_queue indexOfObject:listItem];
         NSNumber *badge = (_queue && queueIndex != NSNotFound) ? @(queueIndex + 1) : @0;
         return @{@"title":title, @"icon":icon, @"invertedIcon":invertedIcon, @"badge":badge, @"item":item, @"target":self};
@@ -508,7 +508,7 @@
     __block NSArray *queue;
     [_bridge performTaskSync:^(PRCore *core){
         player = [[core now] description];
-        playerList = [[PRNowPlayingListItemsDescription alloc] initWithList:[player currentList] connection:[core conn]];
+        playerList = [[PRNowPlayingListItemsDescription alloc] initWithListID:[player currentList] connection:[core conn]];
         [[[core conn] queue] zQueueArray:&queue];
     }];
     _player = player;
@@ -536,7 +536,7 @@
 - (NSArray *)_selectedItems {
     NSMutableArray *selectedItems = [NSMutableArray array];
     [[self _selectedIndexes] enumerateIndexesUsingBlock:^(NSUInteger i, BOOL *stop){
-        [selectedItems addObject:[_playerList itemAtIndex:i]];
+        [selectedItems addObject:[_playerList itemIDAtIndex:i]];
     }];
     return selectedItems;
 }
@@ -544,7 +544,7 @@
 - (NSArray *)_selectedListItems {
     NSMutableArray *selectedListItems = [NSMutableArray array];
     [[self _selectedIndexes] enumerateIndexesUsingBlock:^(NSUInteger i, BOOL *stop){
-        [selectedListItems addObject:[_playerList listItemAtIndex:i]];
+        [selectedListItems addObject:[_playerList listItemIDAtIndex:i]];
     }];
     return selectedListItems;
 }

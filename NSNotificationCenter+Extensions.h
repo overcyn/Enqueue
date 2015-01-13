@@ -6,7 +6,7 @@
 @end
 
 @interface PRListChange : NSObject
-@property (nonatomic, strong) PRList *list;
+@property (nonatomic, strong) PRListID *list;
 @end
 
 @interface PRNowPlayingChange : NSObject
@@ -29,7 +29,7 @@
 @end
 
 @interface PRListItemsChange : NSObject
-@property (nonatomic, strong) PRList *list;
+@property (nonatomic, strong) PRListID *list;
 @end
 
 extern NSString * const PRLibraryViewSelectionDidChangeNotification;
@@ -51,7 +51,7 @@ extern NSString * const PRDeviceDidChangeNotification;
 - (void)postLibraryChanged;
 - (void)postItemsChanged:(NSArray *)items;
 - (void)postListsDidChange;
-- (void)postListItemsDidChange:(PRList *)list;
+- (void)postListItemsDidChange:(PRListID *)list;
 
 - (void)observeLibraryChanged:(id)obs sel:(SEL)sel;
 - (void)observeItemsChanged:(id)obs sel:(SEL)sel;
