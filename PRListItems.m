@@ -1,9 +1,9 @@
-#import "PRListItemsDescription.h"
+#import "PRListItems.h"
 #import "PRDefaults.h"
 #import "NSIndexSet+Extensions.h"
 #import "PRConnection.h"
 
-@implementation PRListItemsDescription {
+@implementation PRListItems {
     PRListID *_list;
     NSArray *_items;
 }
@@ -35,7 +35,7 @@
 
 @end
 
-@implementation PRNowPlayingListItemsDescription {
+@implementation PRNowPlayingListItems {
     NSArray *_albumCounts;
     NSMutableIndexSet *_albumIndexes;
 }

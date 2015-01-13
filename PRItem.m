@@ -1,18 +1,18 @@
-#import "PRItemDescription.h"
+#import "PRItem.h"
 #import "PRPlaylists.h"
-#import "PRItemDescription_Private.h"
+#import "PRItem_Private.h"
 #import "PRConnection.h"
 
-@implementation PRItemDescription {
+@implementation PRItem {
     PRItemID *_item;
 }
 
 @synthesize item = _item;
 
-- (id)initWithItem:(PRItemID *)item connection:(PRConnection *)conn {
+- (id)initWithItemID:(PRItemID *)item connection:(PRConnection *)conn {
     if ((self = [super init])) {
         _item = item;
-        NSArray *keys = [PRItemDescription _keys];
+        NSArray *keys = [PRItem _keys];
         
         NSArray *rlt = nil;
         NSMutableArray *cols = [NSMutableArray array];

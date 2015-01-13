@@ -6,7 +6,7 @@
 #import "PRConnection.h"
 #import "PRControlsView.h"
 #import "PRCore.h"
-#import "PRItemDescription.h"
+#import "PRItem.h"
 #import "PRNowPlayingController.h"
 #import "PRPlayerDescription.h"
 #import "PRTimeFormatter.h"
@@ -16,7 +16,7 @@
     PRControlsView *_view;
     PRPlayerDescription *_player;
     PRMovieDescription *_movie;
-    PRItemDescription *_item;
+    PRItem *_item;
     PRTimeFormatter *_formatter;
 }
 
@@ -96,7 +96,7 @@
 
 - (void)_reloadData {
     __block PRPlayerDescription *player = nil;
-    __block PRItemDescription *item = nil;
+    __block PRItem *item = nil;
     [_bridge performTaskSync:^(PRCore *core){
         player = [[core now] description];
         if ([player currentItem]) {

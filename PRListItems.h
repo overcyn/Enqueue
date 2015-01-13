@@ -2,7 +2,7 @@
 #import "PRPlaylists.h"
 @class PRConnection;
 
-@interface PRListItemsDescription : NSObject
+@interface PRListItems : NSObject
 - (id)initWithListID:(PRListID *)list connection:(PRConnection *)conn;
 @property (nonatomic, readonly) PRListID *list;
 @property (nonatomic, readonly) NSInteger count;
@@ -10,7 +10,7 @@
 - (PRListItemID *)listItemIDAtIndex:(NSInteger)index;
 @end
 
-@interface PRNowPlayingListItemsDescription : PRListItemsDescription
+@interface PRNowPlayingListItems : PRListItems
 @property (nonatomic, readonly) NSArray *albumCounts;
 - (NSInteger)indexForIndexPath:(NSIndexPath *)index; // Zero based
 - (NSIndexPath *)indexPathForIndex:(NSInteger)index;

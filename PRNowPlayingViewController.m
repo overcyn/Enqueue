@@ -18,7 +18,7 @@
 #import "PRLibrary.h"
 #import "PRLibraryViewController.h"
 #import "PRList.h"
-#import "PRListItemsDescription.h"
+#import "PRListItems.h"
 #import "PRMainWindowController.h"
 #import "PRMoviePlayer.h"
 #import "PRNowPlayingCell.h"
@@ -54,7 +54,7 @@
     NSCell *_cachedNowPlayingCell;
     NSCell *_cachedNowPlayingHeaderCell;
     
-    PRNowPlayingListItemsDescription *_playerList;
+    PRNowPlayingListItems *_playerList;
     PRPlayerDescription *_player;
     NSArray *_queue;
 }
@@ -503,12 +503,12 @@
 #pragma mark - Internal
 
 - (void)_reloadData:(PRChangeSet *)changeSet {
-    __block PRNowPlayingListItemsDescription *playerList;
+    __block PRNowPlayingListItems *playerList;
     __block PRPlayerDescription *player;
     __block NSArray *queue;
     [_bridge performTaskSync:^(PRCore *core){
         player = [[core now] description];
-        playerList = [[PRNowPlayingListItemsDescription alloc] initWithListID:[player currentList] connection:[core conn]];
+        playerList = [[PRNowPlayingListItems alloc] initWithListID:[player currentList] connection:[core conn]];
         [[[core conn] queue] zQueueArray:&queue];
     }];
     _player = player;

@@ -7,7 +7,7 @@
 #import "PRTagger.h"
 #import "NSArray+Extensions.h"
 #import "PRConnection.h"
-#import "PRItemDescription_Private.h"
+#import "PRItem_Private.h"
 
 PRItemAttr * const PRItemAttrPath = @"PRItemAttrPath";
 PRItemAttr * const PRItemAttrSize = @"PRItemAttrSize";
@@ -432,14 +432,14 @@ NSString * const PR_TRG_ARTIST_ALBUM_ARTIST_2_SQL = @"CREATE TEMP TRIGGER trg_ar
     return YES;
 }
 
-- (BOOL)zItemDescriptionForItem:(PRItemID *)item out:(PRItemDescription **)outValue {
+- (BOOL)zItemDescriptionForItem:(PRItemID *)item out:(PRItem **)outValue {
     if (outValue) {
-        *outValue = [[PRItemDescription alloc] initWithItem:item connection:(PRConnection*)(_db?:(id)_conn)];
+        *outValue = [[PRItem alloc] initWithItemID:item connection:(PRConnection*)(_db?:(id)_conn)];
     }
     return *outValue != nil;
 }
 
-- (BOOL)zSetItemDescription:(PRItemDescription *)value forItem:(PRItemID *)item {
+- (BOOL)zSetItemDescription:(PRItem *)value forItem:(PRItemID *)item {
     return [value writeToConnection:(PRConnection*)(_db?:(id)_conn)];
 }
 

@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "PRPlaylists.h"
 
-@interface PRItemDescription : NSObject
+@interface PRItem : NSObject
 @property (nonatomic, readonly) PRItemID *item;
 
 /* File Attributes */
