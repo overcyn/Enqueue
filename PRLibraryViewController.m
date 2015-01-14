@@ -16,9 +16,6 @@
 
 #define SEARCH_DELAY 0.25
 
-@interface PRLibraryViewController ()
-@end
-
 @implementation PRLibraryViewController {
     PRBridge *_bridge;
     
@@ -60,9 +57,9 @@
 
 - (PRLibraryViewMode)libraryViewMode {
     if (_currentVC == _browserVC) {
-        return PRListMode;
+        return PRLibraryViewModeList;
     }
-    return PRAlbumListMode;
+    return PRLibraryViewModeAlbumList;
 }
 
 - (void)setLibraryViewMode:(PRLibraryViewMode)libraryViewMode {
@@ -135,7 +132,7 @@
 //     [menu removeAllItems];
 //     NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
 //     NSImage *image;
-//     if ([self libraryViewMode] == PRListMode) {
+//     if ([self libraryViewMode] == PRLibraryViewModeList) {
 //         image = [NSImage imageNamed:@"List.png"];
 //     } else {
 //         image = [NSImage imageNamed:@"AlbumList.png"];
@@ -147,14 +144,14 @@
 //     [item setEnabled:NO];
 //     [menu addItem:item];
 //     item = [[NSMenuItem alloc] initWithTitle:@"List" action:@selector(_setLibraryViewModeAction:) keyEquivalent:@""];
-//     [item setTag:PRListMode];
-//     if ([self libraryViewMode] == PRListMode) {
+//     [item setTag:PRLibraryViewModeList];
+//     if ([self libraryViewMode] == PRLibraryViewModeList) {
 //         [item setState:NSOnState];
 //     }
 //     [menu addItem:item];
 //     item = [[NSMenuItem alloc] initWithTitle:@"Album List" action:@selector(_setLibraryViewModeAction:) keyEquivalent:@""];
-//     [item setTag:PRAlbumListMode];
-//     if ([self libraryViewMode] == PRAlbumListMode) {
+//     [item setTag:PRLibraryViewModeAlbumList];
+//     if ([self libraryViewMode] == PRLibraryViewModeAlbumList) {
 //         [item setState:NSOnState];
 //     }
 //     [menu addItem:item];
@@ -199,7 +196,7 @@
         [_browserVC setCurrentList:nil];
         [_albumListVC setCurrentList:nil];
         PRBrowserViewController *prevVC = _currentVC;
-        if ([_listDescription viewMode] == PRListMode) {
+        if ([_listDescription viewMode] == PRLibraryViewModeList) {
             _currentVC = _browserVC;
         } else {
             _currentVC = _albumListVC;

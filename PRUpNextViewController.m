@@ -330,11 +330,7 @@
 #pragma mark NSMenuDelegate
 
 - (void)menuNeedsUpdate:(NSMenu *)menu {
-    if (menu == _contextMenu) {
-        [self _updateContextMenu];
-    } else {
-        [self _updatePlaylistMenu];
-    }
+    [self _updateContextMenu];
 }
 
 #pragma mark - Action

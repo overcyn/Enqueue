@@ -11,13 +11,23 @@
 #import "PRMainWindowController.h"
 #import "PRMovie.h"
 #import "PRPlayer.h"
-#import "PRPlayer.h"
 #import "PRUpNextViewController.h"
 #import "PRPlaylistsViewController.h"
 #import "PRBrowserViewController.h"
 
-
-@implementation PRMainMenuController
+@implementation PRMainMenuController {
+    IBOutlet NSMenu *_dockMenu;
+    NSMenu *mainMenu;
+    NSMenu *enqueueMenu;
+    NSMenu *fileMenu;
+    NSMenu *editMenu;
+    NSMenu *viewMenu;
+    NSMenu *controlsMenu;
+    NSMenu *windowMenu;
+    NSMenu *helpMenu;
+    
+    __weak PRCore *core;
+}
 
 #pragma mark - Inialization
 
@@ -254,11 +264,11 @@
 }
 
 - (void)viewAsList {
-    [[[core win] libraryViewController] setLibraryViewMode:PRListMode];
+    [[[core win] libraryViewController] setLibraryViewMode:PRLibraryViewModeList];
 }
 
 - (void)viewAsAlbumList {
-    [[[core win] libraryViewController] setLibraryViewMode:PRAlbumListMode];
+    [[[core win] libraryViewController] setLibraryViewMode:PRLibraryViewModeAlbumList];
 }
 
 - (void)toggleMiniPlayer {
@@ -277,7 +287,7 @@
 //    [[[core win] controlsViewController] showInLibrary]; // KD:
 }
 
-#pragma mark - menu delegate
+#pragma mark - NSMenuDelegate
 
 - (void)menuNeedsUpdate:(NSMenu *)menu {
     NSString *title = [[[core now] movie] isPlaying] ? @"Pause" : @"Play";

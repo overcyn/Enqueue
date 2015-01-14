@@ -3,7 +3,6 @@
 #import "NSAttributedString+Extensions.h"
 #import "NSParagraphStyle+Extensions.h"
 
-
 @implementation PRUpNextHeaderCell
 
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
@@ -14,18 +13,9 @@
     NSString *subtitle = [[self objectValue] objectForKey:@"subtitle"];
     
     // Background
-    NSGradient *gradient;
-//    if (highlighted) {
-//        gradient = [[NSGradient alloc] initWithColorsAndLocations: 
-//                     [[NSColor colorWithCalibratedRed:59./255 green:128./255 blue:223./255 alpha:1.0] blendedColorWithFraction:0.1 ofColor:[NSColor whiteColor]], 1.0, nil];
-//    } else if ([self isHighlighted]) {
-//        gradient = [[NSGradient alloc] initWithColorsAndLocations: 
-//                     [NSColor colorWithDeviceWhite:0.8 alpha:1.0], 1.0, nil];
-//    } else {
-        gradient = [[NSGradient alloc] initWithColorsAndLocations:
-                     [NSColor colorWithCalibratedWhite:0.99 alpha:0.5], 0.0,
-                     [NSColor colorWithCalibratedWhite:0.99 alpha:0.5], 1.0, nil];
-//    }
+    NSGradient *gradient = [[NSGradient alloc] initWithColorsAndLocations:
+        [NSColor colorWithCalibratedWhite:0.99 alpha:0.5], 0.0,
+        [NSColor colorWithCalibratedWhite:0.99 alpha:0.5], 1.0, nil];
     [gradient drawInRect:cellFrame angle:90];
     
     // Text Attributes

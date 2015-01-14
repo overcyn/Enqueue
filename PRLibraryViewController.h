@@ -4,8 +4,8 @@
 @class PRBrowserViewController;
 
 typedef NS_ENUM(NSInteger, PRLibraryViewMode) {
-    PRListMode,
-    PRAlbumListMode,
+    PRLibraryViewModeList,
+    PRLibraryViewModeAlbumList,
 };
 
 @interface PRLibraryViewController : PRViewController

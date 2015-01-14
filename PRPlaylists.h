@@ -38,29 +38,27 @@ typedef NSString PRListSort;
 extern PRListSort * const PRListSortArtistAlbum;
 extern PRListSort * const PRListSortIndex;
 
-typedef enum {
+typedef NS_ENUM(NSInteger, PRBrowserPosition) {
     PRBrowserPositionHorizontal = 0, 
     PRBrowserPositionVertical = 1, 
     PRBrowserPositionHidden = 2,
-} PRBrowserPosition;
+};
 
 typedef int PRPlaylist;
-typedef int PRPlaylistItem;
 
-typedef enum {
+typedef NS_ENUM(NSInteger, PRPlaylistType) {
     PRLibraryPlaylistType = 0,
     PRNowPlayingPlaylistType = 1,
     PRStaticPlaylistType = 2,
     PRSmartPlaylistType = 3,
     PRDuplicatePlaylistType = 4,
     PRMissingPlaylistType = 5,
-} PRPlaylistType;
+};
 
-typedef enum {
+typedef NS_ENUM(NSInteger, PRSort) {
     PRArtistAlbumSort = -1,
     PRPlaylistIndexSort = -2,
-} PRSort;
-
+};
 
 @interface PRPlaylists : NSObject
 // Initialization
@@ -98,18 +96,14 @@ typedef enum {
 - (BOOL)zLibraryDescriptionForList:(PRListID *)list out:(PRLibraryDescription **)outValue;
 - (BOOL)zBrowserDescriptionsForList:(PRListID *)list out:(NSArray **)outValue; // Always returns array of 3 PRBrowserDescriptions
 
-
 // List Setters
-- (PRListID *)addList;
-- (PRListID *)addStaticList;
-- (PRListID *)addSmartList;
 - (void)removeList:(PRListID *)list;
 - (void)setValue:(id)value forList:(PRListID *)list attr:(PRListAttr *)attr;
 
 // zList Setters
-- (BOOL)zAddList:(PRListID **)outValue;
-- (BOOL)zAddStaticList:(PRListID **)outValue;
-- (BOOL)zAddSmartList:(PRListID **)outValue;
+- (BOOL)zAddList:(PRList **)outValue;
+- (BOOL)zAddStaticList:(PRList **)outValue;
+- (BOOL)zAddSmartList:(PRList **)outValue;
 - (BOOL)zRemoveList:(PRListID *)list;
 - (BOOL)zSetValue:(id)value forList:(PRListID *)list attr:(PRListAttr *)attr;
 - (BOOL)zSetListDescription:(PRList *)value forList:(PRListID *)list;
@@ -118,8 +112,6 @@ typedef enum {
 - (void)addItems:(NSArray *)items atIndex:(int)index toList:(PRListID *)list;
 - (void)appendItem:(PRListID *)item toList:(PRListID *)list;
 - (void)removeItemsAtIndexes:(NSIndexSet *)indexes fromList:(PRListID *)list;
-- (void)clearList:(PRListID *)list;
-- (void)clearList:(PRListID *)list exceptIndex:(int)index;
 - (void)moveItemsAtIndexes:(NSIndexSet *)indexes toIndex:(int)index inList:(PRListID *)list;
 - (void)appendItemsFromLibraryViewSourceToList:(PRListID *)list;
 - (void)copyItemsFromList:(PRListID *)list toList:(PRListID *)list;
@@ -164,49 +156,4 @@ typedef enum {
 - (BOOL)propagateListDelete;
 - (BOOL)propagateListItemDelete;
 
-// ========================================
-
-- (NSMutableDictionary *)browserInfoForList:(PRListID *)list;
-- (void)setBrowserInfo:(NSMutableDictionary *)info forList:(PRListID *)list;
-- (int)verticalForList:(PRListID *)list;
-- (void)setVertical:(int)vertical forList:(PRListID *)list;
-- (float)verticalBrowserWidthForList:(PRListID *)list;
-- (void)setVerticalBrowserWidth:(float)width forList:(PRListID *)list;
-- (float)horizontalBrowserHeightForList:(PRListID *)list;
-- (void)setHorizontalBrowserHeight:(float)height forList:(PRListID *)list;
-
-- (BOOL)listViewAscendingForList:(PRListID *)list;
-- (void)setListViewAscending:(BOOL)ascending forList:(PRListID *)list;
-- (BOOL)albumListViewAscendingForList:(PRListID *)list;
-- (void)setAlbumListViewAscending:(BOOL)ascending forList:(PRListID *)list;
-
-- (PRItemAttr *)listViewSortAttrForList:(PRListID *)list;
-- (void)setListViewSortAttr:(PRItemAttr *)attr forList:(PRListID *)list;
-- (PRItemAttr *)albumListViewSortAttrForList:(PRListID *)list;
-- (void)setAlbumListViewSortAttr:(PRItemAttr *)attr forList:(PRListID *)list;
-
-- (NSArray *)listViewInfoForList:(PRListID *)list;
-- (void)setListViewInfo:(NSArray *)columnInfo forList:(PRListID *)list;
-- (NSArray *)albumListViewInfoForList:(PRListID *)list;
-- (void)setAlbumListViewInfo:(NSArray *)columnInfo forList:(PRListID *)list;
-
-- (NSArray *)selectionForBrowser:(int)browser list:(PRListID *)list;
-- (void)setSelection:(NSArray *)selection forBrowser:(int)browser list:(PRListID *)list;
-- (PRItemAttr *)attrForBrowser:(int)browser list:(PRListID *)list;
-- (void)setAttr:(PRItemAttr *)attr forBrowser:(int)browser list:(PRListID *)list;
-
-- (PRListType *)typeForList:(PRListID *)list;
-- (void)setType:(PRListType *)type forList:(PRListID *)list;
-
-- (NSString *)titleForList:(PRListID *)list;
-- (void)setTitle:(NSString *)title forList:(PRListID *)list;
-
-- (NSString *)searchForList:(PRListID *)list;
-- (void)setSearch:(NSString *)search forList:(PRListID *)list;
-
-- (int)viewModeForList:(PRListID *)list;
-- (void)setViewMode:(int)viewMode forList:(PRListID *)list;
-
-- (NSDictionary *)ruleForList:(PRListID *)list;
-- (void)setRule:(NSDictionary *)rule forList:(PRListID *)list;
 @end

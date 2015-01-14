@@ -1,27 +1,10 @@
 #import <Cocoa/Cocoa.h>
 @class PRCore;
 
-
-@interface PRMainMenuController : NSObject <NSMenuDelegate> {
-    IBOutlet NSMenu *_dockMenu;    
-    NSMenu *mainMenu;
-    NSMenu *enqueueMenu;
-    NSMenu *fileMenu;
-    NSMenu *editMenu;
-    NSMenu *viewMenu;
-    NSMenu *controlsMenu;
-    NSMenu *windowMenu;
-    NSMenu *helpMenu;
-    
-    __weak PRCore *core;
-}
-/* Initialization */
+@interface PRMainMenuController : NSObject <NSMenuDelegate>
 - (id)initWithCore:(PRCore *)core;
-
-/* Accessors */
 - (NSMenu *)dockMenu;
 
-/* Action */
 - (void)showPreferences;
 
 - (void)newPlaylist;

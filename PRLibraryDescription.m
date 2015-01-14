@@ -43,7 +43,7 @@ NSString * const PRCompilationString = @"Compilations  ";
         NSMutableString *stmt;
         NSString *albumColumn = @"";
         NSArray *columns = nil;
-        if ([_listDescription viewMode] == PRAlbumListMode) {
+        if ([_listDescription viewMode] == PRLibraryViewModeAlbumList) {
             albumColumn = @", library.album";
         }
         if ([_list isEqual:[[_conn playlists] libraryList]]) {
@@ -117,7 +117,7 @@ NSString * const PRCompilationString = @"Compilations  ";
             PRLibraryViewMode viewMode = [_listDescription viewMode];
             PRListSort *sort;
             NSInteger asc;
-            if (viewMode == PRListMode) {
+            if (viewMode == PRLibraryViewModeList) {
                 sort = [_listDescription listViewSortAttr];
                 asc = [_listDescription listViewAscending];
             } else {
@@ -170,7 +170,7 @@ NSString * const PRCompilationString = @"Compilations  ";
         // _info = @[rlt[0][0], rlt[0][1], rlt[0][2]];
     }
 
-    if ([_listDescription viewMode] == PRAlbumListMode) {
+    if ([_listDescription viewMode] == PRLibraryViewModeAlbumList) {
         if ([_items count] == 0) {
             _albumCounts = @[];
         } else if ([_items count] == 1) {

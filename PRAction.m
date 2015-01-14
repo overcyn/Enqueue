@@ -15,12 +15,13 @@
 
 PRTask PRClearNowPlayingTask(void) {
     return ^(PRCore *core){
-        int count = [[[core db] playlists] countForList:[[core now] currentList]];
+        NSInteger count = 0;
+        [[[core db] playlists] zCountForList:[[core now] currentList] out:&count];
         if (count == 1 || [[core now] currentIndex] == 0) {
             [[core now] stop];
-            [[[core db] playlists] clearList:[[core now] currentList]];
+            [[[core db] playlists] zClearList:[[core now] currentList]];
         } else {
-            [[[core db] playlists] clearList:[[core now] currentList] exceptIndex:[[core now] currentIndex]];
+            [[[core db] playlists] zClearList:[[core now] currentList] exceptIndex:[[core now] currentIndex]];
         }
         [[NSNotificationCenter defaultCenter] postListItemsDidChange:[[core now] currentList]];
     };
@@ -61,7 +62,7 @@ PRTask PRPlayItemsTask(NSArray *items, NSInteger index) {
         PRPlayer *now = [core now];
         PRPlaylists *playlists = [[core db] playlists];
         [now stop];
-        [playlists clearList:[now currentList]];
+        [playlists zClearList:[now currentList]];
         for (PRItemID *i in items) {
             [playlists zAppendItem:i toList:[now currentList]];
         }

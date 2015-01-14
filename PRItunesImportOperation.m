@@ -1,4 +1,5 @@
 #import "PRItunesImportOperation.h"
+#import "PRList.h"
 #import "NSNotificationCenter+Extensions.h"
 #import "PRPlaylists.h"
 #import "PRDb.h"
@@ -203,16 +204,17 @@ end:;
     // Add playlist items
     void (^blk)(void) = ^{
         [_db begin];
-        PRListID *list = [[_db playlists] addStaticList];
+        PRList *list = nil;
+        [[_db playlists] zAddStaticList:&list];
         if ([playlist objectForKey:@"Name"]) {
-            [[_db playlists] setValue:[playlist objectForKey:@"Name"] forList:list attr:PRListAttrTitle];
+            [[_db playlists] setValue:[playlist objectForKey:@"Name"] forList:[list listID] attr:PRListAttrTitle];
         }
         for (NSDictionary *i in playlistItems) {
             NSNumber *track = [i objectForKey:@"Track ID"];
             if (!track) {continue;}
             NSNumber *file = [_fileTrackIdDictionary objectForKey:track];
             if (!file || ![[_db library] containsItem:file]) {continue;}
-            [[_db playlists] appendItem:file toList:list];
+            [[_db playlists] appendItem:file toList:[list listID]];
         }
         [_db commit];
         [[NSNotificationCenter defaultCenter] postListsDidChange];

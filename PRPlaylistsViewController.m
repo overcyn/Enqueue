@@ -1,4 +1,5 @@
 #import "PRPlaylistsViewController.h"
+#import "PRList.h"
 #import "PRException.h"
 #import "NSNotificationCenter+Extensions.h"
 #import "PRPlaylists.h"
@@ -13,7 +14,6 @@
 #import "PRCore.h"
 #import "NSColor+Extensions.h"
 #import "PRLibraryViewController.h"
-
 
 @implementation PRPlaylistsViewController
 
@@ -100,8 +100,9 @@
     if (code != NSAlertFirstButtonReturn) {
         return;
     }
-    PRListID *list = [[db playlists] addStaticList];
-    [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:list attr:PRListAttrTitle];
+    PRList *list = nil;
+    [[db playlists] zAddStaticList:&list];
+    [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:[list listID] attr:PRListAttrTitle];
     [[NSNotificationCenter defaultCenter] postListsDidChange];
 }
 
@@ -128,35 +129,36 @@
     if (code != NSAlertFirstButtonReturn) {
         return;
     }
-    PRListID *list = [[db playlists] addSmartList];
-    [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:list attr:PRListAttrTitle];
+    PRList *list = nil;
+    [[db playlists] zAddSmartList:&list];
+    [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:[list listID] attr:PRListAttrTitle];
     [[NSNotificationCenter defaultCenter] postListsDidChange];
 }
 
 - (void)duplicatePlaylist:(PRPlaylist)playlist {
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:@"Save"];
-    [alert addButtonWithTitle:@"Cancel"];
-    [alert setMessageText:@"New playlist title:"];
-    [alert setInformativeText:@""];
-    [alert setAccessoryView:[[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 400, 0)]];
-    NSString *title = @"";
-    PRListType *type = [[db playlists] typeForList:[PRListID numberWithInt:playlist]];
-    if ([type isEqual:PRListTypeStatic]) {
-        title = [[[db playlists] titleForList:[NSNumber numberWithInt:playlist]] stringByAppendingString:@" Copy"];
-    } else if ([type isEqual:PRListTypeNowPlaying]) {
-        title = @"Untitled Playlist";
-    }
-    [(NSTextField *)[alert accessoryView] setStringValue:title];   
-    [alert setAlertStyle:NSWarningAlertStyle];
-    [alert layout];
-    NSRect frame2 = [[alert accessoryView] frame];
-    frame2.size.height = 24;
-    [[alert accessoryView] setFrame:frame2];
-    NSRect frame = [[[alert accessoryView] superview] frame];
-    frame.size.height = 24;
-    [[[alert accessoryView] superview] setFrame:frame];
-    [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(duplicateHandler:code:context:) contextInfo:(__bridge_retained void *)@(playlist)];
+    // NSAlert *alert = [[NSAlert alloc] init];
+    // [alert addButtonWithTitle:@"Save"];
+    // [alert addButtonWithTitle:@"Cancel"];
+    // [alert setMessageText:@"New playlist title:"];
+    // [alert setInformativeText:@""];
+    // [alert setAccessoryView:[[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 400, 0)]];
+    // NSString *title = @"";
+    // PRListType *type = [[db playlists] typeForList:[PRListID numberWithInt:playlist]];
+    // if ([type isEqual:PRListTypeStatic]) {
+    //     title = [[[db playlists] titleForList:[NSNumber numberWithInt:playlist]] stringByAppendingString:@" Copy"];
+    // } else if ([type isEqual:PRListTypeNowPlaying]) {
+    //     title = @"Untitled Playlist";
+    // }
+    // [(NSTextField *)[alert accessoryView] setStringValue:title];   
+    // [alert setAlertStyle:NSWarningAlertStyle];
+    // [alert layout];
+    // NSRect frame2 = [[alert accessoryView] frame];
+    // frame2.size.height = 24;
+    // [[alert accessoryView] setFrame:frame2];
+    // NSRect frame = [[[alert accessoryView] superview] frame];
+    // frame.size.height = 24;
+    // [[[alert accessoryView] superview] setFrame:frame];
+    // [alert beginSheetModalForWindow:[win window] modalDelegate:self didEndSelector:@selector(duplicateHandler:code:context:) contextInfo:(__bridge_retained void *)@(playlist)];
 }
 
 - (void)duplicateHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context  {
@@ -164,11 +166,12 @@
     if (code != NSAlertFirstButtonReturn) {
         return;
     }
-    PRListID *list = [[db playlists] addStaticList];
-    [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:list attr:PRListAttrTitle];
-    [[db playlists] copyItemsFromList:l toList:list];
+    PRList *list = nil;
+    [[db playlists] zAddStaticList:&list];
+    [[db playlists] setValue:[(NSTextField *)[alert accessoryView] stringValue] forList:[list listID] attr:PRListAttrTitle];
+    [[db playlists] copyItemsFromList:l toList:[list listID]];
     [[NSNotificationCenter defaultCenter] postListsDidChange];
-    [[NSNotificationCenter defaultCenter] postListItemsDidChange:list];
+    [[NSNotificationCenter defaultCenter] postListItemsDidChange:[list listID]];
 }
 
 - (void)deletePlaylist:(PRPlaylist)playlist {
