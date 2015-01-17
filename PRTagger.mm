@@ -1,4 +1,5 @@
 #import "PRTagger.h"
+#import "PRConnection.h"
 #import "PRDb.h"
 #import "PRLibrary.h"
 #import "PRAlbumArtController.h"
@@ -386,8 +387,8 @@ using namespace TagLib;
     return;
 }
 
-+ (BOOL)updateTagsForItem:(PRItemID *)item database:(PRDb *)db {
-	PRFileInfo *info = [PRTagger infoForURL:[[db library] URLForItem:item]];
++ (BOOL)updateTagsForItem:(PRItemID *)item database:(PRConnection *)conn {
+	PRFileInfo *info = [PRTagger infoForURL:[[conn library] URLForItem:item]];
 	if (!info) {
 		return FALSE;
 	}
@@ -395,14 +396,14 @@ using namespace TagLib;
     BOOL change = FALSE;
     NSDictionary *attrs = [info attributes];
     for (PRItemAttr *i in [attrs allKeys]) {
-        id value = [[db library] valueForItem:item attr:i];
+        id value = [[conn library] valueForItem:item attr:i];
         if (![[attrs objectForKey:i] isEqual:value]) {
             change = TRUE;
         }
     }
-    [[db library] setAttrs:attrs forItem:item];
-	[[db albumArtController] clearTempArtwork];
-	[[db albumArtController] setTempArtwork:[[db albumArtController] saveTempArtwork:[info art]] forItem:item];
+    [[conn library] setAttrs:attrs forItem:item];
+	[[conn albumArtController] clearTempArtwork];
+	[[conn albumArtController] setTempArtwork:[[conn albumArtController] saveTempArtwork:[info art]] forItem:item];
 	return change;
 }
 

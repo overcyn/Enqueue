@@ -306,7 +306,7 @@
             continue;
         }
         [PRTagger setTag:value forAttribute:attribute URL:[[_db library] URLForItem:i]];
-        [PRTagger updateTagsForItem:i database:_db];
+        [PRTagger updateTagsForItem:i database:[_core conn]];
     }
     // postItemsChanged clears _selection so we save prior selection so we can highlight
     NSArray *selection = _selection;

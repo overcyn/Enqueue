@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 #import "PRPlaylists.h"
-@class PRDb, PRFileInfo;
+@class PRDb;
+@class PRFileInfo;
+@class PRConnection;
 
 typedef enum {
     PRFileTypeUnknown,
@@ -24,7 +26,7 @@ typedef enum {
 + (PRFileInfo *)infoForURL:(NSURL *)URL; // returns nil if invalid or missing file
 + (NSMutableDictionary *)tagsForURL:(NSURL *)URL; // returns nil if invalid or missing file
 + (void)setTag:(id)tag forAttribute:(PRItemAttr *)attr URL:(NSURL *)URL;
-+ (BOOL)updateTagsForItem:(PRItemID *)item database:(PRDb *)db; // caller should post ItemsDidChangeNotification if this returns TRUE
++ (BOOL)updateTagsForItem:(PRItemID *)item database:(PRConnection *)db; // caller should post ItemsDidChangeNotification if this returns TRUE
 
 /* Properties */
 + (NSDate *)lastModifiedForFileAtPath:(NSString *)path;

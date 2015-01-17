@@ -186,7 +186,8 @@
         [self stop];
         return;
     }
-    PRItemID *item = [playlists itemForListItem:listItem];
+    PRItemID *item = nil;
+    [playlists zItemForListItem:listItem out:&item];
     _currentListItem = listItem;
     
     // update tags
@@ -380,10 +381,12 @@
 - (void)movieAlmostFinished {
     PRLibrary *library = [_conn library];
     PRPlaylists *playlists = [_conn playlists];
-    PRListItemID *item = [self nextItem:NO];
-    if (item) {
+    PRListItemID *listItemID = [self nextItem:NO];
+    if (listItemID) {
+        PRItemID *itemID = nil;
         NSString *path = nil;
-        [library zValueForItem:[playlists itemForListItem:item] attr:PRItemAttrPath out:&path];
+        [playlists zItemForListItem:listItemID out:&itemID];
+        [library zValueForItem:itemID attr:PRItemAttrPath out:&path];
         [_movie queue:path];
     }
 }

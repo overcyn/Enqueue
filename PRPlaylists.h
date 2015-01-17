@@ -105,8 +105,6 @@ typedef NS_ENUM(NSInteger, PRSort) {
 
 // ListItem Getters
 - (int)countForList:(PRListID *)list;
-- (PRItemID *)itemAtIndex:(int)index forList:(PRListID *)list;
-- (PRItemID *)itemForListItem:(PRListItemID *)listItem;
 
 // zListItem Getters
 - (BOOL)zCountForList:(PRListID *)list out:(NSInteger *)outValue;

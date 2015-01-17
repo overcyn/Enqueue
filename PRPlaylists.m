@@ -693,18 +693,6 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return rlt;
 }
 
-- (PRItemID *)itemAtIndex:(int)index forList:(PRListID *)list {
-    PRItemID *rlt;
-    [self zItemAtIndex:index forList:list out:&rlt];
-    return rlt;
-}
-
-- (PRItemID *)itemForListItem:(PRListItemID *)listItem {
-    PRItemID *rlt;
-    [self zItemForListItem:listItem out:&rlt];
-    return rlt;
-}
-
 #pragma mark - zListItem Getters
 
 - (BOOL)zCountForList:(PRListID *)list out:(NSInteger *)outValue {
