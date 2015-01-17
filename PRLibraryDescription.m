@@ -31,7 +31,7 @@ NSString * const PRCompilationString = @"Compilations  ";
     _list = list;
     
     PRList *listDescription;
-    BOOL success = [[_conn playlists] zListDescriptionForList:list out:&listDescription];
+    BOOL success = [[_conn playlists] zListForListID:list out:&listDescription];
     if (!success) {
         return nil;
     }
@@ -278,7 +278,7 @@ NSString * const PRCompilationString = @"Compilations  ";
     if (!(self = [super init])) {return nil;}
     _list = list;
     PRList *listDescription = nil;
-    BOOL success = [[conn playlists] zListDescriptionForList:list out:&listDescription];
+    BOOL success = [[conn playlists] zListForListID:list out:&listDescription];
     if (!success) {
         return nil;
     }

@@ -6,14 +6,8 @@
 #import "NSImage+Extensions.h"
 #import "NSArray+Extensions.h"
 
-
 @interface PRAlbumArtController ()
-/* Priv */
-- (NSString *)cachedArtworkPathForItem:(PRItemID *)item;
-- (int)nextTempValue;
-- (NSString *)tempArtPathForTempValue:(int)temp;
 @end
-
 
 @implementation PRAlbumArtController {
     __weak PRDb *_db;

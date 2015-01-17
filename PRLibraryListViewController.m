@@ -666,8 +666,8 @@
     __block NSArray *lists = nil;
     __block PRPlayerState *playerState = nil;
     [_bridge performTaskSync:^(PRCore *core){
-        [[[core conn] playlists] zLibraryDescriptionForList:_listID out:&libraryDescription];
-        [[[core conn] playlists] zAllListDescriptions:&lists];
+        [[[core conn] playlists] zLibraryDescriptionForListID:_listID out:&libraryDescription];
+        [[[core conn] playlists] zLists:&lists];
         playerState = [[core now] playerState];
     }];
     _libraryDescription = libraryDescription;

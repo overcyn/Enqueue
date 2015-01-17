@@ -6,6 +6,13 @@
 #import "PRLibraryDescription.h"
 #import "PRException.h"
 
+typedef NS_ENUM(NSInteger, PRPlaylistType) {
+    PRLibraryPlaylistType = 0,
+    PRNowPlayingPlaylistType = 1,
+    PRStaticPlaylistType = 2,
+    PRSmartPlaylistType = 3,
+};
+
 NSString * const PRListTypeLibrary = @"PRListTypeLibrary";
 NSString * const PRListTypeNowPlaying = @"PRListTypeNowPlaying";
 NSString * const PRListTypeStatic = @"PRListTypeStatic";
@@ -150,7 +157,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     
     // Make sure that there are no gaps in playlist_index
     NSArray *lists = nil;
-    [self zAllListDescriptions:&lists];
+    [self zLists:&lists];
     for (PRList *list in lists) {
         PRListID *i = [list listID];
         PRListType *type = [list type];
@@ -279,12 +286,6 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 
 #pragma mark - List Getters
 
-- (NSArray *)lists {
-    NSArray *rlt = nil;
-    [self zLists:&rlt];
-    return rlt;
-}
-
 - (PRListID *)libraryList {
     PRListID *rlt = nil;
     [self zLibraryList:&rlt];
@@ -297,23 +298,13 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return rlt;
 }
 
-- (void)removeList:(PRListID *)list {
-    [self zRemoveList:list];
-}
-
 - (void)setValue:(id)value forList:(PRListID *)list attr:(PRListAttr *)attr {
     [self zSetValue:value forList:list attr:attr];
 }
 
-- (id)valueForList:(PRListID *)list attr:(PRListAttr *)attr {
-    id rlt = nil;
-    [self zValueForList:list attr:attr out:&rlt];
-    return rlt;
-}
-
 #pragma mark - zList Getters
 
-- (BOOL)zLists:(NSArray **)outValue {
+- (BOOL)zListIDs:(NSArray **)outValue {
     NSArray *rlt = nil;
     BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:@"SELECT playlist_id FROM playlists ORDER BY type, title COLLATE NOCASE, playlist_id" bindings:nil columns:@[PRColInteger] out:&rlt];
     if (success && outValue) {
@@ -346,28 +337,16 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return YES;
 }
 
-- (BOOL)zValueForList:(PRListID *)list attr:(PRListAttr *)attr out:(id *)outValue {
-    PRList *listDescription = nil;
-    BOOL success = [self zListDescriptionForList:list out:&listDescription];
-    if (!success) {
-        return NO;
-    }
-    if (outValue) {
-        *outValue = [listDescription valueForAttr:attr];
-    }
-    return YES;
-}
-
-- (BOOL)zListDescriptionForList:(PRListID *)list out:(PRList **)outValue {
+- (BOOL)zListForListID:(PRListID *)list out:(PRList **)outValue {
     if (outValue) {
         *outValue = [[PRList alloc] initWithListID:list connection:(PRConnection*)(_db?:(id)_conn)];
     }
     return *outValue != nil;
 }
 
-- (BOOL)zAllListDescriptions:(NSArray **)outValue {
+- (BOOL)zLists:(NSArray **)outValue {
     NSArray *lists = nil;
-    BOOL success = [self zLists:&lists];
+    BOOL success = [self zListIDs:&lists];
     if (!success) {
         return NO;
     }
@@ -375,7 +354,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     NSMutableArray *listDescriptions = [NSMutableArray array];
     for (PRListID *i in lists) {
         PRList *description = nil;
-        success = [self zListDescriptionForList:i out:&description];
+        success = [self zListForListID:i out:&description];
         if (!success) {
             return NO;
         }
@@ -387,7 +366,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return YES;
 }
 
-- (BOOL)zLibraryDescriptionForList:(PRListID *)list out:(PRLibraryDescription **)outValue {
+- (BOOL)zLibraryDescriptionForListID:(PRListID *)list out:(PRLibraryDescription **)outValue {
     if (outValue) {
         *outValue = [[PRLibraryDescription alloc] initWithListID:list connection:(PRConnection*)(_db?:(id)_conn)];
     }
@@ -424,7 +403,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
             return NO;
         }
         PRListID *listID = rlt[0][0];
-        [self zListDescriptionForList:listID out:&list]; 
+        [self zListForListID:listID out:&list]; 
         return YES;
     }];
     if (success && outValue) {
@@ -477,7 +456,7 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 
 - (BOOL)zSetValue:(id)value forList:(PRListID *)list attr:(PRListAttr *)attr {
     PRList *listDescription = nil;
-    BOOL success = [self zListDescriptionForList:list out:&listDescription];
+    BOOL success = [self zListForListID:list out:&listDescription];
     if (!success) {
         return NO;
     }
@@ -487,32 +466,6 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
 
 - (BOOL)zSetListDescription:(PRList *)value forList:(PRListID *)list {
     return [value writeToConnection:(PRConnection*)(_db?:(id)_conn)];
-}
-
-#pragma mark - ListItem Setters
-
-- (void)addItems:(NSArray *)items atIndex:(int)index toList:(PRListID *)list {
-    [self zAddItems:items atIndex:index toList:list];
-}
-
-- (void)appendItem:(PRListID *)item toList:(PRListID *)list {
-    [self zAppendItem:item toList:list];
-}
-
-- (void)removeItemsAtIndexes:(NSIndexSet *)indexes fromList:(PRListID *)list {
-    [self zRemoveItemsAtIndexes:indexes fromList:list];
-}
-
-- (void)moveItemsAtIndexes:(NSIndexSet *)indexes toIndex:(int)index inList:(PRListID *)list {
-    [self zMoveItemsAtIndexes:indexes toIndex:index inList:list];
-}
-
-- (void)appendItemsFromLibraryViewSourceToList:(PRListID *)list {
-    [self zAppendItemsFromLibraryViewSourceToList:list];
-}
-
-- (void)copyItemsFromList:(PRListID *)list toList:(PRListID *)list2 {
-    [self zCopyItemsFromList:list toList:list2];
 }
 
 #pragma mark - ListItem Setters
@@ -740,12 +693,6 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     return rlt;
 }
 
-- (PRListItemID *)listItemAtIndex:(int)index inList:(PRListID *)list {
-    PRListItemID *rlt;
-    [self zListItemAtIndex:index inList:list out:&rlt];
-    return rlt;
-}
-
 - (PRItemID *)itemAtIndex:(int)index forList:(PRListID *)list {
     PRItemID *rlt;
     [self zItemAtIndex:index forList:list out:&rlt];
@@ -757,30 +704,6 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     [self zItemForListItem:listItem out:&rlt];
     return rlt;
 }
-
-- (int)indexForListItem:(PRListItemID *)listItem {
-    NSInteger rlt = 0;
-    [self zIndexForListItem:listItem out:&rlt];
-    return rlt;
-}
-
-- (PRListID *)listForListItem:(PRListItemID *)listItem {
-    PRListID *rlt;
-    [self zListForListItem:listItem out:&rlt];
-    return rlt;
-}
-
-- (BOOL)list:(PRListID *)list containsItem:(PRItemID *)item {
-    BOOL rlt;
-    [self zList:list containsItem:item out:&rlt];
-    return rlt;
-}
-
-- (NSIndexSet *)indexesOfItem:(PRItemID *)item inList:(PRListID *)list {
-    NSIndexSet *rlt;
-    [self zIndexesOfItem:item inList:list out:&rlt];
-    return rlt;
-} 
 
 #pragma mark - zListItem Getters
 
@@ -888,31 +811,6 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
     }
     if (outValue) {
         *outValue = indexes;
-    }
-    return YES;
-}
-
-#pragma mark - ListItem Getters Misc
-
-- (NSArray *)playlistsViewSource {
-    NSArray *rlt = nil;
-    [self zPlaylistsViewSource:&rlt];
-    return rlt;
-}
-
-#pragma mark - zListItem Getters Misc
-
-- (BOOL)zPlaylistsViewSource:(NSArray **)outValue {
-    NSString *stm = @"SELECT playlist_id, type, title FROM playlists WHERE type IN (2,3) ORDER BY type, title COLLATE NOCASE2, playlist_id ";
-    NSArray *rlt = nil;
-    BOOL success = [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:nil columns:@[PRColInteger, PRColInteger, PRColString] out:&rlt];
-    if (!success) {
-        return NO;
-    }
-    if (outValue) {
-        *outValue = [rlt PRMap:^(NSInteger idx, NSArray *obj){
-            return @{@"playlist":obj[0], @"type":obj[1],@"title":obj[2]};
-        }];
     }
     return YES;
 }

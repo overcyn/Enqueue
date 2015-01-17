@@ -15,9 +15,4 @@
 - (BOOL)zRemoveListItem:(PRListItemID *)listItem;
 - (BOOL)zAppendListItem:(PRListItemID *)listItem;
 - (BOOL)zClear;
-
-- (NSArray *)queueArray;
-- (void)removeListItem:(PRListItemID *)listItem;
-- (void)appendListItem:(PRListItemID *)listItem;
-- (void)clear;
 @end

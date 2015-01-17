@@ -356,7 +356,7 @@
         __block PRList *listDescription = nil;
         __block NSArray *browserDescriptions = nil;
         [_bridge performTaskSync:^(PRCore *core){
-            [[[core conn] playlists] zListDescriptionForList:_currentList out:&listDescription];
+            [[[core conn] playlists] zListForListID:_currentList out:&listDescription];
             [[[core conn] playlists] zBrowserDescriptionsForList:_currentList out:&browserDescriptions];
         }];
         _listDescription = listDescription;

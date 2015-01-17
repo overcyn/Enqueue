@@ -214,7 +214,7 @@ end:;
             if (!track) {continue;}
             NSNumber *file = [_fileTrackIdDictionary objectForKey:track];
             if (!file || ![[_db library] containsItem:file]) {continue;}
-            [[_db playlists] appendItem:file toList:[list listID]];
+            [[_db playlists] zAppendItem:file toList:[list listID]];
         }
         [_db commit];
         [[NSNotificationCenter defaultCenter] postListsDidChange];

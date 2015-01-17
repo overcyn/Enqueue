@@ -155,9 +155,9 @@ PRTask PRSetListDescriptionTask(PRList *ld, PRListID *list) {
     };
 }
 
-PRTask PRDuplicateListTask(PRListID *list) {
+PRTask PRDuplicateListTask(PRListID *listID) {
     return ^(PRCore *core){
-        [[[core win] playlistsViewController] duplicatePlaylist:[list integerValue]]; // KD: WTF
+        [[[core win] playlistsViewController] duplicatePlaylist:listID]; // KD: WTF
     };
 }
 
@@ -193,14 +193,14 @@ PRTask PRDeleteItemsTask(NSArray *items) {
 
 PRTask PRClearQueueTask(void) {
     return ^(PRCore *core){
-        [[[core db] queue] clear];
+        [[[core db] queue] zClear];
     };
 }
 
 PRTask PRRemoveFromQueueTask(NSArray *listItems) {
     return ^(PRCore *core){
         for (PRListItemID *i in listItems) {
-            [[[core db] queue] removeListItem:i];
+            [[[core db] queue] zRemoveListItem:i];
         }
     };
 }
@@ -208,7 +208,7 @@ PRTask PRRemoveFromQueueTask(NSArray *listItems) {
 PRTask PRAddToQueueTask(NSArray *listItems) {
     return ^(PRCore *core){
         for (PRListItemID *i in listItems) {
-            [[[core db] queue] appendListItem:i];
+            [[[core db] queue] zAppendListItem:i];
         }
     };
 }

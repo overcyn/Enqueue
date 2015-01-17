@@ -290,7 +290,7 @@
         PRListItemID *item = [availableSongs objectAtIndex:_random % [availableSongs count]];
         if (update) {
             _random = random();
-            [playbackOrder appendListItem:item];
+            [playbackOrder zAppendListItem:item];
             [self setPosition:[self position] + 1];
         }
         return item;

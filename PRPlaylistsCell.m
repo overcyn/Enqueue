@@ -143,12 +143,12 @@
                                                 keyEquivalent:@""];
     int playlist = [[[self objectValue] objectForKey:@"playlist"] intValue];
     [menu_ addItem:menuItem];
-    if ([[[self objectValue] objectForKey:@"type"] intValue] == PRSmartPlaylistType) {
-        menuItem = [[NSMenuItem alloc] initWithTitle:@"Edit" 
-                                               action:@selector(editPlaylistMenuAction:) 
-                                        keyEquivalent:@""];
-        [menu_ addItem:menuItem];
-    }
+//    if ([[[self objectValue] objectForKey:@"type"] intValue] == PRSmartPlaylistType) {
+//        menuItem = [[NSMenuItem alloc] initWithTitle:@"Edit" 
+//                                               action:@selector(editPlaylistMenuAction:) 
+//                                        keyEquivalent:@""];
+//        [menu_ addItem:menuItem];
+//    }
     if ([[[self objectValue] objectForKey:@"delete"] boolValue]) {
         menuItem = [[NSMenuItem alloc] initWithTitle:@"Rename" 
                                                action:@selector(renamePlaylistMenuAction:) 

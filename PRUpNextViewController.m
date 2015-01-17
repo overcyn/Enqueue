@@ -569,10 +569,10 @@
     
     // PRPlaylists *playlists = [[_core conn] playlists];
     // NSArray *lists = nil;
-    // [playlists zLists:&lists];
+    // [playlists zListIDs:&lists];
     // for (NSNumber *i in lists) {
     //     PRListDescription *listDescription = nil;
-    //     BOOL success = [playlists zListDescriptionForList:i out:&listDescription];
+    //     BOOL success = [playlists zListForListID:i out:&listDescription];
     //     if (!success) {
     //         continue;
     //     }

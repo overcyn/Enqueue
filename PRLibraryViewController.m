@@ -189,7 +189,7 @@
     if (_currentList) {
         __block PRList *listDescription = nil;
         [_bridge performTaskSync:^(PRCore *core){
-            [[[core conn] playlists] zListDescriptionForList:_currentList out:&listDescription];
+            [[[core conn] playlists] zListForListID:_currentList out:&listDescription];
         }];
         _listDescription = listDescription;
         
