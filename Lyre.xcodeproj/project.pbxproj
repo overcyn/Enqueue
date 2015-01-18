@@ -521,6 +521,8 @@
 		67BBE75E1421752E003C438B /* NSURLConnection+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLConnection+Extensions.m"; sourceTree = "<group>"; };
 		67BBE7601421AF5D003C438B /* PRLastfmFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRLastfmFile.h; sourceTree = "<group>"; };
 		67BBE7611421AF5D003C438B /* PRLastfmFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRLastfmFile.m; sourceTree = "<group>"; };
+		67BCDAEE1A6B33D6005B765E /* PRBridge_Front.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRBridge_Front.h; sourceTree = "<group>"; };
+		67BCDAEF1A6B33E5005B765E /* PRBridge_Back.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRBridge_Back.h; sourceTree = "<group>"; };
 		67C0481914B5703D00F8A9FF /* PRNothingPlaying.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = PRNothingPlaying.png; path = Icons/PRNothingPlaying.png; sourceTree = "<group>"; };
 		67C0BA1813C7AE1E0088D2E7 /* NSString+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Extensions.h"; sourceTree = "<group>"; };
 		67C0BA1913C7AE1E0088D2E7 /* NSString+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Extensions.m"; sourceTree = "<group>"; };
@@ -1546,6 +1548,8 @@
 			isa = PBXGroup;
 			children = (
 				67DC1D7419A13D300031BC3C /* PRBridge.h */,
+				67BCDAEE1A6B33D6005B765E /* PRBridge_Front.h */,
+				67BCDAEF1A6B33E5005B765E /* PRBridge_Back.h */,
 				67DC1D7519A13D300031BC3C /* PRBridge.m */,
 				67DC1D7219A13BBA0031BC3C /* PRAction.h */,
 				67DC1D7819A141650031BC3C /* PRAction.m */,

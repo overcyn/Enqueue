@@ -6,7 +6,7 @@
 #import "NSNotificationCenter+Extensions.h"
 #import "NSTableView+Extensions.h"
 #import "PRAction.h"
-#import "PRBridge.h"
+#import "PRBridge_Front.h"
 #import "PRConnection.h"
 #import "PRCore.h"
 #import "PRDb.h"

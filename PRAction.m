@@ -161,6 +161,15 @@ PRTask PRDuplicateListTask(PRListID *listID) {
     };
 }
 
+PRTask PRDeleteListTask(PRListID *listID) {
+    return ^(PRCore *core){
+        // KD: 
+        [[[core win] libraryViewController] setCurrentList:[[[core db] playlists] libraryList]];
+        [[[core db] playlists] zRemoveList:listID];
+        [[NSNotificationCenter defaultCenter] postListsDidChange];
+    };
+}
+
 #pragma mark - Misc
 
 PRTask PRHighightItemsTask(NSArray *items) {

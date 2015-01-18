@@ -24,6 +24,7 @@ PRTask PRRemoveItemsFromListTask(NSIndexSet *indexes, PRListID *list);
 PRTask PRMoveIndexesInListTask(NSIndexSet *indexes, NSInteger index, PRListID *list);
 PRTask PRSetListDescriptionTask(PRList *ld, PRListID *list);
 PRTask PRDuplicateListTask(PRListID *listID);
+PRTask PRDeleteListTask(PRListID *listID);
 
 // Misc
 PRTask PRHighightItemsTask(NSArray *items);

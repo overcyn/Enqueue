@@ -1,16 +1,9 @@
 #import <Cocoa/Cocoa.h>
 #import "PRPlaylists.h"
-@class PRDb;
-@class PRCore;
-@class PRPlaylists;
-@class PRMainWindowController;
-@class PRGradientView;
-@class PRRolloverTableView;
-@class PRStringFormatter;
+@class PRBridge;
 
 @interface PRPlaylistsViewController : NSViewController
-- (id)initWithCore:(PRCore *)core;
-
+- (id)initWithBridge:(PRBridge *)bridge;
 - (void)duplicatePlaylist:(PRListID *)playlist;
 - (void)newSmartPlaylist;
 - (void)newStaticPlaylist;

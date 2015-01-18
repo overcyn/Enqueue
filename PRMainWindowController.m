@@ -1,6 +1,6 @@
 #import "PRMainWindowController.h"
 #import "NSWindow+Extensions.h"
-#import "PRBridge.h"
+#import "PRBridge_Front.h"
 #import "PRBrowserViewController.h"
 #import "PRControlsViewController.h"
 #import "PRCore.h"
@@ -57,7 +57,7 @@
         _mainMenuController = [[PRMainMenuController alloc] initWithCore:_core]; 
         _libraryVC = [[PRLibraryViewController alloc] initWithBridge:_bridge];
         _preferencesVC = [[PRPreferencesViewController alloc] initWithCore:_core];
-        _playlistsVC = [[PRPlaylistsViewController alloc] initWithCore:_core];
+        _playlistsVC = [[PRPlaylistsViewController alloc] initWithBridge:_bridge];
         _historyVC = [[PRHistoryViewController alloc] initWithDb:[_core db] mainWindowController:self];
         _nowPlayingVC = [[PRUpNextViewController alloc] initWithCore:_core];    
         _controlsVC = [[PRControlsViewController alloc] initWithBridge:_bridge];

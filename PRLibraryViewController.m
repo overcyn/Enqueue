@@ -11,7 +11,7 @@
 #import "PRBrowserViewController.h"
 #import "PRTimeFormatter2.h"
 #import "PRList.h"
-#import "PRBridge.h"
+#import "PRBridge_Front.h"
 #import "PRConnection.h"
 
 #define SEARCH_DELAY 0.25

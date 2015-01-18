@@ -18,7 +18,7 @@
 #import "PRVacuumOperation.h"
 #import "PRWelcomeSheetController.h"
 #import "PRConnection.h"
-#import "PRBridge.h"
+#import "PRBridge_Back.h"
 #import "PRLog.h"
 
 @implementation PRCore {

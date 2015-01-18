@@ -1,4 +1,6 @@
 #import "PRBridge.h"
+#import "PRBridge_Front.h"
+#import "PRBridge_Back.h"
 #import "PRAction.h"
 
 @implementation PRBridge {

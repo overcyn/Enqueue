@@ -5,11 +5,11 @@
 
 
 @interface PRAlbumListViewController : PRBrowserViewController
-/* Action */
-- (void)selectAlbum;
-- (void)playAlbum;
-
-/* Misc */
-- (BOOL)shouldDrawGridForRow:(int)row tableView:(NSTableView *)tableView;
-- (void)cacheArtworkForItem:(PRItemID *)item artworkInfo:(NSDictionary *)artworkInfo dirtyRect:(NSRect)dirtyRect;
+///* Action */
+//- (void)selectAlbum;
+//- (void)playAlbum;
+//
+///* Misc */
+//- (BOOL)shouldDrawGridForRow:(int)row tableView:(NSTableView *)tableView;
+//- (void)cacheArtworkForItem:(PRItemID *)item artworkInfo:(NSDictionary *)artworkInfo dirtyRect:(NSRect)dirtyRect;
 @end

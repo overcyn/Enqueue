@@ -1,4 +1,6 @@
 #import "PRPlaylistsViewController.h"
+#import "PRBridge_Front.h"
+#import "PRBridge_Back.h"
 #import "PRList.h"
 #import "PRException.h"
 #import "NSNotificationCenter+Extensions.h"
@@ -30,21 +32,20 @@
     IBOutlet NSImageView *_placeholder;
     
     PRStringFormatter *_stringFormatter;
-    NSArray *_datasource;
     NSArray *_lists;
-    
-    PRCore *_core;
+
+    PRBridge *_bridge;
     PRDb *_db;
     PRMainWindowController *_win;
 }
 
 #pragma mark - Initialization
 
-- (id)initWithCore:(PRCore *)core {
+- (id)initWithBridge:(PRBridge *)bridge {
     if ((self = [super initWithNibName:@"PRPlaylistsView" bundle:nil])) {
-        _core = core;
-        _win = [core win];
-        _db = [core db];
+        _bridge = bridge;
+        _win = [[bridge core] win];
+        _db = [[bridge core] db];
         _stringFormatter = [[PRStringFormatter alloc] init];
         [_stringFormatter setMaxLength:80];
     }
@@ -92,8 +93,10 @@
 
 - (void)tableViewAction {
     int idx = [tableView clickedRow];
-    if (idx >= [_datasource count]) {return;}
-    PRListID *list = [_datasource[idx] listID];
+    if (idx >= [_lists count]) {
+        return;
+    }
+    PRListID *list = [_lists[idx] listID];
     [[_win libraryViewController] setCurrentList:list];
     [_win setCurrentMode:PRWindowModeLibrary];
 }
@@ -114,7 +117,7 @@
     NSRect frame = [[[alert accessoryView] superview] frame];
     frame.size.height = 24;
     [[[alert accessoryView] superview] setFrame:frame];
-    [alert beginSheetModalForWindow:[_win window] modalDelegate:self didEndSelector:@selector(newPlaylistHandler:code:context:) contextInfo:NULL];
+    [alert beginSheetModalForWindow:[[self view] window] modalDelegate:self didEndSelector:@selector(newPlaylistHandler:code:context:) contextInfo:NULL];
 }
 
 - (void)newPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context {
@@ -143,7 +146,7 @@
     NSRect frame = [[[alert accessoryView] superview] frame];
     frame.size.height = 24;
     [[[alert accessoryView] superview] setFrame:frame];
-    [alert beginSheetModalForWindow:[_win window] modalDelegate:self didEndSelector:@selector(newSmartPlaylistHandler:code:context:) contextInfo:NULL];
+    [alert beginSheetModalForWindow:[[self view] window] modalDelegate:self didEndSelector:@selector(newSmartPlaylistHandler:code:context:) contextInfo:NULL];
 }
 
 - (void)newSmartPlaylistHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context {
@@ -196,24 +199,21 @@
 }
 
 - (void)deletePlaylist:(PRListID *)listID {
-    NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:@"Delete"];
-    [alert addButtonWithTitle:@"Cancel"];
-    // [alert setMessageText:[NSString stringWithFormat:@"Delete playlist '%@'?", [[_db playlists] valueForList:@(playlist) attr:PRListAttrTitle]]];
-    [alert setInformativeText:@"This action cannot be undone."];
-    [alert setAlertStyle:NSWarningAlertStyle];
-    [alert layout];
-    [alert beginSheetModalForWindow:[_win window] modalDelegate:self didEndSelector:@selector(deleteHandler:code:context:) contextInfo:(__bridge_retained void *)listID];
+    // NSAlert *alert = [[NSAlert alloc] init];
+    // [alert addButtonWithTitle:@"Delete"];
+    // [alert addButtonWithTitle:@"Cancel"];
+    // // [alert setMessageText:[NSString stringWithFormat:@"Delete playlist '%@'?", [[_db playlists] valueForList:@(playlist) attr:PRListAttrTitle]]];
+    // [alert setInformativeText:@"This action cannot be undone."];
+    // [alert setAlertStyle:NSWarningAlertStyle];
+    // [alert layout];
+    // [alert beginSheetModalForWindow:[_win window] modalDelegate:self didEndSelector:@selector(deleteHandler:code:context:) contextInfo:(__bridge_retained void *)listID];
 }
 
 - (void)deleteHandler:(NSAlert *)alert code:(NSInteger)code context:(void *)context  {
     NSNumber *l = (__bridge_transfer NSNumber *)context;
-    if (code != NSAlertFirstButtonReturn) {
-        return;
+    if (code == NSAlertFirstButtonReturn) {
+        [_bridge performTask:PRDeleteListTask(l)];
     }
-    [[[_core win] libraryViewController] setCurrentList:[[[_core db] playlists] libraryList]];
-    [[_db playlists] zRemoveList:l];
-    [[NSNotificationCenter defaultCenter] postListsDidChange];
 }
 
 - (void)renamePlaylist:(PRListID *)listID {
@@ -290,7 +290,7 @@
 
     NSInteger count = 0;
     [[_db playlists] zCountForList:[list listID] out:&count];
-    NSString *subtitle = [NSString stringWithFormat:@"%d songs", count];
+    NSString *subtitle = [NSString stringWithFormat:@"%ld songs", (long)count];
     
     NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:
                                 [list title], @"title",
