@@ -33,7 +33,7 @@
     PRHistoryViewController *_historyVC;
     PRPlaylistsViewController *_playlistsVC;
     PRPreferencesViewController *_preferencesVC; 
-    PRUpNextViewController *_nowPlayingVC;
+    PRUpNextViewController *_upNextVC;
     PRControlsViewController *_controlsVC;
     
     PRWindowMode _currentMode;
@@ -59,7 +59,7 @@
         _preferencesVC = [[PRPreferencesViewController alloc] initWithCore:_core];
         _playlistsVC = [[PRPlaylistsViewController alloc] initWithBridge:_bridge];
         _historyVC = [[PRHistoryViewController alloc] initWithDb:[_core db] mainWindowController:self];
-        _nowPlayingVC = [[PRUpNextViewController alloc] initWithCore:_core];    
+        _upNextVC = [[PRUpNextViewController alloc] initWithCore:_core];    
         _controlsVC = [[PRControlsViewController alloc] initWithBridge:_bridge];
         // [nowPlayingSuperview addSubview:[_controlsVC albumArtView]];
         
@@ -80,8 +80,8 @@
         [self setWindow:window];
         
         [window setInitialFirstResponder:[_libraryVC firstKeyView]];
-        [[_libraryVC lastKeyView] setNextKeyView:[_nowPlayingVC firstKeyView]];
-        [[_nowPlayingVC lastKeyView] setNextKeyView:[_libraryVC firstKeyView]];
+        [[_libraryVC lastKeyView] setNextKeyView:[_upNextVC firstKeyView]];
+        [[_upNextVC lastKeyView] setNextKeyView:[_libraryVC firstKeyView]];
         
         // if (floor(NSAppKitVersionNumber) > NSAppKitVersionNumber10_6) {
         //     [NSNotificationCenter addObserver:self selector:@selector(windowWillEnterFullScreen:) name:NSWindowWillEnterFullScreenNotification object:[self window]];
@@ -112,7 +112,7 @@
     }
     
     PRMainWindowView *view = [[self window] contentView];
-    [view setSidebarView:[_nowPlayingVC view]];
+    [view setSidebarView:[_upNextVC view]];
     [view setCenterView:[vc view]];
     [view setBottomView:[_controlsVC view]];
     
@@ -127,7 +127,7 @@
 @synthesize historyViewController = _historyVC;
 @synthesize playlistsViewController = _playlistsVC;
 @synthesize preferencesViewController = _preferencesVC;
-@synthesize upNextViewController = _nowPlayingVC;
+@synthesize upNextViewController = _upNextVC;
 @synthesize controlsViewController = _controlsVC;
 
 - (PRWindowMode)currentMode {
@@ -352,24 +352,24 @@
     //             frame.size.height = [nowPlayingSuperview frame].size.height - 500;
     //         }
     //         frame.origin.y = [nowPlayingSuperview frame].size.height - frame.size.height;
-    //         [[_nowPlayingVC view] setFrame:frame];
+    //         [[_upNextVC view] setFrame:frame];
             
     //         // size of albumArt
     //         frame.origin.x = -1;
     //         frame.origin.y = -2;
     //         frame.size.width = [nowPlayingSuperview frame].size.width + 2;
-    //         frame.size.height = [nowPlayingSuperview frame].size.height - [[_nowPlayingVC view] frame].size.height + 2;
+    //         frame.size.height = [nowPlayingSuperview frame].size.height - [[_upNextVC view] frame].size.height + 2;
     //         [[_controlsVC albumArtView] setFrame:frame];
     //     } else {
     //         frame = [nowPlayingSuperview bounds];
-    //         [[_nowPlayingVC view] setFrame:frame];
+    //         [[_upNextVC view] setFrame:frame];
     //     }
     // } else {
     //     [[_controlsVC albumArtView] setHidden:YES];
         
     //     // size of nowPlayingView
     //     frame = [nowPlayingSuperview bounds];
-    //     [[_nowPlayingVC view] setFrame:frame];
+    //     [[_upNextVC view] setFrame:frame];
     // }
 }
 

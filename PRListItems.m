@@ -39,12 +39,14 @@
 @implementation PRNowPlayingListItems {
     NSArray *_albumCounts;
     NSMutableIndexSet *_albumIndexes;
+    PRConnection *_conn;
 }
 
 @synthesize albumCounts = _albumCounts;
 
 - (id)initWithListID:(PRListID *)list connection:(PRConnection *)conn {
     if ((self = [super initWithListID:list connection:conn])) {
+        _conn = conn;
         NSString *string = [NSString stringWithFormat:@"SELECT library.album, library.%@, library.compilation "
                             "FROM playlist_items JOIN library ON playlist_items.file_id = library.file_id "
                             "WHERE playlist_id = ?1 ORDER BY playlist_index",
@@ -103,7 +105,7 @@
 - (NSIndexPath *)indexPathForIndex:(NSInteger)index {
     NSInteger i = [_albumIndexes firstIndex];
     NSInteger prevI = 0;
-    int album = 0;
+    NSInteger album = 0;
     while (i != NSNotFound) {
         if (i > index) {
             break;

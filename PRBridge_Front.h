@@ -1,5 +1,5 @@
 #import "PRBridge.h"
-#import "PRAction.h"
+#import "PRTask.h"
 
 @interface PRBridge ()
 - (void)performTask:(PRTask)action;

@@ -3,7 +3,7 @@
 #import "PRTableView.h"
 #import "NSColor+Extensions.h"
 #import "PRCenteredTextFieldCell.h"
-#import "PRAction.h"
+#import "PRTask.h"
 #import "PRBridge_Front.h"
 
 @interface PRBrowserListViewController () <NSTableViewDelegate, NSTableViewDataSource, PRTableViewDelegate, NSMenuDelegate>

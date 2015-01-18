@@ -4,7 +4,7 @@
 #import "NSMenuItem+Extensions.h"
 #import "NSString+Extensions.h"
 #import "NSTableView+Extensions.h"
-#import "PRAction.h"
+#import "PRTask.h"
 #import "PRBridge_Front.h"
 #import "PRBrowseView.h"
 #import "PRBrowserListViewController.h"

@@ -198,7 +198,7 @@
 		67DC1D6D19975C490031BC3C /* PRPlayerState.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D6C19975C490031BC3C /* PRPlayerState.m */; };
 		67DC1D7019975F270031BC3C /* PRListItems.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D6F19975F270031BC3C /* PRListItems.m */; };
 		67DC1D7619A13D300031BC3C /* PRBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D7519A13D300031BC3C /* PRBridge.m */; };
-		67DC1D7919A141650031BC3C /* PRAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D7819A141650031BC3C /* PRAction.m */; };
+		67DC1D7919A141650031BC3C /* PRTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DC1D7819A141650031BC3C /* PRTask.m */; };
 		67DDC70F14FA169B00E361B0 /* NSMenuItem+Extensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */; };
 		67DE033A147B07A600BBB0F6 /* PRFileInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE0339147B07A600BBB0F6 /* PRFileInfo.m */; };
 		67DE13351516E37D00E94F28 /* PRAlertWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 67DE13341516E37D00E94F28 /* PRAlertWindowController.m */; };
@@ -571,10 +571,10 @@
 		67DC1D6C19975C490031BC3C /* PRPlayerState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRPlayerState.m; sourceTree = "<group>"; };
 		67DC1D6E19975F270031BC3C /* PRListItems.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRListItems.h; sourceTree = "<group>"; };
 		67DC1D6F19975F270031BC3C /* PRListItems.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRListItems.m; sourceTree = "<group>"; };
-		67DC1D7219A13BBA0031BC3C /* PRAction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRAction.h; sourceTree = "<group>"; };
+		67DC1D7219A13BBA0031BC3C /* PRTask.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRTask.h; sourceTree = "<group>"; };
 		67DC1D7419A13D300031BC3C /* PRBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBridge.h; sourceTree = "<group>"; };
 		67DC1D7519A13D300031BC3C /* PRBridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRBridge.m; sourceTree = "<group>"; };
-		67DC1D7819A141650031BC3C /* PRAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRAction.m; sourceTree = "<group>"; };
+		67DC1D7819A141650031BC3C /* PRTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRTask.m; sourceTree = "<group>"; };
 		67DDC70D14FA169B00E361B0 /* NSMenuItem+Extensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMenuItem+Extensions.h"; sourceTree = "<group>"; };
 		67DDC70E14FA169B00E361B0 /* NSMenuItem+Extensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMenuItem+Extensions.m"; sourceTree = "<group>"; };
 		67DE0338147B07A600BBB0F6 /* PRFileInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRFileInfo.h; sourceTree = "<group>"; };
@@ -1551,8 +1551,8 @@
 				67BCDAEE1A6B33D6005B765E /* PRBridge_Front.h */,
 				67BCDAEF1A6B33E5005B765E /* PRBridge_Back.h */,
 				67DC1D7519A13D300031BC3C /* PRBridge.m */,
-				67DC1D7219A13BBA0031BC3C /* PRAction.h */,
-				67DC1D7819A141650031BC3C /* PRAction.m */,
+				67DC1D7219A13BBA0031BC3C /* PRTask.h */,
+				67DC1D7819A141650031BC3C /* PRTask.m */,
 			);
 			name = Bridge;
 			sourceTree = "<group>";
@@ -1843,7 +1843,7 @@
 				676978BC13FDB45B004E0A08 /* PRVacuumOperation.m in Sources */,
 				671D31E21401699200B9FAA4 /* PRException.m in Sources */,
 				671D31E61401A9D800B9FAA4 /* PRStatement.m in Sources */,
-				67DC1D7919A141650031BC3C /* PRAction.m in Sources */,
+				67DC1D7919A141650031BC3C /* PRTask.m in Sources */,
 				67C83B681A4B592C00D55592 /* PRBrowserListViewController.m in Sources */,
 				678FC8D01414D49300A546B8 /* PRDropImageView.m in Sources */,
 				678FC8D3141559F100A546B8 /* PRDropImageCell.m in Sources */,

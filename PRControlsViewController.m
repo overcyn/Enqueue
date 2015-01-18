@@ -1,7 +1,7 @@
 #import "PRControlsViewController.h"
 #import "NSNotificationCenter+Extensions.h"
 #import "PRPlaylists.h"
-#import "PRAction.h"
+#import "PRTask.h"
 #import "PRBridge_Front.h"
 #import "PRConnection.h"
 #import "PRControlsView.h"

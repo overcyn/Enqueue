@@ -3,7 +3,7 @@
 #import "PRPlaylists.h"
 #import "PRBridge_Front.h"
 #import "NSTableView+Extensions.h"
-#import "PRAction.h"
+#import "PRTask.h"
 #import "PRBitRateFormatter.h"
 #import "PRCenteredTextFieldCell.h"
 #import "PRDateFormatter.h"

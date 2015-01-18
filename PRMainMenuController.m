@@ -1,6 +1,6 @@
 #import "PRMainMenuController.h"
 #import "NSWindow+Extensions.h"
-#import "PRAction.h"
+#import "PRTask.h"
 #import "PRBridge_Front.h"
 #import "PRControlsViewController.h"
 #import "PRCore.h"

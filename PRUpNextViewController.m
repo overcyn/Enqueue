@@ -5,7 +5,7 @@
 #import "NSMenuItem+Extensions.h"
 #import "NSNotificationCenter+Extensions.h"
 #import "NSTableView+Extensions.h"
-#import "PRAction.h"
+#import "PRTask.h"
 #import "PRBridge_Front.h"
 #import "PRConnection.h"
 #import "PRCore.h"
@@ -18,13 +18,13 @@
 #import "PRListItems.h"
 #import "PRMainWindowController.h"
 #import "PRMovie.h"
-#import "PRUpNextCell.h"
-#import "PRUpNextHeaderCell.h"
 #import "PROutlineView.h"
 #import "PRPlayer.h"
 #import "PRPlayerState.h"
 #import "PRPlaylists.h"
 #import "PRQueue.h"
+#import "PRUpNextCell.h"
+#import "PRUpNextHeaderCell.h"
 
 @interface PRUpNextViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource, NSMenuDelegate, PROutlineViewDelegate>
 @end
