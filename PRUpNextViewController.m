@@ -234,37 +234,27 @@
     }];
     
     if ([item length] == 1) {
-        NSString *album = [it album];
-        NSString *artist = [it artist];
-        if (!artist || [artist isEqualToString:@""]) {
-            artist = @"Unknown Artist";
-        }
-        if (!album || [album isEqualToString:@""]) {
-            album = @"Unknown Album";
-        }
-        if ([it compilation] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]) {
-            artist = @"Compilation";
-        }
-       NSNumber *drawBorder = @([item indexAtPosition:0] + 1 == [[_playerList albumCounts] count] || [_outlineView isItemExpanded:item]);
-        return @{@"title":artist, @"subtitle":album, @"item":item, @"drawBorder":drawBorder, @"target":self};
+        PRUpNextHeaderCellModel *model = [[PRUpNextHeaderCellModel alloc] init];
+        [model setArtist:[it artist]];
+        [model setAlbum:[it album]];
+        [model setCompilation:[it compilation] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]];
+        return model;
     } else {
-        NSString *title = [it title];
-        NSImage *icon;
-        NSImage *invertedIcon;
+        PRUpNextCellIconType iconType = PRUpNextCellIconTypeNone;
         if ([_player currentIndex] == index) {
-            icon = [NSImage imageNamed:@"PRSpeakerIcon"];
-            invertedIcon = [NSImage imageNamed:@"PRLightSpeakerIcon"];
+            iconType = PRUpNextCellIconTypePlaying;
         } else if ([[_player invalidItems] containsObject:itemID]) {
-            icon = [NSImage imageNamed:@"Exclamation Point"];
-            invertedIcon = [NSImage imageNamed:@"Exclamation Point"];
-        } else {
-            icon = [[NSImage alloc] init];
-            invertedIcon = [[NSImage alloc] init];
+            iconType = PRUpNextCellIconTypeMissing;
         }
         PRListItemID *listItem = [_playerList listItemIDAtIndex:index];
         NSUInteger queueIndex = [_queue indexOfObject:listItem];
         NSNumber *badge = (_queue && queueIndex != NSNotFound) ? @(queueIndex + 1) : @0;
-        return @{@"title":title, @"icon":icon, @"invertedIcon":invertedIcon, @"badge":badge, @"item":item, @"target":self};
+        
+        PRUpNextCellModel *model = [[PRUpNextCellModel alloc] init];
+        [model setTitle:[it title]];
+        [model setIconType:iconType];
+        [model setBadge:badge];
+        return model;
     }
 }
 

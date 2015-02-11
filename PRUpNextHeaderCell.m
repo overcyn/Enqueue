@@ -9,8 +9,18 @@
     BOOL highlighted = [self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder]
         && [[[self controlView] window] isMainWindow];
     
-    NSString *title = [[self objectValue] objectForKey:@"title"];
-    NSString *subtitle = [[self objectValue] objectForKey:@"subtitle"];
+    PRUpNextHeaderCellModel *model = [self objectValue];
+    NSString *title = [model artist];
+    NSString *subtitle = [model album];
+    if ([title length] == 0) {
+        title = @"Unknown Artist";
+    }
+    if ([model compilation]) {
+        title = @"Compilation";
+    }
+    if ([subtitle length] == 0) {
+        subtitle = @"Unknown Album";
+    }
     
     // Background
     NSGradient *gradient = [[NSGradient alloc] initWithColorsAndLocations:
@@ -39,5 +49,18 @@
     [title drawInRect:titleBox withAttributes:titleAttrs];
     [subtitle drawInRect:subtitleBox withAttributes:subtitleAttrs];
 }
+
+@end
+
+@implementation PRUpNextHeaderCellModel
+
+- (id)copyWithZone:(NSZone *)zone {
+    PRUpNextHeaderCellModel *copy = [[[self class] alloc] init];
+    [copy setArtist:[self artist]];
+    [copy setAlbum:[self album]];
+    [copy setCompilation:[self compilation]];
+    return copy;
+}
+
 
 @end

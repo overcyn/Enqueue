@@ -8,11 +8,21 @@
     BOOL highlighted = [self isHighlighted] && [self controlView] == [[[self controlView] window] firstResponder]
         && [[[self controlView] window] isMainWindow];
     
-    NSDictionary *dict = [self objectValue];
-    NSString *title = [dict objectForKey:@"title"];
-    NSNumber *badge = [dict objectForKey:@"badge"];
-    NSImage *icon = [dict objectForKey:@"icon"];
-    NSImage *invertedIcon = [dict objectForKey:@"invertedIcon"];
+    PRUpNextCellModel *model = [self objectValue];
+    NSString *title = [model title];
+    NSNumber *badge = [model badge];
+    NSImage *icon = nil;
+    NSImage *invertedIcon = nil;
+    if ([model iconType] ==  PRUpNextCellIconTypeNone) {
+        icon = [[NSImage alloc] init];
+        invertedIcon = [[NSImage alloc] init];
+    } else if ([model iconType] == PRUpNextCellIconTypePlaying) {
+        icon = [NSImage imageNamed:@"PRSpeakerIcon"];
+        invertedIcon = [NSImage imageNamed:@"PRSpeakerIcon"];
+    } else if ([model iconType] == PRUpNextCellIconTypeMissing) {
+        icon = [NSImage imageNamed:@"Exclamation Point"];
+        invertedIcon = [NSImage imageNamed:@"Exclamation Point"];
+    }
     
     // Layout
     float horizontalPadding = 3;
@@ -57,6 +67,18 @@
                                  cellFrame.size.width - iconRect.size.width - horizontalPadding - 5,
                                  height);
     [title drawInRect:textRect withAttributes:attributes];
+}
+
+@end
+
+@implementation PRUpNextCellModel
+
+- (id)copyWithZone:(NSZone *)zone {
+    PRUpNextCellModel *copy = [[[self class] alloc] init];
+    [copy setTitle:[self title]];
+    [copy setBadge:[self badge]];
+    [copy setIconType:[self iconType]];
+    return copy;
 }
 
 @end
