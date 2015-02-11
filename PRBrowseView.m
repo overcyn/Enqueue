@@ -20,22 +20,23 @@
 }
 
 - (id)initWithFrame:(CGRect)frame {
-    if (!(self = [super initWithFrame:frame])) {return nil;}
-    _style = PRBrowseViewStyleNone;
-    
-    _detailSuperview = [[NSView alloc] init];
-    [_detailSuperview setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
-    
-    _splitView = [[PRPaneSplitView alloc] init];
-    [_splitView setDividerStyle:NSSplitViewDividerStyleThin];
-    [_splitView setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
-    [_splitView setDelegate:self];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(paneSplitViewPositionDidChange:) name:PRPaneSplitViewPositionDidChangeNotification object:_splitView];
-    
-    _subSplitView = [[NSSplitView alloc] init];
-    [_subSplitView setDividerStyle:NSSplitViewDividerStyleThin];
-    [_subSplitView setVertical:YES];
-    [_subSplitView setDelegate:self];
+    if ((self = [super initWithFrame:frame])) {
+        _style = -1;
+        
+        _detailSuperview = [[NSView alloc] init];
+        [_detailSuperview setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
+        
+        _splitView = [[PRPaneSplitView alloc] init];
+        [_splitView setDividerStyle:NSSplitViewDividerStyleThin];
+        [_splitView setAutoresizingMask:kCALayerWidthSizable|kCALayerHeightSizable];
+        [_splitView setDelegate:self];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(paneSplitViewPositionDidChange:) name:PRPaneSplitViewPositionDidChangeNotification object:_splitView];
+        
+        _subSplitView = [[NSSplitView alloc] init];
+        [_subSplitView setDividerStyle:NSSplitViewDividerStyleThin];
+        [_subSplitView setVertical:YES];
+        [_subSplitView setDelegate:self];
+    }
     return self;
 }
 

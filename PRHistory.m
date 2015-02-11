@@ -163,38 +163,6 @@ NSString * const PR_TBL_HISTORY_SQL = @"CREATE TABLE history ("
     }
     return YES;
 }
- 
-- (void)addItem:(PRItemID *)item withDate:(NSDate *)date {
-    [self zAddItem:item withDate:date];
-}
-
-- (void)clear {
-    [self zClear];
-}
-
-- (NSArray *)topSongs {
-    NSArray *rlt = nil;
-    [self zTopSongs:&rlt];
-    return rlt;
-}
-
-- (NSArray *)topArtists {
-    NSArray *rlt = nil;
-    [self zTopArtists:&rlt];
-    return rlt;
-}
-
-- (NSArray *)recentlyAdded {
-    NSArray *rlt = nil;
-    [self zRecentlyAdded:&rlt];
-    return rlt;
-}
-
-- (NSArray *)recentlyPlayed {
-    NSArray *rlt = nil;
-    [self zRecentlyPlayed:&rlt];
-    return rlt;
-}
 
 #pragma mark - Update
 

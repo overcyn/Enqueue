@@ -54,7 +54,6 @@
 		6727E4701368F91D00A21055 /* ShortcutRecorder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6727E46F1368F91D00A21055 /* ShortcutRecorder.framework */; };
 		6727E4711368F92E00A21055 /* ShortcutRecorder.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 6727E46F1368F91D00A21055 /* ShortcutRecorder.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		672AE6B9127E5DC70034C641 /* PRHistory.m in Sources */ = {isa = PBXBuildFile; fileRef = 672AE6B8127E5DC70034C641 /* PRHistory.m */; };
-		672AE9B7127FD5E40034C641 /* PRHistoryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 672AE9B6127FD5E40034C641 /* PRHistoryCell.m */; };
 		672AED8F128235260034C641 /* PRAlbumListViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 672AED8E128235260034C641 /* PRAlbumListViewController.m */; };
 		672AED99128239CD0034C641 /* PRBrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 672AED98128239CD0034C641 /* PRBrowserViewController.m */; };
 		673540FC145CB76D004044F1 /* AUParamInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 673540F8145CB76D004044F1 /* AUParamInfo.cpp */; };
@@ -111,7 +110,6 @@
 		676A4E36134A94DF00AA9DAB /* InfoAlt.png in Resources */ = {isa = PBXBuildFile; fileRef = 676A4E35134A94DF00AA9DAB /* InfoAlt.png */; };
 		6771E787127974F9007A34F2 /* PRPlaylistsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6771E786127974F9007A34F2 /* PRPlaylistsViewController.m */; };
 		6771E78912797511007A34F2 /* PRPlaylistsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6771E78812797511007A34F2 /* PRPlaylistsView.xib */; };
-		6771E90C127A47D8007A34F2 /* PRHistoryView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6771E90B127A47D8007A34F2 /* PRHistoryView.xib */; };
 		6771E90F127A47E3007A34F2 /* PRHistoryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6771E90E127A47E3007A34F2 /* PRHistoryViewController.m */; };
 		67723FDE1396BEB7006A6AAC /* PRStringFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 67723FDD1396BEB7006A6AAC /* PRStringFormatter.m */; };
 		677AE06D14C79D4700159E6F /* PRTrialSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = 677AE06C14C79D4700159E6F /* PRTrialSheetController.m */; };
@@ -354,8 +352,6 @@
 		6727E46F1368F91D00A21055 /* ShortcutRecorder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ShortcutRecorder.framework; path = Frameworks/ShortcutRecorder.framework; sourceTree = "<group>"; };
 		672AE6B7127E5DC70034C641 /* PRHistory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = PRHistory.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		672AE6B8127E5DC70034C641 /* PRHistory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PRHistory.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		672AE9B5127FD5E40034C641 /* PRHistoryCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRHistoryCell.h; sourceTree = "<group>"; };
-		672AE9B6127FD5E40034C641 /* PRHistoryCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRHistoryCell.m; sourceTree = "<group>"; };
 		672AED8D128235260034C641 /* PRAlbumListViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRAlbumListViewController.h; sourceTree = "<group>"; };
 		672AED8E128235260034C641 /* PRAlbumListViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRAlbumListViewController.m; sourceTree = "<group>"; };
 		672AED97128239CD0034C641 /* PRBrowserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBrowserViewController.h; sourceTree = "<group>"; };
@@ -434,7 +430,6 @@
 		6771E785127974F9007A34F2 /* PRPlaylistsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRPlaylistsViewController.h; sourceTree = "<group>"; };
 		6771E786127974F9007A34F2 /* PRPlaylistsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRPlaylistsViewController.m; sourceTree = "<group>"; };
 		6771E78812797511007A34F2 /* PRPlaylistsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PRPlaylistsView.xib; sourceTree = "<group>"; };
-		6771E90B127A47D8007A34F2 /* PRHistoryView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PRHistoryView.xib; sourceTree = "<group>"; };
 		6771E90D127A47E3007A34F2 /* PRHistoryViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRHistoryViewController.h; sourceTree = "<group>"; };
 		6771E90E127A47E3007A34F2 /* PRHistoryViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRHistoryViewController.m; sourceTree = "<group>"; };
 		67723FDC1396BEB7006A6AAC /* PRStringFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRStringFormatter.h; sourceTree = "<group>"; };
@@ -1135,11 +1130,8 @@
 		6771E90A127A47C9007A34F2 /* History */ = {
 			isa = PBXGroup;
 			children = (
-				6771E90B127A47D8007A34F2 /* PRHistoryView.xib */,
 				6771E90D127A47E3007A34F2 /* PRHistoryViewController.h */,
 				6771E90E127A47E3007A34F2 /* PRHistoryViewController.m */,
-				672AE9B5127FD5E40034C641 /* PRHistoryCell.h */,
-				672AE9B6127FD5E40034C641 /* PRHistoryCell.m */,
 			);
 			name = History;
 			sourceTree = "<group>";
@@ -1669,7 +1661,6 @@
 				672157F5126663060050A982 /* PRInfoView.xib in Resources */,
 				67026EA512697833002E929F /* PRPreferencesView.xib in Resources */,
 				6771E78912797511007A34F2 /* PRPlaylistsView.xib in Resources */,
-				6771E90C127A47D8007A34F2 /* PRHistoryView.xib in Resources */,
 				675AC49E12D13B23006B8B95 /* PRAlbumArt.png in Resources */,
 				675AC4A412D13B23006B8B95 /* PRDownIcon.png in Resources */,
 				675AC4A512D13B23006B8B95 /* PREmptyAlbumArt.png in Resources */,
@@ -1786,7 +1777,6 @@
 				6771E787127974F9007A34F2 /* PRPlaylistsViewController.m in Sources */,
 				6771E90F127A47E3007A34F2 /* PRHistoryViewController.m in Sources */,
 				672AE6B9127E5DC70034C641 /* PRHistory.m in Sources */,
-				672AE9B7127FD5E40034C641 /* PRHistoryCell.m in Sources */,
 				672AED8F128235260034C641 /* PRAlbumListViewController.m in Sources */,
 				672AED99128239CD0034C641 /* PRBrowserViewController.m in Sources */,
 				6796AF63128933D900FEDE14 /* PRSynchronizedScrollView.m in Sources */,

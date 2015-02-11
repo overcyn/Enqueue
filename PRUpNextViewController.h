@@ -1,7 +1,7 @@
 #import "PRViewController.h"
-@class PRCore;
+@class PRBridge;
 
 @interface PRUpNextViewController : PRViewController
-- (id)initWithCore:(PRCore *)core;
+- (id)initWithBridge:(PRBridge *)bridge;
 - (void)higlightPlayingFile;
 @end

@@ -5,13 +5,13 @@
 #import "NSMenuItem+Extensions.h"
 #import "NSNotificationCenter+Extensions.h"
 #import "NSTableView+Extensions.h"
-#import "PRTask.h"
 #import "PRBridge_Front.h"
 #import "PRConnection.h"
 #import "PRCore.h"
 #import "PRDb.h"
 #import "PRDefaults.h"
 #import "PRGradientView.h"
+#import "PRItem.h"
 #import "PRLibrary.h"
 #import "PRLibraryViewController.h"
 #import "PRList.h"
@@ -23,6 +23,7 @@
 #import "PRPlayerState.h"
 #import "PRPlaylists.h"
 #import "PRQueue.h"
+#import "PRTask.h"
 #import "PRUpNextCell.h"
 #import "PRUpNextHeaderCell.h"
 
@@ -30,7 +31,6 @@
 @end
 
 @implementation PRUpNextViewController {
-    __weak PRCore *_core;
     PRBridge *_bridge;
     
     PROutlineView *_outlineView;
@@ -54,10 +54,9 @@
 
 #pragma mark - Initialization
 
-- (id)initWithCore:(PRCore *)core {
+- (id)initWithBridge:(PRBridge *)bridge {
     if ((self = [super init])) {
-        _core = core;
-        _bridge = [_core bridge];
+        _bridge = bridge;
     }
     return self;
 }
@@ -227,37 +226,35 @@
 }
 
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(NSIndexPath *)item {
-    PRLibrary *library = [[_core conn] library];
     NSInteger index = [_playerList indexForIndexPath:item];
-    PRItemID *it = [_playerList itemIDAtIndex:index];
+    PRItemID *itemID = [_playerList itemIDAtIndex:index];
+    __block PRItem *it = nil;
+    [_bridge performTaskSync:^(PRCore *core){
+        [[[core conn] library] zItemDescriptionForItem:itemID out:&it];
+    }];
     
     if ([item length] == 1) {
-        NSString *album = nil;
-        NSString *artist = nil;
-        NSNumber *compilation = nil;
-        [library zValueForItem:it attr:PRItemAttrAlbum out:&album];
-        [library zValueForItem:it attr:PRItemAttrArtist out:&artist];
-        [library zValueForItem:it attr:PRItemAttrCompilation out:&compilation];
+        NSString *album = [it album];
+        NSString *artist = [it artist];
         if (!artist || [artist isEqualToString:@""]) {
             artist = @"Unknown Artist";
         }
         if (!album || [album isEqualToString:@""]) {
             album = @"Unknown Album";
         }
-        if ([compilation boolValue] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]) {
+        if ([it compilation] && [[PRDefaults sharedDefaults] boolForKey:PRDefaultsUseCompilation]) {
             artist = @"Compilation";
         }
        NSNumber *drawBorder = @([item indexAtPosition:0] + 1 == [[_playerList albumCounts] count] || [_outlineView isItemExpanded:item]);
         return @{@"title":artist, @"subtitle":album, @"item":item, @"drawBorder":drawBorder, @"target":self};
     } else {
-        NSString *title = nil;
-        [library zValueForItem:it attr:PRItemAttrTitle out:&title];
+        NSString *title = [it title];
         NSImage *icon;
         NSImage *invertedIcon;
         if ([_player currentIndex] == index) {
             icon = [NSImage imageNamed:@"PRSpeakerIcon"];
             invertedIcon = [NSImage imageNamed:@"PRLightSpeakerIcon"];
-        } else if ([[_player invalidItems] containsObject:it]) {
+        } else if ([[_player invalidItems] containsObject:itemID]) {
             icon = [NSImage imageNamed:@"Exclamation Point"];
             invertedIcon = [NSImage imageNamed:@"Exclamation Point"];
         } else {

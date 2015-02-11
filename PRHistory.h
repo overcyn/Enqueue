@@ -17,13 +17,6 @@
 - (BOOL)zRecentlyAdded:(NSArray **)out;
 - (BOOL)zRecentlyPlayed:(NSArray **)out;
 
-- (void)addItem:(PRItemID *)item withDate:(NSDate *)date;
-- (void)clear;
-- (NSArray *)topArtists;
-- (NSArray *)topSongs;
-- (NSArray *)recentlyAdded;
-- (NSArray *)recentlyPlayed;
-
 // Update
 - (BOOL)confirmFileDelete_error:(NSError **)error;
 @end

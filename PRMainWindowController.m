@@ -58,8 +58,8 @@
         _libraryVC = [[PRLibraryViewController alloc] initWithBridge:_bridge];
         _preferencesVC = [[PRPreferencesViewController alloc] initWithCore:_core];
         _playlistsVC = [[PRPlaylistsViewController alloc] initWithBridge:_bridge];
-        _historyVC = [[PRHistoryViewController alloc] initWithDb:[_core db] mainWindowController:self];
-        _upNextVC = [[PRUpNextViewController alloc] initWithCore:_core];    
+        _historyVC = [[PRHistoryViewController alloc] init];
+        _upNextVC = [[PRUpNextViewController alloc] initWithBridge:_bridge];
         _controlsVC = [[PRControlsViewController alloc] initWithBridge:_bridge];
         // [nowPlayingSuperview addSubview:[_controlsVC albumArtView]];
         

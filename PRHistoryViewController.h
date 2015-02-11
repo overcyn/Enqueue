@@ -1,43 +1,4 @@
 #import <Cocoa/Cocoa.h>
-@class PRDb, PRHistory, PRLibrary, PRMainWindowController, PRGradientView, PRTableView,PRHistoryDateFormatter;
 
-
-typedef enum {
-    PRTopSongsHistoryMode,
-    PRTopArtistsHistoryMode,
-    PRRecentlyAddedHistoryMode,
-    PRRecentlyPlayedHistoryMode,
-} PRWindowModeHistory2;
-
-
-@interface PRHistoryViewController : NSViewController <NSTableViewDelegate, NSTableViewDataSource> {
-    IBOutlet NSView *background;
-    IBOutlet PRGradientView *divider2;
-    IBOutlet PRTableView *tableView;
-    
-    IBOutlet NSButton *topSongsButton;
-    IBOutlet NSButton *topArtistsButton;
-    IBOutlet NSButton *recentlyAddedButton;
-    IBOutlet NSButton *recentlyPlayedButton;
-    
-    IBOutlet NSImageView *_placeholder;
-    
-    PRWindowModeHistory2 historyMode;
-    
-    NSArray *dataSource;
-    PRHistoryDateFormatter *_dateFormatter;
-    
-    __weak PRDb *_db;
-    __weak PRMainWindowController *_win;
-}
-/* Initialization */
-- (id)initWithDb:(PRDb *)db mainWindowController:(PRMainWindowController *)win;
-
-/* Accessors */
-@property (readwrite) PRWindowModeHistory2 historyMode;
-
-/* Action */
-- (void)historyModeButtonAction:(id)sender;
-- (void)update;
-- (void)tableViewAction:(id)sender;
+@interface PRHistoryViewController : NSViewController
 @end

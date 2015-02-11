@@ -1,6 +1,5 @@
 #import "PRSynchronizedScrollView.h"
 
-
 @implementation PRSynchronizedScrollView {
      NSScrollView *_synchronizedScrollView;
 }
