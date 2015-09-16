@@ -35,15 +35,10 @@
     
     PROutlineView *_outlineView;
     NSScrollView *_scrollview;
-    
     NSView *_headerView;
     NSButton *_clearButton;
     NSPopUpButton *_menuButton;
-    
     NSMenu *_contextMenu;
-        
-    NSPoint _dropPoint;
-    
     NSCell *_cachedNowPlayingCell;
     NSCell *_cachedNowPlayingHeaderCell;
     
@@ -96,6 +91,9 @@
     [_outlineView addTableColumn:column];
     [_outlineView setOutlineTableColumn:column];
     [_scrollview setDocumentView:_outlineView];
+    
+    _cachedNowPlayingCell = [[PRUpNextCell alloc] initTextCell:@""];
+    _cachedNowPlayingHeaderCell = [[PRUpNextHeaderCell alloc] initTextCell:@""];
     
     // context menu
     _contextMenu = [[NSMenu alloc] init];
@@ -158,17 +156,13 @@
 }
 
 - (NSCell *)outlineView:(NSOutlineView *)outlineView dataCellForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
-    if (!_cachedNowPlayingCell || !_cachedNowPlayingHeaderCell) {
-        _cachedNowPlayingCell = [[PRUpNextCell alloc] initTextCell:@""];
-        _cachedNowPlayingHeaderCell = [[PRUpNextHeaderCell alloc] initTextCell:@""];
-    }
     return ([item length] == 1) ? _cachedNowPlayingHeaderCell : _cachedNowPlayingCell;
 }
 
 #pragma mark - NSOutlineViewDataSource
 
 - (BOOL)outlineView:(NSOutlineView *)view writeItems:(NSArray *)items toPasteboard:(NSPasteboard *)pboard {
-    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:@[[_player currentList],[self _selectedIndexes]]];
+    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:@[[_player currentList], [self _selectedIndexes]]];
     [pboard declareTypes:@[PRIndexesPboardType] owner:self];
     [pboard setData:data forType:PRIndexesPboardType];
     return YES;
@@ -186,14 +180,14 @@
 }
 
 - (BOOL)outlineView:(NSOutlineView *)view acceptDrop:(id<NSDraggingInfo>)info item:(NSIndexPath *)indexPath childIndex:(NSInteger)childIndex {
-    NSInteger dropIndex;
+    NSInteger dropIndex = 0;
     if (!indexPath) {
-        dropIndex = [_playerList indexForIndexPath:indexPath];
+        dropIndex = childIndex;
     } else if ([indexPath length] == 1) {
         dropIndex = [_playerList indexForIndexPath:indexPath] + childIndex;
-    } else {
-        dropIndex = 0;
     }
+    NSLog(@"KD:%s, indexPAth:%@ index:%d %d", __FUNCTION__, indexPath, childIndex, [_playerList indexForIndexPath:indexPath]);
+    NSLog(@"KD:%s, dropIndex:%d", __FUNCTION__, dropIndex);
     
     NSPasteboard *pboard = [info draggingPasteboard];
     NSData *filesData = [pboard dataForType:PRFilePboardType];
@@ -297,17 +291,20 @@
 
 #pragma mark - NSDraggingSource
 
-- (void)draggedImage:(NSImage *)anImage endedAt:(NSPoint)aPoint operation:(NSDragOperation)operation {
+- (void)draggedImage:(NSImage *)image endedAt:(NSPoint)point operation:(NSDragOperation)operation {
     [[NSCursor arrowCursor] set];
-    if (operation == 0 && !NSMouseInRect([_outlineView convertPointFromBase:[[_outlineView window] convertScreenToBase:_dropPoint]], [_outlineView bounds], YES)) {
-        NSShowAnimationEffect(NSAnimationEffectDisappearingItemDefault, _dropPoint, NSZeroSize, nil, nil, nil);
+    point = [NSEvent mouseLocation];
+    BOOL mouseInView = NSMouseInRect([_outlineView convertPointFromBase:[[_outlineView window] convertScreenToBase:point]], [_outlineView bounds], YES);
+    if (operation == NSDragOperationNone && !mouseInView) {
+        NSShowAnimationEffect(NSAnimationEffectDisappearingItemDefault, point, NSZeroSize, nil, nil, nil);
         [self _removeSelectedAction:nil];
     }
 }
 
-- (void)draggedImage:(NSImage *)anImage movedTo:(NSPoint)point {
-    _dropPoint = [NSEvent mouseLocation];
-    if (!NSMouseInRect([_outlineView convertPointFromBase:[[_outlineView window] convertScreenToBase:_dropPoint]], [_outlineView bounds], YES)) {
+- (void)draggedImage:(NSImage *)image movedTo:(NSPoint)point {
+    point = [NSEvent mouseLocation];
+    BOOL mouseInView = NSMouseInRect([_outlineView convertPointFromBase:[[_outlineView window] convertScreenToBase:point]], [_outlineView bounds], YES);
+    if (!mouseInView) {
         [[NSCursor disappearingItemCursor] set];
     } else {
         [[NSCursor arrowCursor] set];
@@ -419,10 +416,37 @@
 
 - (void)_itemsDidChange:(NSNotification *)notification {
     [self _reloadData:nil];
+        // Compare
 }
 
 - (void)_playlistItemsDidChange:(NSNotification *)notification {
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    for (NSInteger i = 0; i < [_playerList count]; i++) {
+        NSIndexPath *path = [_playerList indexPathForIndex:i];
+        NSIndexPath *parent = [path indexPathByRemovingLastIndex];
+        NSInteger row = [_outlineView rowForItem:path];
+        PRListItemID *listItemId = [_playerList listItemIDAtIndex:i];
+        
+        BOOL expanded = [_outlineView isItemExpanded:parent];
+        BOOL selected = [_outlineView isRowSelected:row];
+        [dict setObject:@[@(expanded), @(selected)] forKey:listItemId];
+    }
+    
     [self _reloadData:nil];
+    
+    for (NSInteger i = 0; i < [[_playerList albumCounts] count]; i++) {
+        NSIndexPath *albumPath = [NSIndexPath indexPathForAlbum:i];
+        NSIndexPath *songPath = [NSIndexPath indexPathForAlbum:i song:0];
+        NSInteger songIndex = [_playerList indexForIndexPath:songPath];
+        PRListItemID *songListItemId = [_playerList listItemIDAtIndex:songIndex];
+        
+        NSArray *properties = dict[songListItemId];
+        if ([properties[0] boolValue]) {
+            [_outlineView expandItem:albumPath];
+        } else {
+            [_outlineView collapseItem:albumPath];
+        }
+    }
 }
 
 - (void)_playlistDidChange:(NSNotification *)notification {

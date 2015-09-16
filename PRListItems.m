@@ -30,7 +30,7 @@
     return _items[index][0];
 }
 
-- (PRItemID *)listItemIDAtIndex:(NSInteger)index {
+- (PRListItemID *)listItemIDAtIndex:(NSInteger)index {
     return _items[index][1];
 }
 

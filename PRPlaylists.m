@@ -185,6 +185,10 @@ NSString * const PR_IDX_PLAYLIST_ITEMS_SQL = @"CREATE INDEX index_playlistItems 
                 
                 for (int i = 0; i < [playlistItems count]; i++) {
                     stm = @"UPDATE playlist_items SET playlist_index = ?1 WHERE playlist_item_id = ?2";
+                    [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:@{@1:@(i + 10000), @2:playlistItems[i][0]} columns:nil out:nil];
+                }
+                for (int i = 0; i < [playlistItems count]; i++) {
+                    stm = @"UPDATE playlist_items SET playlist_index = ?1 WHERE playlist_item_id = ?2";
                     [(PRDb*)(_db?:(id)_conn) zExecute:stm bindings:@{@1:@(i + 1), @2:playlistItems[i][0]} columns:nil out:nil];
                 }
                 return YES;
